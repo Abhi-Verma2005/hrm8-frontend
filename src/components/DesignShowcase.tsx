@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import logoDark from "@/assets/logo-dark.png";
 
+import { Link } from "react-router-dom";
+
 export function DesignShowcase() {
   return (
     <div className="min-h-screen bg-gradient-soft">
@@ -30,12 +32,14 @@ export function DesignShowcase() {
       <header className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <img src={logoDark} alt="HRM8" className="h-8" />
+            <Link to="/">
+              <img src={logoDark} alt="HRM8" className="h-8" />
+            </Link>
             <nav className="hidden md:flex items-center gap-6">
-              <a href="#components" className="text-sm font-medium hover:text-primary transition-colors">Components</a>
-              <a href="#layouts" className="text-sm font-medium hover:text-primary transition-colors">Layouts</a>
               <a href="#colors" className="text-sm font-medium hover:text-primary transition-colors">Colors</a>
               <a href="#typography" className="text-sm font-medium hover:text-primary transition-colors">Typography</a>
+              <Link to="/components" className="text-sm font-medium hover:text-primary transition-colors">Components</Link>
+              <Link to="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">Dashboard</Link>
             </nav>
           </div>
           <div className="flex items-center gap-3">
@@ -64,7 +68,9 @@ export function DesignShowcase() {
               <Download className="h-5 w-5" />
               Download Kit
             </Button>
-            <Button variant="outline" size="lg">View Components</Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link to="/components">View Components</Link>
+            </Button>
           </div>
         </div>
       </section>
