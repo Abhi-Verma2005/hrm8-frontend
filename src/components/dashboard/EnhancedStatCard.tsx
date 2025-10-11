@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface EnhancedStatCardProps {
   title: string;
@@ -10,6 +11,9 @@ interface EnhancedStatCardProps {
   trend: "up" | "down";
   icon: React.ReactNode;
   variant?: "primary" | "success" | "warning" | "neutral";
+  showAction?: boolean;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 export function EnhancedStatCard({
@@ -19,6 +23,9 @@ export function EnhancedStatCard({
   trend,
   icon,
   variant = "neutral",
+  showAction = false,
+  actionLabel = "View",
+  onAction,
 }: EnhancedStatCardProps) {
   const variantStyles = {
     primary: "border-l-4 border-l-primary bg-gradient-to-br from-primary/5 to-transparent",
@@ -37,7 +44,7 @@ export function EnhancedStatCard({
   return (
     <Card
       className={cn(
-        "p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer",
+        "p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer group relative",
         variantStyles[variant]
       )}
     >
@@ -63,6 +70,20 @@ export function EnhancedStatCard({
       </div>
       <p className="text-sm text-muted-foreground mb-2 font-medium">{title}</p>
       <h3 className="text-3xl font-bold tracking-tight">{value}</h3>
+
+      {showAction && onAction && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={(e) => {
+            e.stopPropagation();
+            onAction();
+          }}
+        >
+          {actionLabel}
+        </Button>
+      )}
     </Card>
   );
 }

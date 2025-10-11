@@ -1,6 +1,14 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Pie, PieChart, Cell, Legend } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Filter, Download, MoreVertical, RefreshCw } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const data = [
   { department: "Engineering", value: 47, fill: "hsl(var(--primary))" },
@@ -19,9 +27,36 @@ const chartConfig = {
 export function JobDistributionChart() {
   return (
     <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle>Job Distribution</CardTitle>
-        <CardDescription>Active jobs by department</CardDescription>
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+        <div className="space-y-1">
+          <CardTitle>Job Distribution</CardTitle>
+          <CardDescription>Active jobs by department</CardDescription>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon-sm">
+            <Filter className="h-4 w-4" />
+          </Button>
+          
+          <Button variant="ghost" size="icon-sm">
+            <Download className="h-4 w-4" />
+          </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon-sm">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh data
+              </DropdownMenuItem>
+              <DropdownMenuItem>View details</DropdownMenuItem>
+              <DropdownMenuItem>Share report</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[300px] w-full">

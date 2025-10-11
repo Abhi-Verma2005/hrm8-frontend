@@ -3,7 +3,15 @@ import { CSS } from "@dnd-kit/utilities";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Mail, Calendar } from "lucide-react";
+import { Mail, Calendar, Eye, MoreVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { CandidateCard } from "./KanbanBoard";
 
 interface KanbanCardProps {
@@ -38,7 +46,7 @@ export function KanbanCard({ card }: KanbanCardProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className="p-4 cursor-grab active:cursor-grabbing hover:shadow-lg transition-shadow bg-card"
+      className="p-4 cursor-grab active:cursor-grabbing hover:shadow-lg transition-shadow bg-card group relative"
     >
       <div className="flex items-start gap-3 mb-3">
         <Avatar className="h-10 w-10">
@@ -83,6 +91,56 @@ export function KanbanCard({ card }: KanbanCardProps) {
           </Badge>
         ))}
       </div>
+
+      {/* Hover Actions Overlay */}
+      <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2 pointer-events-none">
+        <Button
+          variant="secondary"
+          size="icon-sm"
+          className="pointer-events-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Mail className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="secondary"
+          size="icon-sm"
+          className="pointer-events-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Calendar className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="secondary"
+          size="icon-sm"
+          className="pointer-events-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <Eye className="h-4 w-4" />
+        </Button>
+      </div>
+
+      {/* Three-dot menu (always visible) */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <MoreVertical className="h-3 w-3" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>View full profile</DropdownMenuItem>
+          <DropdownMenuItem>Send email</DropdownMenuItem>
+          <DropdownMenuItem>Schedule interview</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem>Move to...</DropdownMenuItem>
+          <DropdownMenuItem className="text-destructive">Remove candidate</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </Card>
   );
 }

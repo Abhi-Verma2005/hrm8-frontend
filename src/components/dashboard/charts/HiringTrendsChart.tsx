@@ -1,6 +1,18 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Filter, Download, MoreVertical, RefreshCw } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { useState } from "react";
+import type { DateRange } from "react-day-picker";
 
 const data = [
   { month: "Apr", applications: 145, interviews: 52, hired: 12 },
@@ -27,11 +39,47 @@ const chartConfig = {
 };
 
 export function HiringTrendsChart() {
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
   return (
     <Card className="shadow-md">
-      <CardHeader>
-        <CardTitle>Hiring Trends</CardTitle>
-        <CardDescription>Application flow over the last 6 months</CardDescription>
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+        <div className="space-y-1">
+          <CardTitle>Hiring Trends</CardTitle>
+          <CardDescription>Application flow over the last 6 months</CardDescription>
+        </div>
+        <div className="flex items-center gap-1">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon-sm">
+                <Filter className="h-4 w-4" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar mode="range" selected={dateRange} onSelect={setDateRange} />
+            </PopoverContent>
+          </Popover>
+          
+          <Button variant="ghost" size="icon-sm">
+            <Download className="h-4 w-4" />
+          </Button>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon-sm">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh data
+              </DropdownMenuItem>
+              <DropdownMenuItem>View details</DropdownMenuItem>
+              <DropdownMenuItem>Share report</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[300px] w-full">

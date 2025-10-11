@@ -15,6 +15,10 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Plus, Filter } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export interface CandidateCard {
   id: string;
@@ -122,6 +126,8 @@ const initialColumns: Column[] = [
 export function KanbanBoard() {
   const [columns, setColumns] = useState<Column[]>(initialColumns);
   const [activeCard, setActiveCard] = useState<CandidateCard | null>(null);
+  const [scoreRange, setScoreRange] = useState<number[]>([0, 100]);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -202,6 +208,9 @@ export function KanbanBoard() {
   };
 
   const totalCandidates = columns.reduce((acc, col) => acc + col.cards.length, 0);
+  
+  const availableTags = ["React", "TypeScript", "Vue.js", "Node.js", "Next.js", "Angular", "RxJS", "GraphQL", "AWS"];
+  const activeFiltersCount = (scoreRange[0] !== 0 || scoreRange[1] !== 100 ? 1 : 0) + selectedTags.length;
 
   return (
     <div className="min-h-screen bg-gradient-soft p-6">
@@ -216,10 +225,76 @@ export function KanbanBoard() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm">
-                <Filter />
-                Filter
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Filter />
+                    Filter
+                    {activeFiltersCount > 0 && (
+                      <Badge className="ml-2 bg-primary text-primary-foreground">{activeFiltersCount}</Badge>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80" align="end">
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-medium mb-3 text-sm">Score Range</h4>
+                      <Slider
+                        value={scoreRange}
+                        onValueChange={setScoreRange}
+                        max={100}
+                        step={1}
+                        className="mb-2"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{scoreRange[0]}</span>
+                        <span>{scoreRange[1]}</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="font-medium mb-3 text-sm">Skills</h4>
+                      <div className="space-y-2 max-h-40 overflow-y-auto">
+                        {availableTags.map((tag) => (
+                          <div key={tag} className="flex items-center">
+                            <Checkbox
+                              id={tag}
+                              checked={selectedTags.includes(tag)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setSelectedTags([...selectedTags, tag]);
+                                } else {
+                                  setSelectedTags(selectedTags.filter((t) => t !== tag));
+                                }
+                              }}
+                            />
+                            <Label htmlFor={tag} className="ml-2 text-sm cursor-pointer">
+                              {tag}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 pt-2 border-t">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => {
+                          setScoreRange([0, 100]);
+                          setSelectedTags([]);
+                        }}
+                      >
+                        Clear
+                      </Button>
+                      <Button size="sm" className="flex-1">
+                        Apply
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
               <Button variant="gradient" size="sm">
                 <Plus />
                 Add Candidate
