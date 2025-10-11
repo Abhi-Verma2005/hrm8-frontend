@@ -5,7 +5,6 @@ import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Setti
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { SidebarQuickActions } from "./SidebarQuickActions";
 import { UserProfileDropdown } from "./UserProfileDropdown";
 const mainNavItems = [{
   title: "Dashboard",
@@ -158,9 +157,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-
-      <SidebarQuickActions />
-
+      
       <SidebarFooter className="border-t border-sidebar-border p-4 bg-gradient-to-t from-sidebar-accent/30 to-transparent">
         <UserProfileDropdown />
       </SidebarFooter>
