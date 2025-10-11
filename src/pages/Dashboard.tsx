@@ -58,14 +58,14 @@ export default function Dashboard() {
           value="24"
           change="+12%"
           trend="up"
-          icon={Briefcase as any}
+          icon={<Briefcase className="h-6 w-6" />}
         />
         <EnhancedStatCard
           title="Total Candidates"
           value="1,234"
           change="+8%"
           trend="up"
-          icon={Users as any}
+          icon={<Users className="h-6 w-6" />}
           variant="success"
         />
         <EnhancedStatCard
@@ -73,7 +73,7 @@ export default function Dashboard() {
           value="567"
           change="+23%"
           trend="up"
-          icon={FileText as any}
+          icon={<FileText className="h-6 w-6" />}
           variant="primary"
         />
         <EnhancedStatCard
@@ -81,7 +81,7 @@ export default function Dashboard() {
           value="18"
           change="+5%"
           trend="up"
-          icon={UserCheck as any}
+          icon={<UserCheck className="h-6 w-6" />}
           variant="warning"
         />
       </div>
