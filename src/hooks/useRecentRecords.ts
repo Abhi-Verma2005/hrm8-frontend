@@ -5,7 +5,7 @@ const MAX_RECENT = 5;
 
 export interface RecentRecord {
   id: string;
-  type: 'candidate' | 'job' | 'customer';
+  type: 'candidate' | 'job' | 'employer';
   name: string;
   url: string;
   timestamp: number;

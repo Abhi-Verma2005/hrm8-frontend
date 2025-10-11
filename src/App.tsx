@@ -15,7 +15,7 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
-import Customers from "./pages/Customers";
+import Employers from "./pages/Employers";
 import Consultants from "./pages/Consultants";
 import HRMS from "./pages/HRMS";
 import Inbox from "./pages/Inbox";
@@ -43,7 +43,7 @@ function AppContent() {
             <Route path="/dashboard/:type" element={<Dashboard />} />
             <Route path="/candidates" element={<Candidates />} />
             <Route path="/jobs" element={<Jobs />} />
-            <Route path="/customers" element={<Customers />} />
+            <Route path="/employers" element={<Employers />} />
             <Route path="/consultants" element={<Consultants />} />
             <Route path="/hrms" element={<HRMS />} />
             <Route path="/applications" element={<Applications />} />

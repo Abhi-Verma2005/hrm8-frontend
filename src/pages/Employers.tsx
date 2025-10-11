@@ -2,13 +2,13 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Building } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 
-export default function Customers() {
+export default function Employers() {
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Customers</h1>
-          <p className="text-muted-foreground">Manage your customer relationships and accounts</p>
+          <h1 className="text-3xl font-bold">Employers</h1>
+          <p className="text-muted-foreground">Manage your employer relationships and accounts</p>
         </div>
         <Card>
           <CardHeader>
@@ -18,13 +18,13 @@ export default function Customers() {
               </div>
               <div>
                 <CardTitle>Coming Soon</CardTitle>
-                <CardDescription>Customer management features are under development</CardDescription>
+                <CardDescription>Employer management features are under development</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              This page will provide customer CRM, account management, and relationship tracking features.
+              This page will provide employer CRM, account management, and relationship tracking features.
             </p>
           </CardContent>
         </Card>

@@ -15,7 +15,7 @@ const coreNavItems = [
   { title: "Dashboard", url: "/dashboard/overview", icon: LayoutDashboard },
   { title: "Jobs", url: "/jobs", icon: Briefcase },
   { title: "Candidates", url: "/candidates", icon: Users },
-  { title: "Customers", url: "/customers", icon: Building },
+  { title: "Employers", url: "/employers", icon: Building },
   { title: "Consultants", url: "/consultants", icon: UserCog },
 ];
 
@@ -259,7 +259,7 @@ export function AppSidebar() {
                   const typeLabel = 
                     record.type === 'candidate' ? 'Candidate' :
                     record.type === 'job' ? 'Job' :
-                    'Customer';
+                    'Employer';
 
                   return (
                     <SidebarMenuItem key={`recent-${record.id}`}>
