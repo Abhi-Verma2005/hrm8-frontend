@@ -62,7 +62,7 @@ export function EnhancedStatCard({
         variantStyles[variant]
       )}
     >
-      <div className="flex items-start justify-between mb-4">
+      <div className="flex items-center gap-3 mb-4">
         <div className={cn("p-3 rounded-xl shadow-md", iconBgStyles[variant])}>
           {icon}
         </div>
