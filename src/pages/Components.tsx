@@ -802,11 +802,12 @@ const employerColumns: Column<Employer>[] = [
     sortable: true,
     render: (employer) => (
       <div className="flex items-center gap-3">
-        <EntityAvatar
-          src={employer.logo}
-          name={employer.name}
-          type="logo"
-        />
+              <EntityAvatar
+                src={employer.logo}
+                name={employer.name}
+                type="logo"
+                size="sm"
+              />
         <div>
           <p className="font-medium">{employer.name}</p>
           <p className="text-sm text-muted-foreground">{employer.email}</p>
@@ -972,11 +973,12 @@ const candidateColumns: Column<Candidate>[] = [
     sortable: true,
     render: (candidate) => (
       <div className="flex items-center gap-3">
-        <EntityAvatar
-          src={candidate.photo}
-          name={candidate.name}
-          type="person"
-        />
+              <EntityAvatar
+                src={candidate.photo}
+                name={candidate.name}
+                type="person"
+                size="sm"
+              />
         <div>
           <p className="font-medium">{candidate.name}</p>
           <p className="text-sm text-muted-foreground">{candidate.email}</p>
@@ -1058,11 +1060,12 @@ const consultantColumns: Column<Consultant>[] = [
     sortable: true,
     render: (consultant) => (
       <div className="flex items-center gap-3">
-        <EntityAvatar
-          src={consultant.photo}
-          name={consultant.name}
-          type="person"
-        />
+              <EntityAvatar
+                src={consultant.photo}
+                name={consultant.name}
+                type="person"
+                size="sm"
+              />
         <div>
           <p className="font-medium">{consultant.name}</p>
           <p className="text-sm text-muted-foreground">{consultant.email}</p>

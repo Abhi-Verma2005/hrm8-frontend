@@ -1,5 +1,4 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Building2, User } from "lucide-react";
 
 interface EntityAvatarProps {
   src?: string;
@@ -37,18 +36,35 @@ export function EntityAvatar({ src, name, type = 'person', size = 'md' }: Entity
     return colors[index];
   };
 
+  // Determine shape based on type AND whether image exists
+  const getShapeClass = () => {
+    if (type === 'logo' && src) {
+      // Company logo with image: square with subtle rounding
+      return 'rounded-md';
+    }
+    // All other cases: circular (logo fallback, person with/without photo)
+    return 'rounded-full';
+  };
+
+  // Determine background color class
+  const getBackgroundClass = () => {
+    if (src && type === 'logo') {
+      // Logo with image: transparent background
+      return 'bg-transparent';
+    }
+    // Fallback: colored background
+    return getBackgroundColor(name);
+  };
+
   return (
-    <Avatar className={`${sizeClasses[size]} ${type === 'logo' ? 'rounded-lg' : 'rounded-full'}`}>
-      <AvatarImage src={src} alt={name} />
-      <AvatarFallback className={`${getBackgroundColor(name)} text-white`}>
-        {type === 'logo' ? (
-          <Building2 className="h-4 w-4" />
-        ) : src ? (
-          getInitials(name)
-        ) : (
-          <User className="h-4 w-4" />
-        )}
-        {!src && getInitials(name)}
+    <Avatar className={`${sizeClasses[size]} ${getShapeClass()}`}>
+      <AvatarImage 
+        src={src} 
+        alt={name}
+        className={type === 'logo' && src ? 'object-contain p-1' : 'object-cover'}
+      />
+      <AvatarFallback className={`${getBackgroundClass()} text-white`}>
+        {getInitials(name)}
       </AvatarFallback>
     </Avatar>
   );
