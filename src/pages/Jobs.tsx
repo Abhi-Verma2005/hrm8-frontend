@@ -23,6 +23,16 @@ export default function Jobs() {
         <div>
           <h1 className="text-3xl font-bold">Jobs</h1>
           <p className="text-muted-foreground">Create and manage job postings</p>
+          {/* TODO: Add DateRangeFilter here when implementing job list */}
+          {/* Example:
+            <div className="mt-4">
+              <DateRangeFilter
+                value={dateRange}
+                onChange={setDateRange}
+                placeholder="Filter by posting date"
+              />
+            </div>
+          */}
         </div>
         <Card>
           <CardHeader>

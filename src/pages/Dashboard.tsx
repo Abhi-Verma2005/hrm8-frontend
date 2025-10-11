@@ -9,8 +9,7 @@ import { WIDGET_REGISTRY } from '@/lib/dashboard/widgetRegistry';
 import type { WidgetType } from '@/lib/dashboard/widgetRegistry';
 import type { DashboardWidget } from '@/lib/dashboard/types';
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar as CalendarPicker } from "@/components/ui/calendar";
+import { DateRangeFilter } from "@/components/ui/date-range-filter";
 import {
   Select,
   SelectContent,
@@ -19,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { DateRange } from "react-day-picker";
-import { Calendar, Download } from "lucide-react";
+import { Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
@@ -134,17 +133,13 @@ export default function Dashboard() {
           
           {!isEditMode && (
             <div className="flex items-center gap-3">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    Last 30 days
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <CalendarPicker mode="range" selected={dateRange} onSelect={setDateRange} />
-                </PopoverContent>
-              </Popover>
+              <DateRangeFilter
+                value={dateRange}
+                onChange={setDateRange}
+                placeholder="Select period"
+                className="w-[240px]"
+                align="end"
+              />
               
               <Select defaultValue="all">
                 <SelectTrigger className="w-[180px]">

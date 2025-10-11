@@ -9,6 +9,16 @@ export default function Applications() {
         <div>
           <h1 className="text-3xl font-bold">Applications</h1>
           <p className="text-muted-foreground">Review and process applications</p>
+          {/* TODO: Add DateRangeFilter here when implementing application list */}
+          {/* Example:
+            <div className="mt-4">
+              <DateRangeFilter
+                value={dateRange}
+                onChange={setDateRange}
+                placeholder="Filter by submission date"
+              />
+            </div>
+          */}
         </div>
         <Card>
           <CardHeader>

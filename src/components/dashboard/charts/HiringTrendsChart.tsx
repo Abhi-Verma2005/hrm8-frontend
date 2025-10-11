@@ -2,15 +2,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
-import { Filter, Download, MoreVertical, RefreshCw } from "lucide-react";
+import { DateRangeFilterCompact } from "@/components/ui/date-range-filter-compact";
+import { Download, MoreVertical, RefreshCw } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 
@@ -48,17 +47,13 @@ export function HiringTrendsChart() {
           <CardTitle>Hiring Trends</CardTitle>
           <CardDescription>Application flow over the last 6 months</CardDescription>
         </div>
-        <div className="flex items-center gap-1">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon-sm">
-                <Filter className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar mode="range" selected={dateRange} onSelect={setDateRange} />
-            </PopoverContent>
-          </Popover>
+          <div className="flex items-center gap-1">
+            <DateRangeFilterCompact
+              value={dateRange}
+              onChange={setDateRange}
+              iconOnly={true}
+              align="end"
+            />
           
           <Button variant="ghost" size="icon-sm">
             <Download className="h-4 w-4" />

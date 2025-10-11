@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Filter, Eye, Mail } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { DateRangeFilterCompact } from "@/components/ui/date-range-filter-compact";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -10,6 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useState } from "react";
+import type { DateRange } from "react-day-picker";
 
 const recentActivities = [
   {
@@ -47,6 +50,8 @@ const recentActivities = [
 ];
 
 export function RecentActivityCard() {
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
   return (
     <Card className="shadow-md h-full">
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -54,22 +59,29 @@ export function RecentActivityCard() {
           <Clock className="h-5 w-5" />
           Recent Activity
         </CardTitle>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <Filter className="h-4 w-4 mr-2" />
-              All Activities
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Filter by type</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuCheckboxItem checked>All</DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem>Applications</DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem>Interviews</DropdownMenuCheckboxItem>
-            <DropdownMenuCheckboxItem>Hires</DropdownMenuCheckboxItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-1">
+          <DateRangeFilterCompact
+            value={dateRange}
+            onChange={setDateRange}
+            iconOnly={true}
+          />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                All Activities
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Filter by type</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuCheckboxItem checked>All</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Applications</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Interviews</DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem>Hires</DropdownMenuCheckboxItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
