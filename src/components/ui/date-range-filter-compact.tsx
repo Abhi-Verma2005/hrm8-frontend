@@ -1,6 +1,6 @@
 import * as React from "react";
-import { X, Filter } from "lucide-react";
-import { format, startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths } from "date-fns";
+import { X, Calendar as CalendarIcon } from "lucide-react";
+import { format, startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, setYear, setMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -44,8 +44,54 @@ const DEFAULT_COMPACT_PRESETS: PresetRange[] = [
     label: "This month",
     value: "this-month",
     range: { from: startOfMonth(new Date()), to: endOfMonth(new Date()) }
+  },
+  {
+    label: "This year",
+    value: "this-year",
+    range: { from: startOfYear(new Date()), to: endOfYear(new Date()) }
   }
 ];
+
+// Generate year presets (last 6 years)
+const generateYearPresets = (): PresetRange[] => {
+  const currentYear = new Date().getFullYear();
+  const years: PresetRange[] = [];
+  
+  for (let i = 0; i < 6; i++) {
+    const year = currentYear - i;
+    const yearDate = setYear(new Date(), year);
+    years.push({
+      label: year.toString(),
+      value: `year-${year}`,
+      range: { 
+        from: startOfYear(yearDate), 
+        to: endOfYear(yearDate) 
+      }
+    });
+  }
+  
+  return years;
+};
+
+// Generate month presets for current year
+const generateMonthPresets = (): PresetRange[] => {
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+  
+  return months.map((month, index) => {
+    const monthDate = setMonth(new Date(), index);
+    return {
+      label: month,
+      value: `month-${index}`,
+      range: {
+        from: startOfMonth(monthDate),
+        to: endOfMonth(monthDate)
+      }
+    };
+  });
+};
 
 export type DateRangeFilterCompactProps = {
   value?: DateRange;
@@ -65,6 +111,10 @@ export function DateRangeFilterCompact({
   align = "end"
 }: DateRangeFilterCompactProps) {
   const [open, setOpen] = React.useState(false);
+  const [activeTab, setActiveTab] = React.useState<"quick" | "year" | "month">("quick");
+  
+  const yearPresets = React.useMemo(() => generateYearPresets(), []);
+  const monthPresets = React.useMemo(() => generateMonthPresets(), []);
 
   const handlePresetSelect = (preset: PresetRange) => {
     if (onChange) {
@@ -98,7 +148,7 @@ export function DateRangeFilterCompact({
           size={iconOnly ? "icon-sm" : "sm"}
           className={cn(value?.from && "text-primary")}
         >
-          {showIcon && <Filter className="h-4 w-4" />}
+          {showIcon && <CalendarIcon className="h-4 w-4" />}
           {!iconOnly && formatDisplayText() && (
             <span className="ml-1">{formatDisplayText()}</span>
           )}
@@ -106,39 +156,103 @@ export function DateRangeFilterCompact({
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align={align}>
         <div className="flex flex-col sm:flex-row">
-          {/* Preset Buttons */}
-          <div className="border-b sm:border-b-0 sm:border-r p-3 space-y-1 min-w-[140px]">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-              Quick Select
+          {/* Preset Buttons with Tabs */}
+          <div className="border-b sm:border-b-0 sm:border-r p-2 space-y-1 min-w-[120px]">
+            {/* Tab Navigation */}
+            <div className="flex gap-1 mb-2">
+              <Button
+                variant={activeTab === "quick" ? "secondary" : "ghost"}
+                size="sm"
+                className="flex-1 text-xs px-2"
+                onClick={() => setActiveTab("quick")}
+              >
+                Quick
+              </Button>
+              <Button
+                variant={activeTab === "year" ? "secondary" : "ghost"}
+                size="sm"
+                className="flex-1 text-xs px-2"
+                onClick={() => setActiveTab("year")}
+              >
+                Year
+              </Button>
+              <Button
+                variant={activeTab === "month" ? "secondary" : "ghost"}
+                size="sm"
+                className="flex-1 text-xs px-2"
+                onClick={() => setActiveTab("month")}
+              >
+                Month
+              </Button>
             </div>
-            <div className="space-y-1">
-              {presets.map((preset) => (
-                <Button
-                  key={preset.value}
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-sm"
-                  onClick={() => handlePresetSelect(preset)}
-                >
-                  {preset.label}
-                </Button>
-              ))}
-              {value?.from && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full justify-start text-sm text-destructive"
-                  onClick={handleClear}
-                >
-                  <X className="h-3 w-3 mr-2" />
-                  Clear filter
-                </Button>
-              )}
-            </div>
+
+            {/* Quick Presets Tab */}
+            {activeTab === "quick" && (
+              <div className="space-y-1">
+                {presets.map((preset) => (
+                  <Button
+                    key={preset.value}
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start text-sm"
+                    onClick={() => handlePresetSelect(preset)}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {/* Year Tab */}
+            {activeTab === "year" && (
+              <div className="grid grid-cols-2 gap-1">
+                {yearPresets.map((preset) => (
+                  <Button
+                    key={preset.value}
+                    variant="ghost"
+                    size="sm"
+                    className="text-sm"
+                    onClick={() => handlePresetSelect(preset)}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {/* Month Tab */}
+            {activeTab === "month" && (
+              <div className="grid grid-cols-3 gap-1">
+                {monthPresets.map((preset) => (
+                  <Button
+                    key={preset.value}
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs px-1"
+                    onClick={() => handlePresetSelect(preset)}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {/* Clear Button */}
+            {value?.from && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start text-sm text-destructive mt-2"
+                onClick={handleClear}
+              >
+                <X className="h-3 w-3 mr-2" />
+                Clear filter
+              </Button>
+            )}
           </div>
 
           {/* Calendar */}
-          <div className="p-3">
+          <div className="p-2">
             <Calendar
               mode="range"
               selected={value}

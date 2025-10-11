@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Calendar as CalendarIcon, X } from "lucide-react";
-import { addDays, format, startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subYears } from "date-fns";
+import { addDays, format, startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subYears, setYear, setMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -89,6 +89,47 @@ export const DEFAULT_PRESETS: PresetRange[] = [
   }
 ];
 
+// Generate year presets (last 6 years)
+const generateYearPresets = (): PresetRange[] => {
+  const currentYear = new Date().getFullYear();
+  const years: PresetRange[] = [];
+  
+  for (let i = 0; i < 6; i++) {
+    const year = currentYear - i;
+    const yearDate = setYear(new Date(), year);
+    years.push({
+      label: year.toString(),
+      value: `year-${year}`,
+      range: { 
+        from: startOfYear(yearDate), 
+        to: endOfYear(yearDate) 
+      }
+    });
+  }
+  
+  return years;
+};
+
+// Generate month presets for current year
+const generateMonthPresets = (): PresetRange[] => {
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  ];
+  
+  return months.map((month, index) => {
+    const monthDate = setMonth(new Date(), index);
+    return {
+      label: month,
+      value: `month-${index}`,
+      range: {
+        from: startOfMonth(monthDate),
+        to: endOfMonth(monthDate)
+      }
+    };
+  });
+};
+
 export function DateRangeFilter({
   value,
   onChange,
@@ -101,6 +142,9 @@ export function DateRangeFilter({
 }: DateRangeFilterProps) {
   const [open, setOpen] = React.useState(false);
   const [selectedPreset, setSelectedPreset] = React.useState<string | null>(null);
+  
+  const yearPresets = React.useMemo(() => generateYearPresets(), []);
+  const monthPresets = React.useMemo(() => generateMonthPresets(), []);
 
   const handlePresetSelect = (preset: PresetRange) => {
     setSelectedPreset(preset.value);
@@ -160,26 +204,74 @@ export function DateRangeFilter({
       <PopoverContent className="w-auto p-0" align={align}>
         <div className="flex">
           {/* Preset Buttons */}
-          <div className="border-r p-3 space-y-1 min-w-[140px]">
-            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">
-              Quick Select
+          <div className="border-r p-2 space-y-2 min-w-[120px] max-h-[480px] overflow-y-auto">
+            {/* Quick Select Section */}
+            <div>
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                Quick Select
+              </div>
+              <div className="space-y-1">
+                {presets.map((preset) => (
+                  <Button
+                    key={preset.value}
+                    variant={selectedPreset === preset.value ? "secondary" : "ghost"}
+                    size="sm"
+                    className="w-full justify-start text-sm"
+                    onClick={() => handlePresetSelect(preset)}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
             </div>
-            <div className="space-y-1">
-              {presets.map((preset) => (
-                <Button
-                  key={preset.value}
-                  variant={selectedPreset === preset.value ? "secondary" : "ghost"}
-                  size="sm"
-                  className="w-full justify-start text-sm"
-                  onClick={() => handlePresetSelect(preset)}
-                >
-                  {preset.label}
-                </Button>
-              ))}
+
+            <Separator />
+
+            {/* Year Selection */}
+            <div>
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                Year
+              </div>
+              <div className="grid grid-cols-2 gap-1">
+                {yearPresets.map((preset) => (
+                  <Button
+                    key={preset.value}
+                    variant={selectedPreset === preset.value ? "secondary" : "ghost"}
+                    size="sm"
+                    className="text-sm"
+                    onClick={() => handlePresetSelect(preset)}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
             </div>
+
+            <Separator />
+
+            {/* Month Selection */}
+            <div>
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-2">
+                Month
+              </div>
+              <div className="grid grid-cols-3 gap-1">
+                {monthPresets.map((preset) => (
+                  <Button
+                    key={preset.value}
+                    variant={selectedPreset === preset.value ? "secondary" : "ghost"}
+                    size="sm"
+                    className="text-xs px-1"
+                    onClick={() => handlePresetSelect(preset)}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
             {showCompare && (
               <>
-                <Separator className="my-2" />
+                <Separator />
                 <Button
                   variant="ghost"
                   size="sm"
@@ -192,7 +284,7 @@ export function DateRangeFilter({
           </div>
 
           {/* Calendar */}
-          <div className="p-3">
+          <div className="p-2">
             <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
               Custom Range
             </div>
