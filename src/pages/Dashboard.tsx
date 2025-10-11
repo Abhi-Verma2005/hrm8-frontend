@@ -137,7 +137,6 @@ export default function Dashboard() {
                 value={dateRange}
                 onChange={setDateRange}
                 placeholder="Select period"
-                className="w-[280px]"
                 align="end"
               />
               

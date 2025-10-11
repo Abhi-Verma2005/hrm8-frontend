@@ -444,7 +444,8 @@ export function DateRangePicker({
     // Check if it's a full year range
     const isFullYear = value.from && value.to &&
       value.from.getMonth() === 0 && value.from.getDate() === 1 &&
-      value.to.getMonth() === 11 && value.to.getDate() === 31;
+      value.to.getMonth() === 11 && value.to.getDate() === 31 &&
+      value.from.getFullYear() === value.to.getFullYear();
     
     if (isFullYear) {
       return format(value.from, "yyyy");
@@ -456,7 +457,18 @@ export function DateRangePicker({
       return matchedPreset.label;
     }
     
+    // Custom range - show dates
     if (value.to) {
+      // If same month, show condensed format
+      if (value.from.getMonth() === value.to.getMonth() && 
+          value.from.getFullYear() === value.to.getFullYear()) {
+        return `${format(value.from, "MMM d")} - ${format(value.to, "d, yyyy")}`;
+      }
+      // If same year, omit year from first date
+      if (value.from.getFullYear() === value.to.getFullYear()) {
+        return `${format(value.from, "MMM d")} - ${format(value.to, "MMM d, yyyy")}`;
+      }
+      // Different years, show full dates
       return `${format(value.from, "MMM d, yyyy")} - ${format(value.to, "MMM d, yyyy")}`;
     }
     return format(value.from, "MMM d, yyyy");
@@ -488,18 +500,23 @@ export function DateRangePicker({
         <Button
           variant="outline"
           className={cn(
-            "justify-start text-left font-normal",
+            "justify-start text-left font-normal min-w-[240px] transition-all",
             !value && "text-muted-foreground",
+            value && "font-medium border-primary/40 hover:border-primary/60",
             className
           )}
         >
-          <CalendarIcon className="mr-2 h-4 w-4" />
-          {formatDisplayText()}
+          <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+          <span className="flex-1 truncate">{formatDisplayText()}</span>
           {value?.from && (
-            <X
-              className="ml-auto h-4 w-4 opacity-50 hover:opacity-100"
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="ml-2 h-6 w-6 p-0 hover:bg-muted-foreground/20"
               onClick={handleClear}
-            />
+            >
+              <X className="h-3 w-3" />
+            </Button>
           )}
         </Button>
       </PopoverTrigger>
