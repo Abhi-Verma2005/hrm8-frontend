@@ -69,23 +69,40 @@ export function DesignShowcase() {
       {/* Typography */}
       <section id="typography" className="py-16 px-6">
         <div className="container mx-auto max-w-6xl">
-          <h2 className="mb-8">Typography Scale</h2>
+          <h2 className="mb-8">Typography Hierarchy</h2>
           <div className="space-y-6 bg-card rounded-xl p-8 border">
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Heading 1</p>
-              <h1>The quick brown fox jumps</h1>
+              <Badge variant="outline" className="mb-2">Display Text</Badge>
+              <div className="text-display">HRM8</div>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Heading 2</p>
-              <h2>The quick brown fox jumps</h2>
+              <Badge variant="outline" className="mb-2">Hero Heading</Badge>
+              <h1 className="text-hero">Transform Your Recruitment</h1>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Heading 3</p>
-              <h3>The quick brown fox jumps</h3>
+              <Badge variant="outline" className="mb-2">Section Title</Badge>
+              <h2 className="text-section-title">Powerful Analytics</h2>
             </div>
             <div>
-              <p className="text-sm text-muted-foreground mb-2">Body Text</p>
-              <p>The quick brown fox jumps over the lazy dog. This is a sample paragraph demonstrating the body text style used throughout the design system.</p>
+              <Badge variant="outline" className="mb-2">Subsection Title</Badge>
+              <h3 className="text-subsection">Real-time Insights</h3>
+            </div>
+            <div>
+              <Badge variant="outline" className="mb-2">Body Large</Badge>
+              <p className="text-body-large">
+                Streamline your hiring process with intelligent automation.
+              </p>
+            </div>
+            <div>
+              <Badge variant="outline" className="mb-2">Body Text</Badge>
+              <p className="text-body">
+                The quick brown fox jumps over the lazy dog. This demonstrates optimal readability for paragraph text across all devices.
+              </p>
+            </div>
+            <div>
+              <Badge variant="outline" className="mb-2">Caption & Helper Text</Badge>
+              <p className="text-caption mb-2">Posted 2 hours ago</p>
+              <p className="text-helper">Additional context and helper information</p>
             </div>
           </div>
         </div>

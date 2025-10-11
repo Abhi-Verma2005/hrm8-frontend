@@ -159,6 +159,136 @@ All colors MUST be HSL.
   h6 {
     @apply text-base md:text-lg;
   }
+
+  /* ============================================
+     HRM8 TYPOGRAPHY UTILITIES
+     ============================================ */
+
+  /* Display Text - Extra large hero text */
+  .text-display {
+    @apply text-6xl md:text-7xl lg:text-8xl font-bold leading-none tracking-tighter;
+  }
+
+  /* Hero Text - Landing page headlines */
+  .text-hero {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight;
+  }
+
+  /* Section Title - Major section headings */
+  .text-section-title {
+    @apply text-3xl md:text-4xl font-bold leading-tight tracking-tight;
+  }
+
+  /* Subsection Title - Secondary headings */
+  .text-subsection {
+    @apply text-2xl md:text-3xl font-semibold leading-snug tracking-tight;
+  }
+
+  /* Card Title - Component headings */
+  .text-card-title {
+    @apply text-xl md:text-2xl font-semibold leading-snug;
+  }
+
+  /* Body Large - Emphasis paragraphs, intro text */
+  .text-body-large {
+    @apply text-lg md:text-xl leading-relaxed;
+  }
+
+  /* Body - Default paragraph text */
+  .text-body {
+    @apply text-base leading-relaxed;
+  }
+
+  /* Body Small - Compact body text */
+  .text-body-small {
+    @apply text-sm leading-normal;
+  }
+
+  /* Caption - Labels, metadata, timestamps */
+  .text-caption {
+    @apply text-sm leading-tight text-muted-foreground;
+  }
+
+  /* Helper Text - Form hints, descriptions */
+  .text-helper {
+    @apply text-xs leading-snug text-muted-foreground;
+  }
+
+  /* Fine Print - Legal text, disclaimers */
+  .text-fine {
+    @apply text-xs leading-tight text-muted-foreground;
+  }
+
+  /* Overline - Small uppercase labels */
+  .text-overline {
+    @apply text-xs font-semibold uppercase tracking-wider;
+  }
+
+  /* ============================================
+     FONT WEIGHT UTILITIES (Semantic Names)
+     ============================================ */
+
+  .font-light {
+    font-weight: 300;
+  }
+
+  .font-regular {
+    font-weight: 400;
+  }
+
+  .font-medium {
+    font-weight: 500;
+  }
+
+  .font-semibold {
+    font-weight: 600;
+  }
+
+  .font-bold {
+    font-weight: 700;
+  }
+
+  .font-extrabold {
+    font-weight: 800;
+  }
+
+  /* ============================================
+     LETTER SPACING UTILITIES
+     ============================================ */
+
+  .tracking-tighter {
+    letter-spacing: -0.05em;
+  }
+
+  .tracking-tight {
+    letter-spacing: -0.025em;
+  }
+
+  .tracking-normal {
+    letter-spacing: 0em;
+  }
+
+  .tracking-wide {
+    letter-spacing: 0.025em;
+  }
+
+  .tracking-wider {
+    letter-spacing: 0.05em;
+  }
+
+  .tracking-widest {
+    letter-spacing: 0.1em;
+  }
+
+  /* ============================================
+     TEXT RENDERING OPTIMIZATION
+     ============================================ */
+
+  .text-crisp {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
 }
 
 @layer utilities {

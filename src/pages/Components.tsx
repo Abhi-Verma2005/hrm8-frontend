@@ -344,6 +344,254 @@ export default function Components() {
             </Card>
           </section>
 
+          {/* Typography System Section */}
+          <section id="typography-system" className="mb-16">
+            <h2 className="mb-8">Typography System</h2>
+            
+            <div className="space-y-8">
+              {/* Typography Scale */}
+              <Card className="p-6">
+                <div className="mb-6">
+                  <h3 className="mb-2">Typography Scale</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Complete type scale with responsive sizing and semantic class names
+                  </p>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="border-b pb-4">
+                    <Badge variant="outline" className="mb-2">Display Text</Badge>
+                    <div className="text-display">Game-Changing Recruitment</div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-display → 6xl/7xl/8xl, bold, tighter
+                    </code>
+                  </div>
+
+                  <div className="border-b pb-4">
+                    <Badge variant="outline" className="mb-2">Hero Text</Badge>
+                    <div className="text-hero">Transform Your Hiring Process</div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-hero → 4xl/5xl/6xl, bold, tight
+                    </code>
+                  </div>
+
+                  <div className="border-b pb-4">
+                    <Badge variant="outline" className="mb-2">Section Title</Badge>
+                    <div className="text-section-title">Powerful Features</div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-section-title → 3xl/4xl, bold, tight
+                    </code>
+                  </div>
+
+                  <div className="border-b pb-4">
+                    <Badge variant="outline" className="mb-2">Subsection Title</Badge>
+                    <div className="text-subsection">AI-Powered Automation</div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-subsection → 2xl/3xl, semibold, tight
+                    </code>
+                  </div>
+
+                  <div className="border-b pb-4">
+                    <Badge variant="outline" className="mb-2">Card Title</Badge>
+                    <div className="text-card-title">Candidate Management</div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-card-title → xl/2xl, semibold
+                    </code>
+                  </div>
+
+                  <div className="border-b pb-4">
+                    <Badge variant="outline" className="mb-2">Body Large</Badge>
+                    <div className="text-body-large">
+                      Streamline your entire recruitment workflow with intelligent automation and data-driven insights.
+                    </div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-body-large → lg/xl, relaxed
+                    </code>
+                  </div>
+
+                  <div className="border-b pb-4">
+                    <Badge variant="outline" className="mb-2">Body Text</Badge>
+                    <div className="text-body">
+                      This is the default body text used throughout the application. It provides optimal readability for longer content sections and maintains consistency across all components.
+                    </div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-body → base, relaxed
+                    </code>
+                  </div>
+
+                  <div className="border-b pb-4">
+                    <Badge variant="outline" className="mb-2">Body Small</Badge>
+                    <div className="text-body-small">
+                      Compact text for dense information displays and secondary content areas.
+                    </div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-body-small → sm, normal
+                    </code>
+                  </div>
+
+                  <div className="border-b pb-4">
+                    <Badge variant="outline" className="mb-2">Caption</Badge>
+                    <div className="text-caption">Posted 2 hours ago • Engineering Department</div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-caption → sm, tight, muted
+                    </code>
+                  </div>
+
+                  <div className="border-b pb-4">
+                    <Badge variant="outline" className="mb-2">Helper Text</Badge>
+                    <div className="text-helper">Enter your work email address to receive notifications</div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-helper → xs, snug, muted
+                    </code>
+                  </div>
+
+                  <div className="border-b pb-4">
+                    <Badge variant="outline" className="mb-2">Fine Print</Badge>
+                    <div className="text-fine">
+                      By continuing, you agree to our Terms of Service and Privacy Policy
+                    </div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-fine → xs, tight, muted
+                    </code>
+                  </div>
+
+                  <div className="pb-4">
+                    <Badge variant="outline" className="mb-2">Overline</Badge>
+                    <div className="text-overline text-primary">New Feature</div>
+                    <code className="text-xs text-muted-foreground mt-1 block">
+                      .text-overline → xs, semibold, uppercase, wider
+                    </code>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Font Weights */}
+              <Card className="p-6">
+                <div className="mb-6">
+                  <h3 className="mb-2">Font Weights</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Inter font family with 6 weight variations
+                  </p>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex items-center gap-4">
+                    <code className="w-32 text-sm text-muted-foreground">.font-light</code>
+                    <div className="font-light text-xl">Light 300 - Subtle emphasis</div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <code className="w-32 text-sm text-muted-foreground">.font-regular</code>
+                    <div className="font-regular text-xl">Regular 400 - Body text</div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <code className="w-32 text-sm text-muted-foreground">.font-medium</code>
+                    <div className="font-medium text-xl">Medium 500 - Emphasis</div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <code className="w-32 text-sm text-muted-foreground">.font-semibold</code>
+                    <div className="font-semibold text-xl">Semi-Bold 600 - Headings</div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <code className="w-32 text-sm text-muted-foreground">.font-bold</code>
+                    <div className="font-bold text-xl">Bold 700 - Strong emphasis</div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <code className="w-32 text-sm text-muted-foreground">.font-extrabold</code>
+                    <div className="font-extrabold text-xl">Extra-Bold 800 - Maximum impact</div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Letter Spacing */}
+              <Card className="p-6">
+                <div className="mb-6">
+                  <h3 className="mb-2">Letter Spacing</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Fine-tune text spacing for different use cases
+                  </p>
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <code className="text-sm text-muted-foreground mb-1 block">.tracking-tighter</code>
+                    <div className="tracking-tighter text-2xl font-bold">Tight Headlines</div>
+                  </div>
+                  <div>
+                    <code className="text-sm text-muted-foreground mb-1 block">.tracking-tight</code>
+                    <div className="tracking-tight text-2xl font-bold">Hero Headings</div>
+                  </div>
+                  <div>
+                    <code className="text-sm text-muted-foreground mb-1 block">.tracking-normal</code>
+                    <div className="tracking-normal text-lg">Normal Body Text</div>
+                  </div>
+                  <div>
+                    <code className="text-sm text-muted-foreground mb-1 block">.tracking-wide</code>
+                    <div className="tracking-wide text-sm font-medium">BUTTON TEXT</div>
+                  </div>
+                  <div>
+                    <code className="text-sm text-muted-foreground mb-1 block">.tracking-wider</code>
+                    <div className="tracking-wider text-xs font-semibold uppercase">Section Label</div>
+                  </div>
+                  <div>
+                    <code className="text-sm text-muted-foreground mb-1 block">.tracking-widest</code>
+                    <div className="tracking-widest text-xs font-bold uppercase">Badge Text</div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Usage Examples */}
+              <Card className="p-6">
+                <div className="mb-6">
+                  <h3 className="mb-2">Real-World Usage Examples</h3>
+                  <p className="text-muted-foreground text-sm">
+                    See how typography classes work together in actual components
+                  </p>
+                </div>
+                
+                <div className="space-y-6">
+                  {/* Example 1: Hero Section */}
+                  <div className="border rounded-lg p-6 bg-gradient-primary text-white">
+                    <Badge className="mb-3 bg-white/20 text-white border-0">
+                      <span className="text-overline">New Release</span>
+                    </Badge>
+                    <h2 className="text-hero mb-4">Revolutionize Your Hiring</h2>
+                    <p className="text-body-large opacity-90 mb-6">
+                      AI-powered recruitment platform trusted by 10,000+ companies worldwide
+                    </p>
+                    <Button variant="secondary" size="lg">Get Started Free</Button>
+                  </div>
+
+                  {/* Example 2: Feature Card */}
+                  <div className="border rounded-lg p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Users className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-card-title mb-2">Candidate Pipeline</h3>
+                        <p className="text-body mb-3">
+                          Manage candidates through every stage of your hiring process with visual kanban boards and automated workflows.
+                        </p>
+                        <p className="text-caption">Updated 5 minutes ago</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Example 3: Form Label & Helper */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Company Email <span className="text-destructive">*</span>
+                    </label>
+                    <Input type="email" placeholder="you@company.com" />
+                    <p className="text-helper">
+                      We'll send verification code to this email address
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </section>
+
         </div>
       </div>
     </AppLayout>
