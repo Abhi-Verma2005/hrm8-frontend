@@ -58,7 +58,7 @@ export function EnhancedStatCard({
   return (
     <Card
       className={cn(
-        "p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer group relative",
+        "p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer group relative h-full flex flex-col justify-between",
         variantStyles[variant]
       )}
     >

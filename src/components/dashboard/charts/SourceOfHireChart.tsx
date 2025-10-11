@@ -26,8 +26,8 @@ const chartConfig = {
 
 export function SourceOfHireChart() {
   return (
-    <Card className="shadow-md">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+    <Card className="shadow-md h-full flex flex-col">
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4 flex-shrink-0">
         <div className="space-y-1">
           <CardTitle>Source of Applications</CardTitle>
           <CardDescription>Where candidates are finding you</CardDescription>
@@ -58,8 +58,8 @@ export function SourceOfHireChart() {
           </DropdownMenu>
         </div>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+      <CardContent className="flex-1 pb-4 min-h-0">
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <BarChart data={data} layout="vertical" margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="sourceBarGradient" x1="0" y1="0" x2="1" y2="0">

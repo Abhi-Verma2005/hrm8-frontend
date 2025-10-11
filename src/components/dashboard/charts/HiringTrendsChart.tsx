@@ -42,8 +42,8 @@ export function HiringTrendsChart() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   return (
-    <Card className="shadow-md">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+    <Card className="shadow-md h-full flex flex-col">
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4 flex-shrink-0">
         <div className="space-y-1">
           <CardTitle>Hiring Trends</CardTitle>
           <CardDescription>Application flow over the last 6 months</CardDescription>
@@ -81,8 +81,8 @@ export function HiringTrendsChart() {
           </DropdownMenu>
         </div>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+      <CardContent className="flex-1 pb-4 min-h-0">
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="fillApplications" x1="0" y1="0" x2="0" y2="1">

@@ -26,8 +26,8 @@ const chartConfig = {
 
 export function JobDistributionChart() {
   return (
-    <Card className="shadow-md">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+    <Card className="shadow-md h-full flex flex-col">
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4 flex-shrink-0">
         <div className="space-y-1">
           <CardTitle>Job Distribution</CardTitle>
           <CardDescription>Active jobs by department</CardDescription>
@@ -58,8 +58,8 @@ export function JobDistributionChart() {
           </DropdownMenu>
         </div>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+      <CardContent className="flex-1 pb-4 min-h-0">
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <PieChart>
             <ChartTooltip
               content={<ChartTooltipContent />}

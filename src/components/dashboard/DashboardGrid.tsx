@@ -53,11 +53,23 @@ export function DashboardGrid({
         strategy={rectSortingStrategy}
       >
         <div
-          className="grid gap-6 auto-rows-[180px]"
+          className="grid gap-6 relative"
           style={{
-            gridTemplateColumns: 'repeat(12, 1fr)'
+            gridTemplateColumns: 'repeat(12, 1fr)',
+            gridAutoRows: 'minmax(200px, auto)',
+            gridAutoFlow: 'dense'
           }}
         >
+          {/* Grid overlay in edit mode */}
+          {isEditMode && (
+            <div className="absolute inset-0 pointer-events-none z-0">
+              <div className="grid grid-cols-12 h-full">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={i} className="border-r border-primary/10" />
+                ))}
+              </div>
+            </div>
+          )}
           {layout.widgets
             .filter(w => w.isVisible)
             .map(widget => (
@@ -66,6 +78,7 @@ export function DashboardGrid({
                 widget={widget}
                 isEditMode={isEditMode}
                 onRemove={() => onRemoveWidget(widget.id)}
+                onUpdate={(updates) => onUpdateWidget(widget.id, updates)}
               >
                 <WidgetRenderer widget={widget} />
               </DraggableWidget>
