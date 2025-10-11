@@ -15,7 +15,7 @@ export interface DashboardMetadata {
 export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
   jobs: {
     id: 'jobs',
-    name: 'Jobs & Recruitment',
+    name: 'Jobs',
     description: 'Track hiring pipeline and recruitment metrics',
     icon: Briefcase,
     defaultRoute: '/dashboard/jobs',

@@ -1,6 +1,7 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { WIDGET_REGISTRY } from '@/lib/dashboard/widgetRegistry';
 import type { WidgetType } from '@/lib/dashboard/widgetRegistry';
+import type { DashboardType } from '@/lib/dashboard/dashboardTypes';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -9,9 +10,10 @@ interface WidgetPaletteProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAddWidget: (widgetType: WidgetType) => void;
+  dashboardType: DashboardType;
 }
 
-export function WidgetPalette({ open, onOpenChange, onAddWidget }: WidgetPaletteProps) {
+export function WidgetPalette({ open, onOpenChange, onAddWidget, dashboardType }: WidgetPaletteProps) {
   const categories = {
     stat: 'Statistics',
     chart: 'Charts & Analytics',
@@ -31,7 +33,7 @@ export function WidgetPalette({ open, onOpenChange, onAddWidget }: WidgetPalette
         <div className="mt-6 space-y-6">
           {Object.entries(categories).map(([category, label]) => {
             const categoryWidgets = Object.values(WIDGET_REGISTRY).filter(
-              widget => widget.category === category
+              widget => widget.category === category && widget.allowedDashboards.includes(dashboardType)
             );
             
             if (categoryWidgets.length === 0) return null;
