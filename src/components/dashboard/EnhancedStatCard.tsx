@@ -1,8 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import { TrendingUp, TrendingDown, MoreVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface EnhancedStatCardProps {
   title: string;
@@ -14,6 +20,12 @@ interface EnhancedStatCardProps {
   showAction?: boolean;
   actionLabel?: string;
   onAction?: () => void;
+  showMenu?: boolean;
+  menuItems?: Array<{
+    label: string;
+    icon?: React.ReactNode;
+    onClick: () => void;
+  }>;
 }
 
 export function EnhancedStatCard({
@@ -26,6 +38,8 @@ export function EnhancedStatCard({
   showAction = false,
   actionLabel = "View",
   onAction,
+  showMenu = false,
+  menuItems = [],
 }: EnhancedStatCardProps) {
   const variantStyles = {
     primary: "border-l-4 border-l-primary bg-gradient-to-br from-primary/5 to-transparent",
@@ -83,6 +97,35 @@ export function EnhancedStatCard({
         >
           {actionLabel}
         </Button>
+      )}
+
+      {showMenu && menuItems.length > 0 && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="absolute top-4 right-4 opacity-60 hover:opacity-100 transition-opacity"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            {menuItems.map((item, index) => (
+              <DropdownMenuItem
+                key={index}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  item.onClick();
+                }}
+              >
+                {item.icon && <span className="mr-2">{item.icon}</span>}
+                {item.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
     </Card>
   );

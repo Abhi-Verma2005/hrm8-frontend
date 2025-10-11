@@ -4,7 +4,8 @@ import { ApplicationFunnelChart } from "@/components/dashboard/charts/Applicatio
 import { JobDistributionChart } from "@/components/dashboard/charts/JobDistributionChart";
 import { SourceOfHireChart } from "@/components/dashboard/charts/SourceOfHireChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, Briefcase, FileText, UserCheck, Clock, Calendar, Download, Filter, Eye, Mail, MoreVertical } from "lucide-react";
+import { Users, Briefcase, FileText, UserCheck, Clock, Calendar, Download, Filter, Eye, Mail, MoreVertical, Plus, XCircle, CheckCircle } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -64,6 +65,7 @@ const recentActivities = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   return (
@@ -116,6 +118,32 @@ export default function Dashboard() {
           change="+12%"
           trend="up"
           icon={<Briefcase className="h-6 w-6" />}
+          showAction={true}
+          actionLabel="View Jobs"
+          onAction={() => navigate('/jobs')}
+          showMenu={true}
+          menuItems={[
+            {
+              label: "View all jobs",
+              icon: <Eye className="h-4 w-4" />,
+              onClick: () => navigate('/jobs'),
+            },
+            {
+              label: "Create new job",
+              icon: <Plus className="h-4 w-4" />,
+              onClick: () => navigate('/jobs'),
+            },
+            {
+              label: "Filter by department",
+              icon: <Filter className="h-4 w-4" />,
+              onClick: () => console.log('Open filter'),
+            },
+            {
+              label: "Export to CSV",
+              icon: <Download className="h-4 w-4" />,
+              onClick: () => console.log('Export jobs'),
+            },
+          ]}
         />
         <EnhancedStatCard
           title="Total Candidates"
@@ -124,6 +152,32 @@ export default function Dashboard() {
           trend="up"
           icon={<Users className="h-6 w-6" />}
           variant="success"
+          showAction={true}
+          actionLabel="View All"
+          onAction={() => navigate('/candidates')}
+          showMenu={true}
+          menuItems={[
+            {
+              label: "Browse candidates",
+              icon: <Users className="h-4 w-4" />,
+              onClick: () => navigate('/candidates'),
+            },
+            {
+              label: "Add candidate",
+              icon: <Plus className="h-4 w-4" />,
+              onClick: () => navigate('/candidates'),
+            },
+            {
+              label: "Filter by skills",
+              icon: <Filter className="h-4 w-4" />,
+              onClick: () => console.log('Open filter'),
+            },
+            {
+              label: "Export list",
+              icon: <Download className="h-4 w-4" />,
+              onClick: () => console.log('Export candidates'),
+            },
+          ]}
         />
         <EnhancedStatCard
           title="Applications"
@@ -132,6 +186,32 @@ export default function Dashboard() {
           trend="up"
           icon={<FileText className="h-6 w-6" />}
           variant="primary"
+          showAction={true}
+          actionLabel="Review"
+          onAction={() => navigate('/applications')}
+          showMenu={true}
+          menuItems={[
+            {
+              label: "Review pending",
+              icon: <FileText className="h-4 w-4" />,
+              onClick: () => navigate('/applications'),
+            },
+            {
+              label: "View rejected",
+              icon: <XCircle className="h-4 w-4" />,
+              onClick: () => navigate('/applications'),
+            },
+            {
+              label: "Filter by date",
+              icon: <Calendar className="h-4 w-4" />,
+              onClick: () => console.log('Open date filter'),
+            },
+            {
+              label: "Export data",
+              icon: <Download className="h-4 w-4" />,
+              onClick: () => console.log('Export applications'),
+            },
+          ]}
         />
         <EnhancedStatCard
           title="Hired This Month"
@@ -140,6 +220,32 @@ export default function Dashboard() {
           trend="up"
           icon={<UserCheck className="h-6 w-6" />}
           variant="warning"
+          showAction={true}
+          actionLabel="View Hires"
+          onAction={() => navigate('/candidates')}
+          showMenu={true}
+          menuItems={[
+            {
+              label: "View hires",
+              icon: <UserCheck className="h-4 w-4" />,
+              onClick: () => navigate('/candidates'),
+            },
+            {
+              label: "Onboarding status",
+              icon: <CheckCircle className="h-4 w-4" />,
+              onClick: () => console.log('View onboarding'),
+            },
+            {
+              label: "Monthly report",
+              icon: <FileText className="h-4 w-4" />,
+              onClick: () => console.log('Generate report'),
+            },
+            {
+              label: "Export hires",
+              icon: <Download className="h-4 w-4" />,
+              onClick: () => console.log('Export hires'),
+            },
+          ]}
         />
       </div>
 
