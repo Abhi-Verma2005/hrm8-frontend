@@ -1,47 +1,36 @@
 import { AppLayout } from "@/components/AppLayout";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/dashboard/AppSidebar";
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { BarChart3 } from "lucide-react";
 
 export default function Analytics() {
   return (
     <AppLayout>
-      <SidebarProvider defaultOpen>
-        <div className="flex w-full min-h-screen">
-          <AppSidebar />
-          <SidebarInset className="flex-1">
-            <DashboardHeader />
-            <main className="flex-1 p-6">
-              <div className="max-w-4xl mx-auto">
-                <div className="mb-8">
-                  <h1 className="text-3xl font-bold mb-2">Analytics</h1>
-                  <p className="text-muted-foreground">Detailed recruitment analytics and insights</p>
+      <main className="flex-1 p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Analytics</h1>
+            <p className="text-muted-foreground">Detailed recruitment analytics and insights</p>
+          </div>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <BarChart3 className="h-6 w-6 text-primary" />
                 </div>
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <BarChart3 className="h-6 w-6 text-primary" />
-                      </div>
-                      <div>
-                        <CardTitle>Coming Soon</CardTitle>
-                        <CardDescription>Advanced analytics features are under development</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      This page will provide detailed analytics, reports, and insights into your recruitment process.
-                    </p>
-                  </CardContent>
-                </Card>
+                <div>
+                  <CardTitle>Coming Soon</CardTitle>
+                  <CardDescription>Advanced analytics features are under development</CardDescription>
+                </div>
               </div>
-            </main>
-          </SidebarInset>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                This page will provide detailed analytics, reports, and insights into your recruitment process.
+              </p>
+            </CardContent>
+          </Card>
         </div>
-      </SidebarProvider>
+      </main>
     </AppLayout>
   );
 }
