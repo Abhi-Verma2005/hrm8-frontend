@@ -1,8 +1,22 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Users } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { useRecentRecords } from "@/hooks/useRecentRecords";
 
 export default function Candidates() {
+  const { addRecentRecord } = useRecentRecords();
+
+  // TODO: Activate when implementing candidate detail page:
+  // useEffect(() => {
+  //   if (candidateId && candidateName) {
+  //     addRecentRecord({
+  //       id: candidateId,
+  //       type: 'candidate',
+  //       name: candidateName,
+  //       url: `/candidates/${candidateId}`
+  //     });
+  //   }
+  // }, [candidateId, candidateName, addRecentRecord]);
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">

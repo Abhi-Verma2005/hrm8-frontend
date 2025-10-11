@@ -1,8 +1,22 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Briefcase } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { useRecentRecords } from "@/hooks/useRecentRecords";
 
 export default function Jobs() {
+  const { addRecentRecord } = useRecentRecords();
+
+  // TODO: Activate when implementing job detail page:
+  // useEffect(() => {
+  //   if (jobId && jobTitle) {
+  //     addRecentRecord({
+  //       id: jobId,
+  //       type: 'job',
+  //       name: jobTitle,
+  //       url: `/jobs/${jobId}`
+  //     });
+  //   }
+  // }, [jobId, jobTitle, addRecentRecord]);
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
