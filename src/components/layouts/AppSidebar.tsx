@@ -49,64 +49,61 @@ export function AppSidebar() {
   const { records: recentRecords, clearRecentRecords } = useRecentRecords();
   const isActive = (path: string) => location.pathname === path;
   return <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-sidebar-border p-6 bg-gradient-to-b from-sidebar-accent/30 to-transparent">
-        <div className="flex items-center justify-center">
+      <SidebarHeader className="border-b border-sidebar-border p-4 bg-gradient-to-b from-sidebar-accent/30 to-transparent">
+        <div className={cn(
+          "flex items-center transition-all duration-200",
+          open ? "justify-start px-2" : "justify-center"
+        )}>
           {open ? (
-            <img src={logoDark} alt="HRM8" className="h-10" />
+            <img src={logoDark} alt="HRM8" className="h-8" />
           ) : (
-            <img src={iconMark} alt="HRM8" className="h-10 w-10" />
+            <img src={iconMark} alt="HRM8" className="h-8 w-8" />
           )}
         </div>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-            <div className="h-px flex-1 bg-border" />
-            <span>Main Menu</span>
-            <div className="h-px flex-1 bg-border" />
-          </SidebarGroupLabel>
+          {open && (
+            <SidebarGroupLabel className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Main Menu
+            </SidebarGroupLabel>
+          )}
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map(item => (
                 <SidebarMenuItem key={item.title}>
-                  <div className="relative flex items-center group">
-                    <Tooltip delayDuration={0}>
-                      <TooltipTrigger asChild>
-                        <SidebarMenuButton 
-                          asChild 
-                          isActive={isActive(item.url)}
-                          className={cn(
-                            "relative transition-all duration-300 flex-1",
-                            "hover:bg-sidebar-accent/50 rounded-lg",
-                            isActive(item.url) && [
-                              "bg-gradient-to-r from-primary/10 to-primary/5",
-                              "border-l-4 border-primary",
-                              "shadow-sm",
-                              "font-semibold"
-                            ]
-                          )}
-                        >
-                          <NavLink to={item.url} className="flex items-center gap-3">
-                            <div className={cn(
-                              "flex items-center justify-center w-9 h-9 rounded-lg transition-all",
-                              isActive(item.url) 
-                                ? "bg-primary/10 text-primary" 
-                                : "bg-transparent text-muted-foreground hover:bg-muted hover:scale-110"
-                            )}>
-                              <item.icon className="h-5 w-5" />
-                            </div>
-                            {open && <span>{item.title}</span>}
-                          </NavLink>
-                        </SidebarMenuButton>
-                      </TooltipTrigger>
-                      {!open && (
-                        <TooltipContent side="right">
-                          <span>{item.title}</span>
-                        </TooltipContent>
-                      )}
-                    </Tooltip>
-                  </div>
+                  <Tooltip delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive(item.url)}
+                        className={cn(
+                          "relative transition-all duration-200",
+                          "hover:bg-sidebar-accent/50",
+                          isActive(item.url) && [
+                            "bg-primary/10",
+                            "text-primary",
+                            "font-medium",
+                            open && "border-l-4 border-primary"
+                          ]
+                        )}
+                      >
+                        <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                          <item.icon className={cn(
+                            "h-5 w-5 transition-all",
+                            !open && "mx-auto"
+                          )} />
+                          {open && <span>{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </TooltipTrigger>
+                    {!open && (
+                      <TooltipContent side="right">
+                        <span>{item.title}</span>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
                 </SidebarMenuItem>
               ))}
           </SidebarMenu>
@@ -120,15 +117,19 @@ export function AppSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
               <Clock className="h-3 w-3" />
-              <span>Recent</span>
-              {open && (
-                <button
-                  onClick={clearRecentRecords}
-                  className="ml-auto text-[10px] hover:text-foreground transition-colors"
-                  title="Clear recent items"
-                >
-                  Clear
-                </button>
+              {open ? (
+                <>
+                  <span>Recent</span>
+                  <button
+                    onClick={clearRecentRecords}
+                    className="ml-auto text-[10px] hover:text-foreground transition-colors"
+                    title="Clear recent items"
+                  >
+                    Clear
+                  </button>
+                </>
+              ) : (
+                <span className="sr-only">Recent</span>
               )}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -151,12 +152,16 @@ export function AppSidebar() {
                           <SidebarMenuButton 
                             asChild 
                             isActive={location.pathname === record.url}
-                            className="relative group transition-all duration-200 hover:bg-sidebar-accent/40 rounded-lg"
+                            className={cn(
+                              "transition-all duration-200 hover:bg-sidebar-accent/40",
+                              location.pathname === record.url && "bg-primary/10 text-primary"
+                            )}
                           >
-                            <NavLink to={record.url} className="flex items-center gap-2">
-                              <div className="flex items-center justify-center w-8 h-8 rounded-md bg-muted/50 text-muted-foreground group-hover:bg-muted transition-all">
-                                <Icon className="h-4 w-4" />
-                              </div>
+                            <NavLink to={record.url} className="flex items-center gap-2 w-full">
+                              <Icon className={cn(
+                                "h-4 w-4",
+                                !open && "mx-auto"
+                              )} />
                               {open && (
                                 <div className="flex-1 min-w-0">
                                   <div className="text-sm font-medium truncate">
