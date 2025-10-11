@@ -803,16 +803,17 @@ const employerColumns: Column<Employer>[] = [
     sortable: true,
     render: (employer) => (
       <div className="flex items-center gap-3">
-              <EntityAvatar
-                src={employer.logo}
-                name={employer.name}
-                type="logo"
-                size="lg"
-              />
-        <div>
-          <p className="font-medium">{employer.name}</p>
-          <p className="text-sm text-muted-foreground">{employer.email}</p>
-        </div>
+        <EntityAvatar
+          src={employer.logo}
+          name={employer.name}
+          type="logo"
+          size="lg"
+        />
+        <Link to={`/employers/${employer.id}`} className="group">
+          <p className="font-medium group-hover:text-primary transition-colors">
+            {employer.name}
+          </p>
+        </Link>
       </div>
     )
   },
@@ -881,20 +882,24 @@ const jobColumns: Column<Job>[] = [
     key: 'title',
     label: 'Job Title',
     sortable: true,
-      render: (job) => (
-        <div className="flex items-center gap-3">
-          <EntityAvatar
-            src={job.employerLogo}
-            name={job.employer}
-            type="logo"
-            size="lg"
-          />
-          <div>
-            <p className="font-medium">{job.title}</p>
-            <p className="text-sm text-muted-foreground">{job.employer}</p>
-          </div>
+    render: (job) => (
+      <div className="flex items-center gap-3">
+        <EntityAvatar
+          src={job.employerLogo}
+          name={job.employer}
+          type="logo"
+          size="lg"
+        />
+        <div>
+          <Link to={`/jobs/${job.id}`} className="group">
+            <p className="font-medium group-hover:text-primary transition-colors">
+              {job.title}
+            </p>
+          </Link>
+          <p className="text-sm text-muted-foreground">{job.employer}</p>
         </div>
-      )
+      </div>
+    )
   },
   {
     key: 'location',
@@ -981,16 +986,17 @@ const candidateColumns: Column<Candidate>[] = [
     sortable: true,
     render: (candidate) => (
       <div className="flex items-center gap-3">
-              <EntityAvatar
-                src={candidate.photo}
-                name={candidate.name}
-                type="person"
-                size="lg"
-              />
-        <div>
-          <p className="font-medium">{candidate.name}</p>
-          <p className="text-sm text-muted-foreground">{candidate.email}</p>
-        </div>
+        <EntityAvatar
+          src={candidate.photo}
+          name={candidate.name}
+          type="person"
+          size="lg"
+        />
+        <Link to={`/candidates/${candidate.id}`} className="group">
+          <p className="font-medium group-hover:text-primary transition-colors">
+            {candidate.name}
+          </p>
+        </Link>
       </div>
     )
   },
@@ -1068,16 +1074,17 @@ const consultantColumns: Column<Consultant>[] = [
     sortable: true,
     render: (consultant) => (
       <div className="flex items-center gap-3">
-              <EntityAvatar
-                src={consultant.photo}
-                name={consultant.name}
-                type="person"
-                size="lg"
-              />
-        <div>
-          <p className="font-medium">{consultant.name}</p>
-          <p className="text-sm text-muted-foreground">{consultant.email}</p>
-        </div>
+        <EntityAvatar
+          src={consultant.photo}
+          name={consultant.name}
+          type="person"
+          size="lg"
+        />
+        <Link to={`/consultants/${consultant.id}`} className="group">
+          <p className="font-medium group-hover:text-primary transition-colors">
+            {consultant.name}
+          </p>
+        </Link>
       </div>
     )
   },
