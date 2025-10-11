@@ -61,13 +61,13 @@ export function AppSidebar() {
             <img
               src={logoDark}
               alt="Logo"
-              className="h-7 w-auto"
+              className="h-8 w-auto"
             />
           ) : (
             <img
               src={iconMark}
               alt="Logo"
-              className="h-7 w-auto"
+              className="h-8 w-auto"
             />
           )}
         </div>
