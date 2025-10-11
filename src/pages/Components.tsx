@@ -246,268 +246,124 @@ export default function Components() {
             </Tabs>
           </section>
 
-          {/* Stats Cards */}
-          <section id="cards" className="mb-16">
-            <h2 className="mb-8">Dashboard Cards</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <EnhancedStatCard
-                variant="neutral"
-                icon={<Users className="h-5 w-5" />}
-                title="Total Candidates"
-                value="2,543"
-                change="+12.5%"
-                trend="up"
-                showAction={true}
-                actionLabel="View All"
-                onAction={() => console.log('Navigate to candidates')}
-                showMenu={true}
-                menuItems={[
-                  {
-                    label: "View details",
-                    icon: <Eye className="h-4 w-4" />,
-                    onClick: () => console.log('View details'),
-                  },
-                  {
-                    label: "Filter",
-                    icon: <Filter className="h-4 w-4" />,
-                    onClick: () => console.log('Open filter'),
-                  },
-                ]}
-              />
-              <EnhancedStatCard
-                variant="primary"
-                icon={<FileText className="h-5 w-5" />}
-                title="Active Jobs"
-                value="47"
-                change="+8.2%"
-                trend="up"
-                showAction={true}
-                actionLabel="Manage"
-                onAction={() => console.log('Navigate to jobs')}
-                showMenu={true}
-                menuItems={[
-                  {
-                    label: "Create new",
-                    icon: <Plus className="h-4 w-4" />,
-                    onClick: () => console.log('Create job'),
-                  },
-                  {
-                    label: "Export",
-                    icon: <Download className="h-4 w-4" />,
-                    onClick: () => console.log('Export'),
-                  },
-                ]}
-              />
-              <EnhancedStatCard
-                variant="success"
-                icon={<TrendingUp className="h-5 w-5" />}
-                title="Applications"
-                value="1,234"
-                change="+23.1%"
-                trend="up"
-                showAction={true}
-                actionLabel="Review"
-                onAction={() => console.log('Navigate to applications')}
-                showMenu={true}
-                menuItems={[
-                  {
-                    label: "Filter by status",
-                    icon: <Filter className="h-4 w-4" />,
-                    onClick: () => console.log('Filter'),
-                  },
-                ]}
-              />
-              <EnhancedStatCard
-                variant="warning"
-                icon={<CheckCircle className="h-5 w-5" />}
-                title="Hired This Month"
-                value="12"
-                change="-2.4%"
-                trend="down"
-                showAction={true}
-                actionLabel="Details"
-                onAction={() => console.log('View hires')}
-                showMenu={true}
-                menuItems={[
-                  {
-                    label: "Monthly report",
-                    icon: <FileText className="h-4 w-4" />,
-                    onClick: () => console.log('Report'),
-                  },
-                ]}
-              />
+          {/* Dashboard Stat Cards */}
+          <section id="dashboard-cards" className="mb-16">
+            <h2 className="mb-8">Dashboard Stat Cards</h2>
+            
+            {/* Basic Stat Cards */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold mb-4">Stat Card Variants</h3>
+              <Card className="p-6">
+                <Badge className="mb-2 bg-primary-light text-primary border-0">
+                  All Variants
+                </Badge>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Stat cards with different color variants to visualize various metrics and KPIs
+                </p>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <EnhancedStatCard
+                    variant="primary"
+                    icon={<Briefcase className="h-5 w-5" />}
+                    title="Active Jobs"
+                    value="47"
+                    change="+8.2%"
+                    trend="up"
+                  />
+                  <EnhancedStatCard
+                    variant="success"
+                    icon={<Users className="h-5 w-5" />}
+                    title="Total Candidates"
+                    value="2,543"
+                    change="+12.5%"
+                    trend="up"
+                  />
+                  <EnhancedStatCard
+                    variant="warning"
+                    icon={<FileText className="h-5 w-5" />}
+                    title="Applications"
+                    value="1,234"
+                    change="+23.1%"
+                    trend="up"
+                  />
+                  <EnhancedStatCard
+                    variant="neutral"
+                    icon={<CheckCircle className="h-5 w-5" />}
+                    title="Hired This Month"
+                    value="12"
+                    change="-2.4%"
+                    trend="down"
+                  />
+                </div>
+              </Card>
             </div>
-          </section>
 
-          {/* Enhanced Dashboard Cards */}
-          <section id="enhanced-cards" className="mb-16">
-            <h2 className="mb-8">Enhanced Dashboard Cards</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <EnhancedStatCard
-                variant="primary"
-                icon={<Briefcase className="h-5 w-5" />}
-                title="Active Jobs"
-                value="47"
-                change="+8.2%"
-                trend="up"
-                showAction={true}
-                actionLabel="View Jobs"
-                onAction={() => console.log('View jobs')}
-                showMenu={true}
-                menuItems={[
-                  {
-                    label: "Create new job",
-                    icon: <Plus className="h-4 w-4" />,
-                    onClick: () => console.log('Create job'),
-                  },
-                  {
-                    label: "Export data",
-                    icon: <Download className="h-4 w-4" />,
-                    onClick: () => console.log('Export'),
-                  },
-                ]}
-              />
-              <EnhancedStatCard
-                variant="success"
-                icon={<Users className="h-5 w-5" />}
-                title="Total Candidates"
-                value="2,543"
-                change="+12.5%"
-                trend="up"
-                showAction={true}
-                actionLabel="Browse"
-                onAction={() => console.log('Browse candidates')}
-                showMenu={true}
-                menuItems={[
-                  {
-                    label: "Add candidate",
-                    icon: <Plus className="h-4 w-4" />,
-                    onClick: () => console.log('Add candidate'),
-                  },
-                  {
-                    label: "Filter by skills",
-                    icon: <Filter className="h-4 w-4" />,
-                    onClick: () => console.log('Filter'),
-                  },
-                ]}
-              />
-              <EnhancedStatCard
-                variant="warning"
-                icon={<FileText className="h-5 w-5" />}
-                title="Applications"
-                value="1,234"
-                change="+23.1%"
-                trend="up"
-                showAction={true}
-                actionLabel="Review"
-                onAction={() => console.log('Review applications')}
-                showMenu={true}
-                menuItems={[
-                  {
-                    label: "View pending",
-                    icon: <Eye className="h-4 w-4" />,
-                    onClick: () => console.log('View pending'),
-                  },
-                  {
-                    label: "Export list",
-                    icon: <Download className="h-4 w-4" />,
-                    onClick: () => console.log('Export'),
-                  },
-                ]}
-              />
-              <EnhancedStatCard
-                variant="neutral"
-                icon={<CheckCircle className="h-5 w-5" />}
-                title="Hired This Month"
-                value="12"
-                change="-2.4%"
-                trend="down"
-                showAction={true}
-                actionLabel="View Hires"
-                onAction={() => console.log('View hires')}
-                showMenu={true}
-                menuItems={[
-                  {
-                    label: "Onboarding status",
-                    icon: <UserCheck className="h-4 w-4" />,
-                    onClick: () => console.log('Onboarding'),
-                  },
-                  {
-                    label: "Monthly report",
-                    icon: <FileText className="h-4 w-4" />,
-                    onClick: () => console.log('Report'),
-                  },
-                ]}
-              />
+            {/* Interactive Features */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Interactive Features</h3>
+              <Card className="p-6">
+                <Badge className="mb-2 bg-primary-light text-primary border-0">
+                  Hover to Reveal Actions
+                </Badge>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Cards support action buttons and dropdown menus for enhanced interactivity. Hover over the cards below to see the action buttons appear.
+                </p>
+                <div className="grid md:grid-cols-2 gap-6">
+                  <EnhancedStatCard
+                    variant="success"
+                    icon={<TrendingUp className="h-5 w-5" />}
+                    title="Conversion Rate"
+                    value="68%"
+                    change="+5.2%"
+                    trend="up"
+                    showAction={true}
+                    actionLabel="Analyze"
+                    onAction={() => alert('Opening analysis view...')}
+                    showMenu={true}
+                    menuItems={[
+                      {
+                        label: "View funnel",
+                        icon: <BarChart3 className="h-4 w-4" />,
+                        onClick: () => alert('Opening funnel...'),
+                      },
+                      {
+                        label: "Compare periods",
+                        icon: <Calendar className="h-4 w-4" />,
+                        onClick: () => alert('Opening comparison...'),
+                      },
+                      {
+                        label: "Share insights",
+                        icon: <Share2 className="h-4 w-4" />,
+                        onClick: () => alert('Opening share dialog...'),
+                      },
+                    ]}
+                  />
+                  <EnhancedStatCard
+                    variant="warning"
+                    icon={<Clock className="h-5 w-5" />}
+                    title="Avg. Time to Hire"
+                    value="24 days"
+                    change="-3 days"
+                    trend="up"
+                    showAction={true}
+                    actionLabel="Optimize"
+                    onAction={() => alert('Opening optimization tips...')}
+                    showMenu={true}
+                    menuItems={[
+                      {
+                        label: "View bottlenecks",
+                        icon: <AlertCircle className="h-4 w-4" />,
+                        onClick: () => alert('Analyzing bottlenecks...'),
+                      },
+                      {
+                        label: "Set goals",
+                        icon: <Target className="h-4 w-4" />,
+                        onClick: () => alert('Opening goals...'),
+                      },
+                    ]}
+                  />
+                </div>
+              </Card>
             </div>
-          </section>
-
-          {/* Interactive Card Actions Demo */}
-          <section id="card-actions" className="mb-16">
-            <h2 className="mb-8">Interactive Card Actions</h2>
-            <Card className="p-6 mb-6">
-              <Badge className="mb-2 bg-primary-light text-primary border-0">
-                Demo Feature
-              </Badge>
-              <p className="text-sm text-muted-foreground mb-4">
-                Hover over cards to reveal action buttons and access dropdown menus for additional options
-              </p>
-              <div className="grid md:grid-cols-2 gap-6">
-                <EnhancedStatCard
-                  variant="success"
-                  icon={<TrendingUp className="h-5 w-5" />}
-                  title="Conversion Rate"
-                  value="68%"
-                  change="+5.2%"
-                  trend="up"
-                  showAction={true}
-                  actionLabel="Analyze"
-                  onAction={() => alert('Opening analysis view...')}
-                  showMenu={true}
-                  menuItems={[
-                    {
-                      label: "View funnel",
-                      icon: <BarChart3 className="h-4 w-4" />,
-                      onClick: () => alert('Opening funnel...'),
-                    },
-                    {
-                      label: "Compare periods",
-                      icon: <Calendar className="h-4 w-4" />,
-                      onClick: () => alert('Opening comparison...'),
-                    },
-                    {
-                      label: "Share insights",
-                      icon: <Share2 className="h-4 w-4" />,
-                      onClick: () => alert('Opening share dialog...'),
-                    },
-                  ]}
-                />
-                <EnhancedStatCard
-                  variant="warning"
-                  icon={<Clock className="h-5 w-5" />}
-                  title="Avg. Time to Hire"
-                  value="24 days"
-                  change="-3 days"
-                  trend="up"
-                  showAction={true}
-                  actionLabel="Optimize"
-                  onAction={() => alert('Opening optimization tips...')}
-                  showMenu={true}
-                  menuItems={[
-                    {
-                      label: "View bottlenecks",
-                      icon: <AlertCircle className="h-4 w-4" />,
-                      onClick: () => alert('Analyzing bottlenecks...'),
-                    },
-                    {
-                      label: "Set goals",
-                      icon: <Target className="h-4 w-4" />,
-                      onClick: () => alert('Opening goals...'),
-                    },
-                  ]}
-                />
-              </div>
-            </Card>
           </section>
 
           {/* Charts */}
