@@ -806,7 +806,7 @@ const employerColumns: Column<Employer>[] = [
                 src={employer.logo}
                 name={employer.name}
                 type="logo"
-                size="sm"
+                size="lg"
               />
         <div>
           <p className="font-medium">{employer.name}</p>
@@ -886,7 +886,7 @@ const jobColumns: Column<Job>[] = [
             src={job.employerLogo}
             name={job.employer}
             type="logo"
-            size="sm"
+            size="lg"
           />
           <div>
             <p className="font-medium">{job.title}</p>
@@ -977,7 +977,7 @@ const candidateColumns: Column<Candidate>[] = [
                 src={candidate.photo}
                 name={candidate.name}
                 type="person"
-                size="sm"
+                size="lg"
               />
         <div>
           <p className="font-medium">{candidate.name}</p>
@@ -1064,7 +1064,7 @@ const consultantColumns: Column<Consultant>[] = [
                 src={consultant.photo}
                 name={consultant.name}
                 type="person"
-                size="sm"
+                size="lg"
               />
         <div>
           <p className="font-medium">{consultant.name}</p>
