@@ -1,4 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
+import logoLight from "@/assets/logo-light.png";
+import iconMark from "@/assets/icon-mark.png";
 import {
   LayoutDashboard,
   Users,
@@ -49,10 +51,8 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">H8</span>
-          </div>
-          {open && <span className="font-semibold text-lg">HRM8</span>}
+          <img src={iconMark} alt="HRM8" className="h-8 w-8" />
+          {open && <img src={logoLight} alt="HRM8" className="h-6" />}
         </div>
       </SidebarHeader>
 
