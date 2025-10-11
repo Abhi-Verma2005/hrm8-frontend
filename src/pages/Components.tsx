@@ -984,6 +984,7 @@ const candidateColumns: Column<Candidate>[] = [
     key: 'name',
     label: 'Candidate',
     sortable: true,
+    width: "30%",
     render: (candidate) => (
       <div className="flex items-center gap-3">
         <EntityAvatar
@@ -1008,7 +1009,8 @@ const candidateColumns: Column<Candidate>[] = [
   {
     key: 'experience',
     label: 'Experience',
-    sortable: true
+    sortable: true,
+    width: "12%"
   },
   {
     key: 'skills',
@@ -1032,6 +1034,7 @@ const candidateColumns: Column<Candidate>[] = [
     key: 'status',
     label: 'Status',
     sortable: true,
+    width: "10%",
     render: (candidate) => (
       <Badge variant={getStatusBadgeVariant(candidate.status)}>
         {candidate.status}
@@ -1041,6 +1044,7 @@ const candidateColumns: Column<Candidate>[] = [
   {
     key: 'actions',
     label: '',
+    width: "60px",
     render: (candidate) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -1055,11 +1059,11 @@ const candidateColumns: Column<Candidate>[] = [
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Mail className="h-4 w-4 mr-2" />
-            Send Email
+            Contact
           </DropdownMenuItem>
           <DropdownMenuItem>
-            <Phone className="h-4 w-4 mr-2" />
-            Call
+            <Star className="h-4 w-4 mr-2" />
+            Add to Favorites
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

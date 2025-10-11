@@ -17,6 +17,7 @@ export interface Column<T> {
   key: string;
   label: string;
   sortable?: boolean;
+  width?: string;
   render?: (item: T) => React.ReactNode;
 }
 
@@ -230,7 +231,7 @@ export function DataTable<T extends { id: string }>({
                 </TableHead>
               )}
               {columns.map((column) => (
-                <TableHead key={column.key}>
+                <TableHead key={column.key} style={{ width: column.width }}>
                   {column.sortable ? (
                     <Button
                       variant="ghost"
@@ -270,7 +271,7 @@ export function DataTable<T extends { id: string }>({
                     </TableCell>
                   )}
                   {columns.map((column) => (
-                    <TableCell key={column.key}>
+                    <TableCell key={column.key} style={{ width: column.width }}>
                       {column.render
                         ? column.render(item)
                         : String(item[column.key as keyof T] ?? '')}
