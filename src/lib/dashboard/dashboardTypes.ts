@@ -1,4 +1,4 @@
-import { Briefcase, Users, DollarSign, Presentation, type LucideIcon } from "lucide-react";
+import { Briefcase, Users, DollarSign, Handshake, type LucideIcon } from "lucide-react";
 import type { WidgetType } from "./widgetRegistry";
 
 export type DashboardType = 'jobs' | 'hrms' | 'financial' | 'consulting';
@@ -71,7 +71,7 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
     id: 'consulting',
     name: 'Consulting',
     description: 'Project pipeline and consulting operations',
-    icon: Presentation,
+    icon: Handshake,
     defaultRoute: '/dashboard/consulting',
     availableWidgets: [
       'stat-active-projects',
