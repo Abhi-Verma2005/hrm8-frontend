@@ -1,0 +1,302 @@
+import { useState, useMemo } from "react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/ui/button";
+import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { TableFilters, FilterOption, ActiveFilter } from "./TableFilters";
+import { TablePagination } from "./TablePagination";
+
+export interface Column<T> {
+  key: string;
+  label: string;
+  sortable?: boolean;
+  render?: (item: T) => React.ReactNode;
+}
+
+interface DataTableProps<T> {
+  data: T[];
+  columns: Column<T>[];
+  selectable?: boolean;
+  onSelectedRowsChange?: (selectedIds: string[]) => void;
+  renderBulkActions?: (selectedIds: string[]) => React.ReactNode;
+  searchable?: boolean;
+  searchKeys?: (keyof T)[];
+  statusFilter?: boolean;
+  statusOptions?: FilterOption[];
+  statusKey?: keyof T;
+  typeFilter?: boolean;
+  typeOptions?: FilterOption[];
+  typeKey?: keyof T;
+  emptyMessage?: string;
+}
+
+export function DataTable<T extends { id: string }>({
+  data,
+  columns,
+  selectable = false,
+  onSelectedRowsChange,
+  renderBulkActions,
+  searchable = false,
+  searchKeys = [],
+  statusFilter = false,
+  statusOptions = [],
+  statusKey,
+  typeFilter = false,
+  typeOptions = [],
+  typeKey,
+  emptyMessage = "No data available"
+}: DataTableProps<T>) {
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
+  const [searchValue, setSearchValue] = useState("");
+  const [statusFilterValue, setStatusFilterValue] = useState("all");
+  const [typeFilterValue, setTypeFilterValue] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Handle sorting
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig?.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Handle selection
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allIds = filteredAndSortedData.map(item => item.id);
+      setSelectedIds(allIds);
+      onSelectedRowsChange?.(allIds);
+    } else {
+      setSelectedIds([]);
+      onSelectedRowsChange?.([]);
+    }
+  };
+
+  const handleSelectRow = (id: string, checked: boolean) => {
+    let newSelectedIds: string[];
+    if (checked) {
+      newSelectedIds = [...selectedIds, id];
+    } else {
+      newSelectedIds = selectedIds.filter(selectedId => selectedId !== id);
+    }
+    setSelectedIds(newSelectedIds);
+    onSelectedRowsChange?.(newSelectedIds);
+  };
+
+  // Filter and sort data
+  const filteredAndSortedData = useMemo(() => {
+    let result = [...data];
+
+    // Apply search filter
+    if (searchable && searchValue && searchKeys.length > 0) {
+      result = result.filter(item =>
+        searchKeys.some(key => {
+          const value = item[key];
+          if (typeof value === 'string') {
+            return value.toLowerCase().includes(searchValue.toLowerCase());
+          }
+          return false;
+        })
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter && statusFilterValue !== "all" && statusKey) {
+      result = result.filter(item => item[statusKey] === statusFilterValue);
+    }
+
+    // Apply type filter
+    if (typeFilter && typeFilterValue !== "all" && typeKey) {
+      result = result.filter(item => item[typeKey] === typeFilterValue);
+    }
+
+    // Apply sorting
+    if (sortConfig) {
+      result.sort((a, b) => {
+        const aValue = a[sortConfig.key as keyof T];
+        const bValue = b[sortConfig.key as keyof T];
+
+        if (aValue == null) return 1;
+        if (bValue == null) return -1;
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return result;
+  }, [data, searchValue, searchKeys, statusFilterValue, typeFilterValue, sortConfig, searchable, statusFilter, typeFilter, statusKey, typeKey]);
+
+  // Pagination
+  const totalPages = Math.ceil(filteredAndSortedData.length / pageSize);
+  const paginatedData = filteredAndSortedData.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
+  );
+
+  // Active filters
+  const activeFilters: ActiveFilter[] = [];
+  if (searchValue) {
+    activeFilters.push({ key: 'search', value: searchValue, label: `Search: "${searchValue}"` });
+  }
+  if (statusFilterValue !== 'all') {
+    const statusLabel = statusOptions.find(opt => opt.value === statusFilterValue)?.label || statusFilterValue;
+    activeFilters.push({ key: 'status', value: statusFilterValue, label: `Status: ${statusLabel}` });
+  }
+  if (typeFilterValue !== 'all') {
+    const typeLabel = typeOptions.find(opt => opt.value === typeFilterValue)?.label || typeFilterValue;
+    activeFilters.push({ key: 'type', value: typeFilterValue, label: `Type: ${typeLabel}` });
+  }
+
+  const handleClearFilter = (key: string) => {
+    if (key === 'search') setSearchValue('');
+    if (key === 'status') setStatusFilterValue('all');
+    if (key === 'type') setTypeFilterValue('all');
+  };
+
+  const handleClearAll = () => {
+    setSearchValue('');
+    setStatusFilterValue('all');
+    setTypeFilterValue('all');
+  };
+
+  const getSortIcon = (columnKey: string) => {
+    if (sortConfig?.key !== columnKey) {
+      return <ArrowUpDown className="ml-2 h-4 w-4" />;
+    }
+    return sortConfig.direction === 'asc' ? (
+      <ArrowUp className="ml-2 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-2 h-4 w-4" />
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Filters */}
+      {(searchable || statusFilter || typeFilter) && (
+        <TableFilters
+          searchValue={searchValue}
+          onSearchChange={setSearchValue}
+          statusFilter={statusFilterValue}
+          onStatusFilterChange={statusFilter ? setStatusFilterValue : undefined}
+          statusOptions={statusFilter ? statusOptions : undefined}
+          typeFilter={typeFilterValue}
+          onTypeFilterChange={typeFilter ? setTypeFilterValue : undefined}
+          typeOptions={typeFilter ? typeOptions : undefined}
+          activeFilters={activeFilters}
+          onClearFilter={handleClearFilter}
+          onClearAll={handleClearAll}
+        />
+      )}
+
+      {/* Bulk Actions */}
+      {selectable && selectedIds.length > 0 && renderBulkActions && (
+        <div className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg border">
+          <span className="text-sm font-medium">
+            {selectedIds.length} row{selectedIds.length !== 1 ? 's' : ''} selected
+          </span>
+          {renderBulkActions(selectedIds)}
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {selectable && (
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedIds.length === paginatedData.length && paginatedData.length > 0}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all"
+                  />
+                </TableHead>
+              )}
+              {columns.map((column) => (
+                <TableHead key={column.key}>
+                  {column.sortable ? (
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSort(column.key)}
+                      className="-ml-4 h-8 data-[state=open]:bg-accent"
+                    >
+                      {column.label}
+                      {getSortIcon(column.key)}
+                    </Button>
+                  ) : (
+                    column.label
+                  )}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {paginatedData.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length + (selectable ? 1 : 0)}
+                  className="h-24 text-center"
+                >
+                  <p className="text-muted-foreground">{emptyMessage}</p>
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedData.map((item) => (
+                <TableRow key={item.id}>
+                  {selectable && (
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedIds.includes(item.id)}
+                        onCheckedChange={(checked) => handleSelectRow(item.id, checked as boolean)}
+                        aria-label={`Select row ${item.id}`}
+                      />
+                    </TableCell>
+                  )}
+                  {columns.map((column) => (
+                    <TableCell key={column.key}>
+                      {column.render
+                        ? column.render(item)
+                        : String(item[column.key as keyof T] ?? '')}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination */}
+      {filteredAndSortedData.length > 0 && (
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          totalItems={filteredAndSortedData.length}
+          onPageChange={setCurrentPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          }}
+        />
+      )}
+    </div>
+  );
+}

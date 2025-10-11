@@ -19,6 +19,12 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
+import { DataTable, Column } from "@/components/tables/DataTable";
+import { EntityAvatar } from "@/components/tables/EntityAvatar";
+import { mockEmployers, mockJobs, mockCandidates, mockConsultants } from "@/data/mockTableData";
+import type { Employer, Job, Candidate, Consultant } from "@/types/entities";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { MoreVertical, Mail, Phone, Star, Trash2, Edit, ExternalLink } from "lucide-react";
 import {
   Search,
   CheckCircle,
@@ -626,11 +632,524 @@ export default function Components() {
             </Card>
           </section>
 
+          {/* Data Tables */}
+          <section id="tables" className="mb-16">
+            <h2 className="mb-8">Data Tables</h2>
+            
+            {/* Basic Sortable Table */}
+            <Card className="p-6 mb-8">
+              <h4 className="mb-2">Basic Sortable Table</h4>
+              <p className="text-sm text-muted-foreground mb-6">
+                Simple table with sorting - click column headers to sort ascending/descending
+              </p>
+              <DataTable
+                data={mockEmployers.slice(0, 5)}
+                columns={employerBasicColumns}
+              />
+            </Card>
+
+            {/* Employers Table with Logos */}
+            <Card className="p-6 mb-8">
+              <h4 className="mb-2">Employers Table</h4>
+              <p className="text-sm text-muted-foreground mb-6">
+                Table with company logos, status badges, filtering, and action menus
+              </p>
+              <DataTable
+                data={mockEmployers}
+                columns={employerColumns}
+                searchable
+                searchKeys={['name', 'industry', 'location']}
+                statusFilter
+                statusOptions={[
+                  { label: 'Active', value: 'active' },
+                  { label: 'Inactive', value: 'inactive' },
+                  { label: 'Pending', value: 'pending' }
+                ]}
+                statusKey="status"
+              />
+            </Card>
+
+            {/* Jobs Table */}
+            <Card className="p-6 mb-8">
+              <h4 className="mb-2">Jobs Table</h4>
+              <p className="text-sm text-muted-foreground mb-6">
+                Job listings with employer information, applicant counts, and advanced filtering
+              </p>
+              <DataTable
+                data={mockJobs}
+                columns={jobColumns}
+                searchable
+                searchKeys={['title', 'employer', 'location']}
+                statusFilter
+                statusOptions={[
+                  { label: 'Open', value: 'open' },
+                  { label: 'Closed', value: 'closed' },
+                  { label: 'Draft', value: 'draft' }
+                ]}
+                statusKey="status"
+                typeFilter
+                typeOptions={[
+                  { label: 'Full-time', value: 'Full-time' },
+                  { label: 'Part-time', value: 'Part-time' },
+                  { label: 'Contract', value: 'Contract' }
+                ]}
+                typeKey="type"
+              />
+            </Card>
+
+            {/* Candidates Table with Selection */}
+            <Card className="p-6 mb-8">
+              <h4 className="mb-2">Candidates Table</h4>
+              <p className="text-sm text-muted-foreground mb-6">
+                Candidate profiles with photos, skills, row selection, and bulk actions
+              </p>
+              <DataTable
+                data={mockCandidates}
+                columns={candidateColumns}
+                selectable
+                renderBulkActions={(selectedIds) => (
+                  <>
+                    <Button variant="outline" size="sm">
+                      <Mail className="h-4 w-4 mr-2" />
+                      Email Selected
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                    <Button variant="destructive" size="sm">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete
+                    </Button>
+                  </>
+                )}
+                searchable
+                searchKeys={['name', 'email', 'position']}
+                statusFilter
+                statusOptions={[
+                  { label: 'Active', value: 'active' },
+                  { label: 'Placed', value: 'placed' },
+                  { label: 'Inactive', value: 'inactive' }
+                ]}
+                statusKey="status"
+              />
+            </Card>
+
+            {/* Consultants Table */}
+            <Card className="p-6 mb-8">
+              <h4 className="mb-2">Consultants Table</h4>
+              <p className="text-sm text-muted-foreground mb-6">
+                Consultant directory with availability status, ratings, and client counts
+              </p>
+              <DataTable
+                data={mockConsultants}
+                columns={consultantColumns}
+                searchable
+                searchKeys={['name', 'email', 'specialization']}
+                statusFilter
+                statusOptions={[
+                  { label: 'Available', value: 'available' },
+                  { label: 'Assigned', value: 'assigned' },
+                  { label: 'Unavailable', value: 'unavailable' }
+                ]}
+                statusKey="availability"
+              />
+            </Card>
+          </section>
+
         </div>
       </div>
     </AppLayout>
   );
 }
+
+// Table Column Definitions
+
+const employerBasicColumns: Column<Employer>[] = [
+  {
+    key: 'name',
+    label: 'Company Name',
+    sortable: true
+  },
+  {
+    key: 'industry',
+    label: 'Industry',
+    sortable: true
+  },
+  {
+    key: 'location',
+    label: 'Location',
+    sortable: true
+  },
+  {
+    key: 'activeJobs',
+    label: 'Active Jobs',
+    sortable: true
+  }
+];
+
+const employerColumns: Column<Employer>[] = [
+  {
+    key: 'name',
+    label: 'Company',
+    sortable: true,
+    render: (employer) => (
+      <div className="flex items-center gap-3">
+        <EntityAvatar
+          src={employer.logo}
+          name={employer.name}
+          type="logo"
+        />
+        <div>
+          <p className="font-medium">{employer.name}</p>
+          <p className="text-sm text-muted-foreground">{employer.email}</p>
+        </div>
+      </div>
+    )
+  },
+  {
+    key: 'industry',
+    label: 'Industry',
+    sortable: true,
+    render: (employer) => (
+      <Badge variant="outline">{employer.industry}</Badge>
+    )
+  },
+  {
+    key: 'location',
+    label: 'Location',
+    sortable: true
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    sortable: true,
+    render: (employer) => (
+      <Badge
+        variant={
+          employer.status === 'active' ? 'default' :
+          employer.status === 'pending' ? 'secondary' : 'outline'
+        }
+      >
+        {employer.status}
+      </Badge>
+    )
+  },
+  {
+    key: 'activeJobs',
+    label: 'Active Jobs',
+    sortable: true,
+    render: (employer) => (
+      <span className="font-medium">{employer.activeJobs}</span>
+    )
+  },
+  {
+    key: 'actions',
+    label: '',
+    render: (employer) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon-sm">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>
+            <Eye className="h-4 w-4 mr-2" />
+            View Details
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Mail className="h-4 w-4 mr-2" />
+            Contact
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
+  }
+];
+
+const jobColumns: Column<Job>[] = [
+  {
+    key: 'title',
+    label: 'Job Title',
+    sortable: true,
+    render: (job) => (
+      <div className="flex items-center gap-3">
+        {job.employerLogo && (
+          <EntityAvatar
+            src={job.employerLogo}
+            name={job.employer}
+            type="logo"
+            size="sm"
+          />
+        )}
+        <div>
+          <p className="font-medium">{job.title}</p>
+          <p className="text-sm text-muted-foreground">{job.employer}</p>
+        </div>
+      </div>
+    )
+  },
+  {
+    key: 'location',
+    label: 'Location',
+    sortable: true
+  },
+  {
+    key: 'type',
+    label: 'Type',
+    sortable: true,
+    render: (job) => (
+      <Badge variant="outline">{job.type}</Badge>
+    )
+  },
+  {
+    key: 'salary',
+    label: 'Salary',
+    sortable: true,
+    render: (job) => (
+      <span className="text-sm">{job.salary}</span>
+    )
+  },
+  {
+    key: 'applicants',
+    label: 'Applicants',
+    sortable: true,
+    render: (job) => (
+      <div className="flex items-center gap-2">
+        <Users className="h-4 w-4 text-muted-foreground" />
+        <span className="font-medium">{job.applicants}</span>
+      </div>
+    )
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    sortable: true,
+    render: (job) => (
+      <Badge
+        variant={
+          job.status === 'open' ? 'default' :
+          job.status === 'draft' ? 'secondary' : 'outline'
+        }
+      >
+        {job.status}
+      </Badge>
+    )
+  },
+  {
+    key: 'actions',
+    label: '',
+    render: (job) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon-sm">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>
+            <Eye className="h-4 w-4 mr-2" />
+            View Job
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <ExternalLink className="h-4 w-4 mr-2" />
+            View Applicants
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
+  }
+];
+
+const candidateColumns: Column<Candidate>[] = [
+  {
+    key: 'name',
+    label: 'Candidate',
+    sortable: true,
+    render: (candidate) => (
+      <div className="flex items-center gap-3">
+        <EntityAvatar
+          src={candidate.photo}
+          name={candidate.name}
+          type="person"
+        />
+        <div>
+          <p className="font-medium">{candidate.name}</p>
+          <p className="text-sm text-muted-foreground">{candidate.email}</p>
+        </div>
+      </div>
+    )
+  },
+  {
+    key: 'position',
+    label: 'Position',
+    sortable: true
+  },
+  {
+    key: 'experience',
+    label: 'Experience',
+    sortable: true
+  },
+  {
+    key: 'skills',
+    label: 'Skills',
+    render: (candidate) => (
+      <div className="flex flex-wrap gap-1">
+        {candidate.skills.slice(0, 3).map((skill, index) => (
+          <Badge key={index} variant="secondary" className="text-xs">
+            {skill}
+          </Badge>
+        ))}
+        {candidate.skills.length > 3 && (
+          <Badge variant="outline" className="text-xs">
+            +{candidate.skills.length - 3}
+          </Badge>
+        )}
+      </div>
+    )
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    sortable: true,
+    render: (candidate) => (
+      <Badge
+        variant={
+          candidate.status === 'active' ? 'default' :
+          candidate.status === 'placed' ? 'secondary' : 'outline'
+        }
+      >
+        {candidate.status}
+      </Badge>
+    )
+  },
+  {
+    key: 'actions',
+    label: '',
+    render: (candidate) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon-sm">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>
+            <Eye className="h-4 w-4 mr-2" />
+            View Profile
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Mail className="h-4 w-4 mr-2" />
+            Send Email
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Phone className="h-4 w-4 mr-2" />
+            Call
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
+  }
+];
+
+const consultantColumns: Column<Consultant>[] = [
+  {
+    key: 'name',
+    label: 'Consultant',
+    sortable: true,
+    render: (consultant) => (
+      <div className="flex items-center gap-3">
+        <EntityAvatar
+          src={consultant.photo}
+          name={consultant.name}
+          type="person"
+        />
+        <div>
+          <p className="font-medium">{consultant.name}</p>
+          <p className="text-sm text-muted-foreground">{consultant.email}</p>
+        </div>
+      </div>
+    )
+  },
+  {
+    key: 'specialization',
+    label: 'Specialization',
+    sortable: true,
+    render: (consultant) => (
+      <Badge variant="outline">{consultant.specialization}</Badge>
+    )
+  },
+  {
+    key: 'availability',
+    label: 'Availability',
+    sortable: true,
+    render: (consultant) => (
+      <Badge
+        variant={
+          consultant.availability === 'available' ? 'default' :
+          consultant.availability === 'assigned' ? 'secondary' : 'outline'
+        }
+      >
+        {consultant.availability}
+      </Badge>
+    )
+  },
+  {
+    key: 'rating',
+    label: 'Rating',
+    sortable: true,
+    render: (consultant) => (
+      <div className="flex items-center gap-1">
+        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+        <span className="font-medium">{consultant.rating.toFixed(1)}</span>
+      </div>
+    )
+  },
+  {
+    key: 'activeClients',
+    label: 'Active Clients',
+    sortable: true,
+    render: (consultant) => (
+      <span className="font-medium">{consultant.activeClients}</span>
+    )
+  },
+  {
+    key: 'actions',
+    label: '',
+    render: (consultant) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon-sm">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem>
+            <Eye className="h-4 w-4 mr-2" />
+            View Profile
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Mail className="h-4 w-4 mr-2" />
+            Contact
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <Briefcase className="h-4 w-4 mr-2" />
+            Assign Client
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    )
+  }
+];
 
 function StatCard({
   icon,
