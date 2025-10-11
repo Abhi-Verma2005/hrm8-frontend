@@ -1,4 +1,4 @@
-import { Briefcase, Users, DollarSign, Presentation, type LucideIcon } from "lucide-react";
+import { UsersRound, Users, DollarSign, Presentation, type LucideIcon } from "lucide-react";
 import type { WidgetType } from "./widgetRegistry";
 
 export type DashboardType = 'jobs' | 'hrms' | 'financial' | 'consulting';
@@ -17,7 +17,7 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
     id: 'jobs',
     name: 'Jobs',
     description: 'Track hiring pipeline and recruitment metrics',
-    icon: Briefcase,
+    icon: UsersRound,
     defaultRoute: '/dashboard/jobs',
     availableWidgets: [
       'stat-active-jobs',
