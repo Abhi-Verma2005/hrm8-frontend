@@ -106,6 +106,15 @@ export default function Components() {
                   <Button size="icon-lg" variant="gradient">
                     <Calendar />
                   </Button>
+                  <Button size="icon-sm" variant="reverse">
+                    <Plus />
+                  </Button>
+                  <Button size="icon" variant="reverse">
+                    <Filter />
+                  </Button>
+                  <Button size="icon-lg" variant="reverse">
+                    <Calendar />
+                  </Button>
                 </div>
               </Card>
             </div>
