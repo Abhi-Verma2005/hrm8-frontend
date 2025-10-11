@@ -59,7 +59,7 @@ export function AppSidebar() {
         )}>
           {open ? (
             <img
-              src={isDark ? logoDark : logoLight}
+              src={logoDark}
               alt="Logo"
               className="h-7 w-auto"
             />
