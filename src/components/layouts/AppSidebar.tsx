@@ -5,7 +5,7 @@ import iconMark from "@/assets/icon-mark.png";
 import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
 import { cn } from "@/lib/utils";
 import { SidebarFooterContent } from "./SidebarFooterContent";
 import { useRecentRecords } from "@/hooks/useRecentRecords";
@@ -80,37 +80,28 @@ export function AppSidebar() {
             <SidebarMenu>
               {mainNavItems.map(item => (
                 <SidebarMenuItem key={item.title}>
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={isActive(item.url)}
-                        className={cn(
-                          "relative transition-all duration-200",
-                          "hover:bg-sidebar-accent/50",
-                          isActive(item.url) && [
-                            "bg-primary/10",
-                            "text-primary",
-                            "font-medium",
-                            isExpanded && "border-l-4 border-primary"
-                          ]
-                        )}
-                      >
-                        <NavLink to={item.url} className="flex items-center gap-3 w-full">
-                          <item.icon className={cn(
-                            "h-5 w-5 transition-all",
-                            !isExpanded && "mx-auto"
-                          )} />
-                          {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    {!isExpanded && (
-                      <TooltipContent side="right">
-                        <span>{item.title}</span>
-                      </TooltipContent>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive(item.url)}
+                    className={cn(
+                      "relative transition-all duration-200",
+                      "hover:bg-sidebar-accent/50",
+                      isActive(item.url) && [
+                        "bg-primary/10",
+                        "text-primary",
+                        "font-medium",
+                        isExpanded && "border-l-4 border-primary"
+                      ]
                     )}
-                  </Tooltip>
+                  >
+                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                      <item.icon className={cn(
+                        "h-5 w-5 transition-all",
+                        !isExpanded && "mx-auto"
+                      )} />
+                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
           </SidebarMenu>
@@ -148,44 +139,31 @@ export function AppSidebar() {
 
                   return (
                     <SidebarMenuItem key={`recent-${record.id}`}>
-                      <Tooltip delayDuration={0}>
-                        <TooltipTrigger asChild>
-                          <SidebarMenuButton 
-                            asChild 
-                            isActive={location.pathname === record.url}
-                            className={cn(
-                              "transition-all duration-200 hover:bg-sidebar-accent/40",
-                              location.pathname === record.url && "bg-primary/10 text-primary"
-                            )}
-                          >
-                            <NavLink to={record.url} className="flex items-center gap-2 w-full">
-                              <Icon className={cn(
-                                "h-4 w-4",
-                                !isExpanded && "mx-auto"
-                              )} />
-                              {isExpanded && (
-                                <div className="flex-1 min-w-0 transition-opacity duration-200">
-                                  <div className="text-sm font-medium truncate">
-                                    {record.name}
-                                  </div>
-                                  <div className="text-[10px] text-muted-foreground">
-                                    {typeLabel}
-                                  </div>
-                                </div>
-                              )}
-                            </NavLink>
-                          </SidebarMenuButton>
-                        </TooltipTrigger>
-                        {!isExpanded && (
-                          <TooltipContent side="right" className="flex flex-col gap-1">
-                            <span className="font-medium">{record.name}</span>
-                            <span className="text-xs text-muted-foreground">{typeLabel}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {formatDistanceToNow(record.timestamp, { addSuffix: true })}
-                            </span>
-                          </TooltipContent>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={location.pathname === record.url}
+                        className={cn(
+                          "transition-all duration-200 hover:bg-sidebar-accent/40",
+                          location.pathname === record.url && "bg-primary/10 text-primary"
                         )}
-                      </Tooltip>
+                      >
+                        <NavLink to={record.url} className="flex items-center gap-2 w-full">
+                          <Icon className={cn(
+                            "h-4 w-4",
+                            !isExpanded && "mx-auto"
+                          )} />
+                          {isExpanded && (
+                            <div className="flex-1 min-w-0 transition-opacity duration-200">
+                              <div className="text-sm font-medium truncate">
+                                {record.name}
+                              </div>
+                              <div className="text-[10px] text-muted-foreground">
+                                {typeLabel}
+                              </div>
+                            </div>
+                          )}
+                        </NavLink>
+                      </SidebarMenuButton>
                     </SidebarMenuItem>
                   );
                 })}
