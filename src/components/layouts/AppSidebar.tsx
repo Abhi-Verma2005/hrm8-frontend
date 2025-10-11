@@ -6,7 +6,7 @@ import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGrou
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { UserProfileDropdown } from "./UserProfileDropdown";
+import { SidebarFooterContent } from "./SidebarFooterContent";
 import { useFavorites } from "@/hooks/useFavorites";
 const mainNavItems = [{
   title: "Dashboard",
@@ -256,66 +256,13 @@ export function AppSidebar() {
                   </div>
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
-
-        <SidebarGroup>
-          <SidebarGroupLabel className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-            <div className="h-px flex-1 bg-border" />
-            <span>Support</span>
-            <div className="h-px flex-1 bg-border" />
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {secondaryNavItems.map(item => (
-                <SidebarMenuItem key={item.title}>
-                  <Tooltip delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <SidebarMenuButton 
-                        asChild 
-                        isActive={isActive(item.url)}
-                        className={cn(
-                          "relative group transition-all duration-300",
-                          "hover:bg-sidebar-accent/50 rounded-lg",
-                          isActive(item.url) && [
-                            "bg-gradient-to-r from-primary/10 to-primary/5",
-                            "border-l-4 border-primary",
-                            "shadow-sm",
-                            "font-semibold"
-                          ]
-                        )}
-                      >
-                        <NavLink to={item.url} className="flex items-center gap-3">
-                          <div className={cn(
-                            "flex items-center justify-center w-9 h-9 rounded-lg transition-all",
-                            isActive(item.url) 
-                              ? "bg-primary/10 text-primary" 
-                              : "bg-transparent text-muted-foreground group-hover:bg-muted group-hover:scale-110"
-                          )}>
-                            <item.icon className="h-5 w-5" />
-                          </div>
-                          {open && <span>{item.title}</span>}
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </TooltipTrigger>
-                    {!open && (
-                      <TooltipContent side="right">
-                        {item.title}
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    </SidebarContent>
       
-      <SidebarFooter className="border-t border-sidebar-border p-4 bg-gradient-to-t from-sidebar-accent/30 to-transparent">
-        <UserProfileDropdown />
-      </SidebarFooter>
+    <SidebarFooter className="border-t border-sidebar-border p-4 bg-gradient-to-t from-sidebar-accent/30 to-transparent">
+      <SidebarFooterContent />
+    </SidebarFooter>
     </Sidebar>;
 }
