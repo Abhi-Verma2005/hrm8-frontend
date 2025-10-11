@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { DashboardGrid } from '@/components/dashboard/DashboardGrid';
-import { LayoutControls } from '@/components/dashboard/LayoutControls';
+import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
+import { EditModeToolbar } from '@/components/dashboard/EditModeToolbar';
 import { WidgetPalette } from '@/components/dashboard/WidgetPalette';
+import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { useDashboardLayout } from '@/hooks/useDashboardLayout';
 import { WIDGET_REGISTRY } from '@/lib/dashboard/widgetRegistry';
 import type { WidgetType } from '@/lib/dashboard/widgetRegistry';
@@ -96,20 +98,28 @@ export default function Dashboard() {
     });
   };
   
+  const editModeToggle = (
+    <EditModeToggle
+      isEditMode={isEditMode}
+      onToggle={() => setIsEditMode(!isEditMode)}
+    />
+  );
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Layout Controls Toolbar */}
-      <LayoutControls
-        isEditMode={isEditMode}
-        hasUnsavedChanges={hasUnsavedChanges}
-        onToggleEditMode={() => setIsEditMode(!isEditMode)}
-        onSave={handleSave}
-        onReset={handleReset}
-        onAddWidget={() => setIsPaletteOpen(true)}
-      />
-      
-      {/* Main Dashboard Content */}
-      <div className="p-6 space-y-6">
+    <DashboardPageLayout breadcrumbActions={editModeToggle}>
+      <div className="min-h-screen bg-background">
+        {/* Edit Mode Toolbar - Only shows in edit mode */}
+        {isEditMode && (
+          <EditModeToolbar
+            hasUnsavedChanges={hasUnsavedChanges}
+            onSave={handleSave}
+            onReset={handleReset}
+            onAddWidget={() => setIsPaletteOpen(true)}
+          />
+        )}
+        
+        {/* Main Dashboard Content */}
+        <div className="p-6 space-y-6">
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
@@ -166,12 +176,13 @@ export default function Dashboard() {
         />
       </div>
       
-      {/* Widget Palette Drawer */}
-      <WidgetPalette
-        open={isPaletteOpen}
-        onOpenChange={setIsPaletteOpen}
-        onAddWidget={handleAddWidget}
-      />
-    </div>
+        {/* Widget Palette Drawer */}
+        <WidgetPalette
+          open={isPaletteOpen}
+          onOpenChange={setIsPaletteOpen}
+          onAddWidget={handleAddWidget}
+        />
+      </div>
+    </DashboardPageLayout>
   );
 }

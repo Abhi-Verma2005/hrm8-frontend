@@ -8,8 +8,13 @@ import { HeaderQuickActions } from "./HeaderQuickActions";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
+import { ReactNode } from 'react';
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+  breadcrumbActions?: ReactNode;
+}
+
+export function DashboardHeader({ breadcrumbActions }: DashboardHeaderProps = {}) {
   const handleSearchClick = () => {
     const event = new CustomEvent('open-command-palette');
     window.dispatchEvent(event);
@@ -51,10 +56,15 @@ export function DashboardHeader() {
           </div>
         </div>
 
-        {/* Breadcrumbs Row */}
-        <div className="px-6 py-2 border-t bg-muted/30">
-          <Breadcrumbs />
-        </div>
+      {/* Breadcrumbs Row */}
+      <div className="px-6 py-2 border-t bg-muted/30 flex items-center justify-between gap-4">
+        <Breadcrumbs />
+        {breadcrumbActions && (
+          <div className="flex items-center gap-2">
+            {breadcrumbActions}
+          </div>
+        )}
+      </div>
       </header>
     </TooltipProvider>
   );
