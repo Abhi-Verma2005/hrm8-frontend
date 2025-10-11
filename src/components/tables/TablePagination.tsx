@@ -36,32 +36,29 @@ export function TablePagination({
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
   const getPageNumbers = () => {
-    const pages: (number | 'ellipsis')[] = [];
-    const maxVisible = 5;
+    const pages: number[] = [];
+    // Responsive: 7 for desktop, 5 for tablet, 3 for mobile
+    const maxVisible = window.innerWidth >= 1024 ? 7 : window.innerWidth >= 768 ? 5 : 3;
 
+    // If total pages fit within maxVisible, show all
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
-    } else {
-      pages.push(1);
+      return pages;
+    }
 
-      if (currentPage > 3) {
-        pages.push('ellipsis');
-      }
+    // Calculate the sliding window of pages to show
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
 
-      const start = Math.max(2, currentPage - 1);
-      const end = Math.min(totalPages - 1, currentPage + 1);
+    // Adjust if we're near the end
+    if (endPage - startPage < maxVisible - 1) {
+      startPage = Math.max(1, endPage - maxVisible + 1);
+    }
 
-      for (let i = start; i <= end; i++) {
-        pages.push(i);
-      }
-
-      if (currentPage < totalPages - 2) {
-        pages.push('ellipsis');
-      }
-
-      pages.push(totalPages);
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
     }
 
     return pages;
@@ -105,17 +102,13 @@ export function TablePagination({
 
           {getPageNumbers().map((page, index) => (
             <PaginationItem key={index}>
-              {page === 'ellipsis' ? (
-                <PaginationEllipsis />
-              ) : (
-                <PaginationLink
-                  onClick={() => onPageChange(page)}
-                  isActive={currentPage === page}
-                  className="cursor-pointer"
-                >
-                  {page}
-                </PaginationLink>
-              )}
+              <PaginationLink
+                onClick={() => onPageChange(page)}
+                isActive={currentPage === page}
+                className="cursor-pointer"
+              >
+                {page}
+              </PaginationLink>
             </PaginationItem>
           ))}
 
