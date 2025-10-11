@@ -106,7 +106,7 @@ export function AppSidebar() {
                       "h-5 w-5 transition-all",
                       !isExpanded && "mx-auto"
                     )} />
-                    {isExpanded && <span>{item.title}</span>}
+                    {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
                   </NavLink>
                 </SidebarMenuButton>
               </TooltipTrigger>
@@ -131,7 +131,7 @@ export function AppSidebar() {
             <Clock className="h-3 w-3" />
             {isExpanded ? (
               <>
-                <span>Recent</span>
+                <span className="transition-opacity duration-200">Recent</span>
                 <button
                   onClick={clearRecentRecords}
                   className="ml-auto text-[10px] hover:text-foreground transition-colors"
@@ -175,7 +175,7 @@ export function AppSidebar() {
                         !isExpanded && "mx-auto"
                       )} />
                       {isExpanded && (
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 transition-opacity duration-200">
                           <div className="text-sm font-medium truncate">
                             {record.name}
                           </div>
