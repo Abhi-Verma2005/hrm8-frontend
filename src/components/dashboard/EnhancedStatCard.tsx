@@ -68,7 +68,7 @@ export function EnhancedStatCard({
         </div>
         <Badge
           className={cn(
-            "shadow-sm -mt-1",
+            "shadow-sm -mt-[2px]",
             trend === "up"
               ? "bg-success/10 text-success border-success/20 hover:bg-success/20"
               : "bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/20"
