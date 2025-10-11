@@ -25,6 +25,13 @@ import { mockEmployers, mockJobs, mockCandidates, mockConsultants } from "@/data
 import type { Employer, Job, Candidate, Consultant } from "@/types/entities";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { MoreVertical, Mail, Phone, Star, Trash2, Edit, ExternalLink } from "lucide-react";
+import { 
+  getStatusBadgeVariant, 
+  getIndustryBadgeVariant, 
+  getJobTypeBadgeVariant, 
+  getSpecializationBadgeVariant, 
+  getSkillBadgeVariant 
+} from "@/lib/badgeVariants";
 import {
   Search,
   CheckCircle,
@@ -812,7 +819,7 @@ const employerColumns: Column<Employer>[] = [
     label: 'Industry',
     sortable: true,
     render: (employer) => (
-      <Badge variant="outline">{employer.industry}</Badge>
+      <Badge variant={getIndustryBadgeVariant(employer.industry)}>{employer.industry}</Badge>
     )
   },
   {
@@ -825,12 +832,7 @@ const employerColumns: Column<Employer>[] = [
     label: 'Status',
     sortable: true,
     render: (employer) => (
-      <Badge
-        variant={
-          employer.status === 'active' ? 'default' :
-          employer.status === 'pending' ? 'secondary' : 'outline'
-        }
-      >
+      <Badge variant={getStatusBadgeVariant(employer.status)}>
         {employer.status}
       </Badge>
     )
@@ -902,7 +904,7 @@ const jobColumns: Column<Job>[] = [
     label: 'Type',
     sortable: true,
     render: (job) => (
-      <Badge variant="outline">{job.type}</Badge>
+      <Badge variant={getJobTypeBadgeVariant(job.type)}>{job.type}</Badge>
     )
   },
   {
@@ -929,12 +931,7 @@ const jobColumns: Column<Job>[] = [
     label: 'Status',
     sortable: true,
     render: (job) => (
-      <Badge
-        variant={
-          job.status === 'open' ? 'default' :
-          job.status === 'draft' ? 'secondary' : 'outline'
-        }
-      >
+      <Badge variant={getStatusBadgeVariant(job.status)}>
         {job.status}
       </Badge>
     )
@@ -1003,12 +1000,12 @@ const candidateColumns: Column<Candidate>[] = [
     render: (candidate) => (
       <div className="flex flex-wrap gap-1">
         {candidate.skills.slice(0, 3).map((skill, index) => (
-          <Badge key={index} variant="secondary" className="text-xs">
+          <Badge key={index} variant={getSkillBadgeVariant(skill, index)} className="text-xs">
             {skill}
           </Badge>
         ))}
         {candidate.skills.length > 3 && (
-          <Badge variant="outline" className="text-xs">
+          <Badge variant="neutral" className="text-xs">
             +{candidate.skills.length - 3}
           </Badge>
         )}
@@ -1020,12 +1017,7 @@ const candidateColumns: Column<Candidate>[] = [
     label: 'Status',
     sortable: true,
     render: (candidate) => (
-      <Badge
-        variant={
-          candidate.status === 'active' ? 'default' :
-          candidate.status === 'placed' ? 'secondary' : 'outline'
-        }
-      >
+      <Badge variant={getStatusBadgeVariant(candidate.status)}>
         {candidate.status}
       </Badge>
     )
@@ -1083,7 +1075,7 @@ const consultantColumns: Column<Consultant>[] = [
     label: 'Specialization',
     sortable: true,
     render: (consultant) => (
-      <Badge variant="outline">{consultant.specialization}</Badge>
+      <Badge variant={getSpecializationBadgeVariant(consultant.specialization)}>{consultant.specialization}</Badge>
     )
   },
   {
@@ -1091,12 +1083,7 @@ const consultantColumns: Column<Consultant>[] = [
     label: 'Availability',
     sortable: true,
     render: (consultant) => (
-      <Badge
-        variant={
-          consultant.availability === 'available' ? 'default' :
-          consultant.availability === 'assigned' ? 'secondary' : 'outline'
-        }
-      >
+      <Badge variant={getStatusBadgeVariant(consultant.availability)}>
         {consultant.availability}
       </Badge>
     )

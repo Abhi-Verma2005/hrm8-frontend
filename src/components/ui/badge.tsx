@@ -12,6 +12,21 @@ const badgeVariants = cva(
         secondary: "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive: "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
         outline: "text-foreground",
+        
+        // Status Variants
+        success: "border-transparent bg-success text-success-foreground hover:bg-success/80",
+        warning: "border-transparent bg-warning text-warning-foreground hover:bg-warning/80",
+        
+        // Category Variants (Soft/Pastel colors for visual differentiation)
+        info: "border-transparent bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
+        purple: "border-transparent bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300",
+        amber: "border-transparent bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-300",
+        teal: "border-transparent bg-teal-100 text-teal-700 hover:bg-teal-200 dark:bg-teal-900/30 dark:text-teal-300",
+        indigo: "border-transparent bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300",
+        pink: "border-transparent bg-pink-100 text-pink-700 hover:bg-pink-200 dark:bg-pink-900/30 dark:text-pink-300",
+        
+        // Neutral variant for non-critical info
+        neutral: "border-transparent bg-muted text-muted-foreground hover:bg-muted/80",
       },
     },
     defaultVariants: {
