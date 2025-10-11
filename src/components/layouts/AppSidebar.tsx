@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
-import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 
@@ -10,40 +10,35 @@ import { cn } from "@/lib/utils";
 import { SidebarFooterContent } from "./SidebarFooterContent";
 import { useRecentRecords } from "@/hooks/useRecentRecords";
 import { formatDistanceToNow } from "date-fns";
-const mainNavItems = [{
-  title: "Dashboard",
-  url: "/dashboard",
-  icon: LayoutDashboard
-}, {
-  title: "Candidates",
-  url: "/candidates",
-  icon: Users
-}, {
-  title: "Jobs",
-  url: "/jobs",
-  icon: Briefcase
-}, {
-  title: "Applications",
-  url: "/applications",
-  icon: FileText
-}, {
-  title: "Analytics",
-  url: "/analytics",
-  icon: BarChart3
-}, {
-  title: "Calendar",
-  url: "/calendar",
-  icon: Calendar
-}];
-const secondaryNavItems = [{
-  title: "Settings",
-  url: "/settings",
-  icon: Settings
-}, {
-  title: "Help Center",
-  url: "/help",
-  icon: HelpCircle
-}];
+// CORE Section
+const coreNavItems = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Jobs", url: "/jobs", icon: Briefcase },
+  { title: "Candidates", url: "/candidates", icon: Users },
+  { title: "Customers", url: "/customers", icon: Building },
+  { title: "Consultants", url: "/consultants", icon: UserCog },
+];
+
+// OPERATIONS Section
+const operationsNavItems = [
+  { title: "HRMS", url: "/hrms", icon: Heart },
+  { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Calendar", url: "/calendar", icon: Calendar },
+  { title: "Inbox", url: "/inbox", icon: Mail },
+];
+
+// MANAGEMENT Section
+const managementNavItems = [
+  { title: "Users", url: "/users", icon: UsersRound },
+  { title: "Finance", url: "/finance", icon: DollarSign },
+  { title: "Reports", url: "/reports", icon: FileBarChart },
+];
+
+// SYSTEM Section
+const systemNavItems = [
+  { title: "Admin Settings", url: "/admin-settings", icon: Shield },
+  { title: "Support Tickets", url: "/support-tickets", icon: Ticket },
+];
 export function AppSidebar() {
   const location = useLocation();
   const { open } = useSidebar();
@@ -75,10 +70,16 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        {/* CORE Section */}
         <SidebarGroup>
+          {isExpanded && (
+            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Core
+            </SidebarGroupLabel>
+          )}
           <SidebarGroupContent>
             <SidebarMenu>
-              {mainNavItems.map(item => (
+              {coreNavItems.map(item => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
@@ -104,9 +105,132 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        {/* OPERATIONS Section */}
+        <SidebarGroup>
+          {isExpanded && (
+            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Operations
+            </SidebarGroupLabel>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {operationsNavItems.map(item => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive(item.url)}
+                    className={cn(
+                      "relative transition-all duration-200",
+                      "hover:bg-sidebar-accent/50",
+                      isActive(item.url) && [
+                        "bg-primary/10",
+                        "text-primary",
+                        "font-medium",
+                        isExpanded && "border-l-4 border-primary"
+                      ]
+                    )}
+                  >
+                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                      <item.icon className={cn(
+                        "h-5 w-5 transition-all",
+                        !isExpanded && "mx-auto"
+                      )} />
+                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        {/* MANAGEMENT Section */}
+        <SidebarGroup>
+          {isExpanded && (
+            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Management
+            </SidebarGroupLabel>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {managementNavItems.map(item => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive(item.url)}
+                    className={cn(
+                      "relative transition-all duration-200",
+                      "hover:bg-sidebar-accent/50",
+                      isActive(item.url) && [
+                        "bg-primary/10",
+                        "text-primary",
+                        "font-medium",
+                        isExpanded && "border-l-4 border-primary"
+                      ]
+                    )}
+                  >
+                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                      <item.icon className={cn(
+                        "h-5 w-5 transition-all",
+                        !isExpanded && "mx-auto"
+                      )} />
+                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        {/* SYSTEM Section */}
+        <SidebarGroup>
+          {isExpanded && (
+            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              System
+            </SidebarGroupLabel>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemNavItems.map(item => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive(item.url)}
+                    className={cn(
+                      "relative transition-all duration-200",
+                      "hover:bg-sidebar-accent/50",
+                      isActive(item.url) && [
+                        "bg-primary/10",
+                        "text-primary",
+                        "font-medium",
+                        isExpanded && "border-l-4 border-primary"
+                      ]
+                    )}
+                  >
+                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                      <item.icon className={cn(
+                        "h-5 w-5 transition-all",
+                        !isExpanded && "mx-auto"
+                      )} />
+                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
       {/* Recent Records Section */}
       {recentRecords.length > 0 && (

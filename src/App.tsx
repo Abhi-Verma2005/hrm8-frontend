@@ -15,6 +15,15 @@ import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
+import Customers from "./pages/Customers";
+import Consultants from "./pages/Consultants";
+import HRMS from "./pages/HRMS";
+import Inbox from "./pages/Inbox";
+import Users from "./pages/Users";
+import Finance from "./pages/Finance";
+import Reports from "./pages/Reports";
+import AdminSettings from "./pages/AdminSettings";
+import SupportTickets from "./pages/SupportTickets";
 
 const queryClient = new QueryClient();
 
@@ -34,8 +43,17 @@ function AppContent() {
             <Route path="/dashboard/:type" element={<Dashboard />} />
             <Route path="/candidates" element={<Candidates />} />
             <Route path="/jobs" element={<Jobs />} />
+            <Route path="/customers" element={<Customers />} />
+            <Route path="/consultants" element={<Consultants />} />
+            <Route path="/hrms" element={<HRMS />} />
             <Route path="/applications" element={<Applications />} />
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/inbox" element={<Inbox />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/finance" element={<Finance />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/admin-settings" element={<AdminSettings />} />
+            <Route path="/support-tickets" element={<SupportTickets />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
           </Route>
