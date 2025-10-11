@@ -40,7 +40,7 @@ export function NotificationsDropdown() {
       <Tooltip delayDuration={0}>
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative group">
+            <Button variant="ghost" size="icon" className="relative group bg-secondary/30 hover:bg-gradient-to-br hover:from-primary/20 hover:to-accent/20 hover:shadow-md transition-all duration-200">
               <Bell className="h-4 w-4 transition-transform group-hover:scale-110 group-hover:text-primary" />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-destructive text-[10px] text-destructive-foreground flex items-center justify-center font-medium">
