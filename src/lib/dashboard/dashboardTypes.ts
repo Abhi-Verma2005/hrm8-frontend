@@ -1,4 +1,4 @@
-import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, type LucideIcon } from "lucide-react";
+import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, type LucideIcon } from "lucide-react";
 import type { WidgetType } from "./widgetRegistry";
 
 export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting';
@@ -53,7 +53,7 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
     id: 'hrms',
     name: 'HRMS',
     description: 'Employee management and workforce analytics',
-    icon: Users,
+    icon: UserCheck,
     defaultRoute: '/dashboard/hrms',
     availableWidgets: [
       'stat-total-employees',
