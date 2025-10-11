@@ -212,7 +212,7 @@ export function AppSidebar() {
       )}
     </SidebarContent>
       
-    <SidebarFooter className="border-t border-sidebar-border p-4 bg-gradient-to-t from-sidebar-accent/30 to-transparent">
+    <SidebarFooter className="border-t border-sidebar-border p-3 bg-gradient-to-t from-sidebar-accent/30 to-transparent">
       <SidebarFooterContent />
     </SidebarFooter>
     </Sidebar>;
