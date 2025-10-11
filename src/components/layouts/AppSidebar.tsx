@@ -91,17 +91,16 @@ export function AppSidebar() {
                             to={item.url}
                             className={cn(
                               "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200",
-                              "text-white",
                               "hover:bg-gradient-to-r hover:from-primary/20 hover:to-accent/20 hover:shadow-sm group",
                               isActive 
-                                ? "bg-gradient-to-r from-primary to-primary/90 shadow-md shadow-primary/30 font-medium" 
-                                : ""
+                                ? "bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-md shadow-primary/30 font-medium" 
+                                : "text-sidebar-foreground"
                             )}
                           >
                             <item.icon className={cn(
                               "h-[18px] w-[18px] transition-transform duration-200",
                               "group-hover:scale-110",
-                              "text-white"
+                              isActive ? "text-primary-foreground" : "text-sidebar-foreground/70"
                             )} />
                             {open && <span className="flex-1 text-sm">{item.title}</span>}
                           </NavLink>
