@@ -1,11 +1,14 @@
 import { useState, useCallback } from 'react';
-import { DEFAULT_DASHBOARD_LAYOUT } from '@/lib/dashboard/defaultLayout';
+import { DEFAULT_LAYOUTS } from '@/lib/dashboard/defaultLayouts';
 import { findEmptySpace } from '@/lib/dashboard/layoutUtils';
 import type { DashboardLayout, DashboardWidget } from '@/lib/dashboard/types';
+import type { DashboardType } from '@/lib/dashboard/dashboardTypes';
 
-export function useDashboardLayout() {
+export function useDashboardLayout(dashboardType: DashboardType = 'jobs') {
+  const storageKey = `dashboard_layout_${dashboardType}_v1`;
+  
   const [layout, setLayout] = useState<DashboardLayout>(() => {
-    const saved = localStorage.getItem('dashboard_layout_v1');
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
@@ -18,7 +21,7 @@ export function useDashboardLayout() {
         console.error('Failed to parse saved layout:', e);
       }
     }
-    return DEFAULT_DASHBOARD_LAYOUT;
+    return DEFAULT_LAYOUTS[dashboardType];
   });
   
   const [isEditMode, setIsEditMode] = useState(false);
@@ -85,12 +88,12 @@ export function useDashboardLayout() {
     setLayout(prev => {
       saveToHistory(prev);
       return {
-        ...DEFAULT_DASHBOARD_LAYOUT,
+        ...DEFAULT_LAYOUTS[dashboardType],
         createdAt: new Date(),
         updatedAt: new Date()
       };
     });
-  }, [saveToHistory]);
+  }, [saveToHistory, dashboardType]);
   
   const undo = useCallback(() => {
     if (historyIndex > 0) {
@@ -107,8 +110,8 @@ export function useDashboardLayout() {
   }, [historyIndex, layoutHistory]);
   
   const saveLayout = useCallback(() => {
-    localStorage.setItem('dashboard_layout_v1', JSON.stringify(layout));
-  }, [layout]);
+    localStorage.setItem(storageKey, JSON.stringify(layout));
+  }, [layout, storageKey]);
   
   return {
     layout,

@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
+import { useParams, Navigate } from 'react-router-dom';
 import { DashboardGrid } from '@/components/dashboard/DashboardGrid';
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { EditModeToolbar } from '@/components/dashboard/EditModeToolbar';
 import { WidgetPalette } from '@/components/dashboard/WidgetPalette';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { DashboardSelector } from '@/components/dashboard/DashboardSelector';
 import { useDashboardLayout } from '@/hooks/useDashboardLayout';
 import { WIDGET_REGISTRY } from '@/lib/dashboard/widgetRegistry';
+import { DASHBOARD_METADATA } from '@/lib/dashboard/dashboardTypes';
 import type { WidgetType } from '@/lib/dashboard/widgetRegistry';
 import type { DashboardWidget } from '@/lib/dashboard/types';
+import type { DashboardType } from '@/lib/dashboard/dashboardTypes';
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import {
@@ -22,6 +26,15 @@ import { Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
+  const { type } = useParams<{ type: string }>();
+  const dashboardType = (type || 'jobs') as DashboardType;
+  
+  if (type && !['jobs', 'hrms', 'financial', 'consulting'].includes(type)) {
+    return <Navigate to="/dashboard/jobs" replace />;
+  }
+  
+  const dashboardMeta = DASHBOARD_METADATA[dashboardType];
+  
   const {
     layout,
     isEditMode,
@@ -36,7 +49,7 @@ export default function Dashboard() {
     redo,
     canUndo,
     canRedo
-  } = useDashboardLayout();
+  } = useDashboardLayout(dashboardType);
   
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -154,14 +167,17 @@ export default function Dashboard() {
         
         {/* Main Dashboard Content */}
         <div className="p-6 space-y-6">
+        {/* Dashboard Selector */}
+        <DashboardSelector currentDashboard={dashboardType} />
+        
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Welcome back, John</h1>
+            <h1 className="text-3xl font-bold">{dashboardMeta.name}</h1>
             <p className="text-muted-foreground">
               {isEditMode 
                 ? "Drag widgets to reorder or click + to add new ones" 
-                : "Here's what's happening with your recruitment today"
+                : dashboardMeta.description
               }
             </p>
           </div>
@@ -212,6 +228,7 @@ export default function Dashboard() {
           open={isPaletteOpen}
           onOpenChange={setIsPaletteOpen}
           onAddWidget={handleAddWidget}
+          dashboardType={dashboardType}
         />
       </div>
     </DashboardPageLayout>

@@ -1,0 +1,38 @@
+import { DASHBOARD_METADATA } from "@/lib/dashboard/dashboardTypes";
+import type { DashboardType } from "@/lib/dashboard/dashboardTypes";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+
+interface DashboardSelectorProps {
+  currentDashboard: DashboardType;
+}
+
+export function DashboardSelector({ currentDashboard }: DashboardSelectorProps) {
+  const navigate = useNavigate();
+  
+  return (
+    <div className="flex items-center gap-2 border-b border-border pb-4">
+      {Object.values(DASHBOARD_METADATA).map((dashboard) => {
+        const Icon = dashboard.icon;
+        const isActive = currentDashboard === dashboard.id;
+        
+        return (
+          <Button
+            key={dashboard.id}
+            variant={isActive ? "default" : "outline"}
+            size="sm"
+            onClick={() => navigate(dashboard.defaultRoute)}
+            className={cn(
+              "gap-2",
+              !isActive && "bg-background hover:bg-accent"
+            )}
+          >
+            <Icon className="h-4 w-4" />
+            <span className="hidden sm:inline">{dashboard.name}</span>
+          </Button>
+        );
+      })}
+    </div>
+  );
+}

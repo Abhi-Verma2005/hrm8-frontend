@@ -1,0 +1,473 @@
+import type { DashboardLayout } from './types';
+import type { DashboardType } from './dashboardTypes';
+
+export const DEFAULT_JOBS_LAYOUT: DashboardLayout = {
+  id: 'jobs',
+  name: 'Jobs Dashboard',
+  dashboardType: 'jobs',
+  widgets: [
+    {
+      id: 'stat-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Active Jobs',
+      gridArea: { x: 0, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Active Jobs",
+        value: "24",
+        change: "+12%",
+        trend: "up",
+        variant: "neutral"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-2',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Total Candidates',
+      gridArea: { x: 3, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Total Candidates",
+        value: "1,234",
+        change: "+8%",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-3',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Applications',
+      gridArea: { x: 6, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Applications",
+        value: "567",
+        change: "+23%",
+        trend: "up",
+        variant: "primary"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-4',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Hired This Month',
+      gridArea: { x: 9, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Hired This Month",
+        value: "18",
+        change: "+5%",
+        trend: "up",
+        variant: "warning"
+      },
+      isVisible: true
+    },
+    {
+      id: 'chart-1',
+      type: 'chart',
+      component: 'HiringTrendsChart',
+      title: 'Hiring Trends',
+      gridArea: { x: 0, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-2',
+      type: 'chart',
+      component: 'ApplicationFunnelChart',
+      title: 'Application Funnel',
+      gridArea: { x: 6, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-3',
+      type: 'chart',
+      component: 'JobDistributionChart',
+      title: 'Job Distribution',
+      gridArea: { x: 0, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-4',
+      type: 'chart',
+      component: 'SourceOfHireChart',
+      title: 'Source of Hire',
+      gridArea: { x: 6, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'activity-1',
+      type: 'activity',
+      component: 'RecentActivityCard',
+      title: 'Recent Activity',
+      gridArea: { x: 0, y: 5, w: 12, h: 2 },
+      props: {},
+      isVisible: true,
+      isLocked: true
+    }
+  ],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
+export const DEFAULT_HRMS_LAYOUT: DashboardLayout = {
+  id: 'hrms',
+  name: 'HRMS Dashboard',
+  dashboardType: 'hrms',
+  widgets: [
+    {
+      id: 'stat-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Total Employees',
+      gridArea: { x: 0, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Total Employees",
+        value: "342",
+        change: "+6%",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-2',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Attendance Rate',
+      gridArea: { x: 3, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Attendance Rate",
+        value: "94.2%",
+        change: "+2.1%",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-3',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Leave Requests',
+      gridArea: { x: 6, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Leave Requests",
+        value: "23",
+        change: "-12%",
+        trend: "down",
+        variant: "primary"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-4',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Departments',
+      gridArea: { x: 9, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Departments",
+        value: "12",
+        change: "0%",
+        trend: "neutral",
+        variant: "neutral"
+      },
+      isVisible: true
+    },
+    {
+      id: 'chart-1',
+      type: 'chart',
+      component: 'AttendanceTrendsChart',
+      title: 'Attendance Trends',
+      gridArea: { x: 0, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-2',
+      type: 'chart',
+      component: 'EmployeeDistributionChart',
+      title: 'Employee Distribution',
+      gridArea: { x: 6, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-3',
+      type: 'chart',
+      component: 'LeaveAnalysisChart',
+      title: 'Leave Analysis',
+      gridArea: { x: 0, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-4',
+      type: 'chart',
+      component: 'PerformanceOverviewChart',
+      title: 'Performance Overview',
+      gridArea: { x: 6, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'activity-1',
+      type: 'activity',
+      component: 'RecentActivityCard',
+      title: 'Recent Activity',
+      gridArea: { x: 0, y: 5, w: 12, h: 2 },
+      props: {},
+      isVisible: true,
+      isLocked: true
+    }
+  ],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
+export const DEFAULT_FINANCIAL_LAYOUT: DashboardLayout = {
+  id: 'financial',
+  name: 'Financial Dashboard',
+  dashboardType: 'financial',
+  widgets: [
+    {
+      id: 'stat-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Total Revenue',
+      gridArea: { x: 0, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Total Revenue",
+        value: "$2.4M",
+        change: "+18%",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-2',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Total Expenses',
+      gridArea: { x: 3, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Total Expenses",
+        value: "$1.8M",
+        change: "+5%",
+        trend: "up",
+        variant: "warning"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-3',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Profit Margin',
+      gridArea: { x: 6, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Profit Margin",
+        value: "25%",
+        change: "+3%",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-4',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Payroll Cost',
+      gridArea: { x: 9, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Payroll Cost",
+        value: "$890K",
+        change: "+2%",
+        trend: "up",
+        variant: "primary"
+      },
+      isVisible: true
+    },
+    {
+      id: 'chart-1',
+      type: 'chart',
+      component: 'RevenueExpenseChart',
+      title: 'Revenue vs Expenses',
+      gridArea: { x: 0, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-2',
+      type: 'chart',
+      component: 'BudgetAnalysisChart',
+      title: 'Budget Analysis',
+      gridArea: { x: 6, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-3',
+      type: 'chart',
+      component: 'CostBreakdownChart',
+      title: 'Cost Breakdown',
+      gridArea: { x: 0, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-4',
+      type: 'chart',
+      component: 'PayrollTrendsChart',
+      title: 'Payroll Trends',
+      gridArea: { x: 6, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'activity-1',
+      type: 'activity',
+      component: 'RecentActivityCard',
+      title: 'Recent Activity',
+      gridArea: { x: 0, y: 5, w: 12, h: 2 },
+      props: {},
+      isVisible: true,
+      isLocked: true
+    }
+  ],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
+export const DEFAULT_CONSULTING_LAYOUT: DashboardLayout = {
+  id: 'consulting',
+  name: 'Consulting Dashboard',
+  dashboardType: 'consulting',
+  widgets: [
+    {
+      id: 'stat-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Active Projects',
+      gridArea: { x: 0, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Active Projects",
+        value: "32",
+        change: "+15%",
+        trend: "up",
+        variant: "primary"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-2',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Total Clients',
+      gridArea: { x: 3, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Total Clients",
+        value: "18",
+        change: "+3",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-3',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Utilization Rate',
+      gridArea: { x: 6, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Utilization Rate",
+        value: "78%",
+        change: "+5%",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-4',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Billable Hours',
+      gridArea: { x: 9, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Billable Hours",
+        value: "2,840",
+        change: "+12%",
+        trend: "up",
+        variant: "primary"
+      },
+      isVisible: true
+    },
+    {
+      id: 'chart-1',
+      type: 'chart',
+      component: 'ProjectPipelineChart',
+      title: 'Project Pipeline',
+      gridArea: { x: 0, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-2',
+      type: 'chart',
+      component: 'ClientDistributionChart',
+      title: 'Client Distribution',
+      gridArea: { x: 6, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-3',
+      type: 'chart',
+      component: 'ResourceAllocationChart',
+      title: 'Resource Allocation',
+      gridArea: { x: 0, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-4',
+      type: 'chart',
+      component: 'RevenueForecastChart',
+      title: 'Revenue Forecast',
+      gridArea: { x: 6, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'activity-1',
+      type: 'activity',
+      component: 'RecentActivityCard',
+      title: 'Recent Activity',
+      gridArea: { x: 0, y: 5, w: 12, h: 2 },
+      props: {},
+      isVisible: true,
+      isLocked: true
+    }
+  ],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
+export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
+  jobs: DEFAULT_JOBS_LAYOUT,
+  hrms: DEFAULT_HRMS_LAYOUT,
+  financial: DEFAULT_FINANCIAL_LAYOUT,
+  consulting: DEFAULT_CONSULTING_LAYOUT
+};

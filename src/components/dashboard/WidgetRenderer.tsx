@@ -3,8 +3,23 @@ import { HiringTrendsChart } from './charts/HiringTrendsChart';
 import { ApplicationFunnelChart } from './charts/ApplicationFunnelChart';
 import { JobDistributionChart } from './charts/JobDistributionChart';
 import { SourceOfHireChart } from './charts/SourceOfHireChart';
+import { AttendanceTrendsChart } from './charts/AttendanceTrendsChart';
+import { EmployeeDistributionChart } from './charts/EmployeeDistributionChart';
+import { LeaveAnalysisChart } from './charts/LeaveAnalysisChart';
+import { PerformanceOverviewChart } from './charts/PerformanceOverviewChart';
+import { RevenueExpenseChart } from './charts/RevenueExpenseChart';
+import { BudgetAnalysisChart } from './charts/BudgetAnalysisChart';
+import { CostBreakdownChart } from './charts/CostBreakdownChart';
+import { PayrollTrendsChart } from './charts/PayrollTrendsChart';
+import { ProjectPipelineChart } from './charts/ProjectPipelineChart';
+import { ClientDistributionChart } from './charts/ClientDistributionChart';
+import { ResourceAllocationChart } from './charts/ResourceAllocationChart';
+import { RevenueForecastChart } from './charts/RevenueForecastChart';
 import { RecentActivityCard } from './RecentActivityCard';
-import { Users, Briefcase, FileText, UserCheck, Eye, Plus, Filter, Download, XCircle, CheckCircle } from 'lucide-react';
+import { 
+  Users, Briefcase, FileText, UserCheck, Eye, Plus, Filter, Download, XCircle, CheckCircle,
+  UserCircle, Calendar, Building2, DollarSign, FolderKanban, Building
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { DashboardWidget } from '@/lib/dashboard/types';
 
@@ -14,6 +29,18 @@ const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
   ApplicationFunnelChart,
   JobDistributionChart,
   SourceOfHireChart,
+  AttendanceTrendsChart,
+  EmployeeDistributionChart,
+  LeaveAnalysisChart,
+  PerformanceOverviewChart,
+  RevenueExpenseChart,
+  BudgetAnalysisChart,
+  CostBreakdownChart,
+  PayrollTrendsChart,
+  ProjectPipelineChart,
+  ClientDistributionChart,
+  ResourceAllocationChart,
+  RevenueForecastChart,
   RecentActivityCard
 };
 
@@ -38,10 +65,26 @@ export function WidgetRenderer({ widget }: WidgetRendererProps) {
   // Add navigation and icons to stat cards
   if (widget.component === 'EnhancedStatCard') {
     const iconMap: Record<string, React.ReactNode> = {
+      // Jobs
       'Active Jobs': <Briefcase className="h-6 w-6" />,
       'Total Candidates': <Users className="h-6 w-6" />,
       'Applications': <FileText className="h-6 w-6" />,
       'Hired This Month': <UserCheck className="h-6 w-6" />,
+      // HRMS
+      'Total Employees': <UserCircle className="h-6 w-6" />,
+      'Attendance Rate': <Calendar className="h-6 w-6" />,
+      'Leave Requests': <FileText className="h-6 w-6" />,
+      'Departments': <Building2 className="h-6 w-6" />,
+      // Financial
+      'Total Revenue': <DollarSign className="h-6 w-6" />,
+      'Total Expenses': <DollarSign className="h-6 w-6" />,
+      'Profit Margin': <DollarSign className="h-6 w-6" />,
+      'Payroll Cost': <DollarSign className="h-6 w-6" />,
+      // Consulting
+      'Active Projects': <FolderKanban className="h-6 w-6" />,
+      'Total Clients': <Building className="h-6 w-6" />,
+      'Utilization Rate': <Users className="h-6 w-6" />,
+      'Billable Hours': <Calendar className="h-6 w-6" />,
     };
 
     const actionMap: Record<string, { label: string; action: () => void }> = {
@@ -49,6 +92,11 @@ export function WidgetRenderer({ widget }: WidgetRendererProps) {
       'Total Candidates': { label: 'View All', action: () => navigate('/candidates') },
       'Applications': { label: 'Review', action: () => navigate('/applications') },
       'Hired This Month': { label: 'View Hires', action: () => navigate('/candidates') },
+      'Total Employees': { label: 'View All', action: () => navigate('/candidates') },
+      'Attendance Rate': { label: 'View Details', action: () => navigate('/analytics') },
+      'Leave Requests': { label: 'Review', action: () => navigate('/applications') },
+      'Active Projects': { label: 'View All', action: () => navigate('/jobs') },
+      'Total Clients': { label: 'View All', action: () => navigate('/candidates') },
     };
 
     const menuMap: Record<string, Array<{ label: string; icon: React.ReactNode; onClick: () => void }>> = {
@@ -86,10 +134,10 @@ export function WidgetRenderer({ widget }: WidgetRendererProps) {
       <Component
         {...widget.props}
         icon={icon}
-        showAction={true}
+        showAction={!!action}
         actionLabel={action?.label}
         onAction={action?.action}
-        showMenu={true}
+        showMenu={!!menuItems}
         menuItems={menuItems}
       />
     );

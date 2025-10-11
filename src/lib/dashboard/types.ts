@@ -1,3 +1,5 @@
+import type { DashboardType } from './dashboardTypes';
+
 export interface DashboardWidget {
   id: string;
   type: 'stat' | 'chart' | 'activity';
@@ -17,6 +19,7 @@ export interface DashboardWidget {
 export interface DashboardLayout {
   id: string;
   name: string;
+  dashboardType: DashboardType;
   widgets: DashboardWidget[];
   createdAt: Date;
   updatedAt: Date;
