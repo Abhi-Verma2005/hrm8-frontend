@@ -92,7 +92,7 @@ export function AppSidebar() {
                               "flex items-center justify-center w-9 h-9 rounded-lg transition-all",
                               isActive(item.url) 
                                 ? "bg-primary/10 text-primary" 
-                                : "bg-transparent text-muted-foreground group-hover:bg-muted group-hover:scale-110"
+                                : "bg-transparent text-muted-foreground hover:bg-muted hover:scale-110"
                             )}>
                               <item.icon className="h-5 w-5" />
                             </div>
