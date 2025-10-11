@@ -1,2 +1,2 @@
-export { DateRangeFilter, type DateRangeFilterProps, type PresetRange, DEFAULT_PRESETS } from "./date-range-filter";
-export { DateRangeFilterCompact, type DateRangeFilterCompactProps } from "./date-range-filter-compact";
+export { DateRangePicker, type DateRangePickerProps } from "./date-range-picker-v2";
+export { DateRangePickerCompact, type DateRangePickerCompactProps } from "./date-range-picker-v2";

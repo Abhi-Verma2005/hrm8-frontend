@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Filter, Eye, Mail } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { DateRangeFilterCompact } from "@/components/ui/date-range-filter-compact";
+import { DateRangePickerCompact } from "@/components/ui/date-range-picker-v2";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -60,10 +60,9 @@ export function RecentActivityCard() {
           Recent Activity
         </CardTitle>
         <div className="flex items-center gap-1">
-          <DateRangeFilterCompact
+          <DateRangePickerCompact
             value={dateRange}
             onChange={setDateRange}
-            iconOnly={true}
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

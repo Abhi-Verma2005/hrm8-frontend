@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Button } from "@/components/ui/button";
-import { DateRangeFilterCompact } from "@/components/ui/date-range-filter-compact";
+import { DateRangePickerCompact } from "@/components/ui/date-range-picker-v2";
 import { Download, MoreVertical, RefreshCw } from "lucide-react";
 import {
   DropdownMenu,
@@ -48,10 +48,9 @@ export function HiringTrendsChart() {
           <CardDescription>Application flow over the last 6 months</CardDescription>
         </div>
           <div className="flex items-center gap-1">
-            <DateRangeFilterCompact
+            <DateRangePickerCompact
               value={dateRange}
               onChange={setDateRange}
-              iconOnly={true}
               align="end"
             />
           

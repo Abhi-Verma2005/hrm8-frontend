@@ -9,7 +9,7 @@ import { WIDGET_REGISTRY } from '@/lib/dashboard/widgetRegistry';
 import type { WidgetType } from '@/lib/dashboard/widgetRegistry';
 import type { DashboardWidget } from '@/lib/dashboard/types';
 import { Button } from "@/components/ui/button";
-import { DateRangeFilter } from "@/components/ui/date-range-filter";
+import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import {
   Select,
   SelectContent,
@@ -133,11 +133,11 @@ export default function Dashboard() {
           
           {!isEditMode && (
             <div className="flex items-center gap-3">
-              <DateRangeFilter
+              <DateRangePicker
                 value={dateRange}
                 onChange={setDateRange}
                 placeholder="Select period"
-                className="w-[240px]"
+                className="w-[280px]"
                 align="end"
               />
               
