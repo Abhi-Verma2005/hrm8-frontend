@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import logoLight from "@/assets/logo-light.png";
+import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
 import {
   LayoutDashboard,
@@ -52,7 +52,7 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-2">
           <img src={iconMark} alt="HRM8" className="h-8 w-8" />
-          {open && <img src={logoLight} alt="HRM8" className="h-6" />}
+          {open && <img src={logoDark} alt="HRM8" className="h-6" />}
         </div>
       </SidebarHeader>
 
