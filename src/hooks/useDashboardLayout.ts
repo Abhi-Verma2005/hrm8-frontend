@@ -22,19 +22,41 @@ export function useDashboardLayout() {
   });
   
   const [isEditMode, setIsEditMode] = useState(false);
+  const [layoutHistory, setLayoutHistory] = useState<DashboardLayout[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  
+  const saveToHistory = useCallback((currentLayout: DashboardLayout) => {
+    setLayoutHistory(h => [...h.slice(0, historyIndex + 1), currentLayout]);
+    setHistoryIndex(i => i + 1);
+  }, [historyIndex]);
   
   const updateWidget = useCallback((widgetId: string, updates: Partial<DashboardWidget>) => {
-    setLayout(prev => ({
-      ...prev,
-      widgets: prev.widgets.map(w => 
-        w.id === widgetId ? { ...w, ...updates } : w
-      ),
-      updatedAt: new Date()
-    }));
-  }, []);
+    setLayout(prev => {
+      saveToHistory(prev);
+      return {
+        ...prev,
+        widgets: prev.widgets.map(w => 
+          w.id === widgetId ? { ...w, ...updates } : w
+        ),
+        updatedAt: new Date()
+      };
+    });
+  }, [saveToHistory]);
+  
+  const updateLayout = useCallback((widgets: DashboardWidget[]) => {
+    setLayout(prev => {
+      saveToHistory(prev);
+      return {
+        ...prev,
+        widgets,
+        updatedAt: new Date()
+      };
+    });
+  }, [saveToHistory]);
   
   const addWidget = useCallback((widget: DashboardWidget) => {
     setLayout(prev => {
+      saveToHistory(prev);
       const newWidget = {
         ...widget,
         gridArea: findEmptySpace(prev.widgets, widget.gridArea.w, widget.gridArea.h)
@@ -46,23 +68,43 @@ export function useDashboardLayout() {
         updatedAt: new Date()
       };
     });
-  }, []);
+  }, [saveToHistory]);
   
   const removeWidget = useCallback((widgetId: string) => {
-    setLayout(prev => ({
-      ...prev,
-      widgets: prev.widgets.filter(w => w.id !== widgetId && !w.isLocked),
-      updatedAt: new Date()
-    }));
-  }, []);
+    setLayout(prev => {
+      saveToHistory(prev);
+      return {
+        ...prev,
+        widgets: prev.widgets.filter(w => w.id !== widgetId && !w.isLocked),
+        updatedAt: new Date()
+      };
+    });
+  }, [saveToHistory]);
   
   const resetLayout = useCallback(() => {
-    setLayout({
-      ...DEFAULT_DASHBOARD_LAYOUT,
-      createdAt: new Date(),
-      updatedAt: new Date()
+    setLayout(prev => {
+      saveToHistory(prev);
+      return {
+        ...DEFAULT_DASHBOARD_LAYOUT,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
     });
-  }, []);
+  }, [saveToHistory]);
+  
+  const undo = useCallback(() => {
+    if (historyIndex > 0) {
+      setLayout(layoutHistory[historyIndex - 1]);
+      setHistoryIndex(i => i - 1);
+    }
+  }, [historyIndex, layoutHistory]);
+  
+  const redo = useCallback(() => {
+    if (historyIndex < layoutHistory.length - 1) {
+      setLayout(layoutHistory[historyIndex + 1]);
+      setHistoryIndex(i => i + 1);
+    }
+  }, [historyIndex, layoutHistory]);
   
   const saveLayout = useCallback(() => {
     localStorage.setItem('dashboard_layout_v1', JSON.stringify(layout));
@@ -73,9 +115,14 @@ export function useDashboardLayout() {
     isEditMode,
     setIsEditMode,
     updateWidget,
+    updateLayout,
     addWidget,
     removeWidget,
     resetLayout,
-    saveLayout
+    saveLayout,
+    undo,
+    redo,
+    canUndo: historyIndex > 0,
+    canRedo: historyIndex < layoutHistory.length - 1
   };
 }

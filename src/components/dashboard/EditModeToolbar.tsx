@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Save, RotateCcw, Plus } from 'lucide-react';
+import { Save, RotateCcw, Plus, Eye, EyeOff, Undo2, Redo2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
@@ -15,16 +15,28 @@ import { useState } from 'react';
 
 interface EditModeToolbarProps {
   hasUnsavedChanges: boolean;
+  showLivePreview: boolean;
+  onToggleLivePreview: () => void;
   onSave: () => void;
   onReset: () => void;
   onAddWidget: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  canUndo?: boolean;
+  canRedo?: boolean;
 }
 
 export function EditModeToolbar({
   hasUnsavedChanges,
+  showLivePreview,
+  onToggleLivePreview,
   onSave,
   onReset,
-  onAddWidget
+  onAddWidget,
+  onUndo,
+  onRedo,
+  canUndo = false,
+  canRedo = false
 }: EditModeToolbarProps) {
   const [showResetDialog, setShowResetDialog] = useState(false);
 
@@ -46,7 +58,41 @@ export function EditModeToolbar({
           Add Widget
         </Button>
         
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onToggleLivePreview}
+          className="gap-2"
+        >
+          {showLivePreview ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          {showLivePreview ? 'Show Placeholders' : 'Show Live Preview'}
+        </Button>
+        
         <div className="flex-1" />
+        
+        {onUndo && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onUndo}
+            disabled={!canUndo}
+            className="gap-2"
+          >
+            <Undo2 className="h-4 w-4" />
+          </Button>
+        )}
+        
+        {onRedo && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onRedo}
+            disabled={!canRedo}
+            className="gap-2"
+          >
+            <Redo2 className="h-4 w-4" />
+          </Button>
+        )}
         
         <Button
           variant="outline"

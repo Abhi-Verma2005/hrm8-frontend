@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardGrid } from '@/components/dashboard/DashboardGrid';
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { EditModeToolbar } from '@/components/dashboard/EditModeToolbar';
@@ -27,16 +27,40 @@ export default function Dashboard() {
     isEditMode,
     setIsEditMode,
     updateWidget,
+    updateLayout,
     addWidget,
     removeWidget,
     resetLayout,
-    saveLayout
+    saveLayout,
+    undo,
+    redo,
+    canUndo,
+    canRedo
   } = useDashboardLayout();
   
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [showLivePreview, setShowLivePreview] = useState(true);
   const { toast } = useToast();
+  
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        redo();
+      }
+    };
+    
+    if (isEditMode) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isEditMode, undo, redo]);
   
   const handleAddWidget = (widgetType: WidgetType) => {
     const widgetDef = WIDGET_REGISTRY[widgetType];
@@ -87,6 +111,11 @@ export default function Dashboard() {
     updateWidget(id, updates);
     setHasUnsavedChanges(true);
   };
+  
+  const handleUpdateLayout = (widgets: DashboardWidget[]) => {
+    updateLayout(widgets);
+    setHasUnsavedChanges(true);
+  };
 
   const handleRemoveWidget = (id: string) => {
     removeWidget(id);
@@ -111,9 +140,15 @@ export default function Dashboard() {
         {isEditMode && (
           <EditModeToolbar
             hasUnsavedChanges={hasUnsavedChanges}
+            showLivePreview={showLivePreview}
+            onToggleLivePreview={() => setShowLivePreview(!showLivePreview)}
             onSave={handleSave}
             onReset={handleReset}
             onAddWidget={() => setIsPaletteOpen(true)}
+            onUndo={undo}
+            onRedo={redo}
+            canUndo={canUndo}
+            canRedo={canRedo}
           />
         )}
         
@@ -165,7 +200,9 @@ export default function Dashboard() {
         <DashboardGrid
           layout={layout}
           isEditMode={isEditMode}
+          showLivePreview={showLivePreview}
           onUpdateWidget={handleUpdateWidget}
+          onUpdateLayout={handleUpdateLayout}
           onRemoveWidget={handleRemoveWidget}
         />
       </div>

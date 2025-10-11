@@ -7,14 +7,18 @@ import type { DashboardLayout, DashboardWidget } from '@/lib/dashboard/types';
 interface DashboardGridProps {
   layout: DashboardLayout;
   isEditMode: boolean;
+  showLivePreview?: boolean;
   onUpdateWidget: (id: string, updates: Partial<DashboardWidget>) => void;
+  onUpdateLayout?: (widgets: DashboardWidget[]) => void;
   onRemoveWidget: (id: string) => void;
 }
 
 export function DashboardGrid({
   layout,
   isEditMode,
+  showLivePreview = true,
   onUpdateWidget,
+  onUpdateLayout,
   onRemoveWidget
 }: DashboardGridProps) {
   const sensors = useSensors(
@@ -97,8 +101,11 @@ export function DashboardGrid({
                 key={widget.id}
                 widget={widget}
                 isEditMode={isEditMode}
+                showLivePreview={showLivePreview}
+                allWidgets={layout.widgets}
                 onRemove={() => onRemoveWidget(widget.id)}
                 onUpdate={(updates) => onUpdateWidget(widget.id, updates)}
+                onUpdateLayout={onUpdateLayout}
               >
                 <WidgetRenderer widget={widget} />
               </DraggableWidget>

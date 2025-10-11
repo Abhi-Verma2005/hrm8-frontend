@@ -57,3 +57,162 @@ export function hasCollision(
     );
   });
 }
+
+/**
+ * Get all widgets that would collide with a given area
+ */
+export function getCollidingWidgets(
+  targetArea: { x: number; y: number; w: number; h: number },
+  allWidgets: DashboardWidget[],
+  excludeId?: string
+): DashboardWidget[] {
+  return allWidgets.filter(widget => {
+    if (widget.id === excludeId) return false;
+    
+    const hasOverlap = !(
+      targetArea.x + targetArea.w <= widget.gridArea.x ||
+      targetArea.x >= widget.gridArea.x + widget.gridArea.w ||
+      targetArea.y + targetArea.h <= widget.gridArea.y ||
+      targetArea.y >= widget.gridArea.y + widget.gridArea.h
+    );
+    
+    return hasOverlap;
+  });
+}
+
+interface ReflowResult {
+  widgets: DashboardWidget[];
+  success: boolean;
+  movedWidgets: string[];
+}
+
+/**
+ * Automatically reflow layout when a widget is resized
+ */
+export function reflowLayout(
+  resizedWidget: DashboardWidget,
+  newArea: { x: number; y: number; w: number; h: number },
+  allWidgets: DashboardWidget[]
+): ReflowResult {
+  const movedWidgets: string[] = [];
+  let updatedWidgets = [...allWidgets];
+  
+  // Update the resized widget
+  updatedWidgets = updatedWidgets.map(w =>
+    w.id === resizedWidget.id
+      ? { ...w, gridArea: newArea }
+      : w
+  );
+  
+  // Get widgets that collide with the new size
+  const collisions = getCollidingWidgets(newArea, updatedWidgets, resizedWidget.id);
+  
+  if (collisions.length === 0) {
+    return { widgets: updatedWidgets, success: true, movedWidgets: [] };
+  }
+  
+  // Push colliding widgets down
+  collisions.forEach(collidingWidget => {
+    if (collidingWidget.isLocked) return;
+    
+    const pushDownDistance = (newArea.y + newArea.h) - collidingWidget.gridArea.y;
+    
+    if (pushDownDistance > 0) {
+      updatedWidgets = updatedWidgets.map(w =>
+        w.id === collidingWidget.id
+          ? {
+              ...w,
+              gridArea: {
+                ...w.gridArea,
+                y: w.gridArea.y + pushDownDistance
+              }
+            }
+          : w
+      );
+      movedWidgets.push(collidingWidget.id);
+    }
+  });
+  
+  // Cascade push for newly colliding widgets
+  let iterations = 0;
+  const maxIterations = 10;
+  
+  while (iterations < maxIterations) {
+    let hasNewCollisions = false;
+    
+    updatedWidgets.forEach(widget => {
+      const collisions = getCollidingWidgets(
+        widget.gridArea,
+        updatedWidgets,
+        widget.id
+      );
+      
+      if (collisions.length > 0 && !widget.isLocked) {
+        collisions.forEach(other => {
+          if (!other.isLocked) {
+            const pushDistance = (widget.gridArea.y + widget.gridArea.h) - other.gridArea.y;
+            
+            if (pushDistance > 0) {
+              updatedWidgets = updatedWidgets.map(w =>
+                w.id === other.id
+                  ? {
+                      ...w,
+                      gridArea: {
+                        ...w.gridArea,
+                        y: w.gridArea.y + pushDistance
+                      }
+                    }
+                  : w
+              );
+              
+              if (!movedWidgets.includes(other.id)) {
+                movedWidgets.push(other.id);
+              }
+              hasNewCollisions = true;
+            }
+          }
+        });
+      }
+    });
+    
+    if (!hasNewCollisions) break;
+    iterations++;
+  }
+  
+  // Compact layout
+  updatedWidgets = compactLayout(updatedWidgets);
+  
+  return {
+    widgets: updatedWidgets,
+    success: true,
+    movedWidgets
+  };
+}
+
+/**
+ * Compact the layout by moving widgets up to fill gaps
+ */
+export function compactLayout(widgets: DashboardWidget[]): DashboardWidget[] {
+  const sorted = [...widgets].sort((a, b) => a.gridArea.y - b.gridArea.y);
+  
+  return sorted.map(widget => {
+    if (widget.isLocked) return widget;
+    
+    let newY = widget.gridArea.y;
+    
+    for (let testY = 0; testY < widget.gridArea.y; testY++) {
+      const testArea = { ...widget.gridArea, y: testY };
+      const collisions = getCollidingWidgets(testArea, sorted, widget.id);
+      
+      if (collisions.length === 0) {
+        newY = testY;
+        break;
+      }
+    }
+    
+    return {
+      ...widget,
+      gridArea: { ...widget.gridArea, y: newY }
+    };
+  });
+}

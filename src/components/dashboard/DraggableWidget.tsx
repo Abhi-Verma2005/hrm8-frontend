@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
@@ -7,24 +7,37 @@ import { ResizeHandle } from './ResizeHandle';
 import { WidgetPlaceholder } from './WidgetPlaceholder';
 import { WIDGET_REGISTRY } from '@/lib/dashboard/widgetRegistry';
 import { useToast } from '@/hooks/use-toast';
+import { getCollidingWidgets, reflowLayout } from '@/lib/dashboard/layoutUtils';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { GripVertical, X } from 'lucide-react';
 
 interface DraggableWidgetProps {
   widget: DashboardWidget;
   isEditMode: boolean;
+  showLivePreview?: boolean;
+  isAffected?: boolean;
+  allWidgets?: DashboardWidget[];
   onRemove: () => void;
   onUpdate?: (updates: Partial<DashboardWidget>) => void;
+  onUpdateLayout?: (widgets: DashboardWidget[]) => void;
   children: React.ReactNode;
 }
 
 export function DraggableWidget({
   widget,
   isEditMode,
+  showLivePreview = true,
+  isAffected = false,
+  allWidgets = [],
   onRemove,
   onUpdate,
+  onUpdateLayout,
   children
 }: DraggableWidgetProps) {
   const { toast } = useToast();
   const [tempSize, setTempSize] = useState(widget.gridArea);
+  const [isColliding, setIsColliding] = useState(false);
   const {
     attributes,
     listeners,
@@ -37,6 +50,10 @@ export function DraggableWidget({
     disabled: !isEditMode,
     data: { widget }
   });
+  
+  useEffect(() => {
+    setTempSize(widget.gridArea);
+  }, [widget.gridArea]);
   
   // Get widget definition for size constraints
   const widgetDef = Object.values(WIDGET_REGISTRY).find(
@@ -60,17 +77,51 @@ export function DraggableWidget({
       )
     );
     
-    setTempSize({
+    const newArea = {
       ...widget.gridArea,
       w: newWidth,
       h: newHeight
-    });
+    };
+    
+    // Check for collisions
+    if (allWidgets.length > 0) {
+      const colliding = getCollidingWidgets(newArea, allWidgets, widget.id);
+      setIsColliding(colliding.length > 0);
+    }
+    
+    setTempSize(newArea);
   };
 
   const handleResizeEnd = () => {
-    if (onUpdate && (tempSize.w !== widget.gridArea.w || tempSize.h !== widget.gridArea.h)) {
+    if (tempSize.w === widget.gridArea.w && tempSize.h === widget.gridArea.h) {
+      return;
+    }
+    
+    // Check for collisions and reflow if necessary
+    if (allWidgets.length > 0 && onUpdateLayout) {
+      const collisions = getCollidingWidgets(tempSize, allWidgets, widget.id);
+      
+      if (collisions.length > 0) {
+        const reflowResult = reflowLayout(widget, tempSize, allWidgets);
+        
+        if (reflowResult.success) {
+          onUpdateLayout(reflowResult.widgets);
+          
+          if (reflowResult.movedWidgets.length > 0) {
+            toast({
+              title: "Layout adjusted",
+              description: `Moved ${reflowResult.movedWidgets.length} widget(s) to prevent overlap`,
+            });
+          }
+        }
+      } else if (onUpdate) {
+        onUpdate({ gridArea: tempSize });
+      }
+    } else if (onUpdate) {
       onUpdate({ gridArea: tempSize });
     }
+    
+    setIsColliding(false);
   };
   
   const style = {
@@ -86,19 +137,69 @@ export function DraggableWidget({
       ref={setNodeRef}
       style={style}
       className={cn(
-        "relative transition-all duration-200",
-        isEditMode && "ring-2 ring-primary/30 rounded-lg"
+        "relative transition-all duration-200 group",
+        isEditMode && "ring-2 ring-primary/30 rounded-lg",
+        isAffected && "ring-warning ring-4 animate-pulse",
+        isColliding && "ring-destructive ring-4"
       )}
     >
-      {/* Render placeholder in edit mode, actual content otherwise */}
       {isEditMode ? (
         <>
-          <WidgetPlaceholder 
-            widget={widget}
-            tempSize={tempSize}
-            onRemove={!widget.isLocked ? onRemove : undefined}
-            dragHandleProps={{ ...attributes, ...listeners }}
-          />
+          {showLivePreview ? (
+            <div className="h-full relative">
+              {/* Actual widget content */}
+              {children}
+              
+              {/* Overlay with edit controls */}
+              <div className="absolute inset-0 bg-primary/5 border-2 border-dashed border-primary/40 rounded-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
+              
+              {/* Drag Handle */}
+              <div
+                {...attributes}
+                {...listeners}
+                className="absolute top-2 left-2 cursor-move hover:text-primary transition-colors opacity-0 group-hover:opacity-100 bg-background/90 rounded p-1 shadow-sm pointer-events-auto z-30"
+              >
+                <GripVertical className="h-5 w-5" />
+              </div>
+              
+              {/* Remove Button */}
+              {!widget.isLocked && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onRemove}
+                  className="absolute top-2 right-2 h-7 w-7 p-0 opacity-0 group-hover:opacity-100 pointer-events-auto z-30 bg-background/90 hover:bg-destructive/10 hover:text-destructive shadow-sm"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+              
+              {/* Size indicator badge */}
+              <Badge 
+                variant="secondary" 
+                className="absolute bottom-2 right-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20"
+              >
+                {tempSize.w} × {tempSize.h}
+              </Badge>
+              
+              {/* Affected widget indicator */}
+              {isAffected && (
+                <Badge 
+                  variant="outline" 
+                  className="absolute top-2 left-1/2 -translate-x-1/2 text-xs bg-warning/10 border-warning text-warning z-20"
+                >
+                  Will move
+                </Badge>
+              )}
+            </div>
+          ) : (
+            <WidgetPlaceholder 
+              widget={widget}
+              tempSize={tempSize}
+              onRemove={!widget.isLocked ? onRemove : undefined}
+              dragHandleProps={{ ...attributes, ...listeners }}
+            />
+          )}
           
           {/* Resize Handles */}
           <ResizeHandle 
