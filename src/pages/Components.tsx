@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,11 @@ import { ApplicationFunnelChart } from "@/components/dashboard/charts/Applicatio
 import { JobDistributionChart } from "@/components/dashboard/charts/JobDistributionChart";
 import { SourceOfHireChart } from "@/components/dashboard/charts/SourceOfHireChart";
 import { KanbanBoard } from "@/components/KanbanBoard";
+import { DateRangePicker, DateRangePickerCompact } from "@/components/ui/date-filters";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 import {
   Search,
   CheckCircle,
@@ -20,7 +26,7 @@ import {
   Info,
   Plus,
   Filter,
-  Calendar,
+  Calendar as CalendarIcon,
   Users,
   FileText,
   TrendingUp,
@@ -35,6 +41,10 @@ import {
 } from "lucide-react";
 
 export default function Components() {
+  const [singleDate, setSingleDate] = useState<Date>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [compactRange, setCompactRange] = useState<DateRange | undefined>();
+  
   return (
     <AppLayout>
       <div className="py-12 px-6">
@@ -158,6 +168,224 @@ export default function Components() {
                 </div>
               </div>
             </Card>
+          </section>
+
+          {/* Date Pickers */}
+          <section id="date-pickers" className="mb-16">
+            <h2 className="mb-8">Date Pickers</h2>
+            <div className="space-y-8">
+              
+              {/* Basic Single Date Picker */}
+              <Card className="p-8">
+                <h4 className="mb-2">Basic Date Picker</h4>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Simple calendar for selecting a single date
+                </p>
+                <div className="flex flex-col gap-4">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={!singleDate && "text-muted-foreground"}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {singleDate ? format(singleDate, "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={singleDate}
+                        onSelect={setSingleDate}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  {singleDate && (
+                    <p className="text-sm text-muted-foreground">
+                      Selected: {format(singleDate, "PPPP")}
+                    </p>
+                  )}
+                </div>
+              </Card>
+
+              {/* Compact Date Range Picker */}
+              <Card className="p-8">
+                <h4 className="mb-2">Compact Date Range Picker</h4>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Icon-only date range picker with quick filters - perfect for toolbars and dashboards
+                </p>
+                <div className="flex flex-col gap-4">
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-medium">Filter Period:</span>
+                    <DateRangePickerCompact
+                      value={compactRange}
+                      onChange={setCompactRange}
+                      align="start"
+                    />
+                    {compactRange?.from && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setCompactRange(undefined)}
+                      >
+                        Clear
+                      </Button>
+                    )}
+                  </div>
+                  {compactRange?.from && compactRange?.to && (
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <p className="text-sm">
+                        <span className="font-medium">From:</span>{" "}
+                        {format(compactRange.from, "MMM d, yyyy")}
+                      </p>
+                      <p className="text-sm">
+                        <span className="font-medium">To:</span>{" "}
+                        {format(compactRange.to, "MMM d, yyyy")}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </Card>
+
+              {/* Full Date Range Picker */}
+              <Card className="p-8">
+                <h4 className="mb-2">Full Date Range Picker</h4>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Comprehensive date range picker with preset ranges, custom selection, and smart formatting
+                </p>
+                <div className="flex flex-col gap-4">
+                  <DateRangePicker
+                    value={dateRange}
+                    onChange={setDateRange}
+                    placeholder="Select date range"
+                    align="start"
+                  />
+                  {dateRange?.from && dateRange?.to && (
+                    <div className="p-4 bg-muted/50 rounded-lg space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm">
+                            <span className="font-medium">From:</span>{" "}
+                            {format(dateRange.from, "PPPP")}
+                          </p>
+                          <p className="text-sm">
+                            <span className="font-medium">To:</span>{" "}
+                            {format(dateRange.to, "PPPP")}
+                          </p>
+                        </div>
+                        <Badge variant="outline">
+                          {Math.ceil((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24)) + 1} days
+                        </Badge>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </Card>
+
+              {/* Use Cases */}
+              <Card className="p-8">
+                <h4 className="mb-2">Common Use Cases</h4>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Real-world examples of date pickers in action
+                </p>
+                <div className="space-y-6">
+                  
+                  {/* Dashboard Filters */}
+                  <div className="space-y-3">
+                    <h5 className="text-sm font-semibold">Dashboard Filters</h5>
+                    <div className="flex items-center gap-3 p-4 border rounded-lg">
+                      <span className="text-sm">Analytics Period:</span>
+                      <DateRangePickerCompact
+                        value={compactRange}
+                        onChange={setCompactRange}
+                      />
+                      <Button variant="secondary" size="sm">
+                        <Download className="h-4 w-4 mr-2" />
+                        Export Report
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Report Generation */}
+                  <div className="space-y-3">
+                    <h5 className="text-sm font-semibold">Report Generation</h5>
+                    <div className="p-4 border rounded-lg space-y-3">
+                      <div className="flex items-center gap-3">
+                        <label className="text-sm font-medium min-w-[100px]">
+                          Report Period:
+                        </label>
+                        <DateRangePicker
+                          value={dateRange}
+                          onChange={setDateRange}
+                          placeholder="Select reporting period"
+                        />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <label className="text-sm font-medium min-w-[100px]">
+                          Report Type:
+                        </label>
+                        <Button variant="outline" size="sm" className="justify-start">
+                          <FileText className="h-4 w-4 mr-2" />
+                          Hiring Metrics
+                        </Button>
+                      </div>
+                      <Button className="w-full">
+                        Generate Report
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Event Scheduling */}
+                  <div className="space-y-3">
+                    <h5 className="text-sm font-semibold">Interview Scheduling</h5>
+                    <div className="p-4 border rounded-lg space-y-3">
+                      <div className="flex items-center gap-3">
+                        <label className="text-sm font-medium min-w-[120px]">
+                          Interview Date:
+                        </label>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              className={!singleDate && "text-muted-foreground"}
+                            >
+                              <CalendarIcon className="mr-2 h-4 w-4" />
+                              {singleDate ? format(singleDate, "PPP") : "Select date"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0">
+                            <Calendar
+                              mode="single"
+                              selected={singleDate}
+                              onSelect={setSingleDate}
+                              initialFocus
+                              className="pointer-events-auto"
+                              disabled={(date) => date < new Date()}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <label className="text-sm font-medium min-w-[120px]">
+                          Candidate:
+                        </label>
+                        <Button variant="outline" size="sm" className="justify-start">
+                          <UserCheck className="h-4 w-4 mr-2" />
+                          Sarah Johnson
+                        </Button>
+                      </div>
+                      <Button variant="success" className="w-full">
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Schedule Interview
+                      </Button>
+                    </div>
+                  </div>
+
+                </div>
+              </Card>
+            </div>
           </section>
 
           {/* Alerts & Notifications */}
