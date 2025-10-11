@@ -76,11 +76,9 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          {isExpanded && (
-            <SidebarGroupLabel className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              <span className="transition-opacity duration-200">Main Menu</span>
-            </SidebarGroupLabel>
-          )}
+          <SidebarGroupLabel className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <span className="transition-opacity duration-200">Main Menu</span>
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map(item => (
@@ -129,20 +127,14 @@ export function AppSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
               <Clock className="h-3 w-3" />
-              {isExpanded ? (
-                <>
-                  <span className="transition-opacity duration-200">Recent</span>
-                  <button
-                    onClick={clearRecentRecords}
-                    className="ml-auto text-[10px] hover:text-foreground transition-colors"
-                    title="Clear recent items"
-                  >
-                    Clear
-                  </button>
-                </>
-              ) : (
-                <span className="sr-only">Recent</span>
-              )}
+              <span className="transition-opacity duration-200">Recent</span>
+              <button
+                onClick={clearRecentRecords}
+                className="ml-auto text-[10px] hover:text-foreground transition-colors"
+                title="Clear recent items"
+              >
+                Clear
+              </button>
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
