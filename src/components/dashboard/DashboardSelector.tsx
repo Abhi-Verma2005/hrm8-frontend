@@ -12,7 +12,7 @@ export function DashboardSelector({ currentDashboard }: DashboardSelectorProps) 
   const navigate = useNavigate();
   
   return (
-    <div className="flex items-center gap-2 border-b border-border pb-4">
+    <div className="flex items-center gap-2">
       {Object.values(DASHBOARD_METADATA).map((dashboard) => {
         const Icon = dashboard.icon;
         const isActive = currentDashboard === dashboard.id;
