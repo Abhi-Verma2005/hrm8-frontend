@@ -877,22 +877,20 @@ const jobColumns: Column<Job>[] = [
     key: 'title',
     label: 'Job Title',
     sortable: true,
-    render: (job) => (
-      <div className="flex items-center gap-3">
-        {job.employerLogo && (
+      render: (job) => (
+        <div className="flex items-center gap-3">
           <EntityAvatar
             src={job.employerLogo}
             name={job.employer}
             type="logo"
             size="sm"
           />
-        )}
-        <div>
-          <p className="font-medium">{job.title}</p>
-          <p className="text-sm text-muted-foreground">{job.employer}</p>
+          <div>
+            <p className="font-medium">{job.title}</p>
+            <p className="text-sm text-muted-foreground">{job.employer}</p>
+          </div>
         </div>
-      </div>
-    )
+      )
   },
   {
     key: 'location',
