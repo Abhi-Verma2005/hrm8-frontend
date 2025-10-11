@@ -39,7 +39,7 @@ function AppContent() {
           
           {/* Dashboard routes (with sidebar) */}
           <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<Navigate to="/dashboard/jobs" replace />} />
+            <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
             <Route path="/dashboard/:type" element={<Dashboard />} />
             <Route path="/candidates" element={<Candidates />} />
             <Route path="/jobs" element={<Jobs />} />

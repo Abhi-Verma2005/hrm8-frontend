@@ -1,7 +1,7 @@
-import { Briefcase, Users, DollarSign, Handshake, type LucideIcon } from "lucide-react";
+import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, type LucideIcon } from "lucide-react";
 import type { WidgetType } from "./widgetRegistry";
 
-export type DashboardType = 'jobs' | 'hrms' | 'financial' | 'consulting';
+export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting';
 
 export interface DashboardMetadata {
   id: DashboardType;
@@ -13,6 +13,24 @@ export interface DashboardMetadata {
 }
 
 export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
+  overview: {
+    id: 'overview',
+    name: 'Overview',
+    description: 'Executive summary across all business areas',
+    icon: LayoutGrid,
+    defaultRoute: '/dashboard/overview',
+    availableWidgets: [
+      'stat-active-jobs',
+      'stat-total-employees',
+      'stat-total-revenue',
+      'stat-active-projects',
+      'chart-hiring-trends',
+      'chart-revenue-expense',
+      'chart-employee-distribution',
+      'chart-project-pipeline',
+      'activity-feed'
+    ]
+  },
   jobs: {
     id: 'jobs',
     name: 'Jobs',

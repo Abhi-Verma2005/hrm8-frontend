@@ -12,7 +12,7 @@ import { useRecentRecords } from "@/hooks/useRecentRecords";
 import { formatDistanceToNow } from "date-fns";
 // CORE Section
 const coreNavItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Dashboard", url: "/dashboard/overview", icon: LayoutDashboard },
   { title: "Jobs", url: "/jobs", icon: Briefcase },
   { title: "Candidates", url: "/candidates", icon: Users },
   { title: "Customers", url: "/customers", icon: Building },

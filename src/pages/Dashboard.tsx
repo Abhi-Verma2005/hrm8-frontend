@@ -27,10 +27,10 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Dashboard() {
   const { type } = useParams<{ type: string }>();
-  const dashboardType = (type || 'jobs') as DashboardType;
+  const dashboardType = (type || 'overview') as DashboardType;
   
-  if (type && !['jobs', 'hrms', 'financial', 'consulting'].includes(type)) {
-    return <Navigate to="/dashboard/jobs" replace />;
+  if (type && !['overview', 'jobs', 'hrms', 'financial', 'consulting'].includes(type)) {
+    return <Navigate to="/dashboard/overview" replace />;
   }
   
   const dashboardMeta = DASHBOARD_METADATA[dashboardType];
