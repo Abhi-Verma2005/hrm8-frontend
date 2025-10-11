@@ -117,12 +117,15 @@ export function DateRangePickerCompact({
   const [selectedPreset, setSelectedPreset] = React.useState<PresetValue | null>(
     () => findMatchingPreset(value, COMPACT_PRESETS)
   );
+  const [selectionMode, setSelectionMode] = React.useState<'quick' | 'month' | 'year' | 'custom'>('quick');
+  const [selectedYear, setSelectedYear] = React.useState<number>(new Date().getFullYear());
   const [showCalendar, setShowCalendar] = React.useState(false);
 
   const handlePresetSelect = (presetValue: PresetValue) => {
     if (presetValue === "custom") {
       setShowCalendar(true);
       setSelectedPreset("custom");
+      setSelectionMode('custom');
       return;
     }
 
@@ -131,8 +134,33 @@ export function DateRangePickerCompact({
       onChange(preset.getRange());
       setSelectedPreset(presetValue);
       setShowCalendar(false);
+      setSelectionMode('quick');
       setOpen(false);
     }
+  };
+
+  const handleMonthSelect = (monthIndex: number) => {
+    const date = new Date(selectedYear, monthIndex, 1);
+    const range = {
+      from: startOfMonth(date),
+      to: endOfMonth(date)
+    };
+    onChange?.(range);
+    setSelectedPreset("custom");
+    setSelectionMode('quick');
+    setOpen(false);
+  };
+
+  const handleYearSelect = (year: number) => {
+    const date = new Date(year, 0, 1);
+    const range = {
+      from: startOfYear(date),
+      to: endOfYear(date)
+    };
+    onChange?.(range);
+    setSelectedPreset("custom");
+    setSelectionMode('quick');
+    setOpen(false);
   };
 
   const handleCalendarSelect = (range: DateRange | undefined) => {
@@ -156,6 +184,26 @@ export function DateRangePickerCompact({
 
   const formatTooltip = () => {
     if (!value?.from) return "Filter by date";
+    
+    // Check if it's a full month range
+    const isFullMonth = value.from && value.to && 
+      value.from.getDate() === 1 &&
+      value.to.getMonth() === value.from.getMonth() &&
+      value.to.getDate() === endOfMonth(value.from).getDate();
+    
+    if (isFullMonth) {
+      return format(value.from, "MMMM yyyy");
+    }
+    
+    // Check if it's a full year range
+    const isFullYear = value.from && value.to &&
+      value.from.getMonth() === 0 && value.from.getDate() === 1 &&
+      value.to.getMonth() === 11 && value.to.getDate() === 31;
+    
+    if (isFullYear) {
+      return format(value.from, "yyyy");
+    }
+    
     if (value.to) {
       return `${format(value.from, "MMM d")} - ${format(value.to, "MMM d")}`;
     }
@@ -191,7 +239,31 @@ export function DateRangePickerCompact({
                 </div>
               ))}
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="custom" id="compact-custom" />
+                <RadioGroupItem 
+                  value="select-month" 
+                  id="compact-select-month"
+                  onClick={() => setSelectionMode('month')}
+                />
+                <Label htmlFor="compact-select-month" className="text-sm cursor-pointer font-normal">
+                  Select month...
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem 
+                  value="select-year" 
+                  id="compact-select-year"
+                  onClick={() => setSelectionMode('year')}
+                />
+                <Label htmlFor="compact-select-year" className="text-sm cursor-pointer font-normal">
+                  Select year...
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem 
+                  value="custom" 
+                  id="compact-custom"
+                  onClick={() => setSelectionMode('custom')}
+                />
                 <Label htmlFor="compact-custom" className="text-sm cursor-pointer font-normal">
                   Custom range...
                 </Label>
@@ -199,7 +271,55 @@ export function DateRangePickerCompact({
             </RadioGroup>
           </div>
 
-          {showCalendar && (
+          {selectionMode === 'month' && (
+            <div className="pt-3 border-t space-y-2">
+              <Select value={selectedYear.toString()} onValueChange={(y) => setSelectedYear(parseInt(y))}>
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="grid grid-cols-3 gap-1">
+                {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((month, index) => (
+                  <Button
+                    key={month}
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs px-1 h-8"
+                    onClick={() => handleMonthSelect(index)}
+                  >
+                    {month}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {selectionMode === 'year' && (
+            <div className="pt-3 border-t">
+              <div className="grid grid-cols-2 gap-1">
+                {Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                  <Button
+                    key={year}
+                    variant="ghost"
+                    size="sm"
+                    className="text-sm h-9"
+                    onClick={() => handleYearSelect(year)}
+                  >
+                    {year}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {selectionMode === 'custom' && showCalendar && (
             <div className="pt-3 border-t">
               <Calendar
                 mode="range"
@@ -252,6 +372,7 @@ export function DateRangePicker({
   
   // Calendar navigation state
   const [calendarMonth, setCalendarMonth] = React.useState<Date>(value?.from || new Date());
+  const [monthSelectorYear, setMonthSelectorYear] = React.useState<number>(new Date().getFullYear());
 
   const handlePresetSelect = (presetValue: PresetValue) => {
     const preset = FULL_PRESETS.find(p => p.value === presetValue);
@@ -285,8 +406,49 @@ export function DateRangePicker({
     setSelectedPreset(null);
   };
 
+  const handleMonthSelect = (monthIndex: number) => {
+    const date = new Date(monthSelectorYear, monthIndex, 1);
+    const range = {
+      from: startOfMonth(date),
+      to: endOfMonth(date)
+    };
+    onChange?.(range);
+    setSelectedPreset(null);
+    setOpen(false);
+  };
+
+  const handleYearSelect = (year: number) => {
+    const date = new Date(year, 0, 1);
+    const range = {
+      from: startOfYear(date),
+      to: endOfYear(date)
+    };
+    onChange?.(range);
+    setSelectedPreset(null);
+    setOpen(false);
+  };
+
   const formatDisplayText = () => {
     if (!value?.from) return placeholder;
+    
+    // Check if it's a full month range
+    const isFullMonth = value.from && value.to && 
+      value.from.getDate() === 1 &&
+      value.to.getMonth() === value.from.getMonth() &&
+      value.to.getDate() === endOfMonth(value.from).getDate();
+    
+    if (isFullMonth) {
+      return format(value.from, "MMMM yyyy");
+    }
+    
+    // Check if it's a full year range
+    const isFullYear = value.from && value.to &&
+      value.from.getMonth() === 0 && value.from.getDate() === 1 &&
+      value.to.getMonth() === 11 && value.to.getDate() === 31;
+    
+    if (isFullYear) {
+      return format(value.from, "yyyy");
+    }
     
     // Check if it matches a preset
     const matchedPreset = FULL_PRESETS.find(p => isRangeEqual(p.getRange(), value));
@@ -360,6 +522,68 @@ export function DateRangePicker({
                   {preset.label}
                 </Button>
               ))}
+            </div>
+
+            {/* Separator */}
+            <div className="border-t my-2" />
+
+            {/* Select Month Section */}
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Select Month
+              </p>
+              <Select 
+                value={monthSelectorYear.toString()} 
+                onValueChange={(y) => setMonthSelectorYear(parseInt(y))}
+              >
+                <SelectTrigger className="w-full h-8 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <div className="grid grid-cols-3 gap-1">
+                {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((month, index) => (
+                  <Button
+                    key={month}
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs px-1 h-8"
+                    onClick={() => handleMonthSelect(index)}
+                  >
+                    {month}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Separator */}
+            <div className="border-t my-2" />
+
+            {/* Select Year Section */}
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                Select Year
+              </p>
+              <div className="grid grid-cols-2 gap-1">
+                {years.slice(0, 6).map((year) => (
+                  <Button
+                    key={year}
+                    variant="ghost"
+                    size="sm"
+                    className="text-sm h-9"
+                    onClick={() => handleYearSelect(year)}
+                  >
+                    {year}
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
