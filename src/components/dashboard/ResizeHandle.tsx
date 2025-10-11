@@ -27,8 +27,17 @@ export function ResizeHandle({ direction, onResize, onResizeEnd }: ResizeHandleP
       const columnWidth = window.innerWidth / 12;
       const rowHeight = 200;
       
-      const widthChange = Math.round(deltaX / columnWidth);
-      const heightChange = Math.round(deltaY / rowHeight);
+      let widthChange = 0;
+      let heightChange = 0;
+      
+      // Only calculate change for relevant direction
+      if (direction === 'right' || direction === 'corner') {
+        widthChange = Math.round(deltaX / columnWidth);
+      }
+      
+      if (direction === 'bottom' || direction === 'corner') {
+        heightChange = Math.round(deltaY / rowHeight);
+      }
       
       // Only trigger if changed
       if (widthChange !== lastDeltaX || heightChange !== lastDeltaY) {

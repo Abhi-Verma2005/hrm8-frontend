@@ -60,12 +60,32 @@ export function DashboardGrid({
             gridAutoFlow: 'dense'
           }}
         >
-          {/* Grid overlay in edit mode */}
+          {/* Enhanced grid overlay in edit mode */}
           {isEditMode && (
             <div className="absolute inset-0 pointer-events-none z-0">
+              {/* Column lines with numbers */}
               <div className="grid grid-cols-12 h-full">
                 {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="border-r border-primary/10" />
+                  <div key={`col-${i}`} className="border-r border-primary/30 relative">
+                    <span className="absolute top-1 left-1 text-[10px] text-primary/50 font-mono bg-background/80 px-1 rounded">
+                      {i + 1}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Row lines */}
+              <div className="absolute inset-0" style={{ top: '200px' }}>
+                {Array.from({ length: 20 }).map((_, i) => (
+                  <div 
+                    key={`row-${i}`} 
+                    className="border-t border-primary/30 relative" 
+                    style={{ marginTop: i > 0 ? '200px' : '0' }}
+                  >
+                    <span className="absolute left-1 -top-2 text-[10px] text-primary/50 font-mono bg-background/80 px-1 rounded">
+                      {i + 2}
+                    </span>
+                  </div>
                 ))}
               </div>
             </div>

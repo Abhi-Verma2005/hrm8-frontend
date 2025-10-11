@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { DashboardWidget } from '@/lib/dashboard/types';
 import { ResizeHandle } from './ResizeHandle';
+import { WidgetPlaceholder } from './WidgetPlaceholder';
 import { WIDGET_REGISTRY } from '@/lib/dashboard/widgetRegistry';
 import { useToast } from '@/hooks/use-toast';
 
@@ -92,34 +90,15 @@ export function DraggableWidget({
         isEditMode && "ring-2 ring-primary/30 rounded-lg"
       )}
     >
-      {/* Edit Mode Controls */}
-      {isEditMode && (
+      {/* Render placeholder in edit mode, actual content otherwise */}
+      {isEditMode ? (
         <>
-          <div className="absolute -top-9 left-0 right-0 flex items-center justify-between bg-background/95 backdrop-blur-sm px-3 py-1.5 rounded-t-lg border border-b-0 z-10 shadow-sm">
-            <div
-              {...attributes}
-              {...listeners}
-              className="flex items-center gap-2 cursor-move hover:text-primary transition-colors"
-            >
-              <GripVertical className="h-4 w-4" />
-              <span className="text-xs font-medium truncate max-w-[200px]">{widget.title}</span>
-              <Badge variant="outline" className="text-xs px-1.5 py-0">
-                {tempSize.w}×{tempSize.h}
-              </Badge>
-            </div>
-            <div className="flex gap-1">
-              {!widget.isLocked && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={onRemove}
-                  className="h-6 w-6 p-0 hover:text-destructive hover:bg-destructive/10"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-              )}
-            </div>
-          </div>
+          <WidgetPlaceholder 
+            widget={widget}
+            tempSize={tempSize}
+            onRemove={!widget.isLocked ? onRemove : undefined}
+            dragHandleProps={{ ...attributes, ...listeners }}
+          />
           
           {/* Resize Handles */}
           <ResizeHandle 
@@ -138,12 +117,11 @@ export function DraggableWidget({
             onResizeEnd={handleResizeEnd}
           />
         </>
+      ) : (
+        <div className="h-full">
+          {children}
+        </div>
       )}
-      
-      {/* Widget Content */}
-      <div className={cn("h-full", isEditMode && "pointer-events-none select-none")}>
-        {children}
-      </div>
     </div>
   );
 }
