@@ -1,12 +1,51 @@
 import * as React from "react";
 import { X, Filter } from "lucide-react";
-import { format } from "date-fns";
+import { format, startOfDay, endOfDay, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { DateRange } from "react-day-picker";
-import { DEFAULT_PRESETS, type PresetRange } from "./date-range-filter";
+
+export type PresetRange = {
+  label: string;
+  value: string;
+  range: DateRange;
+};
+
+// Default preset ranges for compact mode
+const DEFAULT_COMPACT_PRESETS: PresetRange[] = [
+  {
+    label: "Today",
+    value: "today",
+    range: { from: startOfDay(new Date()), to: endOfDay(new Date()) }
+  },
+  {
+    label: "Yesterday",
+    value: "yesterday",
+    range: { from: startOfDay(subDays(new Date(), 1)), to: endOfDay(subDays(new Date(), 1)) }
+  },
+  {
+    label: "Last 7 days",
+    value: "last-7",
+    range: { from: startOfDay(subDays(new Date(), 6)), to: endOfDay(new Date()) }
+  },
+  {
+    label: "Last 14 days",
+    value: "last-14",
+    range: { from: startOfDay(subDays(new Date(), 13)), to: endOfDay(new Date()) }
+  },
+  {
+    label: "Last 30 days",
+    value: "last-30",
+    range: { from: startOfDay(subDays(new Date(), 29)), to: endOfDay(new Date()) }
+  },
+  {
+    label: "This month",
+    value: "this-month",
+    range: { from: startOfMonth(new Date()), to: endOfMonth(new Date()) }
+  }
+];
 
 export type DateRangeFilterCompactProps = {
   value?: DateRange;
@@ -20,7 +59,7 @@ export type DateRangeFilterCompactProps = {
 export function DateRangeFilterCompact({
   value,
   onChange,
-  presets = DEFAULT_PRESETS.slice(0, 6), // Show fewer presets in compact mode
+  presets = DEFAULT_COMPACT_PRESETS,
   showIcon = true,
   iconOnly = false,
   align = "end"
@@ -28,7 +67,9 @@ export function DateRangeFilterCompact({
   const [open, setOpen] = React.useState(false);
 
   const handlePresetSelect = (preset: PresetRange) => {
-    onChange?.(preset.range);
+    if (onChange) {
+      onChange(preset.range);
+    }
     setOpen(false);
   };
 
