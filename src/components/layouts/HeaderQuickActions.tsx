@@ -30,11 +30,8 @@ export function HeaderQuickActions() {
               <span className="hidden lg:inline font-semibold">Post Job</span>
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-popover/95 backdrop-blur-sm">
-            <div className="flex flex-col gap-1">
-              <p className="font-semibold">Post a New Job</p>
-              <p className="text-xs text-muted-foreground">⌘ + J</p>
-            </div>
+          <TooltipContent side="bottom" className="lg:hidden">
+            <p>Post Job</p>
           </TooltipContent>
         </Tooltip>
       </div>
@@ -54,8 +51,8 @@ export function HeaderQuickActions() {
               <UserPlus className="h-4 w-4 transition-transform group-hover:scale-110 group-hover:text-primary" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-popover/95 backdrop-blur-sm">
-            <p className="font-medium">Add Candidate</p>
+          <TooltipContent side="bottom">
+            <p>Add Candidate</p>
           </TooltipContent>
         </Tooltip>
 
@@ -70,8 +67,8 @@ export function HeaderQuickActions() {
               <Calendar className="h-4 w-4 transition-transform group-hover:scale-110 group-hover:text-primary" />
             </Button>
           </TooltipTrigger>
-          <TooltipContent side="bottom" className="bg-popover/95 backdrop-blur-sm">
-            <p className="font-medium">Schedule Interview</p>
+          <TooltipContent side="bottom">
+            <p>Schedule Interview</p>
           </TooltipContent>
         </Tooltip>
       </div>
