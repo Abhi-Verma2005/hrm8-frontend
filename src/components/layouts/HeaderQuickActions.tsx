@@ -18,17 +18,12 @@ export function HeaderQuickActions() {
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <Button
-              variant="default"
+              variant="gradient"
               onClick={() => console.log("Post Job")}
               className={cn(
-                "relative group",
-                "gradient-primary",
-                "shadow-md hover:shadow-lg hover:shadow-primary/25",
-                "transition-all duration-300",
-                "hover:scale-105",
                 // Show text on large screens, icon-only on medium
                 "lg:px-4 lg:gap-2",
-                "md:h-9 md:w-9 md:p-0 lg:h-10 lg:w-auto"
+                "md:h-10 md:w-10 md:p-0 lg:h-10 lg:w-auto"
               )}
             >
               <Plus className="h-4 w-4" />
@@ -47,17 +42,16 @@ export function HeaderQuickActions() {
       <Separator orientation="vertical" className="h-6 mx-2 hidden lg:block" />
       
       {/* Secondary Quick Actions */}
-      <div className="hidden md:flex items-center gap-1">
+      <div className="hidden md:flex items-center gap-2">
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <Button
               variant="ghost"
               size="icon"
               onClick={() => console.log("Add Candidate")}
-              className="relative group h-9 w-9 hover:bg-primary/10 transition-all duration-300"
+              className="group"
             >
-              <UserPlus className="h-4 w-4 transition-all group-hover:scale-110 group-hover:text-primary" />
-              <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-md" />
+              <UserPlus className="h-4 w-4 transition-transform group-hover:scale-110 group-hover:text-primary" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="bg-popover/95 backdrop-blur-sm">
@@ -71,10 +65,9 @@ export function HeaderQuickActions() {
               variant="ghost"
               size="icon"
               onClick={() => console.log("Schedule Interview")}
-              className="relative group h-9 w-9 hover:bg-primary/10 transition-all duration-300"
+              className="group"
             >
-              <Calendar className="h-4 w-4 transition-all group-hover:scale-110 group-hover:text-primary" />
-              <span className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 opacity-0 group-hover:opacity-100 transition-opacity rounded-md" />
+              <Calendar className="h-4 w-4 transition-transform group-hover:scale-110 group-hover:text-primary" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="bg-popover/95 backdrop-blur-sm">
