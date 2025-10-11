@@ -16,18 +16,15 @@ const mainNavItems = [{
 }, {
   title: "Candidates",
   url: "/candidates",
-  icon: Users,
-  badge: 12
+  icon: Users
 }, {
   title: "Jobs",
   url: "/jobs",
-  icon: Briefcase,
-  badge: 3
+  icon: Briefcase
 }, {
   title: "Applications",
   url: "/applications",
-  icon: FileText,
-  badge: 5
+  icon: FileText
 }, {
   title: "Analytics",
   url: "/analytics",
@@ -105,26 +102,12 @@ export function AppSidebar() {
                               <item.icon className="h-5 w-5" />
                             </div>
                             {open && <span>{item.title}</span>}
-                            
-                            {open && item.badge && (
-                              <Badge 
-                                variant="destructive" 
-                                className="ml-auto h-5 w-5 flex items-center justify-center p-0 text-[10px] font-bold"
-                              >
-                                {item.badge}
-                              </Badge>
-                            )}
                           </NavLink>
                         </SidebarMenuButton>
                       </TooltipTrigger>
                       {!open && (
-                        <TooltipContent side="right" className="flex items-center gap-2">
+                        <TooltipContent side="right">
                           <span>{item.title}</span>
-                          {item.badge && (
-                            <Badge variant="destructive" className="h-5 w-5 flex items-center justify-center p-0 text-[10px] font-bold">
-                              {item.badge}
-                            </Badge>
-                          )}
                         </TooltipContent>
                       )}
                     </Tooltip>
