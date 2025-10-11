@@ -35,32 +35,47 @@ export function TablePagination({
   const startItem = (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
-  const getPageNumbers = () => {
-    const pages: number[] = [];
-    // Responsive: 7 for desktop, 5 for tablet, 3 for mobile
-    const maxVisible = window.innerWidth >= 1024 ? 7 : window.innerWidth >= 768 ? 5 : 3;
-
-    // If total pages fit within maxVisible, show all
-    if (totalPages <= maxVisible) {
+  const getPageNumbers = (): (number | 'ellipsis')[] => {
+    const pages: (number | 'ellipsis')[] = [];
+    
+    if (totalPages <= 7) {
+      // Show all pages if 7 or fewer
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
       return pages;
     }
-
-    // Calculate the sliding window of pages to show
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisible - 1);
-
-    // Adjust if we're near the end
-    if (endPage - startPage < maxVisible - 1) {
-      startPage = Math.max(1, endPage - maxVisible + 1);
+    
+    // Always add first page
+    pages.push(1);
+    
+    // Calculate range around current page
+    const showLeftEllipsis = currentPage > 4;
+    const showRightEllipsis = currentPage < totalPages - 3;
+    
+    if (showLeftEllipsis) {
+      pages.push('ellipsis');
     }
-
+    
+    // Determine start and end of middle section
+    const startPage = Math.max(2, currentPage - 2);
+    const endPage = Math.min(totalPages - 1, currentPage + 2);
+    
     for (let i = startPage; i <= endPage; i++) {
-      pages.push(i);
+      if (!pages.includes(i)) {
+        pages.push(i);
+      }
     }
-
+    
+    if (showRightEllipsis) {
+      pages.push('ellipsis');
+    }
+    
+    // Always add last page
+    if (!pages.includes(totalPages)) {
+      pages.push(totalPages);
+    }
+    
     return pages;
   };
 
@@ -102,13 +117,17 @@ export function TablePagination({
 
           {getPageNumbers().map((page, index) => (
             <PaginationItem key={index}>
-              <PaginationLink
-                onClick={() => onPageChange(page)}
-                isActive={currentPage === page}
-                className="cursor-pointer"
-              >
-                {page}
-              </PaginationLink>
+              {page === 'ellipsis' ? (
+                <PaginationEllipsis />
+              ) : (
+                <PaginationLink
+                  onClick={() => onPageChange(page)}
+                  isActive={currentPage === page}
+                  className="cursor-pointer"
+                >
+                  {page}
+                </PaginationLink>
+              )}
             </PaginationItem>
           ))}
 
