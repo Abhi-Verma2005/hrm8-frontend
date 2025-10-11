@@ -10,24 +10,20 @@ export function SidebarFooterContent() {
 
   return (
     <div className={cn(
-      "flex gap-1",
+      "flex gap-2",
       !open && "flex-col"
     )}>
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
-            size="sm"
+            size={open ? "sm" : "icon"}
             asChild
-            className={cn(
-              "flex-1 justify-start gap-2 px-3 py-2 h-9",
-              "hover:bg-sidebar-accent transition-colors duration-200",
-              !open && "justify-center px-2"
-            )}
+            className="flex-1"
           >
-            <NavLink to="/settings" className="flex items-center gap-2">
-              <Settings className="h-[16px] w-[16px] text-sidebar-foreground/70" />
-              {open && <span className="text-sm">Settings</span>}
+            <NavLink to="/settings">
+              <Settings className="h-4 w-4" />
+              {open && <span className="ml-2">Settings</span>}
             </NavLink>
           </Button>
         </TooltipTrigger>
@@ -38,17 +34,13 @@ export function SidebarFooterContent() {
         <TooltipTrigger asChild>
           <Button
             variant="ghost"
-            size="sm"
+            size={open ? "sm" : "icon"}
             asChild
-            className={cn(
-              "flex-1 justify-start gap-2 px-3 py-2 h-9",
-              "hover:bg-sidebar-accent transition-colors duration-200",
-              !open && "justify-center px-2"
-            )}
+            className="flex-1"
           >
-            <NavLink to="/help" className="flex items-center gap-2">
-              <HelpCircle className="h-[16px] w-[16px] text-sidebar-foreground/70" />
-              {open && <span className="text-sm">Help Center</span>}
+            <NavLink to="/help">
+              <HelpCircle className="h-4 w-4" />
+              {open && <span className="ml-2">Help Center</span>}
             </NavLink>
           </Button>
         </TooltipTrigger>
