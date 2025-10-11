@@ -42,6 +42,7 @@ import {
 
 export default function Components() {
   const [singleDate, setSingleDate] = useState<Date>();
+  const [interviewDate, setInterviewDate] = useState<Date>();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [compactRange, setCompactRange] = useState<DateRange | undefined>();
   
@@ -349,17 +350,17 @@ export default function Components() {
                           <PopoverTrigger asChild>
                             <Button
                               variant="outline"
-                              className={!singleDate && "text-muted-foreground"}
+                              className={!interviewDate && "text-muted-foreground"}
                             >
                               <CalendarIcon className="mr-2 h-4 w-4" />
-                              {singleDate ? format(singleDate, "PPP") : "Select date"}
+                              {interviewDate ? format(interviewDate, "PPP") : "Select date"}
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent className="w-auto p-0">
                             <Calendar
                               mode="single"
-                              selected={singleDate}
-                              onSelect={setSingleDate}
+                              selected={interviewDate}
+                              onSelect={setInterviewDate}
                               initialFocus
                               className="pointer-events-auto"
                               disabled={(date) => date < new Date()}
