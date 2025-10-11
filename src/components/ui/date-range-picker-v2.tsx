@@ -502,7 +502,7 @@ export function DateRangePicker({
           className={cn(
             "justify-start text-left font-normal w-auto max-w-[280px] transition-all",
             !value && "text-muted-foreground",
-            value && "font-medium border-primary/40 hover:border-primary/60",
+            value && "font-medium",
             className
           )}
         >
