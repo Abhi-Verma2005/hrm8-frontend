@@ -26,7 +26,6 @@ export function HeaderQuickActions() {
                 "shadow-md hover:shadow-lg hover:shadow-primary/25",
                 "transition-all duration-300",
                 "hover:scale-105",
-                "animate-pulse-glow",
                 // Show text on large screens, icon-only on medium
                 "lg:px-4 lg:gap-2",
                 "md:h-9 md:w-9 md:p-0 lg:h-10 lg:w-auto"
