@@ -23,10 +23,12 @@ export default function Jobs() {
         <div>
           <h1 className="text-3xl font-bold">Jobs</h1>
           <p className="text-muted-foreground">Create and manage job postings</p>
-          {/* TODO: Add DateRangeFilter here when implementing job list */}
+          {/* TODO: Add date filter when implementing job list */}
           {/* Example:
+            import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+            
             <div className="mt-4">
-              <DateRangeFilter
+              <DateRangePicker
                 value={dateRange}
                 onChange={setDateRange}
                 placeholder="Filter by posting date"

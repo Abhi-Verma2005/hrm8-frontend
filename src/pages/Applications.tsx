@@ -9,10 +9,12 @@ export default function Applications() {
         <div>
           <h1 className="text-3xl font-bold">Applications</h1>
           <p className="text-muted-foreground">Review and process applications</p>
-          {/* TODO: Add DateRangeFilter here when implementing application list */}
+          {/* TODO: Add date filter when implementing application list */}
           {/* Example:
+            import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+            
             <div className="mt-4">
-              <DateRangeFilter
+              <DateRangePicker
                 value={dateRange}
                 onChange={setDateRange}
                 placeholder="Filter by submission date"

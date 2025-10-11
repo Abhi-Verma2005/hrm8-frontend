@@ -23,10 +23,12 @@ export default function Candidates() {
         <div>
           <h1 className="text-3xl font-bold">Candidates</h1>
           <p className="text-muted-foreground">Manage and track all candidates</p>
-          {/* TODO: Add DateRangeFilter here when implementing candidate list */}
+          {/* TODO: Add date filter when implementing candidate list */}
           {/* Example:
+            import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+            
             <div className="mt-4">
-              <DateRangeFilter
+              <DateRangePicker
                 value={dateRange}
                 onChange={setDateRange}
                 placeholder="Filter by application date"
