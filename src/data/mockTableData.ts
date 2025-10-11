@@ -1,370 +1,116 @@
 import type { Employer, Job, Candidate, Consultant } from '@/types/entities';
 
-export const mockEmployers: Employer[] = [
-  {
-    id: '1',
-    name: 'TechCorp Solutions',
-    logo: 'https://api.dicebear.com/7.x/initials/svg?seed=TechCorp',
-    industry: 'Technology',
-    location: 'San Francisco, CA',
-    status: 'active',
-    activeJobs: 12,
-    lastContact: new Date('2024-01-15'),
-    email: 'contact@techcorp.com'
-  },
-  {
-    id: '2',
-    name: 'Global Finance Group',
-    industry: 'Finance',
-    location: 'New York, NY',
-    status: 'active',
-    activeJobs: 8,
-    lastContact: new Date('2024-01-10'),
-    email: 'hr@globalfinance.com'
-  },
-  {
-    id: '3',
-    name: 'HealthPlus Medical',
-    logo: 'https://api.dicebear.com/7.x/initials/svg?seed=HealthPlus',
-    industry: 'Healthcare',
-    location: 'Boston, MA',
-    status: 'pending',
-    activeJobs: 5,
-    lastContact: new Date('2024-01-08'),
-    email: 'careers@healthplus.com'
-  },
-  {
-    id: '4',
-    name: 'Retail Dynamics Inc',
-    industry: 'Retail',
-    location: 'Chicago, IL',
-    status: 'active',
-    activeJobs: 15,
-    lastContact: new Date('2024-01-12'),
-    email: 'jobs@retaildynamics.com'
-  },
-  {
-    id: '5',
-    name: 'EduTech Academy',
-    logo: 'https://api.dicebear.com/7.x/initials/svg?seed=EduTech',
-    industry: 'Education',
-    location: 'Austin, TX',
-    status: 'inactive',
-    activeJobs: 0,
-    lastContact: new Date('2023-12-20'),
-    email: 'admin@edutech.com'
-  },
-  {
-    id: '6',
-    name: 'Manufacturing Pro',
-    industry: 'Manufacturing',
-    location: 'Detroit, MI',
-    status: 'active',
-    activeJobs: 10,
-    lastContact: new Date('2024-01-14'),
-    email: 'recruiting@mfgpro.com'
-  },
-  {
-    id: '7',
-    name: 'Creative Studios',
-    logo: 'https://api.dicebear.com/7.x/initials/svg?seed=Creative',
-    industry: 'Media',
-    location: 'Los Angeles, CA',
-    status: 'active',
-    activeJobs: 6,
-    lastContact: new Date('2024-01-11'),
-    email: 'talent@creativestudios.com'
-  },
-  {
-    id: '8',
-    name: 'Construction Partners',
-    industry: 'Construction',
-    location: 'Houston, TX',
-    status: 'pending',
-    activeJobs: 4,
-    lastContact: new Date('2024-01-09'),
-    email: 'hr@constructionpartners.com'
-  }
+// Helper functions to generate varied data
+const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Education', 'Manufacturing', 'Media', 'Construction', 'Consulting', 'Legal', 'Transportation', 'Energy', 'Pharmaceuticals', 'Real Estate', 'Telecommunications'];
+const locations = ['San Francisco, CA', 'New York, NY', 'Boston, MA', 'Chicago, IL', 'Austin, TX', 'Detroit, MI', 'Los Angeles, CA', 'Houston, TX', 'Seattle, WA', 'Denver, CO', 'Miami, FL', 'Atlanta, GA', 'Phoenix, AZ', 'Portland, OR', 'Dallas, TX'];
+const statuses: ('active' | 'inactive' | 'pending')[] = ['active', 'active', 'active', 'pending', 'inactive'];
+
+const companyNames = [
+  'TechCorp Solutions', 'Global Finance Group', 'HealthPlus Medical', 'Retail Dynamics Inc', 'EduTech Academy',
+  'Manufacturing Pro', 'Creative Studios', 'Construction Partners', 'Digital Innovations', 'Smart Systems LLC',
+  'Enterprise Solutions', 'NextGen Technologies', 'Prime Healthcare', 'Metro Retail Group', 'Advanced Manufacturing',
+  'Media Network Inc', 'BuildRight Construction', 'Quantum Computing Co', 'FinTech Ventures', 'MedLife Corporation',
+  'Urban Retail Chain', 'Learning Solutions', 'Industrial Works', 'Content Creators Hub', 'Skyline Builders',
+  'Cloud Services Inc', 'Investment Partners', 'Care Plus Hospitals', 'Fashion Retail Co', 'STEM Education Group',
+  'Precision Manufacturing', 'Entertainment Media', 'Infrastructure Projects', 'AI Research Labs', 'Capital Management',
+  'Wellness Centers', 'Luxury Retail', 'Online Education Platform', 'Automotive Parts Inc', 'Broadcast Media Group',
+  'Green Energy Solutions', 'Wealth Advisors', 'Diagnostic Centers', 'E-Commerce Ventures', 'Tech Academy',
+  'Assembly Line Systems', 'Production Studios', 'Urban Development', 'Data Analytics Corp', 'Asset Management',
+  'Specialized Care', 'Marketplace Solutions', 'Virtual Learning', 'Component Manufacturing', 'Digital Media House',
+  'Residential Construction', 'Innovation Labs', 'Private Equity Group', 'Medical Diagnostics', 'Retail Technology'
 ];
 
-export const mockJobs: Job[] = [
-  {
-    id: '1',
-    title: 'Senior Software Engineer',
-    employer: 'TechCorp Solutions',
-    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=TechCorp',
-    location: 'San Francisco, CA',
-    type: 'Full-time',
-    salary: '$120,000 - $180,000',
-    status: 'open',
-    applicants: 45,
-    postedDate: new Date('2024-01-10')
-  },
-  {
-    id: '2',
-    title: 'Financial Analyst',
-    employer: 'Global Finance Group',
-    location: 'New York, NY',
-    type: 'Full-time',
-    salary: '$80,000 - $110,000',
-    status: 'open',
-    applicants: 32,
-    postedDate: new Date('2024-01-08')
-  },
-  {
-    id: '3',
-    title: 'Registered Nurse',
-    employer: 'HealthPlus Medical',
-    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=HealthPlus',
-    location: 'Boston, MA',
-    type: 'Full-time',
-    salary: '$65,000 - $85,000',
-    status: 'open',
-    applicants: 28,
-    postedDate: new Date('2024-01-12')
-  },
-  {
-    id: '4',
-    title: 'Store Manager',
-    employer: 'Retail Dynamics Inc',
-    location: 'Chicago, IL',
-    type: 'Full-time',
-    salary: '$50,000 - $65,000',
-    status: 'open',
-    applicants: 19,
-    postedDate: new Date('2024-01-11')
-  },
-  {
-    id: '5',
-    title: 'Marketing Consultant',
-    employer: 'Creative Studios',
-    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=Creative',
-    location: 'Los Angeles, CA',
-    type: 'Contract',
-    salary: '$95/hour',
-    status: 'open',
-    applicants: 15,
-    postedDate: new Date('2024-01-09')
-  },
-  {
-    id: '6',
-    title: 'Product Designer',
-    employer: 'TechCorp Solutions',
-    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=TechCorp',
-    location: 'San Francisco, CA',
-    type: 'Full-time',
-    salary: '$100,000 - $140,000',
-    status: 'closed',
-    applicants: 67,
-    postedDate: new Date('2023-12-15')
-  },
-  {
-    id: '7',
-    title: 'Data Scientist',
-    employer: 'TechCorp Solutions',
-    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=TechCorp',
-    location: 'Remote',
-    type: 'Full-time',
-    salary: '$130,000 - $170,000',
-    status: 'draft',
-    applicants: 0,
-    postedDate: new Date('2024-01-14')
-  },
-  {
-    id: '8',
-    title: 'Project Manager',
-    employer: 'Construction Partners',
-    location: 'Houston, TX',
-    type: 'Full-time',
-    salary: '$85,000 - $115,000',
-    status: 'open',
-    applicants: 23,
-    postedDate: new Date('2024-01-13')
-  }
+export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => ({
+  id: `${i + 1}`,
+  name: companyNames[i],
+  logo: i % 3 === 0 ? `https://api.dicebear.com/7.x/initials/svg?seed=${companyNames[i]}` : undefined,
+  industry: industries[i % industries.length],
+  location: locations[i % locations.length],
+  status: statuses[i % statuses.length],
+  activeJobs: Math.floor(Math.random() * 20),
+  lastContact: new Date(2024, 0, Math.floor(Math.random() * 15) + 1),
+  email: `contact@${companyNames[i].toLowerCase().replace(/\s+/g, '')}.com`
+}));
+
+const jobTitles = [
+  'Senior Software Engineer', 'Financial Analyst', 'Registered Nurse', 'Store Manager', 'Marketing Consultant',
+  'Product Designer', 'Data Scientist', 'Project Manager', 'DevOps Engineer', 'Business Analyst',
+  'Account Executive', 'UX Researcher', 'Network Administrator', 'Content Strategist', 'Operations Manager',
+  'Sales Representative', 'HR Specialist', 'Quality Assurance Engineer', 'Graphic Designer', 'Systems Analyst',
+  'Customer Success Manager', 'Full Stack Developer', 'Compliance Officer', 'Brand Manager', 'Supply Chain Analyst',
+  'Technical Writer', 'Product Manager', 'Security Analyst', 'Creative Director', 'Finance Manager',
+  'Clinical Coordinator', 'Regional Manager', 'Digital Marketing Specialist', 'Backend Developer', 'Risk Analyst',
+  'UI Designer', 'Machine Learning Engineer', 'Construction Manager', 'Frontend Developer', 'Investment Analyst',
+  'Nurse Practitioner', 'District Manager', 'SEO Specialist', 'Cloud Architect', 'Treasury Analyst',
+  'Medical Assistant', 'Retail Supervisor', 'Content Manager', 'Site Reliability Engineer', 'Portfolio Manager',
+  'Physical Therapist', 'Assistant Store Manager', 'Social Media Manager', 'Mobile Developer', 'Credit Analyst',
+  'Healthcare Administrator', 'Sales Manager', 'Email Marketing Specialist', 'Platform Engineer', 'Financial Planner'
 ];
 
-export const mockCandidates: Candidate[] = [
-  {
-    id: '1',
-    name: 'Sarah Johnson',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-    email: 'sarah.j@email.com',
-    phone: '(555) 123-4567',
-    position: 'Software Engineer',
-    experience: '5 years',
-    status: 'active',
-    skills: ['React', 'TypeScript', 'Node.js', 'AWS', 'GraphQL'],
-    appliedDate: new Date('2024-01-12')
-  },
-  {
-    id: '2',
-    name: 'Michael Chen',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
-    email: 'mchen@email.com',
-    phone: '(555) 234-5678',
-    position: 'Data Analyst',
-    experience: '3 years',
-    status: 'active',
-    skills: ['Python', 'SQL', 'Tableau', 'Excel', 'PowerBI'],
-    appliedDate: new Date('2024-01-11')
-  },
-  {
-    id: '3',
-    name: 'Emily Rodriguez',
-    email: 'emily.r@email.com',
-    phone: '(555) 345-6789',
-    position: 'Marketing Manager',
-    experience: '7 years',
-    status: 'placed',
-    skills: ['SEO', 'Content Strategy', 'Analytics', 'Social Media', 'Brand Management'],
-    appliedDate: new Date('2024-01-05')
-  },
-  {
-    id: '4',
-    name: 'James Wilson',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=James',
-    email: 'jwilson@email.com',
-    phone: '(555) 456-7890',
-    position: 'Product Designer',
-    experience: '4 years',
-    status: 'active',
-    skills: ['Figma', 'UI/UX', 'Prototyping', 'Design Systems', 'User Research'],
-    appliedDate: new Date('2024-01-13')
-  },
-  {
-    id: '5',
-    name: 'Lisa Anderson',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa',
-    email: 'lisa.a@email.com',
-    phone: '(555) 567-8901',
-    position: 'Financial Advisor',
-    experience: '6 years',
-    status: 'active',
-    skills: ['Investment Strategy', 'Risk Management', 'Portfolio Analysis', 'Client Relations'],
-    appliedDate: new Date('2024-01-10')
-  },
-  {
-    id: '6',
-    name: 'David Kim',
-    email: 'dkim@email.com',
-    phone: '(555) 678-9012',
-    position: 'DevOps Engineer',
-    experience: '5 years',
-    status: 'inactive',
-    skills: ['Docker', 'Kubernetes', 'CI/CD', 'Terraform', 'AWS'],
-    appliedDate: new Date('2023-12-28')
-  },
-  {
-    id: '7',
-    name: 'Maria Garcia',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Maria',
-    email: 'maria.g@email.com',
-    phone: '(555) 789-0123',
-    position: 'HR Specialist',
-    experience: '4 years',
-    status: 'active',
-    skills: ['Recruitment', 'Employee Relations', 'HRIS', 'Training', 'Compliance'],
-    appliedDate: new Date('2024-01-14')
-  },
-  {
-    id: '8',
-    name: 'Robert Taylor',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert',
-    email: 'rtaylor@email.com',
-    phone: '(555) 890-1234',
-    position: 'Sales Executive',
-    experience: '8 years',
-    status: 'placed',
-    skills: ['B2B Sales', 'Negotiation', 'CRM', 'Lead Generation', 'Account Management'],
-    appliedDate: new Date('2024-01-06')
-  }
+const jobTypes: ('Full-time' | 'Part-time' | 'Contract')[] = ['Full-time', 'Full-time', 'Full-time', 'Part-time', 'Contract'];
+const jobStatuses: ('open' | 'closed' | 'draft')[] = ['open', 'open', 'open', 'closed', 'draft'];
+
+export const mockJobs: Job[] = Array.from({ length: 60 }, (_, i) => {
+  const employer = companyNames[i % companyNames.length];
+  return {
+    id: `${i + 1}`,
+    title: jobTitles[i % jobTitles.length],
+    employer: employer,
+    employerLogo: i % 4 === 0 ? `https://api.dicebear.com/7.x/initials/svg?seed=${employer}` : undefined,
+    location: i % 5 === 0 ? 'Remote' : locations[i % locations.length],
+    type: jobTypes[i % jobTypes.length],
+    salary: `$${50 + (i % 15) * 10},000 - $${80 + (i % 20) * 10},000`,
+    status: jobStatuses[i % jobStatuses.length],
+    applicants: Math.floor(Math.random() * 100),
+    postedDate: new Date(2024, 0, Math.floor(Math.random() * 15) + 1)
+  };
+});
+
+const firstNames = ['Sarah', 'Michael', 'Emily', 'James', 'Lisa', 'David', 'Maria', 'Robert', 'Jennifer', 'William', 'Patricia', 'Richard', 'Linda', 'Thomas', 'Elizabeth', 'Charles', 'Susan', 'Christopher', 'Jessica', 'Daniel', 'Karen', 'Matthew', 'Nancy', 'Anthony', 'Betty', 'Mark', 'Margaret', 'Donald', 'Sandra', 'Steven', 'Ashley', 'Paul', 'Kimberly', 'Andrew', 'Emily', 'Joshua', 'Donna', 'Kenneth', 'Michelle', 'Kevin', 'Carol', 'Brian', 'Amanda', 'George', 'Dorothy', 'Timothy', 'Melissa', 'Ronald', 'Deborah', 'Edward', 'Stephanie', 'Jason', 'Rebecca', 'Jeffrey', 'Sharon', 'Ryan', 'Laura', 'Jacob', 'Cynthia', 'Gary'];
+const lastNames = ['Johnson', 'Chen', 'Rodriguez', 'Wilson', 'Anderson', 'Kim', 'Garcia', 'Taylor', 'Martinez', 'Brown', 'Lee', 'Davis', 'Miller', 'Moore', 'Jackson', 'Martin', 'Thompson', 'White', 'Lopez', 'Harris', 'Clark', 'Lewis', 'Robinson', 'Walker', 'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Nguyen', 'Hill', 'Flores', 'Green', 'Adams', 'Nelson', 'Baker', 'Hall', 'Rivera', 'Campbell', 'Mitchell', 'Carter', 'Roberts', 'Gomez', 'Phillips', 'Evans', 'Turner', 'Diaz', 'Parker', 'Cruz', 'Edwards', 'Collins', 'Reyes', 'Stewart', 'Morris', 'Morales', 'Murphy', 'Cook', 'Rogers', 'Morgan'];
+
+const positions = ['Software Engineer', 'Data Analyst', 'Marketing Manager', 'Product Designer', 'Financial Advisor', 'DevOps Engineer', 'HR Specialist', 'Sales Executive', 'Account Manager', 'Business Analyst', 'Content Writer', 'UX Designer', 'Network Engineer', 'Project Coordinator', 'Operations Analyst', 'Customer Support', 'Brand Strategist', 'Quality Engineer', 'Creative Director', 'Systems Administrator'];
+
+const skillSets = [
+  ['React', 'TypeScript', 'Node.js', 'AWS', 'GraphQL'],
+  ['Python', 'SQL', 'Tableau', 'Excel', 'PowerBI'],
+  ['SEO', 'Content Strategy', 'Analytics', 'Social Media', 'Brand Management'],
+  ['Figma', 'UI/UX', 'Prototyping', 'Design Systems', 'User Research'],
+  ['Investment Strategy', 'Risk Management', 'Portfolio Analysis', 'Client Relations'],
+  ['Docker', 'Kubernetes', 'CI/CD', 'Terraform', 'AWS'],
+  ['Recruitment', 'Employee Relations', 'HRIS', 'Training', 'Compliance'],
+  ['B2B Sales', 'Negotiation', 'CRM', 'Lead Generation', 'Account Management'],
+  ['Project Management', 'Agile', 'Scrum', 'JIRA', 'Stakeholder Management'],
+  ['JavaScript', 'Vue.js', 'Angular', 'REST APIs', 'MongoDB']
 ];
 
-export const mockConsultants: Consultant[] = [
-  {
-    id: '1',
-    name: 'Dr. Amanda Stevens',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Amanda',
-    email: 'astevens@consulting.com',
-    specialization: 'IT Strategy',
-    availability: 'available',
-    activeClients: 3,
-    rating: 4.9,
-    joinedDate: new Date('2022-03-15')
-  },
-  {
-    id: '2',
-    name: 'John Martinez',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
-    email: 'jmartinez@consulting.com',
-    specialization: 'Financial Planning',
-    availability: 'assigned',
-    activeClients: 5,
-    rating: 4.8,
-    joinedDate: new Date('2021-07-22')
-  },
-  {
-    id: '3',
-    name: 'Patricia Lee',
-    email: 'plee@consulting.com',
-    specialization: 'HR Transformation',
-    availability: 'available',
-    activeClients: 2,
-    rating: 4.7,
-    joinedDate: new Date('2023-01-10')
-  },
-  {
-    id: '4',
-    name: 'Thomas Wright',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Thomas',
-    email: 'twright@consulting.com',
-    specialization: 'Operations',
-    availability: 'assigned',
-    activeClients: 4,
-    rating: 4.9,
-    joinedDate: new Date('2020-11-05')
-  },
-  {
-    id: '5',
-    name: 'Jennifer Brown',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jennifer',
-    email: 'jbrown@consulting.com',
-    specialization: 'Marketing',
-    availability: 'available',
-    activeClients: 1,
-    rating: 4.6,
-    joinedDate: new Date('2023-06-18')
-  },
-  {
-    id: '6',
-    name: 'Christopher Davis',
-    email: 'cdavis@consulting.com',
-    specialization: 'Legal Compliance',
-    availability: 'unavailable',
-    activeClients: 0,
-    rating: 4.8,
-    joinedDate: new Date('2022-09-30')
-  },
-  {
-    id: '7',
-    name: 'Michelle Thompson',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michelle',
-    email: 'mthompson@consulting.com',
-    specialization: 'Change Management',
-    availability: 'assigned',
-    activeClients: 6,
-    rating: 5.0,
-    joinedDate: new Date('2021-02-14')
-  },
-  {
-    id: '8',
-    name: 'Daniel White',
-    photo: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Daniel',
-    email: 'dwhite@consulting.com',
-    specialization: 'Risk Management',
-    availability: 'available',
-    activeClients: 2,
-    rating: 4.7,
-    joinedDate: new Date('2022-12-08')
-  }
-];
+const candidateStatuses: ('active' | 'placed' | 'inactive')[] = ['active', 'active', 'active', 'placed', 'inactive'];
+
+export const mockCandidates: Candidate[] = Array.from({ length: 60 }, (_, i) => ({
+  id: `${i + 1}`,
+  name: `${firstNames[i % firstNames.length]} ${lastNames[i % lastNames.length]}`,
+  photo: i % 3 === 0 ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${firstNames[i % firstNames.length]}${i}` : undefined,
+  email: `${firstNames[i % firstNames.length].toLowerCase()}.${lastNames[i % lastNames.length].toLowerCase()}@email.com`,
+  phone: `(555) ${100 + i}-${1000 + i}`,
+  position: positions[i % positions.length],
+  experience: `${1 + (i % 15)} years`,
+  status: candidateStatuses[i % candidateStatuses.length],
+  skills: skillSets[i % skillSets.length],
+  appliedDate: new Date(2024, 0, Math.floor(Math.random() * 15) + 1)
+}));
+
+const specializations = ['IT Strategy', 'Financial Planning', 'HR Transformation', 'Operations', 'Marketing', 'Legal Compliance', 'Change Management', 'Risk Management', 'Supply Chain', 'Digital Transformation', 'Cybersecurity', 'M&A Advisory', 'Organizational Design', 'Process Optimization', 'Data Analytics', 'Customer Experience', 'Product Strategy', 'Business Development', 'Sustainability', 'Innovation'];
+
+const availability: ('available' | 'assigned' | 'unavailable')[] = ['available', 'available', 'assigned', 'unavailable'];
+
+export const mockConsultants: Consultant[] = Array.from({ length: 60 }, (_, i) => ({
+  id: `${i + 1}`,
+  name: `${i % 10 < 3 ? 'Dr. ' : ''}${firstNames[i % firstNames.length]} ${lastNames[i % lastNames.length]}`,
+  photo: i % 2 === 0 ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${firstNames[i % firstNames.length]}${lastNames[i % lastNames.length]}` : undefined,
+  email: `${firstNames[i % firstNames.length].toLowerCase()}.${lastNames[i % lastNames.length].toLowerCase()}@consulting.com`,
+  specialization: specializations[i % specializations.length],
+  availability: availability[i % availability.length],
+  activeClients: Math.floor(Math.random() * 7),
+  rating: 4.5 + Math.random() * 0.5,
+  joinedDate: new Date(2020 + (i % 5), Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1)
+}));
