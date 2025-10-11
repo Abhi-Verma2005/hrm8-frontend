@@ -15,7 +15,7 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full bg-secondary/30 hover:bg-gradient-to-br hover:from-primary/20 hover:to-accent/20 hover:shadow-md transition-all duration-200">
+        <Button variant="ghost" size="icon" className="relative rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarImage src="/avatar.jpg" alt="John Doe" />
             <AvatarFallback className="bg-primary text-primary-foreground">JD</AvatarFallback>

@@ -46,9 +46,8 @@ export function HeaderQuickActions() {
               variant="ghost"
               size="icon"
               onClick={() => console.log("Add Candidate")}
-              className="group bg-secondary/30 hover:bg-gradient-to-br hover:from-primary/20 hover:to-accent/20 hover:shadow-md transition-all duration-200"
             >
-              <UserPlus className="h-4 w-4 transition-transform group-hover:scale-110 group-hover:text-primary" />
+              <UserPlus className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
@@ -62,9 +61,8 @@ export function HeaderQuickActions() {
               variant="ghost"
               size="icon"
               onClick={() => console.log("Schedule Interview")}
-              className="group bg-secondary/30 hover:bg-gradient-to-br hover:from-primary/20 hover:to-accent/20 hover:shadow-md transition-all duration-200"
             >
-              <Calendar className="h-4 w-4 transition-transform group-hover:scale-110 group-hover:text-primary" />
+              <Calendar className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom">
