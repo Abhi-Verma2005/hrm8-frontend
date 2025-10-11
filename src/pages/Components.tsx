@@ -7,6 +7,14 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AppLayout } from "@/components/AppLayout";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
+import { HiringTrendsChart } from "@/components/dashboard/charts/HiringTrendsChart";
+import { ApplicationFunnelChart } from "@/components/dashboard/charts/ApplicationFunnelChart";
+import { JobDistributionChart } from "@/components/dashboard/charts/JobDistributionChart";
+import { SourceOfHireChart } from "@/components/dashboard/charts/SourceOfHireChart";
+import { KanbanBoard } from "@/components/KanbanBoard";
+import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import {
   Search,
   CheckCircle,
@@ -18,6 +26,7 @@ import {
   Users,
   FileText,
   TrendingUp,
+  Briefcase,
 } from "lucide-react";
 
 export default function Components() {
@@ -256,6 +265,103 @@ export default function Components() {
                 trend="down"
               />
             </div>
+          </section>
+
+          {/* Enhanced Dashboard Cards */}
+          <section id="enhanced-cards" className="mb-16">
+            <h2 className="mb-8">Enhanced Dashboard Cards</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <EnhancedStatCard
+                variant="primary"
+                icon={<Briefcase className="h-5 w-5" />}
+                title="Active Jobs"
+                value="47"
+                change="+8.2%"
+                trend="up"
+              />
+              <EnhancedStatCard
+                variant="success"
+                icon={<Users className="h-5 w-5" />}
+                title="Total Candidates"
+                value="2,543"
+                change="+12.5%"
+                trend="up"
+              />
+              <EnhancedStatCard
+                variant="warning"
+                icon={<FileText className="h-5 w-5" />}
+                title="Applications"
+                value="1,234"
+                change="+23.1%"
+                trend="up"
+              />
+              <EnhancedStatCard
+                variant="neutral"
+                icon={<CheckCircle className="h-5 w-5" />}
+                title="Hired This Month"
+                value="12"
+                change="-2.4%"
+                trend="down"
+              />
+            </div>
+          </section>
+
+          {/* Charts */}
+          <section id="charts" className="mb-16">
+            <h2 className="mb-8">Data Visualization Charts</h2>
+            <div className="space-y-6">
+              <div className="grid lg:grid-cols-2 gap-6">
+                <HiringTrendsChart />
+                <ApplicationFunnelChart />
+              </div>
+              <div className="grid lg:grid-cols-2 gap-6">
+                <JobDistributionChart />
+                <SourceOfHireChart />
+              </div>
+            </div>
+          </section>
+
+          {/* Kanban Board */}
+          <section id="kanban" className="mb-16">
+            <h2 className="mb-8">Kanban Board System</h2>
+            <Card className="p-6">
+              <div className="mb-4">
+                <Badge className="mb-2 bg-primary-light text-primary border-0">
+                  Interactive Demo
+                </Badge>
+                <p className="text-sm text-muted-foreground">
+                  Drag and drop cards between columns to manage candidate pipeline
+                </p>
+              </div>
+              <KanbanBoard />
+            </Card>
+          </section>
+
+          {/* Sidebar Component */}
+          <section id="sidebar" className="mb-16">
+            <h2 className="mb-8">Navigation Sidebar</h2>
+            <Card className="p-6">
+              <div className="mb-4">
+                <Badge className="mb-2 bg-primary-light text-primary border-0">
+                  Collapsible Sidebar
+                </Badge>
+                <p className="text-sm text-muted-foreground">
+                  A collapsible sidebar component with smooth transitions and active state tracking
+                </p>
+              </div>
+              <div className="h-[500px] border rounded-lg overflow-hidden">
+                <SidebarProvider defaultOpen={true}>
+                  <div className="flex w-full h-full">
+                    <AppSidebar />
+                    <div className="flex-1 p-6 bg-muted/20">
+                      <p className="text-sm text-muted-foreground">
+                        Main content area. Click the toggle button to see the collapse behavior.
+                      </p>
+                    </div>
+                  </div>
+                </SidebarProvider>
+              </div>
+            </Card>
           </section>
         </div>
       </div>
