@@ -50,7 +50,7 @@ export function AppSidebar() {
   const { records: recentRecords, clearRecentRecords } = useRecentRecords();
   const [isHovering, setIsHovering] = useState(false);
   
-  // Determine if sidebar should show expanded content
+  // Compute if sidebar should show expanded content (when open OR hovering over collapsed sidebar)
   const isExpanded = open || (!open && isHovering);
   
   const isActive = (path: string) => location.pathname === path;
