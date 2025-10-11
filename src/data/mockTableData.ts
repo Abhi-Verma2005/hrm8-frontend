@@ -52,6 +52,9 @@ const jobStatuses: ('open' | 'closed' | 'draft')[] = ['open', 'open', 'open', 'c
 
 export const mockJobs: Job[] = Array.from({ length: 60 }, (_, i) => {
   const employer = companyNames[i % companyNames.length];
+  const totalApplicants = Math.floor(Math.random() * 100);
+  const unread = i % 3 === 0 ? 0 : Math.floor(Math.random() * (totalApplicants * 0.3));
+  
   return {
     id: `${i + 1}`,
     title: jobTitles[i % jobTitles.length],
@@ -61,7 +64,8 @@ export const mockJobs: Job[] = Array.from({ length: 60 }, (_, i) => {
     type: jobTypes[i % jobTypes.length],
     salary: `$${50 + (i % 15) * 10},000 - $${80 + (i % 20) * 10},000`,
     status: jobStatuses[i % jobStatuses.length],
-    applicants: Math.floor(Math.random() * 100),
+    applicants: totalApplicants,
+    unreadApplicants: unread,
     postedDate: new Date(2024, 0, Math.floor(Math.random() * 15) + 1)
   };
 });

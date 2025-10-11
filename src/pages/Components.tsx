@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -921,10 +922,17 @@ const jobColumns: Column<Job>[] = [
     label: 'Applicants',
     sortable: true,
     render: (job) => (
-      <div className="flex items-center gap-2">
-        <Users className="h-4 w-4 text-muted-foreground" />
-        <span className="font-medium">{job.applicants}</span>
-      </div>
+      <Link 
+        to={`/jobs/${job.id}/applicants`}
+        className="flex items-center gap-2 hover:opacity-80 transition-opacity group"
+      >
+        <span className="font-medium group-hover:underline">{job.applicants}</span>
+        {job.unreadApplicants && job.unreadApplicants > 0 && (
+          <span className="text-xs text-muted-foreground/70">
+            {job.unreadApplicants} unread
+          </span>
+        )}
+      </Link>
     )
   },
   {

@@ -20,6 +20,7 @@ export interface Job {
   salary: string;
   status: 'open' | 'closed' | 'draft';
   applicants: number;
+  unreadApplicants?: number;
   postedDate: Date;
 }
 

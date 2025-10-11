@@ -10,6 +10,7 @@ import Components from "./pages/Components";
 import Dashboard from "./pages/Dashboard";
 import Candidates from "./pages/Candidates";
 import Jobs from "./pages/Jobs";
+import JobDetail from "./pages/JobDetail";
 import Applications from "./pages/Applications";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
@@ -43,6 +44,7 @@ function AppContent() {
             <Route path="/dashboard/:type" element={<Dashboard />} />
             <Route path="/candidates" element={<Candidates />} />
             <Route path="/jobs" element={<Jobs />} />
+            <Route path="/jobs/:jobId/applicants" element={<JobDetail />} />
             <Route path="/employers" element={<Employers />} />
             <Route path="/consultants" element={<Consultants />} />
             <Route path="/hrms" element={<HRMS />} />
