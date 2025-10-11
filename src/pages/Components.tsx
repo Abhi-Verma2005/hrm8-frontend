@@ -120,7 +120,7 @@ export default function Components() {
                     <Filter />
                   </Button>
                   <Button size="icon-lg" variant="gradient">
-                    <Calendar />
+                    <CalendarIcon />
                   </Button>
                   <Button size="icon-sm" variant="reverse">
                     <Plus />
@@ -129,7 +129,7 @@ export default function Components() {
                     <Filter />
                   </Button>
                   <Button size="icon-lg" variant="reverse">
-                    <Calendar />
+                    <CalendarIcon />
                   </Button>
                 </div>
               </Card>
