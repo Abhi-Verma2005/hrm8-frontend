@@ -13,7 +13,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { label: "Design Kit", path: "/" },
     { label: "Components", path: "/components" },
     { label: "Dashboard", path: "/dashboard" },
-    { label: "Kanban", path: "/kanban" },
   ];
 
   const isActive = (path: string) => location.pathname === path;
