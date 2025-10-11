@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { DateRange } from "react-day-picker";
 
 type PresetValue = "last-7" | "last-14" | "last-30" | "this-month" | "last-month" | "this-year" | "last-year" | "all-time" | "custom";
@@ -500,7 +500,7 @@ export function DateRangePicker({
         <Button
           variant="outline"
           className={cn(
-            "justify-start text-left font-normal min-w-[240px] transition-all",
+            "justify-start text-left font-normal w-auto max-w-[280px] transition-all",
             !value && "text-muted-foreground",
             value && "font-medium border-primary/40 hover:border-primary/60",
             className
@@ -520,104 +520,106 @@ export function DateRangePicker({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align={align}>
-        <div className="flex flex-col sm:flex-row">
-          {/* Quick Ranges */}
-          <div className="p-3 space-y-2 border-b sm:border-b-0 sm:border-r" style={{ minWidth: "160px" }}>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-              Quick Ranges
-            </p>
-            <div className="space-y-1">
-              {FULL_PRESETS.map((preset) => (
-                <Button
-                  key={preset.value}
-                  variant={selectedPreset === preset.value ? "secondary" : "ghost"}
-                  size="sm"
-                  className="w-full justify-start text-sm font-normal"
-                  onClick={() => handlePresetSelect(preset.value)}
-                >
-                  {preset.label}
-                </Button>
-              ))}
-            </div>
-
-            {/* Separator */}
-            <div className="border-t my-2" />
-
-            {/* Select Month Section */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                Select Month
-              </p>
-              <Select 
-                value={monthSelectorYear.toString()} 
-                onValueChange={(y) => setMonthSelectorYear(parseInt(y))}
-              >
-                <SelectTrigger className="w-full h-8 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {years.map((year) => (
-                    <SelectItem key={year} value={year.toString()}>
-                      {year}
-                    </SelectItem>
+      <PopoverContent className="w-[400px] p-0" align={align}>
+        <Tabs defaultValue="presets" className="w-full">
+          <TabsList className="w-full rounded-none border-b bg-transparent p-0 h-auto">
+            <TabsTrigger 
+              value="presets" 
+              className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Quick Select
+            </TabsTrigger>
+            <TabsTrigger 
+              value="calendar"
+              className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+            >
+              Custom Range
+            </TabsTrigger>
+          </TabsList>
+          
+          <div className="p-4">
+            <TabsContent value="presets" className="mt-0 space-y-4">
+              {/* Quick Date Ranges */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium text-muted-foreground">Date Ranges</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {FULL_PRESETS.map((preset) => (
+                    <Button
+                      key={preset.value}
+                      variant={selectedPreset === preset.value ? "secondary" : "outline"}
+                      size="sm"
+                      className="justify-start text-sm h-9"
+                      onClick={() => handlePresetSelect(preset.value)}
+                    >
+                      {preset.label}
+                    </Button>
                   ))}
-                </SelectContent>
-              </Select>
-              
-              <div className="grid grid-cols-3 gap-1">
-                {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((month, index) => (
-                  <Button
-                    key={month}
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs px-1 h-8"
-                    onClick={() => handleMonthSelect(index)}
-                  >
-                    {month}
-                  </Button>
-                ))}
+                </div>
               </div>
-            </div>
 
-            {/* Separator */}
-            <div className="border-t my-2" />
-
-            {/* Select Year Section */}
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                Select Year
-              </p>
-              <div className="grid grid-cols-2 gap-1">
-                {years.slice(0, 6).map((year) => (
-                  <Button
-                    key={year}
-                    variant="ghost"
-                    size="sm"
-                    className="text-sm h-9"
-                    onClick={() => handleYearSelect(year)}
+              {/* Month Selector */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-medium text-muted-foreground">Select Month</Label>
+                  <Select 
+                    value={monthSelectorYear.toString()} 
+                    onValueChange={(y) => setMonthSelectorYear(parseInt(y))}
                   >
-                    {year}
-                  </Button>
-                ))}
+                    <SelectTrigger className="w-[90px] h-7 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {years.map((year) => (
+                        <SelectItem key={year} value={year.toString()} className="text-xs">
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="grid grid-cols-4 gap-1.5">
+                  {["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"].map((month, index) => (
+                    <Button
+                      key={month}
+                      variant="outline"
+                      size="sm"
+                      className="text-xs h-8 px-2"
+                      onClick={() => handleMonthSelect(index)}
+                    >
+                      {month}
+                    </Button>
+                  ))}
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* Custom Selection */}
-          <div className="p-3 space-y-3">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                Custom Selection
-              </p>
-              
-              {/* Month/Year Dropdowns */}
+              {/* Year Selector */}
+              <div className="space-y-2">
+                <Label className="text-xs font-medium text-muted-foreground">Select Year</Label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {years.slice(0, 6).map((year) => (
+                    <Button
+                      key={year}
+                      variant="outline"
+                      size="sm"
+                      className="text-sm h-9"
+                      onClick={() => handleYearSelect(year)}
+                    >
+                      {year}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="calendar" className="mt-0 space-y-3">
+              {/* Compact Month/Year Navigation */}
               <div className="flex gap-2">
                 <Select 
                   value={calendarMonth.getMonth().toString()} 
                   onValueChange={handleMonthChange}
                 >
-                  <SelectTrigger className="w-[130px]">
+                  <SelectTrigger className="flex-1 h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -633,7 +635,7 @@ export function DateRangePicker({
                   value={calendarMonth.getFullYear().toString()} 
                   onValueChange={handleYearChange}
                 >
-                  <SelectTrigger className="w-[100px]">
+                  <SelectTrigger className="w-[100px] h-9">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -645,53 +647,36 @@ export function DateRangePicker({
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            {/* Calendar */}
-            <Calendar
-              mode="range"
-              selected={value}
-              onSelect={handleCalendarSelect}
-              month={calendarMonth}
-              onMonthChange={setCalendarMonth}
-              numberOfMonths={1}
-              initialFocus
-              className="pointer-events-auto"
-            />
+              {/* Calendar Widget */}
+              <Calendar
+                mode="range"
+                selected={value}
+                onSelect={handleCalendarSelect}
+                month={calendarMonth}
+                onMonthChange={setCalendarMonth}
+                numberOfMonths={1}
+                initialFocus
+                className="pointer-events-auto rounded-md border"
+              />
 
-            {/* Manual Date Input */}
-            <div className="space-y-2 pt-2 border-t">
-              <div className="grid grid-cols-2 gap-2">
-                <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">From</Label>
-                  <Input
-                    type="date"
-                    value={value?.from ? format(value.from, "yyyy-MM-dd") : ""}
-                    onChange={(e) => {
-                      if (e.target.value && onChange) {
-                        onChange({ from: new Date(e.target.value), to: value?.to });
-                      }
-                    }}
-                    className="text-sm"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-xs text-muted-foreground">To</Label>
-                  <Input
-                    type="date"
-                    value={value?.to ? format(value.to, "yyyy-MM-dd") : ""}
-                    onChange={(e) => {
-                      if (e.target.value && onChange) {
-                        onChange({ from: value?.from, to: new Date(e.target.value) });
-                      }
-                    }}
-                    className="text-sm"
-                  />
-                </div>
+              {/* Quick preset shortcuts at bottom */}
+              <div className="flex flex-wrap gap-1 pt-2 border-t">
+                {FULL_PRESETS.slice(0, 4).map((preset) => (
+                  <Button
+                    key={preset.value}
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs h-7 px-2"
+                    onClick={() => handlePresetSelect(preset.value)}
+                  >
+                    {preset.label}
+                  </Button>
+                ))}
               </div>
-            </div>
+            </TabsContent>
           </div>
-        </div>
+        </Tabs>
       </PopoverContent>
     </Popover>
   );
