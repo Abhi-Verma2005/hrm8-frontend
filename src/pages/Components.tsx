@@ -924,9 +924,9 @@ const jobColumns: Column<Job>[] = [
     render: (job) => (
       <Link 
         to={`/jobs/${job.id}/applicants`}
-        className="flex items-center gap-2 hover:opacity-80 transition-opacity group"
+        className="flex items-center gap-2 group"
       >
-        <span className="font-medium group-hover:underline">{job.applicants}</span>
+        <span className="font-medium group-hover:text-primary transition-colors">{job.applicants}</span>
         {job.unreadApplicants && job.unreadApplicants > 0 && (
           <span className="text-xs text-muted-foreground/70">
             {job.unreadApplicants} unread
