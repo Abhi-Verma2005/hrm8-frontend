@@ -86,6 +86,7 @@ export function AppSidebar() {
                     className={cn(
                       "relative transition-all duration-200",
                       "hover:bg-sidebar-accent/50",
+                      "group-data-[collapsible=icon]:!pl-3 group-data-[collapsible=icon]:justify-center",
                       isActive(item.url) && [
                         "bg-primary/10",
                         "text-primary",
@@ -95,10 +96,7 @@ export function AppSidebar() {
                     )}
                   >
                     <NavLink to={item.url} className="flex items-center gap-3 w-full">
-                      <item.icon className={cn(
-                        "h-5 w-5 transition-all",
-                        !isExpanded && "mx-auto"
-                      )} />
+                      <item.icon className="h-5 w-5 transition-all" />
                       {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>
@@ -144,14 +142,12 @@ export function AppSidebar() {
                         isActive={location.pathname === record.url}
                         className={cn(
                           "transition-all duration-200 hover:bg-sidebar-accent/40",
+                          "group-data-[collapsible=icon]:!pl-3 group-data-[collapsible=icon]:justify-center",
                           location.pathname === record.url && "bg-primary/10 text-primary"
                         )}
                       >
                         <NavLink to={record.url} className="flex items-center gap-2 w-full">
-                          <Icon className={cn(
-                            "h-4 w-4",
-                            !isExpanded && "mx-auto"
-                          )} />
+                          <Icon className="h-4 w-4" />
                           {isExpanded && (
                             <div className="flex-1 min-w-0 transition-opacity duration-200">
                               <div className="text-sm font-medium truncate">
