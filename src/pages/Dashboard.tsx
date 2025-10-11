@@ -204,8 +204,8 @@ export default function Dashboard() {
                 </SelectContent>
               </Select>
               
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
+              <Button variant="secondary" size="sm">
+                <Download className="h-4 w-4" />
                 Export
               </Button>
             </div>

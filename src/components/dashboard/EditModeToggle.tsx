@@ -12,7 +12,6 @@ export function EditModeToggle({ isEditMode, onToggle }: EditModeToggleProps) {
       variant={isEditMode ? "default" : "outline"}
       size="sm"
       onClick={onToggle}
-      className="gap-2"
     >
       {isEditMode ? (
         <>

@@ -23,10 +23,6 @@ export function DashboardSelector({ currentDashboard }: DashboardSelectorProps) 
             variant={isActive ? "default" : "outline"}
             size="sm"
             onClick={() => navigate(dashboard.defaultRoute)}
-            className={cn(
-              "gap-2",
-              !isActive && "bg-background hover:bg-accent"
-            )}
           >
             <Icon className="h-4 w-4" />
             <span className="hidden sm:inline">{dashboard.name}</span>
