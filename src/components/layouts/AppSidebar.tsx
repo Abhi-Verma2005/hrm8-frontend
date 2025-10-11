@@ -50,16 +50,11 @@ export function AppSidebar() {
   const isActive = (path: string) => location.pathname === path;
   return <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-sidebar-border p-6 bg-gradient-to-b from-sidebar-accent/30 to-transparent">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center justify-center">
           {open ? (
-            <div className="flex-1">
-              <img src={logoDark} alt="HRM8" className="h-7 mb-1" />
-              <p className="text-[10px] text-muted-foreground font-medium tracking-wide uppercase">
-                Recruitment Platform
-              </p>
-            </div>
+            <img src={logoDark} alt="HRM8" className="h-10" />
           ) : (
-            <img src={iconMark} alt="HRM8" className="h-8 w-8" />
+            <img src={iconMark} alt="HRM8" className="h-10 w-10" />
           )}
         </div>
       </SidebarHeader>
