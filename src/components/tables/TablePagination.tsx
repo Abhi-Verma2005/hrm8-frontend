@@ -68,15 +68,15 @@ export function TablePagination({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4">
+    <div className="flex items-center justify-between gap-2 sm:gap-4 mt-4">
       {/* Items per page selector */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Rows per page:</span>
+      <div className="flex items-center gap-1 sm:gap-2">
+        <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Rows:</span>
         <Select
           value={pageSize.toString()}
           onValueChange={(value) => onPageSizeChange(Number(value))}
         >
-          <SelectTrigger className="w-[70px]">
+          <SelectTrigger className="w-[60px] sm:w-[70px] h-8">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -88,9 +88,9 @@ export function TablePagination({
         </Select>
       </div>
 
-      {/* Page info */}
-      <div className="text-sm text-muted-foreground">
-        Showing {startItem} to {endItem} of {totalItems} results
+      {/* Page info - hidden on mobile */}
+      <div className="hidden lg:block text-sm text-muted-foreground whitespace-nowrap">
+        Showing {startItem}-{endItem} of {totalItems}
       </div>
 
       {/* Pagination controls */}
