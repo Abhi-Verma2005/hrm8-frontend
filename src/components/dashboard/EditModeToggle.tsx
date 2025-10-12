@@ -9,7 +9,7 @@ interface EditModeToggleProps {
 export function EditModeToggle({ isEditMode, onToggle }: EditModeToggleProps) {
   return (
     <Button
-      variant={isEditMode ? "default" : "outline"}
+      variant={isEditMode ? "default" : "outline-primary"}
       size="sm"
       onClick={onToggle}
     >
