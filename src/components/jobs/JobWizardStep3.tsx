@@ -2,7 +2,7 @@ import { UseFormReturn } from "react-hook-form";
 import { JobFormData } from "@/types/job";
 import { useState } from "react";
 import { format, addDays } from "date-fns";
-import { CalendarIcon, X } from "lucide-react";
+import { CalendarIcon, Trash2 } from "lucide-react";
 import {
   FormField,
   FormItem,
@@ -127,23 +127,24 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
                         />
                       </PopoverContent>
                     </Popover>
+
+                    {field.value && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={handleClear}
+                        className="h-10 w-10 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
 
                   {field.value && (
-                    <div className="flex items-center justify-between text-sm text-muted-foreground">
-                      <span>
-                        Selected: {format(new Date(field.value), "MMMM dd, yyyy")}
-                        {selectedPreset && ` (${selectedPreset} days from now)`}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleClear}
-                        className="h-auto p-1 hover:bg-destructive/10 hover:text-destructive"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                    <div className="text-sm text-muted-foreground">
+                      Selected: {format(new Date(field.value), "MMMM dd, yyyy")}
+                      {selectedPreset && ` (${selectedPreset} days from now)`}
                     </div>
                   )}
                 </div>
