@@ -47,11 +47,26 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
   const [selectedPreset, setSelectedPreset] = useState<string>("");
   const [showCalendar, setShowCalendar] = useState(false);
   const [teamDialogOpen, setTeamDialogOpen] = useState(false);
+  const [editingMember, setEditingMember] = useState<HiringTeamMember | null>(null);
 
   const hiringTeam = form.watch('hiringTeam') || [];
 
   const handleAddTeamMember = (member: HiringTeamMember) => {
-    form.setValue('hiringTeam', [...hiringTeam, member]);
+    if (editingMember) {
+      // Update existing member
+      form.setValue('hiringTeam', hiringTeam.map((m) => 
+        m.id === member.id ? member : m
+      ));
+      setEditingMember(null);
+    } else {
+      // Add new member
+      form.setValue('hiringTeam', [...hiringTeam, member]);
+    }
+  };
+
+  const handleEditTeamMember = (member: HiringTeamMember) => {
+    setEditingMember(member);
+    setTeamDialogOpen(true);
   };
 
   const handleRemoveTeamMember = (memberId: string) => {
@@ -236,6 +251,7 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
                 key={member.id}
                 member={member}
                 onRemove={handleRemoveTeamMember}
+                onEdit={handleEditTeamMember}
               />
             ))}
           </div>
@@ -245,7 +261,10 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
           <Button
             type="button"
             variant="outline"
-            onClick={() => setTeamDialogOpen(true)}
+            onClick={() => {
+              setEditingMember(null);
+              setTeamDialogOpen(true);
+            }}
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Team Member
@@ -255,8 +274,12 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
 
       <AddHiringTeamDialog
         open={teamDialogOpen}
-        onOpenChange={setTeamDialogOpen}
+        onOpenChange={(open) => {
+          setTeamDialogOpen(open);
+          if (!open) setEditingMember(null);
+        }}
         onAdd={handleAddTeamMember}
+        editMember={editingMember}
       />
     </div>
   );

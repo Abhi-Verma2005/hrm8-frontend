@@ -2,11 +2,12 @@ import { HiringTeamMember } from "@/types/job";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { X, Edit } from "lucide-react";
 
 interface HiringTeamMemberCardProps {
   member: HiringTeamMember;
   onRemove: (memberId: string) => void;
+  onEdit: (member: HiringTeamMember) => void;
 }
 
 const roleLabels: Record<HiringTeamMember['role'], string> = {
@@ -23,7 +24,7 @@ const roleVariants: Record<HiringTeamMember['role'], 'default' | 'secondary' | '
   coordinator: 'outline',
 };
 
-export function HiringTeamMemberCard({ member, onRemove }: HiringTeamMemberCardProps) {
+export function HiringTeamMemberCard({ member, onRemove, onEdit }: HiringTeamMemberCardProps) {
   const initials = member.name
     .split(' ')
     .map((n) => n[0])
@@ -63,15 +64,26 @@ export function HiringTeamMemberCard({ member, onRemove }: HiringTeamMemberCardP
           ))}
         </div>
       </div>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        onClick={() => onRemove(member.id)}
-        className="shrink-0"
-      >
-        <X className="h-4 w-4" />
-      </Button>
+      <div className="flex gap-1 shrink-0">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => onEdit(member)}
+          className="shrink-0"
+        >
+          <Edit className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => onRemove(member.id)}
+          className="shrink-0"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }

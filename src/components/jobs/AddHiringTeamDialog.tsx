@@ -20,6 +20,7 @@ interface AddHiringTeamDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAdd: (member: HiringTeamMember) => void;
+  editMember?: HiringTeamMember | null;
   currentUserId?: string;
 }
 
@@ -27,6 +28,7 @@ export function AddHiringTeamDialog({
   open,
   onOpenChange,
   onAdd,
+  editMember,
   currentUserId = 'current-user',
 }: AddHiringTeamDialogProps) {
   const [selectedUserId, setSelectedUserId] = useState('');
@@ -38,6 +40,23 @@ export function AddHiringTeamDialog({
     canShortlist: false,
     canScheduleInterviews: false,
     canMakeOffers: false,
+  });
+
+  // Pre-fill form when editing
+  useState(() => {
+    if (editMember) {
+      if (editMember.userId) {
+        const user = mockUsers.find(u => u.id === editMember.userId);
+        if (user) {
+          setSelectedUserId(`${user.name} (${user.email})`);
+        }
+      } else {
+        setInviteEmail(editMember.email);
+        setInviteName(editMember.name);
+      }
+      setRole(editMember.role);
+      setPermissions(editMember.permissions);
+    }
   });
 
   const resetForm = () => {
@@ -59,14 +78,14 @@ export function AddHiringTeamDialog({
     if (!user) return;
 
     const member: HiringTeamMember = {
-      id: `member-${Date.now()}`,
+      id: editMember?.id || `member-${Date.now()}`,
       userId: user.id,
       email: user.email,
       name: user.name,
       role,
       permissions,
       status: 'active',
-      addedBy: currentUserId,
+      addedBy: editMember?.addedBy || currentUserId,
     };
 
     onAdd(member);
@@ -78,14 +97,14 @@ export function AddHiringTeamDialog({
     if (!inviteEmail || !inviteName) return;
 
     const member: HiringTeamMember = {
-      id: `member-${Date.now()}`,
+      id: editMember?.id || `member-${Date.now()}`,
       email: inviteEmail,
       name: inviteName,
       role,
       permissions,
-      status: 'pending_invite',
-      invitedAt: new Date().toISOString(),
-      addedBy: currentUserId,
+      status: editMember?.status || 'pending_invite',
+      invitedAt: editMember?.invitedAt || new Date().toISOString(),
+      addedBy: editMember?.addedBy || currentUserId,
     };
 
     onAdd(member);
@@ -99,9 +118,9 @@ export function AddHiringTeamDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add Team Member</DialogTitle>
+          <DialogTitle>{editMember ? 'Edit Team Member' : 'Add Team Member'}</DialogTitle>
           <DialogDescription>
-            Add existing users or invite new members to the hiring team
+            {editMember ? 'Update team member role and permissions' : 'Add existing users or invite new members to the hiring team'}
           </DialogDescription>
         </DialogHeader>
 
@@ -204,7 +223,7 @@ export function AddHiringTeamDialog({
               disabled={!selectedUserId}
               className="w-full"
             >
-              Add Team Member
+              {editMember ? 'Update Team Member' : 'Add Team Member'}
             </Button>
           </TabsContent>
 
@@ -315,7 +334,7 @@ export function AddHiringTeamDialog({
               disabled={!inviteEmail || !inviteName}
               className="w-full"
             >
-              Send Invite
+              {editMember ? 'Update Member' : 'Send Invite'}
             </Button>
           </TabsContent>
         </Tabs>
