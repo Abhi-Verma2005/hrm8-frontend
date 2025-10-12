@@ -30,7 +30,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { JobsFilterBar } from "@/components/jobs/JobsFilterBar";
-import { getCountryFromLocation, expandRegionsToCountries } from "@/lib/countryRegions";
+import { getCountryFromLocation, expandRegionsToCountries, REGION_COUNTRY_MAP, getRegionForCountry } from "@/lib/countryRegions";
 
 export default function Jobs() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -65,9 +65,6 @@ export default function Jobs() {
       jobCountries.add(country);
     });
     
-    // Import region mapping
-    const { REGION_COUNTRY_MAP } = require('@/lib/countryRegions');
-    
     // Group countries by region
     const optionsByRegion: Record<string, string[]> = {
       'Americas': [],
@@ -78,7 +75,6 @@ export default function Jobs() {
     };
     
     jobCountries.forEach(country => {
-      const { getRegionForCountry } = require('@/lib/countryRegions');
       const region = getRegionForCountry(country);
       if (region && optionsByRegion[region]) {
         optionsByRegion[region].push(country);
