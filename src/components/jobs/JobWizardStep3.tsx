@@ -50,6 +50,7 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
   const [editingMember, setEditingMember] = useState<HiringTeamMember | null>(null);
 
   const hiringTeam = form.watch('hiringTeam') || [];
+  const isStealthActive = form.watch('stealth');
 
   const handleAddTeamMember = (member: HiringTeamMember) => {
     if (editingMember) {
@@ -261,6 +262,14 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
             </FormItem>
           )}
         />
+        
+        {isStealthActive && (
+          <div className="rounded-md bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 p-3">
+            <p className="text-sm text-blue-900 dark:text-blue-100">
+              <span className="font-semibold">Note:</span> Your job is now in Stealth Mode. This means it will not be listed on your corporate careers page.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Hiring Team Section */}
