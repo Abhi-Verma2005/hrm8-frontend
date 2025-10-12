@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:transition-colors",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-[background-color,color,border-color,box-shadow] duration-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:transition-[color]",
   {
     variants: {
       variant: {
@@ -19,7 +19,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-muted",
         link: "text-primary underline-offset-4 hover:underline",
         gradient: "gradient-primary text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105",
-        reverse: "bg-primary-foreground text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground shadow-md hover:shadow-lg",
+        reverse: "bg-white text-[hsl(235,87%,65%)] border-2 border-[hsl(235,87%,65%)] hover:bg-[hsl(235,87%,65%)] hover:text-white shadow-md hover:shadow-lg",
       },
       size: {
         sm: "h-8 px-3 text-xs rounded-sm",
