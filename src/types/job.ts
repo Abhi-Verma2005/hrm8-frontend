@@ -1,3 +1,22 @@
+import { ApplicationFormConfig } from './applicationForm';
+
+export interface HiringTeamMember {
+  id: string;
+  userId?: string;
+  email: string;
+  name: string;
+  role: 'hiring_manager' | 'recruiter' | 'interviewer' | 'coordinator';
+  permissions: {
+    canViewApplications: boolean;
+    canShortlist: boolean;
+    canScheduleInterviews: boolean;
+    canMakeOffers: boolean;
+  };
+  status: 'active' | 'pending_invite';
+  invitedAt?: string;
+  addedBy?: string;
+}
+
 export interface Job {
   id: string;
   employerId: string;
@@ -36,6 +55,8 @@ export interface Job {
   viewsCount: number;
   createdAt: string;
   updatedAt: string;
+  hiringTeam?: HiringTeamMember[];
+  applicationForm?: ApplicationFormConfig;
 }
 
 export interface JobTemplate {
@@ -84,7 +105,7 @@ export interface JobFormData {
   requirements: string[];
   responsibilities: string[];
   
-  // Step 3: Compensation & Details
+  // Step 3: Compensation, Details & Hiring Team
   salaryMin?: number;
   salaryMax?: number;
   salaryCurrency: string;
@@ -93,8 +114,12 @@ export interface JobFormData {
   hideSalary: boolean;
   closeDate?: string;
   visibility: 'public' | 'private' | 'stealth';
+  hiringTeam: HiringTeamMember[];
   
-  // Step 4: Review & Publish
+  // Step 4: Application Form
+  applicationForm: ApplicationFormConfig;
+  
+  // Step 5: Review & Publish
   status: 'draft' | 'open';
   jobBoardDistribution: string[];
 }

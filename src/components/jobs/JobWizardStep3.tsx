@@ -1,8 +1,10 @@
 import { UseFormReturn } from "react-hook-form";
-import { JobFormData } from "@/types/job";
+import { JobFormData, HiringTeamMember } from "@/types/job";
 import { useState } from "react";
 import { format, addDays } from "date-fns";
-import { CalendarIcon, Trash2 } from "lucide-react";
+import { CalendarIcon, Trash2, Users, Plus } from "lucide-react";
+import { HiringTeamMemberCard } from "./HiringTeamMemberCard";
+import { AddHiringTeamDialog } from "./AddHiringTeamDialog";
 import {
   FormField,
   FormItem,
@@ -44,6 +46,17 @@ const TIMELINE_PRESETS = [
 export function JobWizardStep3({ form }: JobWizardStep3Props) {
   const [selectedPreset, setSelectedPreset] = useState<string>("");
   const [showCalendar, setShowCalendar] = useState(false);
+  const [teamDialogOpen, setTeamDialogOpen] = useState(false);
+
+  const hiringTeam = form.watch('hiringTeam') || [];
+
+  const handleAddTeamMember = (member: HiringTeamMember) => {
+    form.setValue('hiringTeam', [...hiringTeam, member]);
+  };
+
+  const handleRemoveTeamMember = (memberId: string) => {
+    form.setValue('hiringTeam', hiringTeam.filter((m) => m.id !== memberId));
+  };
   return (
     <div className="space-y-6">
       <div>
@@ -202,6 +215,48 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
             <FormMessage />
           </FormItem>
         )}
+      />
+
+      {/* Hiring Team Section */}
+      <div className="space-y-4 pt-6 border-t">
+        <div>
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Hiring Team
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Assign team members who can manage applications
+          </p>
+        </div>
+
+        {hiringTeam.length > 0 && (
+          <div className="space-y-3">
+            {hiringTeam.map((member) => (
+              <HiringTeamMemberCard
+                key={member.id}
+                member={member}
+                onRemove={handleRemoveTeamMember}
+              />
+            ))}
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setTeamDialogOpen(true)}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Team Member
+          </Button>
+        </div>
+      </div>
+
+      <AddHiringTeamDialog
+        open={teamDialogOpen}
+        onOpenChange={setTeamDialogOpen}
+        onAdd={handleAddTeamMember}
       />
     </div>
   );

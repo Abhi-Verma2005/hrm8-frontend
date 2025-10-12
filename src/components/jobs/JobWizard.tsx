@@ -11,6 +11,7 @@ import { JobWizardStep1 } from "./JobWizardStep1";
 import { JobWizardStep2 } from "./JobWizardStep2";
 import { JobWizardStep3 } from "./JobWizardStep3";
 import { JobWizardStep4 } from "./JobWizardStep4";
+import { JobWizardStep5 } from "./JobWizardStep5";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import {
   Sheet,
@@ -54,13 +55,26 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
       salaryPeriod: "annual",
       hideSalary: false,
       visibility: "public",
+      hiringTeam: [],
+      applicationForm: {
+        id: `form-${Date.now()}`,
+        name: "Application Form",
+        questions: [],
+        includeStandardFields: {
+          resume: true,
+          coverLetter: false,
+          portfolio: false,
+          linkedIn: false,
+          website: false,
+        },
+      },
       status: "draft",
       jobBoardDistribution: ["HRM8 Job Board"],
       ...defaultValues,
     },
   });
 
-  const totalSteps = 4;
+  const totalSteps = 5;
   const progress = (step / totalSteps) * 100;
 
   const onSubmit = (data: JobFormData) => {
@@ -125,6 +139,7 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
         {step === 2 && <JobWizardStep2 form={form} />}
         {step === 3 && <JobWizardStep3 form={form} />}
         {step === 4 && <JobWizardStep4 form={form} />}
+        {step === 5 && <JobWizardStep5 form={form} />}
 
         <div className="flex justify-between pt-6 border-t">
           <Button type="button" variant="outline" onClick={prevStep} disabled={step === 1}>
