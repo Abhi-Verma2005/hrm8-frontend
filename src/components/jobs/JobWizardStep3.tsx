@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Button } from "@/components/ui/button";
@@ -237,23 +237,27 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
           )}
         />
 
+        <p className="text-sm text-muted-foreground">
+          Want to keep your hiring activity confidential? Activate <span className="font-semibold">STEALTH MODE</span>, and we will promote your vacancy under HRM8 branding to keep your company information private.
+        </p>
+
         <FormField
           control={form.control}
           name="stealth"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
+            <FormItem className="flex flex-row items-center justify-between space-y-0">
+              <div className="flex-1">
                 <FormLabel className="font-medium">Stealth Mode</FormLabel>
                 <FormDescription>
                   Company name hidden
                 </FormDescription>
               </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
             </FormItem>
           )}
         />
