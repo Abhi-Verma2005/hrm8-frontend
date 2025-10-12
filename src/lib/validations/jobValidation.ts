@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// Base schema without refinements (for merging)
+// Base schema without refinements (for merging in jobFormSchema)
 const baseJobBasicDetailsSchema = z.object({
   postAsHRM8: z.boolean().default(false),
   employerId: z.string(),
