@@ -326,39 +326,51 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
       <div className="pt-6 border-t">
         <h3 className="text-lg font-semibold mb-4">Salary Information</h3>
         
-        <FormField
-          control={form.control}
-          name="hideSalary"
-          render={({ field }) => (
-            <FormItem className="mb-4">
-              <div className="flex items-center space-x-2">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Hide salary from job posting</FormLabel>
-                  <FormDescription>
-                    Salary information will not be shown to candidates
-                  </FormDescription>
+        <div className="grid grid-cols-1 md:grid-cols-[1fr,auto] gap-4 items-start mb-4">
+          <div>
+            <h4 className="text-sm font-medium mb-1">Salary Visibility on Job Board</h4>
+            <p className="text-sm text-muted-foreground">
+              Control whether salary information is displayed publicly on job boards. 
+              Salary range is always used for filtering and internal tracking.
+            </p>
+          </div>
+          
+          <FormField
+            control={form.control}
+            name="hideSalary"
+            render={({ field }) => (
+              <FormItem className="flex flex-col justify-end">
+                <FormLabel className="mb-2">Hide on Job Board</FormLabel>
+                <div className="flex items-center space-x-2">
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-0 leading-none">
+                    <FormLabel className="text-sm font-normal">
+                      {field.value ? "Hidden" : "Visible"}
+                    </FormLabel>
+                  </div>
                 </div>
-              </div>
-            </FormItem>
-          )}
-        />
+                <FormDescription className="text-xs">
+                  {field.value ? "Salary hidden from public view" : "Salary shown on job board"}
+                </FormDescription>
+              </FormItem>
+            )}
+          />
+        </div>
 
-        {!form.watch("hideSalary") && (
-          <div className="space-y-4">
-            {/* Salary Range & Currency Row */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <FormField
-                control={form.control}
-                name="salaryCurrency"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Currency</FormLabel>
+        <div className="space-y-4">
+          {/* Salary Range & Currency Row */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <FormField
+              control={form.control}
+              name="salaryCurrency"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Currency *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -381,12 +393,12 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="salaryPeriod"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Period</FormLabel>
+            <FormField
+              control={form.control}
+              name="salaryPeriod"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Period *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -409,19 +421,19 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="salaryMin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Minimum Salary</FormLabel>
+            <FormField
+              control={form.control}
+              name="salaryMin"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Minimum Salary *</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         placeholder="e.g. 80000"
                         {...field}
                         onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                        value={field.value || ''}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -429,34 +441,34 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="salaryMax"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Maximum Salary</FormLabel>
+            <FormField
+              control={form.control}
+              name="salaryMax"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Maximum Salary *</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
                         placeholder="e.g. 120000"
                         {...field}
                         onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                        value={field.value || ''}
+                        value={field.value ?? ''}
                       />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+                </FormItem>
+              )}
+            />
+          </div>
 
-            {/* Salary Description Field */}
-            <FormField
-              control={form.control}
-              name="salaryDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Salary Description (Optional)</FormLabel>
+          {/* Salary Description Field */}
+          <FormField
+            control={form.control}
+            name="salaryDescription"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Salary Description (Optional)</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="e.g. Competitive package with bonuses, equity options, and benefits"
@@ -479,27 +491,26 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
               )}
             />
 
-            {/* Preview of formatted salary */}
-            {(form.watch("salaryMin") || form.watch("salaryMax")) && (
-              <div className="p-4 bg-secondary/50 rounded-lg border">
-                <p className="text-sm font-medium mb-1">Salary Display Preview:</p>
-                <p className="text-lg font-semibold">
-                  {formatSalaryRange(
-                    form.watch("salaryMin"), 
-                    form.watch("salaryMax"), 
-                    form.watch("salaryCurrency"),
-                    form.watch("salaryPeriod")
-                  )}
-                </p>
-                {form.watch("salaryDescription") && (
-                  <p className="text-sm text-muted-foreground mt-2 italic">
-                    "{form.watch("salaryDescription")}"
-                  </p>
+          {/* Preview of formatted salary */}
+          {(form.watch("salaryMin") || form.watch("salaryMax")) && (
+            <div className="p-4 bg-secondary/50 rounded-lg border">
+              <p className="text-sm font-medium mb-1">Salary Display Preview:</p>
+              <p className="text-lg font-semibold">
+                {formatSalaryRange(
+                  form.watch("salaryMin"), 
+                  form.watch("salaryMax"), 
+                  form.watch("salaryCurrency"),
+                  form.watch("salaryPeriod")
                 )}
-              </div>
-            )}
-          </div>
-        )}
+              </p>
+              {form.watch("salaryDescription") && (
+                <p className="text-sm text-muted-foreground mt-2 italic">
+                  "{form.watch("salaryDescription")}"
+                </p>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
