@@ -266,8 +266,17 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                   type="button"
                   variant="outline-primary"
                   size="icon"
-                  onClick={() => setDepartmentDialogOpen(true)}
-                  disabled={!selectedEmployerId && !postAsHRM8}
+                  onClick={() => {
+                    if (!selectedEmployerId && !postAsHRM8) {
+                      toast({
+                        title: "Employer Required",
+                        description: "Please select an employer or toggle 'Post as HRM8' before adding departments.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    setDepartmentDialogOpen(true);
+                  }}
                   title="Add new department"
                 >
                   <Plus />
@@ -306,8 +315,17 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                   type="button"
                   variant="outline-primary"
                   size="icon"
-                  onClick={() => setLocationDialogOpen(true)}
-                  disabled={!selectedEmployerId && !postAsHRM8}
+                  onClick={() => {
+                    if (!selectedEmployerId && !postAsHRM8) {
+                      toast({
+                        title: "Employer Required",
+                        description: "Please select an employer or toggle 'Post as HRM8' before adding locations.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    setLocationDialogOpen(true);
+                  }}
                   title="Add new location"
                 >
                   <Plus />
