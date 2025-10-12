@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { FileText, Building2, Check, DollarSign, MapPin, Briefcase, Plus } from "lucide-react";
+import { FileText, Building2, Check, DollarSign, MapPin, Briefcase as BriefcaseIcon, Plus } from "lucide-react";
 import { ComboboxWithAdd } from "@/components/ui/combobox-with-add";
 import { formatSalaryRange } from "@/lib/jobUtils";
 import { getActiveEmployers, getDepartmentNames, getLocationNames } from "@/lib/employerService";
@@ -96,8 +96,11 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Basic Details</h2>
-          <p className="text-muted-foreground mt-1">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <BriefcaseIcon className="h-5 w-5" />
+            Basic Details
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">
             Start by providing the essential information about this job
           </p>
         </div>
@@ -421,7 +424,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                   </SelectItem>
                   <SelectItem value="hybrid">
                     <div className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4" />
+                      <BriefcaseIcon className="h-4 w-4" />
                       <span>Hybrid</span>
                     </div>
                   </SelectItem>

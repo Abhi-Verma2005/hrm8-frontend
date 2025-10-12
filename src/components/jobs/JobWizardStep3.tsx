@@ -2,7 +2,7 @@ import { UseFormReturn } from "react-hook-form";
 import { JobFormData, HiringTeamMember } from "@/types/job";
 import { useState } from "react";
 import { format, addDays } from "date-fns";
-import { CalendarIcon, Trash2, Users, Plus } from "lucide-react";
+import { CalendarIcon, Trash2, Users, Plus, Eye } from "lucide-react";
 import { HiringTeamMemberCard } from "./HiringTeamMemberCard";
 import { AddHiringTeamDialog } from "./AddHiringTeamDialog";
 import {
@@ -75,8 +75,11 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Additional Details</h2>
-        <p className="text-muted-foreground mt-1">
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <CalendarIcon className="h-5 w-5" />
+          Additional Details
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1">
           Set application deadline and visibility options
         </p>
       </div>
@@ -186,12 +189,23 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
         }}
       />
 
-      <FormField
-        control={form.control}
-        name="visibility"
-        render={({ field }) => (
-          <FormItem className="space-y-3">
-            <FormLabel>Job Visibility</FormLabel>
+      <div className="space-y-4 pt-6 border-t">
+        <div>
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Eye className="h-5 w-5" />
+            Job Visibility
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Control who can see this job posting
+          </p>
+        </div>
+
+        <FormField
+          control={form.control}
+          name="visibility"
+          render={({ field }) => (
+            <FormItem className="space-y-3">
+              <FormLabel className="sr-only">Job Visibility</FormLabel>
             <FormControl>
               <RadioGroup
                 onValueChange={field.onChange}
@@ -227,10 +241,11 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
                 </div>
               </RadioGroup>
             </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
 
       {/* Hiring Team Section */}
       <div className="space-y-4 pt-6 border-t">

@@ -78,11 +78,11 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold flex items-center gap-2">
-          <FileQuestion className="h-6 w-6" />
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <FileQuestion className="h-5 w-5" />
           Application Form & Questionnaire
-        </h2>
-        <p className="text-muted-foreground mt-1">
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1">
           Configure what information you want from applicants
         </p>
       </div>

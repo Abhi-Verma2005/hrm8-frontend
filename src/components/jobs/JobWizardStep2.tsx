@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, X } from "lucide-react";
+import { Plus, X, FileText } from "lucide-react";
 import { AIJobGenerator } from "./AIJobGenerator";
 import { PositionDescriptionUpload } from "./PositionDescriptionUpload";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
@@ -63,8 +63,11 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Job Description</h2>
-          <p className="text-muted-foreground mt-1">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Job Description
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1">
             Upload a position description or describe the role manually
           </p>
         </div>

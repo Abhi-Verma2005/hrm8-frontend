@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatSalaryRange, formatEmploymentType, formatExperienceLevel } from "@/lib/jobUtils";
+import { CheckCircle } from "lucide-react";
 
 interface JobWizardStep5Props {
   form: UseFormReturn<JobFormData>;
@@ -17,8 +18,11 @@ export function JobWizardStep5({ form }: JobWizardStep5Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Review & Publish</h2>
-        <p className="text-muted-foreground mt-1">Review your job posting and choose distribution channels</p>
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <CheckCircle className="h-5 w-5" />
+          Review & Publish
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1">Review your job posting and choose distribution channels</p>
       </div>
 
       <Card>
