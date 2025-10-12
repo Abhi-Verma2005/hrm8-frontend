@@ -217,7 +217,7 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
                     <label htmlFor="public" className="flex-1 cursor-pointer">
                       <div className="font-medium">Public</div>
                       <div className="text-sm text-muted-foreground">
-                        Visible on job boards and search results
+                        Visible everywhere
                       </div>
                     </label>
                   </div>
