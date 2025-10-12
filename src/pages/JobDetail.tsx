@@ -1,45 +1,297 @@
-import { useParams, Link } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Briefcase, ArrowLeft } from "lucide-react";
+import { useParams, Link, Navigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { 
+  ArrowLeft, 
+  Edit, 
+  Share2, 
+  Archive, 
+  MapPin, 
+  Briefcase, 
+  DollarSign,
+  Calendar,
+  Eye,
+  Globe,
+  MoreVertical
+} from "lucide-react";
+import { getJobById } from "@/lib/mockJobStorage";
+import { mockJobActivities } from "@/data/mockJobsData";
+import { JobStatusBadge } from "@/components/jobs/JobStatusBadge";
+import { EmploymentTypeBadge } from "@/components/jobs/EmploymentTypeBadge";
+import { ServiceTypeBadge } from "@/components/jobs/ServiceTypeBadge";
+import { JobQuickStats } from "@/components/jobs/JobQuickStats";
+import { JobActivityFeed } from "@/components/jobs/JobActivityFeed";
+import { formatSalaryRange, formatExperienceLevel, formatRelativeDate } from "@/lib/jobUtils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function JobDetail() {
   const { jobId } = useParams();
-  
+  const job = jobId ? getJobById(jobId) : null;
+
+  if (!job) {
+    return <Navigate to="/jobs" replace />;
+  }
+
+  const activities = mockJobActivities.filter(a => a.jobId === job.id);
+
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/jobs">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold">Job Details</h1>
-            <p className="text-muted-foreground">Job ID: {jobId}</p>
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-4 flex-1 min-w-0">
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/jobs">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl font-bold truncate">{job.title}</h1>
+                <JobStatusBadge status={job.status} />
+              </div>
+              <p className="text-muted-foreground mb-4">{job.employerName}</p>
+              <JobQuickStats 
+                applicantsCount={job.applicantsCount}
+                viewsCount={job.viewsCount}
+                postingDate={job.postingDate}
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link to={`/jobs/${job.id}/edit`}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit
+              </Link>
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                  <Share2 className="h-4 w-4 mr-2" />
+                  Share
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Archive className="h-4 w-4 mr-2" />
+                  Archive
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
-        
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-lg bg-secondary/10 flex items-center justify-center">
-                <Briefcase className="h-6 w-6 text-secondary" />
+
+        {/* Tabs */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="applicants">
+              Applicants
+              {job.applicantsCount > 0 && (
+                <Badge variant="secondary" className="ml-2">{job.applicantsCount}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="settings">Settings</TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                {/* Job Details */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Job Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex items-center gap-2 text-sm">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Location:</span>
+                        <span>{job.location}</span>
+                        {job.remoteOption && <Badge variant="outline">Remote</Badge>}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Briefcase className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Type:</span>
+                        <EmploymentTypeBadge type={job.employmentType} />
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Salary:</span>
+                        <span>{formatSalaryRange(job.salaryMin, job.salaryMax, job.salaryCurrency)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Experience:</span>
+                        <span>{formatExperienceLevel(job.experienceLevel)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Eye className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Visibility:</span>
+                        <Badge variant="outline">{job.visibility}</Badge>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Globe className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Service:</span>
+                        <ServiceTypeBadge type={job.serviceType} />
+                        {!job.serviceType || job.serviceType === 'self-managed' ? (
+                          <span className="text-muted-foreground">Self-Managed</span>
+                        ) : null}
+                      </div>
+                    </div>
+                    <Separator />
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Job Code</p>
+                      <p className="font-mono text-sm">{job.jobCode}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Posted</p>
+                      <p className="text-sm">{formatRelativeDate(job.postingDate)}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Description */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Description</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="text-sm whitespace-pre-line">{job.description}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Requirements */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Requirements</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {job.requirements.map((req, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <span className="text-primary mt-1">•</span>
+                          <span>{req}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                {/* Responsibilities */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Responsibilities</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {job.responsibilities.map((resp, index) => (
+                        <li key={index} className="flex items-start gap-2 text-sm">
+                          <span className="text-primary mt-1">•</span>
+                          <span>{resp}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                {/* Distribution */}
+                {job.jobBoardDistribution.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Job Board Distribution</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {job.jobBoardDistribution.map((board) => (
+                          <Badge key={board} variant="secondary">{board}</Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
-              <div>
-                <CardTitle>Job Detail & Applicants</CardTitle>
-                <CardDescription>This page will show job details and applicant management</CardDescription>
+
+              {/* Activity Sidebar */}
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Activity</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <JobActivityFeed activities={activities} />
+                  </CardContent>
+                </Card>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              You'll be able to view job details, manage applicants, review applications, and track hiring progress here.
-            </p>
-          </CardContent>
-        </Card>
+          </TabsContent>
+
+          {/* Applicants Tab */}
+          <TabsContent value="applicants">
+            <Card>
+              <CardContent className="py-12">
+                <div className="text-center text-muted-foreground">
+                  <p className="text-lg font-medium mb-2">Applicant Pipeline</p>
+                  <p className="text-sm">Applicant management will be available in Phase 2</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Analytics Tab */}
+          <TabsContent value="analytics">
+            <Card>
+              <CardContent className="py-12">
+                <div className="text-center text-muted-foreground">
+                  <p className="text-lg font-medium mb-2">Job Analytics</p>
+                  <p className="text-sm">Advanced analytics will be available in Phase 4</p>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle>Job Settings</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button variant="outline" asChild className="w-full justify-start">
+                  <Link to={`/jobs/${job.id}/edit`}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit Job Details
+                  </Link>
+                </Button>
+                <Button variant="outline" className="w-full justify-start">
+                  <Archive className="h-4 w-4 mr-2" />
+                  Archive Job
+                </Button>
+                <Button variant="destructive" className="w-full justify-start">
+                  <Archive className="h-4 w-4 mr-2" />
+                  Delete Job
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardPageLayout>
   );

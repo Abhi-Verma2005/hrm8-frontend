@@ -11,6 +11,9 @@ import Dashboard from "./pages/Dashboard";
 import Candidates from "./pages/Candidates";
 import Jobs from "./pages/Jobs";
 import JobDetail from "./pages/JobDetail";
+import JobCreate from "./pages/JobCreate";
+import JobEdit from "./pages/JobEdit";
+import JobTemplates from "./pages/JobTemplates";
 import Applications from "./pages/Applications";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
@@ -44,7 +47,10 @@ function AppContent() {
             <Route path="/dashboard/:type" element={<Dashboard />} />
             <Route path="/candidates" element={<Candidates />} />
             <Route path="/jobs" element={<Jobs />} />
-            <Route path="/jobs/:jobId/applicants" element={<JobDetail />} />
+            <Route path="/jobs/new" element={<JobCreate />} />
+            <Route path="/jobs/templates" element={<JobTemplates />} />
+            <Route path="/jobs/:jobId" element={<JobDetail />} />
+            <Route path="/jobs/:jobId/edit" element={<JobEdit />} />
             <Route path="/employers" element={<Employers />} />
             <Route path="/consultants" element={<Consultants />} />
             <Route path="/hrms" element={<HRMS />} />
