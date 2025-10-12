@@ -245,19 +245,19 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
           control={form.control}
           name="stealth"
           render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between space-y-0">
-              <div className="flex-1">
-                <FormLabel className="font-medium">Stealth Mode</FormLabel>
-                <FormDescription>
-                  Company name hidden
-                </FormDescription>
-              </div>
+            <FormItem className="flex flex-row items-center space-x-3 space-y-0">
               <FormControl>
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
+              <div className="flex-1">
+                <FormLabel className="font-medium">Stealth Mode</FormLabel>
+                <FormDescription>
+                  Company name hidden
+                </FormDescription>
+              </div>
             </FormItem>
           )}
         />
