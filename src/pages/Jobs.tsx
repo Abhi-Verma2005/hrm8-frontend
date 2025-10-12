@@ -30,6 +30,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { JobsFilterBar } from "@/components/jobs/JobsFilterBar";
+import { getCountryFromLocation, expandRegionsToCountries } from "@/lib/countryRegions";
 
 export default function Jobs() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -39,7 +40,7 @@ export default function Jobs() {
   // Filter states
   const [searchValue, setSearchValue] = useState("");
   const [selectedConsultants, setSelectedConsultants] = useState<string[]>([]);
-  const [selectedCountry, setSelectedCountry] = useState("all");
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [selectedService, setSelectedService] = useState("all");
 
   const jobs = useMemo(() => getJobs(), [refreshKey]);
@@ -55,20 +56,42 @@ export default function Jobs() {
     return ['Unassigned', ...Array.from(consultants).sort()];
   }, [jobs]);
 
-  // Helper function to extract country from location
-  const extractCountry = (location: string): string => {
-    if (location === 'Remote') return 'Remote';
-    const parts = location.split(',').map(p => p.trim());
-    return parts[parts.length - 1];
-  };
-
-  const uniqueCountries = useMemo(() => {
-    const countries = new Set<string>();
+  // Generate location options grouped by region
+  const locationOptions = useMemo(() => {
+    // Get all unique countries from jobs
+    const jobCountries = new Set<string>();
     jobs.forEach(job => {
-      const country = extractCountry(job.location);
-      countries.add(country);
+      const country = getCountryFromLocation(job.location);
+      jobCountries.add(country);
     });
-    return Array.from(countries).sort();
+    
+    // Import region mapping
+    const { REGION_COUNTRY_MAP } = require('@/lib/countryRegions');
+    
+    // Group countries by region
+    const optionsByRegion: Record<string, string[]> = {
+      'Americas': [],
+      'Europe': [],
+      'APAC': [],
+      'Middle East & Africa': [],
+      'Global': []
+    };
+    
+    jobCountries.forEach(country => {
+      const { getRegionForCountry } = require('@/lib/countryRegions');
+      const region = getRegionForCountry(country);
+      if (region && optionsByRegion[region]) {
+        optionsByRegion[region].push(country);
+      }
+    });
+    
+    // Build hierarchical structure
+    return Object.entries(optionsByRegion)
+      .filter(([_, countries]) => countries.length > 0)
+      .map(([region, countries]) => ({
+        region,
+        countries: countries.sort()
+      }));
   }, [jobs]);
 
   // Apply all filters
@@ -102,10 +125,11 @@ export default function Jobs() {
         }
       }
 
-      // Country filter
-      if (selectedCountry !== 'all') {
-        const jobCountry = extractCountry(job.location);
-        if (jobCountry !== selectedCountry) return false;
+      // Location filter (regions + countries)
+      if (selectedLocations.length > 0) {
+        const jobCountry = getCountryFromLocation(job.location);
+        const expandedCountries = expandRegionsToCountries(selectedLocations);
+        if (!expandedCountries.includes(jobCountry)) return false;
       }
 
       // Service filter
@@ -115,7 +139,7 @@ export default function Jobs() {
 
       return true;
     });
-  }, [jobs, searchValue, selectedConsultants, selectedCountry, selectedService]);
+  }, [jobs, searchValue, selectedConsultants, selectedLocations, selectedService]);
 
   const handleDelete = (id: string) => {
     setJobToDelete(id);
@@ -286,12 +310,12 @@ export default function Jobs() {
           onSearchChange={setSearchValue}
           selectedConsultants={selectedConsultants}
           onConsultantsChange={setSelectedConsultants}
-          selectedCountry={selectedCountry}
-          onCountryChange={setSelectedCountry}
+          selectedLocations={selectedLocations}
+          onLocationsChange={setSelectedLocations}
           selectedService={selectedService}
           onServiceChange={setSelectedService}
           consultantOptions={uniqueConsultants}
-          countryOptions={uniqueCountries}
+          locationOptions={locationOptions}
           currentUserId="admin-1"
         />
 

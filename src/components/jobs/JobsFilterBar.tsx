@@ -26,17 +26,22 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
+interface LocationOption {
+  region: string;
+  countries: string[];
+}
+
 interface JobsFilterBarProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
   selectedConsultants: string[];
   onConsultantsChange: (consultants: string[]) => void;
-  selectedCountry: string;
-  onCountryChange: (country: string) => void;
+  selectedLocations: string[];
+  onLocationsChange: (locations: string[]) => void;
   selectedService: string;
   onServiceChange: (service: string) => void;
   consultantOptions: string[];
-  countryOptions: string[];
+  locationOptions: LocationOption[];
   currentUserId?: string;
 }
 
@@ -53,15 +58,16 @@ export function JobsFilterBar({
   onSearchChange,
   selectedConsultants,
   onConsultantsChange,
-  selectedCountry,
-  onCountryChange,
+  selectedLocations,
+  onLocationsChange,
   selectedService,
   onServiceChange,
   consultantOptions,
-  countryOptions,
+  locationOptions,
   currentUserId,
 }: JobsFilterBarProps) {
   const [consultantPopoverOpen, setConsultantPopoverOpen] = useState(false);
+  const [locationPopoverOpen, setLocationPopoverOpen] = useState(false);
 
   const toggleConsultant = (consultant: string) => {
     const newSelection = selectedConsultants.includes(consultant)
@@ -70,16 +76,37 @@ export function JobsFilterBar({
     onConsultantsChange(newSelection);
   };
 
+  const toggleLocation = (location: string) => {
+    const newSelection = selectedLocations.includes(location)
+      ? selectedLocations.filter((l) => l !== location)
+      : [...selectedLocations, location];
+    onLocationsChange(newSelection);
+  };
+
+  const toggleRegion = (region: string, countries: string[]) => {
+    const allSelected = countries.every(c => selectedLocations.includes(c));
+    
+    if (allSelected) {
+      // Deselect all countries in this region
+      const newSelection = selectedLocations.filter(l => !countries.includes(l));
+      onLocationsChange(newSelection);
+    } else {
+      // Select all countries in this region
+      const newSelection = [...new Set([...selectedLocations, ...countries])];
+      onLocationsChange(newSelection);
+    }
+  };
+
   const hasActiveFilters =
     searchValue ||
     selectedConsultants.length > 0 ||
-    selectedCountry !== "all" ||
+    selectedLocations.length > 0 ||
     selectedService !== "all";
 
   const clearAllFilters = () => {
     onSearchChange("");
     onConsultantsChange([]);
-    onCountryChange("all");
+    onLocationsChange([]);
     onServiceChange("all");
   };
 
@@ -142,20 +169,63 @@ export function JobsFilterBar({
           </PopoverContent>
         </Popover>
 
-        {/* Country Dropdown */}
-        <Select value={selectedCountry} onValueChange={onCountryChange}>
-          <SelectTrigger className="md:w-[180px]">
-            <SelectValue placeholder="All Countries" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Countries</SelectItem>
-            {countryOptions.map((country) => (
-              <SelectItem key={country} value={country}>
-                {country}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Location Multi-Select Dropdown (Hierarchical) */}
+        <Popover open={locationPopoverOpen} onOpenChange={setLocationPopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="justify-between md:w-[200px]"
+            >
+              {selectedLocations.length === 0
+                ? "All Locations"
+                : selectedLocations.length === 1
+                ? selectedLocations[0]
+                : `${selectedLocations.length} selected`}
+              <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[280px] p-0" align="start">
+            <Command>
+              <CommandInput placeholder="Search locations..." />
+              <CommandEmpty>No locations found.</CommandEmpty>
+              <CommandGroup className="max-h-[400px] overflow-y-auto">
+                {locationOptions.map(({ region, countries }) => (
+                  <div key={region}>
+                    {/* Region Header with Select All */}
+                    <CommandItem
+                      onSelect={() => toggleRegion(region, countries)}
+                      className="font-semibold bg-muted/50"
+                    >
+                      <Checkbox
+                        checked={countries.every(c => selectedLocations.includes(c))}
+                        className="mr-2"
+                      />
+                      <span>{region}</span>
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        ({countries.length})
+                      </span>
+                    </CommandItem>
+                    
+                    {/* Individual Countries (indented) */}
+                    {countries.map(country => (
+                      <CommandItem
+                        key={country}
+                        onSelect={() => toggleLocation(country)}
+                        className="pl-8"
+                      >
+                        <Checkbox
+                          checked={selectedLocations.includes(country)}
+                          className="mr-2"
+                        />
+                        <span>{country}</span>
+                      </CommandItem>
+                    ))}
+                  </div>
+                ))}
+              </CommandGroup>
+            </Command>
+          </PopoverContent>
+        </Popover>
 
         {/* Service Type Dropdown */}
         <Select value={selectedService} onValueChange={onServiceChange}>
@@ -200,12 +270,14 @@ export function JobsFilterBar({
             </Badge>
           )}
 
-          {selectedCountry !== "all" && (
+          {selectedLocations.length > 0 && (
             <Badge variant="secondary" className="gap-1">
-              Country: {selectedCountry}
+              {selectedLocations.length === 1
+                ? `Location: ${selectedLocations[0]}`
+                : `Locations: ${selectedLocations.length}`}
               <X
                 className="h-3 w-3 cursor-pointer"
-                onClick={() => onCountryChange("all")}
+                onClick={() => onLocationsChange([])}
               />
             </Badge>
           )}
