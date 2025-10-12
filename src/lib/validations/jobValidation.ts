@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
-export const jobBasicDetailsSchema = z.object({
-  employerId: z.string().min(1, "Please select an employer"),
+const baseJobBasicDetailsSchema = z.object({
+  postAsHRM8: z.boolean().default(false),
+  employerId: z.string(),
   title: z.string().min(5, "Job title must be at least 5 characters"),
   department: z.string().min(2, "Department is required"),
   location: z.string().min(2, "Location is required"),
@@ -9,6 +10,16 @@ export const jobBasicDetailsSchema = z.object({
   experienceLevel: z.enum(['entry', 'mid', 'senior', 'executive']),
   remoteOption: z.boolean(),
   priority: z.enum(['standard', 'urgent', 'high']),
+});
+
+export const jobBasicDetailsSchema = baseJobBasicDetailsSchema.refine((data) => {
+  if (!data.postAsHRM8 && !data.employerId) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Please select an employer or toggle 'Post as HRM8'",
+  path: ["employerId"],
 });
 
 export const jobDescriptionSchema = z.object({
@@ -52,10 +63,19 @@ const baseCompensationSchema = z.object({
   visibility: z.enum(['public', 'private', 'stealth']),
 });
 
-export const jobFormSchema = jobBasicDetailsSchema
+export const jobFormSchema = baseJobBasicDetailsSchema
   .merge(jobDescriptionSchema)
   .merge(baseCompensationSchema)
-  .merge(jobPublishSchema);
+  .merge(jobPublishSchema)
+  .refine((data) => {
+    if (!data.postAsHRM8 && !data.employerId) {
+      return false;
+    }
+    return true;
+  }, {
+    message: "Please select an employer or toggle 'Post as HRM8'",
+    path: ["employerId"],
+  });
 
 export const templateSchema = z.object({
   templateName: z.string().min(3, "Template name must be at least 3 characters"),

@@ -29,6 +29,7 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
   const form = useForm<JobFormData>({
     resolver: zodResolver(jobFormSchema),
     defaultValues: {
+      postAsHRM8: false,
       employerId: "",
       title: "",
       department: "",
@@ -53,14 +54,27 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
   const progress = (step / totalSteps) * 100;
 
   const onSubmit = (data: JobFormData) => {
-    const selectedEmployer = getEmployerById(data.employerId);
+    let employerData;
+    
+    if (data.postAsHRM8) {
+      employerData = {
+        employerId: "hrm8-platform",
+        employerName: "HRM8",
+        employerLogo: "/logo-light.png",
+      };
+    } else {
+      const selectedEmployer = getEmployerById(data.employerId);
+      employerData = {
+        employerId: data.employerId,
+        employerName: selectedEmployer?.name || "Unknown Employer",
+        employerLogo: selectedEmployer?.logo,
+      };
+    }
     
     const jobData = {
       id: jobId || `job-${Date.now()}`,
       ...data,
-      employerId: data.employerId,
-      employerName: selectedEmployer?.name || "Unknown Employer",
-      employerLogo: selectedEmployer?.logo,
+      ...employerData,
       createdBy: "admin-user-id", // TODO: Replace with actual auth user ID
       createdByName: "HRM8 Admin", // TODO: Replace with actual auth user name
       jobCode: generateJobCode(),
@@ -77,8 +91,8 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
     toast({
       title: data.status === 'draft' ? "Draft Saved" : "Job Published!",
       description: data.status === 'draft' 
-        ? `Job saved as draft for ${selectedEmployer?.name}` 
-        : `Job published successfully for ${selectedEmployer?.name}`,
+        ? `Job saved as draft for ${employerData.employerName}` 
+        : `Job published successfully for ${employerData.employerName}`,
     });
     navigate("/jobs");
   };

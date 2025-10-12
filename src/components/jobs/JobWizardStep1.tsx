@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { FileText, Building2, Check } from "lucide-react";
 import { getActiveEmployers } from "@/lib/employerService";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -34,6 +35,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
   const [open, setOpen] = useState(false);
   const employers = getActiveEmployers();
   const selectedEmployerId = form.watch("employerId");
+  const postAsHRM8 = form.watch("postAsHRM8");
   const selectedEmployer = employers.find(emp => emp.id === selectedEmployerId);
 
   return (
@@ -53,24 +55,27 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
         </Button>
       </div>
 
-      <FormField
-        control={form.control}
-        name="employerId"
-        render={({ field }) => (
-          <FormItem className="flex flex-col">
-            <FormLabel>Post Job For *</FormLabel>
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <FormControl>
-                  <Button
-                    variant="outline"
-                    role="combobox"
-                    aria-expanded={open}
-                    className={cn(
-                      "justify-between font-normal",
-                      !field.value && "text-muted-foreground"
-                    )}
-                  >
+      <div className="grid grid-cols-1 md:grid-cols-[1fr,auto] gap-4 items-start">
+        <FormField
+          control={form.control}
+          name="employerId"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Post Job For *</FormLabel>
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                  <FormControl>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      disabled={postAsHRM8}
+                      className={cn(
+                        "justify-between font-normal",
+                        !field.value && "text-muted-foreground",
+                        postAsHRM8 && "opacity-50 cursor-not-allowed"
+                      )}
+                    >
                     {selectedEmployer ? (
                       <div className="flex items-center gap-2">
                         {selectedEmployer.logo ? (
@@ -132,12 +137,44 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
               </PopoverContent>
             </Popover>
             <FormDescription>
-              Select which employer company this job posting is for
+              Select employer company or toggle to post as HRM8
             </FormDescription>
             <FormMessage />
           </FormItem>
         )}
       />
+
+        <FormField
+          control={form.control}
+          name="postAsHRM8"
+          render={({ field }) => (
+            <FormItem className="flex flex-col justify-end">
+              <FormLabel className="mb-2">Post as HRM8</FormLabel>
+              <div className="flex items-center space-x-2">
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={(checked) => {
+                      field.onChange(checked);
+                      if (checked) {
+                        form.setValue("employerId", "");
+                      }
+                    }}
+                  />
+                </FormControl>
+                <div className="space-y-0 leading-none">
+                  <FormLabel className="text-sm font-normal">
+                    {field.value ? "On" : "Off"}
+                  </FormLabel>
+                </div>
+              </div>
+              <FormDescription className="text-xs">
+                Post directly as HRM8 platform
+              </FormDescription>
+            </FormItem>
+          )}
+        />
+      </div>
 
       <FormField
         control={form.control}

@@ -65,6 +65,7 @@ export interface JobActivity {
 
 export interface JobFormData {
   // Step 1: Basic Details
+  postAsHRM8: boolean;
   employerId: string;
   title: string;
   department: string;
