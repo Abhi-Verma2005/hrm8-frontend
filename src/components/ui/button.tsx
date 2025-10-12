@@ -19,7 +19,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-muted",
         link: "text-primary underline-offset-4 hover:underline",
         gradient: "gradient-primary text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105",
-        reverse: "bg-white text-[hsl(235,87%,65%)] border-2 border-[hsl(235,87%,65%)] hover:bg-[hsl(235,87%,65%)] hover:text-white shadow-md hover:shadow-lg",
+        reverse: "bg-primary-foreground text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground shadow-md hover:shadow-lg",
       },
       size: {
         sm: "h-8 px-3 text-xs rounded-sm",
