@@ -19,7 +19,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { JobBoardPreview } from "./JobBoardPreview";
+import { JobBoardPublicPreview } from "./JobBoardPublicPreview";
 import { toast } from "@/hooks/use-toast";
 import { saveJob } from "@/lib/mockJobStorage";
 import { generateJobCode } from "@/lib/jobUtils";
@@ -161,15 +161,20 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
         </div>
 
         <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
-          <SheetContent side="right" className="w-full sm:max-w-2xl lg:max-w-4xl overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle>Job Board Preview</SheetTitle>
-              <SheetDescription>
-                This is how your job posting will appear to candidates on the job board
-              </SheetDescription>
-            </SheetHeader>
-            <div className="mt-6">
-              <JobBoardPreview formData={form.watch()} />
+          <SheetContent 
+            side="right" 
+            className="w-full sm:max-w-2xl lg:max-w-4xl overflow-y-auto p-0"
+          >
+            <div className="sticky top-0 z-10 bg-background border-b px-6 py-4">
+              <SheetHeader>
+                <SheetTitle>Job Board Preview</SheetTitle>
+                <SheetDescription>
+                  This is how your job posting will appear to candidates on the job board
+                </SheetDescription>
+              </SheetHeader>
+            </div>
+            <div className="p-6">
+              <JobBoardPublicPreview formData={form.watch()} />
             </div>
           </SheetContent>
         </Sheet>
