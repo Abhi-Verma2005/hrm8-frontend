@@ -123,7 +123,7 @@ export function formatServiceType(type: Job['serviceType']): string {
   const serviceMap: Record<Job['serviceType'], string> = {
     'self-managed': 'Self-Managed',
     'shortlisting': 'Shortlisting Service',
-    'full-service': 'Full-Service Recruitment',
+    'full-service': 'Full-Service',
     'executive-search': 'Executive Search',
     'rpo': 'RPO',
   };
