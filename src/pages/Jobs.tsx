@@ -55,6 +55,13 @@ export default function Jobs() {
     return ['Unassigned', ...Array.from(consultants).sort()];
   }, [jobs]);
 
+  // Helper function to extract country from location
+  const extractCountry = (location: string): string => {
+    if (location === 'Remote') return 'Remote';
+    const parts = location.split(',').map(p => p.trim());
+    return parts[parts.length - 1];
+  };
+
   const uniqueCountries = useMemo(() => {
     const countries = new Set<string>();
     jobs.forEach(job => {
@@ -63,13 +70,6 @@ export default function Jobs() {
     });
     return Array.from(countries).sort();
   }, [jobs]);
-
-  // Helper function to extract country from location
-  const extractCountry = (location: string): string => {
-    if (location === 'Remote') return 'Remote';
-    const parts = location.split(',').map(p => p.trim());
-    return parts[parts.length - 1];
-  };
 
   // Apply all filters
   const filteredJobs = useMemo(() => {
