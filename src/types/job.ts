@@ -76,6 +76,8 @@ export interface JobFormData {
   priority: 'standard' | 'urgent' | 'high';
   
   // Step 2: Job Description
+  positionDescriptionFile?: File | null;
+  positionDescriptionText?: string;
   description: string;
   requirements: string[];
   responsibilities: string[];

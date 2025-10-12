@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, X, Wand2 } from "lucide-react";
 import { AIJobGenerator } from "./AIJobGenerator";
+import { PositionDescriptionUpload } from "./PositionDescriptionUpload";
 
 interface JobWizardStep2Props {
   form: UseFormReturn<JobFormData>;
@@ -55,11 +56,18 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
         <div>
           <h2 className="text-2xl font-bold">Job Description</h2>
           <p className="text-muted-foreground mt-1">
-            Describe the role, requirements, and responsibilities
+            Upload a position description or describe the role manually
           </p>
         </div>
         <AIJobGenerator form={form} />
       </div>
+
+      <PositionDescriptionUpload 
+        form={form}
+        onFileProcessed={(text) => {
+          form.setValue("positionDescriptionText", text);
+        }}
+      />
 
       <FormField
         control={form.control}

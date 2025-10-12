@@ -11,8 +11,147 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Wand2, Sparkles } from "lucide-react";
+import { Wand2, Sparkles, FileText } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+
+// Helper function to extract description from PD text
+function extractDescription(text: string): string {
+  // Look for common section headers
+  const descriptionKeywords = ['overview', 'summary', 'about the role', 'about this role', 'role description', 'position summary'];
+  const lines = text.split('\n');
+  
+  let startIndex = -1;
+  let endIndex = lines.length;
+  
+  // Find section start
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].toLowerCase().trim();
+    if (descriptionKeywords.some(keyword => line.includes(keyword))) {
+      startIndex = i + 1;
+      break;
+    }
+  }
+  
+  // If no header found, use first few paragraphs
+  if (startIndex === -1) {
+    startIndex = 0;
+  }
+  
+  // Find section end (next major section)
+  const endKeywords = ['requirements', 'qualifications', 'responsibilities', 'duties', 'what you'];
+  for (let i = startIndex; i < lines.length; i++) {
+    const line = lines[i].toLowerCase().trim();
+    if (endKeywords.some(keyword => line.includes(keyword))) {
+      endIndex = i;
+      break;
+    }
+  }
+  
+  // Extract and clean text
+  const description = lines.slice(startIndex, Math.min(startIndex + 10, endIndex))
+    .filter(line => line.trim().length > 0)
+    .join('\n\n');
+  
+  return description || text.slice(0, 500);
+}
+
+// Helper function to extract requirements from PD text
+function extractRequirements(text: string): string[] {
+  const requirementKeywords = ['requirements', 'qualifications', 'must have', 'required', 'essential'];
+  const lines = text.split('\n');
+  const requirements: string[] = [];
+  
+  let inSection = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    const lowerLine = line.toLowerCase();
+    
+    // Check if we're entering requirements section
+    if (requirementKeywords.some(keyword => lowerLine.includes(keyword))) {
+      inSection = true;
+      continue;
+    }
+    
+    // Check if we're leaving the section
+    if (inSection && (lowerLine.includes('responsibilities') || lowerLine.includes('duties') || lowerLine.includes('benefits'))) {
+      break;
+    }
+    
+    // Extract bullet points or numbered items
+    if (inSection && line.length > 0) {
+      const cleaned = line
+        .replace(/^[-•*]\s*/, '')
+        .replace(/^\d+[\.)]\s*/, '')
+        .trim();
+      
+      if (cleaned.length > 10) {
+        requirements.push(cleaned);
+      }
+    }
+  }
+  
+  // If nothing found, return generic requirements
+  if (requirements.length === 0) {
+    return [
+      'Relevant experience in the field',
+      'Strong communication skills',
+      'Problem-solving abilities',
+      'Team collaboration'
+    ];
+  }
+  
+  return requirements.slice(0, 8); // Limit to 8 requirements
+}
+
+// Helper function to extract responsibilities from PD text
+function extractResponsibilities(text: string): string[] {
+  const responsibilityKeywords = ['responsibilities', 'duties', 'what you will do', 'what you\'ll do', 'key duties', 'role responsibilities'];
+  const lines = text.split('\n');
+  const responsibilities: string[] = [];
+  
+  let inSection = false;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    const lowerLine = line.toLowerCase();
+    
+    // Check if we're entering responsibilities section
+    if (responsibilityKeywords.some(keyword => lowerLine.includes(keyword))) {
+      inSection = true;
+      continue;
+    }
+    
+    // Check if we're leaving the section
+    if (inSection && (lowerLine.includes('requirements') || lowerLine.includes('qualifications') || lowerLine.includes('benefits'))) {
+      break;
+    }
+    
+    // Extract bullet points or numbered items
+    if (inSection && line.length > 0) {
+      const cleaned = line
+        .replace(/^[-•*]\s*/, '')
+        .replace(/^\d+[\.)]\s*/, '')
+        .trim();
+      
+      if (cleaned.length > 10) {
+        responsibilities.push(cleaned);
+      }
+    }
+  }
+  
+  // If nothing found, return generic responsibilities
+  if (responsibilities.length === 0) {
+    return [
+      'Execute key tasks aligned with role objectives',
+      'Collaborate with team members',
+      'Contribute to project success',
+      'Maintain quality standards'
+    ];
+  }
+  
+  return responsibilities.slice(0, 8); // Limit to 8 responsibilities
+}
 
 interface AIJobGeneratorProps {
   form: UseFormReturn<JobFormData>;
@@ -25,46 +164,64 @@ export function AIJobGenerator({ form }: AIJobGeneratorProps) {
   const handleGenerate = () => {
     setIsGenerating(true);
     
-    // Mock AI generation - in real implementation, this would call an AI service
     setTimeout(() => {
       const jobTitle = form.getValues("title") || "Software Engineer";
       const department = form.getValues("department") || "Engineering";
       const experienceLevel = form.getValues("experienceLevel") || "mid";
+      const positionDescText = form.getValues("positionDescriptionText");
       
-      // Mock generated content
-      const mockDescription = `We are seeking a talented ${jobTitle} to join our ${department} team. This is an exciting opportunity to work on cutting-edge projects and make a real impact. You'll collaborate with cross-functional teams to deliver high-quality solutions that drive our business forward.
+      // If PD file exists, use it to generate content
+      if (positionDescText) {
+        const description = extractDescription(positionDescText);
+        const requirements = extractRequirements(positionDescText);
+        const responsibilities = extractResponsibilities(positionDescText);
+        
+        form.setValue("description", description);
+        form.setValue("requirements", requirements);
+        form.setValue("responsibilities", responsibilities);
+        
+        toast({
+          title: "Content Generated from Position Description!",
+          description: "Job details extracted from your document. Review and edit as needed.",
+        });
+      } else {
+        // Fall back to mock generation
+        const mockDescription = `We are seeking a talented ${jobTitle} to join our ${department} team. This is an exciting opportunity to work on cutting-edge projects and make a real impact. You'll collaborate with cross-functional teams to deliver high-quality solutions that drive our business forward.
 
 Our ideal candidate is passionate about technology, has a strong problem-solving mindset, and thrives in a fast-paced environment. We offer competitive compensation, comprehensive benefits, and opportunities for professional growth.`;
 
-      const mockRequirements = [
-        `${experienceLevel === 'entry' ? '1-2' : experienceLevel === 'mid' ? '3-5' : '5+'} years of relevant experience`,
-        'Strong technical skills and problem-solving abilities',
-        'Excellent communication and collaboration skills',
-        'Bachelor\'s degree in relevant field or equivalent experience',
-        'Proven track record of delivering high-quality work'
-      ];
+        const mockRequirements = [
+          `${experienceLevel === 'entry' ? '1-2' : experienceLevel === 'mid' ? '3-5' : '5+'} years of relevant experience`,
+          'Strong technical skills and problem-solving abilities',
+          'Excellent communication and collaboration skills',
+          'Bachelor\'s degree in relevant field or equivalent experience',
+          'Proven track record of delivering high-quality work'
+        ];
 
-      const mockResponsibilities = [
-        'Design and implement solutions that meet business requirements',
-        'Collaborate with team members and stakeholders',
-        'Participate in code reviews and technical discussions',
-        'Contribute to continuous improvement initiatives',
-        'Mentor junior team members and share knowledge'
-      ];
+        const mockResponsibilities = [
+          'Design and implement solutions that meet business requirements',
+          'Collaborate with team members and stakeholders',
+          'Participate in code reviews and technical discussions',
+          'Contribute to continuous improvement initiatives',
+          'Mentor junior team members and share knowledge'
+        ];
 
-      form.setValue("description", mockDescription);
-      form.setValue("requirements", mockRequirements);
-      form.setValue("responsibilities", mockResponsibilities);
+        form.setValue("description", mockDescription);
+        form.setValue("requirements", mockRequirements);
+        form.setValue("responsibilities", mockResponsibilities);
+        
+        toast({
+          title: "AI Content Generated!",
+          description: "Job description, requirements, and responsibilities have been populated. Feel free to edit them.",
+        });
+      }
       
       setIsGenerating(false);
       setOpen(false);
-      
-      toast({
-        title: "AI Content Generated!",
-        description: "Job description, requirements, and responsibilities have been populated. Feel free to edit them.",
-      });
     }, 2000);
   };
+
+  const positionDescText = form.watch("positionDescriptionText");
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -81,11 +238,28 @@ Our ideal candidate is passionate about technology, has a strong problem-solving
             AI Job Description Generator
           </DialogTitle>
           <DialogDescription>
-            Our AI will generate a comprehensive job description based on the basic details you've provided. You can edit the generated content before saving.
+            {positionDescText 
+              ? "AI will extract job details from your uploaded position description."
+              : "Our AI will generate a comprehensive job description based on the basic details you've provided."
+            }
           </DialogDescription>
         </DialogHeader>
         
         <div className="py-4 space-y-4">
+          {positionDescText && (
+            <div className="p-4 bg-primary/10 border border-primary/20 rounded-lg">
+              <div className="flex items-start gap-2">
+                <FileText className="h-5 w-5 text-primary mt-0.5" />
+                <div>
+                  <h4 className="font-medium">Position Description Detected</h4>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    AI will extract job details from your uploaded document.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="p-4 bg-secondary/10 rounded-lg">
             <h4 className="font-medium mb-2">What we'll generate:</h4>
             <ul className="space-y-1 text-sm text-muted-foreground">
