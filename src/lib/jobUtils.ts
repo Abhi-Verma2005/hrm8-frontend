@@ -161,12 +161,5 @@ export function formatServiceType(type: Job['serviceType']): string {
   return serviceMap[type] || type;
 }
 
-export function getJobPriorityColor(priority: Job['priority']): string {
-  const colorMap: Record<Job['priority'], string> = {
-    'standard': 'text-muted-foreground',
-    'urgent': 'text-orange-600',
-    'high': 'text-red-600',
-  };
-  
-  return colorMap[priority] || 'text-muted-foreground';
-}
+// Priority has been replaced with tags system
+// Use Badge component with appropriate variant for tag display

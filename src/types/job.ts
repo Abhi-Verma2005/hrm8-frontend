@@ -43,7 +43,7 @@ export interface Job {
   stealth: boolean;
   postingDate: string;
   closeDate?: string;
-  priority: 'standard' | 'urgent' | 'high';
+  tags: string[];
   workArrangement: 'on-site' | 'remote' | 'hybrid';
   aiGeneratedDescription: boolean;
   serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
@@ -97,7 +97,7 @@ export interface JobFormData {
   employmentType: 'full-time' | 'part-time' | 'contract' | 'casual';
   experienceLevel: 'entry' | 'mid' | 'senior' | 'executive';
   workArrangement: 'on-site' | 'remote' | 'hybrid';
-  priority: 'standard' | 'urgent' | 'high';
+  tags: string[];
   
   // Step 2: Job Description
   positionDescriptionFile?: File | null;

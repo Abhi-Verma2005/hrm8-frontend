@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { FileText, Building2, Check, DollarSign, MapPin, Briefcase as BriefcaseIcon, Plus } from "lucide-react";
+import { FileText, Building2, Check, DollarSign, MapPin, Briefcase as BriefcaseIcon, Plus, X, Tag as TagIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { ComboboxWithAdd } from "@/components/ui/combobox-with-add";
 import { formatSalaryRange } from "@/lib/jobUtils";
 import { getActiveEmployers, getDepartmentNames, getLocationNames } from "@/lib/employerService";
@@ -439,33 +440,6 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
         />
       </div>
 
-      {/* Priority Field */}
-      <FormField
-        control={form.control}
-        name="priority"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Priority</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value}>
-              <FormControl>
-                <SelectTrigger className="md:w-1/3">
-                  <SelectValue placeholder="Select priority" />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                <SelectItem value="standard">Standard</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="urgent">Urgent</SelectItem>
-              </SelectContent>
-            </Select>
-            <FormDescription>
-              Urgent jobs will be highlighted to attract more attention
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
       {/* Salary Information Section */}
       <div className="pt-6 border-t">
         <h3 className="text-lg font-semibold mb-4">Salary Information</h3>
@@ -655,6 +629,128 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Tags Section */}
+      <div className="pt-6 border-t">
+        <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+          <TagIcon className="h-5 w-5" />
+          Job Tags
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Add up to 5 tags to categorize and highlight this job (e.g., "Urgent", "Remote-first", "Fast-track")
+        </p>
+        
+        <FormField
+          control={form.control}
+          name="tags"
+          render={({ field }) => {
+            const [inputValue, setInputValue] = useState("");
+            const currentTags = field.value || [];
+            
+            const handleAddTag = () => {
+              const trimmedValue = inputValue.trim();
+              if (!trimmedValue) return;
+              
+              if (currentTags.length >= 5) {
+                toast({
+                  title: "Maximum tags reached",
+                  description: "You can only add up to 5 tags per job",
+                  variant: "destructive",
+                });
+                return;
+              }
+              
+              if (currentTags.includes(trimmedValue)) {
+                toast({
+                  title: "Duplicate tag",
+                  description: "This tag has already been added",
+                  variant: "destructive",
+                });
+                return;
+              }
+              
+              if (trimmedValue.length > 20) {
+                toast({
+                  title: "Tag too long",
+                  description: "Tags must be 20 characters or less",
+                  variant: "destructive",
+                });
+                return;
+              }
+              
+              field.onChange([...currentTags, trimmedValue]);
+              setInputValue("");
+            };
+            
+            const handleRemoveTag = (tagToRemove: string) => {
+              field.onChange(currentTags.filter((tag: string) => tag !== tagToRemove));
+            };
+            
+            const handleKeyDown = (e: React.KeyboardEvent) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddTag();
+              }
+            };
+            
+            return (
+              <FormItem>
+                <FormLabel>Tags (Optional)</FormLabel>
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input
+                        placeholder='e.g., "Urgent", "Remote-first", "Equity included"'
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        maxLength={20}
+                        disabled={currentTags.length >= 5}
+                      />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleAddTag}
+                      disabled={!inputValue.trim() || currentTags.length >= 5}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add
+                    </Button>
+                  </div>
+                  
+                  {currentTags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {currentTags.map((tag: string) => (
+                        <Badge
+                          key={tag}
+                          variant={tag.toLowerCase() === 'urgent' ? 'destructive' : 'secondary'}
+                          className="px-3 py-1 text-sm flex items-center gap-2"
+                        >
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTag(tag)}
+                            className="hover:bg-background/20 rounded-full p-0.5"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <FormDescription>
+                    {currentTags.length}/5 tags added
+                    {currentTags.length >= 5 && " (maximum reached)"}
+                  </FormDescription>
+                </div>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
       </div>
 
       {/* Add Department Dialog */}

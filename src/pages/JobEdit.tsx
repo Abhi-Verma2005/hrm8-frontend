@@ -22,7 +22,7 @@ export default function JobEdit() {
     employmentType: job.employmentType,
     experienceLevel: job.experienceLevel,
     workArrangement: job.workArrangement || 'on-site',
-    priority: job.priority,
+    tags: job.tags || [],
     description: job.description,
     requirements: job.requirements,
     responsibilities: job.responsibilities,

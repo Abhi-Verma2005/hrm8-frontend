@@ -47,7 +47,7 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
       employmentType: "full-time",
       experienceLevel: "mid",
       workArrangement: "on-site",
-      priority: "standard",
+      tags: [],
       description: "",
       requirements: [],
       responsibilities: [],

@@ -10,7 +10,9 @@ const baseJobBasicDetailsSchema = z.object({
   employmentType: z.enum(['full-time', 'part-time', 'contract', 'casual']),
   experienceLevel: z.enum(['entry', 'mid', 'senior', 'executive']),
   workArrangement: z.enum(['on-site', 'remote', 'hybrid']).default('on-site'),
-  priority: z.enum(['standard', 'urgent', 'high']),
+  tags: z.array(z.string().min(1, "Tag cannot be empty").max(20, "Tag must be 20 characters or less"))
+    .max(5, "Maximum 5 tags allowed")
+    .default([]),
   salaryMin: z.number().min(0, "Minimum salary must be a positive number"),
   salaryMax: z.number().min(0, "Maximum salary must be a positive number"),
   salaryCurrency: z.string().default('USD'),
