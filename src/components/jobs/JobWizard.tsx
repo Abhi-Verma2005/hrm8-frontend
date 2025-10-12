@@ -15,6 +15,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { saveJob } from "@/lib/mockJobStorage";
 import { generateJobCode } from "@/lib/jobUtils";
+import { getEmployerById } from "@/lib/employerService";
 
 interface JobWizardProps {
   defaultValues?: Partial<JobFormData>;
@@ -28,6 +29,7 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
   const form = useForm<JobFormData>({
     resolver: zodResolver(jobFormSchema),
     defaultValues: {
+      employerId: "",
       title: "",
       department: "",
       location: "",
@@ -51,13 +53,16 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
   const progress = (step / totalSteps) * 100;
 
   const onSubmit = (data: JobFormData) => {
+    const selectedEmployer = getEmployerById(data.employerId);
+    
     const jobData = {
       id: jobId || `job-${Date.now()}`,
       ...data,
-      employerId: "emp-1",
-      employerName: "Current Employer",
-      createdBy: "current-user",
-      createdByName: "Current User",
+      employerId: data.employerId,
+      employerName: selectedEmployer?.name || "Unknown Employer",
+      employerLogo: selectedEmployer?.logo,
+      createdBy: "admin-user-id", // TODO: Replace with actual auth user ID
+      createdByName: "HRM8 Admin", // TODO: Replace with actual auth user name
       jobCode: generateJobCode(),
       aiGeneratedDescription: false,
       serviceType: "self-managed" as const,
@@ -72,8 +77,8 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
     toast({
       title: data.status === 'draft' ? "Draft Saved" : "Job Published!",
       description: data.status === 'draft' 
-        ? "Your job has been saved as a draft." 
-        : "Your job posting is now live.",
+        ? `Job saved as draft for ${selectedEmployer?.name}` 
+        : `Job published successfully for ${selectedEmployer?.name}`,
     });
     navigate("/jobs");
   };

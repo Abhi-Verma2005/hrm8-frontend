@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 export const jobBasicDetailsSchema = z.object({
+  employerId: z.string().min(1, "Please select an employer"),
   title: z.string().min(5, "Job title must be at least 5 characters"),
   department: z.string().min(2, "Department is required"),
   location: z.string().min(2, "Location is required"),

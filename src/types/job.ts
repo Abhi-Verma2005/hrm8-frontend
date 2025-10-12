@@ -65,6 +65,7 @@ export interface JobActivity {
 
 export interface JobFormData {
   // Step 1: Basic Details
+  employerId: string;
   title: string;
   department: string;
   location: string;

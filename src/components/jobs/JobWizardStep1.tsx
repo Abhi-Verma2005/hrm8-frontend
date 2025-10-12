@@ -19,13 +19,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FileText } from "lucide-react";
+import { FileText, Building2, Check } from "lucide-react";
+import { getActiveEmployers } from "@/lib/employerService";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 
 interface JobWizardStep1Props {
   form: UseFormReturn<JobFormData>;
 }
 
 export function JobWizardStep1({ form }: JobWizardStep1Props) {
+  const [open, setOpen] = useState(false);
+  const employers = getActiveEmployers();
+  const selectedEmployerId = form.watch("employerId");
+  const selectedEmployer = employers.find(emp => emp.id === selectedEmployerId);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -42,6 +52,92 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
           </Link>
         </Button>
       </div>
+
+      <FormField
+        control={form.control}
+        name="employerId"
+        render={({ field }) => (
+          <FormItem className="flex flex-col">
+            <FormLabel>Post Job For *</FormLabel>
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className={cn(
+                      "justify-between font-normal",
+                      !field.value && "text-muted-foreground"
+                    )}
+                  >
+                    {selectedEmployer ? (
+                      <div className="flex items-center gap-2">
+                        {selectedEmployer.logo ? (
+                          <img src={selectedEmployer.logo} alt="" className="h-5 w-5 rounded" />
+                        ) : (
+                          <Building2 className="h-4 w-4" />
+                        )}
+                        <span>{selectedEmployer.name}</span>
+                        <span className="text-xs text-muted-foreground">• {selectedEmployer.industry}</span>
+                      </div>
+                    ) : (
+                      <>
+                        <Building2 className="h-4 w-4 mr-2" />
+                        Select employer company...
+                      </>
+                    )}
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-[500px] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Search employers..." />
+                  <CommandList>
+                    <CommandEmpty>No employer found.</CommandEmpty>
+                    <CommandGroup>
+                      {employers.map((employer) => (
+                        <CommandItem
+                          key={employer.id}
+                          value={`${employer.name} ${employer.industry} ${employer.location}`}
+                          onSelect={() => {
+                            form.setValue("employerId", employer.id);
+                            setOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              employer.id === field.value ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          <div className="flex items-center gap-2 flex-1">
+                            {employer.logo ? (
+                              <img src={employer.logo} alt="" className="h-6 w-6 rounded" />
+                            ) : (
+                              <Building2 className="h-4 w-4 text-muted-foreground" />
+                            )}
+                            <div className="flex flex-col">
+                              <span className="font-medium">{employer.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {employer.industry} • {employer.location}
+                              </span>
+                            </div>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+            <FormDescription>
+              Select which employer company this job posting is for
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <FormField
         control={form.control}
