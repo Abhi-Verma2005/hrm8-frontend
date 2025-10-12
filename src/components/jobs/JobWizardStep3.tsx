@@ -131,10 +131,10 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
                     {field.value && (
                       <Button
                         type="button"
-                        variant="ghost"
+                        variant="outline"
                         size="icon"
                         onClick={handleClear}
-                        className="h-10 w-10 text-destructive hover:bg-destructive hover:text-destructive-foreground"
+                        className="h-10 w-10 text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
