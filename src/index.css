@@ -15,8 +15,8 @@ All colors MUST be HSL.
     --primary-light: 235 87% 95%;
     
     /* Supporting Colors */
-    --secondary: 250 60% 58%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 220 13% 91%;
+    --secondary-foreground: 222 47% 11%;
     --accent: 280 65% 60%;
     --accent-foreground: 0 0% 100%;
     
@@ -100,6 +100,8 @@ All colors MUST be HSL.
   .dark {
     --background: 222 47% 11%;
     --foreground: 0 0% 98%;
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 215 20% 65%;
     --muted: 217 33% 17%;
     --muted-foreground: 215 20% 65%;
     --border: 217 33% 17%;
