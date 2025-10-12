@@ -149,8 +149,8 @@ export function PositionDescriptionUpload({ form, onFileProcessed }: PositionDes
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           className={cn(
-            "relative border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200 bg-secondary/20 hover:bg-secondary/30",
-            isDragging ? "border-primary bg-primary/10 ring-2 ring-primary/20" : "border-primary/40",
+            "relative border-2 border-dashed rounded-lg p-8 text-center transition-all duration-200",
+            isDragging ? "border-primary ring-2 ring-primary/20" : "border-primary/40",
             isProcessing && "opacity-50 pointer-events-none"
           )}
         >
@@ -167,7 +167,7 @@ export function PositionDescriptionUpload({ form, onFileProcessed }: PositionDes
             {isProcessing ? (
               <Loader2 className="h-10 w-10 text-primary animate-spin" />
             ) : (
-              <Upload className="h-10 w-10 text-muted-foreground" />
+              <Upload className="h-10 w-10 text-primary" />
             )}
             
             <div>
