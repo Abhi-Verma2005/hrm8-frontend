@@ -1,5 +1,8 @@
 import { UseFormReturn } from "react-hook-form";
 import { JobFormData } from "@/types/job";
+import { useState } from "react";
+import { format, addDays } from "date-fns";
+import { CalendarIcon } from "lucide-react";
 import {
   FormField,
   FormItem,
@@ -18,12 +21,29 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 
 interface JobWizardStep3Props {
   form: UseFormReturn<JobFormData>;
 }
 
+const TIMELINE_PRESETS = [
+  { label: "7 days", days: 7 },
+  { label: "14 days", days: 14 },
+  { label: "28 days", days: 28 },
+  { label: "45 days", days: 45 },
+];
+
 export function JobWizardStep3({ form }: JobWizardStep3Props) {
+  const [selectedPreset, setSelectedPreset] = useState<string>("");
+  const [showCalendar, setShowCalendar] = useState(false);
   return (
     <div className="space-y-6">
       <div>
@@ -36,22 +56,89 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
       <FormField
         control={form.control}
         name="closeDate"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Application Deadline (Optional)</FormLabel>
-            <FormControl>
-              <Input
-                type="date"
-                {...field}
-                value={field.value || ''}
-              />
-            </FormControl>
-            <FormDescription>
-              Leave blank if the position is open until filled
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
+        render={({ field }) => {
+          const handlePresetSelect = (days: string) => {
+            if (days === selectedPreset) {
+              setSelectedPreset("");
+              field.onChange("");
+            } else {
+              setSelectedPreset(days);
+              const futureDate = addDays(new Date(), parseInt(days));
+              field.onChange(format(futureDate, "yyyy-MM-dd"));
+            }
+          };
+
+          const handleCalendarSelect = (date: Date | undefined) => {
+            if (date) {
+              field.onChange(format(date, "yyyy-MM-dd"));
+              setSelectedPreset("");
+              setShowCalendar(false);
+            }
+          };
+
+          return (
+            <FormItem>
+              <FormLabel>Application Deadline (Optional)</FormLabel>
+              <FormControl>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <ToggleGroup 
+                      type="single" 
+                      value={selectedPreset}
+                      onValueChange={handlePresetSelect}
+                      className="gap-2"
+                    >
+                      {TIMELINE_PRESETS.map((preset) => (
+                        <ToggleGroupItem
+                          key={preset.days}
+                          value={preset.days.toString()}
+                          variant="outline"
+                          className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                        >
+                          {preset.label}
+                        </ToggleGroupItem>
+                      ))}
+                    </ToggleGroup>
+
+                    <Popover open={showCalendar} onOpenChange={setShowCalendar}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          className="h-10 w-10"
+                        >
+                          <CalendarIcon className="h-4 w-4" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={handleCalendarSelect}
+                          initialFocus
+                          disabled={(date) => date < new Date()}
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {field.value && (
+                    <div className="text-sm text-muted-foreground">
+                      Selected: {format(new Date(field.value), "MMMM dd, yyyy")}
+                      {selectedPreset && ` (${selectedPreset} days from now)`}
+                    </div>
+                  )}
+                </div>
+              </FormControl>
+              <FormDescription>
+                Leave blank if the position is open until filled
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          );
+        }}
       />
 
       <FormField
