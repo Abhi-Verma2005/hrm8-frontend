@@ -260,6 +260,23 @@ Our ideal candidate is passionate about technology, has a strong problem-solving
             </div>
           )}
           
+          {!positionDescText && (
+            <div className="p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-medium text-blue-900 dark:text-blue-100">
+                    💡 Pro Tip: Better Results with a Position Description
+                  </h4>
+                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-1.5 leading-relaxed">
+                    Upload a Position Description document above and the AI will extract 
+                    specific details from it, creating a more accurate and detailed job posting.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="p-4 bg-secondary/10 rounded-lg">
             <h4 className="font-medium mb-2">What we'll generate:</h4>
             <ul className="space-y-1 text-sm text-muted-foreground">
