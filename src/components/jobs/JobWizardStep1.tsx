@@ -355,46 +355,6 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <FormField
                 control={form.control}
-                name="salaryMin"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Minimum Salary</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="e.g. 80000"
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                        value={field.value || ''}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="salaryMax"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Maximum Salary</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="e.g. 120000"
-                        {...field}
-                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                        value={field.value || ''}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="salaryCurrency"
                 render={({ field }) => (
                   <FormItem>
@@ -444,6 +404,46 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                     <FormDescription>
                       Pay frequency
                     </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="salaryMin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Minimum Salary</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="e.g. 80000"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                        value={field.value || ''}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="salaryMax"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Maximum Salary</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="e.g. 120000"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                        value={field.value || ''}
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
