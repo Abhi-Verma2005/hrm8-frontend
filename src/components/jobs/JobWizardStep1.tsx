@@ -265,7 +265,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 <Button
                   type="button"
                   size="icon"
-                  className="bg-white text-[#5B67F3] border-2 border-[#5B67F3] hover:bg-[#5B67F3] hover:text-white shadow-md hover:shadow-lg transition-all duration-300"
+                  className="!bg-white !text-[#5B67F3] !border-[#5B67F3] border-2 hover:!bg-[#5B67F3] hover:!text-white shadow-md hover:shadow-lg transition-all duration-300"
                   onClick={() => setDepartmentDialogOpen(true)}
                   disabled={!selectedEmployerId && !postAsHRM8}
                   title="Add new department"
@@ -305,7 +305,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 <Button
                   type="button"
                   size="icon"
-                  className="bg-white text-[#5B67F3] border-2 border-[#5B67F3] hover:bg-[#5B67F3] hover:text-white shadow-md hover:shadow-lg transition-all duration-300"
+                  className="!bg-white !text-[#5B67F3] !border-[#5B67F3] border-2 hover:!bg-[#5B67F3] hover:!text-white shadow-md hover:shadow-lg transition-all duration-300"
                   onClick={() => setLocationDialogOpen(true)}
                   disabled={!selectedEmployerId && !postAsHRM8}
                   title="Add new location"
