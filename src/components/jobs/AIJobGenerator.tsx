@@ -11,7 +11,7 @@ import {
   DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Wand2, Sparkles, FileText } from "lucide-react";
+import { Wand2, Sparkles, FileText, Upload } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 // Helper function to extract description from PD text
@@ -155,11 +155,19 @@ function extractResponsibilities(text: string): string[] {
 
 interface AIJobGeneratorProps {
   form: UseFormReturn<JobFormData>;
+  onScrollToUpload?: () => void;
 }
 
-export function AIJobGenerator({ form }: AIJobGeneratorProps) {
+export function AIJobGenerator({ form, onScrollToUpload }: AIJobGeneratorProps) {
   const [open, setOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  
+  const handleUploadNow = () => {
+    setOpen(false);
+    setTimeout(() => {
+      onScrollToUpload?.();
+    }, 100);
+  };
 
   const handleGenerate = () => {
     setIsGenerating(true);
@@ -264,7 +272,7 @@ Our ideal candidate is passionate about technology, has a strong problem-solving
             <div className="p-4 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
               <div className="flex items-start gap-3">
                 <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                <div>
+                <div className="flex-1">
                   <h4 className="font-medium text-blue-900 dark:text-blue-100">
                     💡 Pro Tip: Better Results with a Position Description
                   </h4>
@@ -272,6 +280,18 @@ Our ideal candidate is passionate about technology, has a strong problem-solving
                     Upload a Position Description document above and the AI will extract 
                     specific details from it, creating a more accurate and detailed job posting.
                   </p>
+                  {onScrollToUpload && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3 bg-white dark:bg-blue-900 text-blue-700 dark:text-blue-100 border-blue-300 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-800"
+                      onClick={handleUploadNow}
+                    >
+                      <Upload className="h-3.5 w-3.5 mr-2" />
+                      Upload Now
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>

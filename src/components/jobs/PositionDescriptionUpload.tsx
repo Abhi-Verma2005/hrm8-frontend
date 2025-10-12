@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, forwardRef } from "react";
 import { UseFormReturn } from "react-hook-form";
 import { JobFormData } from "@/types/job";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,8 @@ interface PositionDescriptionUploadProps {
   onFileProcessed?: (extractedText: string) => void;
 }
 
-export function PositionDescriptionUpload({ form, onFileProcessed }: PositionDescriptionUploadProps) {
+export const PositionDescriptionUpload = forwardRef<HTMLDivElement, PositionDescriptionUploadProps>(
+  ({ form, onFileProcessed }, ref) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
@@ -140,7 +141,7 @@ export function PositionDescriptionUpload({ form, onFileProcessed }: PositionDes
   };
 
   return (
-    <FormItem>
+    <FormItem ref={ref}>
       <FormLabel>Position Description (Optional)</FormLabel>
       
       {!uploadedFile ? (
@@ -231,4 +232,6 @@ export function PositionDescriptionUpload({ form, onFileProcessed }: PositionDes
       </FormDescription>
     </FormItem>
   );
-}
+});
+
+PositionDescriptionUpload.displayName = "PositionDescriptionUpload";

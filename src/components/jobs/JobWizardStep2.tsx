@@ -1,6 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { JobFormData } from "@/types/job";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   FormField,
   FormItem,
@@ -23,6 +23,14 @@ interface JobWizardStep2Props {
 export function JobWizardStep2({ form }: JobWizardStep2Props) {
   const [newRequirement, setNewRequirement] = useState("");
   const [newResponsibility, setNewResponsibility] = useState("");
+  const uploadSectionRef = useRef<HTMLDivElement>(null);
+  
+  const scrollToUpload = () => {
+    uploadSectionRef.current?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'start' 
+    });
+  };
 
   const addRequirement = () => {
     if (newRequirement.trim()) {
@@ -59,10 +67,11 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
             Upload a position description or describe the role manually
           </p>
         </div>
-        <AIJobGenerator form={form} />
+        <AIJobGenerator form={form} onScrollToUpload={scrollToUpload} />
       </div>
 
       <PositionDescriptionUpload 
+        ref={uploadSectionRef}
         form={form}
         onFileProcessed={(text) => {
           form.setValue("positionDescriptionText", text);
