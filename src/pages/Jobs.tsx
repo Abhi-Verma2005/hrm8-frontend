@@ -286,19 +286,12 @@ export default function Jobs() {
             <h1 className="text-3xl font-bold">Jobs</h1>
             <p className="text-muted-foreground">Create and manage job postings</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" asChild>
-              <Link to="/jobs/templates">
-                View Templates
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link to="/jobs/new">
-                <Plus className="h-4 w-4 mr-2" />
-                Create Job
-              </Link>
-            </Button>
-          </div>
+          <Button asChild>
+            <Link to="/jobs/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Job
+            </Link>
+          </Button>
         </div>
 
         <JobsFilterBar

@@ -1,5 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { JobFormData } from "@/types/job";
+import { Link } from "react-router-dom";
 import {
   FormField,
   FormItem,
@@ -9,6 +10,7 @@ import {
   FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -17,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { FileText } from "lucide-react";
 
 interface JobWizardStep1Props {
   form: UseFormReturn<JobFormData>;
@@ -25,11 +28,19 @@ interface JobWizardStep1Props {
 export function JobWizardStep1({ form }: JobWizardStep1Props) {
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Basic Details</h2>
-        <p className="text-muted-foreground mt-1">
-          Start by providing the essential information about this job
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Basic Details</h2>
+          <p className="text-muted-foreground mt-1">
+            Start by providing the essential information about this job
+          </p>
+        </div>
+        <Button variant="outline" size="sm" asChild>
+          <Link to="/jobs/templates">
+            <FileText className="h-4 w-4 mr-2" />
+            View Templates
+          </Link>
+        </Button>
       </div>
 
       <FormField
