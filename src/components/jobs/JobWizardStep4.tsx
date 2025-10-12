@@ -14,6 +14,7 @@ import { FileQuestion, Plus, Eye, FileStack } from "lucide-react";
 import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { reorderQuestions } from "@/lib/applicationFormUtils";
+import { Switch } from "@/components/ui/switch";
 
 interface JobWizardStep4Props {
   form: UseFormReturn<JobFormData>;
@@ -100,19 +101,25 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
             control={form.control}
             name="applicationForm.includeStandardFields.resume"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                    disabled
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Resume/CV (Required)</FormLabel>
-                  <FormDescription>
-                    Applicants must upload their resume or CV
-                  </FormDescription>
+              <FormItem className="flex flex-row items-center justify-between space-y-0">
+                <div className="flex items-start space-x-3">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value.included}
+                      disabled
+                      className="mt-1"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Resume / CV</FormLabel>
+                    <FormDescription>
+                      Resume is always required for all applications
+                    </FormDescription>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Required</span>
+                  <Switch checked={field.value.required} disabled />
                 </div>
               </FormItem>
             )}
@@ -122,18 +129,33 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
             control={form.control}
             name="applicationForm.includeStandardFields.coverLetter"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
+              <FormItem className="flex flex-row items-center justify-between space-y-0">
+                <div className="flex items-start space-x-3">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value.included}
+                      onCheckedChange={(checked) =>
+                        field.onChange({ ...field.value, included: checked })
+                      }
+                      className="mt-1"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Cover Letter</FormLabel>
+                    <FormDescription>
+                      Request a cover letter from applicants
+                    </FormDescription>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Required</span>
+                  <Switch
+                    checked={field.value.required}
+                    disabled={!field.value.included}
+                    onCheckedChange={(checked) =>
+                      field.onChange({ ...field.value, required: checked })
+                    }
                   />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Cover Letter</FormLabel>
-                  <FormDescription>
-                    Request a cover letter from applicants
-                  </FormDescription>
                 </div>
               </FormItem>
             )}
@@ -143,18 +165,33 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
             control={form.control}
             name="applicationForm.includeStandardFields.portfolio"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
+              <FormItem className="flex flex-row items-center justify-between space-y-0">
+                <div className="flex items-start space-x-3">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value.included}
+                      onCheckedChange={(checked) =>
+                        field.onChange({ ...field.value, included: checked })
+                      }
+                      className="mt-1"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Portfolio / Work Samples</FormLabel>
+                    <FormDescription>
+                      Request portfolio or work sample links
+                    </FormDescription>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Required</span>
+                  <Switch
+                    checked={field.value.required}
+                    disabled={!field.value.included}
+                    onCheckedChange={(checked) =>
+                      field.onChange({ ...field.value, required: checked })
+                    }
                   />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Portfolio/Work Samples</FormLabel>
-                  <FormDescription>
-                    Request a link to portfolio or work samples
-                  </FormDescription>
                 </div>
               </FormItem>
             )}
@@ -164,18 +201,33 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
             control={form.control}
             name="applicationForm.includeStandardFields.linkedIn"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
+              <FormItem className="flex flex-row items-center justify-between space-y-0">
+                <div className="flex items-start space-x-3">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value.included}
+                      onCheckedChange={(checked) =>
+                        field.onChange({ ...field.value, included: checked })
+                      }
+                      className="mt-1"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>LinkedIn Profile</FormLabel>
+                    <FormDescription>
+                      Request LinkedIn profile URL
+                    </FormDescription>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Required</span>
+                  <Switch
+                    checked={field.value.required}
+                    disabled={!field.value.included}
+                    onCheckedChange={(checked) =>
+                      field.onChange({ ...field.value, required: checked })
+                    }
                   />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>LinkedIn Profile</FormLabel>
-                  <FormDescription>
-                    Request applicant's LinkedIn profile URL
-                  </FormDescription>
                 </div>
               </FormItem>
             )}
@@ -185,18 +237,33 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
             control={form.control}
             name="applicationForm.includeStandardFields.website"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
+              <FormItem className="flex flex-row items-center justify-between space-y-0">
+                <div className="flex items-start space-x-3">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value.included}
+                      onCheckedChange={(checked) =>
+                        field.onChange({ ...field.value, included: checked })
+                      }
+                      className="mt-1"
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Personal Website</FormLabel>
+                    <FormDescription>
+                      Request personal website or blog URL
+                    </FormDescription>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Required</span>
+                  <Switch
+                    checked={field.value.required}
+                    disabled={!field.value.included}
+                    onCheckedChange={(checked) =>
+                      field.onChange({ ...field.value, required: checked })
+                    }
                   />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Personal Website</FormLabel>
-                  <FormDescription>
-                    Request applicant's personal website or blog
-                  </FormDescription>
                 </div>
               </FormItem>
             )}

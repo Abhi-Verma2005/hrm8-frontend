@@ -54,10 +54,26 @@ export const jobCompensationSchema = z.object({
   hiringTeam: z.array(z.any()).optional(),
 });
 
+const standardFieldSchema = z.object({
+  included: z.boolean(),
+  required: z.boolean(),
+});
+
 export const jobPublishSchema = z.object({
   status: z.enum(['draft', 'open']),
   jobBoardDistribution: z.array(z.string()),
-  applicationForm: z.any().optional(),
+  applicationForm: z.object({
+    id: z.string(),
+    name: z.string(),
+    questions: z.array(z.any()),
+    includeStandardFields: z.object({
+      resume: standardFieldSchema,
+      coverLetter: standardFieldSchema,
+      portfolio: standardFieldSchema,
+      linkedIn: standardFieldSchema,
+      website: standardFieldSchema,
+    }),
+  }).optional(),
 });
 
 // Full form schema (without refinement from compensation)

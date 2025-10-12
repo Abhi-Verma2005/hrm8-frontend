@@ -43,10 +43,10 @@ export interface ApplicationFormConfig {
   description?: string;
   questions: ApplicationQuestion[];
   includeStandardFields: {
-    resume: boolean;
-    coverLetter: boolean;
-    portfolio: boolean;
-    linkedIn: boolean;
-    website: boolean;
+    resume: { included: boolean; required: boolean };
+    coverLetter: { included: boolean; required: boolean };
+    portfolio: { included: boolean; required: boolean };
+    linkedIn: { included: boolean; required: boolean };
+    website: { included: boolean; required: boolean };
   };
 }

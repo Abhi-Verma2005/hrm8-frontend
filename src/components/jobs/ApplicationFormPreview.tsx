@@ -34,10 +34,13 @@ export function ApplicationFormPreview({ formConfig }: ApplicationFormPreviewPro
         <div className="space-y-4">
           <h4 className="font-medium">Required Information</h4>
 
-          {formConfig.includeStandardFields.resume && (
+          {formConfig.includeStandardFields.resume.included && (
             <div className="space-y-2">
               <Label>
-                Resume/CV *
+                Resume / CV
+                {formConfig.includeStandardFields.resume.required && (
+                  <span className="text-destructive ml-1">*</span>
+                )}
               </Label>
               <div className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 transition-colors">
                 <FileUp className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
@@ -51,30 +54,50 @@ export function ApplicationFormPreview({ formConfig }: ApplicationFormPreviewPro
             </div>
           )}
 
-          {formConfig.includeStandardFields.coverLetter && (
+          {formConfig.includeStandardFields.coverLetter.included && (
             <div className="space-y-2">
-              <Label>Cover Letter</Label>
+              <Label>
+                Cover Letter
+                {formConfig.includeStandardFields.coverLetter.required && (
+                  <span className="text-destructive ml-1">*</span>
+                )}
+              </Label>
               <Textarea placeholder="Tell us about yourself..." rows={4} disabled />
             </div>
           )}
 
-          {formConfig.includeStandardFields.portfolio && (
+          {formConfig.includeStandardFields.portfolio.included && (
             <div className="space-y-2">
-              <Label>Portfolio/Work Samples</Label>
+              <Label>
+                Portfolio / Work Samples
+                {formConfig.includeStandardFields.portfolio.required && (
+                  <span className="text-destructive ml-1">*</span>
+                )}
+              </Label>
               <Input placeholder="https://..." disabled />
             </div>
           )}
 
-          {formConfig.includeStandardFields.linkedIn && (
+          {formConfig.includeStandardFields.linkedIn.included && (
             <div className="space-y-2">
-              <Label>LinkedIn Profile</Label>
+              <Label>
+                LinkedIn Profile
+                {formConfig.includeStandardFields.linkedIn.required && (
+                  <span className="text-destructive ml-1">*</span>
+                )}
+              </Label>
               <Input placeholder="https://linkedin.com/in/..." disabled />
             </div>
           )}
 
-          {formConfig.includeStandardFields.website && (
+          {formConfig.includeStandardFields.website.included && (
             <div className="space-y-2">
-              <Label>Personal Website</Label>
+              <Label>
+                Personal Website
+                {formConfig.includeStandardFields.website.required && (
+                  <span className="text-destructive ml-1">*</span>
+                )}
+              </Label>
               <Input placeholder="https://..." disabled />
             </div>
           )}
