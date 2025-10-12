@@ -13,7 +13,15 @@ export const jobBasicDetailsSchema = z.object({
 });
 
 export const jobDescriptionSchema = z.object({
-  description: z.string().min(50, "Job description must be at least 50 characters"),
+  description: z.string()
+    .min(1, "Job description is required")
+    .refine((val) => {
+      // Strip HTML tags to check actual text content length
+      const textContent = val.replace(/<[^>]*>/g, '').trim();
+      return textContent.length >= 50;
+    }, {
+      message: "Job description must contain at least 50 characters of actual content"
+    }),
   requirements: z.array(z.string().min(1)).min(1, "At least one requirement is needed"),
   responsibilities: z.array(z.string().min(1)).min(1, "At least one responsibility is needed"),
 });

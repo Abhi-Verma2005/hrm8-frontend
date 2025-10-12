@@ -9,12 +9,13 @@ import {
   FormMessage,
   FormDescription,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, X, Wand2 } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { AIJobGenerator } from "./AIJobGenerator";
 import { PositionDescriptionUpload } from "./PositionDescriptionUpload";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { JobBoardPreview } from "./JobBoardPreview";
 
 interface JobWizardStep2Props {
   form: UseFormReturn<JobFormData>;
@@ -85,14 +86,15 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
           <FormItem>
             <FormLabel>Job Description *</FormLabel>
             <FormControl>
-              <Textarea
+              <RichTextEditor
+                content={field.value}
+                onChange={field.onChange}
                 placeholder="Provide a detailed description of the job, including the role, team, and company culture..."
-                className="min-h-[150px]"
-                {...field}
+                className="min-h-[200px]"
               />
             </FormControl>
             <FormDescription>
-              This will be the main description candidates see
+              Use the toolbar to format your description. This will be displayed on the job board.
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -192,6 +194,15 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
           </FormItem>
         )}
       />
+
+      {/* Job Board Preview */}
+      <div className="pt-6 border-t">
+        <h3 className="text-xl font-semibold mb-2">Job Board Preview</h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          This is how your job posting will appear to candidates
+        </p>
+        <JobBoardPreview formData={form.watch()} />
+      </div>
     </div>
   );
 }

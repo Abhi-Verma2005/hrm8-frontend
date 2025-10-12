@@ -172,9 +172,10 @@ export default function JobDetail() {
                     <CardTitle>Description</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div>
-                      <p className="text-sm whitespace-pre-line">{job.description}</p>
-                    </div>
+                    <div 
+                      className="prose prose-sm max-w-none"
+                      dangerouslySetInnerHTML={{ __html: job.description }}
+                    />
                   </CardContent>
                 </Card>
 
