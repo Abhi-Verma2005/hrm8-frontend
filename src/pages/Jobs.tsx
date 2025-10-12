@@ -29,13 +29,93 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { JobsFilterBar } from "@/components/jobs/JobsFilterBar";
 
 export default function Jobs() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  
+  // Filter states
+  const [searchValue, setSearchValue] = useState("");
+  const [selectedConsultants, setSelectedConsultants] = useState<string[]>([]);
+  const [selectedCountry, setSelectedCountry] = useState("all");
+  const [selectedService, setSelectedService] = useState("all");
 
   const jobs = useMemo(() => getJobs(), [refreshKey]);
+
+  // Extract unique consultants and countries
+  const uniqueConsultants = useMemo(() => {
+    const consultants = new Set<string>();
+    jobs.forEach(job => {
+      if (job.assignedConsultantName) {
+        consultants.add(job.assignedConsultantName);
+      }
+    });
+    return ['Unassigned', ...Array.from(consultants).sort()];
+  }, [jobs]);
+
+  const uniqueCountries = useMemo(() => {
+    const countries = new Set<string>();
+    jobs.forEach(job => {
+      const country = extractCountry(job.location);
+      countries.add(country);
+    });
+    return Array.from(countries).sort();
+  }, [jobs]);
+
+  // Helper function to extract country from location
+  const extractCountry = (location: string): string => {
+    if (location === 'Remote') return 'Remote';
+    const parts = location.split(',').map(p => p.trim());
+    return parts[parts.length - 1];
+  };
+
+  // Apply all filters
+  const filteredJobs = useMemo(() => {
+    return jobs.filter(job => {
+      // Search filter
+      if (searchValue) {
+        const searchLower = searchValue.toLowerCase();
+        const searchFields = [
+          job.title,
+          job.employerName,
+          job.location,
+          job.department,
+        ];
+        if (!searchFields.some(field => field.toLowerCase().includes(searchLower))) {
+          return false;
+        }
+      }
+
+      // Consultant filter
+      if (selectedConsultants.length > 0) {
+        if (selectedConsultants.includes('my-jobs')) {
+          // For demo purposes, we'll filter by createdBy
+          // In a real app, this would check against the current user ID
+          if (job.createdBy !== 'admin-1') return false;
+        } else {
+          const consultantName = job.assignedConsultantName || 'Unassigned';
+          if (!selectedConsultants.includes(consultantName)) {
+            return false;
+          }
+        }
+      }
+
+      // Country filter
+      if (selectedCountry !== 'all') {
+        const jobCountry = extractCountry(job.location);
+        if (jobCountry !== selectedCountry) return false;
+      }
+
+      // Service filter
+      if (selectedService !== 'all') {
+        if (job.serviceType !== selectedService) return false;
+      }
+
+      return true;
+    });
+  }, [jobs, searchValue, selectedConsultants, selectedCountry, selectedService]);
 
   const handleDelete = (id: string) => {
     setJobToDelete(id);
@@ -201,11 +281,24 @@ export default function Jobs() {
           </div>
         </div>
 
+        <JobsFilterBar
+          searchValue={searchValue}
+          onSearchChange={setSearchValue}
+          selectedConsultants={selectedConsultants}
+          onConsultantsChange={setSelectedConsultants}
+          selectedCountry={selectedCountry}
+          onCountryChange={setSelectedCountry}
+          selectedService={selectedService}
+          onServiceChange={setSelectedService}
+          consultantOptions={uniqueConsultants}
+          countryOptions={uniqueCountries}
+          currentUserId="admin-1"
+        />
+
         <DataTable
-          data={jobs}
+          data={filteredJobs}
           columns={columns}
-          searchable
-          searchKeys={['title', 'employerName', 'location', 'department']}
+          searchable={false}
           emptyMessage="No jobs found"
         />
 
