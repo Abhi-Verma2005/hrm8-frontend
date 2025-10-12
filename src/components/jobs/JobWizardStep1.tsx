@@ -265,7 +265,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 <Button
                   type="button"
                   variant="reverse"
-                  size="icon-sm"
+                  size="icon"
                   onClick={() => setDepartmentDialogOpen(true)}
                   disabled={!selectedEmployerId && !postAsHRM8}
                   title="Add new department"
@@ -305,7 +305,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 <Button
                   type="button"
                   variant="reverse"
-                  size="icon-sm"
+                  size="icon"
                   onClick={() => setLocationDialogOpen(true)}
                   disabled={!selectedEmployerId && !postAsHRM8}
                   title="Add new location"
