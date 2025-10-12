@@ -10,7 +10,8 @@ import {
   Calendar,
   Users,
   Eye,
-  Clock
+  Clock,
+  Building2
 } from "lucide-react";
 import { EmploymentTypeBadge } from "./EmploymentTypeBadge";
 import { formatSalaryRange, formatExperienceLevel } from "@/lib/jobUtils";
@@ -68,7 +69,31 @@ export function JobBoardPublicPreview({ formData }: JobBoardPublicPreviewProps) 
                 <MapPin className="h-4 w-4 text-muted-foreground" />
                 <span className="font-medium">Location:</span>
                 <span>{formData.location}</span>
-                {formData.remoteOption && <Badge variant="outline">Remote</Badge>}
+              </div>
+            )}
+            
+            {formData.workArrangement && (
+              <div className="flex items-center gap-2 text-sm">
+                <Briefcase className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">Arrangement:</span>
+                {formData.workArrangement === 'remote' && (
+                  <Badge variant="outline" className="gap-1">
+                    <MapPin className="h-3 w-3" />
+                    Remote
+                  </Badge>
+                )}
+                {formData.workArrangement === 'hybrid' && (
+                  <Badge variant="outline" className="gap-1">
+                    <Briefcase className="h-3 w-3" />
+                    Hybrid
+                  </Badge>
+                )}
+                {formData.workArrangement === 'on-site' && (
+                  <Badge variant="outline" className="gap-1">
+                    <Briefcase className="h-3 w-3" />
+                    On-site
+                  </Badge>
+                )}
               </div>
             )}
             

@@ -21,7 +21,7 @@ export default function JobEdit() {
     location: job.location,
     employmentType: job.employmentType,
     experienceLevel: job.experienceLevel,
-    remoteOption: job.remoteOption,
+    workArrangement: job.workArrangement || 'on-site',
     priority: job.priority,
     description: job.description,
     requirements: job.requirements,

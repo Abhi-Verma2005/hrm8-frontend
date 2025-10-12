@@ -8,6 +8,8 @@ export interface Employer {
   activeJobs: number;
   lastContact: Date;
   email?: string;
+  departments?: string[];
+  locations?: string[];
 }
 
 export interface Job {

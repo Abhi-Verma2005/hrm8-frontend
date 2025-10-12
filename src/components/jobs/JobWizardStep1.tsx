@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { FileText, Building2, Check, DollarSign } from "lucide-react";
+import { FileText, Building2, Check, DollarSign, MapPin, Briefcase } from "lucide-react";
+import { ComboboxWithAdd } from "@/components/ui/combobox-with-add";
 import { formatSalaryRange } from "@/lib/jobUtils";
 import { getActiveEmployers } from "@/lib/employerService";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -38,6 +39,33 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
   const selectedEmployerId = form.watch("employerId");
   const postAsHRM8 = form.watch("postAsHRM8");
   const selectedEmployer = employers.find(emp => emp.id === selectedEmployerId);
+
+  // Get departments and locations from selected employer
+  const employerDepartments = selectedEmployer?.departments || [];
+  const employerLocations = selectedEmployer?.locations || [];
+
+  // Fallback to common options if employer doesn't have specific ones
+  const defaultDepartments = [
+    "Engineering",
+    "Product",
+    "Design",
+    "Marketing",
+    "Sales",
+    "Finance",
+    "Operations",
+    "HR",
+    "Customer Success",
+    "Legal",
+  ];
+
+  const defaultLocations = [
+    "Remote",
+    selectedEmployer?.location || "",
+  ].filter(Boolean);
+
+  // Use employer-specific or defaults
+  const departmentOptions = employerDepartments.length > 0 ? employerDepartments : defaultDepartments;
+  const locationOptions = employerLocations.length > 0 ? employerLocations : defaultLocations;
 
   return (
     <div className="space-y-6">
@@ -199,8 +227,24 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
             <FormItem>
               <FormLabel>Department *</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Engineering" {...field} />
+                <ComboboxWithAdd
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  options={departmentOptions}
+                  placeholder="Select or add department"
+                  emptyText="No departments found."
+                  addNewText="Add department"
+                  disabled={postAsHRM8}
+                  className="w-full"
+                />
               </FormControl>
+              <FormDescription className="text-xs">
+                {postAsHRM8 
+                  ? "Select HRM8 department" 
+                  : selectedEmployer 
+                    ? `From ${selectedEmployer.name}'s departments` 
+                    : "Select employer first"}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -213,15 +257,32 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
             <FormItem>
               <FormLabel>Location *</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. San Francisco, CA" {...field} />
+                <ComboboxWithAdd
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  options={locationOptions}
+                  placeholder="Select or add location"
+                  emptyText="No locations found."
+                  addNewText="Add location"
+                  disabled={postAsHRM8}
+                  className="w-full"
+                />
               </FormControl>
+              <FormDescription className="text-xs">
+                {postAsHRM8 
+                  ? "Specify job location" 
+                  : selectedEmployer 
+                    ? `From ${selectedEmployer.name}'s office locations` 
+                    : "Select employer first"}
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Employment Details Row - 3 columns */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FormField
           control={form.control}
           name="employmentType"
@@ -269,58 +330,75 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
             </FormItem>
           )}
         />
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
-          name="priority"
+          name="workArrangement"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Priority</FormLabel>
+              <FormLabel>Work Arrangement *</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select priority" />
+                    <SelectValue placeholder="Select arrangement" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="standard">Standard</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
+                  <SelectItem value="on-site">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4" />
+                      <span>On-site</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="remote">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      <span>Remote</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="hybrid">
+                    <div className="flex items-center gap-2">
+                      <Briefcase className="h-4 w-4" />
+                      <span>Hybrid</span>
+                    </div>
+                  </SelectItem>
                 </SelectContent>
               </Select>
-              <FormDescription>
-                Urgent jobs will be highlighted to attract more attention
+              <FormDescription className="text-xs">
+                Where will this role be based?
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-
-        <FormField
-          control={form.control}
-          name="remoteOption"
-          render={({ field }) => (
-            <FormItem className="flex flex-col justify-end">
-              <div className="flex items-center space-x-2 py-3">
-                <FormControl>
-                  <Checkbox
-                    checked={field.value}
-                    onCheckedChange={field.onChange}
-                  />
-                </FormControl>
-                <div className="space-y-1 leading-none">
-                  <FormLabel>Remote work available</FormLabel>
-                  <FormDescription>
-                    This position offers remote work options
-                  </FormDescription>
-                </div>
-              </div>
-            </FormItem>
-          )}
-        />
       </div>
+
+      {/* Priority Field */}
+      <FormField
+        control={form.control}
+        name="priority"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Priority</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger className="md:w-1/3">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="standard">Standard</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="urgent">Urgent</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormDescription>
+              Urgent jobs will be highlighted to attract more attention
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       {/* Salary Information Section */}
       <div className="pt-6 border-t">

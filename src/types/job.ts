@@ -24,7 +24,7 @@ export interface Job {
   postingDate: string;
   closeDate?: string;
   priority: 'standard' | 'urgent' | 'high';
-  remoteOption: boolean;
+  workArrangement: 'on-site' | 'remote' | 'hybrid';
   aiGeneratedDescription: boolean;
   serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
   serviceStatus?: 'pending' | 'in-progress' | 'completed' | 'cancelled';
@@ -74,7 +74,7 @@ export interface JobFormData {
   location: string;
   employmentType: 'full-time' | 'part-time' | 'contract' | 'casual';
   experienceLevel: 'entry' | 'mid' | 'senior' | 'executive';
-  remoteOption: boolean;
+  workArrangement: 'on-site' | 'remote' | 'hybrid';
   priority: 'standard' | 'urgent' | 'high';
   
   // Step 2: Job Description

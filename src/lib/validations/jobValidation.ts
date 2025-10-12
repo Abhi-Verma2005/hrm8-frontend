@@ -9,7 +9,7 @@ const baseJobBasicDetailsSchema = z.object({
   location: z.string().min(2, "Location is required"),
   employmentType: z.enum(['full-time', 'part-time', 'contract', 'casual']),
   experienceLevel: z.enum(['entry', 'mid', 'senior', 'executive']),
-  remoteOption: z.boolean(),
+  workArrangement: z.enum(['on-site', 'remote', 'hybrid']).default('on-site'),
   priority: z.enum(['standard', 'urgent', 'high']),
   salaryMin: z.number().min(0, "Minimum salary must be a positive number"),
   salaryMax: z.number().min(0, "Maximum salary must be a positive number"),

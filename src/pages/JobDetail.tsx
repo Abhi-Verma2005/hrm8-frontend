@@ -123,7 +123,13 @@ export default function JobDetail() {
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">Location:</span>
                         <span>{job.location}</span>
-                        {job.remoteOption && <Badge variant="outline">Remote</Badge>}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm">
+                        <Briefcase className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">Arrangement:</span>
+                        <Badge variant="outline">
+                          {job.workArrangement === 'on-site' ? 'On-site' : job.workArrangement === 'remote' ? 'Remote' : 'Hybrid'}
+                        </Badge>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Briefcase className="h-4 w-4 text-muted-foreground" />

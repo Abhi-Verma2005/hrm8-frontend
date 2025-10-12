@@ -185,9 +185,9 @@ export default function Jobs() {
       render: (job) => (
         <div>
           <p className="text-sm">{job.location}</p>
-          {job.remoteOption && (
-            <Badge variant="outline" className="text-xs mt-1">Remote</Badge>
-          )}
+          <Badge variant="outline" className="text-xs mt-1">
+            {job.workArrangement === 'on-site' ? 'On-site' : job.workArrangement === 'remote' ? 'Remote' : 'Hybrid'}
+          </Badge>
         </div>
       )
     },

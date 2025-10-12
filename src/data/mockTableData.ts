@@ -20,17 +20,30 @@ const companyNames = [
   'Residential Construction', 'Innovation Labs', 'Private Equity Group', 'Medical Diagnostics', 'Retail Technology'
 ];
 
-export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => ({
-  id: `${i + 1}`,
-  name: companyNames[i],
-  logo: i % 3 === 0 ? `https://api.dicebear.com/7.x/initials/svg?seed=${companyNames[i]}` : undefined,
-  industry: industries[i % industries.length],
-  location: locations[i % locations.length],
-  status: statuses[i % statuses.length],
-  activeJobs: Math.floor(Math.random() * 20),
-  lastContact: new Date(2024, 0, Math.floor(Math.random() * 15) + 1),
-  email: `contact@${companyNames[i].toLowerCase().replace(/\s+/g, '')}.com`
-}));
+const commonDepartments = [
+  ['Engineering', 'Product', 'Design', 'Sales', 'Marketing'],
+  ['Finance', 'Operations', 'HR', 'Legal', 'Customer Success'],
+  ['IT', 'Data Analytics', 'Business Development', 'R&D', 'Quality Assurance'],
+  ['Administration', 'Manufacturing', 'Supply Chain', 'Clinical', 'Nursing'],
+  ['Engineering', 'Product Management', 'UX/UI', 'Sales', 'Content'],
+];
+
+export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
+  const baseLocation = locations[i % locations.length];
+  return {
+    id: `${i + 1}`,
+    name: companyNames[i],
+    logo: i % 3 === 0 ? `https://api.dicebear.com/7.x/initials/svg?seed=${companyNames[i]}` : undefined,
+    industry: industries[i % industries.length],
+    location: baseLocation,
+    status: statuses[i % statuses.length],
+    activeJobs: Math.floor(Math.random() * 20),
+    lastContact: new Date(2024, 0, Math.floor(Math.random() * 15) + 1),
+    email: `contact@${companyNames[i].toLowerCase().replace(/\s+/g, '')}.com`,
+    departments: commonDepartments[i % commonDepartments.length],
+    locations: [baseLocation, `${baseLocation} - Downtown`, `${baseLocation} - Tech Hub`],
+  };
+});
 
 const jobTitles = [
   'Senior Software Engineer', 'Financial Analyst', 'Registered Nurse', 'Store Manager', 'Marketing Consultant',

@@ -33,9 +33,13 @@ export function JobBoardPreview({ formData }: JobBoardPreviewProps) {
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-muted-foreground" />
               <span>{formData.location}</span>
-              {formData.remoteOption && (
-                <Badge variant="outline" className="text-xs">Remote</Badge>
-              )}
+            </div>
+          )}
+          
+          {formData.workArrangement && (
+            <div className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4 text-muted-foreground" />
+              <Badge variant="outline" className="text-xs">{formData.workArrangement === 'on-site' ? 'On-site' : formData.workArrangement === 'remote' ? 'Remote' : 'Hybrid'}</Badge>
             </div>
           )}
           
