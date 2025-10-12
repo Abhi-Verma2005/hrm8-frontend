@@ -265,12 +265,12 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 <Button
                   type="button"
                   variant="reverse"
-                  size="icon"
+                  size="icon-sm"
                   onClick={() => setDepartmentDialogOpen(true)}
                   disabled={!selectedEmployerId && !postAsHRM8}
                   title="Add new department"
                 >
-                  <Plus className="h-4 w-4 transition-colors duration-300" />
+                  <Plus />
                 </Button>
               </div>
               <FormDescription className="text-xs">
@@ -305,12 +305,12 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 <Button
                   type="button"
                   variant="reverse"
-                  size="icon"
+                  size="icon-sm"
                   onClick={() => setLocationDialogOpen(true)}
                   disabled={!selectedEmployerId && !postAsHRM8}
                   title="Add new location"
                 >
-                  <Plus className="h-4 w-4 transition-colors duration-300" />
+                  <Plus />
                 </Button>
               </div>
               <FormDescription className="text-xs">
