@@ -169,7 +169,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 </div>
               </div>
               <FormDescription className="text-xs">
-                Post directly as HRM8 platform
+                Post as HRM8
               </FormDescription>
             </FormItem>
           )}
