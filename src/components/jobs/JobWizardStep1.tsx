@@ -250,31 +250,29 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
           name="department"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center justify-between mb-2">
-                <FormLabel>Department *</FormLabel>
+              <FormLabel>Department *</FormLabel>
+              <div className="flex gap-2">
+                <FormControl className="flex-1">
+                  <ComboboxWithAdd
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    options={departmentOptions}
+                    placeholder="Select department"
+                    emptyText="No departments found."
+                    disabled={postAsHRM8}
+                  />
+                </FormControl>
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="sm"
+                  variant="outline"
+                  size="icon"
                   onClick={() => setDepartmentDialogOpen(true)}
                   disabled={!selectedEmployerId && !postAsHRM8}
-                  className="h-7 gap-1 px-2 text-xs"
+                  title="Add new department"
                 >
-                  <Plus className="h-3 w-3" />
-                  Add New
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              <FormControl>
-                <ComboboxWithAdd
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  options={departmentOptions}
-                  placeholder="Select department"
-                  emptyText="No departments found."
-                  disabled={postAsHRM8}
-                  className="w-full"
-                />
-              </FormControl>
               <FormDescription className="text-xs">
                 {postAsHRM8 
                   ? "Select HRM8 department" 
@@ -292,31 +290,29 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
           name="location"
           render={({ field }) => (
             <FormItem>
-              <div className="flex items-center justify-between mb-2">
-                <FormLabel>Location *</FormLabel>
+              <FormLabel>Location *</FormLabel>
+              <div className="flex gap-2">
+                <FormControl className="flex-1">
+                  <ComboboxWithAdd
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    options={locationOptions}
+                    placeholder="Select location"
+                    emptyText="No locations found."
+                    disabled={postAsHRM8}
+                  />
+                </FormControl>
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="sm"
+                  variant="outline"
+                  size="icon"
                   onClick={() => setLocationDialogOpen(true)}
                   disabled={!selectedEmployerId && !postAsHRM8}
-                  className="h-7 gap-1 px-2 text-xs"
+                  title="Add new location"
                 >
-                  <Plus className="h-3 w-3" />
-                  Add New
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              <FormControl>
-                <ComboboxWithAdd
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  options={locationOptions}
-                  placeholder="Select location"
-                  emptyText="No locations found."
-                  disabled={postAsHRM8}
-                  className="w-full"
-                />
-              </FormControl>
               <FormDescription className="text-xs">
                 {postAsHRM8 
                   ? "Specify job location" 
