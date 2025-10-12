@@ -264,7 +264,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 </FormControl>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="reverse"
                   size="icon"
                   onClick={() => setDepartmentDialogOpen(true)}
                   disabled={!selectedEmployerId && !postAsHRM8}
@@ -304,7 +304,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 </FormControl>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="reverse"
                   size="icon"
                   onClick={() => setLocationDialogOpen(true)}
                   disabled={!selectedEmployerId && !postAsHRM8}
