@@ -49,7 +49,8 @@ export const jobDescriptionSchema = z.object({
 
 export const jobCompensationSchema = z.object({
   closeDate: z.string().optional(),
-  visibility: z.enum(['public', 'private', 'stealth']),
+  visibility: z.enum(['public', 'private']),
+  stealth: z.boolean().default(false),
   hiringTeam: z.array(z.any()).optional(),
 });
 
@@ -62,7 +63,8 @@ export const jobPublishSchema = z.object({
 // Full form schema (without refinement from compensation)
 const baseCompensationSchema = z.object({
   closeDate: z.string().optional(),
-  visibility: z.enum(['public', 'private', 'stealth']),
+  visibility: z.enum(['public', 'private']),
+  stealth: z.boolean().default(false),
 });
 
 export const jobFormSchema = baseJobBasicDetailsSchema

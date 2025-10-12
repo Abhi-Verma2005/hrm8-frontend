@@ -55,6 +55,7 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
       salaryPeriod: "annual",
       hideSalary: false,
       visibility: "public",
+      stealth: false,
       hiringTeam: [],
       applicationForm: {
         id: `form-${Date.now()}`,

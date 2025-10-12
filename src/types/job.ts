@@ -39,7 +39,8 @@ export interface Job {
   salaryDescription?: string;
   experienceLevel: 'entry' | 'mid' | 'senior' | 'executive';
   status: 'draft' | 'open' | 'closed' | 'on-hold' | 'filled';
-  visibility: 'public' | 'private' | 'stealth';
+  visibility: 'public' | 'private';
+  stealth: boolean;
   postingDate: string;
   closeDate?: string;
   priority: 'standard' | 'urgent' | 'high';
@@ -113,7 +114,8 @@ export interface JobFormData {
   salaryDescription?: string;
   hideSalary: boolean;
   closeDate?: string;
-  visibility: 'public' | 'private' | 'stealth';
+  visibility: 'public' | 'private';
+  stealth: boolean;
   hiringTeam: HiringTeamMember[];
   
   // Step 4: Application Form

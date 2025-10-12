@@ -34,6 +34,7 @@ export default function JobEdit() {
     hideSalary: !job.salaryMin && !job.salaryMax,
     closeDate: job.closeDate,
     visibility: job.visibility,
+    stealth: job.stealth,
     status: job.status === 'draft' ? 'draft' as const : 'open' as const,
     jobBoardDistribution: job.jobBoardDistribution,
   };
