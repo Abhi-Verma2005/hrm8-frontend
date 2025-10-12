@@ -206,41 +206,41 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
           render={({ field }) => (
             <FormItem className="space-y-3">
               <FormLabel className="sr-only">Job Visibility</FormLabel>
-            <FormControl>
-              <RadioGroup
-                onValueChange={field.onChange}
-                value={field.value}
-                className="flex flex-col space-y-2"
-              >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="public" id="public" />
-                  <label htmlFor="public" className="flex-1 cursor-pointer">
-                    <div className="font-medium">Public</div>
-                    <div className="text-sm text-muted-foreground">
-                      Visible on job boards and search results
-                    </div>
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="private" id="private" />
-                  <label htmlFor="private" className="flex-1 cursor-pointer">
-                    <div className="font-medium">Private</div>
-                    <div className="text-sm text-muted-foreground">
-                      Only accessible via direct link
-                    </div>
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="stealth" id="stealth" />
-                  <label htmlFor="stealth" className="flex-1 cursor-pointer">
-                    <div className="font-medium">Stealth</div>
-                    <div className="text-sm text-muted-foreground">
-                      Company name hidden, for executive searches
-                    </div>
-                  </label>
-                </div>
-              </RadioGroup>
-            </FormControl>
+              <FormControl>
+                <RadioGroup
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  className="flex flex-row gap-4"
+                >
+                  <div className="flex items-center space-x-2 flex-1">
+                    <RadioGroupItem value="public" id="public" />
+                    <label htmlFor="public" className="flex-1 cursor-pointer">
+                      <div className="font-medium">Public</div>
+                      <div className="text-sm text-muted-foreground">
+                        Visible on job boards and search results
+                      </div>
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2 flex-1">
+                    <RadioGroupItem value="private" id="private" />
+                    <label htmlFor="private" className="flex-1 cursor-pointer">
+                      <div className="font-medium">Private</div>
+                      <div className="text-sm text-muted-foreground">
+                        Only accessible via direct link
+                      </div>
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2 flex-1">
+                    <RadioGroupItem value="stealth" id="stealth" />
+                    <label htmlFor="stealth" className="flex-1 cursor-pointer">
+                      <div className="font-medium">Stealth</div>
+                      <div className="text-sm text-muted-foreground">
+                        Company name hidden
+                      </div>
+                    </label>
+                  </div>
+                </RadioGroup>
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
