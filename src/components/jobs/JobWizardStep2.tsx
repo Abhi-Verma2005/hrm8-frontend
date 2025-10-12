@@ -195,14 +195,6 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
         )}
       />
 
-      {/* Job Board Preview */}
-      <div className="pt-6 border-t">
-        <h3 className="text-xl font-semibold mb-2">Job Board Preview</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          This is how your job posting will appear to candidates
-        </p>
-        <JobBoardPreview formData={form.watch()} />
-      </div>
     </div>
   );
 }

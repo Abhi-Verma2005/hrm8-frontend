@@ -11,7 +11,15 @@ import { JobWizardStep1 } from "./JobWizardStep1";
 import { JobWizardStep2 } from "./JobWizardStep2";
 import { JobWizardStep3 } from "./JobWizardStep3";
 import { JobWizardStep4 } from "./JobWizardStep4";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { JobBoardPreview } from "./JobBoardPreview";
 import { toast } from "@/hooks/use-toast";
 import { saveJob } from "@/lib/mockJobStorage";
 import { generateJobCode } from "@/lib/jobUtils";
@@ -24,6 +32,7 @@ interface JobWizardProps {
 
 export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
   const [step, setStep] = useState(1);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const navigate = useNavigate();
   
   const form = useForm<JobFormData>({
@@ -122,6 +131,16 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
             Back
           </Button>
           <div className="flex gap-2">
+            {step === 2 && (
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setPreviewOpen(true)}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Preview Job Board
+              </Button>
+            )}
             <Button type="button" variant="outline" onClick={() => {
               form.setValue("status", "draft");
               form.handleSubmit(onSubmit)();
@@ -140,6 +159,20 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
             )}
           </div>
         </div>
+
+        <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
+          <SheetContent side="right" className="w-full sm:max-w-2xl lg:max-w-4xl overflow-y-auto">
+            <SheetHeader>
+              <SheetTitle>Job Board Preview</SheetTitle>
+              <SheetDescription>
+                This is how your job posting will appear to candidates on the job board
+              </SheetDescription>
+            </SheetHeader>
+            <div className="mt-6">
+              <JobBoardPreview formData={form.watch()} />
+            </div>
+          </SheetContent>
+        </Sheet>
       </form>
     </Form>
   );
