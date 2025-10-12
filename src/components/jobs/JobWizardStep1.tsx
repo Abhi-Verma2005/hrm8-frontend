@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { FileText, Building2, Check } from "lucide-react";
+import { FileText, Building2, Check, DollarSign } from "lucide-react";
+import { formatSalaryRange } from "@/lib/jobUtils";
 import { getActiveEmployers } from "@/lib/employerService";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -319,6 +320,186 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
             </FormItem>
           )}
         />
+      </div>
+
+      {/* Salary Information Section */}
+      <div className="pt-6 border-t">
+        <h3 className="text-lg font-semibold mb-4">Salary Information</h3>
+        
+        <FormField
+          control={form.control}
+          name="hideSalary"
+          render={({ field }) => (
+            <FormItem className="mb-4">
+              <div className="flex items-center space-x-2">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Hide salary from job posting</FormLabel>
+                  <FormDescription>
+                    Salary information will not be shown to candidates
+                  </FormDescription>
+                </div>
+              </div>
+            </FormItem>
+          )}
+        />
+
+        {!form.watch("hideSalary") && (
+          <div className="space-y-4">
+            {/* Salary Range & Currency Row */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <FormField
+                control={form.control}
+                name="salaryMin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Minimum Salary</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="e.g. 80000"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                        value={field.value || ''}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="salaryMax"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Maximum Salary</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="e.g. 120000"
+                        {...field}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                        value={field.value || ''}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="salaryCurrency"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Currency</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Currency" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="USD">USD ($)</SelectItem>
+                        <SelectItem value="EUR">EUR (€)</SelectItem>
+                        <SelectItem value="GBP">GBP (£)</SelectItem>
+                        <SelectItem value="AUD">AUD (A$)</SelectItem>
+                        <SelectItem value="CAD">CAD (C$)</SelectItem>
+                        <SelectItem value="NZD">NZD (NZ$)</SelectItem>
+                        <SelectItem value="SGD">SGD (S$)</SelectItem>
+                        <SelectItem value="JPY">JPY (¥)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="salaryPeriod"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Period</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Period" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="hourly">Hourly</SelectItem>
+                        <SelectItem value="daily">Daily</SelectItem>
+                        <SelectItem value="weekly">Weekly</SelectItem>
+                        <SelectItem value="monthly">Monthly</SelectItem>
+                        <SelectItem value="annual">Annual</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Pay frequency
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Salary Description Field */}
+            <FormField
+              control={form.control}
+              name="salaryDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Salary Description (Optional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. Competitive package with bonuses, equity options, and benefits"
+                      maxLength={100}
+                      {...field}
+                      value={field.value || ''}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Add promotional text about compensation (max 100 characters). 
+                    This will be displayed prominently on the job posting.
+                    {field.value && (
+                      <span className="ml-2 font-medium">
+                        {field.value.length}/100
+                      </span>
+                    )}
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            {/* Preview of formatted salary */}
+            {(form.watch("salaryMin") || form.watch("salaryMax")) && (
+              <div className="p-4 bg-secondary/50 rounded-lg border">
+                <p className="text-sm font-medium mb-1">Salary Display Preview:</p>
+                <p className="text-lg font-semibold">
+                  {formatSalaryRange(
+                    form.watch("salaryMin"), 
+                    form.watch("salaryMax"), 
+                    form.watch("salaryCurrency"),
+                    form.watch("salaryPeriod")
+                  )}
+                </p>
+                {form.watch("salaryDescription") && (
+                  <p className="text-sm text-muted-foreground mt-2 italic">
+                    "{form.watch("salaryDescription")}"
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

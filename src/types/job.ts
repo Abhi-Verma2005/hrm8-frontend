@@ -16,6 +16,8 @@ export interface Job {
   salaryMin?: number;
   salaryMax?: number;
   salaryCurrency: string;
+  salaryPeriod?: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'annual';
+  salaryDescription?: string;
   experienceLevel: 'entry' | 'mid' | 'senior' | 'executive';
   status: 'draft' | 'open' | 'closed' | 'on-hold' | 'filled';
   visibility: 'public' | 'private' | 'stealth';
@@ -86,6 +88,8 @@ export interface JobFormData {
   salaryMin?: number;
   salaryMax?: number;
   salaryCurrency: string;
+  salaryPeriod: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'annual';
+  salaryDescription?: string;
   hideSalary: boolean;
   closeDate?: string;
   visibility: 'public' | 'private' | 'stealth';

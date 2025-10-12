@@ -24,108 +24,14 @@ interface JobWizardStep3Props {
 }
 
 export function JobWizardStep3({ form }: JobWizardStep3Props) {
-  const hideSalary = form.watch("hideSalary");
-
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Compensation & Details</h2>
+        <h2 className="text-2xl font-bold">Additional Details</h2>
         <p className="text-muted-foreground mt-1">
-          Set salary range and additional job details
+          Set application deadline and visibility options
         </p>
       </div>
-
-      <FormField
-        control={form.control}
-        name="hideSalary"
-        render={({ field }) => (
-          <FormItem>
-            <div className="flex items-center space-x-2">
-              <FormControl>
-                <Checkbox
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Hide salary from job posting</FormLabel>
-                <FormDescription>
-                  Salary information will not be shown to candidates
-                </FormDescription>
-              </div>
-            </div>
-          </FormItem>
-        )}
-      />
-
-      {!hideSalary && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <FormField
-            control={form.control}
-            name="salaryMin"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Minimum Salary</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="e.g. 80000"
-                    {...field}
-                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                    value={field.value || ''}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="salaryMax"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Maximum Salary</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="e.g. 120000"
-                    {...field}
-                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                    value={field.value || ''}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="salaryCurrency"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Currency</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select currency" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="USD">USD ($)</SelectItem>
-                    <SelectItem value="EUR">EUR (€)</SelectItem>
-                    <SelectItem value="GBP">GBP (£)</SelectItem>
-                    <SelectItem value="AUD">AUD (A$)</SelectItem>
-                    <SelectItem value="CAD">CAD (C$)</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-      )}
 
       <FormField
         control={form.control}

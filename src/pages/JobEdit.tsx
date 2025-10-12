@@ -14,6 +14,8 @@ export default function JobEdit() {
   }
 
   const defaultValues = {
+    postAsHRM8: false,
+    employerId: job.employerId,
     title: job.title,
     department: job.department,
     location: job.location,
@@ -27,6 +29,8 @@ export default function JobEdit() {
     salaryMin: job.salaryMin,
     salaryMax: job.salaryMax,
     salaryCurrency: job.salaryCurrency,
+    salaryPeriod: job.salaryPeriod || 'annual' as const,
+    salaryDescription: job.salaryDescription,
     hideSalary: !job.salaryMin && !job.salaryMax,
     closeDate: job.closeDate,
     visibility: job.visibility,

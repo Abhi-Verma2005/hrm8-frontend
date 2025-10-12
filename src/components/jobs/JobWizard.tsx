@@ -51,6 +51,7 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
       requirements: [],
       responsibilities: [],
       salaryCurrency: "USD",
+      salaryPeriod: "annual",
       hideSalary: false,
       visibility: "public",
       status: "draft",

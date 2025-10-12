@@ -80,17 +80,28 @@ export function JobBoardPublicPreview({ formData }: JobBoardPublicPreviewProps) 
               </div>
             )}
             
-            {formData.salaryMin && formData.salaryMax && !formData.hideSalary && (
-              <div className="flex items-center gap-2 text-sm">
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-                <span className="font-medium">Salary:</span>
-                <span>
-                  {formatSalaryRange(
-                    formData.salaryMin, 
-                    formData.salaryMax, 
-                    formData.salaryCurrency || 'USD'
-                  )}
-                </span>
+            {(formData.salaryMin || formData.salaryMax) && !formData.hideSalary && (
+              <div className="space-y-2 col-span-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">Salary:</span>
+                  <span>
+                    {formatSalaryRange(
+                      formData.salaryMin, 
+                      formData.salaryMax, 
+                      formData.salaryCurrency || 'USD',
+                      formData.salaryPeriod
+                    )}
+                  </span>
+                </div>
+                
+                {formData.salaryDescription && (
+                  <div className="ml-6 text-sm bg-primary/10 border border-primary/20 rounded-md px-3 py-2">
+                    <p className="text-foreground italic">
+                      💰 {formData.salaryDescription}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
             

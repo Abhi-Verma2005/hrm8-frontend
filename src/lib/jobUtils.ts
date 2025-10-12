@@ -7,7 +7,12 @@ export function generateJobCode(): string {
   return `JOB-${year}-${random}`;
 }
 
-export function formatSalaryRange(min?: number, max?: number, currency: string = 'USD'): string {
+export function formatSalaryRange(
+  min?: number, 
+  max?: number, 
+  currency: string = 'USD',
+  period?: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'annual'
+): string {
   if (!min && !max) return 'Salary not disclosed';
   
   const formatter = new Intl.NumberFormat('en-US', {
@@ -17,15 +22,40 @@ export function formatSalaryRange(min?: number, max?: number, currency: string =
     maximumFractionDigits: 0,
   });
 
+  let range = '';
   if (min && max) {
-    return `${formatter.format(min)} - ${formatter.format(max)}`;
+    range = `${formatter.format(min)} - ${formatter.format(max)}`;
   } else if (min) {
-    return `From ${formatter.format(min)}`;
+    range = `From ${formatter.format(min)}`;
   } else if (max) {
-    return `Up to ${formatter.format(max)}`;
+    range = `Up to ${formatter.format(max)}`;
+  } else {
+    return 'Salary not disclosed';
   }
   
-  return 'Salary not disclosed';
+  if (period) {
+    const periodMap = {
+      'hourly': 'per hour',
+      'daily': 'per day',
+      'weekly': 'per week',
+      'monthly': 'per month',
+      'annual': 'per year',
+    };
+    range += ` ${periodMap[period]}`;
+  }
+  
+  return range;
+}
+
+export function formatSalaryPeriod(period: string): string {
+  const periodMap: Record<string, string> = {
+    'hourly': 'per hour',
+    'daily': 'per day',
+    'weekly': 'per week',
+    'monthly': 'per month',
+    'annual': 'per year',
+  };
+  return periodMap[period] || '';
 }
 
 export function getJobStatusVariant(status: Job['status']): BadgeProps['variant'] {

@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
-export const jobBasicDetailsSchema = z.object({
+// Base schema without refinements (for merging)
+const baseJobBasicDetailsSchema = z.object({
   postAsHRM8: z.boolean().default(false),
   employerId: z.string(),
   title: z.string().min(5, "Job title must be at least 5 characters"),
@@ -10,7 +11,27 @@ export const jobBasicDetailsSchema = z.object({
   experienceLevel: z.enum(['entry', 'mid', 'senior', 'executive']),
   remoteOption: z.boolean(),
   priority: z.enum(['standard', 'urgent', 'high']),
+  salaryMin: z.number().optional(),
+  salaryMax: z.number().optional(),
+  salaryCurrency: z.string().default('USD'),
+  salaryPeriod: z.enum(['hourly', 'daily', 'weekly', 'monthly', 'annual']).default('annual'),
+  salaryDescription: z.string().max(100, "Salary description must be 100 characters or less").optional(),
+  hideSalary: z.boolean().default(false),
 });
+
+// Exported schema with refinements (for step validation)
+export const jobBasicDetailsSchema = baseJobBasicDetailsSchema.refine(
+  (data) => {
+    if (data.salaryMin && data.salaryMax) {
+      return data.salaryMax >= data.salaryMin;
+    }
+    return true;
+  },
+  {
+    message: "Maximum salary must be greater than or equal to minimum salary",
+    path: ["salaryMax"],
+  }
+);
 
 export const jobDescriptionSchema = z.object({
   description: z.string()
@@ -27,24 +48,9 @@ export const jobDescriptionSchema = z.object({
 });
 
 export const jobCompensationSchema = z.object({
-  salaryMin: z.number().optional(),
-  salaryMax: z.number().optional(),
-  salaryCurrency: z.string().default('USD'),
-  hideSalary: z.boolean(),
   closeDate: z.string().optional(),
   visibility: z.enum(['public', 'private', 'stealth']),
-}).refine(
-  (data) => {
-    if (data.salaryMin && data.salaryMax) {
-      return data.salaryMax >= data.salaryMin;
-    }
-    return true;
-  },
-  {
-    message: "Maximum salary must be greater than or equal to minimum salary",
-    path: ["salaryMax"],
-  }
-);
+});
 
 export const jobPublishSchema = z.object({
   status: z.enum(['draft', 'open']),
@@ -53,18 +59,23 @@ export const jobPublishSchema = z.object({
 
 // Full form schema (without refinement from compensation)
 const baseCompensationSchema = z.object({
-  salaryMin: z.number().optional(),
-  salaryMax: z.number().optional(),
-  salaryCurrency: z.string().default('USD'),
-  hideSalary: z.boolean(),
   closeDate: z.string().optional(),
   visibility: z.enum(['public', 'private', 'stealth']),
 });
 
-export const jobFormSchema = jobBasicDetailsSchema
+export const jobFormSchema = baseJobBasicDetailsSchema
   .merge(jobDescriptionSchema)
   .merge(baseCompensationSchema)
   .merge(jobPublishSchema)
+  .refine((data) => {
+    if (data.salaryMin && data.salaryMax) {
+      return data.salaryMax >= data.salaryMin;
+    }
+    return true;
+  }, {
+    message: "Maximum salary must be greater than or equal to minimum salary",
+    path: ["salaryMax"],
+  })
   .refine((data) => {
     if (!data.postAsHRM8 && !data.employerId) {
       return false;
