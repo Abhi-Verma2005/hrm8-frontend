@@ -12,7 +12,6 @@ import { ServiceTypeBadge } from "@/components/jobs/ServiceTypeBadge";
 import { EntityAvatar } from "@/components/tables/EntityAvatar";
 import { formatRelativeDate } from "@/lib/jobUtils";
 import { Badge } from "@/components/ui/badge";
-import { Users } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -112,10 +111,12 @@ export default function Jobs() {
       sortable: true,
       width: "10%",
       render: (job) => (
-        <div className="flex items-center gap-2">
-          <Users className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{job.applicantsCount}</span>
-        </div>
+        <Link 
+          to={`/jobs/${job.id}?tab=applicants`}
+          className="font-medium hover:text-primary transition-colors"
+        >
+          {job.applicantsCount}
+        </Link>
       )
     },
     {

@@ -928,15 +928,10 @@ const jobColumns: Column<Job>[] = [
     sortable: true,
     render: (job) => (
       <Link 
-        to={`/jobs/${job.id}/applicants`}
-        className="flex items-center gap-2 group"
+        to={`/jobs/${job.id}?tab=applicants`}
+        className="font-medium hover:text-primary transition-colors"
       >
-        <span className="font-medium group-hover:text-primary transition-colors">{job.applicants}</span>
-        {job.unreadApplicants && job.unreadApplicants > 0 && (
-          <span className="text-xs text-muted-foreground/70">
-            {job.unreadApplicants} unread
-          </span>
-        )}
+        {job.applicants}
       </Link>
     )
   },
