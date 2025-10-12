@@ -30,6 +30,7 @@ export interface Job {
   assignedConsultantName?: string;
   jobBoardDistribution: string[];
   applicantsCount: number;
+  unreadApplicants?: number;
   viewsCount: number;
   createdAt: string;
   updatedAt: string;

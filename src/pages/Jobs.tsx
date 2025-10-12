@@ -113,9 +113,16 @@ export default function Jobs() {
       render: (job) => (
         <Link 
           to={`/jobs/${job.id}?tab=applicants`}
-          className="font-medium hover:text-primary transition-colors"
+          className="flex items-center gap-2 group"
         >
-          {job.applicantsCount}
+          <span className="font-medium group-hover:text-primary transition-colors">
+            {job.applicantsCount}
+          </span>
+          {job.unreadApplicants && job.unreadApplicants > 0 && (
+            <span className="text-xs text-muted-foreground/70">
+              {job.unreadApplicants} unread
+            </span>
+          )}
         </Link>
       )
     },
