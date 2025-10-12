@@ -1,4 +1,4 @@
-import type { Employer, Job, Candidate, Consultant } from '@/types/entities';
+import type { Employer, Job, Candidate, Consultant, Department, Location } from '@/types/entities';
 
 // Helper functions to generate varied data
 const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Education', 'Manufacturing', 'Media', 'Construction', 'Consulting', 'Legal', 'Transportation', 'Energy', 'Pharmaceuticals', 'Real Estate', 'Telecommunications'];
@@ -20,6 +20,40 @@ const companyNames = [
   'Residential Construction', 'Innovation Labs', 'Private Equity Group', 'Medical Diagnostics', 'Retail Technology'
 ];
 
+const createDepartments = (deptNames: string[], companyId: number): Department[] => {
+  return deptNames.map((name, idx) => ({
+    id: `dept-${companyId}-${idx}`,
+    name,
+    description: undefined,
+    headOfDepartment: undefined,
+    costCenter: undefined,
+    createdAt: new Date(),
+  }));
+};
+
+const createLocations = (locationNames: string[], companyId: number): Location[] => {
+  return locationNames.map((name, idx) => {
+    const isPrimary = idx === 0;
+    const parts = name.split(',').map(p => p.trim());
+    const city = parts[1] || parts[0];
+    const state = parts[2] || '';
+    
+    return {
+      id: `loc-${companyId}-${idx}`,
+      name: name,
+      addressLine1: `${100 + idx * 50} Main Street`,
+      addressLine2: idx === 0 ? 'Suite 100' : undefined,
+      city: city,
+      state: state,
+      postalCode: undefined,
+      country: 'United States',
+      isPrimary,
+      capacity: isPrimary ? 200 : 50,
+      createdAt: new Date(),
+    };
+  });
+};
+
 const commonDepartments = [
   ['Engineering', 'Product', 'Design', 'Sales', 'Marketing'],
   ['Finance', 'Operations', 'HR', 'Legal', 'Customer Success'],
@@ -30,6 +64,9 @@ const commonDepartments = [
 
 export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   const baseLocation = locations[i % locations.length];
+  const deptNames = commonDepartments[i % commonDepartments.length];
+  const locationNames = [baseLocation, `${baseLocation} - Downtown`, `${baseLocation} - Tech Hub`];
+  
   return {
     id: `${i + 1}`,
     name: companyNames[i],
@@ -40,8 +77,8 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
     activeJobs: Math.floor(Math.random() * 20),
     lastContact: new Date(2024, 0, Math.floor(Math.random() * 15) + 1),
     email: `contact@${companyNames[i].toLowerCase().replace(/\s+/g, '')}.com`,
-    departments: commonDepartments[i % commonDepartments.length],
-    locations: [baseLocation, `${baseLocation} - Downtown`, `${baseLocation} - Tech Hub`],
+    departments: createDepartments(deptNames, i),
+    locations: createLocations(locationNames, i),
   };
 });
 

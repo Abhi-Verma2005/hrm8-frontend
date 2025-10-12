@@ -1,3 +1,26 @@
+export interface Department {
+  id: string;
+  name: string;
+  description?: string;
+  headOfDepartment?: string;
+  costCenter?: string;
+  createdAt: Date;
+}
+
+export interface Location {
+  id: string;
+  name: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state?: string;
+  postalCode?: string;
+  country: string;
+  isPrimary?: boolean;
+  capacity?: number;
+  createdAt: Date;
+}
+
 export interface Employer {
   id: string;
   name: string;
@@ -8,8 +31,8 @@ export interface Employer {
   activeJobs: number;
   lastContact: Date;
   email?: string;
-  departments?: string[];
-  locations?: string[];
+  departments?: Department[];
+  locations?: Location[];
 }
 
 export interface Job {

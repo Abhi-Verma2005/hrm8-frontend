@@ -22,7 +22,6 @@ interface ComboboxWithAddProps {
   options: string[];
   placeholder?: string;
   emptyText?: string;
-  addNewText?: string;
   disabled?: boolean;
   className?: string;
 }
@@ -33,7 +32,6 @@ export function ComboboxWithAdd({
   options,
   placeholder = "Select option...",
   emptyText = "No options found.",
-  addNewText = "Add new",
   disabled = false,
   className,
 }: ComboboxWithAddProps) {
@@ -48,14 +46,6 @@ export function ComboboxWithAdd({
     onValueChange(selectedValue === value ? "" : selectedValue);
     setOpen(false);
     setSearchValue("");
-  };
-
-  const handleAddNew = () => {
-    if (searchValue.trim() && !options.includes(searchValue.trim())) {
-      onValueChange(searchValue.trim());
-      setOpen(false);
-      setSearchValue("");
-    }
   };
 
   return (
@@ -87,49 +77,28 @@ export function ComboboxWithAdd({
           <CommandList>
             {filteredOptions.length === 0 ? (
               <CommandEmpty>
-                <div className="py-6 text-center">
-                  <p className="text-sm text-muted-foreground mb-3">{emptyText}</p>
-                  {searchValue.trim() && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleAddNew}
-                      className="gap-2"
-                    >
-                      <Plus className="h-4 w-4" />
-                      {addNewText}: "{searchValue.trim()}"
-                    </Button>
-                  )}
-                </div>
+                <p className="text-sm text-muted-foreground py-6 text-center">
+                  {emptyText}
+                </p>
               </CommandEmpty>
             ) : (
-              <>
-                <CommandGroup>
-                  {filteredOptions.map((option) => (
-                    <CommandItem
-                      key={option}
-                      value={option}
-                      onSelect={() => handleSelect(option)}
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          value === option ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {option}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-                {searchValue.trim() && !options.includes(searchValue.trim()) && (
-                  <CommandGroup>
-                    <CommandItem onSelect={handleAddNew} className="border-t">
-                      <Plus className="mr-2 h-4 w-4" />
-                      {addNewText}: "{searchValue.trim()}"
-                    </CommandItem>
-                  </CommandGroup>
-                )}
-              </>
+              <CommandGroup>
+                {filteredOptions.map((option) => (
+                  <CommandItem
+                    key={option}
+                    value={option}
+                    onSelect={() => handleSelect(option)}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === option ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    {option}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
             )}
           </CommandList>
         </Command>

@@ -20,14 +20,17 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { FileText, Building2, Check, DollarSign, MapPin, Briefcase } from "lucide-react";
+import { FileText, Building2, Check, DollarSign, MapPin, Briefcase, Plus } from "lucide-react";
 import { ComboboxWithAdd } from "@/components/ui/combobox-with-add";
 import { formatSalaryRange } from "@/lib/jobUtils";
-import { getActiveEmployers } from "@/lib/employerService";
+import { getActiveEmployers, getDepartmentNames, getLocationNames } from "@/lib/employerService";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
+import { AddDepartmentDialog } from "@/components/jobs/AddDepartmentDialog";
+import { AddLocationDialog } from "@/components/jobs/AddLocationDialog";
+import { useToast } from "@/hooks/use-toast";
 
 interface JobWizardStep1Props {
   form: UseFormReturn<JobFormData>;
@@ -35,14 +38,18 @@ interface JobWizardStep1Props {
 
 export function JobWizardStep1({ form }: JobWizardStep1Props) {
   const [open, setOpen] = useState(false);
+  const [departmentDialogOpen, setDepartmentDialogOpen] = useState(false);
+  const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const { toast } = useToast();
+  
   const employers = getActiveEmployers();
   const selectedEmployerId = form.watch("employerId");
   const postAsHRM8 = form.watch("postAsHRM8");
   const selectedEmployer = employers.find(emp => emp.id === selectedEmployerId);
 
   // Get departments and locations from selected employer
-  const employerDepartments = selectedEmployer?.departments || [];
-  const employerLocations = selectedEmployer?.locations || [];
+  const employerDepartments = getDepartmentNames(selectedEmployer?.departments);
+  const employerLocations = getLocationNames(selectedEmployer?.locations);
 
   // Fallback to common options if employer doesn't have specific ones
   const defaultDepartments = [
@@ -66,6 +73,24 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
   // Use employer-specific or defaults
   const departmentOptions = employerDepartments.length > 0 ? employerDepartments : defaultDepartments;
   const locationOptions = employerLocations.length > 0 ? employerLocations : defaultLocations;
+
+  const handleAddDepartment = (departmentData: any) => {
+    const newDepartmentName = departmentData.name;
+    form.setValue("department", newDepartmentName);
+    toast({
+      title: "Department added",
+      description: `${newDepartmentName} has been added successfully.`,
+    });
+  };
+
+  const handleAddLocation = (locationData: any) => {
+    const formattedLocationName = `${locationData.name}${locationData.city ? `, ${locationData.city}` : ''}`;
+    form.setValue("location", formattedLocationName);
+    toast({
+      title: "Location added",
+      description: `${formattedLocationName} has been added successfully.`,
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -225,15 +250,27 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
           name="department"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Department *</FormLabel>
+              <div className="flex items-center justify-between mb-2">
+                <FormLabel>Department *</FormLabel>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setDepartmentDialogOpen(true)}
+                  disabled={!selectedEmployerId && !postAsHRM8}
+                  className="h-7 gap-1 px-2 text-xs"
+                >
+                  <Plus className="h-3 w-3" />
+                  Add New
+                </Button>
+              </div>
               <FormControl>
                 <ComboboxWithAdd
                   value={field.value}
                   onValueChange={field.onChange}
                   options={departmentOptions}
-                  placeholder="Select or add department"
+                  placeholder="Select department"
                   emptyText="No departments found."
-                  addNewText="Add department"
                   disabled={postAsHRM8}
                   className="w-full"
                 />
@@ -243,7 +280,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                   ? "Select HRM8 department" 
                   : selectedEmployer 
                     ? `From ${selectedEmployer.name}'s departments` 
-                    : "Select employer first"}
+                    : "Select employer first to add departments"}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -255,15 +292,27 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
           name="location"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Location *</FormLabel>
+              <div className="flex items-center justify-between mb-2">
+                <FormLabel>Location *</FormLabel>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLocationDialogOpen(true)}
+                  disabled={!selectedEmployerId && !postAsHRM8}
+                  className="h-7 gap-1 px-2 text-xs"
+                >
+                  <Plus className="h-3 w-3" />
+                  Add New
+                </Button>
+              </div>
               <FormControl>
                 <ComboboxWithAdd
                   value={field.value}
                   onValueChange={field.onChange}
                   options={locationOptions}
-                  placeholder="Select or add location"
+                  placeholder="Select location"
                   emptyText="No locations found."
-                  addNewText="Add location"
                   disabled={postAsHRM8}
                   className="w-full"
                 />
@@ -273,7 +322,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                   ? "Specify job location" 
                   : selectedEmployer 
                     ? `From ${selectedEmployer.name}'s office locations` 
-                    : "Select employer first"}
+                    : "Select employer first to add locations"}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -590,6 +639,22 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
           )}
         </div>
       </div>
+
+      {/* Add Department Dialog */}
+      <AddDepartmentDialog
+        open={departmentDialogOpen}
+        onOpenChange={setDepartmentDialogOpen}
+        onAdd={handleAddDepartment}
+        employerName={selectedEmployer?.name}
+      />
+
+      {/* Add Location Dialog */}
+      <AddLocationDialog
+        open={locationDialogOpen}
+        onOpenChange={setLocationDialogOpen}
+        onAdd={handleAddLocation}
+        employerName={selectedEmployer?.name}
+      />
     </div>
   );
 }
