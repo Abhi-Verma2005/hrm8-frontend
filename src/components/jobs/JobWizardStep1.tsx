@@ -37,6 +37,21 @@ interface JobWizardStep1Props {
   form: UseFormReturn<JobFormData>;
 }
 
+const STANDARD_TAGS = [
+  "Urgent",
+  "Remote-first",
+  "Hybrid",
+  "Fast-track",
+  "Equity included",
+  "Relocation assistance",
+  "Visa sponsorship",
+  "Entry-level friendly",
+  "Senior role",
+  "Leadership position",
+  "Contract-to-hire",
+  "Flexible hours",
+];
+
 export function JobWizardStep1({ form }: JobWizardStep1Props) {
   const [open, setOpen] = useState(false);
   const [departmentDialogOpen, setDepartmentDialogOpen] = useState(false);
@@ -694,58 +709,126 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
               }
             };
             
+            const handleStandardTagClick = (tag: string) => {
+              if (currentTags.length >= 5) {
+                toast({
+                  title: "Maximum tags reached",
+                  description: "You can only add up to 5 tags per job",
+                  variant: "destructive",
+                });
+                return;
+              }
+              
+              if (currentTags.includes(tag)) {
+                return;
+              }
+              
+              field.onChange([...currentTags, tag]);
+            };
+            
             return (
               <FormItem>
                 <FormLabel>Tags (Optional)</FormLabel>
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <FormControl>
-                      <Input
-                        placeholder='e.g., "Urgent", "Remote-first", "Equity included"'
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        maxLength={20}
-                        disabled={currentTags.length >= 5}
-                      />
-                    </FormControl>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleAddTag}
-                      disabled={!inputValue.trim() || currentTags.length >= 5}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add
-                    </Button>
+                <FormDescription>
+                  Add up to 5 tags to categorize and highlight this job
+                </FormDescription>
+                
+                <div className="space-y-4 mt-3">
+                  {/* Standard Tags Section */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Quick Add: Standard Tags</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {STANDARD_TAGS.map((tag) => {
+                        const isAdded = currentTags.includes(tag);
+                        const isDisabled = isAdded || currentTags.length >= 5;
+                        
+                        return (
+                          <Button
+                            key={tag}
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                              "h-8 text-sm transition-all",
+                              isAdded && "opacity-50 cursor-not-allowed",
+                              !isAdded && !isDisabled && "hover:bg-muted",
+                              tag.toLowerCase() === 'urgent' && !isAdded && "text-destructive hover:text-destructive"
+                            )}
+                            onClick={() => !isDisabled && handleStandardTagClick(tag)}
+                            disabled={isDisabled}
+                          >
+                            {isAdded && <Check className="h-3 w-3 mr-1" />}
+                            {tag}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Click any tag to add it to your job posting
+                    </p>
                   </div>
                   
+                  {/* Custom Tags Section */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Add Custom Tag</h4>
+                    <div className="flex gap-2">
+                      <FormControl>
+                        <Input
+                          placeholder='e.g., "Tech stack specific", "Benefits highlight"'
+                          value={inputValue}
+                          onChange={(e) => setInputValue(e.target.value)}
+                          onKeyDown={handleKeyDown}
+                          maxLength={20}
+                          disabled={currentTags.length >= 5}
+                        />
+                      </FormControl>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAddTag}
+                        disabled={!inputValue.trim() || currentTags.length >= 5}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Create custom tags not in the standard list (max 20 characters)
+                    </p>
+                  </div>
+                  
+                  {/* Selected Tags Display */}
                   {currentTags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {currentTags.map((tag: string) => (
-                        <Badge
-                          key={tag}
-                          variant={tag.toLowerCase() === 'urgent' ? 'destructive' : 'secondary'}
-                          className="px-3 py-1 text-sm flex items-center gap-2"
-                        >
-                          {tag}
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveTag(tag)}
-                            className="hover:bg-background/20 rounded-full p-0.5"
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium">Selected Tags</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {currentTags.map((tag: string) => (
+                          <Badge
+                            key={tag}
+                            variant={tag.toLowerCase() === 'urgent' ? 'destructive' : 'secondary'}
+                            className="px-3 py-1 text-sm flex items-center gap-2"
                           >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveTag(tag)}
+                              className="hover:bg-background/20 rounded-full p-0.5"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
                     </div>
                   )}
                   
-                  <FormDescription>
+                  {/* Counter */}
+                  <p className="text-sm text-muted-foreground">
                     {currentTags.length}/5 tags added
                     {currentTags.length >= 5 && " (maximum reached)"}
-                  </FormDescription>
+                  </p>
                 </div>
+                
                 <FormMessage />
               </FormItem>
             );
