@@ -576,11 +576,16 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                   <FormLabel>Minimum Salary *</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        placeholder="e.g. 80000"
+                        type="text"
+                        placeholder="e.g. 80,000"
                         {...field}
-                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                        value={field.value ?? ''}
+                        onChange={(e) => {
+                          const numericValue = e.target.value.replace(/,/g, '');
+                          if (numericValue === '' || /^\d+$/.test(numericValue)) {
+                            field.onChange(numericValue ? Number(numericValue) : undefined);
+                          }
+                        }}
+                        value={field.value ? field.value.toLocaleString('en-US') : ''}
                       />
                     </FormControl>
                     <FormMessage />
@@ -596,11 +601,16 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                   <FormLabel>Maximum Salary *</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        placeholder="e.g. 120000"
+                        type="text"
+                        placeholder="e.g. 120,000"
                         {...field}
-                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
-                        value={field.value ?? ''}
+                        onChange={(e) => {
+                          const numericValue = e.target.value.replace(/,/g, '');
+                          if (numericValue === '' || /^\d+$/.test(numericValue)) {
+                            field.onChange(numericValue ? Number(numericValue) : undefined);
+                          }
+                        }}
+                        value={field.value ? field.value.toLocaleString('en-US') : ''}
                       />
                     </FormControl>
                     <FormMessage />
