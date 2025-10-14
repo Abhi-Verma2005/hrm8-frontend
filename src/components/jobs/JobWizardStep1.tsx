@@ -52,6 +52,20 @@ const STANDARD_TAGS = [
   "Flexible hours",
 ];
 
+const getTagVariant = (tag: string): "destructive" | "info" | "purple" | "amber" | "teal" | "indigo" | "secondary" => {
+  const tagLower = tag.toLowerCase();
+  
+  // Map specific tags to colors for visual categorization
+  if (tagLower === 'urgent' || tagLower === 'fast-track') return 'destructive'; // Red
+  if (tagLower === 'remote-first' || tagLower === 'flexible hours') return 'info'; // Blue
+  if (tagLower === 'hybrid') return 'purple'; // Purple
+  if (tagLower === 'equity included' || tagLower === 'relocation assistance' || tagLower === 'visa sponsorship') return 'amber'; // Amber/Yellow
+  if (tagLower === 'entry-level friendly' || tagLower === 'senior role' || tagLower === 'leadership position') return 'teal'; // Teal
+  if (tagLower === 'contract-to-hire') return 'indigo'; // Indigo
+  
+  return 'secondary'; // Default grey for any other tags
+};
+
 export function JobWizardStep1({ form }: JobWizardStep1Props) {
   const [open, setOpen] = useState(false);
   const [departmentDialogOpen, setDepartmentDialogOpen] = useState(false);
@@ -743,23 +757,19 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                         const isDisabled = isAdded || currentTags.length >= 5;
                         
                         return (
-                          <Button
+                          <Badge
                             key={tag}
-                            type="button"
-                            variant="ghost"
-                            size="sm"
+                            variant={isAdded ? 'secondary' : getTagVariant(tag)}
                             className={cn(
-                              "h-8 text-sm transition-all",
-                              isAdded && "opacity-50 cursor-not-allowed",
-                              !isAdded && !isDisabled && "hover:bg-muted",
-                              tag.toLowerCase() === 'urgent' && !isAdded && "text-destructive hover:text-destructive"
+                              "cursor-pointer transition-all text-xs font-medium px-3 py-1.5",
+                              isAdded && "opacity-40 cursor-not-allowed line-through",
+                              !isAdded && !isDisabled && "hover:opacity-80 hover:scale-105"
                             )}
                             onClick={() => !isDisabled && handleStandardTagClick(tag)}
-                            disabled={isDisabled}
                           >
                             {isAdded && <Check className="h-3 w-3 mr-1" />}
                             {tag}
-                          </Button>
+                          </Badge>
                         );
                       })}
                     </div>
@@ -802,22 +812,28 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                     <div className="space-y-2">
                       <h4 className="text-sm font-medium">Selected Tags</h4>
                       <div className="flex flex-wrap gap-2">
-                        {currentTags.map((tag: string) => (
-                          <Badge
-                            key={tag}
-                            variant={tag.toLowerCase() === 'urgent' ? 'destructive' : 'secondary'}
-                            className="px-3 py-1 text-sm flex items-center gap-2"
-                          >
-                            {tag}
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveTag(tag)}
-                              className="hover:bg-background/20 rounded-full p-0.5"
+                        {currentTags.map((tag: string) => {
+                          // Check if it's a standard tag, otherwise use secondary
+                          const standardTag = STANDARD_TAGS.find(t => t.toLowerCase() === tag.toLowerCase());
+                          const variant = standardTag ? getTagVariant(tag) : 'secondary';
+                          
+                          return (
+                            <Badge
+                              key={tag}
+                              variant={variant}
+                              className="px-3 py-1 text-sm flex items-center gap-2"
                             >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </Badge>
-                        ))}
+                              {tag}
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveTag(tag)}
+                                className="hover:bg-background/20 rounded-full p-0.5"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
