@@ -763,7 +763,8 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                             className={cn(
                               "cursor-pointer transition-all text-xs font-medium px-3 py-1.5",
                               isAdded && "opacity-40 cursor-not-allowed line-through",
-                              !isAdded && !isDisabled && "hover:opacity-80 hover:scale-105"
+                              !isAdded && !isDisabled && "hover:opacity-80 hover:scale-105",
+                              isDisabled && !isAdded && "animate-shake"
                             )}
                             onClick={() => !isDisabled && handleStandardTagClick(tag)}
                           >
