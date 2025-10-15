@@ -1,23 +1,10 @@
 import { UseFormReturn } from "react-hook-form";
 import { JobFormData } from "@/types/job";
 import { Link } from "react-router-dom";
-import {
-  FormField,
-  FormItem,
-  FormLabel,
-  FormControl,
-  FormMessage,
-  FormDescription,
-} from "@/components/ui/form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { FileText, Building2, Check, DollarSign, MapPin, Briefcase as BriefcaseIcon, Plus, X, Tag as TagIcon } from "lucide-react";
@@ -32,29 +19,13 @@ import { useState } from "react";
 import { AddDepartmentDialog } from "@/components/jobs/AddDepartmentDialog";
 import { AddLocationDialog } from "@/components/jobs/AddLocationDialog";
 import { useToast } from "@/hooks/use-toast";
-
 interface JobWizardStep1Props {
   form: UseFormReturn<JobFormData>;
 }
-
-const STANDARD_TAGS = [
-  "Urgent",
-  "Remote-first",
-  "Hybrid",
-  "Fast-track",
-  "Equity included",
-  "Relocation assistance",
-  "Visa sponsorship",
-  "Entry-level friendly",
-  "Senior role",
-  "Leadership position",
-  "Contract-to-hire",
-  "Flexible hours",
-];
-
+const STANDARD_TAGS = ["Urgent", "Remote-first", "Hybrid", "Fast-track", "Equity included", "Relocation assistance", "Visa sponsorship", "Entry-level friendly", "Senior role", "Leadership position", "Contract-to-hire", "Flexible hours"];
 const getTagVariant = (tag: string): "destructive" | "info" | "purple" | "amber" | "teal" | "indigo" | "secondary" => {
   const tagLower = tag.toLowerCase();
-  
+
   // Map specific tags to colors for visual categorization
   if (tagLower === 'urgent' || tagLower === 'fast-track') return 'destructive'; // Red
   if (tagLower === 'remote-first' || tagLower === 'flexible hours') return 'info'; // Blue
@@ -62,16 +33,18 @@ const getTagVariant = (tag: string): "destructive" | "info" | "purple" | "amber"
   if (tagLower === 'equity included' || tagLower === 'relocation assistance' || tagLower === 'visa sponsorship') return 'amber'; // Amber/Yellow
   if (tagLower === 'entry-level friendly' || tagLower === 'senior role' || tagLower === 'leadership position') return 'teal'; // Teal
   if (tagLower === 'contract-to-hire') return 'indigo'; // Indigo
-  
+
   return 'secondary'; // Default grey for any other tags
 };
-
-export function JobWizardStep1({ form }: JobWizardStep1Props) {
+export function JobWizardStep1({
+  form
+}: JobWizardStep1Props) {
   const [open, setOpen] = useState(false);
   const [departmentDialogOpen, setDepartmentDialogOpen] = useState(false);
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
   const employers = getActiveEmployers();
   const selectedEmployerId = form.watch("employerId");
   const postAsHRM8 = form.watch("postAsHRM8");
@@ -82,48 +55,29 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
   const employerLocations = getLocationNames(selectedEmployer?.locations);
 
   // Fallback to common options if employer doesn't have specific ones
-  const defaultDepartments = [
-    "Engineering",
-    "Product",
-    "Design",
-    "Marketing",
-    "Sales",
-    "Finance",
-    "Operations",
-    "HR",
-    "Customer Success",
-    "Legal",
-  ];
-
-  const defaultLocations = [
-    "Remote",
-    selectedEmployer?.location || "",
-  ].filter(Boolean);
+  const defaultDepartments = ["Engineering", "Product", "Design", "Marketing", "Sales", "Finance", "Operations", "HR", "Customer Success", "Legal"];
+  const defaultLocations = ["Remote", selectedEmployer?.location || ""].filter(Boolean);
 
   // Use employer-specific or defaults
   const departmentOptions = employerDepartments.length > 0 ? employerDepartments : defaultDepartments;
   const locationOptions = employerLocations.length > 0 ? employerLocations : defaultLocations;
-
   const handleAddDepartment = (departmentData: any) => {
     const newDepartmentName = departmentData.name;
     form.setValue("department", newDepartmentName);
     toast({
       title: "Department added",
-      description: `${newDepartmentName} has been added successfully.`,
+      description: `${newDepartmentName} has been added successfully.`
     });
   };
-
   const handleAddLocation = (locationData: any) => {
     const formattedLocationName = `${locationData.name}${locationData.city ? `, ${locationData.city}` : ''}`;
     form.setValue("location", formattedLocationName);
     toast({
       title: "Location added",
-      description: `${formattedLocationName} has been added successfully.`,
+      description: `${formattedLocationName} has been added successfully.`
     });
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -143,42 +97,22 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[1fr,auto] gap-4 items-start">
-        <FormField
-          control={form.control}
-          name="employerId"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
+        <FormField control={form.control} name="employerId" render={({
+        field
+      }) => <FormItem className="flex flex-col">
               <FormLabel>Post Job For *</FormLabel>
               <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>
                   <FormControl>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={open}
-                      disabled={postAsHRM8}
-                      className={cn(
-                        "justify-between font-normal",
-                        !field.value && "text-muted-foreground",
-                        postAsHRM8 && "opacity-50 cursor-not-allowed"
-                      )}
-                    >
-                    {selectedEmployer ? (
-                      <div className="flex items-center gap-2">
-                        {selectedEmployer.logo ? (
-                          <img src={selectedEmployer.logo} alt="" className="h-5 w-5 rounded" />
-                        ) : (
-                          <Building2 className="h-4 w-4" />
-                        )}
+                    <Button variant="outline" role="combobox" aria-expanded={open} disabled={postAsHRM8} className={cn("justify-between font-normal", !field.value && "text-muted-foreground", postAsHRM8 && "opacity-50 cursor-not-allowed")}>
+                    {selectedEmployer ? <div className="flex items-center gap-2">
+                        {selectedEmployer.logo ? <img src={selectedEmployer.logo} alt="" className="h-5 w-5 rounded" /> : <Building2 className="h-4 w-4" />}
                         <span>{selectedEmployer.name}</span>
                         <span className="text-xs text-muted-foreground">• {selectedEmployer.industry}</span>
-                      </div>
-                    ) : (
-                      <>
+                      </div> : <>
                         <Building2 className="h-4 w-4 mr-2" />
                         Select employer company...
-                      </>
-                    )}
+                      </>}
                   </Button>
                 </FormControl>
               </PopoverTrigger>
@@ -188,27 +122,13 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                   <CommandList>
                     <CommandEmpty>No employer found.</CommandEmpty>
                     <CommandGroup>
-                      {employers.map((employer) => (
-                        <CommandItem
-                          key={employer.id}
-                          value={`${employer.name} ${employer.industry} ${employer.location}`}
-                          onSelect={() => {
-                            form.setValue("employerId", employer.id);
-                            setOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              employer.id === field.value ? "opacity-100" : "opacity-0"
-                            )}
-                          />
+                      {employers.map(employer => <CommandItem key={employer.id} value={`${employer.name} ${employer.industry} ${employer.location}`} onSelect={() => {
+                    form.setValue("employerId", employer.id);
+                    setOpen(false);
+                  }}>
+                          <Check className={cn("mr-2 h-4 w-4", employer.id === field.value ? "opacity-100" : "opacity-0")} />
                           <div className="flex items-center gap-2 flex-1">
-                            {employer.logo ? (
-                              <img src={employer.logo} alt="" className="h-6 w-6 rounded" />
-                            ) : (
-                              <Building2 className="h-4 w-4 text-muted-foreground" />
-                            )}
+                            {employer.logo ? <img src={employer.logo} alt="" className="h-6 w-6 rounded" /> : <Building2 className="h-4 w-4 text-muted-foreground" />}
                             <div className="flex flex-col">
                               <span className="font-medium">{employer.name}</span>
                               <span className="text-xs text-muted-foreground">
@@ -216,8 +136,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                               </span>
                             </div>
                           </div>
-                        </CommandItem>
-                      ))}
+                        </CommandItem>)}
                     </CommandGroup>
                   </CommandList>
                 </Command>
@@ -227,27 +146,20 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
               Select employer company or toggle to post as HRM8
             </FormDescription>
             <FormMessage />
-          </FormItem>
-        )}
-      />
+          </FormItem>} />
 
-        <FormField
-          control={form.control}
-          name="postAsHRM8"
-          render={({ field }) => (
-            <FormItem className="flex flex-col justify-end">
+        <FormField control={form.control} name="postAsHRM8" render={({
+        field
+      }) => <FormItem className="flex flex-col justify-end">
               <FormLabel className="mb-2">Post as HRM8</FormLabel>
               <div className="flex items-center space-x-2">
                 <FormControl>
-                  <Switch
-                    checked={field.value}
-                    onCheckedChange={(checked) => {
-                      field.onChange(checked);
-                      if (checked) {
-                        form.setValue("employerId", "");
-                      }
-                    }}
-                  />
+                  <Switch checked={field.value} onCheckedChange={checked => {
+              field.onChange(checked);
+              if (checked) {
+                form.setValue("employerId", "");
+              }
+            }} />
                 </FormControl>
                 <div className="space-y-0 leading-none">
                   <FormLabel className="text-sm font-normal">
@@ -258,132 +170,58 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
               <FormDescription className="text-xs">
                 Job posted as HRM8
               </FormDescription>
-            </FormItem>
-          )}
-        />
+            </FormItem>} />
       </div>
 
-      <FormField
-        control={form.control}
-        name="title"
-        render={({ field }) => (
-          <FormItem>
+      <FormField control={form.control} name="title" render={({
+      field
+    }) => <FormItem>
             <FormLabel>Job Title *</FormLabel>
             <FormControl>
               <Input placeholder="e.g. Senior Full Stack Developer" {...field} />
             </FormControl>
             <FormMessage />
-          </FormItem>
-        )}
-      />
+          </FormItem>} />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <FormField
-          control={form.control}
-          name="department"
-          render={({ field }) => (
-            <FormItem>
+        <FormField control={form.control} name="department" render={({
+        field
+      }) => <FormItem>
               <FormLabel>Department *</FormLabel>
               <div className="flex gap-2">
                 <FormControl className="flex-1">
-                  <ComboboxWithAdd
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    options={departmentOptions}
-                    placeholder="Select department"
-                    emptyText="No departments found."
-                    disabled={postAsHRM8}
-                  />
+                  <ComboboxWithAdd value={field.value} onValueChange={field.onChange} options={departmentOptions} placeholder="Select department" emptyText="No departments found." disabled={postAsHRM8} />
                 </FormControl>
-                <Button
-                  type="button"
-                  variant="outline-primary"
-                  size="icon"
-                  onClick={() => {
-                    if (!selectedEmployerId && !postAsHRM8) {
-                      toast({
-                        title: "Employer Required",
-                        description: "Please select an employer or toggle 'Post as HRM8' before adding departments.",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    setDepartmentDialogOpen(true);
-                  }}
-                  title="Add new department"
-                >
-                  <Plus />
-                </Button>
+                
               </div>
               <FormDescription className="text-xs">
-                {postAsHRM8 
-                  ? "Select HRM8 department" 
-                  : selectedEmployer 
-                    ? `From ${selectedEmployer.name}'s departments` 
-                    : "Select employer first to add departments"}
+                {postAsHRM8 ? "Select HRM8 department" : selectedEmployer ? `From ${selectedEmployer.name}'s departments` : "Select employer first to add departments"}
               </FormDescription>
               <FormMessage />
-            </FormItem>
-          )}
-        />
+            </FormItem>} />
 
-        <FormField
-          control={form.control}
-          name="location"
-          render={({ field }) => (
-            <FormItem>
+        <FormField control={form.control} name="location" render={({
+        field
+      }) => <FormItem>
               <FormLabel>Location *</FormLabel>
               <div className="flex gap-2">
                 <FormControl className="flex-1">
-                  <ComboboxWithAdd
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    options={locationOptions}
-                    placeholder="Select location"
-                    emptyText="No locations found."
-                    disabled={postAsHRM8}
-                  />
+                  <ComboboxWithAdd value={field.value} onValueChange={field.onChange} options={locationOptions} placeholder="Select location" emptyText="No locations found." disabled={postAsHRM8} />
                 </FormControl>
-                <Button
-                  type="button"
-                  variant="outline-primary"
-                  size="icon"
-                  onClick={() => {
-                    if (!selectedEmployerId && !postAsHRM8) {
-                      toast({
-                        title: "Employer Required",
-                        description: "Please select an employer or toggle 'Post as HRM8' before adding locations.",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    setLocationDialogOpen(true);
-                  }}
-                  title="Add new location"
-                >
-                  <Plus />
-                </Button>
+                
               </div>
               <FormDescription className="text-xs">
-                {postAsHRM8 
-                  ? "Specify job location" 
-                  : selectedEmployer 
-                    ? `From ${selectedEmployer.name}'s office locations` 
-                    : "Select employer first to add locations"}
+                {postAsHRM8 ? "Specify job location" : selectedEmployer ? `From ${selectedEmployer.name}'s office locations` : "Select employer first to add locations"}
               </FormDescription>
               <FormMessage />
-            </FormItem>
-          )}
-        />
+            </FormItem>} />
       </div>
 
       {/* Employment Details Row - 3 columns */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FormField
-          control={form.control}
-          name="employmentType"
-          render={({ field }) => (
-            <FormItem>
+        <FormField control={form.control} name="employmentType" render={({
+        field
+      }) => <FormItem>
               <FormLabel>Employment Type *</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
@@ -399,15 +237,11 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 </SelectContent>
               </Select>
               <FormMessage />
-            </FormItem>
-          )}
-        />
+            </FormItem>} />
 
-        <FormField
-          control={form.control}
-          name="experienceLevel"
-          render={({ field }) => (
-            <FormItem>
+        <FormField control={form.control} name="experienceLevel" render={({
+        field
+      }) => <FormItem>
               <FormLabel>Experience Level *</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
@@ -423,15 +257,11 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 </SelectContent>
               </Select>
               <FormMessage />
-            </FormItem>
-          )}
-        />
+            </FormItem>} />
 
-        <FormField
-          control={form.control}
-          name="workArrangement"
-          render={({ field }) => (
-            <FormItem>
+        <FormField control={form.control} name="workArrangement" render={({
+        field
+      }) => <FormItem>
               <FormLabel>Work Arrangement *</FormLabel>
               <Select onValueChange={field.onChange} value={field.value}>
                 <FormControl>
@@ -464,9 +294,7 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 Where will this role be based?
               </FormDescription>
               <FormMessage />
-            </FormItem>
-          )}
-        />
+            </FormItem>} />
       </div>
 
       {/* Salary Information Section */}
@@ -482,18 +310,13 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
             </p>
           </div>
           
-          <FormField
-            control={form.control}
-            name="hideSalary"
-            render={({ field }) => (
-              <FormItem className="flex flex-col justify-end">
+          <FormField control={form.control} name="hideSalary" render={({
+          field
+        }) => <FormItem className="flex flex-col justify-end">
                 <FormLabel className="mb-2">Hide on Job Board</FormLabel>
                 <div className="flex items-center space-x-2">
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <Switch checked={field.value} onCheckedChange={field.onChange} />
                   </FormControl>
                   <div className="space-y-0 leading-none">
                     <FormLabel className="text-sm font-normal">
@@ -504,19 +327,15 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 <FormDescription className="text-xs">
                   {field.value ? "Salary hidden from public view" : "Salary shown on job board"}
                 </FormDescription>
-              </FormItem>
-            )}
-          />
+              </FormItem>} />
         </div>
 
         <div className="space-y-4">
           {/* Salary Range & Currency Row */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <FormField
-              control={form.control}
-              name="salaryCurrency"
-              render={({ field }) => (
-                <FormItem>
+            <FormField control={form.control} name="salaryCurrency" render={({
+            field
+          }) => <FormItem>
                   <FormLabel>Currency *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
@@ -536,15 +355,11 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                       </SelectContent>
                     </Select>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-            <FormField
-              control={form.control}
-              name="salaryPeriod"
-              render={({ field }) => (
-                <FormItem>
+            <FormField control={form.control} name="salaryPeriod" render={({
+            field
+          }) => <FormItem>
                   <FormLabel>Period *</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
@@ -564,109 +379,67 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                       Pay frequency
                     </FormDescription>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-            <FormField
-              control={form.control}
-              name="salaryMin"
-              render={({ field }) => (
-                <FormItem>
+            <FormField control={form.control} name="salaryMin" render={({
+            field
+          }) => <FormItem>
                   <FormLabel>Minimum Salary *</FormLabel>
                     <FormControl>
-                      <Input
-                        type="text"
-                        placeholder="e.g. 80,000"
-                        {...field}
-                        onChange={(e) => {
-                          const numericValue = e.target.value.replace(/,/g, '');
-                          if (numericValue === '' || /^\d+$/.test(numericValue)) {
-                            field.onChange(numericValue ? Number(numericValue) : undefined);
-                          }
-                        }}
-                        value={field.value ? field.value.toLocaleString('en-US') : ''}
-                      />
+                      <Input type="text" placeholder="e.g. 80,000" {...field} onChange={e => {
+                const numericValue = e.target.value.replace(/,/g, '');
+                if (numericValue === '' || /^\d+$/.test(numericValue)) {
+                  field.onChange(numericValue ? Number(numericValue) : undefined);
+                }
+              }} value={field.value ? field.value.toLocaleString('en-US') : ''} />
                     </FormControl>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  </FormItem>} />
 
-            <FormField
-              control={form.control}
-              name="salaryMax"
-              render={({ field }) => (
-                <FormItem>
+            <FormField control={form.control} name="salaryMax" render={({
+            field
+          }) => <FormItem>
                   <FormLabel>Maximum Salary *</FormLabel>
                     <FormControl>
-                      <Input
-                        type="text"
-                        placeholder="e.g. 120,000"
-                        {...field}
-                        onChange={(e) => {
-                          const numericValue = e.target.value.replace(/,/g, '');
-                          if (numericValue === '' || /^\d+$/.test(numericValue)) {
-                            field.onChange(numericValue ? Number(numericValue) : undefined);
-                          }
-                        }}
-                        value={field.value ? field.value.toLocaleString('en-US') : ''}
-                      />
+                      <Input type="text" placeholder="e.g. 120,000" {...field} onChange={e => {
+                const numericValue = e.target.value.replace(/,/g, '');
+                if (numericValue === '' || /^\d+$/.test(numericValue)) {
+                  field.onChange(numericValue ? Number(numericValue) : undefined);
+                }
+              }} value={field.value ? field.value.toLocaleString('en-US') : ''} />
                     </FormControl>
                     <FormMessage />
-                </FormItem>
-              )}
-            />
+                </FormItem>} />
           </div>
 
           {/* Salary Description Field */}
-          <FormField
-            control={form.control}
-            name="salaryDescription"
-            render={({ field }) => (
-              <FormItem>
+          <FormField control={form.control} name="salaryDescription" render={({
+          field
+        }) => <FormItem>
                 <FormLabel>Salary Description (Optional)</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="e.g. Competitive package with bonuses, equity options, and benefits"
-                      maxLength={100}
-                      {...field}
-                      value={field.value || ''}
-                    />
+                    <Input placeholder="e.g. Competitive package with bonuses, equity options, and benefits" maxLength={100} {...field} value={field.value || ''} />
                   </FormControl>
                   <FormDescription>
                     Add promotional text about compensation (max 100 characters). 
                     This will be displayed prominently on the job posting.
-                    {field.value && (
-                      <span className="ml-2 font-medium">
+                    {field.value && <span className="ml-2 font-medium">
                         {field.value.length}/100
-                      </span>
-                    )}
+                      </span>}
                   </FormDescription>
                   <FormMessage />
-                </FormItem>
-              )}
-            />
+                </FormItem>} />
 
           {/* Preview of formatted salary */}
-          {(form.watch("salaryMin") || form.watch("salaryMax")) && (
-            <div className="p-4 bg-secondary/50 rounded-lg border">
+          {(form.watch("salaryMin") || form.watch("salaryMax")) && <div className="p-4 bg-secondary/50 rounded-lg border">
               <p className="text-sm font-medium mb-1">Salary Display Preview:</p>
               <p className="text-lg font-semibold">
-                {formatSalaryRange(
-                  form.watch("salaryMin"), 
-                  form.watch("salaryMax"), 
-                  form.watch("salaryCurrency"),
-                  form.watch("salaryPeriod")
-                )}
+                {formatSalaryRange(form.watch("salaryMin"), form.watch("salaryMax"), form.watch("salaryCurrency"), form.watch("salaryPeriod"))}
               </p>
-              {form.watch("salaryDescription") && (
-                <p className="text-sm text-muted-foreground mt-2 italic">
+              {form.watch("salaryDescription") && <p className="text-sm text-muted-foreground mt-2 italic">
                   "{form.watch("salaryDescription")}"
-                </p>
-              )}
-            </div>
-          )}
+                </p>}
+            </div>}
         </div>
       </div>
 
@@ -680,78 +453,65 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
           Add up to 5 tags to categorize and highlight this job (e.g., "Urgent", "Remote-first", "Fast-track")
         </p>
         
-        <FormField
-          control={form.control}
-          name="tags"
-          render={({ field }) => {
-            const [inputValue, setInputValue] = useState("");
-            const currentTags = field.value || [];
-            
-            const handleAddTag = () => {
-              const trimmedValue = inputValue.trim();
-              if (!trimmedValue) return;
-              
-              if (currentTags.length >= 5) {
-                toast({
-                  title: "Maximum tags reached",
-                  description: "You can only add up to 5 tags per job",
-                  variant: "destructive",
-                });
-                return;
-              }
-              
-              if (currentTags.includes(trimmedValue)) {
-                toast({
-                  title: "Duplicate tag",
-                  description: "This tag has already been added",
-                  variant: "destructive",
-                });
-                return;
-              }
-              
-              if (trimmedValue.length > 20) {
-                toast({
-                  title: "Tag too long",
-                  description: "Tags must be 20 characters or less",
-                  variant: "destructive",
-                });
-                return;
-              }
-              
-              field.onChange([...currentTags, trimmedValue]);
-              setInputValue("");
-            };
-            
-            const handleRemoveTag = (tagToRemove: string) => {
-              field.onChange(currentTags.filter((tag: string) => tag !== tagToRemove));
-            };
-            
-            const handleKeyDown = (e: React.KeyboardEvent) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                handleAddTag();
-              }
-            };
-            
-            const handleStandardTagClick = (tag: string) => {
-              if (currentTags.length >= 5) {
-                toast({
-                  title: "Maximum tags reached",
-                  description: "You can only add up to 5 tags per job",
-                  variant: "destructive",
-                });
-                return;
-              }
-              
-              if (currentTags.includes(tag)) {
-                return;
-              }
-              
-              field.onChange([...currentTags, tag]);
-            };
-            
-            return (
-              <FormItem>
+        <FormField control={form.control} name="tags" render={({
+        field
+      }) => {
+        const [inputValue, setInputValue] = useState("");
+        const currentTags = field.value || [];
+        const handleAddTag = () => {
+          const trimmedValue = inputValue.trim();
+          if (!trimmedValue) return;
+          if (currentTags.length >= 5) {
+            toast({
+              title: "Maximum tags reached",
+              description: "You can only add up to 5 tags per job",
+              variant: "destructive"
+            });
+            return;
+          }
+          if (currentTags.includes(trimmedValue)) {
+            toast({
+              title: "Duplicate tag",
+              description: "This tag has already been added",
+              variant: "destructive"
+            });
+            return;
+          }
+          if (trimmedValue.length > 20) {
+            toast({
+              title: "Tag too long",
+              description: "Tags must be 20 characters or less",
+              variant: "destructive"
+            });
+            return;
+          }
+          field.onChange([...currentTags, trimmedValue]);
+          setInputValue("");
+        };
+        const handleRemoveTag = (tagToRemove: string) => {
+          field.onChange(currentTags.filter((tag: string) => tag !== tagToRemove));
+        };
+        const handleKeyDown = (e: React.KeyboardEvent) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAddTag();
+          }
+        };
+        const handleStandardTagClick = (tag: string) => {
+          if (currentTags.length >= 5) {
+            toast({
+              title: "Maximum tags reached",
+              description: "You can only add up to 5 tags per job",
+              variant: "destructive"
+            });
+            return;
+          }
+          if (currentTags.includes(tag)) {
+            return;
+          }
+          field.onChange([...currentTags, tag]);
+        };
+        return <FormItem>
                 <FormLabel>Tags (Optional)</FormLabel>
                 <FormDescription>
                   Add up to 5 tags to categorize and highlight this job
@@ -762,27 +522,14 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                   <div className="space-y-2">
                     <h4 className="text-sm font-medium">Quick Add: Standard Tags</h4>
                     <div className="flex flex-wrap gap-2">
-                      {STANDARD_TAGS.map((tag) => {
-                        const isAdded = currentTags.includes(tag);
-                        const isDisabled = isAdded || currentTags.length >= 5;
-                        
-                        return (
-                          <Badge
-                            key={tag}
-                            variant={isAdded ? 'secondary' : getTagVariant(tag)}
-                            className={cn(
-                              "cursor-pointer transition-all text-xs font-medium px-3 py-1.5",
-                              isAdded && "opacity-40 cursor-not-allowed line-through",
-                              !isAdded && !isDisabled && "hover:opacity-80 hover:scale-105",
-                              isDisabled && !isAdded && "animate-shake"
-                            )}
-                            onClick={() => !isDisabled && handleStandardTagClick(tag)}
-                          >
+                      {STANDARD_TAGS.map(tag => {
+                  const isAdded = currentTags.includes(tag);
+                  const isDisabled = isAdded || currentTags.length >= 5;
+                  return <Badge key={tag} variant={isAdded ? 'secondary' : getTagVariant(tag)} className={cn("cursor-pointer transition-all text-xs font-medium px-3 py-1.5", isAdded && "opacity-40 cursor-not-allowed line-through", !isAdded && !isDisabled && "hover:opacity-80 hover:scale-105", isDisabled && !isAdded && "animate-shake")} onClick={() => !isDisabled && handleStandardTagClick(tag)}>
                             {isAdded && <Check className="h-3 w-3 mr-1" />}
                             {tag}
-                          </Badge>
-                        );
-                      })}
+                          </Badge>;
+                })}
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Click any tag to add it to your job posting
@@ -794,21 +541,9 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                     <h4 className="text-sm font-medium">Add Custom Tag</h4>
                     <div className="flex gap-2">
                       <FormControl>
-                        <Input
-                          placeholder='e.g., "Tech stack specific", "Benefits highlight"'
-                          value={inputValue}
-                          onChange={(e) => setInputValue(e.target.value)}
-                          onKeyDown={handleKeyDown}
-                          maxLength={20}
-                          disabled={currentTags.length >= 5}
-                        />
+                        <Input placeholder='e.g., "Tech stack specific", "Benefits highlight"' value={inputValue} onChange={e => setInputValue(e.target.value)} onKeyDown={handleKeyDown} maxLength={20} disabled={currentTags.length >= 5} />
                       </FormControl>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleAddTag}
-                        disabled={!inputValue.trim() || currentTags.length >= 5}
-                      >
+                      <Button type="button" variant="outline" onClick={handleAddTag} disabled={!inputValue.trim() || currentTags.length >= 5}>
                         <Plus className="h-4 w-4 mr-2" />
                         Add
                       </Button>
@@ -819,35 +554,22 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                   </div>
                   
                   {/* Selected Tags Display */}
-                  {currentTags.length > 0 && (
-                    <div className="space-y-2">
+                  {currentTags.length > 0 && <div className="space-y-2">
                       <h4 className="text-sm font-medium">Selected Tags</h4>
                       <div className="flex flex-wrap gap-2">
                         {currentTags.map((tag: string) => {
-                          // Check if it's a standard tag, otherwise use secondary
-                          const standardTag = STANDARD_TAGS.find(t => t.toLowerCase() === tag.toLowerCase());
-                          const variant = standardTag ? getTagVariant(tag) : 'secondary';
-                          
-                          return (
-                            <Badge
-                              key={tag}
-                              variant={variant}
-                              className="px-3 py-1 text-sm flex items-center gap-2"
-                            >
+                  // Check if it's a standard tag, otherwise use secondary
+                  const standardTag = STANDARD_TAGS.find(t => t.toLowerCase() === tag.toLowerCase());
+                  const variant = standardTag ? getTagVariant(tag) : 'secondary';
+                  return <Badge key={tag} variant={variant} className="px-3 py-1 text-sm flex items-center gap-2">
                               {tag}
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveTag(tag)}
-                                className="hover:bg-background/20 rounded-full p-0.5"
-                              >
+                              <button type="button" onClick={() => handleRemoveTag(tag)} className="hover:bg-background/20 rounded-full p-0.5">
                                 <X className="h-3 w-3" />
                               </button>
-                            </Badge>
-                          );
-                        })}
+                            </Badge>;
+                })}
                       </div>
-                    </div>
-                  )}
+                    </div>}
                   
                   {/* Counter */}
                   <p className="text-sm text-muted-foreground">
@@ -857,27 +579,14 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                 </div>
                 
                 <FormMessage />
-              </FormItem>
-            );
-          }}
-        />
+              </FormItem>;
+      }} />
       </div>
 
       {/* Add Department Dialog */}
-      <AddDepartmentDialog
-        open={departmentDialogOpen}
-        onOpenChange={setDepartmentDialogOpen}
-        onAdd={handleAddDepartment}
-        employerName={selectedEmployer?.name}
-      />
+      <AddDepartmentDialog open={departmentDialogOpen} onOpenChange={setDepartmentDialogOpen} onAdd={handleAddDepartment} employerName={selectedEmployer?.name} />
 
       {/* Add Location Dialog */}
-      <AddLocationDialog
-        open={locationDialogOpen}
-        onOpenChange={setLocationDialogOpen}
-        onAdd={handleAddLocation}
-        employerName={selectedEmployer?.name}
-      />
-    </div>
-  );
+      <AddLocationDialog open={locationDialogOpen} onOpenChange={setLocationDialogOpen} onAdd={handleAddLocation} employerName={selectedEmployer?.name} />
+    </div>;
 }
