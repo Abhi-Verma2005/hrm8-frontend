@@ -192,7 +192,16 @@ export function JobWizardStep1({
                 <FormControl className="flex-1">
                   <ComboboxWithAdd value={field.value} onValueChange={field.onChange} options={departmentOptions} placeholder="Select department" emptyText="No departments found." disabled={postAsHRM8} />
                 </FormControl>
-                
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setDepartmentDialogOpen(true)}
+                  disabled={postAsHRM8 || !selectedEmployer}
+                  className="shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
               <FormDescription className="text-xs">
                 {postAsHRM8 ? "Select HRM8 department" : selectedEmployer ? `From ${selectedEmployer.name}'s departments` : "Select employer first to add departments"}
@@ -208,7 +217,16 @@ export function JobWizardStep1({
                 <FormControl className="flex-1">
                   <ComboboxWithAdd value={field.value} onValueChange={field.onChange} options={locationOptions} placeholder="Select location" emptyText="No locations found." disabled={postAsHRM8} />
                 </FormControl>
-                
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setLocationDialogOpen(true)}
+                  disabled={postAsHRM8 || !selectedEmployer}
+                  className="shrink-0"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
               <FormDescription className="text-xs">
                 {postAsHRM8 ? "Specify job location" : selectedEmployer ? `From ${selectedEmployer.name}'s office locations` : "Select employer first to add locations"}
