@@ -835,13 +835,15 @@ export function JobWizardStep1({ form }: JobWizardStep1Props) {
                               className="px-3 py-1 text-sm flex items-center gap-2"
                             >
                               {tag}
-                              <button
+                              <Button
                                 type="button"
+                                variant="ghost"
+                                size="icon-sm"
                                 onClick={() => handleRemoveTag(tag)}
-                                className="hover:bg-background/20 rounded-full p-0.5"
+                                className="h-5 w-5 p-0 hover:bg-destructive/10"
                               >
                                 <X className="h-3 w-3" />
-                              </button>
+                              </Button>
                             </Badge>
                           );
                         })}
