@@ -48,7 +48,18 @@ export function AppSidebar() {
   // Compute visual state: show expanded when permanently open OR temporarily hovering
   const isExpanded = open || (!open && isHovering);
   
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    // Exact match first
+    if (location.pathname === path) return true;
+    
+    // For parent routes, check if current path starts with the route
+    // But exclude dashboard routes from prefix matching to avoid conflicts
+    if (!path.startsWith('/dashboard')) {
+      return location.pathname.startsWith(path + '/');
+    }
+    
+    return false;
+  };
   
   return <Sidebar 
     collapsible="icon"
