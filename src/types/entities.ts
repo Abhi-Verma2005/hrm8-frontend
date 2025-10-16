@@ -51,15 +51,88 @@ export interface Job {
 
 export interface Candidate {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  name: string; // Full name for backward compatibility
   photo?: string;
   email: string;
   phone: string;
-  position: string;
-  experience: string;
-  status: 'active' | 'placed' | 'inactive';
+  
+  // Professional Details
+  currentPosition?: string;
+  desiredPosition?: string;
+  position: string; // For backward compatibility
+  experience: string; // "X years"
+  experienceYears: number;
+  experienceLevel: 'entry' | 'mid' | 'senior' | 'executive';
+  
+  // Skills & Qualifications
   skills: string[];
+  education?: string;
+  certifications?: string[];
+  
+  // Employment Preferences
+  salaryMin?: number;
+  salaryMax?: number;
+  salaryCurrency: string;
+  workArrangement: 'remote' | 'hybrid' | 'onsite' | 'flexible';
+  employmentTypePreferences: ('full-time' | 'part-time' | 'contract')[];
+  noticePeriod?: string;
+  availabilityDate?: Date;
+  
+  // Documents & Links
+  resumeUrl?: string;
+  coverLetterUrl?: string;
+  portfolioUrl?: string;
+  linkedInUrl?: string;
+  githubUrl?: string;
+  websiteUrl?: string;
+  
+  // Location
+  city?: string;
+  state?: string;
+  country: string;
+  
+  // Status & Tracking
+  status: 'active' | 'placed' | 'inactive';
+  source: 'job_board' | 'referral' | 'direct' | 'linkedin' | 'agency' | 'career_fair' | 'other';
+  sourceDetails?: string;
+  tags: string[];
+  rating?: number; // 0-5 stars
+  score?: number; // 0-100 fit score
+  
+  // Relationships
+  assignedTo?: string; // Recruiter/consultant ID
+  
+  // Dates
   appliedDate: Date;
+  lastContactedDate?: Date;
+  nextFollowUpDate?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CandidateNote {
+  id: string;
+  candidateId: string;
+  userId: string;
+  userName: string;
+  noteType: 'general' | 'interview_feedback' | 'phone_screen' | 'reference_check' | 'other';
+  content: string;
+  isPrivate: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CandidateDocument {
+  id: string;
+  candidateId: string;
+  documentType: 'resume' | 'cover_letter' | 'certificate' | 'portfolio' | 'other';
+  fileName: string;
+  fileUrl: string;
+  fileSize: number;
+  uploadedBy: string;
+  uploadedAt: Date;
 }
 
 export interface Consultant {

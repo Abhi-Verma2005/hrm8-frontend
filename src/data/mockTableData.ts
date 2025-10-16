@@ -140,18 +140,8 @@ const skillSets = [
 
 const candidateStatuses: ('active' | 'placed' | 'inactive')[] = ['active', 'active', 'active', 'placed', 'inactive'];
 
-export const mockCandidates: Candidate[] = Array.from({ length: 60 }, (_, i) => ({
-  id: `${i + 1}`,
-  name: `${firstNames[i % firstNames.length]} ${lastNames[i % lastNames.length]}`,
-  photo: i % 3 === 0 ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${firstNames[i % firstNames.length]}${i}` : undefined,
-  email: `${firstNames[i % firstNames.length].toLowerCase()}.${lastNames[i % lastNames.length].toLowerCase()}@email.com`,
-  phone: `(555) ${100 + i}-${1000 + i}`,
-  position: positions[i % positions.length],
-  experience: `${1 + (i % 15)} years`,
-  status: candidateStatuses[i % candidateStatuses.length],
-  skills: skillSets[i % skillSets.length],
-  appliedDate: new Date(2024, 0, Math.floor(Math.random() * 15) + 1)
-}));
+// Re-exporting from the comprehensive mockCandidatesData
+export { mockCandidatesData as mockCandidates } from './mockCandidatesData';
 
 const specializations = ['IT Strategy', 'Financial Planning', 'HR Transformation', 'Operations', 'Marketing', 'Legal Compliance', 'Change Management', 'Risk Management', 'Supply Chain', 'Digital Transformation', 'Cybersecurity', 'M&A Advisory', 'Organizational Design', 'Process Optimization', 'Data Analytics', 'Customer Experience', 'Product Strategy', 'Business Development', 'Sustainability', 'Innovation'];
 

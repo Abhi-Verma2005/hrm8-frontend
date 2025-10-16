@@ -46,6 +46,9 @@ function AppContent() {
             <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
             <Route path="/dashboard/:type" element={<Dashboard />} />
             <Route path="/candidates" element={<Candidates />} />
+            <Route path="/candidates/new" element={<Candidates />} />
+            <Route path="/candidates/:candidateId" element={<Candidates />} />
+            <Route path="/candidates/:candidateId/edit" element={<Candidates />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/jobs/new" element={<JobCreate />} />
             <Route path="/jobs/templates" element={<JobTemplates />} />
