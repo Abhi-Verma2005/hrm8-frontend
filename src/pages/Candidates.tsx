@@ -78,13 +78,17 @@ export default function Candidates() {
         <DataTable
           data={filteredCandidates}
           columns={candidateTableColumns}
-          enableFiltering
-          enableSelection
+          selectable
+          searchable
+          searchKeys={['name', 'email', 'position']}
+          statusFilter
           statusOptions={[
             { label: 'Active', value: 'active' },
             { label: 'Placed', value: 'placed' },
             { label: 'Inactive', value: 'inactive' },
           ]}
+          statusKey="status"
+          emptyMessage="No candidates found"
         />
       </div>
     </DashboardPageLayout>
