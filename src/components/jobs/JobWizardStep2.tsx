@@ -84,16 +84,14 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
         name="description"
         render={({ field }) => (
           <FormItem>
-            <div className="flex items-center justify-between mb-2">
-              <FormLabel>Job Description *</FormLabel>
-              <AIJobGenerator form={form} onScrollToUpload={scrollToUpload} />
-            </div>
+            <FormLabel>Job Description *</FormLabel>
             <FormControl>
               <RichTextEditor
                 content={field.value}
                 onChange={field.onChange}
                 placeholder="Provide a detailed description of the job, including the role, team, and company culture..."
                 className="min-h-[200px]"
+                toolbarActions={<AIJobGenerator form={form} onScrollToUpload={scrollToUpload} />}
               />
             </FormControl>
             <FormDescription>

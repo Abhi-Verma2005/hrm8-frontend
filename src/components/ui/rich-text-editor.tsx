@@ -20,13 +20,15 @@ interface RichTextEditorProps {
   onChange: (html: string) => void;
   placeholder?: string;
   className?: string;
+  toolbarActions?: React.ReactNode;
 }
 
 export function RichTextEditor({ 
   content, 
   onChange, 
   placeholder = "Start typing...",
-  className 
+  className,
+  toolbarActions
 }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
@@ -65,7 +67,8 @@ export function RichTextEditor({
   return (
     <div className={cn("border rounded-md", className)}>
       {/* Toolbar */}
-      <div className="border-b bg-secondary/10 p-2 flex flex-wrap gap-1">
+      <div className="border-b bg-secondary/10 p-2 flex flex-wrap gap-1 items-center justify-between">
+        <div className="flex flex-wrap gap-1">{/*... keep existing code*/}
         <Toggle
           size="sm"
           pressed={editor.isActive('bold')}
@@ -133,6 +136,13 @@ export function RichTextEditor({
         >
           <LinkIcon className="h-4 w-4" />
         </Button>
+        </div>
+        
+        {toolbarActions && (
+          <div className="ml-auto">
+            {toolbarActions}
+          </div>
+        )}
       </div>
 
       {/* Editor Content */}
