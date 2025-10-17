@@ -61,17 +61,14 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Job Description
-          </h3>
-          <p className="text-sm text-muted-foreground mt-1">
-            Upload a position description or describe the role manually
-          </p>
-        </div>
-        <AIJobGenerator form={form} onScrollToUpload={scrollToUpload} />
+      <div>
+        <h3 className="text-lg font-semibold flex items-center gap-2">
+          <FileText className="h-5 w-5" />
+          Job Description
+        </h3>
+        <p className="text-sm text-muted-foreground mt-1">
+          Upload a position description or describe the role manually
+        </p>
       </div>
 
       <PositionDescriptionUpload 
@@ -87,7 +84,10 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Job Description *</FormLabel>
+            <div className="flex items-center justify-between mb-2">
+              <FormLabel>Job Description *</FormLabel>
+              <AIJobGenerator form={form} onScrollToUpload={scrollToUpload} />
+            </div>
             <FormControl>
               <RichTextEditor
                 content={field.value}
