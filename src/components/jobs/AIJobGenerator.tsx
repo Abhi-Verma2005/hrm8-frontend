@@ -235,7 +235,7 @@ Our ideal candidate is passionate about technology, has a strong problem-solving
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="button" variant="outline" size="sm">
-          <Wand2 className="h-4 w-4 mr-2" />
+          <Wand2 className="h-4 w-4 mr-2 text-primary" />
           Generate with AI
         </Button>
       </DialogTrigger>
