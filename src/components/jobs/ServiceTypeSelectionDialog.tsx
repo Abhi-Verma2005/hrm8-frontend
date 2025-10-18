@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, Users, Star, Check, ArrowRight } from "lucide-react";
+import { Briefcase, Users, Star, Check, ArrowRight, Crown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ServiceTypeSelectionDialogProps {
@@ -75,7 +75,7 @@ const services = [
       'Executive assessment',
       'Onboarding support'
     ],
-    icon: Users,
+    icon: Crown,
     recommended: false,
     accent: 'gold'
   }
