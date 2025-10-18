@@ -157,7 +157,7 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
                   </div>
 
                   {/* Center: Price */}
-                  <div className="text-center lg:min-w-[200px] flex-shrink-0">
+                  <div className="text-center lg:min-w-[200px] flex-shrink-0 min-h-[100px] flex items-start justify-center">
                     {service.id === 'executive-search' ? (
                       <div className="flex items-start justify-center gap-6">
                         {/* Left tier */}
