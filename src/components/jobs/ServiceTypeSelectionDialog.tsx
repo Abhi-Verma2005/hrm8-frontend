@@ -158,12 +158,26 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
 
                   {/* Center: Price */}
                   <div className="text-center lg:min-w-[200px] flex-shrink-0">
-                    <div className="text-3xl font-bold text-primary">
-                      {service.price}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {service.priceSubtext}
-                    </div>
+                    {service.id === 'executive-search' ? (
+                      <div className="space-y-2">
+                        <div className="text-3xl font-bold text-primary">
+                          $9,990 | $14,990
+                        </div>
+                        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+                          <span>≤$100k salary</span>
+                          <span>{'>'}$100k salary</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="text-3xl font-bold text-primary">
+                          {service.price}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {service.priceSubtext}
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Right: Features */}
