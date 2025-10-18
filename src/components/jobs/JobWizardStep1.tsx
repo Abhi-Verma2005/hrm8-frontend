@@ -331,7 +331,7 @@ export function JobWizardStep1({
           <FormField control={form.control} name="hideSalary" render={({
           field
         }) => <FormItem className="flex flex-col justify-end">
-                <FormLabel className="mb-2">Hide on Job Board</FormLabel>
+                <FormLabel className="mb-2">Hide on Job Post</FormLabel>
                 <div className="flex items-center space-x-2">
                   <FormControl>
                     <Switch checked={field.value} onCheckedChange={field.onChange} />
