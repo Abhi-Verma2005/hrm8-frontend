@@ -7,19 +7,22 @@ import {
 } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 export function HeaderQuickActions() {
+  const navigate = useNavigate();
+  
   return (
     <>
       <Separator orientation="vertical" className="h-6 mx-2" />
       
-      {/* Primary Action - Post Job */}
+      {/* Primary Action - Create Job */}
       <div className="hidden md:flex items-center">
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <Button
               variant="gradient"
-              onClick={() => console.log("Post Job")}
+              onClick={() => navigate('/jobs?action=create')}
               className={cn(
                 // Show text on large screens, icon-only on medium
                 "lg:px-4 lg:gap-2",
@@ -27,11 +30,11 @@ export function HeaderQuickActions() {
               )}
             >
               <Plus className="h-4 w-4" />
-              <span className="hidden lg:inline font-semibold">Post Job</span>
+              <span className="hidden lg:inline font-semibold">Create Job</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="lg:hidden">
-            <p>Post Job</p>
+            <p>Create Job</p>
           </TooltipContent>
         </Tooltip>
       </div>

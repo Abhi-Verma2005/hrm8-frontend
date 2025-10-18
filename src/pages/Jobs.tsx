@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, MoreVertical, Pencil, Copy, Trash2 } from "lucide-react";
@@ -35,6 +35,7 @@ import { JobsFilterBar } from "@/components/jobs/JobsFilterBar";
 import { getCountryFromLocation, expandRegionsToCountries, REGION_COUNTRY_MAP, getRegionForCountry } from "@/lib/countryRegions";
 
 export default function Jobs() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -48,6 +49,15 @@ export default function Jobs() {
   const [selectedService, setSelectedService] = useState("all");
 
   const jobs = useMemo(() => getJobs(), [refreshKey]);
+  
+  // Auto-open drawer when navigating with action=create
+  useEffect(() => {
+    if (searchParams.get('action') === 'create') {
+      setEditingJobId(null);
+      setDrawerOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Extract unique consultants and countries
   const uniqueConsultants = useMemo(() => {
