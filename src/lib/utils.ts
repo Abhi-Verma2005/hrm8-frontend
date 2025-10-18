@@ -10,21 +10,26 @@ export function cn(...inputs: ClassValue[]) {
  * Works with both window scrolling and fixed sidebar layouts
  */
 export const scrollToTop = (behavior: ScrollBehavior = 'smooth') => {
-  // Try to find the main scrollable container (SidebarInset)
-  const mainContent = document.getElementById('main-scroll-container');
-  
-  if (mainContent) {
-    mainContent.scrollTo({
-      top: 0,
-      left: 0,
-      behavior,
-    });
-  } else {
-    // Fallback to window scroll for pages without sidebar
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior,
-    });
-  }
+  // Use requestAnimationFrame to ensure DOM is painted
+  requestAnimationFrame(() => {
+    const mainContent = document.getElementById('main-scroll-container');
+    
+    if (mainContent) {
+      // Force a reflow to ensure layout is calculated
+      void mainContent.scrollHeight;
+      
+      mainContent.scrollTo({
+        top: 0,
+        left: 0,
+        behavior,
+      });
+    } else {
+      // Fallback to window scroll for pages without sidebar
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior,
+      });
+    }
+  });
 };

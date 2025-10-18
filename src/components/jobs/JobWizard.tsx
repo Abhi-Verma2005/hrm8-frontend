@@ -40,9 +40,10 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   const [previewOpen, setPreviewOpen] = useState(false);
   
   useEffect(() => {
+    // Small delay to ensure content is rendered
     const timeoutId = setTimeout(() => {
       scrollToTop('smooth');
-    }, 0);
+    }, 10);
     
     return () => clearTimeout(timeoutId);
   }, [step]);

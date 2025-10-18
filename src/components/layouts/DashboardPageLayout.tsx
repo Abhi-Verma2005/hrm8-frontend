@@ -10,9 +10,9 @@ export function DashboardPageLayout({ children, breadcrumbActions }: DashboardPa
   return (
     <>
       <DashboardHeader breadcrumbActions={breadcrumbActions} />
-      <main className="flex-1">
+      <div className="flex-1">
         {children}
-      </main>
+      </div>
     </>
   );
 }
