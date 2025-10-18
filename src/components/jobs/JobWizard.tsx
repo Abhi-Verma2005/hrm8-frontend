@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
-import { JobFormData } from "@/types/job";
+import { Job, JobFormData } from "@/types/job";
 import { jobFormSchema } from "@/lib/validations/jobValidation";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
@@ -29,12 +28,14 @@ import { getEmployerById } from "@/lib/employerService";
 interface JobWizardProps {
   defaultValues?: Partial<JobFormData>;
   jobId?: string;
+  onSuccess?: (jobData: Job) => void;
+  onCancel?: () => void;
+  embedded?: boolean;
 }
 
-export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
+export function JobWizard({ defaultValues, jobId, onSuccess, onCancel, embedded = false }: JobWizardProps) {
   const [step, setStep] = useState(1);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const navigate = useNavigate();
   
   const form = useForm<JobFormData>({
     resolver: zodResolver(jobFormSchema),
@@ -119,7 +120,10 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
         ? `Job saved as draft for ${employerData.employerName}` 
         : `Job published successfully for ${employerData.employerName}`,
     });
-    navigate("/jobs");
+    
+    if (onSuccess) {
+      onSuccess(jobData);
+    }
   };
 
   const nextStep = () => setStep(Math.min(step + 1, totalSteps));
@@ -143,10 +147,17 @@ export function JobWizard({ defaultValues, jobId }: JobWizardProps) {
         {step === 5 && <JobWizardStep5 form={form} />}
 
         <div className="flex justify-between pt-6 border-t">
-          <Button type="button" variant="outline" onClick={prevStep} disabled={step === 1}>
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
+          <div className="flex gap-2">
+            {step === 1 && embedded && onCancel && (
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+            )}
+            <Button type="button" variant="outline" onClick={prevStep} disabled={step === 1}>
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Back
+            </Button>
+          </div>
           <div className="flex gap-2">
             {step === 2 && (
               <Button 

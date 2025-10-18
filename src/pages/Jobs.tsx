@@ -4,8 +4,10 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, MoreVertical, Pencil, Copy, Trash2 } from "lucide-react";
 import { DataTable, Column } from "@/components/tables/DataTable";
-import { getJobs, deleteJob } from "@/lib/mockJobStorage";
+import { getJobs, deleteJob, getJobById } from "@/lib/mockJobStorage";
 import { Job } from "@/types/job";
+import { FormDrawer } from "@/components/ui/form-drawer";
+import { JobWizard } from "@/components/jobs/JobWizard";
 import { JobStatusBadge } from "@/components/jobs/JobStatusBadge";
 import { EmploymentTypeBadge } from "@/components/jobs/EmploymentTypeBadge";
 import { ServiceTypeBadge } from "@/components/jobs/ServiceTypeBadge";
@@ -36,6 +38,8 @@ export default function Jobs() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingJobId, setEditingJobId] = useState<string | null>(null);
   
   // Filter states
   const [searchValue, setSearchValue] = useState("");
@@ -155,6 +159,71 @@ export default function Jobs() {
     }
   };
 
+  const handleCreateJob = () => {
+    setEditingJobId(null);
+    setDrawerOpen(true);
+  };
+
+  const handleEditJob = (jobId: string) => {
+    setEditingJobId(jobId);
+    setDrawerOpen(true);
+  };
+
+  const handleJobSuccess = () => {
+    setDrawerOpen(false);
+    setEditingJobId(null);
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+    setEditingJobId(null);
+  };
+
+  const editingJobData = editingJobId ? (() => {
+    const job = getJobById(editingJobId);
+    if (!job) return null;
+    // Convert Job to JobFormData (only include form fields)
+    return {
+      postAsHRM8: job.employerId === "hrm8-platform",
+      employerId: job.employerId,
+      title: job.title,
+      department: job.department,
+      location: job.location,
+      employmentType: job.employmentType,
+      experienceLevel: job.experienceLevel,
+      workArrangement: job.workArrangement,
+      tags: job.tags,
+      description: job.description,
+      requirements: job.requirements,
+      responsibilities: job.responsibilities,
+      salaryMin: job.salaryMin,
+      salaryMax: job.salaryMax,
+      salaryCurrency: job.salaryCurrency,
+      salaryPeriod: job.salaryPeriod || 'annual',
+      salaryDescription: job.salaryDescription,
+      hideSalary: false,
+      closeDate: job.closeDate,
+      visibility: job.visibility,
+      stealth: job.stealth,
+      hiringTeam: job.hiringTeam || [],
+      applicationForm: job.applicationForm || {
+        id: `form-${Date.now()}`,
+        name: "Application Form",
+        questions: [],
+        includeStandardFields: {
+          resume: { included: true, required: true },
+          coverLetter: { included: false, required: false },
+          portfolio: { included: false, required: false },
+          linkedIn: { included: false, required: false },
+          website: { included: false, required: false },
+        },
+      },
+      status: job.status === 'closed' || job.status === 'filled' || job.status === 'on-hold' ? 'draft' : job.status,
+      jobBoardDistribution: job.jobBoardDistribution,
+    };
+  })() : null;
+
   const columns: Column<Job>[] = [
     {
       key: 'name',
@@ -255,11 +324,9 @@ export default function Jobs() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link to={`/jobs/${job.id}/edit`}>
-                <Pencil className="h-4 w-4 mr-2" />
-                Edit
-              </Link>
+            <DropdownMenuItem onClick={() => handleEditJob(job.id)}>
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Copy className="h-4 w-4 mr-2" />
@@ -286,11 +353,9 @@ export default function Jobs() {
             <h1 className="text-3xl font-bold">Jobs</h1>
             <p className="text-muted-foreground">Create and manage job postings</p>
           </div>
-          <Button asChild>
-            <Link to="/jobs/new">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Job
-            </Link>
+          <Button onClick={handleCreateJob}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Job
           </Button>
         </div>
 
@@ -314,6 +379,23 @@ export default function Jobs() {
           searchable={false}
           emptyMessage="No jobs found"
         />
+
+        <FormDrawer
+          open={drawerOpen}
+          onOpenChange={handleDrawerClose}
+          title={editingJobId ? "Edit Job" : "Create Job"}
+          description={editingJobId ? "Update the job posting details" : "Fill in the details to create a new job posting"}
+          width="xl"
+        >
+          <JobWizard
+            key={editingJobId || 'new'}
+            jobId={editingJobId || undefined}
+            defaultValues={editingJobData || undefined}
+            onSuccess={handleJobSuccess}
+            onCancel={handleDrawerClose}
+            embedded
+          />
+        </FormDrawer>
 
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
