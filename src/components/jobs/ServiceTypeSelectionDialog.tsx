@@ -95,15 +95,15 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
-        <DialogHeader className="text-center space-y-3 pb-6">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
+        <DialogHeader className="text-center space-y-3 pb-4">
           <DialogTitle className="text-3xl font-bold">Choose Your Recruitment Service</DialogTitle>
           <DialogDescription className="text-base">
-            Select the service that best fits your hiring needs. Compare pricing and features at a glance.
+            Compare pricing and features to find the perfect fit for your hiring needs
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+        <div className="space-y-3 py-4">
           {services.map((service) => {
             const Icon = service.icon;
             const isSelected = selectedService === service.id;
@@ -112,76 +112,74 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
               <Card
                 key={service.id}
                 className={cn(
-                  "relative p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02]",
+                  "relative overflow-hidden cursor-pointer transition-all duration-200",
+                  "border-l-4 px-6 py-5 hover:bg-muted/30 hover:scale-[1.01]",
                   isSelected 
-                    ? "border-2 border-primary bg-primary/5 shadow-md" 
-                    : "border-2 border-border hover:border-primary/50"
+                    ? "border-l-primary bg-primary/5 shadow-md" 
+                    : "border-l-transparent hover:border-l-primary/50"
                 )}
                 onClick={() => setSelectedService(service.id)}
               >
                 {/* Recommended Badge */}
                 {service.recommended && (
                   <Badge 
-                    className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground"
+                    className="absolute top-3 right-3 bg-primary text-primary-foreground"
                   >
                     <Star className="h-3 w-3 mr-1" />
-                    RECOMMENDED
+                    MOST POPULAR
                   </Badge>
                 )}
 
-                <div className="space-y-4">
-                  {/* Header with Icon and Title */}
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "p-3 rounded-lg",
-                        isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
-                      )}>
-                        <Icon className="h-6 w-6" />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-semibold">{service.name}</h3>
-                        <p className="text-xs text-muted-foreground">{service.priceSubtext}</p>
-                      </div>
+                {/* Selection Check Icon */}
+                {isSelected && !service.recommended && (
+                  <div className="absolute top-3 right-3">
+                    <Check className="h-5 w-5 text-primary" />
+                  </div>
+                )}
+
+                {/* Main Content - Horizontal Layout */}
+                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
+                  
+                  {/* Left: Icon + Name + Description */}
+                  <div className="flex items-start gap-4 flex-1 min-w-0">
+                    <div className={cn(
+                      "p-3 rounded-lg flex-shrink-0",
+                      isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                    )}>
+                      <Icon className="h-6 w-6" />
                     </div>
-                    {isSelected && (
-                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                        <Check className="h-4 w-4 text-primary-foreground" />
-                      </div>
-                    )}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-xl font-semibold">{service.name}</h3>
+                      <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                        {service.description}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Price */}
-                  <div className="py-2">
-                    <div className="text-4xl font-bold text-primary">{service.price}</div>
+                  {/* Center: Price */}
+                  <div className="text-center lg:min-w-[140px] flex-shrink-0">
+                    <div className="text-3xl font-bold text-primary">
+                      {service.price}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {service.priceSubtext}
+                    </div>
                   </div>
 
-                  {/* Description */}
-                  <p className="text-sm text-muted-foreground min-h-[40px]">
-                    {service.description}
-                  </p>
-
-                  {/* Features */}
-                  <div className="space-y-2 pt-2">
-                    {service.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-start gap-2">
-                        <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-foreground">{feature}</span>
-                      </div>
-                    ))}
+                  {/* Right: Features */}
+                  <div className="flex-1 lg:max-w-[280px] w-full">
+                    <div className="grid grid-cols-1 gap-1.5">
+                      {service.features.slice(0, 4).map((feature, idx) => (
+                        <div key={idx} className="flex items-start gap-2">
+                          <Check className="h-3 w-3 text-primary flex-shrink-0 mt-0.5" />
+                          <span className="text-xs text-foreground leading-tight">
+                            {feature}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  {/* Select Button */}
-                  <Button
-                    variant={isSelected ? "default" : "outline"}
-                    className="w-full mt-4"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedService(service.id);
-                    }}
-                  >
-                    {isSelected ? "Selected" : "Select This Service"}
-                  </Button>
                 </div>
               </Card>
             );
