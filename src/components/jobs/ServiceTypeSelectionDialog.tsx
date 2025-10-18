@@ -95,7 +95,7 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <DialogHeader className="text-center space-y-3 pb-4">
           <DialogTitle className="text-3xl font-bold">Choose Your Recruitment Service</DialogTitle>
           <DialogDescription className="text-base">
@@ -149,7 +149,7 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
                       <Icon className="h-6 w-6" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-xl font-semibold">{service.name}</h3>
+                      <h3 className="text-xl font-semibold whitespace-nowrap">{service.name}</h3>
                       <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                         {service.description}
                       </p>
@@ -157,7 +157,7 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
                   </div>
 
                   {/* Center: Price */}
-                  <div className="text-center lg:min-w-[200px] flex-shrink-0">
+                  <div className="text-center lg:min-w-[280px] flex-shrink-0">
                     {service.id === 'executive-search' ? (
                       <div className="flex items-start justify-center gap-6">
                         {/* Left tier */}
@@ -198,7 +198,7 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
                   </div>
 
                   {/* Right: Features */}
-                  <div className="flex-1 lg:max-w-[280px] w-full lg:pl-8">
+                  <div className="flex-1 lg:max-w-[280px] w-full lg:pl-4">
                     <div className="grid grid-cols-1 gap-1.5">
                       {service.features.slice(0, 4).map((feature, idx) => (
                         <div key={idx} className="flex items-start gap-2">
