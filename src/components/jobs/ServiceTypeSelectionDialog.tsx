@@ -111,20 +111,20 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
             return (
               <Card
                 key={service.id}
-                className={cn(
-                  "relative overflow-hidden cursor-pointer transition-all duration-200",
-                  "border-l-4 px-6 py-5 hover:bg-muted/30 hover:scale-[1.01]",
-                  isSelected 
-                    ? "border-l-primary bg-primary/5 shadow-md" 
-                    : "border-l-transparent hover:border-l-primary/50"
-                )}
+              className={cn(
+                "relative cursor-pointer transition-all duration-200",
+                "border-l-4 px-6 py-5 hover:bg-muted/30 hover:scale-[1.01]",
+                isSelected 
+                  ? "border-l-primary bg-primary/5 shadow-md" 
+                  : "border-l-transparent hover:border-l-primary/50"
+              )}
                 onClick={() => setSelectedService(service.id)}
               >
                 {/* Recommended Badge */}
                 {service.recommended && (
-                <Badge 
-                  className="absolute -top-2 right-3 bg-primary text-primary-foreground"
-                >
+              <Badge 
+                className="absolute -top-2 right-3 z-10 bg-primary text-primary-foreground"
+              >
                     <Star className="h-3 w-3 mr-1" />
                     MOST POPULAR
                   </Badge>
