@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { AspectRatio } from "@/components/ui/aspect-ratio";
+
 import { 
   ArrowLeft, 
   Edit, 
@@ -115,16 +115,17 @@ export default function JobDetail() {
             </Button>
             
             {/* Company Logo with 16:9 AspectRatio */}
-            <div className="flex-shrink-0">
-              <AspectRatio ratio={16/9} className="w-[120px]">
-                <div className="h-full w-full rounded-lg border-2 border-border bg-card overflow-hidden shadow-sm">
-                  <img 
-                    src={job.employerLogo || `/placeholder.svg`}
-                    alt={`${job.employerName} logo`}
-                    className="h-full w-full object-contain p-2"
-                  />
-                </div>
-              </AspectRatio>
+            <div className="flex-shrink-0 w-[120px]">
+              <div className="w-full aspect-[16/9] rounded-lg border-2 border-border bg-card overflow-hidden shadow-sm">
+                <img 
+                  src={job.employerLogo || `/placeholder.svg`}
+                  alt={`${job.employerName} logo`}
+                  className="h-full w-full object-contain p-2"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
             </div>
             
             <div className="flex-1 min-w-0">
