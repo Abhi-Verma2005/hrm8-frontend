@@ -39,7 +39,15 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   const [previewOpen, setPreviewOpen] = useState(false);
   
   useEffect(() => {
-    window.scrollTo(0, 0);
+    const timeoutId = setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      });
+    }, 0);
+    
+    return () => clearTimeout(timeoutId);
   }, [step]);
   
   const form = useForm<JobFormData>({
