@@ -26,6 +26,7 @@ import { generateJobCode } from "@/lib/jobUtils";
 import { getEmployerById } from "@/lib/employerService";
 
 interface JobWizardProps {
+  serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
   defaultValues?: Partial<JobFormData>;
   jobId?: string;
   onSuccess?: (jobData: Job) => void;
@@ -33,13 +34,14 @@ interface JobWizardProps {
   embedded?: boolean;
 }
 
-export function JobWizard({ defaultValues, jobId, onSuccess, onCancel, embedded = false }: JobWizardProps) {
+export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCancel, embedded = false }: JobWizardProps) {
   const [step, setStep] = useState(1);
   const [previewOpen, setPreviewOpen] = useState(false);
   
   const form = useForm<JobFormData>({
     resolver: zodResolver(jobFormSchema),
     defaultValues: {
+      serviceType,
       postAsHRM8: false,
       employerId: "",
       title: "",
@@ -76,7 +78,8 @@ export function JobWizard({ defaultValues, jobId, onSuccess, onCancel, embedded 
     },
   });
 
-  const totalSteps = 5;
+  const isHRM8Service = serviceType !== 'self-managed';
+  const totalSteps = isHRM8Service ? 2 : 5;
   const progress = (step / totalSteps) * 100;
 
   const onSubmit = (data: JobFormData) => {
@@ -105,7 +108,7 @@ export function JobWizard({ defaultValues, jobId, onSuccess, onCancel, embedded 
       createdByName: "HRM8 Admin", // TODO: Replace with actual auth user name
       jobCode: generateJobCode(),
       aiGeneratedDescription: false,
-      serviceType: "self-managed" as const,
+      serviceType: data.serviceType,
       applicantsCount: 0,
       viewsCount: 0,
       postingDate: new Date().toISOString(),
@@ -142,9 +145,9 @@ export function JobWizard({ defaultValues, jobId, onSuccess, onCancel, embedded 
 
         {step === 1 && <JobWizardStep1 form={form} />}
         {step === 2 && <JobWizardStep2 form={form} />}
-        {step === 3 && <JobWizardStep3 form={form} />}
-        {step === 4 && <JobWizardStep4 form={form} />}
-        {step === 5 && <JobWizardStep5 form={form} />}
+        {!isHRM8Service && step === 3 && <JobWizardStep3 form={form} />}
+        {!isHRM8Service && step === 4 && <JobWizardStep4 form={form} />}
+        {!isHRM8Service && step === 5 && <JobWizardStep5 form={form} />}
 
         <div className="flex justify-between pt-6 border-t">
           <div className="flex gap-2">
@@ -182,7 +185,7 @@ export function JobWizard({ defaultValues, jobId, onSuccess, onCancel, embedded 
               </Button>
             ) : (
               <Button type="submit">
-                {form.watch("status") === 'draft' ? 'Save Draft' : 'Publish Job'}
+                {isHRM8Service ? 'Submit Request' : form.watch("status") === 'draft' ? 'Save Draft' : 'Publish Job'}
               </Button>
             )}
           </div>

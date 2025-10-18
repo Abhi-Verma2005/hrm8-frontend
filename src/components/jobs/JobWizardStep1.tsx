@@ -5,10 +5,8 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescripti
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { FileText, Building2, Check, DollarSign, MapPin, Briefcase as BriefcaseIcon, Plus, X, Tag as TagIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { FileText, Building2, Check, DollarSign, MapPin, Briefcase as BriefcaseIcon, Plus } from "lucide-react";
 import { ComboboxWithAdd } from "@/components/ui/combobox-with-add";
 import { formatSalaryRange } from "@/lib/jobUtils";
 import { getActiveEmployers, getDepartmentNames, getLocationNames } from "@/lib/employerService";
@@ -18,24 +16,11 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { AddDepartmentDialog } from "@/components/jobs/AddDepartmentDialog";
 import { AddLocationDialog } from "@/components/jobs/AddLocationDialog";
+import { PositionDescriptionUpload } from "./PositionDescriptionUpload";
 import { useToast } from "@/hooks/use-toast";
 interface JobWizardStep1Props {
   form: UseFormReturn<JobFormData>;
 }
-const STANDARD_TAGS = ["Urgent", "Remote-first", "Hybrid", "Fast-track", "Equity included", "Relocation assistance", "Visa sponsorship", "Entry-level friendly", "Senior role", "Leadership position", "Contract-to-hire", "Flexible hours"];
-const getTagVariant = (tag: string): "destructive" | "info" | "purple" | "amber" | "teal" | "indigo" | "secondary" => {
-  const tagLower = tag.toLowerCase();
-
-  // Map specific tags to colors for visual categorization
-  if (tagLower === 'urgent' || tagLower === 'fast-track') return 'destructive'; // Red
-  if (tagLower === 'remote-first' || tagLower === 'flexible hours') return 'info'; // Blue
-  if (tagLower === 'hybrid') return 'purple'; // Purple
-  if (tagLower === 'equity included' || tagLower === 'relocation assistance' || tagLower === 'visa sponsorship') return 'amber'; // Amber/Yellow
-  if (tagLower === 'entry-level friendly' || tagLower === 'senior role' || tagLower === 'leadership position') return 'teal'; // Teal
-  if (tagLower === 'contract-to-hire') return 'indigo'; // Indigo
-
-  return 'secondary'; // Default grey for any other tags
-};
 export function JobWizardStep1({
   form
 }: JobWizardStep1Props) {
@@ -95,6 +80,13 @@ export function JobWizardStep1({
           </Link>
         </Button>
       </div>
+
+      <PositionDescriptionUpload 
+        form={form}
+        onFileProcessed={(text) => {
+          form.setValue("positionDescriptionText", text);
+        }}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-[1fr,auto] gap-4 items-start">
         <FormField control={form.control} name="employerId" render={({
@@ -459,146 +451,6 @@ export function JobWizardStep1({
                 </p>}
             </div>}
         </div>
-      </div>
-
-      {/* Tags Section */}
-      <div className="pt-6 border-t">
-        <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-          <TagIcon className="h-5 w-5" />
-          Job Tags
-        </h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Add up to 5 tags to categorize and highlight this job (e.g., "Urgent", "Remote-first", "Fast-track")
-        </p>
-        
-        <FormField control={form.control} name="tags" render={({
-        field
-      }) => {
-        const [inputValue, setInputValue] = useState("");
-        const currentTags = field.value || [];
-        const handleAddTag = () => {
-          const trimmedValue = inputValue.trim();
-          if (!trimmedValue) return;
-          if (currentTags.length >= 5) {
-            toast({
-              title: "Maximum tags reached",
-              description: "You can only add up to 5 tags per job",
-              variant: "destructive"
-            });
-            return;
-          }
-          if (currentTags.includes(trimmedValue)) {
-            toast({
-              title: "Duplicate tag",
-              description: "This tag has already been added",
-              variant: "destructive"
-            });
-            return;
-          }
-          if (trimmedValue.length > 20) {
-            toast({
-              title: "Tag too long",
-              description: "Tags must be 20 characters or less",
-              variant: "destructive"
-            });
-            return;
-          }
-          field.onChange([...currentTags, trimmedValue]);
-          setInputValue("");
-        };
-        const handleRemoveTag = (tagToRemove: string) => {
-          field.onChange(currentTags.filter((tag: string) => tag !== tagToRemove));
-        };
-        const handleKeyDown = (e: React.KeyboardEvent) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            handleAddTag();
-          }
-        };
-        const handleStandardTagClick = (tag: string) => {
-          if (currentTags.length >= 5) {
-            toast({
-              title: "Maximum tags reached",
-              description: "You can only add up to 5 tags per job",
-              variant: "destructive"
-            });
-            return;
-          }
-          if (currentTags.includes(tag)) {
-            return;
-          }
-          field.onChange([...currentTags, tag]);
-        };
-        return <FormItem>
-                <FormLabel>Tags (Optional)</FormLabel>
-                <FormDescription>
-                  Add up to 5 tags to categorize and highlight this job
-                </FormDescription>
-                
-                <div className="space-y-4 mt-3">
-                  {/* Standard Tags Section */}
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Quick Add: Standard Tags</h4>
-                    <div className="flex flex-wrap gap-2">
-                      {STANDARD_TAGS.map(tag => {
-                  const isAdded = currentTags.includes(tag);
-                  const isDisabled = isAdded || currentTags.length >= 5;
-                  return <Badge key={tag} variant={isAdded ? 'secondary' : getTagVariant(tag)} className={cn("cursor-pointer transition-all text-xs font-medium px-3 py-1.5", isAdded && "opacity-40 cursor-not-allowed line-through", !isAdded && !isDisabled && "hover:opacity-80 hover:scale-105", isDisabled && !isAdded && "animate-shake")} onClick={() => !isDisabled && handleStandardTagClick(tag)}>
-                            {isAdded && <Check className="h-3 w-3 mr-1" />}
-                            {tag}
-                          </Badge>;
-                })}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Click any tag to add it to your job posting
-                    </p>
-                  </div>
-                  
-                  {/* Custom Tags Section */}
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-medium">Add Custom Tag</h4>
-                    <div className="flex gap-2">
-                      <FormControl>
-                        <Input placeholder='e.g., "Tech stack specific", "Benefits highlight"' value={inputValue} onChange={e => setInputValue(e.target.value)} onKeyDown={handleKeyDown} maxLength={20} disabled={currentTags.length >= 5} />
-                      </FormControl>
-                      <Button type="button" variant="outline" onClick={handleAddTag} disabled={!inputValue.trim() || currentTags.length >= 5}>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add
-                      </Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Create custom tags not in the standard list (max 20 characters)
-                    </p>
-                  </div>
-                  
-                  {/* Selected Tags Display */}
-                  {currentTags.length > 0 && <div className="space-y-2">
-                      <h4 className="text-sm font-medium">Selected Tags</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {currentTags.map((tag: string) => {
-                  // Check if it's a standard tag, otherwise use secondary
-                  const standardTag = STANDARD_TAGS.find(t => t.toLowerCase() === tag.toLowerCase());
-                  const variant = standardTag ? getTagVariant(tag) : 'secondary';
-                  return <Badge key={tag} variant={variant} className="px-3 py-1 text-sm flex items-center gap-2">
-                              {tag}
-                              <button type="button" onClick={() => handleRemoveTag(tag)} className="hover:bg-background/20 rounded-full p-0.5">
-                                <X className="h-3 w-3" />
-                              </button>
-                            </Badge>;
-                })}
-                      </div>
-                    </div>}
-                  
-                  {/* Counter */}
-                  <p className="text-sm text-muted-foreground">
-                    {currentTags.length}/5 tags added
-                    {currentTags.length >= 5 && " (maximum reached)"}
-                  </p>
-                </div>
-                
-                <FormMessage />
-              </FormItem>;
-      }} />
       </div>
 
       {/* Add Department Dialog */}

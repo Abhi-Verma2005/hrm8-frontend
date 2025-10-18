@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 // Base schema without refinements (for merging in jobFormSchema)
 const baseJobBasicDetailsSchema = z.object({
+  serviceType: z.enum(['self-managed', 'shortlisting', 'full-service', 'executive-search', 'rpo']),
   postAsHRM8: z.boolean().default(false),
   employerId: z.string(),
   title: z.string().min(5, "Job title must be at least 5 characters"),
@@ -13,8 +14,8 @@ const baseJobBasicDetailsSchema = z.object({
   tags: z.array(z.string().min(1, "Tag cannot be empty").max(20, "Tag must be 20 characters or less"))
     .max(5, "Maximum 5 tags allowed")
     .default([]),
-  salaryMin: z.number().min(0, "Minimum salary must be a positive number"),
-  salaryMax: z.number().min(0, "Maximum salary must be a positive number"),
+  salaryMin: z.number().min(0, "Minimum salary must be a positive number").optional(),
+  salaryMax: z.number().min(0, "Maximum salary must be a positive number").optional(),
   salaryCurrency: z.string().default('USD'),
   salaryPeriod: z.enum(['hourly', 'daily', 'weekly', 'monthly', 'annual']).default('annual'),
   salaryDescription: z.string().max(100, "Salary description must be 100 characters or less").optional(),
@@ -45,8 +46,8 @@ export const jobDescriptionSchema = z.object({
     }, {
       message: "Job description must contain at least 50 characters of actual content"
     }),
-  requirements: z.array(z.string().min(1)).min(1, "At least one requirement is needed"),
-  responsibilities: z.array(z.string().min(1)).min(1, "At least one responsibility is needed"),
+  requirements: z.array(z.string().min(1)).min(1, "At least one requirement is needed").optional(),
+  responsibilities: z.array(z.string().min(1)).min(1, "At least one responsibility is needed").optional(),
 });
 
 export const jobCompensationSchema = z.object({

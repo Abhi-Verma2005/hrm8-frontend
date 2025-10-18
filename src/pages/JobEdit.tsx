@@ -14,6 +14,7 @@ export default function JobEdit() {
   }
 
   const defaultValues = {
+    serviceType: job.serviceType,
     postAsHRM8: false,
     employerId: job.employerId,
     title: job.title,
@@ -53,7 +54,7 @@ export default function JobEdit() {
             <p className="text-muted-foreground">{job.title}</p>
           </div>
         </div>
-        <JobWizard defaultValues={defaultValues} jobId={jobId} />
+        <JobWizard serviceType={job.serviceType} defaultValues={defaultValues} jobId={jobId} />
       </div>
     </DashboardPageLayout>
   );

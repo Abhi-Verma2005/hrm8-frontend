@@ -406,6 +406,7 @@ export default function JobDetail() {
         >
           <JobWizard
             key={refreshKey}
+            serviceType={job?.serviceType || 'self-managed'}
             jobId={jobId}
             defaultValues={editingJobData}
             onSuccess={handleJobSuccess}

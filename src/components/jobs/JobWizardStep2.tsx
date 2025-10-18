@@ -11,31 +11,37 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, X, FileText, Pencil, Trash2, Check } from "lucide-react";
+import { Plus, X, FileText, Pencil, Trash2, Check, Tag as TagIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { AIJobGenerator } from "./AIJobGenerator";
-import { PositionDescriptionUpload } from "./PositionDescriptionUpload";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
-import { JobBoardPreview } from "./JobBoardPreview";
+import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface JobWizardStep2Props {
   form: UseFormReturn<JobFormData>;
 }
 
+const STANDARD_TAGS = ["Urgent", "Remote-first", "Hybrid", "Fast-track", "Equity included", "Relocation assistance", "Visa sponsorship", "Entry-level friendly", "Senior role", "Leadership position", "Contract-to-hire", "Flexible hours"];
+const getTagVariant = (tag: string): "destructive" | "info" | "purple" | "amber" | "teal" | "indigo" | "secondary" => {
+  const tagLower = tag.toLowerCase();
+  if (tagLower === 'urgent' || tagLower === 'fast-track') return 'destructive';
+  if (tagLower === 'remote-first' || tagLower === 'flexible hours') return 'info';
+  if (tagLower === 'hybrid') return 'purple';
+  if (tagLower === 'equity included' || tagLower === 'relocation assistance' || tagLower === 'visa sponsorship') return 'amber';
+  if (tagLower === 'entry-level friendly' || tagLower === 'senior role' || tagLower === 'leadership position') return 'teal';
+  if (tagLower === 'contract-to-hire') return 'indigo';
+  return 'secondary';
+};
+
 export function JobWizardStep2({ form }: JobWizardStep2Props) {
+  const { toast } = useToast();
   const [newRequirement, setNewRequirement] = useState("");
   const [newResponsibility, setNewResponsibility] = useState("");
   const [editingRequirementIndex, setEditingRequirementIndex] = useState<number | null>(null);
   const [editingRequirementText, setEditingRequirementText] = useState("");
   const [editingResponsibilityIndex, setEditingResponsibilityIndex] = useState<number | null>(null);
   const [editingResponsibilityText, setEditingResponsibilityText] = useState("");
-  const uploadSectionRef = useRef<HTMLDivElement>(null);
-  
-  const scrollToUpload = () => {
-    uploadSectionRef.current?.scrollIntoView({ 
-      behavior: 'smooth', 
-      block: 'start' 
-    });
-  };
 
   const addRequirement = () => {
     if (newRequirement.trim()) {
@@ -113,17 +119,9 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
           Job Description
         </h3>
         <p className="text-sm text-muted-foreground mt-1">
-          Upload a position description or describe the role manually
+          Describe the role and what makes it unique
         </p>
       </div>
-
-      <PositionDescriptionUpload 
-        ref={uploadSectionRef}
-        form={form}
-        onFileProcessed={(text) => {
-          form.setValue("positionDescriptionText", text);
-        }}
-      />
 
       <FormField
         control={form.control}
@@ -137,7 +135,7 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
                 onChange={field.onChange}
                 placeholder="Provide a detailed description of the job, including the role, team, and company culture..."
                 className="min-h-[200px]"
-                toolbarActions={<AIJobGenerator form={form} onScrollToUpload={scrollToUpload} />}
+                toolbarActions={<AIJobGenerator form={form} />}
               />
             </FormControl>
             <FormDescription>
@@ -147,6 +145,181 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
           </FormItem>
         )}
       />
+
+      {/* Tags Section */}
+      <div className="pt-6 border-t">
+        <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+          <TagIcon className="h-5 w-5" />
+          Job Tags
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          Add up to 5 tags to categorize and highlight this job
+        </p>
+        
+        <FormField
+          control={form.control}
+          name="tags"
+          render={({ field }) => {
+            const [inputValue, setInputValue] = useState("");
+            const currentTags = field.value || [];
+
+            const handleAddTag = () => {
+              const trimmedValue = inputValue.trim();
+              if (!trimmedValue) return;
+              
+              if (currentTags.length >= 5) {
+                toast({
+                  title: "Maximum tags reached",
+                  description: "You can only add up to 5 tags per job",
+                  variant: "destructive"
+                });
+                return;
+              }
+              
+              if (currentTags.includes(trimmedValue)) {
+                toast({
+                  title: "Duplicate tag",
+                  description: "This tag has already been added",
+                  variant: "destructive"
+                });
+                return;
+              }
+              
+              if (trimmedValue.length > 20) {
+                toast({
+                  title: "Tag too long",
+                  description: "Tags must be 20 characters or less",
+                  variant: "destructive"
+                });
+                return;
+              }
+              
+              field.onChange([...currentTags, trimmedValue]);
+              setInputValue("");
+            };
+
+            const handleRemoveTag = (tagToRemove: string) => {
+              field.onChange(currentTags.filter((tag: string) => tag !== tagToRemove));
+            };
+
+            const handleKeyDown = (e: React.KeyboardEvent) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddTag();
+              }
+            };
+
+            const handleStandardTagClick = (tag: string) => {
+              if (currentTags.length >= 5) {
+                toast({
+                  title: "Maximum tags reached",
+                  description: "You can only add up to 5 tags per job",
+                  variant: "destructive"
+                });
+                return;
+              }
+              if (currentTags.includes(tag)) {
+                return;
+              }
+              field.onChange([...currentTags, tag]);
+            };
+
+            return (
+              <FormItem>
+                <FormDescription>
+                  Select from standard tags or create custom ones
+                </FormDescription>
+                
+                <div className="space-y-4 mt-3">
+                  {/* Standard Tags */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Quick Add: Standard Tags</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {STANDARD_TAGS.map(tag => {
+                        const isAdded = currentTags.includes(tag);
+                        const isDisabled = isAdded || currentTags.length >= 5;
+                        return (
+                          <Badge
+                            key={tag}
+                            variant={isAdded ? 'secondary' : getTagVariant(tag)}
+                            className={cn(
+                              "cursor-pointer transition-all text-xs font-medium px-3 py-1.5",
+                              isAdded && "opacity-40 cursor-not-allowed line-through",
+                              !isAdded && !isDisabled && "hover:opacity-80 hover:scale-105"
+                            )}
+                            onClick={() => !isDisabled && handleStandardTagClick(tag)}
+                          >
+                            {isAdded && <Check className="h-3 w-3 mr-1" />}
+                            {tag}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  
+                  {/* Custom Tags */}
+                  <div className="space-y-2">
+                    <h4 className="text-sm font-medium">Add Custom Tag</h4>
+                    <div className="flex gap-2">
+                      <FormControl>
+                        <Input
+                          placeholder='e.g., "Tech stack specific"'
+                          value={inputValue}
+                          onChange={(e) => setInputValue(e.target.value)}
+                          onKeyDown={handleKeyDown}
+                          maxLength={20}
+                          disabled={currentTags.length >= 5}
+                        />
+                      </FormControl>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleAddTag}
+                        disabled={!inputValue.trim() || currentTags.length >= 5}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Selected Tags */}
+                  {currentTags.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium">Selected Tags</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {currentTags.map((tag: string) => {
+                          const standardTag = STANDARD_TAGS.find(t => t.toLowerCase() === tag.toLowerCase());
+                          const variant = standardTag ? getTagVariant(tag) : 'secondary';
+                          return (
+                            <Badge key={tag} variant={variant} className="px-3 py-1 text-sm flex items-center gap-2">
+                              {tag}
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveTag(tag)}
+                                className="hover:bg-background/20 rounded-full p-0.5"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <p className="text-sm text-muted-foreground">
+                    {currentTags.length}/5 tags added
+                    {currentTags.length >= 5 && " (maximum reached)"}
+                  </p>
+                </div>
+                
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+      </div>
 
       <FormField
         control={form.control}

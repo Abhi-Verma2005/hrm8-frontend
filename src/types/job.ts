@@ -88,6 +88,9 @@ export interface JobActivity {
 }
 
 export interface JobFormData {
+  // Service Type
+  serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
+  
   // Step 1: Basic Details
   postAsHRM8: boolean;
   employerId: string;
