@@ -122,9 +122,9 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
               >
                 {/* Recommended Badge */}
                 {service.recommended && (
-                  <Badge 
-                    className="absolute top-3 right-3 bg-primary text-primary-foreground"
-                  >
+                <Badge 
+                  className="absolute -top-2 right-3 bg-primary text-primary-foreground"
+                >
                     <Star className="h-3 w-3 mr-1" />
                     MOST POPULAR
                   </Badge>
