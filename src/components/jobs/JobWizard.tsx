@@ -79,7 +79,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   });
 
   const isHRM8Service = serviceType !== 'self-managed';
-  const totalSteps = isHRM8Service ? 2 : 5;
+  const totalSteps = isHRM8Service ? 1 : 5;
   const progress = (step / totalSteps) * 100;
 
   const onSubmit = (data: JobFormData) => {
@@ -144,7 +144,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
         </div>
 
         {step === 1 && <JobWizardStep1 form={form} />}
-        {step === 2 && <JobWizardStep2 form={form} />}
+        {step === 2 && !isHRM8Service && <JobWizardStep2 form={form} />}
         {!isHRM8Service && step === 3 && <JobWizardStep3 form={form} />}
         {!isHRM8Service && step === 4 && <JobWizardStep4 form={form} />}
         {!isHRM8Service && step === 5 && <JobWizardStep5 form={form} />}
@@ -162,7 +162,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
             </Button>
           </div>
           <div className="flex gap-2">
-            {step === 2 && (
+            {step === 2 && !isHRM8Service && (
               <Button 
                 type="button" 
                 variant="outline" 
