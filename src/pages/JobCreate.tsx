@@ -16,11 +16,17 @@ export default function JobCreate() {
     setShowServiceDialog(false);
   };
 
+  const handleCancel = () => {
+    setShowServiceDialog(false);
+    navigate('/jobs');
+  };
+
   return (
     <DashboardPageLayout>
       <ServiceTypeSelectionDialog 
         open={showServiceDialog}
         onServiceTypeSelect={handleServiceTypeSelect}
+        onCancel={handleCancel}
       />
       
       {selectedServiceType && (

@@ -183,6 +183,10 @@ export default function Jobs() {
     setDrawerOpen(true);
   };
 
+  const handleServiceDialogCancel = () => {
+    setShowServiceDialog(false);
+  };
+
   const handleEditJob = (jobId: string) => {
     const job = getJobById(jobId);
     if (job) {
@@ -423,10 +427,11 @@ export default function Jobs() {
           />
         </FormDrawer>
 
-        <ServiceTypeSelectionDialog 
-          open={showServiceDialog}
-          onServiceTypeSelect={handleServiceTypeSelect}
-        />
+      <ServiceTypeSelectionDialog 
+        open={showServiceDialog}
+        onServiceTypeSelect={handleServiceTypeSelect}
+        onCancel={handleServiceDialogCancel}
+      />
 
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
