@@ -6,10 +6,10 @@ export function ScrollToTop() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // Small delay to ensure the new route content is rendered
+    // Delay ensures new route content is fully rendered
     const timeoutId = setTimeout(() => {
       scrollToTop('auto');
-    }, 0);
+    }, 10);
     
     return () => clearTimeout(timeoutId);
   }, [pathname]);
