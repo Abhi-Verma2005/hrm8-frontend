@@ -17,8 +17,12 @@ import {
   Calendar,
   Eye,
   Globe,
-  MoreVertical
+  MoreVertical,
+  Building2,
+  Users,
+  Clock
 } from "lucide-react";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { getJobById } from "@/lib/mockJobStorage";
 import { mockJobActivities } from "@/data/mockJobsData";
 import { JobStatusBadge } from "@/components/jobs/JobStatusBadge";
@@ -103,21 +107,99 @@ export default function JobDetail() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-4 flex-1 min-w-0">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/jobs">
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold truncate">{job.title}</h1>
-                <JobStatusBadge status={job.status} />
+      <div className="space-y-0">
+        {/* Enhanced Hero Banner Section */}
+        <div className="relative bg-gradient-to-br from-primary/5 via-primary/10 to-background border-b">
+          <div className="p-6 pb-8">
+            <div className="flex items-start justify-between gap-4 mb-6">
+              {/* Back button, Logo, and Title Section */}
+              <div className="flex items-start gap-4 flex-1 min-w-0">
+                <Button variant="ghost" size="icon" asChild className="mt-1">
+                  <Link to="/jobs">
+                    <ArrowLeft className="h-4 w-4" />
+                  </Link>
+                </Button>
+                
+                {/* Company Logo with 16:9 AspectRatio */}
+                <div className="flex-shrink-0">
+                  <AspectRatio ratio={16/9} className="w-[120px]">
+                    <div className="h-full w-full rounded-lg border-2 border-border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                      {job.employerLogo ? (
+                        <img 
+                          src={job.employerLogo}
+                          alt={job.employerName}
+                          className="h-full w-full object-contain p-2"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center bg-muted">
+                          <Building2 className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                  </AspectRatio>
+                </div>
+                
+                {/* Title and Company Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start gap-3 mb-2">
+                    <h1 className="text-4xl font-bold tracking-tight">{job.title}</h1>
+                    <JobStatusBadge status={job.status} />
+                  </div>
+                  <div className="flex items-center gap-2 mb-4 flex-wrap">
+                    <p className="text-xl text-muted-foreground">{job.employerName}</p>
+                    <Separator orientation="vertical" className="h-5" />
+                    <span className="text-sm font-mono text-muted-foreground">{job.jobCode}</span>
+                  </div>
+                  
+                  {/* Key Details as Badges */}
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant="secondary" className="gap-1.5">
+                      <MapPin className="h-3 w-3" />
+                      {job.location}
+                    </Badge>
+                    <Badge variant="secondary" className="gap-1.5">
+                      <Briefcase className="h-3 w-3" />
+                      {job.workArrangement === 'on-site' ? 'On-site' : job.workArrangement === 'remote' ? 'Remote' : 'Hybrid'}
+                    </Badge>
+                    <EmploymentTypeBadge type={job.employmentType} />
+                    {(job.salaryMin || job.salaryMax) && (
+                      <Badge variant="secondary" className="gap-1.5">
+                        <DollarSign className="h-3 w-3" />
+                        {formatSalaryRange(job.salaryMin, job.salaryMax, job.salaryCurrency, job.salaryPeriod)}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
               </div>
-              <p className="text-muted-foreground mb-4">{job.employerName}</p>
+              
+              {/* Action Buttons */}
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={handleEditJob}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem>
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share
+                    </DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Archive className="h-4 w-4 mr-2" />
+                      Archive
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+            
+            {/* Stats Row */}
+            <div className="ml-[152px]">
               <JobQuickStats 
                 applicantsCount={job.applicantsCount}
                 viewsCount={job.viewsCount}
@@ -125,30 +207,9 @@ export default function JobDetail() {
               />
             </div>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleEditJob}>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Archive className="h-4 w-4 mr-2" />
-                  Archive
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
         </div>
+
+        <div className="p-6 space-y-6">
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
@@ -168,119 +229,165 @@ export default function JobDetail() {
           <TabsContent value="overview" className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                {/* Job Details */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Job Details</CardTitle>
+                {/* Enhanced Job Details */}
+                <Card className="border-l-4 border-l-primary/20 hover:border-l-primary/40 transition-colors">
+                  <CardHeader className="bg-muted/30">
+                    <CardTitle className="flex items-center gap-2">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Briefcase className="h-5 w-5 text-primary" />
+                      </div>
+                      Job Details
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex items-center gap-2 text-sm">
-                        <MapPin className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">Location:</span>
-                        <span>{job.location}</span>
+                  <CardContent className="space-y-6 pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="p-2 rounded-md bg-primary/10 mt-0.5">
+                          <MapPin className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">Location</p>
+                          <p className="text-sm font-medium">{job.location}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Briefcase className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">Arrangement:</span>
-                        <Badge variant="outline">
-                          {job.workArrangement === 'on-site' ? 'On-site' : job.workArrangement === 'remote' ? 'Remote' : 'Hybrid'}
-                        </Badge>
+                      
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="p-2 rounded-md bg-primary/10 mt-0.5">
+                          <Briefcase className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">Work Arrangement</p>
+                          <Badge variant="outline">
+                            {job.workArrangement === 'on-site' ? 'On-site' : job.workArrangement === 'remote' ? 'Remote' : 'Hybrid'}
+                          </Badge>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Briefcase className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">Type:</span>
-                        <EmploymentTypeBadge type={job.employmentType} />
+                      
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="p-2 rounded-md bg-primary/10 mt-0.5">
+                          <Users className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">Employment Type</p>
+                          <EmploymentTypeBadge type={job.employmentType} />
+                        </div>
                       </div>
+                      
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="p-2 rounded-md bg-primary/10 mt-0.5">
+                          <Clock className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">Experience Level</p>
+                          <p className="text-sm font-medium">{formatExperienceLevel(job.experienceLevel)}</p>
+                        </div>
+                      </div>
+                      
                       {(job.salaryMin || job.salaryMax) && (
-                        <div className="space-y-2 col-span-2">
-                          <div className="flex items-center gap-2 text-sm">
-                            <DollarSign className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">Salary:</span>
-                            <span>{formatSalaryRange(job.salaryMin, job.salaryMax, job.salaryCurrency, job.salaryPeriod)}</span>
+                        <div className="md:col-span-2 flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors">
+                          <div className="p-2 rounded-md bg-primary/20 mt-0.5">
+                            <DollarSign className="h-4 w-4 text-primary" />
                           </div>
-                          
-                          {job.salaryDescription && (
-                            <div className="ml-6 text-sm bg-primary/10 border border-primary/20 rounded-md px-3 py-2">
-                              <p className="text-foreground italic">
-                                💰 {job.salaryDescription}
+                          <div className="flex-1">
+                            <p className="text-xs font-medium text-muted-foreground mb-1">Compensation</p>
+                            <p className="text-sm font-semibold mb-1">
+                              {formatSalaryRange(job.salaryMin, job.salaryMax, job.salaryCurrency, job.salaryPeriod)}
+                            </p>
+                            {job.salaryDescription && (
+                              <p className="text-sm text-muted-foreground italic">
+                                {job.salaryDescription}
                               </p>
-                            </div>
-                          )}
+                            )}
+                          </div>
                         </div>
                       )}
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">Experience:</span>
-                        <span>{formatExperienceLevel(job.experienceLevel)}</span>
+                      
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="p-2 rounded-md bg-primary/10 mt-0.5">
+                          <Eye className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">Visibility</p>
+                          <Badge variant="outline">{job.visibility}</Badge>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Eye className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">Visibility:</span>
-                        <Badge variant="outline">{job.visibility}</Badge>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Globe className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">Service:</span>
-                        <ServiceTypeBadge type={job.serviceType} />
-                        {!job.serviceType || job.serviceType === 'self-managed' ? (
-                          <span className="text-muted-foreground">Self-Managed</span>
-                        ) : null}
+                      
+                      <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="p-2 rounded-md bg-primary/10 mt-0.5">
+                          <Globe className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs font-medium text-muted-foreground mb-1">Service Type</p>
+                          <div className="flex items-center gap-2">
+                            <ServiceTypeBadge type={job.serviceType} />
+                            {!job.serviceType || job.serviceType === 'self-managed' ? (
+                              <span className="text-xs text-muted-foreground">Self-Managed</span>
+                            ) : null}
+                          </div>
+                        </div>
                       </div>
                     </div>
+                    
                     <Separator />
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Job Code</p>
-                      <p className="font-mono text-sm">{job.jobCode}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Posted</p>
-                      <p className="text-sm">{formatRelativeDate(job.postingDate)}</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-3 rounded-lg bg-muted/30">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Job Code</p>
+                        <p className="font-mono text-sm font-medium">{job.jobCode}</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-muted/30">
+                        <p className="text-xs font-medium text-muted-foreground mb-1">Posted</p>
+                        <p className="text-sm font-medium">{formatRelativeDate(job.postingDate)}</p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Description */}
-                <Card>
-                  <CardHeader>
+                {/* Enhanced Description */}
+                <Card className="border-l-4 border-l-blue-500/20">
+                  <CardHeader className="bg-blue-500/5">
                     <CardTitle>Description</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="pt-6">
                     <div 
-                      className="prose prose-sm max-w-none"
+                      className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-foreground/90 prose-strong:text-foreground prose-ul:text-foreground/90"
                       dangerouslySetInnerHTML={{ __html: job.description }}
                     />
                   </CardContent>
                 </Card>
 
-                {/* Requirements */}
-                <Card>
-                  <CardHeader>
+                {/* Enhanced Requirements */}
+                <Card className="border-l-4 border-l-green-500/20">
+                  <CardHeader className="bg-green-500/5">
                     <CardTitle>Requirements</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
+                  <CardContent className="pt-6">
+                    <ul className="space-y-3">
                       {job.requirements.map((req, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm">
-                          <span className="text-primary mt-1">•</span>
-                          <span>{req}</span>
+                        <li key={index} className="flex items-start gap-3 p-2 rounded-md hover:bg-muted/50 transition-colors">
+                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center mt-0.5">
+                            <span className="text-green-600 text-sm font-bold">✓</span>
+                          </span>
+                          <span className="text-sm leading-relaxed">{req}</span>
                         </li>
                       ))}
                     </ul>
                   </CardContent>
                 </Card>
 
-                {/* Responsibilities */}
-                <Card>
-                  <CardHeader>
+                {/* Enhanced Responsibilities */}
+                <Card className="border-l-4 border-l-purple-500/20">
+                  <CardHeader className="bg-purple-500/5">
                     <CardTitle>Responsibilities</CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
+                  <CardContent className="pt-6">
+                    <ul className="space-y-3">
                       {job.responsibilities.map((resp, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm">
-                          <span className="text-primary mt-1">•</span>
-                          <span>{resp}</span>
+                        <li key={index} className="flex items-start gap-3 p-2 rounded-md hover:bg-muted/50 transition-colors">
+                          <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-500/10 flex items-center justify-center mt-0.5">
+                            <span className="text-purple-600 text-sm">→</span>
+                          </span>
+                          <span className="text-sm leading-relaxed">{resp}</span>
                         </li>
                       ))}
                     </ul>
@@ -365,6 +472,7 @@ export default function JobDetail() {
             </Card>
           </TabsContent>
         </Tabs>
+        </div>
 
         <FormDrawer
           open={editDrawerOpen}
