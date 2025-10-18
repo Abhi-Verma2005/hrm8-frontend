@@ -130,13 +130,6 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
                   </Badge>
                 )}
 
-                {/* Selection Check Icon */}
-                {isSelected && !service.recommended && (
-                  <div className="absolute top-3 right-3">
-                    <Check className="h-5 w-5 text-primary" />
-                  </div>
-                )}
-
                 {/* Main Content - Horizontal Layout */}
                 <div className="flex flex-col lg:flex-row items-start gap-6">
                   
