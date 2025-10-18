@@ -157,7 +157,7 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
                   </div>
 
                   {/* Center: Price */}
-                  <div className="text-center lg:min-w-[140px] flex-shrink-0">
+                  <div className="text-center lg:min-w-[200px] flex-shrink-0">
                     <div className="text-3xl font-bold text-primary">
                       {service.price}
                     </div>
