@@ -2,9 +2,9 @@ import type { DashboardLayout } from './types';
 
 // This is kept for backward compatibility - now it's just an alias
 export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayout = {
-  id: 'jobs',
-  name: 'Jobs Dashboard',
-  dashboardType: 'jobs',
+  id: 'ats',
+  name: 'ATS Dashboard',
+  dashboardType: 'ats',
   widgets: [
     {
       id: 'stat-1',
