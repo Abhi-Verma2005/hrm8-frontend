@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Briefcase, Users, Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Briefcase, Users, Star, Check, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ServiceTypeSelectionDialogProps {
@@ -10,183 +11,196 @@ interface ServiceTypeSelectionDialogProps {
   onServiceTypeSelect: (serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search') => void;
 }
 
+const services = [
+  {
+    id: 'self-managed' as const,
+    name: 'Self-Managed',
+    price: 'FREE',
+    priceSubtext: 'Complete DIY',
+    description: 'Full control over your recruitment process',
+    features: [
+      'Complete platform access',
+      'All recruitment tools',
+      'Candidate sourcing',
+      'Interview management',
+      'Your own timeline'
+    ],
+    icon: Briefcase,
+    recommended: false,
+    accent: 'slate'
+  },
+  {
+    id: 'shortlisting' as const,
+    name: 'Shortlisting Service',
+    price: '$1,990',
+    priceSubtext: 'Per hire',
+    description: 'We find and screen the best candidates for you',
+    features: [
+      'Professional candidate sourcing',
+      'Resume screening & evaluation',
+      'Pre-qualified shortlist delivered',
+      'Detailed candidate reports',
+      'Quick turnaround time'
+    ],
+    icon: Users,
+    recommended: false,
+    accent: 'blue'
+  },
+  {
+    id: 'full-service' as const,
+    name: 'Full Service',
+    price: '$5,990',
+    priceSubtext: 'Per hire',
+    description: 'Complete recruitment from start to finish',
+    features: [
+      'End-to-end recruitment support',
+      'Interview coordination',
+      'Candidate assessment & testing',
+      'Offer negotiation support',
+      'Dedicated account manager'
+    ],
+    icon: Star,
+    recommended: true,
+    accent: 'primary'
+  },
+  {
+    id: 'executive-search' as const,
+    name: 'Executive Search',
+    price: 'From $9,990',
+    priceSubtext: 'Per hire',
+    description: 'Specialized search for leadership roles',
+    features: [
+      'Senior & C-level positions',
+      'Confidential search process',
+      'Market mapping & analysis',
+      'Executive assessment',
+      'Onboarding support'
+    ],
+    icon: Users,
+    recommended: false,
+    accent: 'gold'
+  }
+];
+
 export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: ServiceTypeSelectionDialogProps) {
-  const [selectedService, setSelectedService] = useState<'self-managed' | 'hrm8' | null>(null);
-  const [selectedHRM8Service, setSelectedHRM8Service] = useState<'shortlisting' | 'full-service' | 'executive-search' | null>(null);
+  const [selectedService, setSelectedService] = useState<'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | null>(null);
 
   const handleContinue = () => {
-    if (selectedService === 'self-managed') {
-      onServiceTypeSelect('self-managed');
-    } else if (selectedService === 'hrm8' && selectedHRM8Service) {
-      onServiceTypeSelect(selectedHRM8Service);
+    if (selectedService) {
+      onServiceTypeSelect(selectedService);
     }
   };
 
-  const canContinue = selectedService === 'self-managed' || (selectedService === 'hrm8' && selectedHRM8Service);
+  const selectedServiceDetails = services.find(s => s.id === selectedService);
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="max-w-3xl [&>button]:hidden">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">How would you like to manage this hire?</DialogTitle>
-          <DialogDescription>
-            Select the service type that best fits your hiring needs
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
+        <DialogHeader className="text-center space-y-3 pb-6">
+          <DialogTitle className="text-3xl font-bold">Choose Your Recruitment Service</DialogTitle>
+          <DialogDescription className="text-base">
+            Select the service that best fits your hiring needs. Compare pricing and features at a glance.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 pt-4">
-          {/* Main Service Type Selection */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Self-Managed */}
-            <Card
-              className={cn(
-                "p-6 cursor-pointer transition-all hover:border-primary border-2",
-                selectedService === 'self-managed' ? "border-primary bg-primary/5" : "border-border"
-              )}
-              onClick={() => {
-                setSelectedService('self-managed');
-                setSelectedHRM8Service(null);
-              }}
-            >
-              <div className="flex items-start gap-4">
-                <div className={cn(
-                  "p-3 rounded-lg",
-                  selectedService === 'self-managed' ? "bg-primary text-primary-foreground" : "bg-muted"
-                )}>
-                  <Briefcase className="h-6 w-6" />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-lg">Self-Managed</h3>
-                    {selectedService === 'self-managed' && (
-                      <Check className="h-5 w-5 text-primary" />
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Manage the entire hiring process yourself using our platform's tools and features
-                  </p>
-                  <ul className="text-sm text-muted-foreground space-y-1 mt-3">
-                    <li>• Full control over the process</li>
-                    <li>• Access to all platform features</li>
-                    <li>• Candidate sourcing and screening</li>
-                    <li>• Interview management</li>
-                  </ul>
-                </div>
-              </div>
-            </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
+          {services.map((service) => {
+            const Icon = service.icon;
+            const isSelected = selectedService === service.id;
+            
+            return (
+              <Card
+                key={service.id}
+                className={cn(
+                  "relative p-6 cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02]",
+                  isSelected 
+                    ? "border-2 border-primary bg-primary/5 shadow-md" 
+                    : "border-2 border-border hover:border-primary/50"
+                )}
+                onClick={() => setSelectedService(service.id)}
+              >
+                {/* Recommended Badge */}
+                {service.recommended && (
+                  <Badge 
+                    className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground"
+                  >
+                    <Star className="h-3 w-3 mr-1" />
+                    RECOMMENDED
+                  </Badge>
+                )}
 
-            {/* HRM8 Recruitment Services */}
-            <Card
-              className={cn(
-                "p-6 cursor-pointer transition-all hover:border-primary border-2",
-                selectedService === 'hrm8' ? "border-primary bg-primary/5" : "border-border"
-              )}
-              onClick={() => setSelectedService('hrm8')}
-            >
-              <div className="flex items-start gap-4">
-                <div className={cn(
-                  "p-3 rounded-lg",
-                  selectedService === 'hrm8' ? "bg-primary text-primary-foreground" : "bg-muted"
-                )}>
-                  <Users className="h-6 w-6" />
-                </div>
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-lg">HRM8 Recruitment Services</h3>
-                    {selectedService === 'hrm8' && (
-                      <Check className="h-5 w-5 text-primary" />
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Professional recruitment support from our expert team
-                  </p>
-                  <p className="text-sm font-medium text-foreground mt-3">
-                    Choose a service level:
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* HRM8 Service Sub-options */}
-          {selectedService === 'hrm8' && (
-            <div className="space-y-3 pl-4 border-l-2 border-primary/30 animate-in slide-in-from-left">
-              <h4 className="text-sm font-semibold text-muted-foreground">Select Service Level:</h4>
-              
-              <div className="space-y-2">
-                <Card
-                  className={cn(
-                    "p-4 cursor-pointer transition-all hover:border-primary border",
-                    selectedHRM8Service === 'shortlisting' ? "border-primary bg-primary/5" : "border-border"
-                  )}
-                  onClick={() => setSelectedHRM8Service('shortlisting')}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold">Shortlisting Service</h4>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        We source and screen candidates, delivering a qualified shortlist
-                      </p>
+                <div className="space-y-4">
+                  {/* Header with Icon and Title */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "p-3 rounded-lg",
+                        isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
+                      )}>
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold">{service.name}</h3>
+                        <p className="text-xs text-muted-foreground">{service.priceSubtext}</p>
+                      </div>
                     </div>
-                    {selectedHRM8Service === 'shortlisting' && (
-                      <Check className="h-5 w-5 text-primary flex-shrink-0 ml-4" />
+                    {isSelected && (
+                      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                        <Check className="h-4 w-4 text-primary-foreground" />
+                      </div>
                     )}
                   </div>
-                </Card>
 
-                <Card
-                  className={cn(
-                    "p-4 cursor-pointer transition-all hover:border-primary border",
-                    selectedHRM8Service === 'full-service' ? "border-primary bg-primary/5" : "border-border"
-                  )}
-                  onClick={() => setSelectedHRM8Service('full-service')}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold">Full Service</h4>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        End-to-end recruitment from sourcing to offer management
-                      </p>
-                    </div>
-                    {selectedHRM8Service === 'full-service' && (
-                      <Check className="h-5 w-5 text-primary flex-shrink-0 ml-4" />
-                    )}
+                  {/* Price */}
+                  <div className="py-2">
+                    <div className="text-4xl font-bold text-primary">{service.price}</div>
                   </div>
-                </Card>
 
-                <Card
-                  className={cn(
-                    "p-4 cursor-pointer transition-all hover:border-primary border",
-                    selectedHRM8Service === 'executive-search' ? "border-primary bg-primary/5" : "border-border"
-                  )}
-                  onClick={() => setSelectedHRM8Service('executive-search')}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-semibold">Executive Search</h4>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Specialized search for senior leadership and executive roles
-                      </p>
-                    </div>
-                    {selectedHRM8Service === 'executive-search' && (
-                      <Check className="h-5 w-5 text-primary flex-shrink-0 ml-4" />
-                    )}
+                  {/* Description */}
+                  <p className="text-sm text-muted-foreground min-h-[40px]">
+                    {service.description}
+                  </p>
+
+                  {/* Features */}
+                  <div className="space-y-2 pt-2">
+                    {service.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-foreground">{feature}</span>
+                      </div>
+                    ))}
                   </div>
-                </Card>
-              </div>
-            </div>
-          )}
 
-          {/* Action Button */}
-          <div className="flex justify-end pt-4">
-            <Button 
-              onClick={handleContinue} 
-              disabled={!canContinue}
-              size="lg"
-            >
-              Continue
-            </Button>
-          </div>
+                  {/* Select Button */}
+                  <Button
+                    variant={isSelected ? "default" : "outline"}
+                    className="w-full mt-4"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedService(service.id);
+                    }}
+                  >
+                    {isSelected ? "Selected" : "Select This Service"}
+                  </Button>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Bottom CTA */}
+        <div className="flex justify-center pt-6 border-t">
+          <Button 
+            onClick={handleContinue} 
+            disabled={!selectedService}
+            size="lg"
+            className="min-w-[320px] text-base h-12"
+          >
+            {selectedService 
+              ? `Continue with ${selectedServiceDetails?.name}` 
+              : 'Select a Service to Continue'}
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
