@@ -53,10 +53,9 @@ const services = [
     description: 'Complete recruitment from start to finish',
     features: [
       'End-to-end recruitment support',
-      'Interview coordination',
-      'Candidate assessment & testing',
-      'Offer negotiation support',
-      'Dedicated account manager'
+      'Candidate shortlisting',
+      'Interview & assessment coordination',
+      'Offer negotiation support'
     ],
     icon: Star,
     recommended: true,
