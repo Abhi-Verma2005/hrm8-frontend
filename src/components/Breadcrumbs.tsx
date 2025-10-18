@@ -16,6 +16,12 @@ interface RouteInfo {
 
 const routeMap: Record<string, string> = {
   dashboard: 'Dashboard',
+  overview: 'Overview',
+  financial: 'Financial',
+  activity: 'Activity',
+  ats: 'ATS',
+  hrms: 'HRMS',
+  services: 'Services',
   candidates: 'Candidates',
   jobs: 'Jobs',
   applications: 'Applications',

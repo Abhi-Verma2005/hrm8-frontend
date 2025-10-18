@@ -18,19 +18,12 @@ import {
   useSidebar 
 } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, LayoutDashboard } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { SidebarFooterContent } from "./SidebarFooterContent";
 import { useRecentRecords } from "@/hooks/useRecentRecords";
-import { ADMIN_MENU_SECTIONS, DASHBOARD_OPTIONS } from "@/lib/navigation/menuConfig";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { ADMIN_MENU_SECTIONS } from "@/lib/navigation/menuConfig";
 
 export function AppSidebar() {
   const location = useLocation();
@@ -40,11 +33,6 @@ export function AppSidebar() {
   
   // Compute visual state: show expanded when permanently open OR temporarily hovering
   const isExpanded = open || (!open && isHovering);
-  
-  // Get current dashboard from URL
-  const currentDashboard = DASHBOARD_OPTIONS.find(d => 
-    location.pathname.startsWith(d.url)
-  ) || DASHBOARD_OPTIONS[0];
   
   const isActive = (path: string) => {
     // Exact match first
@@ -94,56 +82,32 @@ export function AppSidebar() {
                   )}
                   <SidebarGroupContent>
                     <SidebarMenu>
-                      {/* Dashboard Dropdown */}
+                      {/* Dashboard Link */}
                       <SidebarMenuItem>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <SidebarMenuButton
-                              className={cn(
-                                "relative transition-all duration-200",
-                                "hover:bg-sidebar-accent/50",
-                                location.pathname.startsWith('/dashboard') && [
-                                  "bg-primary/10",
-                                  "text-primary",
-                                  "font-medium",
-                                  isExpanded && "border-l-4 border-primary"
-                                ]
-                              )}
-                            >
-                              <currentDashboard.icon className={cn(
-                                "h-5 w-5 transition-all",
-                                !isExpanded && "mx-auto"
-                              )} />
-                              {isExpanded && (
-                                <>
-                                  <span className="flex-1 text-left">Dashboard</span>
-                                  <ChevronDown className="h-4 w-4 opacity-50" />
-                                </>
-                              )}
-                            </SidebarMenuButton>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="start" className="w-56">
-                            {DASHBOARD_OPTIONS.map((dashboard) => {
-                              const Icon = dashboard.icon;
-                              return (
-                                <DropdownMenuItem key={dashboard.id} asChild>
-                                  <NavLink 
-                                    to={dashboard.url}
-                                    className="flex items-center gap-2 cursor-pointer"
-                                  >
-                                    <Icon className="h-4 w-4" />
-                                    <span>{dashboard.label}</span>
-                                    {dashboard.isNew && (
-                                      <Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">
-                                        NEW
-                                      </Badge>
-                                    )}
-                                  </NavLink>
-                                </DropdownMenuItem>
-                              );
-                            })}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <SidebarMenuButton 
+                          asChild 
+                          isActive={location.pathname.startsWith('/dashboard')}
+                          className={cn(
+                            "relative transition-all duration-200",
+                            "hover:bg-sidebar-accent/50",
+                            location.pathname.startsWith('/dashboard') && [
+                              "bg-primary/10",
+                              "text-primary",
+                              "font-medium",
+                              isExpanded && "border-l-4 border-primary"
+                            ]
+                          )}
+                        >
+                          <NavLink to="/dashboard/overview" className="flex items-center gap-3 w-full">
+                            <LayoutDashboard className={cn(
+                              "h-5 w-5 transition-all",
+                              !isExpanded && "mx-auto"
+                            )} />
+                            {isExpanded && (
+                              <span className="transition-opacity duration-200">Dashboard</span>
+                            )}
+                          </NavLink>
+                        </SidebarMenuButton>
                       </SidebarMenuItem>
 
                       {/* Other workspace items */}

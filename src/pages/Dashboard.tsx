@@ -140,7 +140,11 @@ export default function Dashboard() {
   };
   
   return (
-    <DashboardPageLayout>
+    <DashboardPageLayout 
+      breadcrumbActions={
+        <DashboardSelector currentDashboard={dashboardType} />
+      }
+    >
       <div className="min-h-screen bg-background">
         {/* Edit Mode Toolbar - Only shows in edit mode */}
         {isEditMode && (
@@ -160,15 +164,6 @@ export default function Dashboard() {
         
         {/* Main Dashboard Content */}
         <div className="p-6 space-y-6">
-        {/* Dashboard Selector with Edit Mode Toggle */}
-        <div className="flex items-center justify-between border-b border-border pb-4">
-          <DashboardSelector currentDashboard={dashboardType} />
-          <EditModeToggle
-            isEditMode={isEditMode}
-            onToggle={() => setIsEditMode(!isEditMode)}
-          />
-        </div>
-        
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
@@ -181,7 +176,7 @@ export default function Dashboard() {
             </p>
           </div>
           
-          {!isEditMode && (
+          {!isEditMode ? (
             <div className="flex items-center gap-3">
               <DateRangePicker
                 value={dateRange}
@@ -208,6 +203,11 @@ export default function Dashboard() {
                 Export
               </Button>
             </div>
+          ) : (
+            <EditModeToggle
+              isEditMode={isEditMode}
+              onToggle={() => setIsEditMode(!isEditMode)}
+            />
           )}
         </div>
         
