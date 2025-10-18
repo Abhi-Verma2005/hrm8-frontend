@@ -4,7 +4,7 @@ import { findEmptySpace } from '@/lib/dashboard/layoutUtils';
 import type { DashboardLayout, DashboardWidget } from '@/lib/dashboard/types';
 import type { DashboardType } from '@/lib/dashboard/dashboardTypes';
 
-export function useDashboardLayout(dashboardType: DashboardType = 'ats') {
+export function useDashboardLayout(dashboardType: DashboardType = 'jobs') {
   const storageKey = `dashboard_layout_${dashboardType}_v1`;
   
   const [layout, setLayout] = useState<DashboardLayout>(() => {

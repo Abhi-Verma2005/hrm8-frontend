@@ -1,7 +1,7 @@
-import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, Activity, UserCog, type LucideIcon } from "lucide-react";
+import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, type LucideIcon } from "lucide-react";
 import type { WidgetType } from "./widgetRegistry";
 
-export type DashboardType = 'overview' | 'financial' | 'activity' | 'ats' | 'hrms' | 'services';
+export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting';
 
 export interface DashboardMetadata {
   id: DashboardType;
@@ -15,7 +15,7 @@ export interface DashboardMetadata {
 export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
   overview: {
     id: 'overview',
-    name: 'Platform Overview',
+    name: 'Overview',
     description: 'Executive summary across all business areas',
     icon: LayoutGrid,
     defaultRoute: '/dashboard/overview',
@@ -31,46 +31,12 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
       'activity-feed'
     ]
   },
-  financial: {
-    id: 'financial',
-    name: 'Financial',
-    description: 'Track revenue, subscriptions, and financial health',
-    icon: DollarSign,
-    defaultRoute: '/dashboard/financial',
-    availableWidgets: [
-      'stat-total-revenue',
-      'stat-total-expenses',
-      'stat-profit-margin',
-      'stat-payroll-cost',
-      'chart-revenue-expense',
-      'chart-budget-analysis',
-      'chart-cost-breakdown',
-      'chart-payroll-trends',
-      'activity-feed'
-    ]
-  },
-  activity: {
-    id: 'activity',
-    name: 'Activity',
-    description: 'Monitor platform engagement and usage patterns',
-    icon: Activity,
-    defaultRoute: '/dashboard/activity',
-    availableWidgets: [
-      'stat-active-jobs',
-      'stat-total-candidates',
-      'stat-applications',
-      'stat-hired',
-      'chart-hiring-trends',
-      'chart-application-funnel',
-      'activity-feed'
-    ]
-  },
-  ats: {
-    id: 'ats',
-    name: 'ATS',
+  jobs: {
+    id: 'jobs',
+    name: 'Jobs',
     description: 'Track hiring pipeline and recruitment metrics',
     icon: Briefcase,
-    defaultRoute: '/dashboard/ats',
+    defaultRoute: '/dashboard/jobs',
     availableWidgets: [
       'stat-active-jobs',
       'stat-total-candidates',
@@ -101,12 +67,30 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
       'activity-feed'
     ]
   },
-  services: {
-    id: 'services',
-    name: 'Services',
-    description: 'Track recruitment services delivery and consultant performance',
-    icon: UserCog,
-    defaultRoute: '/dashboard/services',
+  financial: {
+    id: 'financial',
+    name: 'Financial',
+    description: 'Financial performance and HRMS cost analysis',
+    icon: DollarSign,
+    defaultRoute: '/dashboard/financial',
+    availableWidgets: [
+      'stat-total-revenue',
+      'stat-total-expenses',
+      'stat-profit-margin',
+      'stat-payroll-cost',
+      'chart-revenue-expense',
+      'chart-budget-analysis',
+      'chart-cost-breakdown',
+      'chart-payroll-trends',
+      'activity-feed'
+    ]
+  },
+  consulting: {
+    id: 'consulting',
+    name: 'Consulting',
+    description: 'Project pipeline and consulting operations',
+    icon: Handshake,
+    defaultRoute: '/dashboard/consulting',
     availableWidgets: [
       'stat-active-projects',
       'stat-total-clients',

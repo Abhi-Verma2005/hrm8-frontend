@@ -117,10 +117,10 @@ export const DEFAULT_OVERVIEW_LAYOUT: DashboardLayout = {
   updatedAt: new Date()
 };
 
-export const DEFAULT_ATS_LAYOUT: DashboardLayout = {
-  id: 'ats',
-  name: 'ATS Dashboard',
-  dashboardType: 'ats',
+export const DEFAULT_JOBS_LAYOUT: DashboardLayout = {
+  id: 'jobs',
+  name: 'Jobs Dashboard',
+  dashboardType: 'jobs',
   widgets: [
     {
       id: 'stat-1',
@@ -465,10 +465,10 @@ export const DEFAULT_FINANCIAL_LAYOUT: DashboardLayout = {
   updatedAt: new Date()
 };
 
-export const DEFAULT_SERVICES_LAYOUT: DashboardLayout = {
-  id: 'services',
-  name: 'Services Dashboard',
-  dashboardType: 'services',
+export const DEFAULT_CONSULTING_LAYOUT: DashboardLayout = {
+  id: 'consulting',
+  name: 'Consulting Dashboard',
+  dashboardType: 'consulting',
   widgets: [
     {
       id: 'stat-1',
@@ -583,9 +583,8 @@ export const DEFAULT_SERVICES_LAYOUT: DashboardLayout = {
 
 export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   overview: DEFAULT_OVERVIEW_LAYOUT,
-  ats: DEFAULT_ATS_LAYOUT,
+  jobs: DEFAULT_JOBS_LAYOUT,
   hrms: DEFAULT_HRMS_LAYOUT,
   financial: DEFAULT_FINANCIAL_LAYOUT,
-  activity: DEFAULT_OVERVIEW_LAYOUT, // Reuse overview for now
-  services: DEFAULT_SERVICES_LAYOUT
+  consulting: DEFAULT_CONSULTING_LAYOUT
 };

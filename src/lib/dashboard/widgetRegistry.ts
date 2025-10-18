@@ -79,7 +79,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
       trend: "up",
       variant: "neutral"
     },
-    allowedDashboards: ['ats', 'overview', 'activity']
+    allowedDashboards: ['jobs']
   },
   'stat-total-candidates': {
     id: 'stat-total-candidates',
@@ -98,7 +98,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
       trend: "up",
       variant: "success"
     },
-    allowedDashboards: ['ats', 'overview', 'activity']
+    allowedDashboards: ['jobs']
   },
   'stat-applications': {
     id: 'stat-applications',
@@ -117,7 +117,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
       trend: "up",
       variant: "primary"
     },
-    allowedDashboards: ['ats', 'overview', 'activity']
+    allowedDashboards: ['jobs']
   },
   'stat-hired': {
     id: 'stat-hired',
@@ -136,7 +136,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
       trend: "up",
       variant: "warning"
     },
-    allowedDashboards: ['ats', 'overview', 'activity']
+    allowedDashboards: ['jobs']
   },
   'chart-hiring-trends': {
     id: 'chart-hiring-trends',
@@ -148,7 +148,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 6, h: 2 },
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 4 },
-    allowedDashboards: ['ats', 'overview', 'activity']
+    allowedDashboards: ['jobs']
   },
   'chart-application-funnel': {
     id: 'chart-application-funnel',
@@ -160,7 +160,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 6, h: 2 },
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 4 },
-    allowedDashboards: ['ats', 'overview']
+    allowedDashboards: ['jobs']
   },
   'chart-job-distribution': {
     id: 'chart-job-distribution',
@@ -172,7 +172,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 6, h: 2 },
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 4 },
-    allowedDashboards: ['ats', 'overview']
+    allowedDashboards: ['jobs']
   },
   'chart-source-of-hire': {
     id: 'chart-source-of-hire',
@@ -184,7 +184,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 6, h: 2 },
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 4 },
-    allowedDashboards: ['ats', 'overview']
+    allowedDashboards: ['jobs']
   },
 
   // ===== HRMS WIDGETS =====
@@ -457,7 +457,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
       trend: "up",
       variant: "primary"
     },
-    allowedDashboards: ['services', 'overview']
+    allowedDashboards: ['consulting']
   },
   'stat-total-clients': {
     id: 'stat-total-clients',
@@ -476,7 +476,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
       trend: "up",
       variant: "success"
     },
-    allowedDashboards: ['services', 'overview']
+    allowedDashboards: ['consulting']
   },
   'stat-utilization-rate': {
     id: 'stat-utilization-rate',
@@ -495,7 +495,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
       trend: "up",
       variant: "success"
     },
-    allowedDashboards: ['services', 'overview']
+    allowedDashboards: ['consulting']
   },
   'stat-billable-hours': {
     id: 'stat-billable-hours',
@@ -514,7 +514,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
       trend: "up",
       variant: "primary"
     },
-    allowedDashboards: ['services', 'overview']
+    allowedDashboards: ['consulting']
   },
   'chart-project-pipeline': {
     id: 'chart-project-pipeline',
@@ -526,7 +526,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 6, h: 2 },
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 4 },
-    allowedDashboards: ['services', 'overview']
+    allowedDashboards: ['consulting']
   },
   'chart-client-distribution': {
     id: 'chart-client-distribution',
@@ -538,7 +538,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 6, h: 2 },
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 4 },
-    allowedDashboards: ['services', 'overview']
+    allowedDashboards: ['consulting']
   },
   'chart-resource-allocation': {
     id: 'chart-resource-allocation',
@@ -550,7 +550,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 6, h: 2 },
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 4 },
-    allowedDashboards: ['services', 'overview']
+    allowedDashboards: ['consulting']
   },
   'chart-revenue-forecast': {
     id: 'chart-revenue-forecast',
@@ -562,7 +562,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 6, h: 2 },
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 4 },
-    allowedDashboards: ['services', 'overview']
+    allowedDashboards: ['consulting']
   },
 
   // ===== SHARED WIDGETS =====
@@ -576,6 +576,6 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 12, h: 2 },
     minSize: { w: 6, h: 2 },
     maxSize: { w: 12, h: 4 },
-    allowedDashboards: ['ats', 'hrms', 'financial', 'services', 'overview', 'activity']
+    allowedDashboards: ['jobs', 'hrms', 'financial', 'consulting']
   },
 };
