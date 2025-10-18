@@ -27,12 +27,17 @@ export const scrollToTop = (behavior: ScrollBehavior = 'smooth') => {
           behavior,
         });
         
-        // Extra safety: verify scroll happened
-        setTimeout(() => {
+        // Multiple verification checks to ensure scroll stays at top
+        const verifyScroll = () => {
           if (mainContent.scrollTop > 10) {
             mainContent.scrollTo({ top: 0, left: 0, behavior: 'auto' });
           }
-        }, 100);
+        };
+        
+        // Check at multiple intervals to catch late-initializing components
+        setTimeout(verifyScroll, 50);
+        setTimeout(verifyScroll, 100);
+        setTimeout(verifyScroll, 200);
       } else {
         // Fallback for non-sidebar layouts
         window.scrollTo({

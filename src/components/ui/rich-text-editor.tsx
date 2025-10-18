@@ -50,6 +50,7 @@ export function RichTextEditor({
       }),
     ],
     content,
+    autofocus: false,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
@@ -72,7 +73,7 @@ export function RichTextEditor({
         <Toggle
           size="sm"
           pressed={editor.isActive('bold')}
-          onPressedChange={() => editor.chain().focus().toggleBold().run()}
+          onPressedChange={() => editor.chain().toggleBold().run()}
         >
           <Bold className="h-4 w-4" />
         </Toggle>
@@ -80,7 +81,7 @@ export function RichTextEditor({
         <Toggle
           size="sm"
           pressed={editor.isActive('italic')}
-          onPressedChange={() => editor.chain().focus().toggleItalic().run()}
+          onPressedChange={() => editor.chain().toggleItalic().run()}
         >
           <Italic className="h-4 w-4" />
         </Toggle>
@@ -88,7 +89,7 @@ export function RichTextEditor({
         <Toggle
           size="sm"
           pressed={editor.isActive('underline')}
-          onPressedChange={() => editor.chain().focus().toggleUnderline().run()}
+          onPressedChange={() => editor.chain().toggleUnderline().run()}
         >
           <UnderlineIcon className="h-4 w-4" />
         </Toggle>
@@ -98,7 +99,7 @@ export function RichTextEditor({
         <Toggle
           size="sm"
           pressed={editor.isActive('heading', { level: 2 })}
-          onPressedChange={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          onPressedChange={() => editor.chain().toggleHeading({ level: 2 }).run()}
         >
           <Heading2 className="h-4 w-4" />
         </Toggle>
@@ -108,7 +109,7 @@ export function RichTextEditor({
         <Toggle
           size="sm"
           pressed={editor.isActive('bulletList')}
-          onPressedChange={() => editor.chain().focus().toggleBulletList().run()}
+          onPressedChange={() => editor.chain().toggleBulletList().run()}
         >
           <List className="h-4 w-4" />
         </Toggle>
@@ -116,7 +117,7 @@ export function RichTextEditor({
         <Toggle
           size="sm"
           pressed={editor.isActive('orderedList')}
-          onPressedChange={() => editor.chain().focus().toggleOrderedList().run()}
+          onPressedChange={() => editor.chain().toggleOrderedList().run()}
         >
           <ListOrdered className="h-4 w-4" />
         </Toggle>
@@ -129,7 +130,7 @@ export function RichTextEditor({
           onClick={() => {
             const url = window.prompt('Enter URL:');
             if (url) {
-              editor.chain().focus().setLink({ href: url }).run();
+              editor.chain().setLink({ href: url }).run();
             }
           }}
           className={editor.isActive('link') ? 'bg-secondary' : ''}

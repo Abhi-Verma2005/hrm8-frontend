@@ -43,7 +43,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
     // Increased delay to ensure complex forms are fully rendered
     const timeoutId = setTimeout(() => {
       scrollToTop('smooth');
-    }, 50);
+    }, 150);
     
     return () => clearTimeout(timeoutId);
   }, [step]);
