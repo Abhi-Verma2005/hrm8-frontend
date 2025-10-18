@@ -36,7 +36,7 @@ const services = [
     priceSubtext: 'Per hire',
     description: 'We find and screen the best candidates for you',
     features: [
-      'Job description and posting configuration',
+      'Job posting configuration',
       'Job board advertising plan',
       'Applicant screening and evaluation',
       'Prequalified shortlist delivered'
