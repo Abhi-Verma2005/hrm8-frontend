@@ -66,8 +66,8 @@ const services = [
   {
     id: 'executive-search' as const,
     name: 'Executive Search',
-    price: 'From $9,990',
-    priceSubtext: 'Per hire',
+    price: '$9,990 | $14,990',
+    priceSubtext: '≤$100k | >$100k salary',
     description: 'Specialized search for leadership roles',
     features: [
       'Senior & C-level positions',
