@@ -24,6 +24,7 @@ import { toast } from "@/hooks/use-toast";
 import { saveJob } from "@/lib/mockJobStorage";
 import { generateJobCode } from "@/lib/jobUtils";
 import { getEmployerById } from "@/lib/employerService";
+import { scrollToTop } from "@/lib/utils";
 
 interface JobWizardProps {
   serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
@@ -40,11 +41,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'smooth'
-      });
+      scrollToTop('smooth');
     }, 0);
     
     return () => clearTimeout(timeoutId);
