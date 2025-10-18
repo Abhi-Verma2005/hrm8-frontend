@@ -35,16 +35,34 @@ export function AppSidebar() {
   const isExpanded = open || (!open && isHovering);
   
   const isActive = (path: string) => {
-    // Exact match first
-    if (location.pathname === path) return true;
+    const currentPath = location.pathname;
     
-    // For parent routes, check if current path starts with the route
-    // But exclude dashboard routes from prefix matching to avoid conflicts
-    if (!path.startsWith('/dashboard')) {
-      return location.pathname.startsWith(path + '/');
+    // Exact match first
+    if (currentPath === path) return true;
+    
+    // For dashboard routes, only match child routes (with trailing slash)
+    // This prevents /dashboard/overview from activating other dashboard items
+    if (path.startsWith('/dashboard')) {
+      return currentPath.startsWith(path + '/');
     }
     
-    return false;
+    // For non-dashboard routes, match if current path is a child route
+    // e.g., /jobs matches /jobs/123
+    return currentPath.startsWith(path + '/');
+  };
+
+  const shouldShowAsActive = (itemUrl: string, itemTitle: string) => {
+    // If this item uses a placeholder dashboard URL and is not the Dashboard item itself
+    if (itemUrl === '/dashboard/overview' && itemTitle !== 'Dashboard') {
+      return false; // Don't show placeholder items as active
+    }
+    
+    return isActive(itemUrl);
+  };
+
+  const isDashboardActive = () => {
+    // Only consider Dashboard active if we're on a dashboard route
+    return location.pathname.startsWith('/dashboard');
   };
   
   return (
@@ -86,11 +104,11 @@ export function AppSidebar() {
                       <SidebarMenuItem>
                         <SidebarMenuButton 
                           asChild 
-                          isActive={location.pathname.startsWith('/dashboard')}
+                          isActive={isDashboardActive()}
                           className={cn(
                             "relative transition-all duration-200",
                             "hover:bg-sidebar-accent/50",
-                            location.pathname.startsWith('/dashboard') && [
+                            isDashboardActive() && [
                               "bg-primary/10",
                               "text-primary",
                               "font-medium",
@@ -115,11 +133,11 @@ export function AppSidebar() {
                         <SidebarMenuItem key={item.title}>
                           <SidebarMenuButton 
                             asChild 
-                            isActive={isActive(item.url)}
+                            isActive={shouldShowAsActive(item.url, item.title)}
                             className={cn(
                               "relative transition-all duration-200",
                               "hover:bg-sidebar-accent/50",
-                              isActive(item.url) && [
+                              shouldShowAsActive(item.url, item.title) && [
                                 "bg-primary/10",
                                 "text-primary",
                                 "font-medium",
@@ -176,11 +194,11 @@ export function AppSidebar() {
                           <SidebarMenuItem key={item.title}>
                             <SidebarMenuButton 
                               asChild 
-                              isActive={isActive(item.url)}
+                              isActive={shouldShowAsActive(item.url, item.title)}
                               className={cn(
                                 "relative transition-all duration-200",
                                 "hover:bg-sidebar-accent/50",
-                                isActive(item.url) && [
+                                shouldShowAsActive(item.url, item.title) && [
                                   "bg-primary/10",
                                   "text-primary",
                                   "font-medium",
