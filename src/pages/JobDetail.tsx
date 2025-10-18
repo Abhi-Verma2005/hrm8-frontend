@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
@@ -32,16 +33,73 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FormDrawer } from "@/components/ui/form-drawer";
+import { JobWizard } from "@/components/jobs/JobWizard";
 
 export default function JobDetail() {
   const { jobId } = useParams();
   const job = jobId ? getJobById(jobId) : null;
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   if (!job) {
     return <Navigate to="/jobs" replace />;
   }
 
   const activities = mockJobActivities.filter(a => a.jobId === job.id);
+
+  const handleEditJob = () => {
+    setEditDrawerOpen(true);
+  };
+
+  const handleJobSuccess = () => {
+    setEditDrawerOpen(false);
+    setRefreshKey(prev => prev + 1);
+    // Optionally reload job data or use the refreshKey to trigger re-render
+  };
+
+  const handleDrawerClose = () => {
+    setEditDrawerOpen(false);
+  };
+
+  const editingJobData = {
+    postAsHRM8: job.employerId === "hrm8-platform",
+    employerId: job.employerId,
+    title: job.title,
+    department: job.department,
+    location: job.location,
+    employmentType: job.employmentType,
+    experienceLevel: job.experienceLevel,
+    workArrangement: job.workArrangement,
+    tags: job.tags,
+    description: job.description,
+    requirements: job.requirements,
+    responsibilities: job.responsibilities,
+    salaryMin: job.salaryMin,
+    salaryMax: job.salaryMax,
+    salaryCurrency: job.salaryCurrency,
+    salaryPeriod: job.salaryPeriod || 'annual',
+    salaryDescription: job.salaryDescription,
+    hideSalary: false,
+    closeDate: job.closeDate,
+    visibility: job.visibility,
+    stealth: job.stealth,
+    hiringTeam: job.hiringTeam || [],
+    applicationForm: job.applicationForm || {
+      id: `form-${Date.now()}`,
+      name: "Application Form",
+      questions: [],
+      includeStandardFields: {
+        resume: { included: true, required: true },
+        coverLetter: { included: false, required: false },
+        portfolio: { included: false, required: false },
+        linkedIn: { included: false, required: false },
+        website: { included: false, required: false },
+      },
+    },
+    status: job.status === 'closed' || job.status === 'filled' || job.status === 'on-hold' ? 'draft' : job.status,
+    jobBoardDistribution: job.jobBoardDistribution,
+  };
 
   return (
     <DashboardPageLayout>
@@ -68,11 +126,9 @@ export default function JobDetail() {
             </div>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" asChild>
-              <Link to={`/jobs/${job.id}/edit`}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </Link>
+            <Button variant="outline" onClick={handleEditJob}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -293,11 +349,9 @@ export default function JobDetail() {
                 <CardTitle>Job Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <Button variant="outline" asChild className="w-full justify-start">
-                  <Link to={`/jobs/${job.id}/edit`}>
-                    <Edit className="h-4 w-4 mr-2" />
-                    Edit Job Details
-                  </Link>
+                <Button variant="outline" onClick={handleEditJob} className="w-full justify-start">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Job Details
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
                   <Archive className="h-4 w-4 mr-2" />
@@ -311,6 +365,23 @@ export default function JobDetail() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <FormDrawer
+          open={editDrawerOpen}
+          onOpenChange={handleDrawerClose}
+          title="Edit Job"
+          description="Update the job posting details"
+          width="xl"
+        >
+          <JobWizard
+            key={refreshKey}
+            jobId={jobId}
+            defaultValues={editingJobData}
+            onSuccess={handleJobSuccess}
+            onCancel={handleDrawerClose}
+            embedded
+          />
+        </FormDrawer>
       </div>
     </DashboardPageLayout>
   );
