@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 interface ServiceTypeSelectionDialogProps {
   open: boolean;
   onServiceTypeSelect: (serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search') => void;
+  onCancel?: () => void;
 }
 
 const services = [
@@ -80,7 +81,7 @@ const services = [
   }
 ];
 
-export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: ServiceTypeSelectionDialogProps) {
+export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect, onCancel }: ServiceTypeSelectionDialogProps) {
   const [selectedService, setSelectedService] = useState<'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | null>(null);
 
   const handleContinue = () => {
@@ -209,7 +210,15 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
         </div>
 
         {/* Bottom CTA */}
-        <div className="flex justify-center pt-6 border-t">
+        <div className="flex justify-center gap-3 pt-6 border-t">
+          <Button 
+            onClick={onCancel}
+            variant="outline"
+            size="lg"
+            className="min-w-[150px] text-base h-12"
+          >
+            Cancel
+          </Button>
           <Button 
             onClick={handleContinue} 
             disabled={!selectedService}
