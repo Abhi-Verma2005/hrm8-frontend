@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Job, JobFormData } from "@/types/job";
@@ -37,6 +37,10 @@ interface JobWizardProps {
 export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCancel, embedded = false }: JobWizardProps) {
   const [step, setStep] = useState(1);
   const [previewOpen, setPreviewOpen] = useState(false);
+  
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
   
   const form = useForm<JobFormData>({
     resolver: zodResolver(jobFormSchema),
