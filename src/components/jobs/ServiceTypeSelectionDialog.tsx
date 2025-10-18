@@ -138,7 +138,7 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
                 )}
 
                 {/* Main Content - Horizontal Layout */}
-                <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
+                <div className="flex flex-col lg:flex-row items-start gap-6">
                   
                   {/* Left: Icon + Name + Description */}
                   <div className="flex items-start gap-4 flex-1 min-w-0">
