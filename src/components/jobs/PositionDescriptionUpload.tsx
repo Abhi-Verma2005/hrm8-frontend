@@ -141,8 +141,9 @@ export const PositionDescriptionUpload = forwardRef<HTMLDivElement, PositionDesc
   };
 
   return (
-    <FormItem ref={ref}>
-      <FormLabel>Position Description (Optional)</FormLabel>
+    <div className="pt-6 border-t">
+      <h3 className="text-lg font-semibold mb-4">Position Description (Optional)</h3>
+      <FormItem ref={ref}>
       
       {!uploadedFile ? (
         <div
@@ -230,7 +231,8 @@ export const PositionDescriptionUpload = forwardRef<HTMLDivElement, PositionDesc
       <FormDescription>
         Upload a position description for AI to extract job details automatically
       </FormDescription>
-    </FormItem>
+      </FormItem>
+    </div>
   );
 });
 
