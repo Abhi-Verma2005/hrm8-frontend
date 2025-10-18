@@ -58,6 +58,12 @@ export function RichTextEditor({
       attributes: {
         class: 'prose prose-sm max-w-none focus:outline-none min-h-[200px] px-3 py-2',
       },
+      // Prevent editor from scrolling into view on mount
+      handleDOMEvents: {
+        focus: () => {
+          return false;
+        },
+      },
     },
   });
 

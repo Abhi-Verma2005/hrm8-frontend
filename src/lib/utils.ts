@@ -38,6 +38,8 @@ export const scrollToTop = (behavior: ScrollBehavior = 'smooth') => {
         setTimeout(verifyScroll, 50);
         setTimeout(verifyScroll, 100);
         setTimeout(verifyScroll, 200);
+        setTimeout(verifyScroll, 300);
+        setTimeout(verifyScroll, 400);
       } else {
         // Fallback for non-sidebar layouts
         window.scrollTo({
