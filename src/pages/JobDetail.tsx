@@ -149,11 +149,13 @@ export default function JobDetail() {
                 <JobStatusBadge status={job.status} />
               </div>
               <p className="text-muted-foreground mb-4">{job.employerName}</p>
-              <JobQuickStats 
-                applicantsCount={job.applicantsCount}
-                viewsCount={job.viewsCount}
-                postingDate={job.postingDate}
-              />
+              <div className="-ml-1">
+                <JobQuickStats 
+                  applicantsCount={job.applicantsCount}
+                  viewsCount={job.viewsCount}
+                  postingDate={job.postingDate}
+                />
+              </div>
             </div>
           </div>
           <div className="flex gap-2">
