@@ -81,13 +81,6 @@ export function JobWizardStep1({
         </Button>
       </div>
 
-      <PositionDescriptionUpload 
-        form={form}
-        onFileProcessed={(text) => {
-          form.setValue("positionDescriptionText", text);
-        }}
-      />
-
       <div className="grid grid-cols-1 md:grid-cols-[1fr,auto] gap-4 items-start">
         <FormField control={form.control} name="employerId" render={({
         field
@@ -452,6 +445,13 @@ export function JobWizardStep1({
             </div>}
         </div>
       </div>
+
+      <PositionDescriptionUpload 
+        form={form}
+        onFileProcessed={(text) => {
+          form.setValue("positionDescriptionText", text);
+        }}
+      />
 
       {/* Add Department Dialog */}
       <AddDepartmentDialog open={departmentDialogOpen} onOpenChange={setDepartmentDialogOpen} onAdd={handleAddDepartment} employerName={selectedEmployer?.name} />
