@@ -36,11 +36,10 @@ const services = [
     priceSubtext: 'Per hire',
     description: 'We find and screen the best candidates for you',
     features: [
-      'Professional candidate sourcing',
-      'Resume screening & evaluation',
-      'Pre-qualified shortlist delivered',
-      'Detailed candidate reports',
-      'Quick turnaround time'
+      'Job description and posting configuration',
+      'Job board advertising plan',
+      'Applicant screening and evaluation',
+      'Prequalified shortlist delivered'
     ],
     icon: Users,
     recommended: false,
