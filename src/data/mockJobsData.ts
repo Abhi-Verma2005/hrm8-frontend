@@ -5,7 +5,7 @@ export const mockJobs: Job[] = [
     id: '1',
     employerId: 'emp-1',
     employerName: 'TechCorp Solutions',
-    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=TechCorp',
+    employerLogo: '/src/assets/logo-light.png',
     createdBy: 'admin-1',
     createdByName: 'Admin User',
     title: 'Senior Full Stack Developer',
