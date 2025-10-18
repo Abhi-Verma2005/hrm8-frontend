@@ -395,7 +395,7 @@ export default function Jobs() {
           onOpenChange={handleDrawerClose}
           title={editingJobId ? "Edit Job" : "Create Job"}
           description={editingJobId ? "Update the job posting details" : "Fill in the details to create a new job posting"}
-          width="xl"
+          width="2xl"
         >
           <JobWizard
             key={editingJobId || 'new'}

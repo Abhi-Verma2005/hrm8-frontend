@@ -17,7 +17,7 @@ interface FormDrawerProps {
   title: string;
   description?: string;
   children: React.ReactNode;
-  width?: "sm" | "md" | "lg" | "xl" | "full";
+  width?: "sm" | "md" | "lg" | "xl" | "2xl" | "full";
   showCloseButton?: boolean;
 }
 
@@ -25,7 +25,8 @@ const widthClasses = {
   sm: "sm:max-w-md",
   md: "sm:max-w-lg",
   lg: "sm:max-w-2xl lg:max-w-4xl",
-  xl: "sm:max-w-3xl lg:max-w-5xl",
+  xl: "sm:max-w-4xl lg:max-w-6xl",
+  "2xl": "sm:max-w-5xl lg:max-w-7xl",
   full: "sm:max-w-full",
 };
 
@@ -44,7 +45,7 @@ export function FormDrawer({
         side="right"
         className={cn("w-full p-0 flex flex-col", widthClasses[width])}
       >
-        <div className="sticky top-0 z-10 bg-background border-b px-6 py-4">
+        <div className="sticky top-0 z-10 bg-background border-b px-8 py-4 lg:px-12">
           <SheetHeader>
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -69,7 +70,7 @@ export function FormDrawer({
         </div>
         
         <ScrollArea className="flex-1">
-          <div className="p-6">{children}</div>
+          <div className="p-8 lg:px-12 lg:py-8">{children}</div>
         </ScrollArea>
       </SheetContent>
     </Sheet>

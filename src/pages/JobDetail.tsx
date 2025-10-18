@@ -371,7 +371,7 @@ export default function JobDetail() {
           onOpenChange={handleDrawerClose}
           title="Edit Job"
           description="Update the job posting details"
-          width="xl"
+          width="2xl"
         >
           <JobWizard
             key={refreshKey}
