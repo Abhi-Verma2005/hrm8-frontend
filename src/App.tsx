@@ -5,8 +5,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useGlobalKeyboardShortcuts, useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { DashboardLayout } from "./components/layouts/DashboardLayout";
-import Index from "./pages/Index";
-import Components from "./pages/Components";
 import Dashboard from "./pages/Dashboard";
 import Candidates from "./pages/Candidates";
 import Jobs from "./pages/Jobs";
@@ -37,9 +35,8 @@ function AppContent() {
 
   return (
     <Routes>
-          {/* Public routes (no sidebar) */}
-          <Route path="/" element={<Index />} />
-          <Route path="/components" element={<Components />} />
+          {/* Redirect root to dashboard */}
+          <Route path="/" element={<Navigate to="/dashboard/overview" replace />} />
           
           {/* Dashboard routes (with sidebar) */}
           <Route element={<DashboardLayout />}>
