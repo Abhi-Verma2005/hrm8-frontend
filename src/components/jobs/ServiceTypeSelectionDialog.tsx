@@ -198,7 +198,7 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect }: Servic
                   </div>
 
                   {/* Right: Features */}
-                  <div className="flex-1 lg:max-w-[280px] w-full">
+                  <div className="flex-1 lg:max-w-[280px] w-full lg:pl-8">
                     <div className="grid grid-cols-1 gap-1.5">
                       {service.features.slice(0, 4).map((feature, idx) => (
                         <div key={idx} className="flex items-start gap-2">
