@@ -127,16 +127,16 @@ export default function JobDetail() {
                       if (parent) {
                         e.currentTarget.style.display = 'none';
                         const placeholder = document.createElement('div');
-                        placeholder.className = 'h-full w-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5';
-                        placeholder.innerHTML = `<span class="text-2xl font-bold text-primary">${job.employerName.substring(0, 2).toUpperCase()}</span>`;
+                        placeholder.className = 'h-full w-full flex items-center justify-center bg-blue-600';
+                        placeholder.innerHTML = `<span class="text-xl font-bold text-white">LOGO</span>`;
                         parent.appendChild(placeholder);
                       }
                     }}
                   />
                 ) : (
-                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-                    <span className="text-2xl font-bold text-primary">
-                      {job.employerName.substring(0, 2).toUpperCase()}
+                  <div className="h-full w-full flex items-center justify-center bg-blue-600">
+                    <span className="text-xl font-bold text-white">
+                      LOGO
                     </span>
                   </div>
                 )}
