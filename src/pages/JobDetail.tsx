@@ -116,15 +116,30 @@ export default function JobDetail() {
             
             {/* Company Logo with 16:9 AspectRatio */}
             <div className="flex-shrink-0 w-[120px]">
-              <div className="w-full aspect-[16/9] rounded-lg border-2 border-border bg-card overflow-hidden shadow-sm">
-                <img 
-                  src={job.employerLogo || `/placeholder.svg`}
-                  alt={`${job.employerName} logo`}
-                  className="h-full w-full object-contain p-2"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
+              <div className="w-full aspect-[16/9] border border-gray-200 dark:border-gray-800 bg-card overflow-hidden shadow-sm">
+                {job.employerLogo ? (
+                  <img 
+                    src={job.employerLogo}
+                    alt={`${job.employerName} logo`}
+                    className="h-full w-full object-contain p-2"
+                    onError={(e) => {
+                      const parent = e.currentTarget.parentElement;
+                      if (parent) {
+                        e.currentTarget.style.display = 'none';
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'h-full w-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5';
+                        placeholder.innerHTML = `<span class="text-2xl font-bold text-primary">${job.employerName.substring(0, 2).toUpperCase()}</span>`;
+                        parent.appendChild(placeholder);
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
+                    <span className="text-2xl font-bold text-primary">
+                      {job.employerName.substring(0, 2).toUpperCase()}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
             
