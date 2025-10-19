@@ -38,15 +38,55 @@ interface JobWizardProps {
 export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCancel, embedded = false }: JobWizardProps) {
   const [step, setStep] = useState(1);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [scrollLocked, setScrollLocked] = useState(false);
   
   useEffect(() => {
-    // Extra scroll after render completes to catch any late-mounting components
+    // Lock scroll position for 600ms to prevent any component from scrolling
+    setScrollLocked(true);
+    
+    // Immediate scroll to top
+    const mainContent = document.getElementById('main-scroll-container');
+    if (mainContent) {
+      mainContent.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+    
+    // Aggressive verification checks
     const timeoutId = setTimeout(() => {
       scrollToTop('smooth');
     }, 100);
     
-    return () => clearTimeout(timeoutId);
+    // Unlock scroll after 600ms (covers TipTap initialization)
+    const unlockTimeoutId = setTimeout(() => {
+      setScrollLocked(false);
+    }, 600);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      clearTimeout(unlockTimeoutId);
+    };
   }, [step]);
+
+  // Add scroll lock effect
+  useEffect(() => {
+    if (!scrollLocked) return;
+    
+    const mainContent = document.getElementById('main-scroll-container');
+    if (!mainContent) return;
+    
+    const handleScroll = (e: Event) => {
+      // During scroll lock, force scroll position to stay at top
+      if (mainContent.scrollTop > 5) {
+        e.preventDefault();
+        mainContent.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+      }
+    };
+    
+    mainContent.addEventListener('scroll', handleScroll, { passive: false });
+    
+    return () => {
+      mainContent.removeEventListener('scroll', handleScroll);
+    };
+  }, [scrollLocked]);
   
   const form = useForm<JobFormData>({
     resolver: zodResolver(jobFormSchema),

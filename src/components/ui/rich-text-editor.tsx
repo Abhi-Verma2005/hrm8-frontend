@@ -72,88 +72,93 @@ export function RichTextEditor({
   }
 
   return (
-    <div className={cn("border rounded-md", className)}>
-      {/* Toolbar */}
-      <div className="border-b bg-secondary/10 p-2 flex flex-wrap gap-1 items-center justify-between">
-        <div className="flex flex-wrap gap-1">{/*... keep existing code*/}
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('bold')}
-          onPressedChange={() => editor.chain().toggleBold().run()}
-        >
-          <Bold className="h-4 w-4" />
-        </Toggle>
-        
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('italic')}
-          onPressedChange={() => editor.chain().toggleItalic().run()}
-        >
-          <Italic className="h-4 w-4" />
-        </Toggle>
-        
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('underline')}
-          onPressedChange={() => editor.chain().toggleUnderline().run()}
-        >
-          <UnderlineIcon className="h-4 w-4" />
-        </Toggle>
+    <div 
+      className="space-y-2"
+      style={{ scrollMarginTop: '100vh' }}
+    >
+      <div className={cn("border rounded-md", className)}>
+        {/* Toolbar */}
+        <div className="border-b bg-secondary/10 p-2 flex flex-wrap gap-1 items-center justify-between">
+          <div className="flex flex-wrap gap-1">{/*... keep existing code*/}
+          <Toggle
+            size="sm"
+            pressed={editor.isActive('bold')}
+            onPressedChange={() => editor.chain().toggleBold().run()}
+          >
+            <Bold className="h-4 w-4" />
+          </Toggle>
+          
+          <Toggle
+            size="sm"
+            pressed={editor.isActive('italic')}
+            onPressedChange={() => editor.chain().toggleItalic().run()}
+          >
+            <Italic className="h-4 w-4" />
+          </Toggle>
+          
+          <Toggle
+            size="sm"
+            pressed={editor.isActive('underline')}
+            onPressedChange={() => editor.chain().toggleUnderline().run()}
+          >
+            <UnderlineIcon className="h-4 w-4" />
+          </Toggle>
 
-        <div className="w-px h-6 bg-border mx-1" />
-        
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('heading', { level: 2 })}
-          onPressedChange={() => editor.chain().toggleHeading({ level: 2 }).run()}
-        >
-          <Heading2 className="h-4 w-4" />
-        </Toggle>
-        
-        <div className="w-px h-6 bg-border mx-1" />
-        
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('bulletList')}
-          onPressedChange={() => editor.chain().toggleBulletList().run()}
-        >
-          <List className="h-4 w-4" />
-        </Toggle>
-        
-        <Toggle
-          size="sm"
-          pressed={editor.isActive('orderedList')}
-          onPressedChange={() => editor.chain().toggleOrderedList().run()}
-        >
-          <ListOrdered className="h-4 w-4" />
-        </Toggle>
+          <div className="w-px h-6 bg-border mx-1" />
+          
+          <Toggle
+            size="sm"
+            pressed={editor.isActive('heading', { level: 2 })}
+            onPressedChange={() => editor.chain().toggleHeading({ level: 2 }).run()}
+          >
+            <Heading2 className="h-4 w-4" />
+          </Toggle>
+          
+          <div className="w-px h-6 bg-border mx-1" />
+          
+          <Toggle
+            size="sm"
+            pressed={editor.isActive('bulletList')}
+            onPressedChange={() => editor.chain().toggleBulletList().run()}
+          >
+            <List className="h-4 w-4" />
+          </Toggle>
+          
+          <Toggle
+            size="sm"
+            pressed={editor.isActive('orderedList')}
+            onPressedChange={() => editor.chain().toggleOrderedList().run()}
+          >
+            <ListOrdered className="h-4 w-4" />
+          </Toggle>
 
-        <div className="w-px h-6 bg-border mx-1" />
-        
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => {
-            const url = window.prompt('Enter URL:');
-            if (url) {
-              editor.chain().setLink({ href: url }).run();
-            }
-          }}
-          className={editor.isActive('link') ? 'bg-secondary' : ''}
-        >
-          <LinkIcon className="h-4 w-4" />
-        </Button>
-        </div>
-        
-        {toolbarActions && (
-          <div className="ml-auto">
-            {toolbarActions}
+          <div className="w-px h-6 bg-border mx-1" />
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              const url = window.prompt('Enter URL:');
+              if (url) {
+                editor.chain().setLink({ href: url }).run();
+              }
+            }}
+            className={editor.isActive('link') ? 'bg-secondary' : ''}
+          >
+            <LinkIcon className="h-4 w-4" />
+          </Button>
           </div>
-        )}
-      </div>
+          
+          {toolbarActions && (
+            <div className="ml-auto">
+              {toolbarActions}
+            </div>
+          )}
+        </div>
 
-      {/* Editor Content */}
-      <EditorContent editor={editor} />
+        {/* Editor Content */}
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }

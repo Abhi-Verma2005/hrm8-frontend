@@ -34,12 +34,14 @@ export const scrollToTop = (behavior: ScrollBehavior = 'smooth') => {
           }
         };
         
-        // Check at multiple intervals to catch late-initializing components
+        // Extended verification checks to cover TipTap initialization
         setTimeout(verifyScroll, 50);
         setTimeout(verifyScroll, 100);
         setTimeout(verifyScroll, 200);
         setTimeout(verifyScroll, 300);
         setTimeout(verifyScroll, 400);
+        setTimeout(verifyScroll, 500);
+        setTimeout(verifyScroll, 600);
       } else {
         // Fallback for non-sidebar layouts
         window.scrollTo({
