@@ -24,7 +24,7 @@ import { toast } from "@/hooks/use-toast";
 import { saveJob } from "@/lib/mockJobStorage";
 import { generateJobCode } from "@/lib/jobUtils";
 import { getEmployerById } from "@/lib/employerService";
-import { scrollToTop } from "@/lib/utils";
+
 
 interface JobWizardProps {
   serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
@@ -39,19 +39,15 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   const [step, setStep] = useState(1);
   const [previewOpen, setPreviewOpen] = useState(false);
   
+  const findScrollContainer = (): HTMLElement | null => {
+    const scrollAreaViewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
+    if (scrollAreaViewport) {
+      return scrollAreaViewport;
+    }
+    return document.getElementById('main-scroll-container');
+  };
+  
   useEffect(() => {
-    // Find the correct scroll container (drawer viewport OR main container)
-    const findScrollContainer = (): HTMLElement | null => {
-      // First, try to find if we're inside a drawer's ScrollArea
-      const scrollAreaViewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
-      if (scrollAreaViewport) {
-        return scrollAreaViewport;
-      }
-      
-      // Fallback to main container
-      return document.getElementById('main-scroll-container');
-    };
-    
     const scrollContainer = findScrollContainer();
     
     if (scrollContainer) {
@@ -161,14 +157,6 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
     if (onSuccess) {
       onSuccess(jobData);
     }
-  };
-
-  const findScrollContainer = (): HTMLElement | null => {
-    const scrollAreaViewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
-    if (scrollAreaViewport) {
-      return scrollAreaViewport;
-    }
-    return document.getElementById('main-scroll-container');
   };
 
   const nextStep = () => {
