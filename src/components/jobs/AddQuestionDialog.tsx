@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -20,8 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ComboboxWithAdd } from "@/components/ui/combobox-with-add";
 import { questionTypeLabels, questionTypeIcons, needsOptions, getDefaultValidation } from "@/lib/applicationFormUtils";
-import { Plus, X } from "lucide-react";
+import { saveQuestionToLibrary, getCategories } from "@/lib/questionLibraryStorage";
+import { Plus, X, BookmarkPlus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface AddQuestionDialogProps {
   open: boolean;
@@ -44,6 +49,11 @@ export function AddQuestionDialog({
   const [required, setRequired] = useState(false);
   const [options, setOptions] = useState<QuestionOption[]>([]);
   const [newOption, setNewOption] = useState('');
+  const [saveToLibrary, setSaveToLibrary] = useState(false);
+  const [category, setCategory] = useState('');
+  const { toast } = useToast();
+
+  const categories = getCategories();
 
   useEffect(() => {
     if (editQuestion) {
@@ -64,6 +74,8 @@ export function AddQuestionDialog({
     setRequired(false);
     setOptions([]);
     setNewOption('');
+    setSaveToLibrary(false);
+    setCategory('');
   };
 
   const handleAddOption = () => {
@@ -97,6 +109,23 @@ export function AddQuestionDialog({
       validation: getDefaultValidation(type),
       order: editQuestion?.order || nextOrder,
     };
+
+    // Save to library if checked and not editing
+    if (saveToLibrary && !editQuestion) {
+      saveQuestionToLibrary({
+        ...question,
+        libraryId: `user-${Date.now()}`,
+        isSystemTemplate: false,
+        savedAt: new Date().toISOString(),
+        usageCount: 0,
+        category: category || undefined,
+      });
+
+      toast({
+        title: "Question Saved",
+        description: "Question added to your library for future use",
+      });
+    }
 
     onAdd(question);
     resetForm();
@@ -247,6 +276,52 @@ export function AddQuestionDialog({
                 )}
               </div>
             </div>
+          )}
+
+          {/* Save to Library section - only for new questions */}
+          {!editQuestion && (
+            <>
+              <Separator className="my-4" />
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="save-to-library"
+                    checked={saveToLibrary}
+                    onCheckedChange={(checked) => setSaveToLibrary(checked as boolean)}
+                  />
+                  <Label
+                    htmlFor="save-to-library"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <BookmarkPlus className="h-4 w-4" />
+                      Save this question to my library for future use
+                    </div>
+                  </Label>
+                </div>
+
+                {saveToLibrary && (
+                  <div className="space-y-2 ml-6">
+                    <Label htmlFor="category">Category (Optional)</Label>
+                    <Input
+                      id="category"
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      placeholder="e.g., Motivation, Experience, Legal..."
+                      list="category-suggestions"
+                    />
+                    <datalist id="category-suggestions">
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat} />
+                      ))}
+                    </datalist>
+                    <p className="text-xs text-muted-foreground">
+                      Organize questions by category for easier browsing
+                    </p>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </div>
 

@@ -9,12 +9,15 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { ApplicationQuestionCard } from "./ApplicationQuestionCard";
 import { AddQuestionDialog } from "./AddQuestionDialog";
 import { ApplicationFormPreview } from "./ApplicationFormPreview";
+import { QuestionLibraryBrowser } from "./QuestionLibraryBrowser";
 import { useState } from "react";
-import { FileQuestion, Plus, Eye, FileStack } from "lucide-react";
+import { FileQuestion, Plus, Eye, FileStack, BookOpen } from "lucide-react";
 import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { reorderQuestions } from "@/lib/applicationFormUtils";
+import { saveQuestionToLibrary, incrementQuestionUsage } from "@/lib/questionLibraryStorage";
 import { Switch } from "@/components/ui/switch";
+import { useToast } from "@/hooks/use-toast";
 
 interface JobWizardStep4Props {
   form: UseFormReturn<JobFormData>;
@@ -23,6 +26,8 @@ interface JobWizardStep4Props {
 export function JobWizardStep4({ form }: JobWizardStep4Props) {
   const [questionDialogOpen, setQuestionDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<ApplicationQuestion | null>(null);
+  const [libraryBrowserOpen, setLibraryBrowserOpen] = useState(false);
+  const { toast } = useToast();
 
   const questions = form.watch('applicationForm.questions') || [];
   const standardFields = form.watch('applicationForm.includeStandardFields');
@@ -74,6 +79,42 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
 
     const reordered = reorderQuestions(questions, oldIndex, newIndex);
     form.setValue('applicationForm.questions', reordered);
+  };
+
+  const handleAddFromLibrary = (libraryQuestion: ApplicationQuestion) => {
+    const newQuestion: ApplicationQuestion = {
+      ...libraryQuestion,
+      id: `question-${Date.now()}`,
+      order: questions.length + 1,
+    };
+    
+    form.setValue('applicationForm.questions', [...questions, newQuestion]);
+    
+    // Increment usage count if it's a library question
+    if ((libraryQuestion as any).libraryId) {
+      incrementQuestionUsage((libraryQuestion as any).libraryId);
+    }
+    
+    setLibraryBrowserOpen(false);
+    toast({
+      title: "Question Added",
+      description: "Question added to your application form",
+    });
+  };
+
+  const handleSaveQuestionToLibrary = (question: ApplicationQuestion) => {
+    saveQuestionToLibrary({
+      ...question,
+      libraryId: `user-${Date.now()}`,
+      isSystemTemplate: false,
+      savedAt: new Date().toISOString(),
+      usageCount: 0,
+    });
+    
+    toast({
+      title: "Question Saved",
+      description: "Question added to your library for future use",
+    });
   };
 
   return (
@@ -286,10 +327,16 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
               <p className="text-sm text-muted-foreground mb-4">
                 No custom questions added yet
               </p>
-              <Button onClick={() => setQuestionDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Your First Question
-              </Button>
+              <div className="flex gap-2 justify-center">
+                <Button onClick={() => setLibraryBrowserOpen(true)} variant="outline">
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Browse Question Library
+                </Button>
+                <Button onClick={() => setQuestionDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create New Question
+                </Button>
+              </div>
             </div>
           ) : (
             <>
@@ -311,24 +358,34 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
                           onEdit={handleEditQuestion}
                           onDuplicate={handleDuplicateQuestion}
                           onDelete={handleDeleteQuestion}
+                          onSaveToLibrary={handleSaveQuestionToLibrary}
                         />
                       ))}
                   </div>
                 </SortableContext>
               </DndContext>
 
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => {
-                  setEditingQuestion(null);
-                  setQuestionDialogOpen(true);
-                }}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Question
-              </Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setLibraryBrowserOpen(true)}
+                >
+                  <BookOpen className="h-4 w-4 mr-2" />
+                  Add from Library
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setEditingQuestion(null);
+                    setQuestionDialogOpen(true);
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Question
+                </Button>
+              </div>
             </>
           )}
 
@@ -362,6 +419,13 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
         onAdd={handleAddQuestion}
         editQuestion={editingQuestion}
         nextOrder={questions.length + 1}
+      />
+
+      <QuestionLibraryBrowser
+        open={libraryBrowserOpen}
+        onOpenChange={setLibraryBrowserOpen}
+        onSelectQuestion={handleAddFromLibrary}
+        currentQuestions={questions}
       />
     </div>
   );

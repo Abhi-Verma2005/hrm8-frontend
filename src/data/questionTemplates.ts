@@ -1,8 +1,9 @@
-import { ApplicationQuestion } from '@/types/applicationForm';
+import { LibraryQuestion } from '@/types/applicationForm';
 
-export const questionTemplates: ApplicationQuestion[] = [
+export const questionTemplates: LibraryQuestion[] = [
   {
     id: 'template-1',
+    libraryId: 'sys-template-1',
     type: 'long_text',
     label: 'Why are you interested in this role?',
     description: 'Tell us what motivates you to apply for this position',
@@ -12,9 +13,12 @@ export const questionTemplates: ApplicationQuestion[] = [
       maxLength: 500,
     },
     order: 1,
+    isSystemTemplate: true,
+    category: 'Motivation',
   },
   {
     id: 'template-2',
+    libraryId: 'sys-template-2',
     type: 'short_text',
     label: "What's your expected salary range?",
     description: 'Please provide your salary expectations',
@@ -23,24 +27,33 @@ export const questionTemplates: ApplicationQuestion[] = [
       maxLength: 100,
     },
     order: 2,
+    isSystemTemplate: true,
+    category: 'Compensation',
   },
   {
     id: 'template-3',
+    libraryId: 'sys-template-3',
     type: 'date',
     label: 'When can you start?',
     description: 'Indicate your earliest available start date',
     required: true,
     order: 3,
+    isSystemTemplate: true,
+    category: 'Availability',
   },
   {
     id: 'template-4',
+    libraryId: 'sys-template-4',
     type: 'yes_no',
     label: 'Do you require visa sponsorship?',
     required: true,
     order: 4,
+    isSystemTemplate: true,
+    category: 'Legal',
   },
   {
     id: 'template-5',
+    libraryId: 'sys-template-5',
     type: 'number',
     label: 'Years of relevant experience',
     description: 'Total years of professional experience in this field',
@@ -50,9 +63,12 @@ export const questionTemplates: ApplicationQuestion[] = [
       maxValue: 50,
     },
     order: 5,
+    isSystemTemplate: true,
+    category: 'Experience',
   },
   {
     id: 'template-6',
+    libraryId: 'sys-template-6',
     type: 'multiple_choice',
     label: 'How did you hear about this position?',
     required: false,
@@ -64,5 +80,7 @@ export const questionTemplates: ApplicationQuestion[] = [
       { id: 'opt-5', label: 'Other', value: 'other' },
     ],
     order: 6,
+    isSystemTemplate: true,
+    category: 'Sourcing',
   },
 ];

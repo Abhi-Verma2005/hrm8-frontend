@@ -5,9 +5,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { GripVertical, MoreVertical, Edit, Copy, Trash2 } from "lucide-react";
+import { GripVertical, MoreVertical, Edit, Copy, Trash2, BookmarkPlus } from "lucide-react";
 import { questionTypeLabels, questionTypeIcons } from "@/lib/applicationFormUtils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -17,6 +18,7 @@ interface ApplicationQuestionCardProps {
   onEdit: (question: ApplicationQuestion) => void;
   onDuplicate: (question: ApplicationQuestion) => void;
   onDelete: (questionId: string) => void;
+  onSaveToLibrary?: (question: ApplicationQuestion) => void;
 }
 
 export function ApplicationQuestionCard({
@@ -24,6 +26,7 @@ export function ApplicationQuestionCard({
   onEdit,
   onDuplicate,
   onDelete,
+  onSaveToLibrary,
 }: ApplicationQuestionCardProps) {
   const {
     attributes,
@@ -113,6 +116,18 @@ export function ApplicationQuestionCard({
             <Copy className="h-4 w-4 mr-2" />
             Duplicate
           </DropdownMenuItem>
+          
+          {onSaveToLibrary && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => onSaveToLibrary(question)}>
+                <BookmarkPlus className="h-4 w-4 mr-2" />
+                Save to Library
+              </DropdownMenuItem>
+            </>
+          )}
+          
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => onDelete(question.id)}
             className="text-destructive"

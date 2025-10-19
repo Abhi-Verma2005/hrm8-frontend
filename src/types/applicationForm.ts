@@ -50,3 +50,11 @@ export interface ApplicationFormConfig {
     website: { included: boolean; required: boolean };
   };
 }
+
+export interface LibraryQuestion extends ApplicationQuestion {
+  libraryId: string;
+  isSystemTemplate: boolean;
+  savedAt?: string;
+  usageCount?: number;
+  category?: string;
+}
