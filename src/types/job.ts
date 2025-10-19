@@ -58,6 +58,18 @@ export interface Job {
   updatedAt: string;
   hiringTeam?: HiringTeamMember[];
   applicationForm?: ApplicationFormConfig;
+  
+  // JobTarget Promotion & Payment
+  hasJobTargetPromotion?: boolean;
+  jobTargetBudget?: number;
+  jobTargetBudgetRemaining?: number;
+  jobTargetPromotions?: string[];
+  paymentId?: string;
+  requiresPayment?: boolean;
+  paymentStatus?: 'pending' | 'paid' | 'failed';
+  termsAccepted?: boolean;
+  termsAcceptedAt?: Date;
+  termsAcceptedBy?: string;
 }
 
 export interface JobTemplate {
@@ -127,4 +139,12 @@ export interface JobFormData {
   // Step 5: Review & Publish
   status: 'draft' | 'open';
   jobBoardDistribution: string[];
+  
+  // Step 6: Payment & JobTarget
+  includeJobTargetPromotion?: boolean;
+  jobTargetBudgetTier?: 'basic' | 'standard' | 'premium' | 'executive' | 'custom' | 'none';
+  jobTargetBudgetCustom?: number;
+  selectedPaymentMethod?: 'account' | 'credit_card';
+  paymentInvoiceRequested?: boolean;
+  termsAccepted?: boolean;
 }

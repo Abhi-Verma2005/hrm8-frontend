@@ -45,33 +45,6 @@ export function JobWizardStep5({ form }: JobWizardStep5Props) {
         </CardContent>
       </Card>
 
-      <FormField
-        control={form.control}
-        name="status"
-        render={({ field }) => (
-          <FormItem className="space-y-3">
-            <FormLabel>Publishing Status</FormLabel>
-            <FormControl>
-              <RadioGroup onValueChange={field.onChange} value={field.value} className="space-y-2">
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="draft" id="draft" />
-                  <label htmlFor="draft" className="cursor-pointer">
-                    <div className="font-medium">Save as Draft</div>
-                    <div className="text-sm text-muted-foreground">Continue editing later</div>
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="open" id="open" />
-                  <label htmlFor="open" className="cursor-pointer">
-                    <div className="font-medium">Publish Now</div>
-                    <div className="text-sm text-muted-foreground">Make job visible immediately</div>
-                  </label>
-                </div>
-              </RadioGroup>
-            </FormControl>
-          </FormItem>
-        )}
-      />
 
       {formData.status === 'open' && (
         <FormField

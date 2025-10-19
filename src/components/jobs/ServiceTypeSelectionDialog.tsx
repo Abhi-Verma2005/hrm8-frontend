@@ -23,8 +23,7 @@ const services = [
       'Complete platform access',
       'All recruitment tools',
       'Candidate sourcing',
-      'Interview management',
-      'Your own timeline'
+      'Optional: JobTarget promotion (additional cost)'
     ],
     icon: Briefcase,
     recommended: false,

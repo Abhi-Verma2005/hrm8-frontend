@@ -1,0 +1,206 @@
+import { getEmployerById } from './employerService';
+import { createPayment, addLineItemToInvoice, getCurrentDraftInvoice, createInvoice, generateInvoiceNumber } from './billingStorage';
+import type { JobPayment, ServicePricing } from '@/types/billing';
+import { SERVICE_PRICING } from '@/types/billing';
+
+export function calculateServicePricing(
+  serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo',
+  jobTargetBudget: number,
+  salaryRange?: { min: number; max: number }
+): ServicePricing {
+  let baseFee = 0;
+  let upfrontPercentage = 0;
+  
+  if (serviceType === 'self-managed' || serviceType === 'rpo') {
+    baseFee = 0;
+    upfrontPercentage = 0;
+  } else if (serviceType === 'shortlisting' || serviceType === 'full-service') {
+    const config = SERVICE_PRICING[serviceType];
+    baseFee = config.baseFee;
+    upfrontPercentage = config.upfrontPercentage;
+  } else if (serviceType === 'executive-search') {
+    const avgSalary = salaryRange ? (salaryRange.min + salaryRange.max) / 2 : 0;
+    baseFee = avgSalary > 100000 
+      ? SERVICE_PRICING['executive-search'].baseFeeOver100k 
+      : SERVICE_PRICING['executive-search'].baseFeeUnder100k;
+    upfrontPercentage = SERVICE_PRICING['executive-search'].upfrontPercentage;
+  }
+  
+  const upfrontServiceFee = baseFee * upfrontPercentage;
+  const totalUpfront = upfrontServiceFee + jobTargetBudget;
+  const balanceOnCompletion = baseFee * (1 - upfrontPercentage);
+  
+  return {
+    serviceType,
+    baseFee,
+    upfrontPercentage,
+    jobTargetBudget,
+    totalUpfront,
+    balanceOnCompletion
+  };
+}
+
+export function canUseAccountBilling(employerId: string, amount: number): boolean {
+  const employer = getEmployerById(employerId);
+  if (!employer || employer.accountType !== 'approved') return false;
+  
+  const currentBalance = employer.currentBalance || 0;
+  const creditLimit = employer.creditLimit || 0;
+  
+  return (currentBalance + amount) <= creditLimit;
+}
+
+export async function processAccountPayment(
+  jobId: string,
+  employerId: string,
+  pricing: ServicePricing,
+  invoiceRequested: boolean = false
+): Promise<{ success: boolean; paymentId?: string; error?: string }> {
+  const employer = getEmployerById(employerId);
+  
+  if (!employer) {
+    return { success: false, error: 'Employer not found' };
+  }
+  
+  if (employer.accountType === 'payg' && invoiceRequested) {
+    const payment: JobPayment = {
+      id: `payment-${Date.now()}`,
+      jobId,
+      employerId,
+      employerName: employer.name,
+      serviceType: pricing.serviceType,
+      serviceFee: pricing.baseFee,
+      jobTargetBudget: pricing.jobTargetBudget,
+      jobTargetBudgetUsed: 0,
+      jobTargetBudgetRemaining: pricing.jobTargetBudget,
+      upfrontAmount: pricing.totalUpfront,
+      balanceAmount: pricing.balanceOnCompletion,
+      totalAmount: pricing.baseFee + pricing.jobTargetBudget,
+      upfrontPaymentStatus: 'pending',
+      upfrontPaymentMethod: 'account',
+      invoiceRequested: true,
+      invoiceRequestedAt: new Date(),
+      balancePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'pending',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    createPayment(payment);
+    
+    return { 
+      success: true, 
+      paymentId: payment.id,
+      error: 'INVOICE_REQUESTED'
+    };
+  }
+  
+  if (employer.accountType !== 'approved') {
+    return { success: false, error: 'Not an approved account' };
+  }
+  
+  if (!canUseAccountBilling(employerId, pricing.totalUpfront)) {
+    return { success: false, error: 'Credit limit exceeded' };
+  }
+  
+  const payment: JobPayment = {
+    id: `payment-${Date.now()}`,
+    jobId,
+    employerId,
+    employerName: employer.name,
+    serviceType: pricing.serviceType,
+    serviceFee: pricing.baseFee,
+    jobTargetBudget: pricing.jobTargetBudget,
+    jobTargetBudgetUsed: 0,
+    jobTargetBudgetRemaining: pricing.jobTargetBudget,
+    upfrontAmount: pricing.totalUpfront,
+    balanceAmount: pricing.balanceOnCompletion,
+    totalAmount: pricing.baseFee + pricing.jobTargetBudget,
+    upfrontPaymentStatus: 'paid',
+    upfrontPaymentMethod: 'account',
+    upfrontPaymentDate: new Date(),
+    invoiceRequested: false,
+    balancePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'pending',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+  
+  createPayment(payment);
+  
+  let invoice = getCurrentDraftInvoice(employerId);
+  if (!invoice) {
+    invoice = {
+      id: `inv-${Date.now()}`,
+      invoiceNumber: generateInvoiceNumber(),
+      employerId,
+      employerName: employer.name,
+      status: 'draft',
+      issueDate: new Date(),
+      dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      lineItems: [],
+      subtotal: 0,
+      tax: 0,
+      taxRate: 0,
+      total: 0,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    createInvoice(invoice);
+  }
+  
+  const lineItemDescription = pricing.serviceType === 'self-managed'
+    ? `JobTarget Job Board Promotion`
+    : `${SERVICE_PRICING[pricing.serviceType].name} - Upfront Payment`;
+  
+  addLineItemToInvoice(invoice.id, {
+    id: `line-${Date.now()}`,
+    description: lineItemDescription,
+    jobId,
+    paymentId: payment.id,
+    quantity: 1,
+    unitPrice: pricing.totalUpfront,
+    total: pricing.totalUpfront,
+    dateAdded: new Date()
+  });
+  
+  return { success: true, paymentId: payment.id };
+}
+
+export async function processCreditCardPayment(
+  jobId: string,
+  employerId: string,
+  pricing: ServicePricing,
+  stripePaymentIntentId: string
+): Promise<{ success: boolean; paymentId?: string; error?: string }> {
+  const employer = getEmployerById(employerId);
+  
+  if (!employer) {
+    return { success: false, error: 'Employer not found' };
+  }
+  
+  const payment: JobPayment = {
+    id: `payment-${Date.now()}`,
+    jobId,
+    employerId,
+    employerName: employer.name,
+    serviceType: pricing.serviceType,
+    serviceFee: pricing.baseFee,
+    jobTargetBudget: pricing.jobTargetBudget,
+    jobTargetBudgetUsed: 0,
+    jobTargetBudgetRemaining: pricing.jobTargetBudget,
+    upfrontAmount: pricing.totalUpfront,
+    balanceAmount: pricing.balanceOnCompletion,
+    totalAmount: pricing.baseFee + pricing.jobTargetBudget,
+    upfrontPaymentStatus: 'paid',
+    upfrontPaymentMethod: 'credit_card',
+    upfrontStripePaymentIntentId: stripePaymentIntentId,
+    upfrontPaymentDate: new Date(),
+    invoiceRequested: false,
+    balancePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'pending',
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+  
+  createPayment(payment);
+  
+  return { success: true, paymentId: payment.id };
+}

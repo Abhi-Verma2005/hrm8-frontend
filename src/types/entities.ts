@@ -33,6 +33,17 @@ export interface Employer {
   email?: string;
   departments?: Department[];
   locations?: Location[];
+  
+  // Account & Billing
+  accountType?: 'approved' | 'payg';
+  creditLimit?: number;
+  currentBalance?: number;
+  paymentTerms?: string;
+  billingContact?: string;
+  billingEmail?: string;
+  approvedAt?: Date;
+  approvedBy?: string;
+  stripeCustomerId?: string;
 }
 
 export interface Job {

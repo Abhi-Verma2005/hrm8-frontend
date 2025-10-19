@@ -11,6 +11,7 @@ import { JobWizardStep2 } from "./JobWizardStep2";
 import { JobWizardStep3 } from "./JobWizardStep3";
 import { JobWizardStep4 } from "./JobWizardStep4";
 import { JobWizardStep5 } from "./JobWizardStep5";
+import { JobWizardStep6 } from "./JobWizardStep6";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import {
   Sheet,
@@ -24,6 +25,8 @@ import { toast } from "@/hooks/use-toast";
 import { saveJob } from "@/lib/mockJobStorage";
 import { generateJobCode } from "@/lib/jobUtils";
 import { getEmployerById } from "@/lib/employerService";
+import { calculateServicePricing, processAccountPayment, processCreditCardPayment } from "@/lib/paymentService";
+import { JOBTARGET_BUDGET_TIERS } from "@/types/billing";
 
 
 interface JobWizardProps {
@@ -109,10 +112,19 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   });
 
   const isHRM8Service = serviceType !== 'self-managed';
-  const totalSteps = isHRM8Service ? 1 : 5;
+  const totalSteps = isHRM8Service ? 1 : 6;
   const progress = (step / totalSteps) * 100;
 
-  const onSubmit = (data: JobFormData) => {
+  const onSubmit = async (data: JobFormData) => {
+    if (!data.termsAccepted) {
+      toast({
+        title: "Terms & Conditions Required",
+        description: "Please accept the Terms & Conditions to proceed",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     let employerData;
     
     if (data.postAsHRM8) {
@@ -130,12 +142,23 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
       };
     }
     
-    const jobData = {
+    const isSelfManaged = data.serviceType === 'self-managed' || data.serviceType === 'rpo';
+    const hasJobTargetPromotion = data.includeJobTargetPromotion && data.jobTargetBudgetTier !== 'none';
+    
+    const jobTargetBudget = !hasJobTargetPromotion
+      ? 0
+      : data.jobTargetBudgetTier === 'custom'
+      ? data.jobTargetBudgetCustom || 0
+      : JOBTARGET_BUDGET_TIERS.find(t => t.id === data.jobTargetBudgetTier)?.amount || 0;
+    
+    const requiresPayment = !isSelfManaged || jobTargetBudget > 0;
+    
+    const jobData: Job = {
       id: jobId || `job-${Date.now()}`,
       ...data,
       ...employerData,
-      createdBy: "admin-user-id", // TODO: Replace with actual auth user ID
-      createdByName: "HRM8 Admin", // TODO: Replace with actual auth user name
+      createdBy: "admin-user-id",
+      createdByName: "HRM8 Admin",
       jobCode: generateJobCode(),
       aiGeneratedDescription: false,
       serviceType: data.serviceType,
@@ -144,14 +167,88 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
       postingDate: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      hasJobTargetPromotion,
+      jobTargetBudget,
+      jobTargetBudgetRemaining: jobTargetBudget,
+      requiresPayment,
+      termsAccepted: data.termsAccepted,
+      termsAcceptedAt: new Date(),
+      termsAcceptedBy: 'current-user-id',
     };
+    
+    if (requiresPayment && jobTargetBudget > 0) {
+      const pricing = calculateServicePricing(
+        data.serviceType,
+        jobTargetBudget,
+        { min: data.salaryMin || 0, max: data.salaryMax || 0 }
+      );
+      
+      let paymentResult;
+      
+      if (data.selectedPaymentMethod === 'account') {
+        paymentResult = await processAccountPayment(
+          jobData.id,
+          data.employerId,
+          pricing,
+          data.paymentInvoiceRequested || false
+        );
+        
+        if (paymentResult.error === 'INVOICE_REQUESTED') {
+          jobData.paymentId = paymentResult.paymentId;
+          jobData.paymentStatus = 'pending';
+          
+          saveJob(jobData);
+          
+          toast({
+            title: "Invoice Request Submitted",
+            description: "Your job has been saved as a draft. Services will begin once payment is received.",
+          });
+          
+          if (onSuccess) {
+            onSuccess(jobData);
+          }
+          return;
+        }
+      } else if (data.selectedPaymentMethod === 'credit_card') {
+        const mockPaymentIntentId = `pi_mock_${Date.now()}`;
+        paymentResult = await processCreditCardPayment(
+          jobData.id,
+          data.employerId,
+          pricing,
+          mockPaymentIntentId
+        );
+      }
+      
+      if (!paymentResult || !paymentResult.success) {
+        toast({
+          title: "Payment Failed",
+          description: paymentResult?.error || "Payment processing failed",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      jobData.paymentId = paymentResult.paymentId;
+      jobData.paymentStatus = 'paid';
+    }
 
     saveJob(jobData);
+    
+    const successTitle = requiresPayment
+      ? isSelfManaged
+        ? "Job Posted & Payment Processed"
+        : "Payment Processed & Job Created"
+      : "Job Posted Successfully";
+    
+    const successDescription = requiresPayment
+      ? isSelfManaged
+        ? `Your job is now live on HRM8${hasJobTargetPromotion ? ' and will be promoted to external job boards' : ''}`
+        : "Your recruitment service request has been submitted and payment processed"
+      : "Your job is now live on HRM8";
+    
     toast({
-      title: data.status === 'draft' ? "Draft Saved" : "Job Published!",
-      description: data.status === 'draft' 
-        ? `Job saved as draft for ${employerData.employerName}` 
-        : `Job published successfully for ${employerData.employerName}`,
+      title: successTitle,
+      description: successDescription,
     });
     
     if (onSuccess) {
@@ -193,6 +290,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
         {!isHRM8Service && step === 3 && <JobWizardStep3 form={form} />}
         {!isHRM8Service && step === 4 && <JobWizardStep4 form={form} />}
         {!isHRM8Service && step === 5 && <JobWizardStep5 form={form} />}
+        {!isHRM8Service && step === 6 && <JobWizardStep6 form={form} />}
 
         <div className="flex justify-between pt-6 border-t">
           <div className="flex gap-2">
@@ -229,8 +327,23 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
                 <ChevronRight className="h-4 w-4 ml-2" />
               </Button>
             ) : (
-              <Button type="submit">
-                {isHRM8Service ? 'Submit Request' : form.watch("status") === 'draft' ? 'Save Draft' : 'Publish Job'}
+              <Button 
+                type="submit"
+                disabled={!form.watch('termsAccepted')}
+              >
+                {(() => {
+                  const formData = form.watch();
+                  const isSelfManagedJob = formData.serviceType === 'self-managed' || formData.serviceType === 'rpo';
+                  const hasPromotion = formData.includeJobTargetPromotion && formData.jobTargetBudgetTier !== 'none';
+                  const needsPayment = !isSelfManagedJob || hasPromotion;
+                  
+                  if (isHRM8Service) return 'Submit Request';
+                  if (!needsPayment) return 'Publish Job';
+                  if (formData.selectedPaymentMethod === 'account') {
+                    return formData.paymentInvoiceRequested ? 'Request Invoice & Submit' : 'Approve & Publish';
+                  }
+                  return 'Pay & Publish';
+                })()}
               </Button>
             )}
           </div>
