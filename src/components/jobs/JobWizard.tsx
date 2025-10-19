@@ -40,10 +40,10 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   const [previewOpen, setPreviewOpen] = useState(false);
   
   useEffect(() => {
-    // Increased delay to ensure complex forms (including TipTap editor) are fully rendered
+    // Extra scroll after render completes to catch any late-mounting components
     const timeoutId = setTimeout(() => {
       scrollToTop('smooth');
-    }, 200);
+    }, 100);
     
     return () => clearTimeout(timeoutId);
   }, [step]);
@@ -139,8 +139,29 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
     }
   };
 
-  const nextStep = () => setStep(Math.min(step + 1, totalSteps));
-  const prevStep = () => setStep(Math.max(step - 1, 1));
+  const nextStep = () => {
+    // Scroll immediately BEFORE changing step to prevent scroll position inheritance
+    const mainContent = document.getElementById('main-scroll-container');
+    if (mainContent) {
+      mainContent.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    } else {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+    
+    setStep(Math.min(step + 1, totalSteps));
+  };
+  
+  const prevStep = () => {
+    // Scroll immediately BEFORE changing step to prevent scroll position inheritance
+    const mainContent = document.getElementById('main-scroll-container');
+    if (mainContent) {
+      mainContent.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    } else {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }
+    
+    setStep(Math.max(step - 1, 1));
+  };
 
   return (
     <Form {...form}>
