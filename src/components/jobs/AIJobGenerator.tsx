@@ -185,8 +185,16 @@ export function AIJobGenerator({ form, onScrollToUpload }: AIJobGeneratorProps) 
         const responsibilities = extractResponsibilities(positionDescText);
         
         form.setValue("description", description);
-        form.setValue("requirements", requirements);
-        form.setValue("responsibilities", responsibilities);
+        form.setValue("requirements", requirements.map((text, index) => ({
+          id: `req-${Date.now()}-${index}`,
+          text,
+          order: index + 1,
+        })) as any);
+        form.setValue("responsibilities", responsibilities.map((text, index) => ({
+          id: `resp-${Date.now()}-${index}`,
+          text,
+          order: index + 1,
+        })) as any);
         
         toast({
           title: "Content Generated from Position Description!",
@@ -215,8 +223,16 @@ Our ideal candidate is passionate about technology, has a strong problem-solving
         ];
 
         form.setValue("description", mockDescription);
-        form.setValue("requirements", mockRequirements);
-        form.setValue("responsibilities", mockResponsibilities);
+        form.setValue("requirements", mockRequirements.map((text, index) => ({
+          id: `req-${Date.now()}-${index}`,
+          text,
+          order: index + 1,
+        })) as any);
+        form.setValue("responsibilities", mockResponsibilities.map((text, index) => ({
+          id: `resp-${Date.now()}-${index}`,
+          text,
+          order: index + 1,
+        })) as any);
         
         toast({
           title: "AI Content Generated!",

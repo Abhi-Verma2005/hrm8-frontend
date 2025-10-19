@@ -161,5 +161,32 @@ export function formatServiceType(type: Job['serviceType']): string {
   return serviceMap[type] || type;
 }
 
-// Priority has been replaced with tags system
-// Use Badge component with appropriate variant for tag display
+export function reorderRequirements<T extends { order: number }>(
+  requirements: T[],
+  startIndex: number,
+  endIndex: number
+): T[] {
+  const result = Array.from(requirements);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+  
+  return result.map((item, index) => ({
+    ...item,
+    order: index + 1,
+  }));
+}
+
+export function reorderResponsibilities<T extends { order: number }>(
+  responsibilities: T[],
+  startIndex: number,
+  endIndex: number
+): T[] {
+  const result = Array.from(responsibilities);
+  const [removed] = result.splice(startIndex, 1);
+  result.splice(endIndex, 0, removed);
+  
+  return result.map((item, index) => ({
+    ...item,
+    order: index + 1,
+  }));
+}

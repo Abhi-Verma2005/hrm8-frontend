@@ -106,8 +106,8 @@ export interface JobFormData {
   positionDescriptionFile?: File | null;
   positionDescriptionText?: string;
   description: string;
-  requirements: string[];
-  responsibilities: string[];
+  requirements: Array<{ id: string; text: string; order: number }>;
+  responsibilities: Array<{ id: string; text: string; order: number }>;
   
   // Step 3: Compensation, Details & Hiring Team
   salaryMin?: number;

@@ -182,7 +182,7 @@ export function JobBoardPublicPreview({ formData }: JobBoardPublicPreviewProps) 
               {formData.requirements.map((req, index) => (
                 <li key={index} className="flex items-start gap-2 text-sm">
                   <span className="text-primary mt-1">•</span>
-                  <span>{req}</span>
+                  <span>{typeof req === 'string' ? req : req.text}</span>
                 </li>
               ))}
             </ul>
@@ -201,7 +201,7 @@ export function JobBoardPublicPreview({ formData }: JobBoardPublicPreviewProps) 
               {formData.responsibilities.map((resp, index) => (
                 <li key={index} className="flex items-start gap-2 text-sm">
                   <span className="text-primary mt-1">•</span>
-                  <span>{resp}</span>
+                  <span>{typeof resp === 'string' ? resp : resp.text}</span>
                 </li>
               ))}
             </ul>

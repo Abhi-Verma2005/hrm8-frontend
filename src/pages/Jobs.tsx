@@ -224,8 +224,16 @@ export default function Jobs() {
       workArrangement: job.workArrangement,
       tags: job.tags,
       description: job.description,
-      requirements: job.requirements,
-      responsibilities: job.responsibilities,
+      requirements: job.requirements.map((text, index) => ({
+        id: `req-${Date.now()}-${index}`,
+        text,
+        order: index + 1,
+      })),
+      responsibilities: job.responsibilities.map((text, index) => ({
+        id: `resp-${Date.now()}-${index}`,
+        text,
+        order: index + 1,
+      })),
       salaryMin: job.salaryMin,
       salaryMax: job.salaryMax,
       salaryCurrency: job.salaryCurrency,

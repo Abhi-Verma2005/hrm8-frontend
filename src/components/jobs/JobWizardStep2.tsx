@@ -1,6 +1,6 @@
 import { UseFormReturn } from "react-hook-form";
 import { JobFormData } from "@/types/job";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   FormField,
   FormItem,
@@ -17,6 +17,11 @@ import { AIJobGenerator } from "./AIJobGenerator";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { RequirementCard, Requirement } from "./RequirementCard";
+import { ResponsibilityCard, Responsibility } from "./ResponsibilityCard";
+import { reorderRequirements, reorderResponsibilities } from "@/lib/jobUtils";
 
 interface JobWizardStep2Props {
   form: UseFormReturn<JobFormData>;
@@ -38,77 +43,149 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
   const { toast } = useToast();
   const [newRequirement, setNewRequirement] = useState("");
   const [newResponsibility, setNewResponsibility] = useState("");
-  const [editingRequirementIndex, setEditingRequirementIndex] = useState<number | null>(null);
+  const [editingRequirement, setEditingRequirement] = useState<Requirement | null>(null);
   const [editingRequirementText, setEditingRequirementText] = useState("");
-  const [editingResponsibilityIndex, setEditingResponsibilityIndex] = useState<number | null>(null);
+  const [editingResponsibility, setEditingResponsibility] = useState<Responsibility | null>(null);
   const [editingResponsibilityText, setEditingResponsibilityText] = useState("");
+
+  // Migrate old string array data to new object structure
+  useEffect(() => {
+    const requirements = form.getValues("requirements");
+    const responsibilities = form.getValues("responsibilities");
+
+    // Check if requirements needs migration
+    if (requirements && requirements.length > 0) {
+      const firstReq = requirements[0];
+      if (typeof firstReq === 'string') {
+        const migrated = requirements.map((req: any, index: number) => ({
+          id: `req-${Date.now()}-${index}`,
+          text: req,
+          order: index + 1,
+        }));
+        form.setValue("requirements", migrated as any);
+      }
+    }
+
+    // Check if responsibilities needs migration
+    if (responsibilities && responsibilities.length > 0) {
+      const firstResp = responsibilities[0];
+      if (typeof firstResp === 'string') {
+        const migrated = responsibilities.map((resp: any, index: number) => ({
+          id: `resp-${Date.now()}-${index}`,
+          text: resp,
+          order: index + 1,
+        }));
+        form.setValue("responsibilities", migrated as any);
+      }
+    }
+  }, []);
 
   const addRequirement = () => {
     if (newRequirement.trim()) {
       const current = form.getValues("requirements") || [];
-      form.setValue("requirements", [...current, newRequirement.trim()]);
+      const newReq: Requirement = {
+        id: `req-${Date.now()}`,
+        text: newRequirement.trim(),
+        order: current.length + 1,
+      };
+      form.setValue("requirements", [...current, newReq] as any);
       setNewRequirement("");
     }
   };
 
-  const removeRequirement = (index: number) => {
+  const removeRequirement = (id: string) => {
     const current = form.getValues("requirements") || [];
-    form.setValue("requirements", current.filter((_, i) => i !== index));
+    form.setValue("requirements", current.filter((r) => r.id !== id) as any);
   };
 
-  const addResponsibility = () => {
-    if (newResponsibility.trim()) {
-      const current = form.getValues("responsibilities") || [];
-      form.setValue("responsibilities", [...current, newResponsibility.trim()]);
-      setNewResponsibility("");
-    }
+  const handleEditRequirement = (requirement: Requirement) => {
+    setEditingRequirement(requirement);
+    setEditingRequirementText(requirement.text);
   };
 
-  const removeResponsibility = (index: number) => {
-    const current = form.getValues("responsibilities") || [];
-    form.setValue("responsibilities", current.filter((_, i) => i !== index));
-  };
-
-  const startEditRequirement = (index: number, text: string) => {
-    setEditingRequirementIndex(index);
-    setEditingRequirementText(text);
-  };
-
-  const saveEditRequirement = (index: number) => {
-    if (editingRequirementText.trim()) {
+  const saveEditRequirement = () => {
+    if (editingRequirementText.trim() && editingRequirement) {
       const current = form.getValues("requirements") || [];
-      const updated = [...current];
-      updated[index] = editingRequirementText.trim();
-      form.setValue("requirements", updated);
-      setEditingRequirementIndex(null);
+      const updated = current.map((r) =>
+        r.id === editingRequirement.id
+          ? { ...r, text: editingRequirementText.trim() }
+          : r
+      );
+      form.setValue("requirements", updated as any);
+      setEditingRequirement(null);
       setEditingRequirementText("");
     }
   };
 
   const cancelEditRequirement = () => {
-    setEditingRequirementIndex(null);
+    setEditingRequirement(null);
     setEditingRequirementText("");
   };
 
-  const startEditResponsibility = (index: number, text: string) => {
-    setEditingResponsibilityIndex(index);
-    setEditingResponsibilityText(text);
+  const handleRequirementDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const requirements = form.getValues("requirements") || [];
+    const oldIndex = requirements.findIndex((r) => r.id === active.id);
+    const newIndex = requirements.findIndex((r) => r.id === over.id);
+
+    const reordered = reorderRequirements(requirements, oldIndex, newIndex);
+    form.setValue("requirements", reordered as any);
   };
 
-  const saveEditResponsibility = (index: number) => {
-    if (editingResponsibilityText.trim()) {
+  const addResponsibility = () => {
+    if (newResponsibility.trim()) {
       const current = form.getValues("responsibilities") || [];
-      const updated = [...current];
-      updated[index] = editingResponsibilityText.trim();
-      form.setValue("responsibilities", updated);
-      setEditingResponsibilityIndex(null);
+      const newResp: Responsibility = {
+        id: `resp-${Date.now()}`,
+        text: newResponsibility.trim(),
+        order: current.length + 1,
+      };
+      form.setValue("responsibilities", [...current, newResp] as any);
+      setNewResponsibility("");
+    }
+  };
+
+  const removeResponsibility = (id: string) => {
+    const current = form.getValues("responsibilities") || [];
+    form.setValue("responsibilities", current.filter((r) => r.id !== id) as any);
+  };
+
+  const handleEditResponsibility = (responsibility: Responsibility) => {
+    setEditingResponsibility(responsibility);
+    setEditingResponsibilityText(responsibility.text);
+  };
+
+  const saveEditResponsibility = () => {
+    if (editingResponsibilityText.trim() && editingResponsibility) {
+      const current = form.getValues("responsibilities") || [];
+      const updated = current.map((r) =>
+        r.id === editingResponsibility.id
+          ? { ...r, text: editingResponsibilityText.trim() }
+          : r
+      );
+      form.setValue("responsibilities", updated as any);
+      setEditingResponsibility(null);
       setEditingResponsibilityText("");
     }
   };
 
   const cancelEditResponsibility = () => {
-    setEditingResponsibilityIndex(null);
+    setEditingResponsibility(null);
     setEditingResponsibilityText("");
+  };
+
+  const handleResponsibilityDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const responsibilities = form.getValues("responsibilities") || [];
+    const oldIndex = responsibilities.findIndex((r) => r.id === active.id);
+    const newIndex = responsibilities.findIndex((r) => r.id === over.id);
+
+    const reordered = reorderResponsibilities(responsibilities, oldIndex, newIndex);
+    form.setValue("responsibilities", reordered as any);
   };
 
   return (
@@ -153,69 +230,60 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
           <FormItem>
             <FormLabel>Requirements *</FormLabel>
             <div className="space-y-3">
-              {(form.watch("requirements") || []).map((req, index) => (
-                <div key={index} className="flex items-start gap-2">
-                  {editingRequirementIndex === index ? (
-                    <>
-                      <Input
-                        value={editingRequirementText}
-                        onChange={(e) => setEditingRequirementText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            saveEditRequirement(index);
-                          } else if (e.key === 'Escape') {
-                            cancelEditRequirement();
-                          }
-                        }}
-                        autoFocus
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => saveEditRequirement(index)}
-                        title="Save"
-                      >
-                        <Check className="h-4 w-4 text-green-600" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={cancelEditRequirement}
-                        title="Cancel"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex-1 p-3 bg-secondary/10 rounded-md text-sm">
-                        {req}
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => startEditRequirement(index, req)}
-                        title="Edit"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeRequirement(index)}
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
+              {editingRequirement ? (
+                <div className="flex items-start gap-2">
+                  <Input
+                    value={editingRequirementText}
+                    onChange={(e) => setEditingRequirementText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveEditRequirement();
+                      } else if (e.key === 'Escape') {
+                        cancelEditRequirement();
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={saveEditRequirement}
+                    title="Save"
+                  >
+                    <Check className="h-4 w-4 text-green-600" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={cancelEditRequirement}
+                    title="Cancel"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
-              ))}
+              ) : (
+                <DndContext
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleRequirementDragEnd}
+                >
+                  <SortableContext
+                    items={(form.watch("requirements") || []).map((r) => r.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {(form.watch("requirements") || []).map((req) => (
+                      <RequirementCard
+                        key={req.id}
+                        requirement={req}
+                        onEdit={handleEditRequirement}
+                        onDelete={removeRequirement}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              )}
               <div className="flex gap-2">
                 <Input
                   placeholder="Add a requirement (e.g., 5+ years of experience)"
@@ -248,69 +316,60 @@ export function JobWizardStep2({ form }: JobWizardStep2Props) {
           <FormItem>
             <FormLabel>Responsibilities *</FormLabel>
             <div className="space-y-3">
-              {(form.watch("responsibilities") || []).map((resp, index) => (
-                <div key={index} className="flex items-start gap-2">
-                  {editingResponsibilityIndex === index ? (
-                    <>
-                      <Input
-                        value={editingResponsibilityText}
-                        onChange={(e) => setEditingResponsibilityText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            saveEditResponsibility(index);
-                          } else if (e.key === 'Escape') {
-                            cancelEditResponsibility();
-                          }
-                        }}
-                        autoFocus
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => saveEditResponsibility(index)}
-                        title="Save"
-                      >
-                        <Check className="h-4 w-4 text-green-600" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={cancelEditResponsibility}
-                        title="Cancel"
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex-1 p-3 bg-secondary/10 rounded-md text-sm">
-                        {resp}
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => startEditResponsibility(index, resp)}
-                        title="Edit"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeResponsibility(index)}
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </>
-                  )}
+              {editingResponsibility ? (
+                <div className="flex items-start gap-2">
+                  <Input
+                    value={editingResponsibilityText}
+                    onChange={(e) => setEditingResponsibilityText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveEditResponsibility();
+                      } else if (e.key === 'Escape') {
+                        cancelEditResponsibility();
+                      }
+                    }}
+                    autoFocus
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={saveEditResponsibility}
+                    title="Save"
+                  >
+                    <Check className="h-4 w-4 text-green-600" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={cancelEditResponsibility}
+                    title="Cancel"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
-              ))}
+              ) : (
+                <DndContext
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleResponsibilityDragEnd}
+                >
+                  <SortableContext
+                    items={(form.watch("responsibilities") || []).map((r) => r.id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {(form.watch("responsibilities") || []).map((resp) => (
+                      <ResponsibilityCard
+                        key={resp.id}
+                        responsibility={resp}
+                        onEdit={handleEditResponsibility}
+                        onDelete={removeResponsibility}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
+              )}
               <div className="flex gap-2">
                 <Input
                   placeholder="Add a responsibility (e.g., Design and develop scalable applications)"
