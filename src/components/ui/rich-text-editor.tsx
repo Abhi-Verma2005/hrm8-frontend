@@ -72,10 +72,7 @@ export function RichTextEditor({
   }
 
   return (
-    <div 
-      className="space-y-2"
-      style={{ scrollMarginTop: '100vh' }}
-    >
+    <div className="space-y-2">
       <div className={cn("border rounded-md", className)}>
         {/* Toolbar */}
         <div className="border-b bg-secondary/10 p-2 flex flex-wrap gap-1 items-center justify-between">
