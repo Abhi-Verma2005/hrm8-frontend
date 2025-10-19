@@ -39,6 +39,22 @@ export function FormDrawer({
   width = "lg",
   showCloseButton = true,
 }: FormDrawerProps) {
+  // Reset scroll position when drawer opens
+  React.useEffect(() => {
+    if (open) {
+      // Small delay to ensure ScrollArea is mounted
+      const timeoutId = setTimeout(() => {
+        const viewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
+        if (viewport) {
+          viewport.scrollTop = 0;
+          viewport.scrollLeft = 0;
+        }
+      }, 50);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [open]);
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent

@@ -40,20 +40,32 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   const [previewOpen, setPreviewOpen] = useState(false);
   
   useEffect(() => {
-    // NUCLEAR OPTION: Force immediate scroll reset before ANY rendering
-    const mainContent = document.getElementById('main-scroll-container');
-    if (mainContent) {
-      // Set scroll to 0 synchronously (no animation, no delay)
-      mainContent.scrollTop = 0;
-      mainContent.scrollLeft = 0;
+    // Find the correct scroll container (drawer viewport OR main container)
+    const findScrollContainer = (): HTMLElement | null => {
+      // First, try to find if we're inside a drawer's ScrollArea
+      const scrollAreaViewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
+      if (scrollAreaViewport) {
+        return scrollAreaViewport;
+      }
       
-      // Force browser to acknowledge the scroll change
-      void mainContent.offsetHeight;
+      // Fallback to main container
+      return document.getElementById('main-scroll-container');
+    };
+    
+    const scrollContainer = findScrollContainer();
+    
+    if (scrollContainer) {
+      // Synchronous scroll reset
+      scrollContainer.scrollTop = 0;
+      scrollContainer.scrollLeft = 0;
+      
+      // Force browser to acknowledge
+      void scrollContainer.offsetHeight;
       
       // Double-check with RAF
       requestAnimationFrame(() => {
-        mainContent.scrollTop = 0;
-        mainContent.scrollLeft = 0;
+        scrollContainer.scrollTop = 0;
+        scrollContainer.scrollLeft = 0;
       });
     } else {
       window.scrollTo(0, 0);
@@ -151,25 +163,29 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
     }
   };
 
-  const nextStep = () => {
-    // IMMEDIATE synchronous scroll BEFORE state change
-    const mainContent = document.getElementById('main-scroll-container');
-    if (mainContent) {
-      mainContent.scrollTop = 0;
-      mainContent.scrollLeft = 0;
+  const findScrollContainer = (): HTMLElement | null => {
+    const scrollAreaViewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
+    if (scrollAreaViewport) {
+      return scrollAreaViewport;
     }
-    
+    return document.getElementById('main-scroll-container');
+  };
+
+  const nextStep = () => {
+    const scrollContainer = findScrollContainer();
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0;
+      scrollContainer.scrollLeft = 0;
+    }
     setStep(Math.min(step + 1, totalSteps));
   };
   
   const prevStep = () => {
-    // IMMEDIATE synchronous scroll BEFORE state change
-    const mainContent = document.getElementById('main-scroll-container');
-    if (mainContent) {
-      mainContent.scrollTop = 0;
-      mainContent.scrollLeft = 0;
+    const scrollContainer = findScrollContainer();
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0;
+      scrollContainer.scrollLeft = 0;
     }
-    
     setStep(Math.max(step - 1, 1));
   };
 
