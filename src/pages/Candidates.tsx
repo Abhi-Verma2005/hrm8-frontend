@@ -37,25 +37,35 @@ export default function Candidates() {
   return (
     <DashboardPageLayout
       breadcrumbActions={
-        <div className="flex gap-2">
+        <>
           <Button variant="outline" size="sm">
-            <Upload className="h-4 w-4 mr-2" />
+            <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
           <Button variant="outline" size="sm">
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
-          <Button asChild size="sm">
+        </>
+      }
+    >
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Candidates</h1>
+            <p className="text-muted-foreground">
+              Manage candidate pool and placements
+            </p>
+          </div>
+          <Button asChild>
             <Link to="/candidates/new">
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="mr-2 h-4 w-4" />
               Add Candidate
             </Link>
           </Button>
         </div>
-      }
-    >
-      <div className="p-6 space-y-6">
+
         <div className="grid grid-cols-4 gap-4">
           <Card className="p-4">
             <div className="text-2xl font-bold">{stats.total}</div>
