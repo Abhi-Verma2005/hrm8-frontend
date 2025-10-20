@@ -50,8 +50,8 @@ export default function Jobs() {
   
   // Filter states
   const [searchValue, setSearchValue] = useState("");
-  const [selectedConsultants, setSelectedConsultants] = useState<string[]>([]);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedConsultant, setSelectedConsultant] = useState("all");
+  const [selectedLocation, setSelectedLocation] = useState("all");
   const [selectedService, setSelectedService] = useState("all");
 
   const jobs = useMemo(() => getJobs(), [refreshKey]);
@@ -144,24 +144,21 @@ export default function Jobs() {
       }
 
       // Consultant filter
-      if (selectedConsultants.length > 0) {
-        if (selectedConsultants.includes('my-jobs')) {
+      if (selectedConsultant !== 'all') {
+        if (selectedConsultant === 'my-jobs') {
           // For demo purposes, we'll filter by createdBy
           // In a real app, this would check against the current user ID
           if (job.createdBy !== 'admin-1') return false;
         } else {
           const consultantName = job.assignedConsultantName || 'Unassigned';
-          if (!selectedConsultants.includes(consultantName)) {
-            return false;
-          }
+          if (consultantName !== selectedConsultant) return false;
         }
       }
 
-      // Location filter (regions + countries)
-      if (selectedLocations.length > 0) {
+      // Location filter
+      if (selectedLocation !== 'all') {
         const jobCountry = getCountryFromLocation(job.location);
-        const expandedCountries = expandRegionsToCountries(selectedLocations);
-        if (!expandedCountries.includes(jobCountry)) return false;
+        if (jobCountry !== selectedLocation) return false;
       }
 
       // Service filter
@@ -171,7 +168,7 @@ export default function Jobs() {
 
       return true;
     });
-  }, [jobs, searchValue, selectedConsultants, selectedLocations, selectedService]);
+  }, [jobs, searchValue, selectedConsultant, selectedLocation, selectedService]);
 
   const handleDelete = (id: string) => {
     setJobToDelete(id);
@@ -462,10 +459,10 @@ export default function Jobs() {
         <JobsFilterBar
           searchValue={searchValue}
           onSearchChange={setSearchValue}
-          selectedConsultants={selectedConsultants}
-          onConsultantsChange={setSelectedConsultants}
-          selectedLocations={selectedLocations}
-          onLocationsChange={setSelectedLocations}
+          selectedConsultants={selectedConsultant === 'all' ? [] : [selectedConsultant]}
+          onConsultantsChange={(consultants) => setSelectedConsultant(consultants[0] || 'all')}
+          selectedLocations={selectedLocation === 'all' ? [] : [selectedLocation]}
+          onLocationsChange={(locations) => setSelectedLocation(locations[0] || 'all')}
           selectedService={selectedService}
           onServiceChange={setSelectedService}
           consultantOptions={uniqueConsultants}
