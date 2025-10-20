@@ -56,88 +56,85 @@ export function JobPostingCostDialog({
     const tierConfig = SUBSCRIPTION_TIERS[subscriptionTier];
     
     if (subscriptionAtLimit) {
-      return (
-        <Dialog open={open} onOpenChange={() => {}}>
-          <DialogContent className="max-w-lg max-h-[85vh] [&>button]:hidden">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <AlertCircle className="h-5 w-5 text-destructive" />
-                Job Limit Reached
-              </DialogTitle>
-            </DialogHeader>
+    return (
+      <Dialog open={open} onOpenChange={() => {}}>
+        <DialogContent className="max-w-lg max-h-[85vh] [&>button]:hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-destructive" />
+              Job Limit Reached
+            </DialogTitle>
+          </DialogHeader>
 
-            <div className="space-y-3 overflow-y-auto">
-              <div className="flex items-start gap-2 p-3 border border-destructive/50 rounded-lg bg-destructive/5">
-                <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
-                <p className="text-sm">
-                  You've reached your plan's job posting limit. Choose an option below to proceed.
-                </p>
-              </div>
+          <div className="space-y-3 overflow-y-auto">
+            <div className="flex items-start gap-2 p-3 border border-destructive/50 rounded-lg bg-destructive/5">
+              <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+              <p className="text-sm">
+                Your {tierConfig.name} Plan ({currentOpenJobs}/{maxOpenJobs} jobs used)
+              </p>
+            </div>
 
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">
-                    {tierConfig.name} - ${tierConfig.monthlyFee}/month
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
+            <Card>
+              <CardContent className="pt-4 space-y-3">
+                <div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span>Open Jobs</span>
+                    <span className="font-semibold text-destructive">
+                      {currentOpenJobs} / {maxOpenJobs} used
+                    </span>
+                  </div>
+                  <Progress value={100} className="h-2" />
+                </div>
+
+                <p className="text-sm font-medium pt-2">To post this job:</p>
+
+                <div className="space-y-2">
                   <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Open Jobs</span>
-                      <span className="font-semibold text-destructive">
-                        {currentOpenJobs} / {maxOpenJobs} used (100%)
-                      </span>
-                    </div>
-                    <Progress value={100} className="h-2" />
+                    <h4 className="font-semibold text-sm mb-1">1. Close an existing job</h4>
+                    <p className="text-sm text-muted-foreground ml-4">
+                      → Frees up a slot in your plan
+                    </p>
                   </div>
-
-                  <div className="space-y-3 pt-2">
-                    <div className="space-y-1">
-                      <h4 className="font-semibold text-sm">Option 1: Close an existing job</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Closing an open job will free up a slot.
-                      </p>
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <h4 className="font-semibold text-sm">Option 2: Upgrade your plan</h4>
-                      <div className="space-y-1 text-sm text-muted-foreground">
-                        {subscriptionTier === 'small' && (
-                          <>
-                            <p>• Medium: 25 jobs for $495/month</p>
-                            <p>• Large: 50 jobs for $695/month</p>
-                          </>
-                        )}
-                        {subscriptionTier === 'medium' && (
-                          <>
-                            <p>• Large: 50 jobs for $695/month</p>
-                            <p>• Enterprise: Unlimited for $995/month</p>
-                          </>
-                        )}
-                        {subscriptionTier === 'large' && (
-                          <p>• Enterprise: Unlimited for $995/month</p>
-                        )}
-                      </div>
+                  
+                  <div>
+                    <h4 className="font-semibold text-sm mb-1">2. Upgrade to a larger plan</h4>
+                    <div className="text-sm text-muted-foreground ml-4 space-y-0.5">
+                      {subscriptionTier === 'small' && (
+                        <>
+                          <p>→ Medium: 25 jobs ($495/month)</p>
+                          <p>→ Large: 50 jobs ($695/month)</p>
+                        </>
+                      )}
+                      {subscriptionTier === 'medium' && (
+                        <>
+                          <p>→ Large: 50 jobs ($695/month)</p>
+                          <p>→ Enterprise: Unlimited ($995/month)</p>
+                        </>
+                      )}
+                      {subscriptionTier === 'large' && (
+                        <p>→ Enterprise: Unlimited ($995/month)</p>
+                      )}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" onClick={onCancel} size="sm">
-                Cancel
-              </Button>
-              <Button variant="outline" onClick={() => window.location.href = '/jobs'} size="sm">
-                My Jobs
-              </Button>
-              <Button onClick={onUpgrade} size="sm">
-                Upgrade
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-      );
+          <div className="flex gap-2 pt-2">
+            <Button variant="outline" onClick={onCancel} size="sm">
+              Cancel
+            </Button>
+            <Button variant="outline" onClick={() => window.location.href = '/jobs'} size="sm">
+              View My Jobs
+            </Button>
+            <Button onClick={onUpgrade} size="sm">
+              Upgrade Plan
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
     }
 
     return (
@@ -145,31 +142,21 @@ export function JobPostingCostDialog({
         <DialogContent className="max-w-lg max-h-[85vh] [&>button]:hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              Your Subscription Plan
+              <CheckCircle className="h-5 w-5 text-success" />
+              Ready to Post Your Job
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-3 overflow-y-auto">
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-base">{tierConfig.name} Plan</CardTitle>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      ${tierConfig.monthlyFee}/month
-                    </p>
-                  </div>
-                  <Badge variant="secondary">Active</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {employer.nextBillingDate && (
-                  <p className="text-sm text-muted-foreground">
-                    Next billing: {formatDate(employer.nextBillingDate)}
-                  </p>
-                )}
+            <div className="flex items-start gap-2 p-3 bg-success/5 border border-success/20 rounded-lg">
+              <CheckCircle className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
+              <p className="text-sm">
+                Your {tierConfig.name} Plan includes job posting
+              </p>
+            </div>
 
+            <Card>
+              <CardContent className="pt-4 space-y-3">
                 <div>
                   <div className="flex justify-between text-sm mb-2">
                     <span>Open Jobs</span>
@@ -178,32 +165,23 @@ export function JobPostingCostDialog({
                     </span>
                   </div>
                   {maxOpenJobs !== Infinity && (
-                    <>
-                      <Progress value={usagePercentage} className="h-2 mb-1" />
-                      <p className="text-xs text-muted-foreground text-right">
-                        {Math.round(usagePercentage)}%
-                      </p>
-                    </>
+                    <Progress value={usagePercentage} className="h-2" />
                   )}
                 </div>
 
-                <div className="flex items-start gap-2 p-3 bg-success/5 border border-success/20 rounded-lg">
-                  <CheckCircle className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
-                  <div className="text-sm">
-                    <strong>Job posting included</strong>
-                    <p className="text-muted-foreground">No additional charge</p>
-                  </div>
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  No additional charge for this posting.
+                </p>
               </CardContent>
             </Card>
           </div>
 
           <div className="flex gap-2 pt-2">
-            <Button variant="outline" onClick={onCancel} className="flex-1">
+            <Button variant="outline" onClick={onCancel} size="sm">
               Cancel
             </Button>
-            <Button onClick={onContinue} className="flex-1">
-              Continue
+            <Button onClick={onContinue} size="sm" className="flex-1">
+              Continue to Next Step
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -220,24 +198,21 @@ export function JobPostingCostDialog({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5" />
-              Pay-As-You-Go
+              Confirm Job Posting
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-3 overflow-y-auto">
             <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Job Posting Cost</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="text-center py-3">
-                  <div className="text-3xl font-bold text-primary mb-1">
+              <CardContent className="pt-4 space-y-3">
+                <div className="text-center py-2">
+                  <p className="text-sm text-muted-foreground mb-1">Job Posting Fee</p>
+                  <div className="text-3xl font-bold text-primary">
                     ${PAYG_JOB_POSTING_COST}
                   </div>
-                  <p className="text-sm text-muted-foreground">per job posting</p>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2 pt-2 border-t">
                   <p className="font-medium text-sm">This includes:</p>
                   <ul className="space-y-1 text-sm text-muted-foreground">
                     <li className="flex items-start gap-2">
@@ -254,14 +229,14 @@ export function JobPostingCostDialog({
                     </li>
                     <li className="flex items-start gap-2">
                       <CheckCircle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-                      Candidate management tools
+                      Candidate management
                     </li>
                   </ul>
                 </div>
 
-                <div className="p-2 bg-muted/50 rounded text-xs text-muted-foreground text-center">
+                <p className="text-xs text-muted-foreground text-center pt-2 border-t">
                   Additional recruitment services available in next step (optional)
-                </div>
+                </p>
               </CardContent>
             </Card>
           </div>
@@ -270,11 +245,9 @@ export function JobPostingCostDialog({
             <Button variant="outline" onClick={onCancel} size="sm">
               Cancel
             </Button>
-            <Button variant="outline" onClick={onUpgrade} size="sm">
-              Subscription
-            </Button>
             <Button onClick={onContinue} size="sm" className="flex-1">
-              Continue - ${PAYG_JOB_POSTING_COST}
+              Continue - Charge ${PAYG_JOB_POSTING_COST}
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         </DialogContent>
@@ -289,43 +262,43 @@ export function JobPostingCostDialog({
         <DialogContent className="max-w-lg max-h-[85vh] [&>button]:hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-warning" />
-              Upgrade Required
+              <Building2 className="h-5 w-5" />
+              Choose Your Posting Option
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-3 overflow-y-auto">
-            <div className="flex items-start gap-2 p-3 border border-warning/50 rounded-lg bg-warning/5">
-              <AlertCircle className="h-4 w-4 text-warning mt-0.5 flex-shrink-0" />
-              <p className="text-sm">
-                You've used your free job posting. Choose an option below to post more jobs.
-              </p>
-            </div>
+            <p className="text-sm text-muted-foreground">
+              You've used your complimentary posting. Choose how you'd like to continue:
+            </p>
 
             <Card>
-              <CardContent className="pt-4 space-y-3">
+              <CardContent className="pt-4 space-y-4">
                 <div>
                   <h4 className="font-semibold text-sm mb-1 flex items-center gap-2">
                     <CreditCard className="h-4 w-4" />
                     Pay-As-You-Go: ${PAYG_JOB_POSTING_COST} per job
                   </h4>
                   <ul className="text-sm text-muted-foreground space-y-0.5 ml-6">
-                    <li>• No commitment required</li>
-                    <li>• Pay only when you post</li>
+                    <li>• No commitment</li>
+                    <li>• Pay only when posting</li>
                     <li>• All features included</li>
                   </ul>
+                </div>
+
+                <div className="text-center text-xs font-medium text-muted-foreground">
+                  OR
                 </div>
 
                 <div>
                   <h4 className="font-semibold text-sm mb-1 flex items-center gap-2">
                     <Building2 className="h-4 w-4" />
-                    Subscription: From $295/month
+                    Subscribe: From $295/month
                   </h4>
                   <ul className="text-sm text-muted-foreground space-y-0.5 ml-6">
-                    <li>• 5-50 open jobs included</li>
+                    <li>• 5-50 jobs included monthly</li>
                     <li>• Unlimited users</li>
-                    <li>• Advanced features</li>
-                    <li>• Save up to 75%</li>
+                    <li>• Save up to 75% per job</li>
                   </ul>
                 </div>
               </CardContent>
@@ -336,11 +309,11 @@ export function JobPostingCostDialog({
             <Button variant="outline" onClick={onCancel} size="sm">
               Cancel
             </Button>
-            <Button variant="outline" onClick={() => {/* Set to PAYG */}} size="sm">
-              PAYG
+            <Button variant="outline" onClick={() => {/* TODO: Set to PAYG and continue */}} size="sm">
+              Choose PAYG
             </Button>
             <Button onClick={onUpgrade} size="sm">
-              Subscription
+              View Plans
             </Button>
           </div>
         </DialogContent>
@@ -355,7 +328,7 @@ export function JobPostingCostDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-success" />
-            First Job FREE
+            Welcome! Your First Job is FREE
           </DialogTitle>
         </DialogHeader>
 
@@ -363,7 +336,7 @@ export function JobPostingCostDialog({
           <div className="flex items-start gap-2 p-3 bg-success/5 border border-success/20 rounded-lg">
             <CheckCircle className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
             <p className="text-sm font-medium">
-              Your first job posting is on us!
+              Get started with a complimentary job posting to try HRM8
             </p>
           </div>
 
@@ -391,12 +364,10 @@ export function JobPostingCostDialog({
                 </ul>
               </div>
 
-              <div className="pt-2 border-t space-y-1">
-                <p className="text-sm font-medium">For additional jobs:</p>
-                <div className="text-sm text-muted-foreground space-y-0.5">
-                  <p>• Pay ${PAYG_JOB_POSTING_COST} per job (PAYG)</p>
-                  <p>• Subscribe from $295/month (5+ jobs)</p>
-                </div>
+              <div className="pt-2 border-t">
+                <p className="text-xs text-muted-foreground">
+                  Future posts: ${PAYG_JOB_POSTING_COST} each (PAYG) or subscribe for 5+ jobs starting at $295/month
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -406,11 +377,8 @@ export function JobPostingCostDialog({
           <Button variant="outline" onClick={onCancel} size="sm">
             Cancel
           </Button>
-          <Button variant="outline" onClick={onUpgrade} size="sm">
-            View Plans
-          </Button>
           <Button onClick={onContinue} size="sm" className="flex-1">
-            Post FREE
+            Continue - Post FREE
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>
