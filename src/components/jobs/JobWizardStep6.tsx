@@ -8,7 +8,8 @@ import { JobBoardBudgetSelector } from './JobBoardBudgetSelector';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
 import { TermsAndConditions } from './TermsAndConditions';
 import { calculateServicePricing } from '@/lib/paymentService';
-import { DollarSign, Briefcase, Megaphone, AlertCircle } from 'lucide-react';
+import { DollarSign, Megaphone, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { JOBTARGET_BUDGET_TIERS } from '@/types/billing';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
@@ -112,64 +113,18 @@ export function JobWizardStep6({ form }: JobWizardStep6Props) {
         <>
           <Separator />
           
-          <Card>
-            <CardContent className="pt-6 space-y-4">
-              <h4 className="font-semibold">Payment Breakdown</h4>
-              
-              <div className="space-y-2">
-                {!isSelfManaged && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground flex items-center gap-2">
-                      <Briefcase className="h-4 w-4" />
-                      Recruitment Service Fee (50% upfront)
-                    </span>
-                    <span className="font-medium">
-                      ${(pricing.baseFee * pricing.upfrontPercentage).toLocaleString()}
-                    </span>
-                  </div>
-                )}
-                
-                {jobTargetBudget > 0 && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground flex items-center gap-2">
-                      <Megaphone className="h-4 w-4" />
-                      Job Board Promotion Budget (100% upfront)
-                    </span>
-                    <span className="font-medium">
-                      ${jobTargetBudget.toLocaleString()}
-                    </span>
-                  </div>
-                )}
-                
-                <Separator />
-                
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total Due Now</span>
-                  <span className="text-primary">
-                    ${pricing.totalUpfront.toLocaleString()}
-                  </span>
-                </div>
-                
-                {!isSelfManaged && pricing.balanceOnCompletion > 0 && (
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Balance Due on Completion</span>
-                    <span>${pricing.balanceOnCompletion.toLocaleString()}</span>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Separator />
-          
           <div className="space-y-4">
-            <h4 className="font-semibold">Select Payment Method</h4>
-            <PaymentMethodSelector
-              employerId={formData.employerId}
-              amount={pricing.totalUpfront}
-              selectedMethod={formData.selectedPaymentMethod}
-              onMethodSelect={handlePaymentMethodSelect}
-            />
+            <Button 
+              size="lg" 
+              className="w-full"
+              onClick={() => {
+                // TODO: Open job board selection dialog
+                console.log('Select job boards clicked');
+              }}
+            >
+              <Megaphone className="mr-2 h-5 w-5" />
+              Select Job Boards to Promote Your Job
+            </Button>
           </div>
           
           <Separator />
