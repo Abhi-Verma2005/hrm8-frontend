@@ -1,4 +1,4 @@
-import { Search, X } from "lucide-react";
+import { Search, X, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -88,6 +88,16 @@ export function EmployersFilterBar({
             <SelectItem value="payg">PAYG</SelectItem>
           </SelectContent>
         </Select>
+
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onClearFilters}
+          title="Reset all filters"
+          className="shrink-0"
+        >
+          <RefreshCw className="h-4 w-4" />
+        </Button>
       </div>
 
       {activeFilterCount > 0 && (
