@@ -3,11 +3,11 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DataTable } from "@/components/tables/DataTable";
 import { candidateTableColumns } from "@/components/candidates/CandidateTableColumns";
 import { CandidatesFilterBar } from "@/components/candidates/CandidatesFilterBar";
+import { CandidateStatsCard } from "@/components/candidates/CandidateStatsCard";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Upload } from "lucide-react";
+import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getCandidates } from "@/lib/mockCandidateStorage";
-import { Card } from "@/components/ui/card";
 import type { Candidate } from "@/types/entities";
 
 export default function Candidates() {
@@ -114,23 +114,31 @@ export default function Candidates() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-4 gap-4">
-          <Card className="p-4">
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <div className="text-sm text-muted-foreground">Total Candidates</div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-2xl font-bold text-green-600">{stats.active}</div>
-            <div className="text-sm text-muted-foreground">Active</div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-2xl font-bold text-blue-600">{stats.placed}</div>
-            <div className="text-sm text-muted-foreground">Placed</div>
-          </Card>
-          <Card className="p-4">
-            <div className="text-2xl font-bold text-gray-600">{stats.inactive}</div>
-            <div className="text-sm text-muted-foreground">Inactive</div>
-          </Card>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <CandidateStatsCard
+            title="Total Candidates"
+            value={stats.total}
+            icon={Users}
+            description={`${stats.active} currently active`}
+          />
+          <CandidateStatsCard
+            title="Active"
+            value={stats.active}
+            icon={UserCheck}
+            description={`${stats.total > 0 ? ((stats.active / stats.total) * 100).toFixed(0) : 0}% of total`}
+          />
+          <CandidateStatsCard
+            title="Placed"
+            value={stats.placed}
+            icon={Briefcase}
+            description="Successfully placed"
+          />
+          <CandidateStatsCard
+            title="Inactive"
+            value={stats.inactive}
+            icon={UserX}
+            description="Not currently seeking"
+          />
         </div>
 
         <CandidatesFilterBar

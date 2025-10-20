@@ -2,7 +2,8 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, MoreVertical, Pencil, Copy, Trash2 } from "lucide-react";
+import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle } from "lucide-react";
+import { JobStatsCard } from "@/components/jobs/JobStatsCard";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { getJobs, deleteJob, getJobById } from "@/lib/mockJobStorage";
 import { Job } from "@/types/job";
@@ -54,6 +55,22 @@ export default function Jobs() {
   const [selectedService, setSelectedService] = useState("all");
 
   const jobs = useMemo(() => getJobs(), [refreshKey]);
+
+  // Calculate stats
+  const stats = useMemo(() => {
+    const activeJobs = jobs.filter(j => j.status === 'open').length;
+    const totalApplicants = jobs.reduce((sum, j) => sum + j.applicantsCount, 0);
+    const avgApplicants = jobs.length > 0 ? Math.round(totalApplicants / jobs.length) : 0;
+    const filledJobs = jobs.filter(j => j.status === 'filled').length;
+
+    return {
+      total: jobs.length,
+      active: activeJobs,
+      applicants: totalApplicants,
+      filled: filledJobs,
+      avgApplicants,
+    };
+  }, [jobs]);
   
   // Auto-open job posting dialog when navigating with action=create
   useEffect(() => {
@@ -413,6 +430,33 @@ export default function Jobs() {
             <Plus className="h-4 w-4 mr-2" />
             Create Job
           </Button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <JobStatsCard
+            title="Total Jobs"
+            value={stats.total}
+            icon={Briefcase}
+            description={`${stats.active} currently active`}
+          />
+          <JobStatsCard
+            title="Active Postings"
+            value={stats.active}
+            icon={Clock}
+            description={`${stats.total > 0 ? ((stats.active / stats.total) * 100).toFixed(0) : 0}% of total`}
+          />
+          <JobStatsCard
+            title="Total Applicants"
+            value={stats.applicants}
+            icon={FileText}
+            description={`Avg ${stats.avgApplicants} per job`}
+          />
+          <JobStatsCard
+            title="Filled Positions"
+            value={stats.filled}
+            icon={CheckCircle}
+            description="Successfully filled"
+          />
         </div>
 
         <JobsFilterBar
