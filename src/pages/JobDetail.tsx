@@ -36,11 +36,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { FormDrawer } from "@/components/ui/form-drawer";
 import { JobWizard } from "@/components/jobs/JobWizard";
+import { ExternalPromotionDialog } from "@/components/jobs/ExternalPromotionDialog";
+import { Megaphone } from "lucide-react";
 
 export default function JobDetail() {
   const { jobId } = useParams();
   const job = jobId ? getJobById(jobId) : null;
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+  const [promotionDialogOpen, setPromotionDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   if (!job) {
@@ -382,7 +385,44 @@ export default function JobDetail() {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings">
+          <TabsContent value="settings" className="space-y-6">
+            {!job.hasJobTargetPromotion && (job.serviceType === 'self-managed' || job.serviceType === 'rpo') && (
+              <Card className="border-primary/20 bg-primary/5">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Megaphone className="h-5 w-5 text-primary" />
+                    Promote to External Job Boards
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Maximize your job's reach by promoting it to 50M+ candidates across major job boards like Indeed, LinkedIn, and Glassdoor.
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary mt-0.5">✓</span>
+                      <span>Get 3-5x more qualified applicants</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary mt-0.5">✓</span>
+                      <span>Reduce time-to-hire with broader exposure</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary mt-0.5">✓</span>
+                      <span>Flexible budget options starting from $500</span>
+                    </li>
+                  </ul>
+                  <Button 
+                    className="w-full" 
+                    onClick={() => setPromotionDialogOpen(true)}
+                  >
+                    <Megaphone className="h-4 w-4 mr-2" />
+                    Promote to External Job Boards
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+            
             <Card>
               <CardHeader>
                 <CardTitle>Job Settings</CardTitle>
@@ -422,6 +462,15 @@ export default function JobDetail() {
             embedded
           />
         </FormDrawer>
+
+        <ExternalPromotionDialog
+          open={promotionDialogOpen}
+          onOpenChange={setPromotionDialogOpen}
+          job={job}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+          }}
+        />
       </div>
     </DashboardPageLayout>
   );

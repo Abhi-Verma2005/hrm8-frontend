@@ -5,7 +5,6 @@ import { SERVICE_PRICING } from '@/types/billing';
 
 export function calculateServicePricing(
   serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo',
-  jobTargetBudget: number,
   salaryRange?: { min: number; max: number }
 ): ServicePricing {
   let baseFee = 0;
@@ -27,14 +26,14 @@ export function calculateServicePricing(
   }
   
   const upfrontServiceFee = baseFee * upfrontPercentage;
-  const totalUpfront = upfrontServiceFee + jobTargetBudget;
+  const totalUpfront = upfrontServiceFee;
   const balanceOnCompletion = baseFee * (1 - upfrontPercentage);
   
   return {
     serviceType,
     baseFee,
     upfrontPercentage,
-    jobTargetBudget,
+    jobTargetBudget: 0,
     totalUpfront,
     balanceOnCompletion
   };
@@ -70,12 +69,12 @@ export async function processAccountPayment(
       employerName: employer.name,
       serviceType: pricing.serviceType,
       serviceFee: pricing.baseFee,
-      jobTargetBudget: pricing.jobTargetBudget,
+    jobTargetBudget: 0,
       jobTargetBudgetUsed: 0,
-      jobTargetBudgetRemaining: pricing.jobTargetBudget,
+    jobTargetBudgetRemaining: 0,
       upfrontAmount: pricing.totalUpfront,
       balanceAmount: pricing.balanceOnCompletion,
-      totalAmount: pricing.baseFee + pricing.jobTargetBudget,
+    totalAmount: pricing.baseFee,
       upfrontPaymentStatus: 'pending',
       upfrontPaymentMethod: 'account',
       invoiceRequested: true,
@@ -109,12 +108,12 @@ export async function processAccountPayment(
     employerName: employer.name,
     serviceType: pricing.serviceType,
     serviceFee: pricing.baseFee,
-    jobTargetBudget: pricing.jobTargetBudget,
+    jobTargetBudget: 0,
     jobTargetBudgetUsed: 0,
-    jobTargetBudgetRemaining: pricing.jobTargetBudget,
+    jobTargetBudgetRemaining: 0,
     upfrontAmount: pricing.totalUpfront,
     balanceAmount: pricing.balanceOnCompletion,
-    totalAmount: pricing.baseFee + pricing.jobTargetBudget,
+    totalAmount: pricing.baseFee,
     upfrontPaymentStatus: 'paid',
     upfrontPaymentMethod: 'account',
     upfrontPaymentDate: new Date(),
@@ -184,12 +183,12 @@ export async function processCreditCardPayment(
     employerName: employer.name,
     serviceType: pricing.serviceType,
     serviceFee: pricing.baseFee,
-    jobTargetBudget: pricing.jobTargetBudget,
+    jobTargetBudget: 0,
     jobTargetBudgetUsed: 0,
-    jobTargetBudgetRemaining: pricing.jobTargetBudget,
+    jobTargetBudgetRemaining: 0,
     upfrontAmount: pricing.totalUpfront,
     balanceAmount: pricing.balanceOnCompletion,
-    totalAmount: pricing.baseFee + pricing.jobTargetBudget,
+    totalAmount: pricing.baseFee,
     upfrontPaymentStatus: 'paid',
     upfrontPaymentMethod: 'credit_card',
     upfrontStripePaymentIntentId: stripePaymentIntentId,

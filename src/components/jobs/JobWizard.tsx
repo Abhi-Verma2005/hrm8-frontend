@@ -21,12 +21,12 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { JobBoardPublicPreview } from "./JobBoardPublicPreview";
+import { ExternalPromotionDialog } from "./ExternalPromotionDialog";
 import { toast } from "@/hooks/use-toast";
 import { saveJob } from "@/lib/mockJobStorage";
 import { generateJobCode } from "@/lib/jobUtils";
 import { getEmployerById } from "@/lib/employerService";
 import { calculateServicePricing, processAccountPayment, processCreditCardPayment } from "@/lib/paymentService";
-import { JOBTARGET_BUDGET_TIERS } from "@/types/billing";
 
 
 interface JobWizardProps {
@@ -41,6 +41,8 @@ interface JobWizardProps {
 export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCancel, embedded = false }: JobWizardProps) {
   const [step, setStep] = useState(1);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [showExternalPromotionDialog, setShowExternalPromotionDialog] = useState(false);
+  const [savedJobData, setSavedJobData] = useState<Job | null>(null);
   
   const findScrollContainer = (): HTMLElement | null => {
     const scrollAreaViewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
@@ -143,15 +145,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
     }
     
     const isSelfManaged = data.serviceType === 'self-managed' || data.serviceType === 'rpo';
-    const hasJobTargetPromotion = data.includeJobTargetPromotion && data.jobTargetBudgetTier !== 'none';
-    
-    const jobTargetBudget = !hasJobTargetPromotion
-      ? 0
-      : data.jobTargetBudgetTier === 'custom'
-      ? data.jobTargetBudgetCustom || 0
-      : JOBTARGET_BUDGET_TIERS.find(t => t.id === data.jobTargetBudgetTier)?.amount || 0;
-    
-    const requiresPayment = !isSelfManaged || jobTargetBudget > 0;
+    const requiresPayment = !isSelfManaged;
     
     const jobData: Job = {
       id: jobId || `job-${Date.now()}`,
@@ -167,19 +161,18 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
       postingDate: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      hasJobTargetPromotion,
-      jobTargetBudget,
-      jobTargetBudgetRemaining: jobTargetBudget,
+      hasJobTargetPromotion: false,
+      jobTargetBudget: 0,
+      jobTargetBudgetRemaining: 0,
       requiresPayment,
       termsAccepted: data.termsAccepted,
       termsAcceptedAt: new Date(),
       termsAcceptedBy: 'current-user-id',
     };
     
-    if (requiresPayment && jobTargetBudget > 0) {
+    if (requiresPayment) {
       const pricing = calculateServicePricing(
         data.serviceType,
-        jobTargetBudget,
         { min: data.salaryMin || 0, max: data.salaryMax || 0 }
       );
       
@@ -234,16 +227,21 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
 
     saveJob(jobData);
     
+    // Store job data for external promotion dialog
+    setSavedJobData(jobData);
+    
+    // Show external promotion popup for self-managed jobs
+    if (isSelfManaged) {
+      setShowExternalPromotionDialog(true);
+      return;
+    }
+    
     const successTitle = requiresPayment
-      ? isSelfManaged
-        ? "Job Posted & Payment Processed"
-        : "Payment Processed & Job Created"
+      ? "Payment Processed & Job Created"
       : "Job Posted Successfully";
     
     const successDescription = requiresPayment
-      ? isSelfManaged
-        ? `Your job is now live on HRM8${hasJobTargetPromotion ? ' and will be promoted to external job boards' : ''}`
-        : "Your recruitment service request has been submitted and payment processed"
+      ? "Your recruitment service request has been submitted and payment processed"
       : "Your job is now live on HRM8";
     
     toast({
@@ -334,8 +332,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
                 {(() => {
                   const formData = form.watch();
                   const isSelfManagedJob = formData.serviceType === 'self-managed' || formData.serviceType === 'rpo';
-                  const hasPromotion = formData.includeJobTargetPromotion && formData.jobTargetBudgetTier !== 'none';
-                  const needsPayment = !isSelfManagedJob || hasPromotion;
+                  const needsPayment = !isSelfManagedJob;
                   
                   if (isHRM8Service) return 'Submit Request';
                   if (!needsPayment) return 'Publish Job';
@@ -367,6 +364,19 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
             </div>
           </SheetContent>
         </Sheet>
+
+        {savedJobData && (
+          <ExternalPromotionDialog
+            open={showExternalPromotionDialog}
+            onOpenChange={setShowExternalPromotionDialog}
+            job={savedJobData}
+            onSuccess={() => {
+              if (onSuccess) {
+                onSuccess(savedJobData);
+              }
+            }}
+          />
+        )}
       </form>
     </Form>
   );

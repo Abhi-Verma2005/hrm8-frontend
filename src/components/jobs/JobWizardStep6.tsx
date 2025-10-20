@@ -1,16 +1,10 @@
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { JobFormData } from '@/types/job';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { JobTargetPromotionOptIn } from './JobTargetPromotionOptIn';
-import { JobBoardBudgetSelector } from './JobBoardBudgetSelector';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
 import { TermsAndConditions } from './TermsAndConditions';
 import { calculateServicePricing } from '@/lib/paymentService';
-import { DollarSign, Megaphone, AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { JOBTARGET_BUDGET_TIERS } from '@/types/billing';
+import { DollarSign, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface JobWizardStep6Props {
@@ -20,51 +14,15 @@ interface JobWizardStep6Props {
 export function JobWizardStep6({ form }: JobWizardStep6Props) {
   const formData = form.watch();
   
-  const [promotionEnabled, setPromotionEnabled] = useState(
-    formData.includeJobTargetPromotion ?? (formData.serviceType !== 'self-managed')
-  );
-  const [selectedTier, setSelectedTier] = useState<string>(
-    formData.jobTargetBudgetTier || (formData.serviceType === 'self-managed' ? 'none' : 'standard')
-  );
-  const [customAmount, setCustomAmount] = useState<number>(formData.jobTargetBudgetCustom || 0);
   const [termsAccepted, setTermsAccepted] = useState(formData.termsAccepted || false);
   
-  const isSelfManaged = formData.serviceType === 'self-managed';
-  const requiresPayment = !isSelfManaged || (promotionEnabled && selectedTier !== 'none');
-  
-  const jobTargetBudget = !promotionEnabled || selectedTier === 'none'
-    ? 0
-    : selectedTier === 'custom'
-    ? customAmount
-    : JOBTARGET_BUDGET_TIERS.find(t => t.id === selectedTier)?.amount || 0;
+  const isSelfManaged = formData.serviceType === 'self-managed' || formData.serviceType === 'rpo';
+  const requiresPayment = !isSelfManaged;
   
   const pricing = calculateServicePricing(
     formData.serviceType,
-    jobTargetBudget,
     { min: formData.salaryMin || 0, max: formData.salaryMax || 0 }
   );
-  
-  const handlePromotionToggle = (enabled: boolean) => {
-    setPromotionEnabled(enabled);
-    form.setValue('includeJobTargetPromotion', enabled);
-    if (!enabled) {
-      setSelectedTier('none');
-      form.setValue('jobTargetBudgetTier', 'none');
-    } else {
-      setSelectedTier('standard');
-      form.setValue('jobTargetBudgetTier', 'standard');
-    }
-  };
-  
-  const handleTierChange = (tier: string) => {
-    setSelectedTier(tier);
-    form.setValue('jobTargetBudgetTier', tier as any);
-  };
-  
-  const handleCustomAmountChange = (amount: number) => {
-    setCustomAmount(amount);
-    form.setValue('jobTargetBudgetCustom', amount);
-  };
   
   const handlePaymentMethodSelect = (method: 'account' | 'credit_card', invoiceRequested?: boolean) => {
     form.setValue('selectedPaymentMethod', method);
@@ -81,54 +39,22 @@ export function JobWizardStep6({ form }: JobWizardStep6Props) {
       <div>
         <h3 className="text-lg font-semibold flex items-center gap-2">
           <DollarSign className="h-5 w-5" />
-          {isSelfManaged ? 'Job Board Promotion & Payment' : 'Budget Allocation & Payment'}
+          {isSelfManaged ? 'Terms & Conditions' : 'Payment & Terms'}
         </h3>
         <p className="text-sm text-muted-foreground mt-1">
           {isSelfManaged 
-            ? 'Maximize your reach by promoting to external job boards'
-            : 'Allocate promotion budget and complete payment'}
+            ? 'Review and accept the terms to publish your job posting'
+            : 'Complete payment and accept the terms to proceed'}
         </p>
       </div>
       
-      <JobTargetPromotionOptIn
-        enabled={promotionEnabled}
-        onToggle={handlePromotionToggle}
-        serviceType={formData.serviceType}
-      />
-      
-      {promotionEnabled && (
-        <>
-          <Separator />
-          <JobBoardBudgetSelector
-            selectedTier={selectedTier}
-            customAmount={customAmount}
-            onTierChange={handleTierChange}
-            onCustomAmountChange={handleCustomAmountChange}
-            serviceType={formData.serviceType}
-          />
-        </>
-      )}
-      
       {requiresPayment && pricing.totalUpfront > 0 && (
-        <>
-          <Separator />
-          
-          <div className="space-y-4">
-            <Button 
-              size="lg" 
-              className="w-full"
-              onClick={() => {
-                // TODO: Open job board selection dialog
-                console.log('Select job boards clicked');
-              }}
-            >
-              <Megaphone className="mr-2 h-5 w-5" />
-              Select Job Boards to Promote Your Job
-            </Button>
-          </div>
-          
-          <Separator />
-        </>
+        <PaymentMethodSelector
+          employerId={formData.employerId}
+          amount={pricing.totalUpfront}
+          selectedMethod={formData.selectedPaymentMethod}
+          onMethodSelect={handlePaymentMethodSelect}
+        />
       )}
       
       <TermsAndConditions
@@ -137,12 +63,12 @@ export function JobWizardStep6({ form }: JobWizardStep6Props) {
         required={true}
       />
       
-      {isSelfManaged && !promotionEnabled && (
+      {isSelfManaged && (
         <Alert>
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>No Payment Required</AlertTitle>
+          <AlertTitle>Free HRM8 Posting</AlertTitle>
           <AlertDescription>
-            Your job will be posted to HRM8 for free. You can add JobTarget promotion later from the job detail page.
+            Your job will be posted to HRM8 at no cost. After publishing, you'll have the option to promote to external job boards via JobTarget.
           </AlertDescription>
         </Alert>
       )}
