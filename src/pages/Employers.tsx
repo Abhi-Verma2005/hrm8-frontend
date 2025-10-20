@@ -170,8 +170,6 @@ export default function Employers() {
           columns={columns}
           data={filteredEmployers}
           selectable
-          searchable
-          searchKeys={['name', 'industry', 'location', 'email']}
         />
       </div>
     </DashboardPageLayout>
