@@ -15,12 +15,12 @@ const coreNavItems = [
   { title: "Dashboard", url: "/dashboard/overview", icon: LayoutDashboard },
   { title: "Jobs", url: "/jobs", icon: Briefcase },
   { title: "Candidates", url: "/candidates", icon: Users },
-  { title: "Employers", url: "/employers", icon: Building },
-  { title: "Consultants", url: "/consultants", icon: UserCog },
 ];
 
 // OPERATIONS Section
 const operationsNavItems = [
+  { title: "Employers", url: "/employers", icon: Building },
+  { title: "Consultants", url: "/consultants", icon: UserCog },
   { title: "HRMS", url: "/hrms", icon: UserCheck },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Calendar", url: "/calendar", icon: Calendar },
