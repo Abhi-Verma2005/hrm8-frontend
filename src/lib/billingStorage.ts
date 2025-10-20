@@ -66,9 +66,6 @@ export function allocateBudgetToBoards(
   if (!payment) throw new Error('Payment not found');
   
   const totalCost = boards.reduce((sum, b) => sum + b.cost, 0);
-  if (totalCost > payment.jobTargetBudgetRemaining) {
-    throw new Error('Insufficient budget');
-  }
   
   const promotion: JobTargetPromotion = {
     id: `promo-${Date.now()}`,
@@ -84,7 +81,7 @@ export function allocateBudgetToBoards(
       status: 'active'
     })),
     totalCost,
-    remainingBudget: payment.jobTargetBudgetRemaining - totalCost,
+    remainingBudget: 0,
     status: 'active',
     submittedAt: new Date(),
     createdAt: new Date(),
@@ -92,11 +89,6 @@ export function allocateBudgetToBoards(
   };
   
   createPromotion(promotion);
-  
-  updatePayment(paymentId, {
-    jobTargetBudgetUsed: payment.jobTargetBudgetUsed + totalCost,
-    jobTargetBudgetRemaining: payment.jobTargetBudgetRemaining - totalCost
-  });
   
   return promotion;
 }

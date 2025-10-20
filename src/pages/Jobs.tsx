@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { JobsFilterBar } from "@/components/jobs/JobsFilterBar";
 import { getCountryFromLocation, expandRegionsToCountries, REGION_COUNTRY_MAP, getRegionForCountry } from "@/lib/countryRegions";
+import { JobPostingCostDialog } from "@/components/jobs/JobPostingCostDialog";
 
 export default function Jobs() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -42,6 +43,7 @@ export default function Jobs() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingJobId, setEditingJobId] = useState<string | null>(null);
+  const [showJobPostingDialog, setShowJobPostingDialog] = useState(false);
   const [showServiceDialog, setShowServiceDialog] = useState(false);
   const [selectedServiceType, setSelectedServiceType] = useState<'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo'>('self-managed');
   
@@ -53,11 +55,11 @@ export default function Jobs() {
 
   const jobs = useMemo(() => getJobs(), [refreshKey]);
   
-  // Auto-open service dialog when navigating with action=create
+  // Auto-open job posting dialog when navigating with action=create
   useEffect(() => {
     if (searchParams.get('action') === 'create') {
       setEditingJobId(null);
-      setShowServiceDialog(true);
+      setShowJobPostingDialog(true);
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -174,7 +176,24 @@ export default function Jobs() {
 
   const handleCreateJob = () => {
     setEditingJobId(null);
+    setShowJobPostingDialog(true);
+  };
+
+  const handleJobPostingContinue = () => {
+    setShowJobPostingDialog(false);
     setShowServiceDialog(true);
+  };
+
+  const handleJobPostingUpgrade = () => {
+    setShowJobPostingDialog(false);
+    toast({
+      title: "Upgrade Options",
+      description: "Contact us to upgrade your subscription plan.",
+    });
+  };
+
+  const handleJobPostingCancel = () => {
+    setShowJobPostingDialog(false);
   };
 
   const handleServiceTypeSelect = (serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search') => {
@@ -434,6 +453,14 @@ export default function Jobs() {
             embedded
           />
         </FormDrawer>
+
+      <JobPostingCostDialog
+        open={showJobPostingDialog}
+        employerId="1"
+        onContinue={handleJobPostingContinue}
+        onUpgrade={handleJobPostingUpgrade}
+        onCancel={handleJobPostingCancel}
+      />
 
       <ServiceTypeSelectionDialog 
         open={showServiceDialog}

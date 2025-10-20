@@ -67,6 +67,56 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   const deptNames = commonDepartments[i % commonDepartments.length];
   const locationNames = [baseLocation, `${baseLocation} - Downtown`, `${baseLocation} - Tech Hub`];
   
+  // Assign subscription tiers to different employers
+  let subscriptionTier: 'free' | 'small' | 'medium' | 'large' | 'enterprise' | undefined = undefined;
+  let accountType: 'approved' | 'payg' | undefined = undefined;
+  let maxOpenJobs = 0;
+  let currentOpenJobs = 0;
+  let maxUsers = 0;
+  let currentUsers = 1;
+  let monthlySubscriptionFee: number | undefined = undefined;
+  let hasUsedFreeTier = false;
+  
+  if (i % 5 === 0) {
+    // Free tier
+    subscriptionTier = 'free';
+    maxOpenJobs = 1;
+    currentOpenJobs = i % 10 === 0 ? 0 : 1;
+    maxUsers = 1;
+    hasUsedFreeTier = i % 10 !== 0;
+  } else if (i % 5 === 1) {
+    // Small subscription
+    subscriptionTier = 'small';
+    maxOpenJobs = 5;
+    currentOpenJobs = Math.min(Math.floor(Math.random() * 6), 5);
+    maxUsers = Infinity;
+    currentUsers = Math.floor(Math.random() * 5) + 1;
+    monthlySubscriptionFee = 295;
+  } else if (i % 5 === 2) {
+    // Medium subscription
+    subscriptionTier = 'medium';
+    maxOpenJobs = 25;
+    currentOpenJobs = Math.min(Math.floor(Math.random() * 20), 25);
+    maxUsers = Infinity;
+    currentUsers = Math.floor(Math.random() * 10) + 1;
+    monthlySubscriptionFee = 495;
+  } else if (i % 5 === 3) {
+    // Large subscription
+    subscriptionTier = 'large';
+    maxOpenJobs = 50;
+    currentOpenJobs = Math.min(Math.floor(Math.random() * 40), 50);
+    maxUsers = Infinity;
+    currentUsers = Math.floor(Math.random() * 20) + 1;
+    monthlySubscriptionFee = 695;
+  } else {
+    // PAYG
+    accountType = 'payg';
+    maxOpenJobs = Infinity;
+    currentOpenJobs = Math.floor(Math.random() * 15);
+    maxUsers = Infinity;
+    currentUsers = Math.floor(Math.random() * 8) + 1;
+  }
+  
   return {
     id: `${i + 1}`,
     name: companyNames[i],
@@ -74,11 +124,23 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
     industry: industries[i % industries.length],
     location: baseLocation,
     status: statuses[i % statuses.length],
-    activeJobs: Math.floor(Math.random() * 20),
+    activeJobs: currentOpenJobs,
     lastContact: new Date(2024, 0, Math.floor(Math.random() * 15) + 1),
     email: `contact@${companyNames[i].toLowerCase().replace(/\s+/g, '')}.com`,
     departments: createDepartments(deptNames, i),
     locations: createLocations(locationNames, i),
+    accountType,
+    subscriptionTier,
+    subscriptionStatus: subscriptionTier ? 'active' : undefined,
+    subscriptionStartDate: subscriptionTier ? new Date(2024, 0, 1) : undefined,
+    subscriptionEndDate: subscriptionTier ? new Date(2025, 0, 1) : undefined,
+    maxOpenJobs,
+    currentOpenJobs,
+    maxUsers,
+    currentUsers,
+    monthlySubscriptionFee,
+    nextBillingDate: subscriptionTier ? new Date(2025, 0, 15) : undefined,
+    hasUsedFreeTier,
   };
 });
 

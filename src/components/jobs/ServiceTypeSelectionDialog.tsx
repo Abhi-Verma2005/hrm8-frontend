@@ -17,13 +17,13 @@ const services = [
     id: 'self-managed' as const,
     name: 'Self-Managed',
     price: 'FREE',
-    priceSubtext: 'Complete DIY',
-    description: 'Full control over your recruitment process',
+    priceSubtext: 'No additional cost',
+    description: 'Post and manage the job yourself',
     features: [
-      'Complete platform access',
-      'All recruitment tools',
-      'Candidate sourcing',
-      'Optional: JobTarget promotion (additional cost)'
+      'Post to HRM8 job board',
+      'Full ATS & candidate tracking',
+      'Application management',
+      'Interview scheduling'
     ],
     icon: Briefcase,
     recommended: false,
@@ -95,9 +95,9 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect, onCancel
     <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto [&>button]:hidden">
         <DialogHeader className="text-center space-y-3 pb-4">
-          <DialogTitle className="text-3xl font-bold">Choose Your Recruitment Service</DialogTitle>
+          <DialogTitle className="text-3xl font-bold">Choose Your Recruitment Approach</DialogTitle>
           <DialogDescription className="text-base">
-            Compare pricing and features to find the perfect fit for your hiring needs
+            Your job posting cost has been confirmed. Now decide if you'd like HRM8's recruitment team to assist (optional add-on services)
           </DialogDescription>
         </DialogHeader>
 

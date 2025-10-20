@@ -2,6 +2,7 @@ import { getEmployerById } from './employerService';
 import { createPayment, addLineItemToInvoice, getCurrentDraftInvoice, createInvoice, generateInvoiceNumber } from './billingStorage';
 import type { JobPayment, ServicePricing } from '@/types/billing';
 import { SERVICE_PRICING } from '@/types/billing';
+import { PAYG_JOB_POSTING_COST } from './subscriptionConfig';
 
 export function calculateServicePricing(
   serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo',
@@ -39,6 +40,47 @@ export function calculateServicePricing(
   };
 }
 
+export function calculateJobPostingCost(employerId: string): number {
+  const employer = getEmployerById(employerId);
+  if (!employer) return 0;
+
+  // Subscription users (except free) - included in plan
+  if (employer.subscriptionTier && employer.subscriptionTier !== 'free') {
+    return 0;
+  }
+
+  // FREE tier - first job free
+  if (employer.subscriptionTier === 'free' && !employer.hasUsedFreeTier) {
+    return 0;
+  }
+
+  // PAYG users or free tier after first job
+  return PAYG_JOB_POSTING_COST;
+}
+
+export function calculateTotalJobCost(
+  employerId: string,
+  serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo',
+  salaryRange?: { min: number; max: number }
+): {
+  jobPostingCost: number;
+  recruitmentServiceCost: number;
+  upfrontRecruitmentCost: number;
+  balanceRecruitmentCost: number;
+  totalUpfront: number;
+} {
+  const jobPostingCost = calculateJobPostingCost(employerId);
+  const servicePricing = calculateServicePricing(serviceType, salaryRange);
+
+  return {
+    jobPostingCost,
+    recruitmentServiceCost: servicePricing.baseFee,
+    upfrontRecruitmentCost: servicePricing.totalUpfront,
+    balanceRecruitmentCost: servicePricing.balanceOnCompletion,
+    totalUpfront: jobPostingCost + servicePricing.totalUpfront
+  };
+}
+
 export function canUseAccountBilling(employerId: string, amount: number): boolean {
   const employer = getEmployerById(employerId);
   if (!employer || employer.accountType !== 'approved') return false;
@@ -62,24 +104,33 @@ export async function processAccountPayment(
   }
   
   if (employer.accountType === 'payg' && invoiceRequested) {
+    const jobPostingCost = calculateJobPostingCost(employerId);
+    
     const payment: JobPayment = {
       id: `payment-${Date.now()}`,
       jobId,
       employerId,
       employerName: employer.name,
+      
+      jobPostingCost,
+      jobPostingPaymentStatus: 'pending',
+      jobPostingPaymentMethod: 'account',
+      
       serviceType: pricing.serviceType,
       serviceFee: pricing.baseFee,
-    jobTargetBudget: 0,
-      jobTargetBudgetUsed: 0,
-    jobTargetBudgetRemaining: 0,
-      upfrontAmount: pricing.totalUpfront,
-      balanceAmount: pricing.balanceOnCompletion,
-    totalAmount: pricing.baseFee,
-      upfrontPaymentStatus: 'pending',
-      upfrontPaymentMethod: 'account',
+      upfrontServiceAmount: pricing.totalUpfront,
+      balanceServiceAmount: pricing.balanceOnCompletion,
+      
+      upfrontServicePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'pending',
+      upfrontServicePaymentMethod: 'account',
+      
+      balanceServicePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'pending',
+      
+      totalUpfront: jobPostingCost + pricing.totalUpfront,
+      totalAmount: jobPostingCost + pricing.baseFee,
+      
       invoiceRequested: true,
       invoiceRequestedAt: new Date(),
-      balancePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'pending',
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -97,7 +148,10 @@ export async function processAccountPayment(
     return { success: false, error: 'Not an approved account' };
   }
   
-  if (!canUseAccountBilling(employerId, pricing.totalUpfront)) {
+  const jobPostingCost = calculateJobPostingCost(employerId);
+  const totalUpfront = jobPostingCost + pricing.totalUpfront;
+  
+  if (!canUseAccountBilling(employerId, totalUpfront)) {
     return { success: false, error: 'Credit limit exceeded' };
   }
   
@@ -106,19 +160,26 @@ export async function processAccountPayment(
     jobId,
     employerId,
     employerName: employer.name,
+    
+    jobPostingCost,
+    jobPostingPaymentStatus: jobPostingCost > 0 ? 'paid' : 'waived',
+    jobPostingPaymentMethod: jobPostingCost > 0 ? 'account' : undefined,
+    
     serviceType: pricing.serviceType,
     serviceFee: pricing.baseFee,
-    jobTargetBudget: 0,
-    jobTargetBudgetUsed: 0,
-    jobTargetBudgetRemaining: 0,
-    upfrontAmount: pricing.totalUpfront,
-    balanceAmount: pricing.balanceOnCompletion,
-    totalAmount: pricing.baseFee,
-    upfrontPaymentStatus: 'paid',
-    upfrontPaymentMethod: 'account',
-    upfrontPaymentDate: new Date(),
+    upfrontServiceAmount: pricing.totalUpfront,
+    balanceServiceAmount: pricing.balanceOnCompletion,
+    
+    upfrontServicePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'paid',
+    upfrontServicePaymentMethod: pricing.serviceType === 'self-managed' ? undefined : 'account',
+    upfrontServicePaymentDate: pricing.serviceType === 'self-managed' ? undefined : new Date(),
+    
+    balanceServicePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'pending',
+    
+    totalUpfront,
+    totalAmount: jobPostingCost + pricing.baseFee,
+    
     invoiceRequested: false,
-    balancePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'pending',
     createdAt: new Date(),
     updatedAt: new Date()
   };
@@ -176,25 +237,35 @@ export async function processCreditCardPayment(
     return { success: false, error: 'Employer not found' };
   }
   
+  const jobPostingCost = calculateJobPostingCost(employerId);
+  const totalUpfront = jobPostingCost + pricing.totalUpfront;
+  
   const payment: JobPayment = {
     id: `payment-${Date.now()}`,
     jobId,
     employerId,
     employerName: employer.name,
+    
+    jobPostingCost,
+    jobPostingPaymentStatus: jobPostingCost > 0 ? 'paid' : 'waived',
+    jobPostingPaymentMethod: jobPostingCost > 0 ? 'credit_card' : undefined,
+    
     serviceType: pricing.serviceType,
     serviceFee: pricing.baseFee,
-    jobTargetBudget: 0,
-    jobTargetBudgetUsed: 0,
-    jobTargetBudgetRemaining: 0,
-    upfrontAmount: pricing.totalUpfront,
-    balanceAmount: pricing.balanceOnCompletion,
-    totalAmount: pricing.baseFee,
-    upfrontPaymentStatus: 'paid',
-    upfrontPaymentMethod: 'credit_card',
-    upfrontStripePaymentIntentId: stripePaymentIntentId,
-    upfrontPaymentDate: new Date(),
+    upfrontServiceAmount: pricing.totalUpfront,
+    balanceServiceAmount: pricing.balanceOnCompletion,
+    
+    upfrontServicePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'paid',
+    upfrontServicePaymentMethod: pricing.serviceType === 'self-managed' ? undefined : 'credit_card',
+    upfrontServicePaymentDate: pricing.serviceType === 'self-managed' ? undefined : new Date(),
+    upfrontStripePaymentIntentId: pricing.serviceType === 'self-managed' ? undefined : stripePaymentIntentId,
+    
+    balanceServicePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'pending',
+    
+    totalUpfront,
+    totalAmount: jobPostingCost + pricing.baseFee,
+    
     invoiceRequested: false,
-    balancePaymentStatus: pricing.serviceType === 'self-managed' ? 'not_applicable' : 'pending',
     createdAt: new Date(),
     updatedAt: new Date()
   };

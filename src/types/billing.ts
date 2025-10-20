@@ -84,27 +84,32 @@ export interface JobPayment {
   employerId: string;
   employerName: string;
   
+  // Job Posting Cost (Platform Fee)
+  jobPostingCost: number;
+  jobPostingPaymentStatus: 'pending' | 'paid' | 'waived';
+  jobPostingPaymentMethod?: 'account' | 'credit_card';
+  
+  // Recruitment Service Cost (Add-on)
   serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
   serviceFee: number;
-  jobTargetBudget: number;
-  jobTargetBudgetUsed: number;
-  jobTargetBudgetRemaining: number;
+  upfrontServiceAmount: number;
+  balanceServiceAmount: number;
   
-  upfrontAmount: number;
-  balanceAmount: number;
-  totalAmount: number;
-  
-  upfrontPaymentStatus: 'pending' | 'authorized' | 'paid' | 'failed';
-  upfrontPaymentMethod: 'account' | 'credit_card';
-  upfrontPaymentDate?: Date;
-  upfrontInvoiceId?: string;
+  upfrontServicePaymentStatus: 'pending' | 'paid' | 'not_applicable';
+  upfrontServicePaymentMethod?: 'account' | 'credit_card';
+  upfrontServicePaymentDate?: Date;
   upfrontStripePaymentIntentId?: string;
+  
+  balanceServicePaymentStatus: 'pending' | 'paid' | 'waived' | 'not_applicable';
+  balanceServicePaymentDate?: Date;
+  
+  // Total
+  totalUpfront: number;
+  totalAmount: number;
   
   invoiceRequested: boolean;
   invoiceRequestedAt?: Date;
-  
-  balancePaymentStatus: 'pending' | 'paid' | 'waived' | 'not_applicable';
-  balancePaymentDate?: Date;
+  upfrontInvoiceId?: string;
   balanceInvoiceId?: string;
   
   createdAt: Date;

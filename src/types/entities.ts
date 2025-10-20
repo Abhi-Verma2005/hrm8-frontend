@@ -44,6 +44,23 @@ export interface Employer {
   approvedAt?: Date;
   approvedBy?: string;
   stripeCustomerId?: string;
+
+  // Subscription Management
+  subscriptionTier?: 'free' | 'small' | 'medium' | 'large' | 'enterprise';
+  subscriptionStartDate?: Date;
+  subscriptionEndDate?: Date;
+  subscriptionStatus?: 'active' | 'trial' | 'expired' | 'cancelled';
+
+  // Job & User Limits
+  maxOpenJobs: number;
+  currentOpenJobs: number;
+  maxUsers: number;
+  currentUsers: number;
+
+  // Billing
+  monthlySubscriptionFee?: number;
+  nextBillingDate?: Date;
+  hasUsedFreeTier?: boolean;
 }
 
 export interface Job {
