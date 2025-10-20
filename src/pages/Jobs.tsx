@@ -22,7 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,6 +38,7 @@ import { getCountryFromLocation, expandRegionsToCountries, REGION_COUNTRY_MAP, g
 import { JobPostingCostDialog } from "@/components/jobs/JobPostingCostDialog";
 
 export default function Jobs() {
+  const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
