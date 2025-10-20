@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload } from "lucide-react";
+import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive } from "lucide-react";
 import { JobStatsCard } from "@/components/jobs/JobStatsCard";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { getJobs, deleteJob, getJobById } from "@/lib/mockJobStorage";
@@ -483,12 +483,48 @@ export default function Jobs() {
           currentUserId="admin-1"
         />
 
-        <DataTable
-          data={filteredJobs}
-          columns={columns}
-          searchable={false}
-          emptyMessage="No jobs found"
-        />
+          <DataTable
+            data={filteredJobs}
+            columns={columns}
+            searchable={false}
+            selectable
+            renderBulkActions={(selectedIds) => (
+              <>
+                <Button variant="outline" size="sm" onClick={() => {
+                  toast({
+                    title: "Bulk Edit",
+                    description: `Edit ${selectedIds.length} job${selectedIds.length !== 1 ? 's' : ''}`,
+                  });
+                }}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Edit Selected
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => {
+                  toast({
+                    title: "Jobs Archived",
+                    description: `Archived ${selectedIds.length} job${selectedIds.length !== 1 ? 's' : ''}`,
+                  });
+                }}>
+                  <Archive className="mr-2 h-4 w-4" />
+                  Archive Selected
+                </Button>
+                <Button variant="destructive" size="sm" onClick={() => {
+                  if (confirm(`Delete ${selectedIds.length} selected job${selectedIds.length !== 1 ? 's' : ''}?`)) {
+                    selectedIds.forEach(id => deleteJob(id));
+                    toast({
+                      title: "Jobs Deleted",
+                      description: `Deleted ${selectedIds.length} job${selectedIds.length !== 1 ? 's' : ''}`,
+                    });
+                    window.location.reload();
+                  }
+                }}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Selected
+                </Button>
+              </>
+            )}
+            emptyMessage="No jobs found"
+          />
 
         <FormDrawer
           open={drawerOpen}

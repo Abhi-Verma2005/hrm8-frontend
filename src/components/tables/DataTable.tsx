@@ -74,12 +74,17 @@ export function DataTable<T extends { id: string }>({
   // Handle selection
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      const allIds = filteredAndSortedData.map(item => item.id);
-      setSelectedIds(allIds);
-      onSelectedRowsChange?.(allIds);
+      // Select only items on the current page
+      const pageIds = paginatedData.map(item => item.id);
+      const newSelectedIds = [...new Set([...selectedIds, ...pageIds])];
+      setSelectedIds(newSelectedIds);
+      onSelectedRowsChange?.(newSelectedIds);
     } else {
-      setSelectedIds([]);
-      onSelectedRowsChange?.([]);
+      // Deselect only items on the current page
+      const pageIds = paginatedData.map(item => item.id);
+      const newSelectedIds = selectedIds.filter(id => !pageIds.includes(id));
+      setSelectedIds(newSelectedIds);
+      onSelectedRowsChange?.(newSelectedIds);
     }
   };
 
@@ -224,9 +229,16 @@ export function DataTable<T extends { id: string }>({
               {selectable && (
                 <TableHead className="w-12">
                   <Checkbox
-                    checked={selectedIds.length === paginatedData.length && paginatedData.length > 0}
+                    checked={
+                      paginatedData.length > 0 &&
+                      paginatedData.every(item => selectedIds.includes(item.id))
+                        ? true
+                        : paginatedData.some(item => selectedIds.includes(item.id))
+                        ? "indeterminate"
+                        : false
+                    }
                     onCheckedChange={handleSelectAll}
-                    aria-label="Select all"
+                    aria-label="Select all on this page"
                   />
                 </TableHead>
               )}
