@@ -4,7 +4,7 @@ import { JobFormData } from '@/types/job';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
 import { TermsAndConditions } from './TermsAndConditions';
 import { calculateTotalJobCost } from '@/lib/paymentService';
-import { DollarSign, AlertCircle, Info } from 'lucide-react';
+import { DollarSign, AlertCircle, Info, Megaphone } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RECRUITMENT_SERVICES } from '@/lib/subscriptionConfig';
@@ -125,11 +125,11 @@ export function JobWizardStep6({ form }: JobWizardStep6Props) {
       />
       
       {isSelfManaged && costBreakdown.jobPostingCost === 0 && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Free Job Posting</AlertTitle>
-          <AlertDescription>
-            Your job will be posted to HRM8 at no cost. After publishing, you'll have the option to promote to external job boards.
+        <Alert className="border-2 border-primary/30 bg-primary/5">
+          <Megaphone className="h-5 w-5 text-primary" />
+          <AlertTitle className="text-base font-semibold">🎉 Free Job Posting Activated!</AlertTitle>
+          <AlertDescription className="text-base">
+            Your job will be posted to HRM8 at <span className="font-semibold text-primary">no cost</span>. Want to reach 10x more candidates? After publishing, you'll have the option to <span className="font-semibold text-primary">promote to external job boards</span> for maximum visibility.
           </AlertDescription>
         </Alert>
       )}
