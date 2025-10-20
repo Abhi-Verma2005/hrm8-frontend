@@ -364,10 +364,18 @@ export function JobPostingCostDialog({
                 </ul>
               </div>
 
-              <div className="pt-2 border-t">
+              <div className="pt-2 border-t space-y-2">
                 <p className="text-xs text-muted-foreground">
                   Future posts: ${PAYG_JOB_POSTING_COST} each (PAYG) or subscribe for 5+ jobs starting at $295/month
                 </p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={onUpgrade}
+                  className="w-full"
+                >
+                  View Pricing Plans
+                </Button>
               </div>
             </CardContent>
           </Card>
