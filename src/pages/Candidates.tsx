@@ -2,30 +2,78 @@ import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DataTable } from "@/components/tables/DataTable";
 import { candidateTableColumns } from "@/components/candidates/CandidateTableColumns";
+import { CandidatesFilterBar } from "@/components/candidates/CandidatesFilterBar";
 import { Button } from "@/components/ui/button";
 import { Plus, Download, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getCandidates } from "@/lib/mockCandidateStorage";
 import { Card } from "@/components/ui/card";
+import type { Candidate } from "@/types/entities";
 
 export default function Candidates() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<Candidate['status'] | 'all'>('all');
+  const [experienceLevelFilter, setExperienceLevelFilter] = useState<Candidate['experienceLevel'] | 'all'>('all');
+  const [workArrangementFilter, setWorkArrangementFilter] = useState<Candidate['workArrangement'] | 'all'>('all');
+  const [sourceFilter, setSourceFilter] = useState<Candidate['source'] | 'all'>('all');
   
   const candidates = getCandidates();
 
   const filteredCandidates = useMemo(() => {
     return candidates.filter(candidate => {
-      const matchesSearch = !searchQuery || 
-        candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        candidate.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        candidate.position.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesStatus = statusFilter.length === 0 || statusFilter.includes(candidate.status);
-      
-      return matchesSearch && matchesStatus;
+      // Search filter
+      if (searchTerm) {
+        const searchLower = searchTerm.toLowerCase();
+        const matchesSearch = 
+          candidate.name.toLowerCase().includes(searchLower) ||
+          candidate.email.toLowerCase().includes(searchLower) ||
+          candidate.position.toLowerCase().includes(searchLower) ||
+          candidate.skills.some(skill => skill.toLowerCase().includes(searchLower));
+        
+        if (!matchesSearch) return false;
+      }
+
+      // Status filter
+      if (statusFilter !== 'all' && candidate.status !== statusFilter) {
+        return false;
+      }
+
+      // Experience level filter
+      if (experienceLevelFilter !== 'all' && candidate.experienceLevel !== experienceLevelFilter) {
+        return false;
+      }
+
+      // Work arrangement filter
+      if (workArrangementFilter !== 'all' && candidate.workArrangement !== workArrangementFilter) {
+        return false;
+      }
+
+      // Source filter
+      if (sourceFilter !== 'all' && candidate.source !== sourceFilter) {
+        return false;
+      }
+
+      return true;
     });
-  }, [candidates, searchQuery, statusFilter]);
+  }, [candidates, searchTerm, statusFilter, experienceLevelFilter, workArrangementFilter, sourceFilter]);
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (searchTerm) count++;
+    if (statusFilter !== 'all') count++;
+    if (experienceLevelFilter !== 'all') count++;
+    if (workArrangementFilter !== 'all') count++;
+    if (sourceFilter !== 'all') count++;
+    return count;
+  }, [searchTerm, statusFilter, experienceLevelFilter, workArrangementFilter, sourceFilter]);
+
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter('all');
+    setExperienceLevelFilter('all');
+    setWorkArrangementFilter('all');
+    setSourceFilter('all');
+  };
 
   const stats = useMemo(() => ({
     total: candidates.length,
@@ -85,19 +133,25 @@ export default function Candidates() {
           </Card>
         </div>
 
+        <CandidatesFilterBar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+          experienceLevelFilter={experienceLevelFilter}
+          onExperienceLevelChange={setExperienceLevelFilter}
+          workArrangementFilter={workArrangementFilter}
+          onWorkArrangementChange={setWorkArrangementFilter}
+          sourceFilter={sourceFilter}
+          onSourceChange={setSourceFilter}
+          onClearFilters={handleClearFilters}
+          activeFilterCount={activeFilterCount}
+        />
+
         <DataTable
           data={filteredCandidates}
           columns={candidateTableColumns}
           selectable
-          searchable
-          searchKeys={['name', 'email', 'position']}
-          statusFilter
-          statusOptions={[
-            { label: 'Active', value: 'active' },
-            { label: 'Placed', value: 'placed' },
-            { label: 'Inactive', value: 'inactive' },
-          ]}
-          statusKey="status"
           emptyMessage="No candidates found"
         />
       </div>
