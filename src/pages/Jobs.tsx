@@ -53,11 +53,11 @@ export default function Jobs() {
 
   const jobs = useMemo(() => getJobs(), [refreshKey]);
   
-  // Auto-open drawer when navigating with action=create
+  // Auto-open service dialog when navigating with action=create
   useEffect(() => {
     if (searchParams.get('action') === 'create') {
       setEditingJobId(null);
-      setDrawerOpen(true);
+      setShowServiceDialog(true);
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
