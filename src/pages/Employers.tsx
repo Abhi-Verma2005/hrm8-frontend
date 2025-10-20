@@ -16,7 +16,7 @@ export default function Employers() {
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<Employer['status'] | 'all'>('all');
+  const [countryFilter, setCountryFilter] = useState<string>('all');
   const [tierFilter, setTierFilter] = useState<SubscriptionTier | 'all'>('all');
   const [accountTypeFilter, setAccountTypeFilter] = useState<Employer['accountType'] | 'all'>('all');
 
@@ -35,9 +35,12 @@ export default function Employers() {
         if (!matchesSearch) return false;
       }
 
-      // Status filter
-      if (statusFilter !== 'all' && employer.status !== statusFilter) {
-        return false;
+      // Country filter
+      if (countryFilter !== 'all') {
+        const employerCountry = employer.locations?.[0]?.country || 'United States';
+        if (employerCountry !== countryFilter) {
+          return false;
+        }
       }
 
       // Tier filter
@@ -52,7 +55,7 @@ export default function Employers() {
 
       return true;
     });
-  }, [allEmployers, searchTerm, statusFilter, tierFilter, accountTypeFilter]);
+  }, [allEmployers, searchTerm, countryFilter, tierFilter, accountTypeFilter]);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -78,15 +81,15 @@ export default function Employers() {
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (searchTerm) count++;
-    if (statusFilter !== 'all') count++;
+    if (countryFilter !== 'all') count++;
     if (tierFilter !== 'all') count++;
     if (accountTypeFilter !== 'all') count++;
     return count;
-  }, [searchTerm, statusFilter, tierFilter, accountTypeFilter]);
+  }, [searchTerm, countryFilter, tierFilter, accountTypeFilter]);
 
   const handleClearFilters = () => {
     setSearchTerm("");
-    setStatusFilter('all');
+    setCountryFilter('all');
     setTierFilter('all');
     setAccountTypeFilter('all');
   };
@@ -155,8 +158,8 @@ export default function Employers() {
         <EmployersFilterBar
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          statusFilter={statusFilter}
-          onStatusChange={setStatusFilter}
+          countryFilter={countryFilter}
+          onCountryChange={setCountryFilter}
           tierFilter={tierFilter}
           onTierChange={setTierFilter}
           accountTypeFilter={accountTypeFilter}

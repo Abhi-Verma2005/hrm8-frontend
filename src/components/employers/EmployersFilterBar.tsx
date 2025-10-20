@@ -15,8 +15,8 @@ import type { SubscriptionTier } from "@/lib/subscriptionConfig";
 interface EmployersFilterBarProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  statusFilter: Employer['status'] | 'all';
-  onStatusChange: (value: Employer['status'] | 'all') => void;
+  countryFilter: string;
+  onCountryChange: (value: string) => void;
   tierFilter: SubscriptionTier | 'all';
   onTierChange: (value: SubscriptionTier | 'all') => void;
   accountTypeFilter: Employer['accountType'] | 'all';
@@ -28,8 +28,8 @@ interface EmployersFilterBarProps {
 export function EmployersFilterBar({
   searchTerm,
   onSearchChange,
-  statusFilter,
-  onStatusChange,
+  countryFilter,
+  onCountryChange,
   tierFilter,
   onTierChange,
   accountTypeFilter,
@@ -50,17 +50,23 @@ export function EmployersFilterBar({
           />
         </div>
 
-        <Select value={statusFilter} onValueChange={onStatusChange}>
+        <Select value={countryFilter} onValueChange={onCountryChange}>
           <SelectTrigger className="w-full sm:w-[180px]">
-            <SelectValue placeholder="Status" />
+            <SelectValue placeholder="Country" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-            <SelectItem value="pending">Pending</SelectItem>
-            <SelectItem value="trial">Trial</SelectItem>
-            <SelectItem value="expired">Expired</SelectItem>
+            <SelectItem value="all">All Countries</SelectItem>
+            <SelectItem value="United States">United States</SelectItem>
+            <SelectItem value="Canada">Canada</SelectItem>
+            <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+            <SelectItem value="Germany">Germany</SelectItem>
+            <SelectItem value="France">France</SelectItem>
+            <SelectItem value="Australia">Australia</SelectItem>
+            <SelectItem value="India">India</SelectItem>
+            <SelectItem value="Singapore">Singapore</SelectItem>
+            <SelectItem value="Japan">Japan</SelectItem>
+            <SelectItem value="Brazil">Brazil</SelectItem>
+            <SelectItem value="Mexico">Mexico</SelectItem>
           </SelectContent>
         </Select>
 

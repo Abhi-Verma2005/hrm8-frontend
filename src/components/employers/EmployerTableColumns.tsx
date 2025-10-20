@@ -50,10 +50,22 @@ export const createEmployerColumns = (): Column<Employer>[] => [
     render: (employer) => <SubscriptionTierBadge tier={employer.subscriptionTier} />,
   },
   {
-    key: "status",
-    label: "Status",
+    key: "location",
+    label: "Location",
     sortable: true,
-    render: (employer) => <EmployerStatusBadge status={employer.status} />,
+    render: (employer) => {
+      const locationParts = employer.location.split(',').map(p => p.trim());
+      const city = locationParts[0] || '';
+      const state = locationParts[1] || '';
+      const country = employer.locations?.[0]?.country || 'United States';
+      
+      return (
+        <div className="text-sm">
+          <p className="font-medium">{city}{state ? `, ${state}` : ''}</p>
+          <p className="text-xs text-muted-foreground">{country}</p>
+        </div>
+      );
+    },
   },
   {
     key: "activeJobCount",
@@ -76,7 +88,7 @@ export const createEmployerColumns = (): Column<Employer>[] => [
   },
   {
     key: "lastActivityAt",
-    label: "Last Contact",
+    label: "Last Login",
     sortable: true,
     render: (employer) => {
       const date = employer.lastActivityAt || employer.updatedAt;
