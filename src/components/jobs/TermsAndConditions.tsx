@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -47,16 +47,16 @@ export function TermsAndConditions({ accepted, onAcceptChange, required = true }
           </div>
         </div>
         
-        <div className="flex items-start gap-3 pt-3 border-t">
-          <Checkbox
+        <div className="flex items-center justify-between gap-4 pt-3 border-t">
+          <Label htmlFor="terms-acceptance" className="cursor-pointer leading-tight flex-1">
+            I have read and agree to the HRM8 Terms & Conditions, and confirm that all job information provided is accurate and compliant with applicable laws
+            {required && <span className="text-destructive ml-1">*</span>}
+          </Label>
+          <Switch
             id="terms-acceptance"
             checked={accepted}
             onCheckedChange={(checked) => onAcceptChange(checked as boolean)}
           />
-          <Label htmlFor="terms-acceptance" className="cursor-pointer leading-tight">
-            I have read and agree to the HRM8 Terms & Conditions, and confirm that all job information provided is accurate and compliant with applicable laws
-            {required && <span className="text-destructive ml-1">*</span>}
-          </Label>
         </div>
         
         {required && !accepted && (
