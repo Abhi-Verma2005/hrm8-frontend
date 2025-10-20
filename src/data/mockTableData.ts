@@ -5,6 +5,9 @@ const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Education'
 const locations = ['San Francisco, CA', 'New York, NY', 'Boston, MA', 'Chicago, IL', 'Austin, TX', 'Detroit, MI', 'Los Angeles, CA', 'Houston, TX', 'Seattle, WA', 'Denver, CO', 'Miami, FL', 'Atlanta, GA', 'Phoenix, AZ', 'Portland, OR', 'Dallas, TX'];
 const statuses: ('active' | 'inactive' | 'pending' | 'trial' | 'expired')[] = ['active', 'active', 'active', 'pending', 'trial'];
 
+const firstNames = ['Sarah', 'Michael', 'Emily', 'James', 'Lisa', 'David', 'Maria', 'Robert', 'Jennifer', 'William', 'Patricia', 'Richard', 'Linda', 'Thomas', 'Elizabeth', 'Charles', 'Susan', 'Christopher', 'Jessica', 'Daniel', 'Karen', 'Matthew', 'Nancy', 'Anthony', 'Betty', 'Mark', 'Margaret', 'Donald', 'Sandra', 'Steven', 'Ashley', 'Paul', 'Kimberly', 'Andrew', 'Emily', 'Joshua', 'Donna', 'Kenneth', 'Michelle', 'Kevin', 'Carol', 'Brian', 'Amanda', 'George', 'Dorothy', 'Timothy', 'Melissa', 'Ronald', 'Deborah', 'Edward', 'Stephanie', 'Jason', 'Rebecca', 'Jeffrey', 'Sharon', 'Ryan', 'Laura', 'Jacob', 'Cynthia', 'Gary'];
+const lastNames = ['Johnson', 'Chen', 'Rodriguez', 'Wilson', 'Anderson', 'Kim', 'Garcia', 'Taylor', 'Martinez', 'Brown', 'Lee', 'Davis', 'Miller', 'Moore', 'Jackson', 'Martin', 'Thompson', 'White', 'Lopez', 'Harris', 'Clark', 'Lewis', 'Robinson', 'Walker', 'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Nguyen', 'Hill', 'Flores', 'Green', 'Adams', 'Nelson', 'Baker', 'Hall', 'Rivera', 'Campbell', 'Mitchell', 'Carter', 'Roberts', 'Gomez', 'Phillips', 'Evans', 'Turner', 'Diaz', 'Parker', 'Cruz', 'Edwards', 'Collins', 'Reyes', 'Stewart', 'Morris', 'Morales', 'Murphy', 'Cook', 'Rogers', 'Morgan'];
+
 const companyNames = [
   'TechCorp Solutions', 'Global Finance Group', 'HealthPlus Medical', 'Retail Dynamics Inc', 'EduTech Academy',
   'Manufacturing Pro', 'Creative Studios', 'Construction Partners', 'Digital Innovations', 'Smart Systems LLC',
@@ -200,9 +203,6 @@ export const mockJobs: Job[] = Array.from({ length: 60 }, (_, i) => {
     postedDate: new Date(2024, 0, Math.floor(Math.random() * 15) + 1)
   };
 });
-
-const firstNames = ['Sarah', 'Michael', 'Emily', 'James', 'Lisa', 'David', 'Maria', 'Robert', 'Jennifer', 'William', 'Patricia', 'Richard', 'Linda', 'Thomas', 'Elizabeth', 'Charles', 'Susan', 'Christopher', 'Jessica', 'Daniel', 'Karen', 'Matthew', 'Nancy', 'Anthony', 'Betty', 'Mark', 'Margaret', 'Donald', 'Sandra', 'Steven', 'Ashley', 'Paul', 'Kimberly', 'Andrew', 'Emily', 'Joshua', 'Donna', 'Kenneth', 'Michelle', 'Kevin', 'Carol', 'Brian', 'Amanda', 'George', 'Dorothy', 'Timothy', 'Melissa', 'Ronald', 'Deborah', 'Edward', 'Stephanie', 'Jason', 'Rebecca', 'Jeffrey', 'Sharon', 'Ryan', 'Laura', 'Jacob', 'Cynthia', 'Gary'];
-const lastNames = ['Johnson', 'Chen', 'Rodriguez', 'Wilson', 'Anderson', 'Kim', 'Garcia', 'Taylor', 'Martinez', 'Brown', 'Lee', 'Davis', 'Miller', 'Moore', 'Jackson', 'Martin', 'Thompson', 'White', 'Lopez', 'Harris', 'Clark', 'Lewis', 'Robinson', 'Walker', 'Young', 'Allen', 'King', 'Wright', 'Scott', 'Torres', 'Nguyen', 'Hill', 'Flores', 'Green', 'Adams', 'Nelson', 'Baker', 'Hall', 'Rivera', 'Campbell', 'Mitchell', 'Carter', 'Roberts', 'Gomez', 'Phillips', 'Evans', 'Turner', 'Diaz', 'Parker', 'Cruz', 'Edwards', 'Collins', 'Reyes', 'Stewart', 'Morris', 'Morales', 'Murphy', 'Cook', 'Rogers', 'Morgan'];
 
 const positions = ['Software Engineer', 'Data Analyst', 'Marketing Manager', 'Product Designer', 'Financial Advisor', 'DevOps Engineer', 'HR Specialist', 'Sales Executive', 'Account Manager', 'Business Analyst', 'Content Writer', 'UX Designer', 'Network Engineer', 'Project Coordinator', 'Operations Analyst', 'Customer Support', 'Brand Strategist', 'Quality Engineer', 'Creative Director', 'Systems Administrator'];
 
