@@ -27,17 +27,21 @@ export interface Employer {
   logo?: string;
   industry: string;
   location: string;
-  status: 'active' | 'inactive' | 'pending';
+  status: 'active' | 'inactive' | 'pending' | 'trial' | 'expired';
   activeJobs: number;
   lastContact: Date;
   email?: string;
+  website?: string;
+  description?: string;
+  companySize?: string;
   departments?: Department[];
   locations?: Location[];
   
   // Account & Billing
-  accountType?: 'approved' | 'payg';
+  accountType: 'approved' | 'payg';
   creditLimit?: number;
   currentBalance?: number;
+  outstandingBalance?: number;
   paymentTerms?: string;
   billingContact?: string;
   billingEmail?: string;
@@ -46,7 +50,7 @@ export interface Employer {
   stripeCustomerId?: string;
 
   // Subscription Management
-  subscriptionTier?: 'free' | 'small' | 'medium' | 'large' | 'enterprise';
+  subscriptionTier: 'free' | 'small' | 'medium' | 'large' | 'enterprise';
   subscriptionStartDate?: Date;
   subscriptionEndDate?: Date;
   subscriptionStatus?: 'active' | 'trial' | 'expired' | 'cancelled';
@@ -56,6 +60,19 @@ export interface Employer {
   currentOpenJobs: number;
   maxUsers: number;
   currentUsers: number;
+  
+  // CRM Fields
+  activeJobCount: number; // Alias for activeJobs
+  userCount: number; // Alias for currentUsers
+  totalJobsPosted: number;
+  totalSpent?: number;
+  accountManagerId?: string;
+  accountManagerName?: string;
+  
+  // Timestamps
+  createdAt: string;
+  updatedAt: string;
+  lastActivityAt?: string;
 
   // Billing
   monthlySubscriptionFee?: number;

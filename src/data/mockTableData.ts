@@ -3,7 +3,7 @@ import type { Employer, Job, Candidate, Consultant, Department, Location } from 
 // Helper functions to generate varied data
 const industries = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Education', 'Manufacturing', 'Media', 'Construction', 'Consulting', 'Legal', 'Transportation', 'Energy', 'Pharmaceuticals', 'Real Estate', 'Telecommunications'];
 const locations = ['San Francisco, CA', 'New York, NY', 'Boston, MA', 'Chicago, IL', 'Austin, TX', 'Detroit, MI', 'Los Angeles, CA', 'Houston, TX', 'Seattle, WA', 'Denver, CO', 'Miami, FL', 'Atlanta, GA', 'Phoenix, AZ', 'Portland, OR', 'Dallas, TX'];
-const statuses: ('active' | 'inactive' | 'pending')[] = ['active', 'active', 'active', 'pending', 'inactive'];
+const statuses: ('active' | 'inactive' | 'pending' | 'trial' | 'expired')[] = ['active', 'active', 'active', 'pending', 'trial'];
 
 const companyNames = [
   'TechCorp Solutions', 'Global Finance Group', 'HealthPlus Medical', 'Retail Dynamics Inc', 'EduTech Academy',
@@ -68,8 +68,8 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   const locationNames = [baseLocation, `${baseLocation} - Downtown`, `${baseLocation} - Tech Hub`];
   
   // Assign subscription tiers to different employers
-  let subscriptionTier: 'free' | 'small' | 'medium' | 'large' | 'enterprise' | undefined = undefined;
-  let accountType: 'approved' | 'payg' | undefined = undefined;
+  let subscriptionTier: 'free' | 'small' | 'medium' | 'large' | 'enterprise' = 'free';
+  let accountType: 'approved' | 'payg' = 'payg';
   let maxOpenJobs = 0;
   let currentOpenJobs = 0;
   let maxUsers = 0;
@@ -80,6 +80,7 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   if (i % 5 === 0) {
     // Free tier
     subscriptionTier = 'free';
+    accountType = 'approved';
     maxOpenJobs = 1;
     currentOpenJobs = i % 10 === 0 ? 0 : 1;
     maxUsers = 1;
@@ -87,6 +88,7 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   } else if (i % 5 === 1) {
     // Small subscription
     subscriptionTier = 'small';
+    accountType = 'approved';
     maxOpenJobs = 5;
     currentOpenJobs = Math.min(Math.floor(Math.random() * 6), 5);
     maxUsers = Infinity;
@@ -95,6 +97,7 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   } else if (i % 5 === 2) {
     // Medium subscription
     subscriptionTier = 'medium';
+    accountType = 'approved';
     maxOpenJobs = 25;
     currentOpenJobs = Math.min(Math.floor(Math.random() * 20), 25);
     maxUsers = Infinity;
@@ -103,6 +106,7 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   } else if (i % 5 === 3) {
     // Large subscription
     subscriptionTier = 'large';
+    accountType = 'approved';
     maxOpenJobs = 50;
     currentOpenJobs = Math.min(Math.floor(Math.random() * 40), 50);
     maxUsers = Infinity;
@@ -111,11 +115,15 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   } else {
     // PAYG
     accountType = 'payg';
+    subscriptionTier = 'free';
     maxOpenJobs = Infinity;
     currentOpenJobs = Math.floor(Math.random() * 15);
     maxUsers = Infinity;
     currentUsers = Math.floor(Math.random() * 8) + 1;
   }
+  
+  const totalJobsPosted = currentOpenJobs + Math.floor(Math.random() * 50);
+  const createdDate = new Date(2023, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
   
   return {
     id: `${i + 1}`,
@@ -131,16 +139,27 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
     locations: createLocations(locationNames, i),
     accountType,
     subscriptionTier,
-    subscriptionStatus: subscriptionTier ? 'active' : undefined,
-    subscriptionStartDate: subscriptionTier ? new Date(2024, 0, 1) : undefined,
-    subscriptionEndDate: subscriptionTier ? new Date(2025, 0, 1) : undefined,
+    subscriptionStatus: 'active',
+    subscriptionStartDate: new Date(2024, 0, 1),
+    subscriptionEndDate: new Date(2025, 0, 1),
     maxOpenJobs,
     currentOpenJobs,
     maxUsers,
     currentUsers,
+    activeJobCount: currentOpenJobs,
+    userCount: currentUsers,
+    totalJobsPosted,
+    totalSpent: monthlySubscriptionFee ? monthlySubscriptionFee * Math.floor(Math.random() * 12) : Math.floor(Math.random() * 5000),
+    accountManagerId: `user-${(i % 5) + 1}`,
+    accountManagerName: `${firstNames[i % 5]} ${lastNames[i % 5]}`,
+    createdAt: createdDate.toISOString(),
+    updatedAt: new Date().toISOString(),
+    lastActivityAt: new Date(2024, 11, Math.floor(Math.random() * 20) + 1).toISOString(),
     monthlySubscriptionFee,
-    nextBillingDate: subscriptionTier ? new Date(2025, 0, 15) : undefined,
+    nextBillingDate: new Date(2025, 0, 15),
     hasUsedFreeTier,
+    outstandingBalance: accountType === 'approved' ? Math.floor(Math.random() * 10000) : 0,
+    creditLimit: accountType === 'approved' ? 50000 : undefined,
   };
 });
 
