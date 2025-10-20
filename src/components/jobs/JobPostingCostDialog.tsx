@@ -374,7 +374,7 @@ export function JobPostingCostDialog({
                   onClick={onUpgrade}
                   className="w-full"
                 >
-                  View Pricing Plans
+                  Upgrade Now - View Pricing Plans
                 </Button>
               </div>
             </CardContent>
