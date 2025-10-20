@@ -359,7 +359,7 @@ export function JobPostingCostDialog({
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
-                    Basic candidate management
+                    External Job Board posting
                   </li>
                 </ul>
               </div>
