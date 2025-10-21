@@ -19,6 +19,7 @@ import Settings from "./pages/Settings";
 import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 import Employers from "./pages/Employers";
+import EmployerDetail from "./pages/EmployerDetail";
 import Consultants from "./pages/Consultants";
 import HRMS from "./pages/HRMS";
 import Inbox from "./pages/Inbox";
@@ -53,6 +54,7 @@ function AppContent() {
             <Route path="/jobs/:jobId" element={<JobDetail />} />
             <Route path="/jobs/:jobId/edit" element={<JobEdit />} />
             <Route path="/employers" element={<Employers />} />
+            <Route path="/employers/:employerId" element={<EmployerDetail />} />
             <Route path="/consultants" element={<Consultants />} />
             <Route path="/hrms" element={<HRMS />} />
             <Route path="/applications" element={<Applications />} />

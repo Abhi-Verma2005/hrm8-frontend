@@ -68,3 +68,25 @@ export function getLocationShortNames(locations?: Location[]): string[] {
   if (!locations) return [];
   return locations.map(loc => loc.name);
 }
+
+/**
+ * Calculate employer metrics for display
+ */
+export function calculateEmployerMetrics(employer: Employer) {
+  const createdDate = new Date(employer.createdAt);
+  const today = new Date();
+  const daysAsCustomer = Math.floor((today.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  return {
+    totalRevenue: employer.totalSpent,
+    monthlyRevenue: employer.monthlySubscriptionFee || 0,
+    totalJobs: employer.totalJobsPosted,
+    activeJobs: employer.activeJobs,
+    totalUsers: employer.currentUsers,
+    activeUsers: employer.currentUsers, // TODO: Calculate actual active users
+    lifetimeValue: employer.totalSpent,
+    daysAsCustomer,
+    lastActivityDate: employer.lastActivityAt || employer.updatedAt,
+    outstandingBalance: employer.outstandingBalance,
+  };
+}
