@@ -8,14 +8,11 @@ import {
   ArrowLeft, 
   Edit, 
   Archive, 
-  MoreVertical,
-  Building2
+  MoreVertical
 } from "lucide-react";
-import { getEmployerById } from "@/lib/employerService";
-import { EmployerStatusBadge } from "@/components/employers/EmployerStatusBadge";
-import { AccountTypeBadge } from "@/components/employers/AccountTypeBadge";
-import { SubscriptionTierBadge } from "@/components/employers/SubscriptionTierBadge";
+import { getEmployerById, calculateEmployerMetrics } from "@/lib/employerService";
 import { EmployerOverview } from "@/components/employers/detail/EmployerOverview";
+import { EmployerHeroSection } from "@/components/employers/detail/EmployerHeroSection";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +29,8 @@ export default function EmployerDetail() {
     return <Navigate to="/employers" replace />;
   }
 
+  const metrics = calculateEmployerMetrics(employer);
+
   const handleEdit = () => {
     // TODO: Open edit drawer/dialog
     console.log("Edit employer:", employer.id);
@@ -42,59 +41,11 @@ export default function EmployerDetail() {
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-4 flex-1 min-w-0">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/employers">
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
-            
-            {/* Company Logo */}
-            <div className="flex-shrink-0 w-20 h-20">
-              <div className="w-full h-full border border-border rounded-lg bg-card overflow-hidden">
-                {employer.logo ? (
-                  <img 
-                    src={employer.logo}
-                    alt={`${employer.name} logo`}
-                    className="h-full w-full object-contain p-2"
-                    onError={(e) => {
-                      const parent = e.currentTarget.parentElement;
-                      if (parent) {
-                        e.currentTarget.style.display = 'none';
-                        const placeholder = document.createElement('div');
-                        placeholder.className = 'h-full w-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5';
-                        placeholder.innerHTML = `<span class="text-2xl font-bold text-primary">${employer.name.substring(0, 2).toUpperCase()}</span>`;
-                        parent.appendChild(placeholder);
-                      }
-                    }}
-                  />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-                    <span className="text-2xl font-bold text-primary">
-                      {employer.name.substring(0, 2).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold truncate">{employer.name}</h1>
-                <EmployerStatusBadge status={employer.status} />
-              </div>
-              <div className="flex items-center gap-2 mb-4">
-                <Building2 className="h-4 w-4 text-muted-foreground" />
-                <p className="text-muted-foreground">{employer.industry}</p>
-                <span className="text-muted-foreground">•</span>
-                <p className="text-muted-foreground">{employer.location}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <AccountTypeBadge accountType={employer.accountType} />
-                <SubscriptionTierBadge tier={employer.subscriptionTier} />
-              </div>
-            </div>
-          </div>
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/employers">
+              <ArrowLeft className="h-4 w-4" />
+            </Link>
+          </Button>
           
           <div className="flex gap-2">
             <Button variant="outline" onClick={handleEdit}>
@@ -117,6 +68,9 @@ export default function EmployerDetail() {
           </div>
         </div>
 
+        {/* Hero Section */}
+        <EmployerHeroSection employer={employer} metrics={metrics} />
+
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList>
@@ -133,7 +87,7 @@ export default function EmployerDetail() {
 
           {/* Overview Tab */}
           <TabsContent value="overview">
-            <EmployerOverview employer={employer} onEdit={handleEdit} />
+            <EmployerOverview employer={employer} />
           </TabsContent>
 
           {/* Users Tab */}

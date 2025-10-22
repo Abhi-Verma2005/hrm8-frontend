@@ -76,6 +76,9 @@ export function calculateEmployerMetrics(employer: Employer) {
   const createdDate = new Date(employer.createdAt);
   const today = new Date();
   const daysAsCustomer = Math.floor((today.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24));
+  
+  // Convert lastActivityDate to Date object
+  const lastActivityDate = new Date(employer.lastActivityAt || employer.updatedAt || employer.createdAt);
 
   return {
     totalRevenue: employer.totalSpent,
@@ -86,7 +89,7 @@ export function calculateEmployerMetrics(employer: Employer) {
     activeUsers: employer.currentUsers, // TODO: Calculate actual active users
     lifetimeValue: employer.totalSpent,
     daysAsCustomer,
-    lastActivityDate: employer.lastActivityAt || employer.updatedAt,
-    outstandingBalance: employer.outstandingBalance,
+    lastActivityDate,
+    outstandingBalance: employer.outstandingBalance || 0,
   };
 }
