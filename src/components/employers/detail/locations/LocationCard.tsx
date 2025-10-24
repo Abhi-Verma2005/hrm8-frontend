@@ -16,12 +16,42 @@ export default function LocationCard({ location, onEdit, onDelete, onSetPrimary 
   return (
     <Card>
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
             <CardTitle className="text-base">{location.name}</CardTitle>
+            {location.isPrimary && <LocationPrimaryBadge />}
           </div>
-          {location.isPrimary && <LocationPrimaryBadge />}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => onEdit(location)}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+            {!location.isPrimary && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => onSetPrimary(location)}
+                >
+                  <Star className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => onDelete(location)}
+                >
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -33,46 +63,6 @@ export default function LocationCard({ location, onEdit, onDelete, onSetPrimary 
             {location.state && `, ${location.state}`} {location.postalCode}
           </p>
           <p>{location.country}</p>
-        </div>
-
-        {location.capacity && (
-          <div className="flex items-center gap-2 pt-2">
-            <Badge variant="outline" className="text-xs">
-              Capacity: {location.capacity}
-            </Badge>
-          </div>
-        )}
-
-        <div className="flex gap-2 pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onEdit(location)}
-            className="flex-1"
-          >
-            <Edit className="h-4 w-4 mr-1" />
-            Edit
-          </Button>
-          
-          {!location.isPrimary && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onSetPrimary(location)}
-              >
-                <Star className="h-4 w-4 mr-1" />
-                Set Primary
-              </Button>
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => onDelete(location)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </>
-          )}
         </div>
       </CardContent>
     </Card>
