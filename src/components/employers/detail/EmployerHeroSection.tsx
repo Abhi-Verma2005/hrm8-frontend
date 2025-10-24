@@ -27,11 +27,14 @@ interface EmployerHeroSectionProps {
 export function EmployerHeroSection({ employer, metrics }: EmployerHeroSectionProps) {
   return (
     <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-muted/50">
-      <CardContent className="p-6 lg:p-8">
-        {/* Top Section: Grid layout on desktop */}
-        <div className="lg:grid lg:grid-cols-[1fr_180px] lg:gap-6 mb-6">
-          {/* Left Column: Logo + Info */}
-          <div className="flex flex-col sm:flex-row items-start gap-6 mb-6 lg:mb-0">
+      <CardContent className="p-6 lg:p-8 relative">
+        {/* Subscription Card - Desktop: Absolute top-right, Mobile: Below logo */}
+        <div className="hidden lg:block absolute top-6 right-6 w-[180px]">
+          <SubscriptionStatusCard employer={employer} metrics={metrics} />
+        </div>
+
+        {/* Top Section: Logo + Info */}
+        <div className="flex flex-col sm:flex-row items-start gap-6 mb-6">
           {/* Logo */}
           <div className="w-[100px] h-[100px] rounded-lg border-2 border-border bg-background flex items-center justify-center flex-shrink-0">
             {employer.logo ? (
@@ -70,16 +73,10 @@ export function EmployerHeroSection({ employer, metrics }: EmployerHeroSectionPr
           </div>
         </div>
 
-        {/* Right Column: Subscription Card (Desktop only) */}
-        <div className="hidden lg:block">
+        {/* Mobile: Show subscription card here */}
+        <div className="block lg:hidden mb-6">
           <SubscriptionStatusCard employer={employer} metrics={metrics} />
         </div>
-      </div>
-
-      {/* Mobile: Show subscription card inline */}
-      <div className="block lg:hidden mb-6">
-        <SubscriptionStatusCard employer={employer} metrics={metrics} />
-      </div>
         
         <Separator className="mb-4" />
         
