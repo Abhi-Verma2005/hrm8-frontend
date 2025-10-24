@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { EmployerStatusBadge } from "../EmployerStatusBadge";
 import { AccountTypeBadge } from "../AccountTypeBadge";
 import { SubscriptionTierBadge } from "../SubscriptionTierBadge";
-import { Building2, MapPin } from "lucide-react";
+import { Building2, MapPin, DollarSign, Briefcase, Users, MapPinIcon } from "lucide-react";
 import { formatRelativeDate } from "@/lib/utils";
 
 interface EmployerMetrics {
@@ -69,40 +69,39 @@ export function EmployerHeroSection({ employer, metrics }: EmployerHeroSectionPr
           </div>
         </div>
         
-    <Separator className="mb-6" />
-    
-    {/* Bottom Section: Simplified Stats */}
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      <div className="text-center p-4 rounded-lg border bg-card">
-        <p className="text-2xl font-bold">${metrics.lifetimeValue.toLocaleString()}</p>
-        <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
-          Lifetime Value
-        </p>
-      </div>
-
-      <div className="text-center p-4 rounded-lg border bg-card">
-        <p className="text-2xl font-bold">{employer.totalJobsPosted}</p>
-        <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
-          Jobs Posted
-        </p>
-      </div>
-
-      <div className="text-center p-4 rounded-lg border bg-card">
-        <p className="text-2xl font-bold">
-          {employer.currentUsers}/{employer.maxUsers === Infinity ? '∞' : employer.maxUsers}
-        </p>
-        <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
-          User Capacity
-        </p>
-      </div>
-
-      <div className="text-center p-4 rounded-lg border bg-card">
-        <p className="text-2xl font-bold">{employer.locations?.length || 0}</p>
-        <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
-          Locations
-        </p>
-      </div>
-    </div>
+        <Separator className="mb-4" />
+        
+        {/* Simplified Stats - Inline */}
+        <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4" />
+            <span className="font-semibold text-foreground">
+              ${metrics.lifetimeValue.toLocaleString()}
+            </span>
+            <span>lifetime value</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Briefcase className="h-4 w-4" />
+            <span className="font-semibold text-foreground">
+              {employer.totalJobsPosted}
+            </span>
+            <span>jobs posted</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            <span className="font-semibold text-foreground">
+              {employer.currentUsers}/{employer.maxUsers === Infinity ? '∞' : employer.maxUsers}
+            </span>
+            <span>user capacity</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <MapPinIcon className="h-4 w-4" />
+            <span className="font-semibold text-foreground">
+              {employer.locations?.length || 0}
+            </span>
+            <span>locations</span>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );

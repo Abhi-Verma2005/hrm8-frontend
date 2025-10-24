@@ -15,24 +15,18 @@ export function EmployerEngagementPanel({ employer }: EmployerEngagementPanelPro
   const recentActivities = [
     {
       icon: Briefcase,
-      iconColor: "text-blue-600 dark:text-blue-400",
-      bgColor: "bg-blue-100 dark:bg-blue-900/20",
       title: "Posted new job",
       description: "Senior Developer",
       time: "2 hours ago"
     },
     {
       icon: UserPlus,
-      iconColor: "text-green-600 dark:text-green-400",
-      bgColor: "bg-green-100 dark:bg-green-900/20",
       title: "Added user",
       description: "John Doe",
       time: "1 day ago"
     },
     {
       icon: DollarSign,
-      iconColor: "text-green-600 dark:text-green-400",
-      bgColor: "bg-green-100 dark:bg-green-900/20",
       title: "Payment received",
       description: "$199",
       time: "2 days ago"
@@ -95,8 +89,8 @@ export function EmployerEngagementPanel({ employer }: EmployerEngagementPanelPro
           <div className="space-y-4">
             {recentActivities.map((activity, index) => (
               <div key={index} className="flex gap-3">
-                <div className={`w-8 h-8 rounded-full ${activity.bgColor} flex items-center justify-center flex-shrink-0`}>
-                  <activity.icon className={`h-4 w-4 ${activity.iconColor}`} />
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <activity.icon className="h-4 w-4 text-primary" />
                 </div>
                 <div className="flex-1">
                   <p className="text-sm font-medium">{activity.title}</p>
