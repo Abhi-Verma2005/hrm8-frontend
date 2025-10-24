@@ -35,51 +35,6 @@ export function EmployerEngagementPanel({ employer }: EmployerEngagementPanelPro
 
   return (
     <div className="space-y-6">
-      {/* Quick Actions Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Button 
-            variant="default" 
-            className="w-full justify-start" 
-            size="sm"
-            onClick={() => navigate('/jobs/create')}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Create Job for {employer.name}
-          </Button>
-          <Button 
-            variant="outline" 
-            className="w-full justify-start" 
-            size="sm"
-            onClick={() => navigate(`/employers/${employer.id}?tab=users`)}
-          >
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add User
-          </Button>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start" 
-            size="sm"
-            onClick={() => navigate(`/employers/${employer.id}?tab=jobs`)}
-          >
-            <Briefcase className="h-4 w-4 mr-2" />
-            View All Jobs →
-          </Button>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start" 
-            size="sm"
-            onClick={() => navigate(`/employers/${employer.id}?tab=billing`)}
-          >
-            <DollarSign className="h-4 w-4 mr-2" />
-            View Billing →
-          </Button>
-        </CardContent>
-      </Card>
-
       {/* Recent Activity Card */}
       <Card>
         <CardHeader>
