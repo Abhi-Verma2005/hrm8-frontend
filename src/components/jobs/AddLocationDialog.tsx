@@ -1,8 +1,9 @@
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useEffect } from "react";
 import { Location } from "@/types/entities";
+import { getCountryPhoneCode } from "@/lib/countryPhoneCodes";
 import {
   Dialog,
   DialogContent,
@@ -64,6 +65,8 @@ export function AddLocationDialog({
   editMode = false,
   initialData,
 }: AddLocationDialogProps) {
+  const [countryCode, setCountryCode] = useState<string>('+1');
+  
   const form = useForm<LocationFormData>({
     resolver: zodResolver(locationSchema),
     defaultValues: initialData ? {
@@ -105,6 +108,25 @@ export function AddLocationDialog({
       });
     }
   }, [editMode, initialData, form]);
+
+  // Watch for country changes and update country code
+  useEffect(() => {
+    const subscription = form.watch((value, { name }) => {
+      if (name === 'country' && value.country) {
+        const code = getCountryPhoneCode(value.country);
+        setCountryCode(code);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  // Initialize country code on mount or when initial data changes
+  useEffect(() => {
+    const currentCountry = form.getValues('country');
+    if (currentCountry) {
+      setCountryCode(getCountryPhoneCode(currentCountry));
+    }
+  }, [form, initialData]);
 
   const onSubmit = (data: LocationFormData) => {
     onAdd(data);
@@ -254,15 +276,59 @@ export function AddLocationDialog({
                         <SelectValue placeholder="Select country" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="max-h-[300px]">
+                      {/* Americas */}
                       <SelectItem value="United States">United States</SelectItem>
                       <SelectItem value="Canada">Canada</SelectItem>
+                      <SelectItem value="Mexico">Mexico</SelectItem>
+                      <SelectItem value="Brazil">Brazil</SelectItem>
+                      <SelectItem value="Argentina">Argentina</SelectItem>
+                      <SelectItem value="Chile">Chile</SelectItem>
+                      <SelectItem value="Colombia">Colombia</SelectItem>
+                      
+                      {/* Europe */}
                       <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-                      <SelectItem value="Australia">Australia</SelectItem>
                       <SelectItem value="Germany">Germany</SelectItem>
                       <SelectItem value="France">France</SelectItem>
+                      <SelectItem value="Spain">Spain</SelectItem>
+                      <SelectItem value="Italy">Italy</SelectItem>
+                      <SelectItem value="Netherlands">Netherlands</SelectItem>
+                      <SelectItem value="Switzerland">Switzerland</SelectItem>
+                      <SelectItem value="Ireland">Ireland</SelectItem>
+                      <SelectItem value="Poland">Poland</SelectItem>
+                      <SelectItem value="Belgium">Belgium</SelectItem>
+                      <SelectItem value="Sweden">Sweden</SelectItem>
+                      <SelectItem value="Norway">Norway</SelectItem>
+                      <SelectItem value="Denmark">Denmark</SelectItem>
+                      <SelectItem value="Austria">Austria</SelectItem>
+                      <SelectItem value="Portugal">Portugal</SelectItem>
+                      
+                      {/* APAC */}
+                      <SelectItem value="Australia">Australia</SelectItem>
+                      <SelectItem value="New Zealand">New Zealand</SelectItem>
                       <SelectItem value="Japan">Japan</SelectItem>
                       <SelectItem value="Singapore">Singapore</SelectItem>
+                      <SelectItem value="China">China</SelectItem>
+                      <SelectItem value="India">India</SelectItem>
+                      <SelectItem value="Hong Kong">Hong Kong</SelectItem>
+                      <SelectItem value="South Korea">South Korea</SelectItem>
+                      <SelectItem value="Thailand">Thailand</SelectItem>
+                      <SelectItem value="Malaysia">Malaysia</SelectItem>
+                      <SelectItem value="Indonesia">Indonesia</SelectItem>
+                      <SelectItem value="Philippines">Philippines</SelectItem>
+                      <SelectItem value="Vietnam">Vietnam</SelectItem>
+                      
+                      {/* Middle East & Africa */}
+                      <SelectItem value="United Arab Emirates">United Arab Emirates</SelectItem>
+                      <SelectItem value="Saudi Arabia">Saudi Arabia</SelectItem>
+                      <SelectItem value="South Africa">South Africa</SelectItem>
+                      <SelectItem value="Israel">Israel</SelectItem>
+                      <SelectItem value="Egypt">Egypt</SelectItem>
+                      <SelectItem value="Turkey">Turkey</SelectItem>
+                      <SelectItem value="Qatar">Qatar</SelectItem>
+                      <SelectItem value="Kuwait">Kuwait</SelectItem>
+                      
+                      {/* Other */}
                       <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
@@ -271,6 +337,22 @@ export function AddLocationDialog({
               )}
             />
 
+            {/* Country Code Display Field */}
+            <FormItem>
+              <FormLabel>Country Code</FormLabel>
+              <FormControl>
+                <Input 
+                  value={countryCode} 
+                  readOnly 
+                  disabled
+                  className="bg-muted text-muted-foreground font-mono text-base cursor-not-allowed"
+                />
+              </FormControl>
+              <FormDescription className="text-xs">
+                Auto-populated based on selected country
+              </FormDescription>
+            </FormItem>
+
             <FormField
               control={form.control}
               name="phone"
@@ -278,10 +360,10 @@ export function AddLocationDialog({
                 <FormItem>
                   <FormLabel>Phone Number *</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. +1 (415) 555-0123" {...field} />
+                    <Input placeholder="e.g., (415) 555-0123" {...field} />
                   </FormControl>
                   <FormDescription>
-                    Include country and area code
+                    Enter local number (e.g., (415) 555-0123 or 415-555-0123)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
