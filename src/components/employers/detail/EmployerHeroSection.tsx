@@ -1,7 +1,6 @@
 import { Employer } from "@/types/entities";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { AccountTypeBadge } from "../AccountTypeBadge";
 import { SubscriptionStatusCard } from "./SubscriptionStatusCard";
 import { Building2, MapPin, DollarSign, Briefcase, Users, MapPinIcon, CreditCard, Calendar } from "lucide-react";
 import { formatRelativeDate } from "@/lib/utils";
@@ -53,7 +52,6 @@ export function EmployerHeroSection({ employer, metrics }: EmployerHeroSectionPr
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-3 mb-2">
               <h1 className="text-3xl font-bold">{employer.name}</h1>
-              <AccountTypeBadge accountType={employer.accountType} />
             </div>
             
             <div className="flex flex-wrap items-center gap-2 text-muted-foreground mb-3">

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Building2, Mail, Globe, Briefcase, MapPin, Calendar, Activity } from "lucide-react";
 import { formatRelativeDate } from "@/lib/utils";
+import { AccountTypeBadge } from "../AccountTypeBadge";
 
 interface EmployerMetrics {
   daysAsCustomer: number;
@@ -64,6 +65,11 @@ export function EmployerCompanyProfile({ employer, metrics }: EmployerCompanyPro
               <MapPin className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Location:</span>
               <span className="text-sm font-medium">{employer.location}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Account Type:</span>
+              <AccountTypeBadge accountType={employer.accountType} />
             </div>
           </div>
         </div>
