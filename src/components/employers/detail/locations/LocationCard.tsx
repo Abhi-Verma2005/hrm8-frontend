@@ -20,9 +20,9 @@ export default function LocationCard({ location, onEdit, onDelete, onSetPrimary 
           <div className="flex items-center gap-2">
             <MapPin className="h-5 w-5 text-primary" />
             <CardTitle className="text-base">{location.name}</CardTitle>
-            {location.isPrimary && <LocationPrimaryBadge />}
           </div>
           <div className="flex items-center gap-1">
+            {location.isPrimary && <LocationPrimaryBadge />}
             <Button
               variant="ghost"
               size="icon"
