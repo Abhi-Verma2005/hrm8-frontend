@@ -42,7 +42,7 @@ export function SubscriptionStatusCard({ employer, metrics }: SubscriptionStatus
       </div>
       
       {/* Monthly Fee - At the bottom */}
-      <div className="mt-3 flex flex-col items-center">
+      <div className="mt-2 flex flex-col items-center">
         <span className="text-2xl font-bold text-primary tabular-nums">
           ${tierConfig.monthlyFee}
         </span>
