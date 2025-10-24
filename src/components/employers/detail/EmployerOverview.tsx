@@ -1,5 +1,4 @@
 import { Employer } from "@/types/entities";
-import { EmployerQuickStats } from "../EmployerQuickStats";
 import { EmployerCompanyProfile } from "./EmployerCompanyProfile";
 import { EmployerEngagementPanel } from "./EmployerEngagementPanel";
 import { calculateEmployerMetrics } from "@/lib/employerService";
@@ -13,10 +12,7 @@ export function EmployerOverview({ employer }: EmployerOverviewProps) {
 
   return (
     <div className="space-y-6">
-      {/* Zone 1: Quick Stats */}
-      <EmployerQuickStats employer={employer} metrics={metrics} />
-
-      {/* Zones 2 & 3: Two Column Layout */}
+      {/* Two Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Zone 2: Company Profile (Takes 2 columns) */}
         <div className="lg:col-span-2">
