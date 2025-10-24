@@ -67,6 +67,7 @@ export interface Job {
   paymentId?: string;
   requiresPayment?: boolean;
   paymentStatus?: 'pending' | 'paid' | 'failed';
+  serviceFee?: number;
   termsAccepted?: boolean;
   termsAcceptedAt?: Date;
   termsAcceptedBy?: string;

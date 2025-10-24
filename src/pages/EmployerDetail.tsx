@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,9 @@ import EmployerUsersTab from "@/components/employers/detail/users/EmployerUsersT
 import EmployerJobsTab from "@/components/employers/detail/jobs/EmployerJobsTab";
 import LocationsDepartmentsTab from "@/components/employers/detail/locations/LocationsDepartmentsTab";
 import { BillingSubscriptionsTab } from "@/components/employers/detail/billing/BillingSubscriptionsTab";
+import { ServicesTab } from "@/components/employers/detail/services/ServicesTab";
+import { ActivityHistoryTab } from "@/components/employers/detail/activity/ActivityHistoryTab";
+import { initializeMockCRMData } from "@/data/mockCRMData";
 import { Employer } from "@/types/entities";
 import {
   DropdownMenu,
@@ -37,6 +40,10 @@ export default function EmployerDetail() {
   const [employer, setEmployer] = useState<Employer | null>(fetchedEmployer);
   const initialTab = searchParams.get('tab') || 'overview';
   const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    initializeMockCRMData();
+  }, []);
 
   if (!employer) {
     return <Navigate to="/employers" replace />;
@@ -177,26 +184,12 @@ export default function EmployerDetail() {
 
           {/* Services Tab */}
           <TabsContent value="services">
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">Recruitment Services</p>
-                  <p className="text-sm">Service management will be available in Phase 4</p>
-                </div>
-              </CardContent>
-            </Card>
+            <ServicesTab employerId={employer.id} />
           </TabsContent>
 
           {/* Activity & History Tab */}
           <TabsContent value="activity">
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">Activity Timeline</p>
-                  <p className="text-sm">Activity tracking will be available in Phase 4</p>
-                </div>
-              </CardContent>
-            </Card>
+            <ActivityHistoryTab employerId={employer.id} />
           </TabsContent>
 
           {/* Documents Tab */}
