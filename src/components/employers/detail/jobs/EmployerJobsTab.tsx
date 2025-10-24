@@ -30,9 +30,9 @@ export default function EmployerJobsTab({ employerId }: EmployerJobsTabProps) {
       ),
     },
     {
-      key: "type",
+      key: "employmentType",
       label: "Type",
-      render: (job) => <EmploymentTypeBadge type={job.type} />,
+      render: (job) => <EmploymentTypeBadge type={job.employmentType} />,
     },
     {
       key: "status",
@@ -45,9 +45,9 @@ export default function EmployerJobsTab({ employerId }: EmployerJobsTabProps) {
       render: (job) => <span className="font-medium">{job.applicantsCount}</span>,
     },
     {
-      key: "postedDate",
+      key: "postingDate",
       label: "Posted",
-      render: (job) => <span className="text-sm">{formatDate(job.postedDate, 'MMM d, yyyy')}</span>,
+      render: (job) => <span className="text-sm">{formatDate(job.postingDate, 'MMM d, yyyy')}</span>,
     },
     {
       key: "actions",

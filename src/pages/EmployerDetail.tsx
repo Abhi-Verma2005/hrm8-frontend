@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
+import { useParams, Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,6 +17,9 @@ import {
 import { getEmployerById, calculateEmployerMetrics } from "@/lib/employerService";
 import { EmployerOverview } from "@/components/employers/detail/EmployerOverview";
 import { EmployerHeroSection } from "@/components/employers/detail/EmployerHeroSection";
+import EmployerUsersTab from "@/components/employers/detail/users/EmployerUsersTab";
+import EmployerJobsTab from "@/components/employers/detail/jobs/EmployerJobsTab";
+import LocationsDepartmentsTab from "@/components/employers/detail/locations/LocationsDepartmentsTab";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +32,8 @@ export default function EmployerDetail() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const employer = employerId ? getEmployerById(employerId) : null;
-  const [activeTab, setActiveTab] = useState("overview");
+  const initialTab = searchParams.get('tab') || 'overview';
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   if (!employer) {
     return <Navigate to="/employers" replace />;
@@ -139,38 +143,17 @@ export default function EmployerDetail() {
 
           {/* Users Tab */}
           <TabsContent value="users">
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">User Management</p>
-                  <p className="text-sm">User management will be available in Phase 2</p>
-                </div>
-              </CardContent>
-            </Card>
+            <EmployerUsersTab employerId={employer.id} />
           </TabsContent>
 
           {/* Jobs Tab */}
           <TabsContent value="jobs">
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">Jobs Overview</p>
-                  <p className="text-sm">Jobs management will be available in Phase 2</p>
-                </div>
-              </CardContent>
-            </Card>
+            <EmployerJobsTab employerId={employer.id} />
           </TabsContent>
 
           {/* Locations & Departments Tab */}
           <TabsContent value="locations">
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">Locations & Departments</p>
-                  <p className="text-sm">Location and department management will be available in Phase 2</p>
-                </div>
-              </CardContent>
-            </Card>
+            <LocationsDepartmentsTab employerId={employer.id} />
           </TabsContent>
 
           {/* Billing & Subscriptions Tab */}

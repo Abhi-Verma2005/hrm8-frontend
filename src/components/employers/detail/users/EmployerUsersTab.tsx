@@ -24,7 +24,14 @@ export default function EmployerUsersTab({ employerId }: EmployerUsersTabProps) 
 
   const handleAddUser = (userData: EmployerUserFormData) => {
     const newUser = createEmployerUser({
-      ...userData,
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email,
+      phone: userData.phone,
+      title: userData.title,
+      department: userData.department,
+      role: userData.role,
+      permissions: userData.permissions as any,
       employerId,
       status: "active",
     });
@@ -56,7 +63,7 @@ export default function EmployerUsersTab({ employerId }: EmployerUsersTabProps) 
   };
 
   const handleSavePermissions = (userId: string, permissions: string[]) => {
-    updateEmployerUser(userId, { permissions });
+    updateEmployerUser(userId, { permissions: permissions as any });
     setUsers(getEmployerUsers(employerId));
     toast.success("Permissions updated");
   };
