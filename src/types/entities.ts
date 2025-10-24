@@ -16,6 +16,7 @@ export interface Location {
   state?: string;
   postalCode?: string;
   country: string;
+  phone?: string;
   isPrimary?: boolean;
   capacity?: number;
   createdAt: Date;

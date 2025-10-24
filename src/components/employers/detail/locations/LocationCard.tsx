@@ -1,9 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Location } from "@/types/entities";
-import { MapPin, Edit, Trash2, Star } from "lucide-react";
+import { MapPin, Edit, Trash2, Star, Phone } from "lucide-react";
 import LocationPrimaryBadge from "./LocationPrimaryBadge";
-import { Badge } from "@/components/ui/badge";
 
 interface LocationCardProps {
   location: Location;
@@ -60,9 +59,16 @@ export default function LocationCard({ location, onEdit, onDelete, onSetPrimary 
           {location.addressLine2 && <p>{location.addressLine2}</p>}
           <p>
             {location.city}
-            {location.state && `, ${location.state}`} {location.postalCode}
+            {location.state && `, ${location.state}`}
+            {location.postalCode && ` ${location.postalCode}`}
           </p>
           <p>{location.country}</p>
+          {location.phone && (
+            <p className="flex items-center gap-2 pt-2">
+              <Phone className="h-3.5 w-3.5" />
+              {location.phone}
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>

@@ -109,9 +109,10 @@ export const locationSchema = z.object({
   addressLine1: z.string().min(1, "Address is required").max(200),
   addressLine2: z.string().max(200).optional().or(z.literal("")),
   city: z.string().min(1, "City is required").max(100),
+  postalCode: z.string().min(1, "Post code/zip code is required").max(20),
   state: z.string().max(50).optional().or(z.literal("")),
-  postalCode: z.string().max(20).optional().or(z.literal("")),
   country: z.string().min(1, "Country is required").max(100),
+  phone: z.string().min(1, "Phone number is required").regex(/^\+?[\d\s\-\(\)]+$/, "Invalid phone number format").max(30),
   isPrimary: z.boolean().default(false),
   capacity: z.number().min(0).optional(),
 });
