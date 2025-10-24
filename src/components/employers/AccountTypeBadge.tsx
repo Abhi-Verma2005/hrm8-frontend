@@ -8,7 +8,7 @@ interface AccountTypeBadgeProps {
 }
 
 const accountTypeLabels: Record<Employer['accountType'], string> = {
-  approved: "Approved",
+  approved: "Account",
   payg: "PAYG",
 };
 
