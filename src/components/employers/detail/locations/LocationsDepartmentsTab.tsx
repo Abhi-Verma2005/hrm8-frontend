@@ -8,11 +8,15 @@ import {
   updateLocation,
   deleteLocation,
   setPrimaryLocation,
+  createDepartment,
+  updateDepartment,
+  deleteDepartment,
 } from "@/lib/locationDepartmentStorage";
 import LocationCard from "./LocationCard";
 import DepartmentCard from "./DepartmentCard";
 import { AddLocationDialog } from "@/components/jobs/AddLocationDialog";
-import { Location } from "@/types/entities";
+import { AddDepartmentDialog } from "@/components/jobs/AddDepartmentDialog";
+import { Location, Department } from "@/types/entities";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -32,11 +36,15 @@ interface LocationsDepartmentsTabProps {
 
 export default function LocationsDepartmentsTab({ employerId, employer }: LocationsDepartmentsTabProps) {
   const [locations, setLocations] = useState(getEmployerLocations(employerId));
-  const [departments] = useState(getEmployerDepartments(employerId));
+  const [departments, setDepartments] = useState(getEmployerDepartments(employerId));
   const [addLocationOpen, setAddLocationOpen] = useState(false);
   const [editLocationOpen, setEditLocationOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
   const [deleteLocationOpen, setDeleteLocationOpen] = useState(false);
+  const [addDepartmentOpen, setAddDepartmentOpen] = useState(false);
+  const [editDepartmentOpen, setEditDepartmentOpen] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null);
+  const [deleteDepartmentOpen, setDeleteDepartmentOpen] = useState(false);
 
   const handleAddLocation = (locationData: any) => {
     try {
@@ -94,6 +102,50 @@ export default function LocationsDepartmentsTab({ employerId, employer }: Locati
     }
   };
 
+  const handleAddDepartment = (departmentData: any) => {
+    try {
+      const newDepartment = createDepartment(employerId, departmentData);
+      setDepartments([...departments, newDepartment]);
+      toast.success("Department added successfully");
+    } catch (error) {
+      toast.error("Failed to add department");
+    }
+  };
+
+  const handleEditDepartment = (departmentData: any) => {
+    if (!selectedDepartment) return;
+    
+    try {
+      const updated = updateDepartment(employerId, selectedDepartment.id, departmentData);
+      if (updated) {
+        setDepartments(departments.map(dept => 
+          dept.id === updated.id ? updated : dept
+        ));
+        toast.success("Department updated successfully");
+      }
+    } catch (error) {
+      toast.error("Failed to update department");
+    }
+  };
+
+  const handleDeleteDepartment = () => {
+    if (!selectedDepartment) return;
+    
+    try {
+      const success = deleteDepartment(employerId, selectedDepartment.id);
+      if (success) {
+        setDepartments(departments.filter(dept => dept.id !== selectedDepartment.id));
+        toast.success("Department deleted successfully");
+        setDeleteDepartmentOpen(false);
+        setSelectedDepartment(null);
+      } else {
+        toast.error("Failed to delete department");
+      }
+    } catch (error) {
+      toast.error("Failed to delete department");
+    }
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div className="space-y-4">
@@ -129,7 +181,7 @@ export default function LocationsDepartmentsTab({ employerId, employer }: Locati
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">Departments</h3>
-          <Button size="sm" onClick={() => toast.info("Add department dialog coming soon")}>
+          <Button size="sm" onClick={() => setAddDepartmentOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Add Department
           </Button>
@@ -139,8 +191,14 @@ export default function LocationsDepartmentsTab({ employerId, employer }: Locati
             <DepartmentCard
               key={department.id}
               department={department}
-              onEdit={() => toast.info("Edit coming soon")}
-              onDelete={() => toast.info("Delete coming soon")}
+              onEdit={() => {
+                setSelectedDepartment(department);
+                setEditDepartmentOpen(true);
+              }}
+              onDelete={() => {
+                setSelectedDepartment(department);
+                setDeleteDepartmentOpen(true);
+              }}
             />
           ))}
           {departments.length === 0 && (
@@ -167,7 +225,7 @@ export default function LocationsDepartmentsTab({ employerId, employer }: Locati
         initialData={selectedLocation || undefined}
       />
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Location Confirmation Dialog */}
       <AlertDialog open={deleteLocationOpen} onOpenChange={setDeleteLocationOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -188,6 +246,46 @@ export default function LocationsDepartmentsTab({ employerId, employer }: Locati
               onClick={handleDeleteLocation}
               className="bg-destructive hover:bg-destructive/90"
               disabled={selectedLocation?.isPrimary}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Add Department Dialog */}
+      <AddDepartmentDialog
+        open={addDepartmentOpen}
+        onOpenChange={setAddDepartmentOpen}
+        onAdd={handleAddDepartment}
+        employerName={employer?.companyName}
+      />
+
+      {/* Edit Department Dialog */}
+      <AddDepartmentDialog
+        open={editDepartmentOpen}
+        onOpenChange={setEditDepartmentOpen}
+        onAdd={handleEditDepartment}
+        employerName={employer?.companyName}
+        editMode={true}
+        initialData={selectedDepartment || undefined}
+      />
+
+      {/* Delete Department Confirmation Dialog */}
+      <AlertDialog open={deleteDepartmentOpen} onOpenChange={setDeleteDepartmentOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Department?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{selectedDepartment?.name}"? 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteDepartment}
+              className="bg-destructive hover:bg-destructive/90"
             >
               Delete
             </AlertDialogAction>

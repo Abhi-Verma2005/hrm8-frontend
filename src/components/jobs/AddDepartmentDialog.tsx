@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useEffect } from "react";
+import { Department } from "@/types/entities";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +39,8 @@ interface AddDepartmentDialogProps {
   onOpenChange: (open: boolean) => void;
   onAdd: (department: DepartmentFormData) => void;
   employerName?: string;
+  editMode?: boolean;
+  initialData?: Department;
 }
 
 export function AddDepartmentDialog({
@@ -44,16 +48,42 @@ export function AddDepartmentDialog({
   onOpenChange,
   onAdd,
   employerName,
+  editMode = false,
+  initialData,
 }: AddDepartmentDialogProps) {
   const form = useForm<DepartmentFormData>({
     resolver: zodResolver(departmentSchema),
-    defaultValues: {
+    defaultValues: initialData ? {
+      name: initialData.name,
+      description: initialData.description || "",
+      headOfDepartment: initialData.headOfDepartment || "",
+      costCenter: initialData.costCenter || "",
+    } : {
       name: "",
       description: "",
       headOfDepartment: "",
       costCenter: "",
     },
   });
+
+  // Reset form when editing different department
+  useEffect(() => {
+    if (editMode && initialData) {
+      form.reset({
+        name: initialData.name,
+        description: initialData.description || "",
+        headOfDepartment: initialData.headOfDepartment || "",
+        costCenter: initialData.costCenter || "",
+      });
+    } else if (!editMode) {
+      form.reset({
+        name: "",
+        description: "",
+        headOfDepartment: "",
+        costCenter: "",
+      });
+    }
+  }, [editMode, initialData, form]);
 
   const onSubmit = (data: DepartmentFormData) => {
     onAdd(data);
@@ -67,12 +97,14 @@ export function AddDepartmentDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5" />
-            Add New Department
+            {editMode ? "Edit Department" : "Add New Department"}
           </DialogTitle>
           <DialogDescription>
-            {employerName 
-              ? `Add a new department to ${employerName}'s profile.`
-              : "Add a new department. This will be available for future jobs."}
+            {editMode 
+              ? `Update the department details for ${employerName || "this employer"}.`
+              : employerName 
+                ? `Add a new department to ${employerName}'s profile.`
+                : "Add a new department. This will be available for future jobs."}
           </DialogDescription>
         </DialogHeader>
 
@@ -148,7 +180,7 @@ export function AddDepartmentDialog({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Add Department</Button>
+              <Button type="submit">{editMode ? "Update Department" : "Add Department"}</Button>
             </DialogFooter>
           </form>
         </Form>
