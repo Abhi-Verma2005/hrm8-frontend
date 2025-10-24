@@ -27,7 +27,7 @@ export function EmployerHeroSection({ employer, metrics }: EmployerHeroSectionPr
     <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-muted/50">
       <CardContent className="p-6 lg:p-8 relative">
         {/* Subscription Card - Desktop: Absolute top-right, Mobile: Below logo */}
-        <div className="hidden lg:block absolute top-6 right-6 w-[180px]">
+        <div className="hidden lg:block absolute top-8 right-8 w-[160px]">
           <SubscriptionStatusCard employer={employer} metrics={metrics} />
         </div>
 
@@ -70,7 +70,7 @@ export function EmployerHeroSection({ employer, metrics }: EmployerHeroSectionPr
         </div>
 
         {/* Mobile: Show subscription card here */}
-        <div className="block lg:hidden mb-6">
+        <div className="block lg:hidden mb-6 pl-3">
           <SubscriptionStatusCard employer={employer} metrics={metrics} />
         </div>
         
