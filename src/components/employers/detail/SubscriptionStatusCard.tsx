@@ -1,6 +1,5 @@
 import { Employer } from "@/types/entities";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { EmployerStatusBadge } from "../EmployerStatusBadge";
 import { Sparkles } from "lucide-react";
 import { SUBSCRIPTION_TIERS } from "@/lib/subscriptionConfig";
@@ -26,35 +25,37 @@ export function SubscriptionStatusCard({ employer, metrics }: SubscriptionStatus
   const tierConfig = SUBSCRIPTION_TIERS[employer.subscriptionTier];
   
   return (
-    <Card className="border-2 border-primary/20 bg-card">
-      <CardContent className="p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <div className="h-8 w-8 rounded bg-primary/10 flex items-center justify-center">
-            <Sparkles className="h-4 w-4 text-primary" />
+    <Card className="relative overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+      <CardContent className="p-5">
+        {/* Large Icon + Tier Name */}
+        <div className="flex items-start gap-3 mb-4">
+          <div className="h-12 w-12 rounded-xl bg-primary/20 flex items-center justify-center ring-2 ring-primary/30">
+            <Sparkles className="h-6 w-6 text-primary" />
           </div>
-          <div className="flex-1">
-            <p className="text-sm font-semibold">{tierConfig.name} Plan</p>
-            <EmployerStatusBadge status={employer.status} className="text-[10px] px-1.5 py-0.5" />
+          <div className="flex-1 pt-1">
+            <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">
+              Subscription Plan
+            </p>
+            <p className="text-lg font-bold">{tierConfig.name}</p>
           </div>
         </div>
         
-        <Separator className="my-2" />
+        {/* Status Badge - Full Width */}
+        <div className="mb-3">
+          <EmployerStatusBadge status={employer.status} className="w-full justify-center" />
+        </div>
         
-        <div className="space-y-1 text-xs">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Jobs</span>
-            <span className="font-medium">
-              {metrics.activeJobs}/{tierConfig.maxOpenJobs === Infinity ? '∞' : tierConfig.maxOpenJobs}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Users</span>
-            <span className="font-medium">
-              {employer.currentUsers}/{employer.maxUsers === Infinity ? '∞' : employer.maxUsers}
-            </span>
-          </div>
+        {/* Monthly Fee - Prominent */}
+        <div className="text-center pt-2 border-t border-border/50">
+          <p className="text-2xl font-bold text-primary">
+            ${tierConfig.monthlyFee}
+          </p>
+          <p className="text-xs text-muted-foreground">per month</p>
         </div>
       </CardContent>
+      
+      {/* Decorative corner accent */}
+      <div className="absolute top-0 right-0 h-20 w-20 bg-gradient-to-br from-primary/20 to-transparent rounded-bl-full opacity-50" />
     </Card>
   );
 }
