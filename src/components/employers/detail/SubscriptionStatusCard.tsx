@@ -25,8 +25,13 @@ export function SubscriptionStatusCard({ employer, metrics }: SubscriptionStatus
   
   return (
     <div className="relative flex flex-col items-center">
-      {/* Tier Name with Icon - Centered */}
-      <div className="space-y-1.5">
+      {/* Status Badge - At the top */}
+      <div className="flex justify-center">
+        <EmployerStatusBadge status={employer.status} className="text-xs" />
+      </div>
+      
+      {/* Tier Name with Icon - Below badge */}
+      <div className="mt-4 space-y-1.5">
         <div className="flex items-center justify-center gap-1.5">
           <Sparkles className="h-3.5 w-3.5 text-primary" />
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">
@@ -36,12 +41,7 @@ export function SubscriptionStatusCard({ employer, metrics }: SubscriptionStatus
         <p className="text-lg font-bold text-foreground text-center">{tierConfig.name}</p>
       </div>
       
-      {/* Status Badge - Centered with larger gap */}
-      <div className="mt-4 flex justify-center">
-        <EmployerStatusBadge status={employer.status} className="text-xs" />
-      </div>
-      
-      {/* Monthly Fee - Centered with largest gap */}
+      {/* Monthly Fee - At the bottom */}
       <div className="mt-5 flex flex-col items-center">
         <span className="text-2xl font-bold text-primary tabular-nums">
           ${tierConfig.monthlyFee}
