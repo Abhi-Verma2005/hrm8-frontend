@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { EmployerStatusBadge } from "../EmployerStatusBadge";
 import { AccountTypeBadge } from "../AccountTypeBadge";
 import { SubscriptionTierBadge } from "../SubscriptionTierBadge";
-import { Building2, MapPin, Briefcase, Users, DollarSign, TrendingUp } from "lucide-react";
+import { Building2, MapPin } from "lucide-react";
 import { formatRelativeDate } from "@/lib/utils";
 
 interface EmployerMetrics {
@@ -22,26 +22,6 @@ interface EmployerMetrics {
 interface EmployerHeroSectionProps {
   employer: Employer;
   metrics: EmployerMetrics;
-}
-
-interface HeroStatItemProps {
-  icon: React.ComponentType<{ className?: string }>;
-  value: string | number;
-  label: string;
-  sublabel: string;
-}
-
-function HeroStatItem({ icon: Icon, value, label, sublabel }: HeroStatItemProps) {
-  return (
-    <div className="text-center">
-      <div className="flex items-center justify-center gap-2 mb-2">
-        <Icon className="h-5 w-5 text-primary" />
-        <p className="text-2xl font-bold">{value}</p>
-      </div>
-      <p className="text-sm font-medium">{label}</p>
-      <p className="text-xs text-muted-foreground">{sublabel}</p>
-    </div>
-  );
 }
 
 export function EmployerHeroSection({ employer, metrics }: EmployerHeroSectionProps) {
@@ -89,35 +69,40 @@ export function EmployerHeroSection({ employer, metrics }: EmployerHeroSectionPr
           </div>
         </div>
         
-        <Separator className="mb-6" />
-        
-        {/* Bottom Section: Key Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          <HeroStatItem
-            icon={DollarSign}
-            value={`$${metrics.lifetimeValue.toLocaleString()}`}
-            label="Lifetime Value"
-            sublabel="Total Spent"
-          />
-          <HeroStatItem
-            icon={Briefcase}
-            value={employer.totalJobsPosted}
-            label="Jobs Posted"
-            sublabel="All-time"
-          />
-          <HeroStatItem
-            icon={Users}
-            value={`${employer.currentUsers}/${employer.maxUsers === Infinity ? '∞' : employer.maxUsers}`}
-            label="Active Users"
-            sublabel={`${employer.currentUsers} active`}
-          />
-          <HeroStatItem
-            icon={MapPin}
-            value={employer.locations?.length || 0}
-            label="Locations"
-            sublabel={`${employer.departments?.length || 0} departments`}
-          />
-        </div>
+    <Separator className="mb-6" />
+    
+    {/* Bottom Section: Simplified Stats */}
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="text-center p-4 rounded-lg border bg-card">
+        <p className="text-2xl font-bold">${metrics.lifetimeValue.toLocaleString()}</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+          Lifetime Value
+        </p>
+      </div>
+
+      <div className="text-center p-4 rounded-lg border bg-card">
+        <p className="text-2xl font-bold">{employer.totalJobsPosted}</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+          Jobs Posted
+        </p>
+      </div>
+
+      <div className="text-center p-4 rounded-lg border bg-card">
+        <p className="text-2xl font-bold">
+          {employer.currentUsers}/{employer.maxUsers === Infinity ? '∞' : employer.maxUsers}
+        </p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+          User Capacity
+        </p>
+      </div>
+
+      <div className="text-center p-4 rounded-lg border bg-card">
+        <p className="text-2xl font-bold">{employer.locations?.length || 0}</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wide mt-1">
+          Locations
+        </p>
+      </div>
+    </div>
       </CardContent>
     </Card>
   );

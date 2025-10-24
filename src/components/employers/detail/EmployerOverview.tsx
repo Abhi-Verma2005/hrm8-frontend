@@ -1,8 +1,7 @@
 import { Employer } from "@/types/entities";
-import { EmployerAccountDetailsCard } from "./EmployerAccountDetailsCard";
-import { EmployerSubscriptionCard } from "./EmployerSubscriptionCard";
-import { EmployerFinancialCard } from "./EmployerFinancialCard";
-import { EmployerActivityCard } from "./EmployerActivityCard";
+import { EmployerAccountSnapshot } from "./EmployerAccountSnapshot";
+import { EmployerCompanyProfile } from "./EmployerCompanyProfile";
+import { EmployerEngagementPanel } from "./EmployerEngagementPanel";
 import { calculateEmployerMetrics } from "@/lib/employerService";
 
 interface EmployerOverviewProps {
@@ -13,14 +12,22 @@ export function EmployerOverview({ employer }: EmployerOverviewProps) {
   const metrics = calculateEmployerMetrics(employer);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {/* Top Row */}
-      <EmployerAccountDetailsCard employer={employer} metrics={metrics} />
-      <EmployerSubscriptionCard employer={employer} />
-      
-      {/* Bottom Row */}
-      <EmployerFinancialCard employer={employer} metrics={metrics} />
-      <EmployerActivityCard employer={employer} metrics={metrics} />
+    <div className="space-y-6">
+      {/* Zone 1: Account Snapshot */}
+      <EmployerAccountSnapshot employer={employer} metrics={metrics} />
+
+      {/* Zones 2 & 3: Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Zone 2: Company Profile (Takes 2 columns) */}
+        <div className="lg:col-span-2">
+          <EmployerCompanyProfile employer={employer} metrics={metrics} />
+        </div>
+
+        {/* Zone 3: Engagement Panel (Takes 1 column) */}
+        <div className="lg:col-span-1">
+          <EmployerEngagementPanel employer={employer} />
+        </div>
+      </div>
     </div>
   );
 }
