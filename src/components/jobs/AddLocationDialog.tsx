@@ -337,38 +337,41 @@ export function AddLocationDialog({
               )}
             />
 
-            {/* Country Code Display Field */}
-            <FormItem>
-              <FormLabel>Country Code</FormLabel>
-              <FormControl>
-                <Input 
-                  value={countryCode} 
-                  readOnly 
-                  disabled
-                  className="bg-muted text-muted-foreground font-mono text-base cursor-not-allowed"
-                />
-              </FormControl>
-              <FormDescription className="text-xs">
-                Auto-populated based on selected country
-              </FormDescription>
-            </FormItem>
+            {/* Country Code & Phone Number - Side by Side */}
+            <div className="grid grid-cols-[100px_1fr] gap-3">
+              {/* Country Code - Narrow Column */}
+              <FormItem>
+                <FormLabel>Code</FormLabel>
+                <FormControl>
+                  <Input 
+                    value={countryCode} 
+                    readOnly 
+                    disabled
+                    className="bg-muted text-muted-foreground font-mono text-base cursor-not-allowed text-center"
+                  />
+                </FormControl>
+              </FormItem>
 
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone Number *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., (415) 555-0123" {...field} />
-                  </FormControl>
-                  <FormDescription>
-                    Enter local number (e.g., (415) 555-0123 or 415-555-0123)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Phone Number - Flexible Column */}
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., (415) 555-0123" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Helper text below both fields */}
+            <p className="text-xs text-muted-foreground -mt-2">
+              Country code auto-populated based on selected country. Enter local number.
+            </p>
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
