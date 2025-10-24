@@ -88,3 +88,42 @@ export const invoiceSchema = z.object({
 });
 
 export type InvoiceFormData = z.infer<typeof invoiceSchema>;
+
+// Employer User validation
+export const employerUserSchema = z.object({
+  firstName: z.string().min(1, "First name is required").max(50),
+  lastName: z.string().min(1, "Last name is required").max(50),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  title: z.string().max(100).optional(),
+  department: z.string().max(100).optional(),
+  role: z.enum(['owner', 'admin', 'recruiter', 'hiring-manager', 'viewer']),
+  permissions: z.array(z.string()),
+});
+
+export type EmployerUserFormData = z.infer<typeof employerUserSchema>;
+
+// Location validation
+export const locationSchema = z.object({
+  name: z.string().min(1, "Location name is required").max(100),
+  addressLine1: z.string().min(1, "Address is required").max(200),
+  addressLine2: z.string().max(200).optional().or(z.literal("")),
+  city: z.string().min(1, "City is required").max(100),
+  state: z.string().max(50).optional().or(z.literal("")),
+  postalCode: z.string().max(20).optional().or(z.literal("")),
+  country: z.string().min(1, "Country is required").max(100),
+  isPrimary: z.boolean().default(false),
+  capacity: z.number().min(0).optional(),
+});
+
+export type LocationFormData = z.infer<typeof locationSchema>;
+
+// Department validation (update existing)
+export const departmentSchemaExtended = z.object({
+  name: z.string().min(1, "Department name is required").max(100),
+  description: z.string().max(500).optional().or(z.literal("")),
+  headOfDepartment: z.string().max(100).optional().or(z.literal("")),
+  costCenter: z.string().max(50).optional().or(z.literal("")),
+});
+
+export type DepartmentFormData = z.infer<typeof departmentSchemaExtended>;

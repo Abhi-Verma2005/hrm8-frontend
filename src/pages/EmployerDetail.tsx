@@ -27,6 +27,7 @@ import {
 export default function EmployerDetail() {
   const { employerId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const employer = employerId ? getEmployerById(employerId) : null;
   const [activeTab, setActiveTab] = useState("overview");
 
