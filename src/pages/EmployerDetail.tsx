@@ -153,7 +153,7 @@ export default function EmployerDetail() {
 
           {/* Locations & Departments Tab */}
           <TabsContent value="locations">
-            <LocationsDepartmentsTab employerId={employer.id} />
+            <LocationsDepartmentsTab employerId={employer.id} employer={employer} />
           </TabsContent>
 
           {/* Billing & Subscriptions Tab */}

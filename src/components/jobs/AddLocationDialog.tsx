@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useEffect } from "react";
+import { Location } from "@/types/entities";
 import {
   Dialog,
   DialogContent,
@@ -50,6 +52,8 @@ interface AddLocationDialogProps {
   onOpenChange: (open: boolean) => void;
   onAdd: (location: LocationFormData) => void;
   employerName?: string;
+  editMode?: boolean;
+  initialData?: Location;
 }
 
 export function AddLocationDialog({
@@ -57,10 +61,22 @@ export function AddLocationDialog({
   onOpenChange,
   onAdd,
   employerName,
+  editMode = false,
+  initialData,
 }: AddLocationDialogProps) {
   const form = useForm<LocationFormData>({
     resolver: zodResolver(locationSchema),
-    defaultValues: {
+    defaultValues: initialData ? {
+      name: initialData.name,
+      addressLine1: initialData.addressLine1,
+      addressLine2: initialData.addressLine2 || "",
+      city: initialData.city,
+      postalCode: initialData.postalCode || "",
+      state: initialData.state || "",
+      country: initialData.country,
+      phone: initialData.phone || "",
+      isPrimary: initialData.isPrimary || false,
+    } : {
       name: "",
       addressLine1: "",
       addressLine2: "",
@@ -74,6 +90,22 @@ export function AddLocationDialog({
     },
   });
 
+  useEffect(() => {
+    if (editMode && initialData) {
+      form.reset({
+        name: initialData.name,
+        addressLine1: initialData.addressLine1,
+        addressLine2: initialData.addressLine2 || "",
+        city: initialData.city,
+        postalCode: initialData.postalCode || "",
+        state: initialData.state || "",
+        country: initialData.country,
+        phone: initialData.phone || "",
+        isPrimary: initialData.isPrimary || false,
+      });
+    }
+  }, [editMode, initialData, form]);
+
   const onSubmit = (data: LocationFormData) => {
     onAdd(data);
     form.reset();
@@ -86,12 +118,14 @@ export function AddLocationDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <MapPin className="h-5 w-5" />
-            Add New Location
+            {editMode ? "Edit Location" : "Add New Location"}
           </DialogTitle>
           <DialogDescription>
-            {employerName 
-              ? `Add a new office location to ${employerName}'s profile.`
-              : "Add a new office location. This will be available for future jobs."}
+            {editMode 
+              ? `Update the location details for ${employerName || "this employer"}.`
+              : employerName 
+                ? `Add a new office location to ${employerName}'s profile.`
+                : "Add a new office location. This will be available for future jobs."}
           </DialogDescription>
         </DialogHeader>
 
@@ -258,7 +292,7 @@ export function AddLocationDialog({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Add Location</Button>
+              <Button type="submit">{editMode ? "Update Location" : "Add Location"}</Button>
             </DialogFooter>
           </form>
         </Form>
