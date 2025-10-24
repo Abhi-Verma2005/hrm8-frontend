@@ -16,6 +16,18 @@ export function getEmployerById(id: string): Employer | undefined {
 }
 
 /**
+ * Update employer
+ */
+export function updateEmployer(id: string, updates: Partial<Employer>): Employer | undefined {
+  const index = mockEmployers.findIndex(emp => emp.id === id);
+  if (index !== -1) {
+    mockEmployers[index] = { ...mockEmployers[index], ...updates, updatedAt: new Date().toISOString() };
+    return mockEmployers[index];
+  }
+  return undefined;
+}
+
+/**
  * Search employers by name, industry, or location
  */
 export function searchEmployers(query: string): Employer[] {

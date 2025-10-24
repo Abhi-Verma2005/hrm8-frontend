@@ -14,12 +14,14 @@ import {
   Briefcase,
   DollarSign
 } from "lucide-react";
-import { getEmployerById, calculateEmployerMetrics } from "@/lib/employerService";
+import { getEmployerById, calculateEmployerMetrics, updateEmployer } from "@/lib/employerService";
 import { EmployerOverview } from "@/components/employers/detail/EmployerOverview";
 import { EmployerHeroSection } from "@/components/employers/detail/EmployerHeroSection";
 import EmployerUsersTab from "@/components/employers/detail/users/EmployerUsersTab";
 import EmployerJobsTab from "@/components/employers/detail/jobs/EmployerJobsTab";
 import LocationsDepartmentsTab from "@/components/employers/detail/locations/LocationsDepartmentsTab";
+import { BillingSubscriptionsTab } from "@/components/employers/detail/billing/BillingSubscriptionsTab";
+import { Employer } from "@/types/entities";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +33,8 @@ export default function EmployerDetail() {
   const { employerId } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const employer = employerId ? getEmployerById(employerId) : null;
+  const fetchedEmployer = employerId ? getEmployerById(employerId) : null;
+  const [employer, setEmployer] = useState<Employer | null>(fetchedEmployer);
   const initialTab = searchParams.get('tab') || 'overview';
   const [activeTab, setActiveTab] = useState(initialTab);
 
@@ -44,6 +47,14 @@ export default function EmployerDetail() {
   const handleEdit = () => {
     // TODO: Open edit drawer/dialog
     console.log("Edit employer:", employer.id);
+  };
+
+  const handleEmployerUpdate = (updates: Partial<Employer>) => {
+    if (!employer) return;
+    const updated = updateEmployer(employer.id, updates);
+    if (updated) {
+      setEmployer(updated);
+    }
   };
 
   return (
@@ -158,14 +169,10 @@ export default function EmployerDetail() {
 
           {/* Billing & Subscriptions Tab */}
           <TabsContent value="billing">
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">Billing & Subscriptions</p>
-                  <p className="text-sm">Billing management will be available in Phase 3</p>
-                </div>
-              </CardContent>
-            </Card>
+            <BillingSubscriptionsTab 
+              employer={employer} 
+              onEmployerUpdate={handleEmployerUpdate}
+            />
           </TabsContent>
 
           {/* Services Tab */}

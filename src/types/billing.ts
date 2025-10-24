@@ -146,15 +146,17 @@ export interface Invoice {
   invoiceNumber: string;
   employerId: string;
   employerName: string;
-  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled';
+  status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled' | 'pending';
   issueDate: Date;
   dueDate: Date;
   paidDate?: Date;
   lineItems: InvoiceLineItem[];
   subtotal: number;
   tax: number;
-  taxRate: number;
+  taxRate?: number;
   total: number;
+  notes?: string;
+  paymentMethod?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -167,5 +169,7 @@ export interface InvoiceLineItem {
   quantity: number;
   unitPrice: number;
   total: number;
-  dateAdded: Date;
+  dateAdded?: Date;
+  type?: 'subscription' | 'job_posting' | 'job_promotion' | 'recruitment_service' | 'other';
+  metadata?: Record<string, any>;
 }
