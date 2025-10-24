@@ -71,35 +71,54 @@ export function EmployerHeroSection({ employer, metrics }: EmployerHeroSectionPr
         
         <Separator className="mb-4" />
         
-        {/* Simplified Stats - Inline */}
-        <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <DollarSign className="h-4 w-4" />
-            <span className="font-semibold text-foreground">
-              ${metrics.lifetimeValue.toLocaleString()}
-            </span>
-            <span>lifetime value</span>
+        {/* Compact Stat Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Lifetime Value */}
+          <div className="flex items-center gap-3 p-3 rounded-lg border bg-card/50">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <DollarSign className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-lg font-bold truncate">
+                ${metrics.lifetimeValue.toLocaleString()}
+              </p>
+              <p className="text-xs text-muted-foreground">Lifetime Value</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Briefcase className="h-4 w-4" />
-            <span className="font-semibold text-foreground">
-              {employer.totalJobsPosted}
-            </span>
-            <span>jobs posted</span>
+
+          {/* Jobs Posted */}
+          <div className="flex items-center gap-3 p-3 rounded-lg border bg-card/50">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Briefcase className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-lg font-bold">{employer.totalJobsPosted}</p>
+              <p className="text-xs text-muted-foreground">Jobs Posted</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            <span className="font-semibold text-foreground">
-              {employer.currentUsers}/{employer.maxUsers === Infinity ? '∞' : employer.maxUsers}
-            </span>
-            <span>user capacity</span>
+
+          {/* User Capacity */}
+          <div className="flex items-center gap-3 p-3 rounded-lg border bg-card/50">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-lg font-bold">
+                {employer.currentUsers}/{employer.maxUsers === Infinity ? '∞' : employer.maxUsers}
+              </p>
+              <p className="text-xs text-muted-foreground">User Capacity</p>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <MapPinIcon className="h-4 w-4" />
-            <span className="font-semibold text-foreground">
-              {employer.locations?.length || 0}
-            </span>
-            <span>locations</span>
+
+          {/* Locations */}
+          <div className="flex items-center gap-3 p-3 rounded-lg border bg-card/50">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <MapPinIcon className="h-5 w-5 text-primary" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-lg font-bold">{employer.locations?.length || 0}</p>
+              <p className="text-xs text-muted-foreground">Locations</p>
+            </div>
           </div>
         </div>
       </CardContent>
