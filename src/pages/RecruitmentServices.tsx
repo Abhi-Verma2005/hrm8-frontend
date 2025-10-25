@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Building, DollarSign, CheckCircle } from 'lucide-react';
+import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Building, DollarSign, CheckCircle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
 import { ServiceStatsCard } from '@/components/recruitment-services/ServiceStatsCard';
@@ -21,8 +21,30 @@ export default function RecruitmentServices() {
     const saved = localStorage.getItem('recruitment-services-view');
     return (saved === 'list' || saved === 'grid') ? saved : 'grid';
   });
+  const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
 
   const projects = getAllServiceProjects();
+
+  // Handle sorting
+  const handleSort = (key: string) => {
+    let direction: 'asc' | 'desc' = 'asc';
+    if (sortConfig?.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Get sort icon based on current state
+  const getSortIcon = (columnKey: string) => {
+    if (sortConfig?.key !== columnKey) {
+      return <ArrowUpDown className="h-3 w-3" />;
+    }
+    return sortConfig.direction === 'asc' ? (
+      <ArrowUp className="h-3 w-3" />
+    ) : (
+      <ArrowDown className="h-3 w-3" />
+    );
+  };
   const stats = getServiceStats();
 
   // Persist view preference
@@ -31,7 +53,7 @@ export default function RecruitmentServices() {
   }, [viewMode]);
 
   const filteredProjects = useMemo(() => {
-    return projects.filter(project => {
+    let result = projects.filter(project => {
       const matchesSearch = searchTerm === '' ||
         project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         project.clientName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -42,7 +64,62 @@ export default function RecruitmentServices() {
 
       return matchesSearch && matchesType && matchesStatus && matchesPriority;
     });
-  }, [projects, searchTerm, serviceTypeFilter, statusFilter, priorityFilter]);
+
+    // Apply sorting
+    if (sortConfig) {
+      result.sort((a, b) => {
+        let aValue: any;
+        let bValue: any;
+
+        // Map sort keys to project properties
+        switch (sortConfig.key) {
+          case 'serviceType':
+            aValue = a.serviceType;
+            bValue = b.serviceType;
+            break;
+          case 'name':
+            aValue = a.name;
+            bValue = b.name;
+            break;
+          case 'country':
+            aValue = a.country;
+            bValue = b.country;
+            break;
+          case 'projectValue':
+            aValue = a.projectValue;
+            bValue = b.projectValue;
+            break;
+          case 'startDate':
+            aValue = new Date(a.startDate).getTime();
+            bValue = new Date(b.startDate).getTime();
+            break;
+          case 'progress':
+            aValue = a.progress;
+            bValue = b.progress;
+            break;
+          case 'status':
+            aValue = a.status;
+            bValue = b.status;
+            break;
+          default:
+            return 0;
+        }
+
+        if (aValue == null) return 1;
+        if (bValue == null) return -1;
+
+        if (aValue < bValue) {
+          return sortConfig.direction === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return result;
+  }, [projects, searchTerm, serviceTypeFilter, statusFilter, priorityFilter, sortConfig]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -218,20 +295,104 @@ export default function RecruitmentServices() {
             <div className="flex items-center gap-4 text-xs font-medium text-muted-foreground">
               {/* Left Edge - Fixed Columns */}
               <div className="flex items-center gap-4 flex-shrink-0">
-                <div className="w-[200px] flex-shrink-0">Service Type</div>
-                <div className="w-[300px] flex-shrink-0">Project & Client</div>
+                {/* Service Type - Sortable */}
+                <div className="w-[200px] flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('serviceType')}
+                    className="h-6 px-2 -ml-2 hover:bg-muted"
+                  >
+                    Service Type
+                    {getSortIcon('serviceType')}
+                  </Button>
+                </div>
+
+                {/* Project & Client - Sortable */}
+                <div className="w-[300px] flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('name')}
+                    className="h-6 px-2 -ml-2 hover:bg-muted"
+                  >
+                    Project & Client
+                    {getSortIcon('name')}
+                  </Button>
+                </div>
+
+                {/* Team - Not sortable */}
                 <div className="hidden xl:block w-[120px] flex-shrink-0">Team</div>
-                <div className="hidden xl:block w-[120px] flex-shrink-0">Country</div>
-                <div className="hidden lg:block w-[100px] flex-shrink-0">Service Fee</div>
-                <div className="hidden xl:block w-[120px] flex-shrink-0">Post Date</div>
+
+                {/* Country - Sortable */}
+                <div className="hidden xl:block w-[120px] flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('country')}
+                    className="h-6 px-2 -ml-2 hover:bg-muted"
+                  >
+                    Country
+                    {getSortIcon('country')}
+                  </Button>
+                </div>
+
+                {/* Service Fee - Sortable */}
+                <div className="hidden lg:block w-[100px] flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('projectValue')}
+                    className="h-6 px-2 -ml-2 hover:bg-muted"
+                  >
+                    Service Fee
+                    {getSortIcon('projectValue')}
+                  </Button>
+                </div>
+
+                {/* Post Date - Sortable */}
+                <div className="hidden xl:block w-[120px] flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('startDate')}
+                    className="h-6 px-2 -ml-2 hover:bg-muted"
+                  >
+                    Post Date
+                    {getSortIcon('startDate')}
+                  </Button>
+                </div>
               </div>
               
-              {/* Middle - Flexible Progress Column */}
-              <div className="hidden md:flex flex-1 min-w-[120px] max-w-[300px]">Progress</div>
+              {/* Middle - Flexible Progress Column - Sortable */}
+              <div className="hidden md:flex flex-1 min-w-[120px] max-w-[300px]">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleSort('progress')}
+                  className="h-6 px-2 -ml-2 hover:bg-muted"
+                >
+                  Progress
+                  {getSortIcon('progress')}
+                </Button>
+              </div>
               
               {/* Right Edge - Fixed Columns */}
               <div className="flex items-center gap-4 flex-shrink-0">
-                <div className="w-[100px] flex-shrink-0">Status</div>
+                {/* Status - Sortable */}
+                <div className="w-[100px] flex-shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSort('status')}
+                    className="h-6 px-2 -ml-2 hover:bg-muted"
+                  >
+                    Status
+                    {getSortIcon('status')}
+                  </Button>
+                </div>
+
+                {/* Actions - Not sortable */}
                 <div className="w-[120px] flex-shrink-0 text-right">Actions</div>
               </div>
             </div>
