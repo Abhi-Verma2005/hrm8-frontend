@@ -2,13 +2,27 @@ import { mockServiceProjects } from '@/data/mockRecruitmentServices';
 import type { ServiceProject, ServiceType, ServiceStatus, ServiceStats } from '@/types/recruitmentService';
 
 const STORAGE_KEY = 'service_projects';
+const STORAGE_VERSION_KEY = 'service_projects_version';
+const CURRENT_VERSION = 3; // Force refresh after pricing structure changes
 
 export function getAllServiceProjects(): ServiceProject[] {
   const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) {
+  const version = localStorage.getItem(STORAGE_VERSION_KEY);
+  
+  // Reset if no version or version mismatch (forces reload with correct pricing)
+  if (!version || parseInt(version) !== CURRENT_VERSION) {
+    console.log('Service projects storage version mismatch - resetting to latest data');
     localStorage.setItem(STORAGE_KEY, JSON.stringify(mockServiceProjects));
+    localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION.toString());
     return mockServiceProjects;
   }
+  
+  if (!stored) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(mockServiceProjects));
+    localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION.toString());
+    return mockServiceProjects;
+  }
+  
   return JSON.parse(stored);
 }
 
@@ -34,6 +48,7 @@ export function createServiceProject(data: Partial<ServiceProject>): ServiceProj
     progress: data.progress || 0,
     candidatesShortlisted: data.candidatesShortlisted || 0,
     candidatesInterviewed: data.candidatesInterviewed || 0,
+    numberOfVacancies: data.numberOfVacancies || 1,
     jobId: data.jobId,
     jobTitle: data.jobTitle,
     jobPaymentId: data.jobPaymentId,
@@ -49,6 +64,7 @@ export function createServiceProject(data: Partial<ServiceProject>): ServiceProj
   };
   all.push(newProject);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION.toString());
   return newProject;
 }
 
@@ -63,6 +79,7 @@ export function updateServiceProject(id: string, updates: Partial<ServiceProject
     updatedAt: new Date().toISOString()
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION.toString());
   return all[index];
 }
 
@@ -71,6 +88,7 @@ export function deleteServiceProject(id: string): boolean {
   const filtered = all.filter(p => p.id !== id);
   if (filtered.length === all.length) return false;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  localStorage.setItem(STORAGE_VERSION_KEY, CURRENT_VERSION.toString());
   return true;
 }
 

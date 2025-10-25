@@ -30,6 +30,7 @@ export interface ServiceProject {
   progress: number; // 0-100
   candidatesShortlisted: number;
   candidatesInterviewed: number;
+  numberOfVacancies: number; // Number of positions for this service (from job)
   
   // Financial (linked to JobPayment)
   jobId?: string; // Reference to the job this service is for

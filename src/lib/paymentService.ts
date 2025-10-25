@@ -208,6 +208,7 @@ export async function processAccountPayment(
       progress: 0,
       candidatesShortlisted: 0,
       candidatesInterviewed: 0,
+      numberOfVacancies: 1,
       
       jobId,
       jobPaymentId: payment.id,
@@ -327,6 +328,7 @@ export async function processCreditCardPayment(
       progress: 0,
       candidatesShortlisted: 0,
       candidatesInterviewed: 0,
+      numberOfVacancies: 1,
       
       jobId,
       jobPaymentId: payment.id,
