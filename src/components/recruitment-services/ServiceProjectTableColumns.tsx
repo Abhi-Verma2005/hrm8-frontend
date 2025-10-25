@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { ServiceTypeBadge } from "./ServiceTypeBadge";
 import { ServiceStatusBadge } from "./ServiceStatusBadge";
-import { getServiceBaseFee, isMonthlyService } from "@/lib/subscriptionConfig";
+
 import type { ServiceProject } from "@/types/recruitmentService";
 import type { Column } from "@/components/tables/DataTable";
 
@@ -94,18 +94,28 @@ export const createServiceProjectColumns = (
     key: "projectValue",
     label: "Service Fee",
     sortable: true,
-    render: (project) => (
-      <div>
+    render: (project) => {
+      // RPO services have special display format
+      if (project.serviceType === 'rpo') {
+        return (
+          <div>
+            <div className="text-sm font-semibold">
+              ${project.projectValue.toLocaleString()}/mth
+            </div>
+            <div className="text-xs text-muted-foreground">
+              $3,990/vac
+            </div>
+          </div>
+        );
+      }
+      
+      // All other service types - just show total fee
+      return (
         <div className="text-sm font-semibold">
           ${project.projectValue.toLocaleString()}
         </div>
-        {project.balanceDue > 0 && (
-          <div className="text-xs text-muted-foreground">
-            ${project.balanceDue.toLocaleString()} due on completion
-          </div>
-        )}
-      </div>
-    ),
+      );
+    },
   },
   {
     key: "startDate",
