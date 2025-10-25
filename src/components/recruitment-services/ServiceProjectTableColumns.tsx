@@ -1,0 +1,160 @@
+import { format, formatDistanceToNow } from "date-fns";
+import { MoreHorizontal, Edit, ListTodo, Eye, Archive } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { ServiceTypeBadge } from "./ServiceTypeBadge";
+import { ServiceStatusBadge } from "./ServiceStatusBadge";
+import { getServiceBaseFee, isMonthlyService } from "@/lib/subscriptionConfig";
+import type { ServiceProject } from "@/types/recruitmentService";
+import type { Column } from "@/components/tables/DataTable";
+
+export const createServiceProjectColumns = (
+  onView: (id: string) => void,
+  onEdit: (id: string) => void,
+  onViewTasks: (id: string) => void,
+  onArchive: (id: string) => void
+): Column<ServiceProject>[] => [
+  {
+    key: "serviceType",
+    label: "Service Type",
+    sortable: true,
+    render: (project) => <ServiceTypeBadge type={project.serviceType} />,
+  },
+  {
+    key: "name",
+    label: "Project & Client",
+    sortable: true,
+    render: (project) => (
+      <div>
+        <div className="font-semibold text-base hover:underline cursor-pointer line-clamp-1">
+          {project.name}
+        </div>
+        <p className="text-sm text-muted-foreground line-clamp-1">
+          {project.clientName}
+        </p>
+      </div>
+    ),
+  },
+  {
+    key: "consultants",
+    label: "Team",
+    render: (project) => (
+      <div className="flex -space-x-2">
+        {project.consultants.slice(0, 3).map((consultant) => (
+          <Avatar key={consultant.id} className="h-8 w-8 border-2 border-background">
+            <AvatarImage src={consultant.avatar} alt={consultant.name} />
+            <AvatarFallback className="text-xs">
+              {consultant.name.split(' ').map(n => n[0]).join('')}
+            </AvatarFallback>
+          </Avatar>
+        ))}
+        {project.consultants.length > 3 && (
+          <Avatar className="h-8 w-8 border-2 border-background">
+            <AvatarFallback className="text-xs">
+              +{project.consultants.length - 3}
+            </AvatarFallback>
+          </Avatar>
+        )}
+      </div>
+    ),
+  },
+  {
+    key: "location",
+    label: "Location",
+    sortable: true,
+    render: (project) => (
+      <div className="text-sm">
+        <p className="font-medium">{project.location}</p>
+        <p className="text-xs text-muted-foreground">{project.country}</p>
+      </div>
+    ),
+  },
+  {
+    key: "projectValue",
+    label: "Service Fee",
+    sortable: true,
+    render: (project) => (
+      <span className="text-sm font-semibold">
+        ${getServiceBaseFee(project.serviceType).toLocaleString()}
+        {isMonthlyService(project.serviceType) && '/mth'}
+      </span>
+    ),
+  },
+  {
+    key: "startDate",
+    label: "Start Date",
+    sortable: true,
+    render: (project) => (
+      <div className="text-sm">
+        <p>{formatDistanceToNow(new Date(project.startDate), { addSuffix: true })}</p>
+        <p className="text-xs text-muted-foreground">
+          {format(new Date(project.startDate), "MMM d, yyyy")}
+        </p>
+      </div>
+    ),
+  },
+  {
+    key: "progress",
+    label: "Progress",
+    sortable: true,
+    render: (project) => (
+      <div className="w-32">
+        <div className="flex items-center justify-between text-xs mb-1">
+          <span className="text-muted-foreground">Progress</span>
+          <span className="font-medium">{project.progress}%</span>
+        </div>
+        <Progress value={project.progress} className="h-1.5" />
+      </div>
+    ),
+  },
+  {
+    key: "status",
+    label: "Status",
+    sortable: true,
+    render: (project) => <ServiceStatusBadge status={project.status} />,
+  },
+  {
+    key: "actions",
+    label: "Actions",
+    render: (project) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => onView(project.id)}>
+            <Eye className="mr-2 h-4 w-4" />
+            View Details
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onEdit(project.id)}>
+            <Edit className="mr-2 h-4 w-4" />
+            Edit Project
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onViewTasks(project.id)}>
+            <ListTodo className="mr-2 h-4 w-4" />
+            View Tasks
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => onArchive(project.id)} className="text-destructive">
+            <Archive className="mr-2 h-4 w-4" />
+            Archive
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
+  },
+];
