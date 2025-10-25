@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/tables/DataTable';
 import { TableFilters, ActiveFilter } from '@/components/tables/TableFilters';
 import { createConsultantColumns } from '@/components/consultants/ConsultantTableColumns';
+import { ConsultantStatsCard } from '@/components/consultants/ConsultantStatsCard';
 import { getAllConsultants, getConsultantStats } from '@/lib/consultantStorage';
 import { formatRevenue } from '@/lib/consultantUtils';
 import type { Consultant } from '@/types/consultant';
@@ -65,49 +66,33 @@ export default function ConsultantsPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Consultants</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.total}</div>
-              <p className="text-xs text-muted-foreground">{stats.active} active</p>
-            </CardContent>
-          </Card>
+          <ConsultantStatsCard
+            title="Total Consultants"
+            value={stats.total}
+            icon={Users}
+            description={`${stats.active} active`}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Placements</CardTitle>
-              <Award className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalPlacements}</div>
-              <p className="text-xs text-muted-foreground">Active consultants</p>
-            </CardContent>
-          </Card>
+          <ConsultantStatsCard
+            title="Total Placements"
+            value={stats.totalPlacements}
+            icon={Award}
+            description="Active consultants"
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatRevenue(stats.totalRevenue)}</div>
-              <p className="text-xs text-muted-foreground">From active team</p>
-            </CardContent>
-          </Card>
+          <ConsultantStatsCard
+            title="Total Revenue"
+            value={formatRevenue(stats.totalRevenue)}
+            icon={TrendingUp}
+            description="From active team"
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Commissions Paid</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatRevenue(stats.totalCommissionsPaid)}</div>
-              <p className="text-xs text-muted-foreground">{formatRevenue(stats.pendingCommissions)} pending</p>
-            </CardContent>
-          </Card>
+          <ConsultantStatsCard
+            title="Commissions Paid"
+            value={formatRevenue(stats.totalCommissionsPaid)}
+            icon={DollarSign}
+            description={`${formatRevenue(stats.pendingCommissions)} pending`}
+          />
         </div>
 
         <Card>
