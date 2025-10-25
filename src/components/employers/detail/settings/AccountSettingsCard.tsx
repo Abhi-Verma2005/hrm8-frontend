@@ -8,9 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getEmployerSettings, updateAccountManager } from "@/lib/employerSettingsStorage";
+import { getEmployerSettings, updateAccountManager, updatePrimaryRecruiter } from "@/lib/employerSettingsStorage";
 import { toast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
+import { mockRecruiters } from "@/data/mockRecruiters";
 
 interface AccountSettingsCardProps {
   employerId: string;
@@ -30,27 +31,41 @@ export function AccountSettingsCard({ employerId }: AccountSettingsCardProps) {
   const [selectedManager, setSelectedManager] = useState<string | undefined>(
     settings.accountManagerId
   );
+  const [selectedRecruiter, setSelectedRecruiter] = useState<string | undefined>(
+    settings.primaryRecruiterId
+  );
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
-    setHasChanges(selectedManager !== settings.accountManagerId);
-  }, [selectedManager, settings.accountManagerId]);
+    setHasChanges(
+      selectedManager !== settings.accountManagerId ||
+      selectedRecruiter !== settings.primaryRecruiterId
+    );
+  }, [selectedManager, selectedRecruiter, settings.accountManagerId, settings.primaryRecruiterId]);
 
   const handleSave = () => {
     const manager = accountManagers.find(m => m.id === selectedManager);
-    const success = updateAccountManager(
+    const recruiter = mockRecruiters.find(r => r.id === selectedRecruiter);
+    
+    const managerSuccess = updateAccountManager(
       employerId,
       selectedManager,
       manager?.name
     );
+    
+    const recruiterSuccess = updatePrimaryRecruiter(
+      employerId,
+      selectedRecruiter,
+      recruiter?.name
+    );
 
-    if (success) {
+    if (managerSuccess && recruiterSuccess) {
       setSettings(getEmployerSettings(employerId));
       setHasChanges(false);
-      toast({ title: "Account manager updated successfully" });
+      toast({ title: "Account settings updated successfully" });
     } else {
       toast({
-        title: "Failed to update account manager",
+        title: "Failed to update account settings",
         variant: "destructive",
       });
     }
@@ -80,6 +95,36 @@ export function AccountSettingsCard({ employerId }: AccountSettingsCardProps) {
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Primary Recruiter</label>
+          <Select
+            value={selectedRecruiter || 'unassigned'}
+            onValueChange={(value) => setSelectedRecruiter(value === 'unassigned' ? undefined : value)}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="unassigned">Unassigned</SelectItem>
+              {mockRecruiters.map(recruiter => (
+                <SelectItem key={recruiter.id} value={recruiter.id}>
+                  {recruiter.name}
+                  {recruiter.specialization && (
+                    <span className="text-xs text-muted-foreground ml-2">
+                      ({recruiter.specialization})
+                    </span>
+                  )}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {selectedRecruiter && selectedRecruiter !== 'unassigned' && (
+            <p className="text-xs text-muted-foreground">
+              {mockRecruiters.find(r => r.id === selectedRecruiter)?.specialization}
+            </p>
+          )}
         </div>
 
         {settings.updatedAt && (

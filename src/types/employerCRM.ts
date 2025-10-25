@@ -172,6 +172,8 @@ export interface EmployerSettings {
   employerId: string;
   accountManagerId?: string;
   accountManagerName?: string;
+  primaryRecruiterId?: string;
+  primaryRecruiterName?: string;
   territory?: string;
   region?: string;
   tags: string[];

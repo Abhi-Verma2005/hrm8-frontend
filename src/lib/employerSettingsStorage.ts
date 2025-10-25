@@ -67,6 +67,43 @@ export function updateAccountManager(
   return true;
 }
 
+export function updatePrimaryRecruiter(
+  employerId: string,
+  recruiterId: string | undefined,
+  recruiterName: string | undefined
+): boolean {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  const all = stored ? JSON.parse(stored) : [];
+  
+  const index = all.findIndex((s: EmployerSettings) => s.employerId === employerId);
+  
+  if (index === -1) {
+    const newSettings: EmployerSettings = {
+      employerId,
+      primaryRecruiterId: recruiterId,
+      primaryRecruiterName: recruiterName,
+      tags: [],
+      notificationSettings: DEFAULT_NOTIFICATION_SETTINGS,
+      updatedAt: new Date().toISOString(),
+    };
+    all.push(newSettings);
+  } else {
+    all[index].primaryRecruiterId = recruiterId;
+    all[index].primaryRecruiterName = recruiterName;
+    all[index].updatedAt = new Date().toISOString();
+  }
+  
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(all));
+  
+  // Log activity
+  const action = recruiterName 
+    ? `Primary recruiter assigned: ${recruiterName}`
+    : 'Primary recruiter unassigned';
+  createActivity(employerId, 'account-updated', action);
+  
+  return true;
+}
+
 export function updateTerritory(
   employerId: string,
   territory: string | undefined,

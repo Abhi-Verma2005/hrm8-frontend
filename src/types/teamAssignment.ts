@@ -20,6 +20,7 @@ export interface RecruiterAssignment {
   recruiterId: string; // Links to Consultant
   recruiterName: string;
   specialization?: string;
+  isPrimary: boolean;
   assignedBy: string;
   assignedByName: string;
   assignedAt: Date;
