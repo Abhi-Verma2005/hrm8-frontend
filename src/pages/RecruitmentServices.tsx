@@ -214,20 +214,24 @@ export default function RecruitmentServices() {
         ) : (
           <div className="space-y-3">
             {/* Column Headers */}
-            <div className="border-b bg-muted/40 px-4 py-2 rounded-t-lg">
-              <div className="flex items-center justify-between gap-6 text-xs font-medium text-muted-foreground">
-                <div className="flex items-center gap-6 flex-1">
-                  <div className="w-[200px] flex-shrink-0">Service Type</div>
-                  <div className="w-[300px] flex-shrink-0">Project & Client</div>
-                  <div className="hidden lg:block w-[500px] flex-shrink-0">Team & Metrics</div>
-                </div>
-                <div className="flex items-center gap-4 flex-shrink-0">
-                  <div className="hidden md:block min-w-[100px] w-full max-w-[200px]">Progress</div>
-                  <div className="w-[100px] flex-shrink-0">Status</div>
-                  <div className="w-[120px] flex-shrink-0 text-right">Actions</div>
-                </div>
-              </div>
+        <div className="border-b bg-muted/40 px-4 py-2 rounded-t-lg">
+          <div className="flex items-center justify-between gap-4 text-xs font-medium text-muted-foreground">
+            <div className="flex items-center gap-4 flex-1">
+              <div className="w-[200px] flex-shrink-0">Service Type</div>
+              <div className="w-[300px] flex-shrink-0">Project & Client</div>
+              <div className="hidden xl:block w-[120px] flex-shrink-0">Team</div>
+              <div className="hidden lg:block w-[100px] flex-shrink-0">Candidates</div>
+              <div className="hidden lg:block w-[100px] flex-shrink-0">Positions</div>
+              <div className="hidden lg:block w-[100px] flex-shrink-0">Value</div>
+              <div className="hidden xl:block w-[120px] flex-shrink-0">Post Date</div>
             </div>
+            <div className="flex items-center gap-4 flex-shrink-0">
+              <div className="hidden md:block min-w-[100px] w-full max-w-[200px]">Progress</div>
+              <div className="w-[100px] flex-shrink-0">Status</div>
+              <div className="w-[120px] flex-shrink-0 text-right">Actions</div>
+            </div>
+          </div>
+        </div>
             
             {/* Project List Items */}
             {filteredProjects.map(project => (

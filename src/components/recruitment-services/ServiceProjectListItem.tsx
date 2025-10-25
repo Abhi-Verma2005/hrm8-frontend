@@ -26,57 +26,70 @@ export function ServiceProjectListItem({
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
-        <div className="flex items-center justify-between gap-6">
-          {/* Left group: Type, Project, Metrics */}
-          <div className="flex items-center gap-6 flex-1 min-w-0">
-            {/* Column 1: Type & Priority - Fixed 200px */}
+        <div className="flex items-center justify-between gap-4">
+          {/* Left group: Type, Project, Individual Metrics */}
+          <div className="flex items-center gap-4 flex-1 min-w-0">
+            {/* Column 1: Type & Priority - 200px */}
             <div className="w-[200px] flex-shrink-0 flex items-center gap-2">
               <ServiceTypeBadge type={project.serviceType} />
               <PriorityIndicator priority={project.priority} />
             </div>
 
-            {/* Column 2: Project & Client - Fixed 300px */}
+            {/* Column 2: Project & Client - 300px */}
             <div className="w-[300px] flex-shrink-0">
               <h3 className="font-semibold text-base line-clamp-1">{project.name}</h3>
               <p className="text-sm text-muted-foreground line-clamp-1">{project.clientName}</p>
             </div>
 
-            {/* Column 3: Team & Metrics - Fixed 500px (expanded for more room) */}
-            <div className="hidden lg:flex w-[500px] flex-shrink-0 items-center gap-6">
-              {/* Consultant avatars - Fixed width */}
-              <div className="flex -space-x-2 w-[100px] flex-shrink-0">
-                {project.consultants.slice(0, 3).map((consultant) => (
-                  <Avatar key={consultant.id} className="h-8 w-8 border-2 border-background">
-                    <AvatarImage src={consultant.avatar} alt={consultant.name} />
-                    <AvatarFallback>{consultant.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                ))}
-                {project.consultants.length > 3 && (
-                  <Avatar className="h-8 w-8 border-2 border-background">
-                    <AvatarFallback>+{project.consultants.length - 3}</AvatarFallback>
-                  </Avatar>
-                )}
-              </div>
+            {/* Column 3: Team - 120px */}
+            <div className="hidden xl:flex w-[120px] flex-shrink-0 -space-x-2">
+              {project.consultants.slice(0, 3).map((consultant) => (
+                <Avatar key={consultant.id} className="h-8 w-8 border-2 border-background">
+                  <AvatarImage src={consultant.avatar} alt={consultant.name} />
+                  <AvatarFallback className="text-xs">
+                    {consultant.name.split(' ').map(n => n[0]).join('')}
+                  </AvatarFallback>
+                </Avatar>
+              ))}
+              {project.consultants.length > 3 && (
+                <Avatar className="h-8 w-8 border-2 border-background">
+                  <AvatarFallback className="text-xs">+{project.consultants.length - 3}</AvatarFallback>
+                </Avatar>
+              )}
+            </div>
 
-              {/* Metrics - Full words, larger text, more spacing */}
-              <div className="flex items-center gap-4 text-sm text-muted-foreground flex-1 min-w-0">
-                <span className="whitespace-nowrap">{project.candidatesShortlisted} candidates</span>
-                <span className="whitespace-nowrap">{project.positionsFilled}/{project.targetPositions} positions</span>
-                <span className="flex items-center gap-1 whitespace-nowrap">
-                  <DollarSign className="h-4 w-4" />
-                  {(project.projectValue / 1000).toFixed(0)}K
-                </span>
-                <span className="flex items-center gap-1 whitespace-nowrap">
-                  <Calendar className="h-4 w-4" />
-                  {formatRelativeDate(project.deadline)}
-                </span>
-              </div>
+            {/* Column 4: Candidates - 100px */}
+            <div className="hidden lg:block w-[100px] flex-shrink-0">
+              <span className="text-sm font-semibold">{project.candidatesShortlisted}</span>
+            </div>
+
+            {/* Column 5: Positions - 100px */}
+            <div className="hidden lg:block w-[100px] flex-shrink-0">
+              <span className="text-sm font-semibold">
+                {project.positionsFilled}/{project.targetPositions}
+              </span>
+            </div>
+
+            {/* Column 6: Value - 100px */}
+            <div className="hidden lg:block w-[100px] flex-shrink-0">
+              <span className="text-sm font-semibold flex items-center gap-1">
+                <DollarSign className="h-3 w-3" />
+                {(project.projectValue / 1000).toFixed(0)}K
+              </span>
+            </div>
+
+            {/* Column 7: Post Date - 120px */}
+            <div className="hidden xl:block w-[120px] flex-shrink-0">
+              <span className="text-sm font-semibold flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {formatRelativeDate(project.startDate)}
+              </span>
             </div>
           </div>
 
-          {/* Right group: Progress, Status, Actions - pinned to right edge */}
+          {/* Right group: Progress, Status, Actions */}
           <div className="flex items-center gap-4 flex-shrink-0">
-            {/* Column 4: Progress - Flexible width (absorbs space changes) */}
+            {/* Column 8: Progress - Flexible */}
             <div className="hidden md:block min-w-[100px] w-full max-w-[200px]">
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="text-muted-foreground">Progress</span>
@@ -85,12 +98,12 @@ export function ServiceProjectListItem({
               <Progress value={project.progress} className="h-1.5" />
             </div>
 
-            {/* Column 5: Status - Fixed 100px */}
+            {/* Column 9: Status - 100px */}
             <div className="w-[100px] flex-shrink-0">
               <ServiceStatusBadge status={project.status} />
             </div>
 
-            {/* Column 6: Actions - Fixed 120px */}
+            {/* Column 10: Actions - 120px */}
             <div className="w-[120px] flex-shrink-0 flex items-center gap-1 justify-end">
               <Button variant="ghost" size="sm" onClick={() => onView(project.id)}>
                 <Eye className="h-4 w-4" />
