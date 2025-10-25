@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Users, TrendingUp, DollarSign, Award } from 'lucide-react';
+import { Plus, Users, TrendingUp, DollarSign, Award, Upload, Download } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
@@ -49,7 +49,20 @@ export default function ConsultantsPage() {
   };
 
   return (
-    <DashboardPageLayout>
+    <DashboardPageLayout
+      breadcrumbActions={
+        <>
+          <Button variant="outline" size="sm">
+            <Upload className="mr-2 h-4 w-4" />
+            Import
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+        </>
+      }
+    >
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>

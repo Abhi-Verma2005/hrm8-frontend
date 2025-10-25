@@ -1,10 +1,24 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, Upload, Download } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { Button } from "@/components/ui/button";
 
 export default function Analytics() {
   return (
-    <DashboardPageLayout>
+    <DashboardPageLayout
+      breadcrumbActions={
+        <>
+          <Button variant="outline" size="sm">
+            <Upload className="mr-2 h-4 w-4" />
+            Import
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+        </>
+      }
+    >
       <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Analytics</h1>

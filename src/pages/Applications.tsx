@@ -1,10 +1,24 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { FileText, Upload, Download } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { Button } from "@/components/ui/button";
 
 export default function Applications() {
   return (
-    <DashboardPageLayout>
+    <DashboardPageLayout
+      breadcrumbActions={
+        <>
+          <Button variant="outline" size="sm">
+            <Upload className="mr-2 h-4 w-4" />
+            Import
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+        </>
+      }
+    >
       <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Applications</h1>
