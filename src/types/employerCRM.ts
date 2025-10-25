@@ -167,3 +167,21 @@ export interface EmployerMetrics {
   daysAsCustomer: number;
   lastActivityDate: string;
 }
+
+export interface EmployerSettings {
+  employerId: string;
+  accountManagerId?: string;
+  accountManagerName?: string;
+  territory?: string;
+  region?: string;
+  tags: string[];
+  notificationSettings: NotificationSettings;
+  updatedAt: string;
+}
+
+export interface NotificationSettings {
+  emailOnJobPosted: boolean;
+  emailOnInvoiceDue: boolean;
+  emailOnSubscriptionChange: boolean;
+  emailOnLowBalance: boolean;
+}

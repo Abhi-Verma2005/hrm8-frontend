@@ -1,6 +1,7 @@
 import { Employer } from "@/types/entities";
 import { EmployerCompanyProfile } from "./EmployerCompanyProfile";
 import { EmployerEngagementPanel } from "./EmployerEngagementPanel";
+import { ContactsSection } from "./contacts/ContactsSection";
 import { calculateEmployerMetrics } from "@/lib/employerService";
 
 interface EmployerOverviewProps {
@@ -24,6 +25,9 @@ export function EmployerOverview({ employer }: EmployerOverviewProps) {
           <EmployerEngagementPanel employer={employer} />
         </div>
       </div>
+      
+      {/* Contacts Section */}
+      <ContactsSection employerId={employer.id} />
     </div>
   );
 }

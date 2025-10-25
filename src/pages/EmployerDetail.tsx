@@ -24,6 +24,10 @@ import { BillingSubscriptionsTab } from "@/components/employers/detail/billing/B
 import { ServicesTab } from "@/components/employers/detail/services/ServicesTab";
 import { ActivityHistoryTab } from "@/components/employers/detail/activity/ActivityHistoryTab";
 import { initializeMockCRMData } from "@/data/mockCRMData";
+import { initializeMockContacts } from "@/data/mockContactsData";
+import { initializeMockDocuments } from "@/data/mockDocumentsData";
+import { DocumentsTab } from "@/components/employers/detail/documents/DocumentsTab";
+import { SettingsTab } from "@/components/employers/detail/settings/SettingsTab";
 import { Employer } from "@/types/entities";
 import {
   DropdownMenu,
@@ -43,6 +47,9 @@ export default function EmployerDetail() {
 
   useEffect(() => {
     initializeMockCRMData();
+    initializeMockContacts();
+    initializeMockDocuments();
+    initializeMockDocuments();
   }, []);
 
   if (!employer) {
@@ -194,26 +201,12 @@ export default function EmployerDetail() {
 
           {/* Documents Tab */}
           <TabsContent value="documents">
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">Document Repository</p>
-                  <p className="text-sm">Document management will be available in Phase 5</p>
-                </div>
-              </CardContent>
-            </Card>
+            <DocumentsTab employerId={employer.id} />
           </TabsContent>
 
           {/* Settings Tab */}
           <TabsContent value="settings">
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">Territory & Team Settings</p>
-                  <p className="text-sm">Settings management will be available in Phase 5</p>
-                </div>
-              </CardContent>
-            </Card>
+            <SettingsTab employerId={employer.id} employer={employer} />
           </TabsContent>
         </Tabs>
       </div>
