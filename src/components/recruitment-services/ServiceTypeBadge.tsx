@@ -9,10 +9,10 @@ interface ServiceTypeBadgeProps {
 
 export function ServiceTypeBadge({ type, className }: ServiceTypeBadgeProps) {
   const config = {
-    'shortlisting': { label: 'Shortlisting', variant: 'default' as const },
-    'full-service': { label: 'Full-Service', variant: 'default' as const },
-    'executive-search': { label: 'Executive Search', variant: 'secondary' as const },
-    'rpo': { label: 'RPO', variant: 'outline' as const }
+    'shortlisting': { label: 'Shortlisting', variant: 'info' as const },
+    'full-service': { label: 'Full-Service', variant: 'purple' as const },
+    'executive-search': { label: 'Executive Search', variant: 'amber' as const },
+    'rpo': { label: 'RPO', variant: 'teal' as const }
   };
 
   const { label, variant } = config[type];
