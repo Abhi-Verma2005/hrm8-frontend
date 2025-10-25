@@ -61,11 +61,10 @@ export function ServiceProjectListItem({
               <span className="text-sm font-semibold">{project.country}</span>
             </div>
 
-            {/* Column 5: Service Fee - 100px */}
-            <div className="hidden lg:block w-[100px] flex-shrink-0">
-              <span className="text-sm font-semibold flex items-center gap-1">
-                <DollarSign className="h-3 w-3" />
-                {(project.projectValue / 1000).toFixed(0)}K
+            {/* Column 5: Service Fee - 120px */}
+            <div className="hidden lg:block w-[120px] flex-shrink-0">
+              <span className="text-sm font-semibold">
+                ${project.projectValue.toLocaleString()}
               </span>
             </div>
 

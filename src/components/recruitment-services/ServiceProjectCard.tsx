@@ -82,7 +82,7 @@ export function ServiceProjectCard({ project, onView, onEdit, onViewTasks, onArc
           <div className="flex items-center gap-2 text-sm">
             <DollarSign className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="font-medium">${(project.projectValue / 1000).toFixed(0)}K</p>
+              <p className="font-medium">${project.projectValue.toLocaleString()}</p>
               <p className="text-xs text-muted-foreground">Value</p>
             </div>
           </div>
