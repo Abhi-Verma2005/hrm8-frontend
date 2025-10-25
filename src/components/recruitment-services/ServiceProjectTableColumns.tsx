@@ -1,5 +1,6 @@
 import { format, formatDistanceToNow } from "date-fns";
 import { MoreHorizontal, Edit, ListTodo, Eye, Archive } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -35,12 +36,18 @@ export const createServiceProjectColumns = (
     sortable: true,
     render: (project) => (
       <div>
-        <div className="font-semibold text-base hover:underline cursor-pointer line-clamp-1">
+        <Link 
+          to={`/recruitment-services/${project.id}`}
+          className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+        >
           {project.name}
-        </div>
-        <p className="text-sm text-muted-foreground line-clamp-1">
+        </Link>
+        <Link
+          to={`/employers/${project.clientId}`}
+          className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors"
+        >
           {project.clientName}
-        </p>
+        </Link>
       </div>
     ),
   },
