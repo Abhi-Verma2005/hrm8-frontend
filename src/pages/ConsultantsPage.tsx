@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/tables/DataTable';
 import { TableFilters, ActiveFilter } from '@/components/tables/TableFilters';
-import { TablePagination } from '@/components/tables/TablePagination';
 import { createConsultantColumns } from '@/components/consultants/ConsultantTableColumns';
 import { getAllConsultants, getConsultantStats } from '@/lib/consultantStorage';
 import { formatRevenue } from '@/lib/consultantUtils';
@@ -17,8 +16,6 @@ export default function ConsultantsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(25);
 
   const consultants = getAllConsultants();
   const stats = getConsultantStats();
@@ -36,11 +33,6 @@ export default function ConsultantsPage() {
       return matchesSearch && matchesType && matchesStatus;
     });
   }, [consultants, searchQuery, typeFilter, statusFilter]);
-
-  const paginatedData = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredData.slice(start, start + pageSize);
-  }, [filteredData, currentPage, pageSize]);
 
   const activeFilters: ActiveFilter[] = [
     ...(typeFilter !== 'all' ? [{ key: 'type', value: typeFilter, label: `Type: ${typeFilter}` }] : []),
@@ -150,19 +142,7 @@ export default function ConsultantsPage() {
 
               <DataTable
                 columns={createConsultantColumns()}
-                data={paginatedData}
-              />
-
-              <TablePagination
-                currentPage={currentPage}
-                totalPages={Math.ceil(filteredData.length / pageSize)}
-                pageSize={pageSize}
-                totalItems={filteredData.length}
-                onPageChange={setCurrentPage}
-                onPageSizeChange={(size) => {
-                  setPageSize(size);
-                  setCurrentPage(1);
-                }}
+                data={filteredData}
               />
             </div>
           </CardContent>
