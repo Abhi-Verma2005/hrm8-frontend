@@ -26,9 +26,9 @@ export function ServiceProjectListItem({
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
-        <div className="flex items-center justify-between gap-4">
-          {/* Left group: Type, Project, Individual Metrics */}
-          <div className="flex items-center gap-4 flex-1 min-w-0">
+        <div className="flex items-center gap-4">
+          {/* Left Edge - Fixed Columns */}
+          <div className="flex items-center gap-4 flex-shrink-0">
             {/* Column 1: Type & Priority - 200px */}
             <div className="w-[200px] flex-shrink-0 flex items-center gap-2">
               <ServiceTypeBadge type={project.serviceType} />
@@ -80,23 +80,25 @@ export function ServiceProjectListItem({
             </div>
           </div>
 
-          {/* Right group: Progress, Status, Actions */}
-          <div className="flex items-center gap-4 flex-shrink-0">
-            {/* Column 8: Progress - Flexible */}
-            <div className="hidden md:block min-w-[100px] w-full max-w-[200px]">
+          {/* Middle - Flexible Progress Column */}
+          <div className="hidden md:flex flex-1 min-w-[120px] max-w-[300px]">
+            <div className="w-full">
               <div className="flex items-center justify-between text-xs mb-1">
                 <span className="text-muted-foreground">Progress</span>
                 <span className="font-medium">{project.progress}%</span>
               </div>
               <Progress value={project.progress} className="h-1.5" />
             </div>
+          </div>
 
-            {/* Column 9: Status - 100px */}
+          {/* Right Edge - Fixed Columns */}
+          <div className="flex items-center gap-4 flex-shrink-0">
+            {/* Status - 100px */}
             <div className="w-[100px] flex-shrink-0">
               <ServiceStatusBadge status={project.status} />
             </div>
 
-            {/* Column 10: Actions - 120px */}
+            {/* Actions - 120px */}
             <div className="w-[120px] flex-shrink-0 flex items-center gap-1 justify-end">
               <Button variant="ghost" size="sm" onClick={() => onView(project.id)}>
                 <Eye className="h-4 w-4" />
