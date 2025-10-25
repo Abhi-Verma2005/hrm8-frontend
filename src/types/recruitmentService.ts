@@ -28,8 +28,6 @@ export interface ServiceProject {
   
   // Progress metrics
   progress: number; // 0-100
-  targetPositions: number;
-  positionsFilled: number;
   candidatesShortlisted: number;
   candidatesInterviewed: number;
   
