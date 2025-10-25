@@ -58,19 +58,12 @@ export function ServiceProjectListItem({
               )}
             </div>
 
-            {/* Column 4: Candidates - 100px */}
-            <div className="hidden lg:block w-[100px] flex-shrink-0">
-              <span className="text-sm font-semibold">{project.candidatesShortlisted}</span>
+            {/* Column 4: Country - 120px */}
+            <div className="hidden xl:block w-[120px] flex-shrink-0">
+              <span className="text-sm font-semibold">{project.country}</span>
             </div>
 
-            {/* Column 5: Positions - 100px */}
-            <div className="hidden lg:block w-[100px] flex-shrink-0">
-              <span className="text-sm font-semibold">
-                {project.positionsFilled}/{project.targetPositions}
-              </span>
-            </div>
-
-            {/* Column 6: Service Fee - 100px */}
+            {/* Column 5: Service Fee - 100px */}
             <div className="hidden lg:block w-[100px] flex-shrink-0">
               <span className="text-sm font-semibold flex items-center gap-1">
                 <DollarSign className="h-3 w-3" />
@@ -78,7 +71,7 @@ export function ServiceProjectListItem({
               </span>
             </div>
 
-            {/* Column 7: Post Date - 120px */}
+            {/* Column 6: Post Date - 120px */}
             <div className="hidden xl:block w-[120px] flex-shrink-0">
               <span className="text-sm font-semibold flex items-center gap-1">
                 <Calendar className="h-3 w-3" />

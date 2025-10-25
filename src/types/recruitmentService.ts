@@ -15,6 +15,7 @@ export interface ServiceProject {
   clientId: string;
   clientName: string;
   clientLogo?: string;
+  country: string;
   
   // Assigned consultants
   consultants: Array<{

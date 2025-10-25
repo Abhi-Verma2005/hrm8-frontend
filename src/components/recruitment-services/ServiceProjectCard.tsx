@@ -5,7 +5,7 @@ import { ServiceTypeBadge } from './ServiceTypeBadge';
 import { ServiceStatusBadge } from './ServiceStatusBadge';
 import { PriorityIndicator } from './PriorityIndicator';
 import type { ServiceProject } from '@/types/recruitmentService';
-import { Calendar, Users, Target, DollarSign, Eye, Edit, ListTodo, Archive } from 'lucide-react';
+import { Calendar, DollarSign, Eye, Edit, ListTodo } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface ServiceProjectCardProps {
@@ -54,6 +54,17 @@ export function ServiceProjectCard({ project, onView, onEdit, onViewTasks, onArc
           )}
         </div>
 
+        {/* Country */}
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
+            <span className="text-xs">🌍</span>
+          </div>
+          <div>
+            <p className="text-sm font-medium">{project.country}</p>
+            <p className="text-xs text-muted-foreground">Location</p>
+          </div>
+        </div>
+
         {/* Progress */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
@@ -70,22 +81,6 @@ export function ServiceProjectCard({ project, onView, onEdit, onViewTasks, onArc
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 gap-3 pt-2">
-          <div className="flex items-center gap-2 text-sm">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <p className="font-medium">{project.candidatesShortlisted}</p>
-              <p className="text-xs text-muted-foreground">Candidates</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-sm">
-            <Target className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <p className="font-medium">{project.positionsFilled}/{project.targetPositions}</p>
-              <p className="text-xs text-muted-foreground">Positions</p>
-            </div>
-          </div>
-
           <div className="flex items-center gap-2 text-sm">
             <DollarSign className="h-4 w-4 text-muted-foreground" />
             <div>

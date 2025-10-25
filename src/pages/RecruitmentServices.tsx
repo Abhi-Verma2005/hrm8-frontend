@@ -220,8 +220,7 @@ export default function RecruitmentServices() {
               <div className="w-[200px] flex-shrink-0">Service Type</div>
               <div className="w-[300px] flex-shrink-0">Project & Client</div>
               <div className="hidden xl:block w-[120px] flex-shrink-0">Team</div>
-              <div className="hidden lg:block w-[100px] flex-shrink-0">Candidates</div>
-              <div className="hidden lg:block w-[100px] flex-shrink-0">Positions</div>
+              <div className="hidden xl:block w-[120px] flex-shrink-0">Country</div>
               <div className="hidden lg:block w-[100px] flex-shrink-0">Service Fee</div>
               <div className="hidden xl:block w-[120px] flex-shrink-0">Post Date</div>
             </div>

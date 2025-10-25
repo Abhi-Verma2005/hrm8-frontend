@@ -28,6 +28,7 @@ export function createServiceProject(data: Partial<ServiceProject>): ServiceProj
     stage: data.stage || 'initiated',
     clientId: data.clientId || '',
     clientName: data.clientName || '',
+    country: data.country || '',
     consultants: data.consultants || [],
     progress: data.progress || 0,
     targetPositions: data.targetPositions || 1,
