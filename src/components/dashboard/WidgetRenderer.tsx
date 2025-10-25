@@ -3,6 +3,11 @@ import { HiringTrendsChart } from './charts/HiringTrendsChart';
 import { ApplicationFunnelChart } from './charts/ApplicationFunnelChart';
 import { JobDistributionChart } from './charts/JobDistributionChart';
 import { SourceOfHireChart } from './charts/SourceOfHireChart';
+import { ServicePipelineChart } from './charts/ServicePipelineChart';
+import { ServiceTypeDistributionChart } from './charts/ServiceTypeDistributionChart';
+import { ConsultantPerformanceChart } from './charts/ConsultantPerformanceChart';
+import { ServiceRevenueTrendsChart } from './charts/ServiceRevenueTrendsChart';
+import { ProjectCompletionRateChart } from './charts/ProjectCompletionRateChart';
 import { AttendanceTrendsChart } from './charts/AttendanceTrendsChart';
 import { EmployeeDistributionChart } from './charts/EmployeeDistributionChart';
 import { LeaveAnalysisChart } from './charts/LeaveAnalysisChart';
@@ -29,6 +34,11 @@ const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
   ApplicationFunnelChart,
   JobDistributionChart,
   SourceOfHireChart,
+  ServicePipelineChart,
+  ServiceTypeDistributionChart,
+  ConsultantPerformanceChart,
+  ServiceRevenueTrendsChart,
+  ProjectCompletionRateChart,
   AttendanceTrendsChart,
   EmployeeDistributionChart,
   LeaveAnalysisChart,

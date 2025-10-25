@@ -22,6 +22,7 @@ import Employers from "./pages/Employers";
 import EmployerDetail from "./pages/EmployerDetail";
 import Consultants from "./pages/Consultants";
 import ConsultantDetail from "./pages/ConsultantDetail";
+import RecruitmentServices from "./pages/RecruitmentServices";
 import HRMS from "./pages/HRMS";
 import Inbox from "./pages/Inbox";
 import Users from "./pages/Users";
@@ -58,6 +59,7 @@ function AppContent() {
             <Route path="/employers/:employerId" element={<EmployerDetail />} />
             <Route path="/consultants" element={<Consultants />} />
             <Route path="/consultants/:id" element={<ConsultantDetail />} />
+            <Route path="/recruitment-services" element={<RecruitmentServices />} />
             <Route path="/hrms" element={<HRMS />} />
             <Route path="/applications" element={<Applications />} />
             <Route path="/analytics" element={<Analytics />} />

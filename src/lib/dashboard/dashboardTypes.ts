@@ -1,7 +1,7 @@
-import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, type LucideIcon } from "lucide-react";
+import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, Target, type LucideIcon } from "lucide-react";
 import type { WidgetType } from "./widgetRegistry";
 
-export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting';
+export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting' | 'recruitment-services';
 
 export interface DashboardMetadata {
   id: DashboardType;
@@ -100,6 +100,29 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
       'chart-client-distribution',
       'chart-resource-allocation',
       'chart-revenue-forecast',
+      'activity-feed'
+    ]
+  },
+  'recruitment-services': {
+    id: 'recruitment-services',
+    name: 'Recruitment Services',
+    description: 'Track all recruitment service projects and performance',
+    icon: Target,
+    defaultRoute: '/dashboard/recruitment-services',
+    availableWidgets: [
+      'stat-active-service-projects',
+      'stat-shortlisting-projects',
+      'stat-fullservice-projects',
+      'stat-executive-search-projects',
+      'stat-rpo-projects',
+      'stat-service-revenue',
+      'stat-avg-success-rate',
+      'stat-projects-completed',
+      'chart-service-pipeline',
+      'chart-service-type-distribution',
+      'chart-consultant-performance',
+      'chart-service-revenue-trends',
+      'chart-project-completion-rate',
       'activity-feed'
     ]
   }

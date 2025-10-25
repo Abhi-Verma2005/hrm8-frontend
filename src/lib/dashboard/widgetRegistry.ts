@@ -1,7 +1,7 @@
 import { 
   Users, Briefcase, FileText, UserCheck, TrendingUp, BarChart3, PieChart, Target, Clock,
   UserCircle, Calendar, Percent, Building2, DollarSign, TrendingDown, Wallet, Receipt,
-  FolderKanban, Building, Gauge, Timer
+  FolderKanban, Building, Gauge, Timer, CheckCircle
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { DashboardType } from "./dashboardTypes";
@@ -43,6 +43,20 @@ export type WidgetType =
   | 'chart-client-distribution'
   | 'chart-resource-allocation'
   | 'chart-revenue-forecast'
+  // Recruitment Services widgets
+  | 'stat-active-service-projects'
+  | 'stat-shortlisting-projects'
+  | 'stat-fullservice-projects'
+  | 'stat-executive-search-projects'
+  | 'stat-rpo-projects'
+  | 'stat-service-revenue'
+  | 'stat-avg-success-rate'
+  | 'stat-projects-completed'
+  | 'chart-service-pipeline'
+  | 'chart-service-type-distribution'
+  | 'chart-consultant-performance'
+  | 'chart-service-revenue-trends'
+  | 'chart-project-completion-rate'
   // Shared
   | 'activity-feed';
 
@@ -565,6 +579,220 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     allowedDashboards: ['consulting']
   },
 
+  // ===== RECRUITMENT SERVICES WIDGETS =====
+  'stat-active-service-projects': {
+    id: 'stat-active-service-projects',
+    name: 'Active Service Projects',
+    description: 'Currently active recruitment service projects',
+    category: 'stat',
+    component: 'EnhancedStatCard',
+    icon: FolderKanban,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      title: "Active Projects",
+      value: "28",
+      change: "+7",
+      trend: "up",
+      variant: "primary"
+    },
+    allowedDashboards: ['recruitment-services', 'overview']
+  },
+  'stat-shortlisting-projects': {
+    id: 'stat-shortlisting-projects',
+    name: 'Shortlisting Projects',
+    description: 'Active shortlisting service projects',
+    category: 'stat',
+    component: 'EnhancedStatCard',
+    icon: Users,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      title: "Shortlisting",
+      value: "12",
+      change: "+3",
+      trend: "up",
+      variant: "success"
+    },
+    allowedDashboards: ['recruitment-services']
+  },
+  'stat-fullservice-projects': {
+    id: 'stat-fullservice-projects',
+    name: 'Full-Service Projects',
+    description: 'Active full-service recruitment projects',
+    category: 'stat',
+    component: 'EnhancedStatCard',
+    icon: Briefcase,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      title: "Full-Service",
+      value: "8",
+      change: "+2",
+      trend: "up",
+      variant: "primary"
+    },
+    allowedDashboards: ['recruitment-services']
+  },
+  'stat-executive-search-projects': {
+    id: 'stat-executive-search-projects',
+    name: 'Executive Search Projects',
+    description: 'Active executive search projects',
+    category: 'stat',
+    component: 'EnhancedStatCard',
+    icon: Target,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      title: "Executive Search",
+      value: "5",
+      change: "+1",
+      trend: "up",
+      variant: "warning"
+    },
+    allowedDashboards: ['recruitment-services']
+  },
+  'stat-rpo-projects': {
+    id: 'stat-rpo-projects',
+    name: 'RPO Projects',
+    description: 'Active RPO projects',
+    category: 'stat',
+    component: 'EnhancedStatCard',
+    icon: Building,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      title: "RPO",
+      value: "3",
+      change: "+1",
+      trend: "up",
+      variant: "neutral"
+    },
+    allowedDashboards: ['recruitment-services']
+  },
+  'stat-service-revenue': {
+    id: 'stat-service-revenue',
+    name: 'Service Revenue',
+    description: 'Total revenue from recruitment services',
+    category: 'stat',
+    component: 'EnhancedStatCard',
+    icon: DollarSign,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      title: "Service Revenue",
+      value: "$1.8M",
+      change: "+22%",
+      trend: "up",
+      variant: "success"
+    },
+    allowedDashboards: ['recruitment-services', 'overview']
+  },
+  'stat-avg-success-rate': {
+    id: 'stat-avg-success-rate',
+    name: 'Average Success Rate',
+    description: 'Average placement success rate',
+    category: 'stat',
+    component: 'EnhancedStatCard',
+    icon: Percent,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      title: "Success Rate",
+      value: "87%",
+      change: "+4%",
+      trend: "up",
+      variant: "success"
+    },
+    allowedDashboards: ['recruitment-services']
+  },
+  'stat-projects-completed': {
+    id: 'stat-projects-completed',
+    name: 'Projects Completed',
+    description: 'Projects completed this month',
+    category: 'stat',
+    component: 'EnhancedStatCard',
+    icon: CheckCircle,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      title: "Completed",
+      value: "15",
+      change: "+5",
+      trend: "up",
+      variant: "success"
+    },
+    allowedDashboards: ['recruitment-services']
+  },
+  'chart-service-pipeline': {
+    id: 'chart-service-pipeline',
+    name: 'Service Pipeline',
+    description: 'Service projects by stage',
+    category: 'chart',
+    component: 'ServicePipelineChart',
+    icon: BarChart3,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 4 },
+    allowedDashboards: ['recruitment-services']
+  },
+  'chart-service-type-distribution': {
+    id: 'chart-service-type-distribution',
+    name: 'Service Type Distribution',
+    description: 'Distribution of service types',
+    category: 'chart',
+    component: 'ServiceTypeDistributionChart',
+    icon: PieChart,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 4 },
+    allowedDashboards: ['recruitment-services']
+  },
+  'chart-consultant-performance': {
+    id: 'chart-consultant-performance',
+    name: 'Consultant Performance',
+    description: 'Performance metrics by consultant',
+    category: 'chart',
+    component: 'ConsultantPerformanceChart',
+    icon: TrendingUp,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 4 },
+    allowedDashboards: ['recruitment-services']
+  },
+  'chart-service-revenue-trends': {
+    id: 'chart-service-revenue-trends',
+    name: 'Service Revenue Trends',
+    description: 'Revenue trends over time',
+    category: 'chart',
+    component: 'ServiceRevenueTrendsChart',
+    icon: DollarSign,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 4 },
+    allowedDashboards: ['recruitment-services']
+  },
+  'chart-project-completion-rate': {
+    id: 'chart-project-completion-rate',
+    name: 'Project Completion Rate',
+    description: 'Project completion trends',
+    category: 'chart',
+    component: 'ProjectCompletionRateChart',
+    icon: Target,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 4 },
+    allowedDashboards: ['recruitment-services']
+  },
+
   // ===== SHARED WIDGETS =====
   'activity-feed': {
     id: 'activity-feed',
@@ -576,6 +804,6 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 12, h: 2 },
     minSize: { w: 6, h: 2 },
     maxSize: { w: 12, h: 4 },
-    allowedDashboards: ['jobs', 'hrms', 'financial', 'consulting']
+    allowedDashboards: ['jobs', 'hrms', 'financial', 'consulting', 'recruitment-services']
   },
 };

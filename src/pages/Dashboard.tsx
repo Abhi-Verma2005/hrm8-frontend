@@ -29,7 +29,7 @@ export default function Dashboard() {
   const { type } = useParams<{ type: string }>();
   const dashboardType = (type || 'overview') as DashboardType;
   
-  if (type && !['overview', 'jobs', 'hrms', 'financial', 'consulting'].includes(type)) {
+  if (type && !['overview', 'jobs', 'hrms', 'financial', 'consulting', 'recruitment-services'].includes(type)) {
     return <Navigate to="/dashboard/overview" replace />;
   }
   

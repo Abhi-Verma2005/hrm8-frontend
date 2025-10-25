@@ -581,10 +581,127 @@ export const DEFAULT_CONSULTING_LAYOUT: DashboardLayout = {
   updatedAt: new Date()
 };
 
+export const DEFAULT_RECRUITMENT_SERVICES_LAYOUT: DashboardLayout = {
+  id: 'recruitment-services',
+  name: 'Recruitment Services Dashboard',
+  dashboardType: 'recruitment-services',
+  widgets: [
+    {
+      id: 'stat-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Active Projects',
+      gridArea: { x: 0, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Active Projects",
+        value: "28",
+        change: "+7",
+        trend: "up",
+        variant: "primary"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-2',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Shortlisting',
+      gridArea: { x: 3, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Shortlisting",
+        value: "12",
+        change: "+3",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-3',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Full-Service',
+      gridArea: { x: 6, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Full-Service",
+        value: "8",
+        change: "+2",
+        trend: "up",
+        variant: "primary"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-4',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Executive Search',
+      gridArea: { x: 9, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Executive Search",
+        value: "5",
+        change: "+1",
+        trend: "up",
+        variant: "warning"
+      },
+      isVisible: true
+    },
+    {
+      id: 'chart-1',
+      type: 'chart',
+      component: 'ServicePipelineChart',
+      title: 'Service Pipeline',
+      gridArea: { x: 0, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-2',
+      type: 'chart',
+      component: 'ServiceTypeDistributionChart',
+      title: 'Service Type Distribution',
+      gridArea: { x: 6, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-3',
+      type: 'chart',
+      component: 'ConsultantPerformanceChart',
+      title: 'Consultant Performance',
+      gridArea: { x: 0, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-4',
+      type: 'chart',
+      component: 'ServiceRevenueTrendsChart',
+      title: 'Revenue Trends',
+      gridArea: { x: 6, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'activity-1',
+      type: 'activity',
+      component: 'RecentActivityCard',
+      title: 'Recent Activity',
+      gridArea: { x: 0, y: 5, w: 12, h: 2 },
+      props: {},
+      isVisible: true,
+      isLocked: true
+    }
+  ],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
 export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   overview: DEFAULT_OVERVIEW_LAYOUT,
   jobs: DEFAULT_JOBS_LAYOUT,
   hrms: DEFAULT_HRMS_LAYOUT,
   financial: DEFAULT_FINANCIAL_LAYOUT,
-  consulting: DEFAULT_CONSULTING_LAYOUT
+  consulting: DEFAULT_CONSULTING_LAYOUT,
+  'recruitment-services': DEFAULT_RECRUITMENT_SERVICES_LAYOUT
 };
