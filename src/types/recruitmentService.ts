@@ -3,6 +3,15 @@ export type ServiceStatus = 'active' | 'on-hold' | 'completed' | 'cancelled';
 export type ServicePriority = 'high' | 'medium' | 'low';
 export type ServiceStage = 'initiated' | 'in-progress' | 'shortlisting' | 'interviewing' | 'offer' | 'completed';
 
+export interface RPOFeeStructure {
+  id: string;
+  type: 'monthly-retainer' | 'per-vacancy' | 'milestone' | 'custom';
+  name: string;
+  amount: number;
+  frequency?: 'one-time' | 'monthly' | 'quarterly' | 'per-placement';
+  description?: string;
+}
+
 export interface ServiceProject {
   id: string;
   name: string;
@@ -50,6 +59,20 @@ export interface ServiceProject {
   description?: string;
   requirements?: string[];
   tags?: string[];
+  
+  // RPO-specific fields
+  isRPO?: boolean;
+  rpoStartDate?: string;
+  rpoEndDate?: string;
+  rpoDuration?: number; // Duration in months
+  rpoFeeStructures?: RPOFeeStructure[];
+  rpoMonthlyRetainer?: number;
+  rpoPerVacancyFee?: number;
+  rpoTotalContractValue?: number;
+  rpoAutoRenew?: boolean;
+  rpoNoticePeriod?: number; // Notice period in days
+  rpoNotes?: string;
+  targetPlacements?: number; // Expected number of placements
   
   createdAt: string;
   updatedAt: string;

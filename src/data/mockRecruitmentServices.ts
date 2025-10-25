@@ -265,10 +265,10 @@ export const mockServiceProjects: ServiceProject[] = [
     progress: 40,
     candidatesShortlisted: 8,
     candidatesInterviewed: 5,
-    numberOfVacancies: 1,
-    projectValue: 10000,
-    upfrontPaid: 10000,
-    balanceDue: 10000,
+    numberOfVacancies: 15,
+    projectValue: 179880,
+    upfrontPaid: 120000,
+    balanceDue: 59880,
     currency: 'USD',
     startDate: '2025-01-01',
     deadline: '2025-12-31',
@@ -276,6 +276,105 @@ export const mockServiceProjects: ServiceProject[] = [
     requirements: ['Sales experience', 'B2B background', 'Regional territory coverage', 'Multiple positions'],
     tags: ['rpo', 'sales', 'ongoing', 'monthly'],
     createdAt: '2024-12-15T00:00:00Z',
-    updatedAt: '2025-01-23T00:00:00Z'
+    updatedAt: '2025-01-23T00:00:00Z',
+    // RPO-specific fields
+    isRPO: true,
+    rpoStartDate: '2025-01-01',
+    rpoEndDate: '2025-12-31',
+    rpoDuration: 12,
+    rpoFeeStructures: [
+      {
+        id: 'fee_1',
+        type: 'monthly-retainer',
+        name: 'Monthly Retainer',
+        amount: 10000,
+        frequency: 'monthly',
+        description: 'Base monthly retainer for ongoing recruitment support'
+      },
+      {
+        id: 'fee_2',
+        type: 'per-vacancy',
+        name: 'Per Placement Fee',
+        amount: 3990,
+        frequency: 'per-placement',
+        description: 'Additional fee per successful placement'
+      }
+    ],
+    rpoMonthlyRetainer: 10000,
+    rpoPerVacancyFee: 3990,
+    rpoTotalContractValue: 179880, // (10000 * 12) + (3990 * 15)
+    rpoAutoRenew: false,
+    rpoNoticePeriod: 30,
+    targetPlacements: 15
+  },
+  {
+    id: 'service_10',
+    name: 'RPO - Technology Team Build-Out',
+    serviceType: 'rpo',
+    status: 'active',
+    priority: 'high',
+    stage: 'in-progress',
+    clientId: 'employer_1',
+    clientName: 'TechCorp Solutions',
+    location: 'San Francisco, CA',
+    country: 'United States',
+    consultants: [
+      { id: 'consultant_3', name: 'Michael Chen', role: 'lead' },
+      { id: 'consultant_4', name: 'Emily Davis', role: 'support' },
+      { id: 'consultant_5', name: 'David Wilson', role: 'support' }
+    ],
+    progress: 25,
+    candidatesShortlisted: 12,
+    candidatesInterviewed: 7,
+    numberOfVacancies: 20,
+    projectValue: 285000,
+    upfrontPaid: 90000,
+    balanceDue: 195000,
+    currency: 'USD',
+    startDate: '2025-02-01',
+    deadline: '2025-07-31',
+    description: 'RPO engagement for rapid technology team expansion with multiple engineering roles',
+    requirements: ['Software Engineers', 'DevOps', 'Product Managers', 'Data Scientists', 'Tech leads'],
+    tags: ['rpo', 'technology', 'engineering', 'multi-role'],
+    createdAt: '2025-01-15T00:00:00Z',
+    updatedAt: '2025-01-24T00:00:00Z',
+    // RPO-specific fields
+    isRPO: true,
+    rpoStartDate: '2025-02-01',
+    rpoEndDate: '2025-07-31',
+    rpoDuration: 6,
+    rpoFeeStructures: [
+      {
+        id: 'fee_1',
+        type: 'monthly-retainer',
+        name: 'Base Retainer',
+        amount: 15000,
+        frequency: 'monthly',
+        description: 'Monthly retainer for dedicated recruiting team'
+      },
+      {
+        id: 'fee_2',
+        type: 'per-vacancy',
+        name: 'Per Hire Fee',
+        amount: 4500,
+        frequency: 'per-placement',
+        description: 'Fee per successful engineering hire'
+      },
+      {
+        id: 'fee_3',
+        type: 'milestone',
+        name: 'Completion Bonus',
+        amount: 25000,
+        frequency: 'one-time',
+        description: 'Bonus upon successful completion of all placements'
+      }
+    ],
+    rpoMonthlyRetainer: 15000,
+    rpoPerVacancyFee: 4500,
+    rpoTotalContractValue: 285000, // (15000 * 6) + (4500 * 20) + 25000 = 90000 + 90000 + 25000
+    rpoAutoRenew: true,
+    rpoNoticePeriod: 60,
+    targetPlacements: 20,
+    rpoNotes: 'Auto-renews for additional 6 months if 80% placement target achieved'
   }
 ];

@@ -3,7 +3,7 @@ import type { ServiceProject, ServiceType, ServiceStatus, ServiceStats } from '@
 
 const STORAGE_KEY = 'service_projects';
 const STORAGE_VERSION_KEY = 'service_projects_version';
-const CURRENT_VERSION = 4; // Added RPO example service_9 to mock data
+const CURRENT_VERSION = 5; // Added RPO-specific fields and service_10 example
 
 export function getAllServiceProjects(): ServiceProject[] {
   const stored = localStorage.getItem(STORAGE_KEY);
