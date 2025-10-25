@@ -32,6 +32,8 @@ export function createServiceProject(data: Partial<ServiceProject>): ServiceProj
     country: data.country || '',
     consultants: data.consultants || [],
     progress: data.progress || 0,
+    targetPositions: data.targetPositions || 1,
+    positionsFilled: data.positionsFilled || 0,
     candidatesShortlisted: data.candidatesShortlisted || 0,
     candidatesInterviewed: data.candidatesInterviewed || 0,
     projectValue: data.projectValue || 0,

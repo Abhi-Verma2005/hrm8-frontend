@@ -17,9 +17,11 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_2', name: 'Sarah Johnson', role: 'support' }
     ],
     progress: 45,
+    targetPositions: 1,
+    positionsFilled: 0,
     candidatesShortlisted: 1,
     candidatesInterviewed: 1,
-    projectValue: 5990, // Full-service recruitment fee
+    projectValue: 5990, // Full-service: $5,990 per vacancy
     currency: 'USD',
     startDate: '2025-01-15',
     deadline: '2025-03-31',
@@ -44,9 +46,11 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_3', name: 'Michael Chen', role: 'lead' }
     ],
     progress: 70,
+    targetPositions: 1,
+    positionsFilled: 0,
     candidatesShortlisted: 1,
     candidatesInterviewed: 1,
-    projectValue: 14990, // Executive-search recruitment fee
+    projectValue: 14990, // Executive-search: $14,990 for CFO over $100K
     currency: 'USD',
     startDate: '2024-12-01',
     deadline: '2025-02-28',
@@ -71,9 +75,11 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_4', name: 'Emily Davis', role: 'lead' }
     ],
     progress: 35,
+    targetPositions: 1,
+    positionsFilled: 0,
     candidatesShortlisted: 1,
     candidatesInterviewed: 0,
-    projectValue: 1990, // Shortlisting recruitment fee
+    projectValue: 1990, // Shortlisting: $1,990 per vacancy
     currency: 'USD',
     startDate: '2025-01-20',
     deadline: '2025-02-15',
@@ -100,9 +106,11 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_6', name: 'Lisa Anderson', role: 'support' }
     ],
     progress: 55,
+    targetPositions: 1,
+    positionsFilled: 0,
     candidatesShortlisted: 1,
     candidatesInterviewed: 1,
-    projectValue: 1990, // Shortlisting recruitment fee
+    projectValue: 1990, // Shortlisting: $1,990 per vacancy
     currency: 'USD',
     startDate: '2024-10-01',
     deadline: '2025-12-31',
@@ -127,9 +135,11 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_2', name: 'Sarah Johnson', role: 'lead' }
     ],
     progress: 100,
+    targetPositions: 1,
+    positionsFilled: 1,
     candidatesShortlisted: 1,
     candidatesInterviewed: 1,
-    projectValue: 1990, // Shortlisting recruitment fee
+    projectValue: 1990, // Shortlisting: $1,990 per vacancy
     currency: 'USD',
     startDate: '2024-12-01',
     deadline: '2025-01-15',
@@ -156,9 +166,11 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_4', name: 'Emily Davis', role: 'support' }
     ],
     progress: 60,
+    targetPositions: 1,
+    positionsFilled: 0,
     candidatesShortlisted: 1,
     candidatesInterviewed: 1,
-    projectValue: 5990, // Full-service recruitment fee
+    projectValue: 5990, // Full-service: $5,990 per vacancy
     currency: 'USD',
     startDate: '2025-01-05',
     deadline: '2025-03-15',
@@ -183,9 +195,11 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_5', name: 'David Wilson', role: 'lead' }
     ],
     progress: 15,
+    targetPositions: 1,
+    positionsFilled: 0,
     candidatesShortlisted: 1,
     candidatesInterviewed: 0,
-    projectValue: 14990, // Executive-search recruitment fee
+    projectValue: 14990, // Executive-search: $14,990 for General Counsel over $100K
     currency: 'USD',
     startDate: '2025-01-10',
     deadline: '2025-04-30',
@@ -210,9 +224,11 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_6', name: 'Lisa Anderson', role: 'lead' }
     ],
     progress: 100,
+    targetPositions: 1,
+    positionsFilled: 1,
     candidatesShortlisted: 1,
     candidatesInterviewed: 1,
-    projectValue: 1990, // Shortlisting recruitment fee
+    projectValue: 1990, // Shortlisting: $1,990 per vacancy
     currency: 'USD',
     startDate: '2024-11-01',
     deadline: '2024-12-20',
