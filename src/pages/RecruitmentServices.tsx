@@ -219,7 +219,7 @@ export default function RecruitmentServices() {
                 <div className="flex items-center gap-6 flex-1">
                   <div className="w-[200px] flex-shrink-0">Service Type</div>
                   <div className="w-[300px] flex-shrink-0">Project & Client</div>
-                  <div className="hidden lg:block w-[500px] flex-shrink-0">Team & Metrics</div>
+                  <div className="hidden lg:block w-[500px] flex-shrink-0">Team & Project Metrics</div>
                 </div>
                 <div className="flex items-center gap-4 flex-shrink-0">
                   <div className="hidden md:block min-w-[100px] w-full max-w-[200px]">Progress</div>

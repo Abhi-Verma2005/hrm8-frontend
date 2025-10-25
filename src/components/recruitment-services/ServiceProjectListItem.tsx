@@ -41,35 +41,73 @@ export function ServiceProjectListItem({
               <p className="text-sm text-muted-foreground line-clamp-1">{project.clientName}</p>
             </div>
 
-            {/* Column 3: Team & Metrics - Fixed 500px (expanded for more room) */}
-            <div className="hidden lg:flex w-[500px] flex-shrink-0 items-center gap-6">
-              {/* Consultant avatars - Fixed width */}
-              <div className="flex -space-x-2 w-[100px] flex-shrink-0">
-                {project.consultants.slice(0, 3).map((consultant) => (
-                  <Avatar key={consultant.id} className="h-8 w-8 border-2 border-background">
-                    <AvatarImage src={consultant.avatar} alt={consultant.name} />
-                    <AvatarFallback>{consultant.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                  </Avatar>
-                ))}
-                {project.consultants.length > 3 && (
-                  <Avatar className="h-8 w-8 border-2 border-background">
-                    <AvatarFallback>+{project.consultants.length - 3}</AvatarFallback>
-                  </Avatar>
-                )}
+            {/* Column 3: Team & Metrics - Fixed 500px with vertical sections */}
+            <div className="hidden lg:block w-[500px] flex-shrink-0">
+              {/* Team Section */}
+              <div className="mb-2">
+                <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                  Team
+                </div>
+                <div className="flex -space-x-2">
+                  {project.consultants.slice(0, 3).map((consultant) => (
+                    <Avatar key={consultant.id} className="h-7 w-7 border-2 border-background">
+                      <AvatarImage src={consultant.avatar} alt={consultant.name} />
+                      <AvatarFallback className="text-xs">
+                        {consultant.name.split(' ').map(n => n[0]).join('')}
+                      </AvatarFallback>
+                    </Avatar>
+                  ))}
+                  {project.consultants.length > 3 && (
+                    <Avatar className="h-7 w-7 border-2 border-background">
+                      <AvatarFallback className="text-xs">+{project.consultants.length - 3}</AvatarFallback>
+                    </Avatar>
+                  )}
+                </div>
               </div>
 
-              {/* Metrics - Full words, larger text, more spacing */}
-              <div className="flex items-center gap-4 text-sm text-muted-foreground flex-1 min-w-0">
-                <span className="whitespace-nowrap">{project.candidatesShortlisted} candidates</span>
-                <span className="whitespace-nowrap">{project.positionsFilled}/{project.targetPositions} positions</span>
-                <span className="flex items-center gap-1 whitespace-nowrap">
-                  <DollarSign className="h-4 w-4" />
-                  {(project.projectValue / 1000).toFixed(0)}K
-                </span>
-                <span className="flex items-center gap-1 whitespace-nowrap">
-                  <Calendar className="h-4 w-4" />
-                  {formatRelativeDate(project.deadline)}
-                </span>
+              {/* Metrics Section */}
+              <div className="grid grid-cols-4 gap-3">
+                {/* Candidates */}
+                <div>
+                  <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+                    Candidates
+                  </div>
+                  <div className="text-sm font-semibold">
+                    {project.candidatesShortlisted}
+                  </div>
+                </div>
+
+                {/* Positions */}
+                <div>
+                  <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+                    Positions
+                  </div>
+                  <div className="text-sm font-semibold">
+                    {project.positionsFilled}/{project.targetPositions}
+                  </div>
+                </div>
+
+                {/* Value */}
+                <div>
+                  <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+                    Value
+                  </div>
+                  <div className="text-sm font-semibold flex items-center gap-0.5">
+                    <DollarSign className="h-3 w-3" />
+                    {(project.projectValue / 1000).toFixed(0)}K
+                  </div>
+                </div>
+
+                {/* Deadline */}
+                <div>
+                  <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+                    Deadline
+                  </div>
+                  <div className="text-sm font-semibold flex items-center gap-0.5">
+                    <Calendar className="h-3 w-3" />
+                    {formatRelativeDate(project.deadline)}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
