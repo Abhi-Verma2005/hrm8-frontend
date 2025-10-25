@@ -213,6 +213,19 @@ export default function RecruitmentServices() {
           </div>
         ) : (
           <div className="space-y-3">
+            {/* Column Headers */}
+            <div className="border-b bg-muted/40 px-4 py-2 rounded-t-lg">
+              <div className="flex items-center gap-0 text-xs font-medium text-muted-foreground">
+                <div className="w-[200px] flex-shrink-0 pr-4">Service Type</div>
+                <div className="w-[300px] flex-shrink-0 pr-4">Project & Client</div>
+                <div className="hidden lg:block w-[400px] flex-shrink-0 pr-4">Team & Metrics</div>
+                <div className="hidden md:block w-[120px] flex-shrink-0 pr-4">Progress</div>
+                <div className="w-[100px] flex-shrink-0 pr-4">Status</div>
+                <div className="w-[120px] flex-shrink-0 text-right">Actions</div>
+              </div>
+            </div>
+            
+            {/* Project List Items */}
             {filteredProjects.map(project => (
               <ServiceProjectListItem
                 key={project.id}
