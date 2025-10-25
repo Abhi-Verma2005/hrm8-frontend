@@ -386,7 +386,7 @@ export default function RecruitmentServices() {
               {/* Right Edge - Fixed Columns */}
               <div className="flex items-center gap-4 flex-shrink-0">
                 {/* Status - Sortable */}
-                <div className="w-[100px] flex-shrink-0">
+                <div className="w-[100px] flex-shrink-0 flex items-center justify-center">
                   <Button
                     variant="ghost"
                     size="sm"
