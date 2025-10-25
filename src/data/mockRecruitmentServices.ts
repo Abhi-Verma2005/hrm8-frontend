@@ -246,5 +246,36 @@ export const mockServiceProjects: ServiceProject[] = [
     tags: ['intern', 'tech', 'completed'],
     createdAt: '2024-10-25T00:00:00Z',
     updatedAt: '2024-12-18T00:00:00Z'
+  },
+  {
+    id: 'service_9',
+    name: 'RPO - Regional Sales Expansion',
+    serviceType: 'rpo',
+    status: 'active',
+    priority: 'high',
+    stage: 'in-progress',
+    clientId: 'employer_2',
+    clientName: 'Finance Global Inc',
+    location: 'New York, NY',
+    country: 'United States',
+    consultants: [
+      { id: 'consultant_1', name: 'John Smith', role: 'lead' },
+      { id: 'consultant_2', name: 'Sarah Johnson', role: 'support' }
+    ],
+    progress: 40,
+    candidatesShortlisted: 8,
+    candidatesInterviewed: 5,
+    numberOfVacancies: 1,
+    projectValue: 10000,
+    upfrontPaid: 10000,
+    balanceDue: 10000,
+    currency: 'USD',
+    startDate: '2025-01-01',
+    deadline: '2025-12-31',
+    description: 'RPO engagement for regional sales team expansion - ongoing recruitment support',
+    requirements: ['Sales experience', 'B2B background', 'Regional territory coverage', 'Multiple positions'],
+    tags: ['rpo', 'sales', 'ongoing', 'monthly'],
+    createdAt: '2024-12-15T00:00:00Z',
+    updatedAt: '2025-01-23T00:00:00Z'
   }
 ];
