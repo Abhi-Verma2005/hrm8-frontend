@@ -17,8 +17,6 @@ interface RecruitmentServicesFilterBarProps {
   onServiceTypeChange: (value: string) => void;
   statusFilter: string;
   onStatusChange: (value: string) => void;
-  priorityFilter: string;
-  onPriorityChange: (value: string) => void;
   countryFilter: string;
   onCountryChange: (value: string) => void;
   onClearFilters: () => void;
@@ -32,8 +30,6 @@ export function RecruitmentServicesFilterBar({
   onServiceTypeChange,
   statusFilter,
   onStatusChange,
-  priorityFilter,
-  onPriorityChange,
   countryFilter,
   onCountryChange,
   onClearFilters,
@@ -87,18 +83,6 @@ export function RecruitmentServicesFilterBar({
           <SelectItem value="on-hold">On Hold</SelectItem>
           <SelectItem value="completed">Completed</SelectItem>
           <SelectItem value="cancelled">Cancelled</SelectItem>
-        </SelectContent>
-      </Select>
-
-      <Select value={priorityFilter} onValueChange={onPriorityChange}>
-        <SelectTrigger className="w-full sm:w-[180px]">
-          <SelectValue placeholder="Priority" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Priorities</SelectItem>
-          <SelectItem value="high">High</SelectItem>
-          <SelectItem value="medium">Medium</SelectItem>
-          <SelectItem value="low">Low</SelectItem>
         </SelectContent>
       </Select>
 

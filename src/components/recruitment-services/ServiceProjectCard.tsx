@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ServiceTypeBadge } from './ServiceTypeBadge';
 import { ServiceStatusBadge } from './ServiceStatusBadge';
-import { PriorityIndicator } from './PriorityIndicator';
 import type { ServiceProject } from '@/types/recruitmentService';
 import { Calendar, DollarSign, Eye, Edit, ListTodo } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -23,9 +22,8 @@ export function ServiceProjectCard({ project, onView, onEdit, onViewTasks, onArc
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
+        <div className="flex items-start gap-2">
           <ServiceTypeBadge type={project.serviceType} />
-          <PriorityIndicator priority={project.priority} />
         </div>
         <div className="mt-3">
           <h3 className="font-semibold text-lg line-clamp-2">{project.name}</h3>

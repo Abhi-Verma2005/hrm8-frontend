@@ -16,7 +16,6 @@ export default function RecruitmentServices() {
   const [searchTerm, setSearchTerm] = useState('');
   const [serviceTypeFilter, setServiceTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [priorityFilter, setPriorityFilter] = useState('all');
   const [countryFilter, setCountryFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
     const saved = localStorage.getItem('recruitment-services-view');
@@ -61,10 +60,9 @@ export default function RecruitmentServices() {
       
       const matchesType = serviceTypeFilter === 'all' || project.serviceType === serviceTypeFilter;
       const matchesStatus = statusFilter === 'all' || project.status === statusFilter;
-      const matchesPriority = priorityFilter === 'all' || project.priority === priorityFilter;
       const matchesCountry = countryFilter === 'all' || project.country === countryFilter;
 
-      return matchesSearch && matchesType && matchesStatus && matchesPriority && matchesCountry;
+      return matchesSearch && matchesType && matchesStatus && matchesCountry;
     });
 
     // Apply sorting
@@ -121,22 +119,20 @@ export default function RecruitmentServices() {
     }
 
     return result;
-  }, [projects, searchTerm, serviceTypeFilter, statusFilter, priorityFilter, countryFilter, sortConfig]);
+  }, [projects, searchTerm, serviceTypeFilter, statusFilter, countryFilter, sortConfig]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (searchTerm) count++;
     if (serviceTypeFilter !== 'all') count++;
     if (statusFilter !== 'all') count++;
-    if (priorityFilter !== 'all') count++;
     if (countryFilter !== 'all') count++;
     return count;
-  }, [searchTerm, serviceTypeFilter, statusFilter, priorityFilter, countryFilter]);
+  }, [searchTerm, serviceTypeFilter, statusFilter, countryFilter]);
 
   const handleClearFilters = () => {
     setServiceTypeFilter('all');
     setStatusFilter('all');
-    setPriorityFilter('all');
     setCountryFilter('all');
     setSearchTerm('');
   };
@@ -243,8 +239,6 @@ export default function RecruitmentServices() {
           onServiceTypeChange={setServiceTypeFilter}
           statusFilter={statusFilter}
           onStatusChange={setStatusFilter}
-          priorityFilter={priorityFilter}
-          onPriorityChange={setPriorityFilter}
           countryFilter={countryFilter}
           onCountryChange={setCountryFilter}
           onClearFilters={handleClearFilters}

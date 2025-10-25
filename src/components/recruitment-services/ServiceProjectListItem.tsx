@@ -4,7 +4,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { ServiceTypeBadge } from './ServiceTypeBadge';
 import { ServiceStatusBadge } from './ServiceStatusBadge';
-import { PriorityIndicator } from './PriorityIndicator';
 import { Eye, Edit, ListTodo, Calendar, DollarSign } from 'lucide-react';
 import type { ServiceProject } from '@/types/recruitmentService';
 import { formatRelativeDate } from '@/lib/utils';
@@ -29,10 +28,9 @@ export function ServiceProjectListItem({
         <div className="flex items-center gap-4">
           {/* Left Edge - Fixed Columns */}
           <div className="flex items-center gap-4 flex-shrink-0">
-            {/* Column 1: Type & Priority - 200px */}
+            {/* Column 1: Type - 200px */}
             <div className="w-[200px] flex-shrink-0 flex items-center gap-2">
               <ServiceTypeBadge type={project.serviceType} />
-              <PriorityIndicator priority={project.priority} />
             </div>
 
             {/* Column 2: Project & Client - 300px */}
