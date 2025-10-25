@@ -19,7 +19,7 @@ export const mockServiceProjects: ServiceProject[] = [
     positionsFilled: 1,
     candidatesShortlisted: 15,
     candidatesInterviewed: 8,
-    projectValue: 75000,
+    projectValue: 125000, // Full-service: $25K per position × 5 positions
     currency: 'USD',
     startDate: '2025-01-15',
     deadline: '2025-03-31',
@@ -46,7 +46,7 @@ export const mockServiceProjects: ServiceProject[] = [
     positionsFilled: 0,
     candidatesShortlisted: 5,
     candidatesInterviewed: 3,
-    projectValue: 150000,
+    projectValue: 55000, // Executive-search: $55K for CFO position
     currency: 'USD',
     startDate: '2024-12-01',
     deadline: '2025-02-28',
@@ -73,7 +73,7 @@ export const mockServiceProjects: ServiceProject[] = [
     positionsFilled: 0,
     candidatesShortlisted: 24,
     candidatesInterviewed: 0,
-    projectValue: 32000,
+    projectValue: 32000, // Shortlisting: $4K per position × 8 positions
     currency: 'USD',
     startDate: '2025-01-20',
     deadline: '2025-02-15',
@@ -102,7 +102,7 @@ export const mockServiceProjects: ServiceProject[] = [
     positionsFilled: 18,
     candidatesShortlisted: 120,
     candidatesInterviewed: 45,
-    projectValue: 500000,
+    projectValue: 600000, // RPO: Annual contract $600K for 50 positions
     currency: 'USD',
     startDate: '2024-10-01',
     deadline: '2025-12-31',
@@ -129,7 +129,7 @@ export const mockServiceProjects: ServiceProject[] = [
     positionsFilled: 10,
     candidatesShortlisted: 35,
     candidatesInterviewed: 20,
-    projectValue: 40000,
+    projectValue: 30000, // Shortlisting: $3K per position × 10 positions
     currency: 'USD',
     startDate: '2024-12-01',
     deadline: '2025-01-15',
@@ -158,7 +158,7 @@ export const mockServiceProjects: ServiceProject[] = [
     positionsFilled: 1,
     candidatesShortlisted: 12,
     candidatesInterviewed: 6,
-    projectValue: 90000,
+    projectValue: 60000, // Full-service: $20K per position × 3 positions
     currency: 'USD',
     startDate: '2025-01-05',
     deadline: '2025-03-15',
@@ -185,7 +185,7 @@ export const mockServiceProjects: ServiceProject[] = [
     positionsFilled: 0,
     candidatesShortlisted: 3,
     candidatesInterviewed: 0,
-    projectValue: 120000,
+    projectValue: 50000, // Executive-search: $50K for General Counsel
     currency: 'USD',
     startDate: '2025-01-10',
     deadline: '2025-04-30',
@@ -212,7 +212,7 @@ export const mockServiceProjects: ServiceProject[] = [
     positionsFilled: 15,
     candidatesShortlisted: 60,
     candidatesInterviewed: 30,
-    projectValue: 15000,
+    projectValue: 37500, // Shortlisting: $2.5K per position × 15 interns
     currency: 'USD',
     startDate: '2024-11-01',
     deadline: '2024-12-20',
