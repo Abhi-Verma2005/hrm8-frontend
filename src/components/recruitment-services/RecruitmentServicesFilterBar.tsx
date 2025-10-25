@@ -66,10 +66,10 @@ export function RecruitmentServicesFilterBar({
 
       <Select value={countryFilter} onValueChange={onCountryChange}>
         <SelectTrigger className="w-full sm:w-[180px]">
-          <SelectValue placeholder="Country" />
+          <SelectValue placeholder="Location" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Countries</SelectItem>
+          <SelectItem value="all">All Locations</SelectItem>
           <SelectItem value="United States">United States</SelectItem>
           <SelectItem value="United Kingdom">United Kingdom</SelectItem>
           <SelectItem value="Australia">Australia</SelectItem>

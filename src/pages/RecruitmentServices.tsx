@@ -330,7 +330,7 @@ export default function RecruitmentServices() {
                 {/* Team - Not sortable */}
                 <div className="hidden xl:block w-[120px] flex-shrink-0">Team</div>
 
-                {/* Country - Sortable */}
+                {/* Location - Sortable */}
                 <div className="hidden xl:block w-[120px] flex-shrink-0">
                   <Button
                     variant="ghost"
@@ -338,7 +338,7 @@ export default function RecruitmentServices() {
                     onClick={() => handleSort('country')}
                     className="h-6 px-2 -ml-2 hover:bg-muted"
                   >
-                    Country
+                    Location
                     {getSortIcon('country')}
                   </Button>
                 </div>
