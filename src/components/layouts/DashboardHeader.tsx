@@ -57,7 +57,7 @@ export function DashboardHeader({ breadcrumbActions }: DashboardHeaderProps = {}
         </div>
 
       {/* Breadcrumbs Row */}
-      <div className="px-6 py-2 border-t bg-muted/30 flex items-center justify-between gap-4">
+      <div className="px-6 h-12 border-t bg-muted/30 flex items-center justify-between gap-4">
         <Breadcrumbs />
         {breadcrumbActions && (
           <div className="flex items-center gap-2">
