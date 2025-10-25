@@ -25,6 +25,7 @@ export interface Job {
   createdBy: string;
   createdByName: string;
   title: string;
+  numberOfVacancies: number;
   jobCode: string;
   description: string;
   requirements: string[];
@@ -108,6 +109,7 @@ export interface JobFormData {
   postAsHRM8: boolean;
   employerId: string;
   title: string;
+  numberOfVacancies: number;
   department: string;
   location: string;
   employmentType: 'full-time' | 'part-time' | 'contract' | 'casual';

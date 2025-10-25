@@ -158,15 +158,37 @@ export function JobWizardStep1({
             </FormItem>} />
       </div>
 
-      <FormField control={form.control} name="title" render={({
-      field
-    }) => <FormItem>
-            <FormLabel>Job Title *</FormLabel>
-            <FormControl>
-              <Input placeholder="e.g. Senior Full Stack Developer" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>} />
+      <div className="flex gap-4 items-start">
+        {/* Job Title - Takes most of the space */}
+        <FormField control={form.control} name="title" render={({
+        field
+      }) => <FormItem className="flex-1">
+              <FormLabel>Job Title *</FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. Senior Full Stack Developer" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>} />
+
+        {/* Number of Vacancies - Compact width */}
+        <FormField control={form.control} name="numberOfVacancies" render={({
+        field
+      }) => <FormItem className="w-28">
+              <FormLabel>Vacancies *</FormLabel>
+              <FormControl>
+                <Input 
+                  type="number" 
+                  min="1" 
+                  max="999"
+                  placeholder="1"
+                  {...field}
+                  onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                  className="text-center"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>} />
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField control={form.control} name="department" render={({

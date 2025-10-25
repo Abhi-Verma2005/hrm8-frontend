@@ -6,6 +6,10 @@ const baseJobBasicDetailsSchema = z.object({
   postAsHRM8: z.boolean().default(false),
   employerId: z.string(),
   title: z.string().min(5, "Job title must be at least 5 characters"),
+  numberOfVacancies: z.number()
+    .min(1, "At least 1 vacancy is required")
+    .max(999, "Maximum 999 vacancies allowed")
+    .default(1),
   department: z.string().min(2, "Department is required"),
   location: z.string().min(2, "Location is required"),
   employmentType: z.enum(['full-time', 'part-time', 'contract', 'casual']),

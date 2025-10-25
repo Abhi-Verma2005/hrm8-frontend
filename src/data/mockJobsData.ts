@@ -9,6 +9,7 @@ export const mockJobs: Job[] = [
     createdBy: 'admin-1',
     createdByName: 'Admin User',
     title: 'Senior Full Stack Developer',
+    numberOfVacancies: 2,
     jobCode: 'JOB-2025-001',
     description: 'We are seeking an experienced Full Stack Developer to join our dynamic team...',
     requirements: [
@@ -55,6 +56,7 @@ export const mockJobs: Job[] = [
     createdBy: 'emp-user-2',
     createdByName: 'John Smith',
     title: 'Financial Analyst',
+    numberOfVacancies: 1,
     jobCode: 'JOB-2025-002',
     description: 'Join our finance team as a Financial Analyst to drive data-driven decision making...',
     requirements: [
@@ -104,6 +106,7 @@ export const mockJobs: Job[] = [
     createdBy: 'admin-1',
     createdByName: 'Admin User',
     title: 'Product Manager',
+    numberOfVacancies: 1,
     jobCode: 'JOB-2025-003',
     description: 'Looking for a strategic Product Manager to lead our product initiatives...',
     requirements: [
@@ -150,6 +153,7 @@ export const mockJobs: Job[] = [
     createdBy: 'emp-user-3',
     createdByName: 'Dr. Emily Chen',
     title: 'Chief Technology Officer',
+    numberOfVacancies: 1,
     jobCode: 'JOB-2025-004',
     description: 'Executive-level position to lead technology strategy and innovation...',
     requirements: [
@@ -199,6 +203,7 @@ export const mockJobs: Job[] = [
     createdBy: 'emp-user-2',
     createdByName: 'John Smith',
     title: 'Marketing Coordinator',
+    numberOfVacancies: 1,
     jobCode: 'JOB-2025-005',
     description: 'Entry-level marketing position to support our growing marketing team...',
     requirements: [
@@ -246,6 +251,7 @@ export const mockJobs: Job[] = [
     createdBy: 'admin-1',
     createdByName: 'Admin User',
     title: 'Customer Support Specialist',
+    numberOfVacancies: 3,
     jobCode: 'JOB-2025-006',
     description: 'Join our customer support team to deliver exceptional service...',
     requirements: [
@@ -292,6 +298,7 @@ export const mockJobs: Job[] = [
     createdBy: 'admin-1',
     createdByName: 'Admin User',
     title: 'DevOps Engineer',
+    numberOfVacancies: 2,
     jobCode: 'JOB-2025-007',
     description: 'Seeking a skilled DevOps Engineer to optimize our infrastructure and deployment processes...',
     requirements: [
@@ -341,6 +348,7 @@ export const mockJobs: Job[] = [
     createdBy: 'emp-user-5',
     createdByName: 'Amanda Williams',
     title: 'Content Writer',
+    numberOfVacancies: 5,
     jobCode: 'JOB-2025-008',
     description: 'Creative content writer needed for our educational technology platform...',
     requirements: [
