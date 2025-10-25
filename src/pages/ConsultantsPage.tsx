@@ -3,18 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Users, TrendingUp, DollarSign, Award } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { DataTable } from '@/components/tables/DataTable';
-import { TableFilters, ActiveFilter } from '@/components/tables/TableFilters';
 import { createConsultantColumns } from '@/components/consultants/ConsultantTableColumns';
 import { ConsultantStatsCard } from '@/components/consultants/ConsultantStatsCard';
+import { ConsultantsFilterBar } from '@/components/consultants/ConsultantsFilterBar';
 import { getAllConsultants, getConsultantStats } from '@/lib/consultantStorage';
 import { formatRevenue } from '@/lib/consultantUtils';
 import type { Consultant } from '@/types/consultant';
 
 export default function ConsultantsPage() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -23,32 +22,30 @@ export default function ConsultantsPage() {
 
   const filteredData = useMemo(() => {
     return consultants.filter(consultant => {
-      const matchesSearch = searchQuery === '' || 
-        consultant.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        consultant.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        consultant.email.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSearch = searchTerm === '' || 
+        consultant.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        consultant.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        consultant.email.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesType = typeFilter === 'all' || consultant.type === typeFilter;
       const matchesStatus = statusFilter === 'all' || consultant.status === statusFilter;
 
       return matchesSearch && matchesType && matchesStatus;
     });
-  }, [consultants, searchQuery, typeFilter, statusFilter]);
+  }, [consultants, searchTerm, typeFilter, statusFilter]);
 
-  const activeFilters: ActiveFilter[] = [
-    ...(typeFilter !== 'all' ? [{ key: 'type', value: typeFilter, label: `Type: ${typeFilter}` }] : []),
-    ...(statusFilter !== 'all' ? [{ key: 'status', value: statusFilter, label: `Status: ${statusFilter}` }] : []),
-  ];
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (searchTerm) count++;
+    if (typeFilter !== 'all') count++;
+    if (statusFilter !== 'all') count++;
+    return count;
+  }, [searchTerm, typeFilter, statusFilter]);
 
-  const handleClearFilter = (key: string) => {
-    if (key === 'type') setTypeFilter('all');
-    if (key === 'status') setStatusFilter('all');
-  };
-
-  const handleClearAll = () => {
+  const handleClearFilters = () => {
     setTypeFilter('all');
     setStatusFilter('all');
-    setSearchQuery('');
+    setSearchTerm('');
   };
 
   return (
@@ -95,40 +92,22 @@ export default function ConsultantsPage() {
           />
         </div>
 
-        <Card>
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              <TableFilters
-                searchValue={searchQuery}
-                onSearchChange={setSearchQuery}
-                typeFilter={typeFilter}
-                onTypeFilterChange={setTypeFilter}
-                typeOptions={[
-                  { label: 'Sales Rep', value: 'sales-rep' },
-                  { label: 'Recruiter', value: 'recruiter' },
-                  { label: '360 Consultant', value: '360-consultant' },
-                  { label: 'Industry Partner', value: 'industry-partner' },
-                ]}
-                statusFilter={statusFilter}
-                onStatusFilterChange={setStatusFilter}
-                statusOptions={[
-                  { label: 'Active', value: 'active' },
-                  { label: 'On Leave', value: 'on-leave' },
-                  { label: 'Inactive', value: 'inactive' },
-                  { label: 'Suspended', value: 'suspended' },
-                ]}
-                activeFilters={activeFilters}
-                onClearFilter={handleClearFilter}
-                onClearAll={handleClearAll}
-              />
+        <ConsultantsFilterBar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          typeFilter={typeFilter}
+          onTypeChange={setTypeFilter}
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+          onClearFilters={handleClearFilters}
+          activeFilterCount={activeFilterCount}
+        />
 
-              <DataTable
-                columns={createConsultantColumns()}
-                data={filteredData}
-              />
-            </div>
-          </CardContent>
-        </Card>
+        <DataTable
+          columns={createConsultantColumns()}
+          data={filteredData}
+          selectable
+        />
       </div>
     </DashboardPageLayout>
   );
