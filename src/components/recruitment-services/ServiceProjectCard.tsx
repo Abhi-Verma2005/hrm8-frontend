@@ -6,6 +6,7 @@ import { ServiceStatusBadge } from './ServiceStatusBadge';
 import type { ServiceProject } from '@/types/recruitmentService';
 import { Calendar, DollarSign, Eye, Edit, ListTodo } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { getServiceBaseFee, isMonthlyService } from '@/lib/subscriptionConfig';
 
 interface ServiceProjectCardProps {
   project: ServiceProject;
@@ -82,8 +83,11 @@ export function ServiceProjectCard({ project, onView, onEdit, onViewTasks, onArc
           <div className="flex items-center gap-2 text-sm">
             <DollarSign className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="font-medium">${project.projectValue.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Value</p>
+              <p className="font-medium">
+                ${getServiceBaseFee(project.serviceType).toLocaleString()}
+                {isMonthlyService(project.serviceType) && '/mth'}
+              </p>
+              <p className="text-xs text-muted-foreground">Service Fee</p>
             </div>
           </div>
 

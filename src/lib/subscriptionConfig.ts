@@ -59,7 +59,31 @@ export const RECRUITMENT_SERVICES = {
     baseFeeOver100k: 14990,
     upfrontPercentage: 0.5,
     name: 'Executive Search'
+  },
+  'rpo': {
+    monthlyFee: 10000,
+    upfrontPercentage: 0,
+    name: 'RPO (Recruitment Process Outsourcing)'
   }
 } as const;
+
+export function getServiceBaseFee(serviceType: 'shortlisting' | 'full-service' | 'executive-search' | 'rpo'): number {
+  switch (serviceType) {
+    case 'shortlisting':
+      return RECRUITMENT_SERVICES['shortlisting'].baseFee;
+    case 'full-service':
+      return RECRUITMENT_SERVICES['full-service'].baseFee;
+    case 'executive-search':
+      return RECRUITMENT_SERVICES['executive-search'].baseFeeUnder100k;
+    case 'rpo':
+      return RECRUITMENT_SERVICES['rpo'].monthlyFee;
+    default:
+      return 0;
+  }
+}
+
+export function isMonthlyService(serviceType: string): boolean {
+  return serviceType === 'rpo';
+}
 
 export type SubscriptionTier = keyof typeof SUBSCRIPTION_TIERS;

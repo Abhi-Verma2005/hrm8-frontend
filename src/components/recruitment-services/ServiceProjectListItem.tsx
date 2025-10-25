@@ -7,6 +7,7 @@ import { ServiceStatusBadge } from './ServiceStatusBadge';
 import { Eye, Edit, ListTodo, Calendar, DollarSign } from 'lucide-react';
 import type { ServiceProject } from '@/types/recruitmentService';
 import { formatRelativeDate } from '@/lib/utils';
+import { getServiceBaseFee, isMonthlyService } from '@/lib/subscriptionConfig';
 
 interface ServiceProjectListItemProps {
   project: ServiceProject;
@@ -64,7 +65,8 @@ export function ServiceProjectListItem({
             {/* Column 5: Service Fee - 120px */}
             <div className="hidden lg:block w-[120px] flex-shrink-0">
               <span className="text-sm font-semibold">
-                ${project.projectValue.toLocaleString()}
+                ${getServiceBaseFee(project.serviceType).toLocaleString()}
+                {isMonthlyService(project.serviceType) && '/mth'}
               </span>
             </div>
 
