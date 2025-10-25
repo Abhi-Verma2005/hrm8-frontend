@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Building, DollarSign, CheckCircle } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { ServiceStatsCard } from '@/components/recruitment-services/ServiceStatsCard';
 import { RecruitmentServicesFilterBar } from '@/components/recruitment-services/RecruitmentServicesFilterBar';
 import { ServiceProjectCard } from '@/components/recruitment-services/ServiceProjectCard';
+import { ServiceProjectListItem } from '@/components/recruitment-services/ServiceProjectListItem';
+import { ViewToggle } from '@/components/recruitment-services/ViewToggle';
 import { getAllServiceProjects, getServiceStats } from '@/lib/recruitmentServiceStorage';
 import { toast } from 'sonner';
 
@@ -15,9 +17,18 @@ export default function RecruitmentServices() {
   const [serviceTypeFilter, setServiceTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(() => {
+    const saved = localStorage.getItem('recruitment-services-view');
+    return (saved === 'list' || saved === 'grid') ? saved : 'grid';
+  });
 
   const projects = getAllServiceProjects();
   const stats = getServiceStats();
+
+  // Persist view preference
+  useEffect(() => {
+    localStorage.setItem('recruitment-services-view', viewMode);
+  }, [viewMode]);
 
   const filteredProjects = useMemo(() => {
     return projects.filter(project => {
@@ -162,6 +173,7 @@ export default function RecruitmentServices() {
           <p className="text-sm text-muted-foreground">
             Showing {filteredProjects.length} of {projects.length} projects
           </p>
+          <ViewToggle value={viewMode} onChange={setViewMode} />
         </div>
 
         {/* Projects Grid */}
@@ -186,10 +198,23 @@ export default function RecruitmentServices() {
               </Button>
             )}
           </div>
-        ) : (
+        ) : viewMode === 'grid' ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredProjects.map(project => (
               <ServiceProjectCard
+                key={project.id}
+                project={project}
+                onView={handleView}
+                onEdit={handleEdit}
+                onViewTasks={handleViewTasks}
+                onArchive={handleArchive}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {filteredProjects.map(project => (
+              <ServiceProjectListItem
                 key={project.id}
                 project={project}
                 onView={handleView}
