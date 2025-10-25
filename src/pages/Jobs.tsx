@@ -309,10 +309,18 @@ export default function Jobs() {
             type="logo"
           />
           <div className="min-w-0 flex-1">
-            <Link to={`/jobs/${job.id}`} className="font-medium hover:text-primary transition-colors group-hover:text-primary">
+            <Link 
+              to={`/jobs/${job.id}`} 
+              className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+            >
               {job.title}
             </Link>
-            <p className="text-sm text-muted-foreground truncate">{job.employerName}</p>
+            <Link
+              to={`/employers/${job.employerId}`}
+              className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors"
+            >
+              {job.employerName}
+            </Link>
           </div>
         </div>
       )

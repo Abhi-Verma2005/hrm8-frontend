@@ -25,16 +25,18 @@ export const createEmployerColumns = (): Column<Employer>[] => [
     label: "Company",
     sortable: true,
     render: (employer) => (
-      <Link
-        to={`/employers/${employer.id}`}
-        className="flex items-center gap-3 hover:underline"
-      >
+      <div className="flex items-center gap-3">
         <EmployerAvatar name={employer.name} logoUrl={employer.logo} size="sm" />
         <div>
-          <p className="font-medium">{employer.name}</p>
+          <Link
+            to={`/employers/${employer.id}`}
+            className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+          >
+            {employer.name}
+          </Link>
           <p className="text-sm text-muted-foreground">{employer.industry}</p>
         </div>
-      </Link>
+      </div>
     ),
   },
   {

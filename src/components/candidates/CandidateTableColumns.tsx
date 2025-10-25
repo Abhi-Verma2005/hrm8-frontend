@@ -25,10 +25,15 @@ export const candidateTableColumns: Column<Candidate>[] = [
           photo={candidate.photo}
           size="sm"
         />
-        <div>
-          <div className="font-medium">{candidate.name}</div>
-          <div className="text-sm text-muted-foreground">{candidate.email}</div>
-        </div>
+      <div>
+        <Link 
+          to={`/candidates/${candidate.id}`}
+          className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+        >
+          {candidate.name}
+        </Link>
+        <div className="text-sm text-muted-foreground">{candidate.email}</div>
+      </div>
       </div>
     ),
   },

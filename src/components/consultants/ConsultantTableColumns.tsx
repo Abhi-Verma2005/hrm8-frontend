@@ -11,18 +11,20 @@ export const createConsultantColumns = (): Column<Consultant>[] => [
     label: 'Name',
     sortable: true,
     render: (consultant) => (
-      <Link
-        to={`/consultants/${consultant.id}`}
-        className="flex items-center gap-3 hover:underline"
-      >
+      <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
           {consultant.firstName[0]}{consultant.lastName[0]}
         </div>
         <div>
-          <div className="font-medium">{getConsultantFullName(consultant)}</div>
+          <Link
+            to={`/consultants/${consultant.id}`}
+            className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+          >
+            {getConsultantFullName(consultant)}
+          </Link>
           <div className="text-sm text-muted-foreground">{consultant.email}</div>
         </div>
-      </Link>
+      </div>
     ),
   },
   {
