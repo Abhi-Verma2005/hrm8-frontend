@@ -1,4 +1,5 @@
 import { Job, JobTemplate, JobActivity } from '@/types/job';
+import { inferCountryFromLocation } from '@/lib/locationUtils';
 
 export const mockJobs: Job[] = [
   {
@@ -28,6 +29,7 @@ export const mockJobs: Job[] = [
     ],
     department: 'Engineering',
     location: 'San Francisco, CA',
+    country: 'United States',
     employmentType: 'full-time',
     salaryMin: 120000,
     salaryMax: 180000,
@@ -75,6 +77,7 @@ export const mockJobs: Job[] = [
     ],
     department: 'Finance',
     location: 'New York, NY',
+    country: 'United States',
     employmentType: 'full-time',
     salaryMin: 75000,
     salaryMax: 95000,
@@ -125,6 +128,7 @@ export const mockJobs: Job[] = [
     ],
     department: 'Product',
     location: 'Remote',
+    country: undefined,
     employmentType: 'full-time',
     salaryMin: 130000,
     salaryMax: 170000,
@@ -172,6 +176,7 @@ export const mockJobs: Job[] = [
     ],
     department: 'Executive',
     location: 'Boston, MA',
+    country: 'United States',
     employmentType: 'full-time',
     salaryMin: 250000,
     salaryMax: 350000,
@@ -222,6 +227,7 @@ export const mockJobs: Job[] = [
     ],
     department: 'Marketing',
     location: 'Austin, TX',
+    country: 'United States',
     employmentType: 'full-time',
     salaryMin: 45000,
     salaryMax: 60000,
@@ -270,6 +276,7 @@ export const mockJobs: Job[] = [
     ],
     department: 'Customer Success',
     location: 'Chicago, IL',
+    country: 'United States',
     employmentType: 'part-time',
     salaryMin: 18,
     salaryMax: 24,
@@ -317,6 +324,7 @@ export const mockJobs: Job[] = [
     ],
     department: 'Engineering',
     location: 'Seattle, WA',
+    country: 'United States',
     employmentType: 'full-time',
     salaryMin: 110000,
     salaryMax: 150000,
@@ -367,6 +375,7 @@ export const mockJobs: Job[] = [
     ],
     department: 'Content',
     location: 'Remote',
+    country: undefined,
     employmentType: 'contract',
     salaryMin: 50000,
     salaryMax: 70000,

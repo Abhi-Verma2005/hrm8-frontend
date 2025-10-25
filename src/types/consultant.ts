@@ -31,6 +31,7 @@ export interface Consultant {
   department?: string;
   
   // Location
+  location: string; // "City, State" format for display
   officeLocation?: string;
   city?: string;
   state?: string;

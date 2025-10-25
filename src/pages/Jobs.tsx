@@ -322,14 +322,35 @@ export default function Jobs() {
       label: 'Location',
       sortable: true,
       width: "15%",
-      render: (job) => (
-        <div>
-          <p className="text-sm">{job.location}</p>
-          <Badge variant="outline" className="text-xs mt-1">
-            {job.workArrangement === 'on-site' ? 'On-site' : job.workArrangement === 'remote' ? 'Remote' : 'Hybrid'}
-          </Badge>
-        </div>
-      )
+      render: (job) => {
+        if (job.location.toLowerCase() === 'remote') {
+          return (
+            <div className="text-sm">
+              <p className="font-medium">Remote</p>
+              {job.country && (
+                <p className="text-xs text-muted-foreground">{job.country}</p>
+              )}
+              <Badge variant="outline" className="text-xs mt-1">
+                {job.workArrangement === 'on-site' ? 'On-site' : job.workArrangement === 'remote' ? 'Remote' : 'Hybrid'}
+              </Badge>
+            </div>
+          );
+        }
+        
+        return (
+          <div>
+            <div className="text-sm">
+              <p className="font-medium">{job.location}</p>
+              {job.country && (
+                <p className="text-xs text-muted-foreground">{job.country}</p>
+              )}
+            </div>
+            <Badge variant="outline" className="text-xs mt-1">
+              {job.workArrangement === 'on-site' ? 'On-site' : job.workArrangement === 'remote' ? 'Remote' : 'Hybrid'}
+            </Badge>
+          </div>
+        );
+      }
     },
     {
       key: 'employmentType',

@@ -26,6 +26,21 @@ export const createConsultantColumns = (): Column<Consultant>[] => [
     ),
   },
   {
+    key: 'location',
+    label: 'Location',
+    sortable: true,
+    render: (consultant) => {
+      if (!consultant.location) return <span className="text-muted-foreground">—</span>;
+      
+      return (
+        <div className="text-sm">
+          <p className="font-medium">{consultant.location}</p>
+          <p className="text-xs text-muted-foreground">{consultant.country}</p>
+        </div>
+      );
+    },
+  },
+  {
     key: 'type',
     label: 'Type',
     sortable: true,

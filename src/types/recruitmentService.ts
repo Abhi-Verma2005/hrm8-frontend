@@ -15,6 +15,7 @@ export interface ServiceProject {
   clientId: string;
   clientName: string;
   clientLogo?: string;
+  location: string; // "City, State" format for display
   country: string;
   
   // Assigned consultants

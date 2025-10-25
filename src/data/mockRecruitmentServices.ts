@@ -10,6 +10,7 @@ export const mockServiceProjects: ServiceProject[] = [
     stage: 'shortlisting',
     clientId: 'employer_1',
     clientName: 'TechCorp Solutions',
+    location: 'San Francisco, CA',
     country: 'United States',
     consultants: [
       { id: 'consultant_1', name: 'John Smith', role: 'lead' },
@@ -39,6 +40,7 @@ export const mockServiceProjects: ServiceProject[] = [
     stage: 'interviewing',
     clientId: 'employer_2',
     clientName: 'Finance Global Inc',
+    location: 'London, UK',
     country: 'United Kingdom',
     consultants: [
       { id: 'consultant_3', name: 'Michael Chen', role: 'lead' }
@@ -67,6 +69,7 @@ export const mockServiceProjects: ServiceProject[] = [
     stage: 'shortlisting',
     clientId: 'employer_3',
     clientName: 'Retail Giant Co',
+    location: 'Sydney, NSW',
     country: 'Australia',
     consultants: [
       { id: 'consultant_4', name: 'Emily Davis', role: 'lead' }
@@ -95,6 +98,7 @@ export const mockServiceProjects: ServiceProject[] = [
     stage: 'in-progress',
     clientId: 'employer_4',
     clientName: 'HealthCare Systems',
+    location: 'Toronto, ON',
     country: 'Canada',
     consultants: [
       { id: 'consultant_1', name: 'John Smith', role: 'lead' },
@@ -125,6 +129,7 @@ export const mockServiceProjects: ServiceProject[] = [
     stage: 'completed',
     clientId: 'employer_5',
     clientName: 'Sales Corp',
+    location: 'New York, NY',
     country: 'United States',
     consultants: [
       { id: 'consultant_2', name: 'Sarah Johnson', role: 'lead' }
@@ -154,6 +159,7 @@ export const mockServiceProjects: ServiceProject[] = [
     stage: 'interviewing',
     clientId: 'employer_1',
     clientName: 'TechCorp Solutions',
+    location: 'Seattle, WA',
     country: 'United States',
     consultants: [
       { id: 'consultant_3', name: 'Michael Chen', role: 'lead' },
@@ -183,6 +189,7 @@ export const mockServiceProjects: ServiceProject[] = [
     stage: 'initiated',
     clientId: 'employer_6',
     clientName: 'Legal Partners LLP',
+    location: 'Manchester, UK',
     country: 'United Kingdom',
     consultants: [
       { id: 'consultant_5', name: 'David Wilson', role: 'lead' }
@@ -211,6 +218,7 @@ export const mockServiceProjects: ServiceProject[] = [
     stage: 'completed',
     clientId: 'employer_1',
     clientName: 'TechCorp Solutions',
+    location: 'Boston, MA',
     country: 'United States',
     consultants: [
       { id: 'consultant_6', name: 'Lisa Anderson', role: 'lead' }

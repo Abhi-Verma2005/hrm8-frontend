@@ -32,6 +32,7 @@ export interface Job {
   responsibilities: string[];
   department: string;
   location: string;
+  country?: string;
   employmentType: 'full-time' | 'part-time' | 'contract' | 'casual';
   salaryMin?: number;
   salaryMax?: number;

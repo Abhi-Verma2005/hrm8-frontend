@@ -135,6 +135,7 @@ export interface Candidate {
   websiteUrl?: string;
   
   // Location
+  location: string; // "City, State" format for display
   city?: string;
   state?: string;
   country: string;

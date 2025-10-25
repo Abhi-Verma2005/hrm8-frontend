@@ -53,14 +53,14 @@ export function ServiceProjectCard({ project, onView, onEdit, onViewTasks, onArc
           )}
         </div>
 
-        {/* Country */}
+        {/* Location */}
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
             <span className="text-xs">🌍</span>
           </div>
           <div>
-            <p className="text-sm font-medium">{project.country}</p>
-            <p className="text-xs text-muted-foreground">Location</p>
+            <p className="text-sm font-medium">{project.location}</p>
+            <p className="text-xs text-muted-foreground">{project.country}</p>
           </div>
         </div>
 

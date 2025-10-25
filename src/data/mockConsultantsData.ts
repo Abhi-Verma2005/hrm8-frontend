@@ -19,7 +19,10 @@ export const mockConsultants: Consultant[] = [
     reportingTo: 'manager_1',
     reportingToName: 'Sarah Johnson',
     department: 'Recruiting',
-    officeLocation: 'San Francisco',
+    
+    // Location
+    location: 'San Francisco, CA',
+    officeLocation: 'San Francisco HQ',
     city: 'San Francisco',
     state: 'CA',
     country: 'United States',
@@ -68,7 +71,10 @@ export const mockConsultants: Consultant[] = [
     reportingTo: 'manager_1',
     reportingToName: 'Sarah Johnson',
     department: 'Sales',
-    officeLocation: 'New York',
+    
+    // Location
+    location: 'New York, NY',
+    officeLocation: 'New York Office',
     city: 'New York',
     state: 'NY',
     country: 'United States',
@@ -115,7 +121,10 @@ export const mockConsultants: Consultant[] = [
     reportingTo: 'manager_2',
     reportingToName: 'Michael Chen',
     department: 'Recruiting',
-    officeLocation: 'Chicago',
+    
+    // Location
+    location: 'Chicago, IL',
+    officeLocation: 'Chicago Office',
     city: 'Chicago',
     state: 'IL',
     country: 'United States',
@@ -164,7 +173,10 @@ export const mockConsultants: Consultant[] = [
     reportingTo: 'manager_2',
     reportingToName: 'Michael Chen',
     department: 'Recruiting',
-    officeLocation: 'Boston',
+    
+    // Location
+    location: 'Boston, MA',
+    officeLocation: 'Boston Office',
     city: 'Boston',
     state: 'MA',
     country: 'United States',
@@ -211,6 +223,9 @@ export const mockConsultants: Consultant[] = [
     reportingTo: 'manager_1',
     reportingToName: 'Sarah Johnson',
     department: 'Recruiting',
+    
+    // Location
+    location: 'Austin, TX',
     officeLocation: 'Remote',
     city: 'Austin',
     state: 'TX',
@@ -257,6 +272,9 @@ export const mockConsultants: Consultant[] = [
     yearsOfExperience: 15,
     hireDate: '2016-11-01',
     department: 'Partnerships',
+    
+    // Location
+    location: 'Detroit, MI',
     officeLocation: 'Remote',
     city: 'Detroit',
     state: 'MI',
@@ -304,7 +322,10 @@ export const mockConsultants: Consultant[] = [
     reportingTo: 'manager_2',
     reportingToName: 'Michael Chen',
     department: 'Recruiting',
-    officeLocation: 'Miami',
+    
+    // Location
+    location: 'Miami, FL',
+    officeLocation: 'Miami Office',
     city: 'Miami',
     state: 'FL',
     country: 'United States',
@@ -351,7 +372,10 @@ export const mockConsultants: Consultant[] = [
     reportingTo: 'manager_1',
     reportingToName: 'Sarah Johnson',
     department: 'Sales',
-    officeLocation: 'Seattle',
+    
+    // Location
+    location: 'Seattle, WA',
+    officeLocation: 'Seattle Office',
     city: 'Seattle',
     state: 'WA',
     country: 'United States',

@@ -57,9 +57,12 @@ export function ServiceProjectListItem({
               )}
             </div>
 
-            {/* Column 4: Country - 120px */}
-            <div className="hidden xl:block w-[120px] flex-shrink-0">
-              <span className="text-sm font-semibold">{project.country}</span>
+            {/* Column 4: Location - 150px */}
+            <div className="hidden xl:block w-[150px] flex-shrink-0">
+              <div className="text-sm">
+                <p className="font-medium">{project.location}</p>
+                <p className="text-xs text-muted-foreground">{project.country}</p>
+              </div>
             </div>
 
             {/* Column 5: Service Fee - 120px */}

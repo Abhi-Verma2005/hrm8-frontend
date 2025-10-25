@@ -123,6 +123,7 @@ export const mockCandidatesData: Candidate[] = Array.from({ length: 100 }, (_, i
     githubUrl: (i % 3 === 0 && expLevel !== 'entry') ? `https://github.com/${firstName.toLowerCase()}${lastName.toLowerCase()}` : undefined,
     websiteUrl: i % 7 === 0 ? `https://www.${firstName.toLowerCase()}${lastName.toLowerCase()}.dev` : undefined,
     
+    location: `${cities[cityIndex]}, ${states[cityIndex]}`,
     city: cities[cityIndex],
     state: states[cityIndex],
     country: 'United States',

@@ -33,6 +33,21 @@ export const candidateTableColumns: Column<Candidate>[] = [
     ),
   },
   {
+    key: 'location',
+    label: 'Location',
+    sortable: true,
+    render: (candidate) => {
+      if (!candidate.location) return <span className="text-muted-foreground">—</span>;
+      
+      return (
+        <div className="text-sm">
+          <p className="font-medium">{candidate.location}</p>
+          <p className="text-xs text-muted-foreground">{candidate.country}</p>
+        </div>
+      );
+    },
+  },
+  {
     key: 'phone',
     label: 'Phone',
     sortable: false,

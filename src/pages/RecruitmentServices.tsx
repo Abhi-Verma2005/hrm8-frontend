@@ -81,6 +81,10 @@ export default function RecruitmentServices() {
             aValue = a.name;
             bValue = b.name;
             break;
+          case 'location':
+            aValue = a.location;
+            bValue = b.location;
+            break;
           case 'country':
             aValue = a.country;
             bValue = b.country;
@@ -325,15 +329,15 @@ export default function RecruitmentServices() {
                 <div className="hidden xl:block w-[120px] flex-shrink-0">Team</div>
 
                 {/* Location - Sortable */}
-                <div className="hidden xl:block w-[120px] flex-shrink-0">
+                <div className="hidden xl:block w-[150px] flex-shrink-0">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleSort('country')}
+                    onClick={() => handleSort('location')}
                     className="h-6 px-2 -ml-2 hover:bg-muted"
                   >
                     Location
-                    {getSortIcon('country')}
+                    {getSortIcon('location')}
                   </Button>
                 </div>
 
