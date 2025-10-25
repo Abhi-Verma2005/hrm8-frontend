@@ -197,9 +197,9 @@ export const mockServiceProjects: ServiceProject[] = [
     progress: 15,
     candidatesShortlisted: 1,
     candidatesInterviewed: 0,
-    projectValue: 14990,
-    upfrontPaid: 7495,
-    balanceDue: 7495,
+    projectValue: 9990, // Executive search (salary <$100k): $9,990 per vacancy
+    upfrontPaid: 4995, // 50% upfront
+    balanceDue: 4995, // 50% on completion
     currency: 'USD',
     startDate: '2025-01-10',
     deadline: '2025-04-30',
