@@ -22,6 +22,7 @@ import {
   UserPlus,
   Search,
   Clock,
+  Target,
 } from 'lucide-react';
 
 interface CommandItem {
@@ -132,6 +133,15 @@ export function CommandPalette() {
       action: () => navigate('/calendar'),
       category: 'navigation',
       keywords: ['schedule', 'events'],
+    },
+    {
+      id: 'recruitment-services',
+      title: 'Recruitment Services',
+      description: 'Manage recruitment service projects',
+      icon: Target,
+      action: () => navigate('/recruitment-services'),
+      category: 'navigation',
+      keywords: ['services', 'projects', 'clients'],
     },
     {
       id: 'settings',
@@ -313,6 +323,7 @@ function getPageTitle(pathname: string): string | null {
     '/applications': 'Applications',
     '/analytics': 'Analytics',
     '/calendar': 'Calendar',
+    '/recruitment-services': 'Recruitment Services',
     '/settings': 'Settings',
     '/help': 'Help Center',
   };

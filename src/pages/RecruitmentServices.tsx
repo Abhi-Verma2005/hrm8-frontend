@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Building, DollarSign } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
@@ -5,12 +6,29 @@ import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
 import { ServiceStatsCard } from '@/components/recruitment-services/ServiceStatsCard';
 import { createServiceProjectColumns } from '@/components/recruitment-services/ServiceProjectTableColumns';
-import { getAllServiceProjects, getServiceStats } from '@/lib/recruitmentServiceStorage';
+import { getAllServiceProjects, getServiceStats, updateServiceProject } from '@/lib/recruitmentServiceStorage';
 import { toast } from 'sonner';
+import type { ServiceProject } from '@/types/recruitmentService';
+import type { ServiceStats } from '@/types/recruitmentService';
 
 export default function RecruitmentServices() {
-  const projects = getAllServiceProjects();
-  const stats = getServiceStats();
+  const [projects, setProjects] = useState<ServiceProject[]>([]);
+  const [stats, setStats] = useState<ServiceStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    try {
+      const projectsData = getAllServiceProjects();
+      const statsData = getServiceStats();
+      setProjects(projectsData);
+      setStats(statsData);
+    } catch (err) {
+      console.error('Failed to load service projects:', err);
+      toast.error('Failed to load service projects');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const handleView = (id: string) => {
     toast.info('Project detail view coming soon!');
@@ -25,7 +43,18 @@ export default function RecruitmentServices() {
   };
 
   const handleArchive = (id: string) => {
-    toast.success('Project archived successfully!');
+    try {
+      const updated = updateServiceProject(id, { status: 'cancelled' });
+      if (updated) {
+        setProjects(projects.map(p => p.id === id ? { ...p, status: 'cancelled' } : p));
+        toast.success('Project archived successfully!');
+      } else {
+        toast.error('Failed to archive project');
+      }
+    } catch (err) {
+      console.error('Archive error:', err);
+      toast.error('Failed to archive project');
+    }
   };
 
   const columns = createServiceProjectColumns(
@@ -71,47 +100,51 @@ export default function RecruitmentServices() {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-          <ServiceStatsCard
-            title="Active Projects"
-            value={stats.totalActive}
-            icon={FolderKanban}
-            trend="up"
-            change="+7"
-          />
-          
-          <ServiceStatsCard
-            title="Shortlisting"
-            value={stats.byType.shortlisting}
-            icon={Users}
-          />
+        {loading ? (
+          <div className="text-center py-8 text-muted-foreground">Loading...</div>
+        ) : stats ? (
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+            <ServiceStatsCard
+              title="Active Projects"
+              value={stats.totalActive}
+              icon={FolderKanban}
+              trend="up"
+              change="+7"
+            />
+            
+            <ServiceStatsCard
+              title="Shortlisting"
+              value={stats.byType.shortlisting}
+              icon={Users}
+            />
 
-          <ServiceStatsCard
-            title="Full-Service"
-            value={stats.byType.fullService}
-            icon={Briefcase}
-          />
+            <ServiceStatsCard
+              title="Full-Service"
+              value={stats.byType.fullService}
+              icon={Briefcase}
+            />
 
-          <ServiceStatsCard
-            title="Executive Search"
-            value={stats.byType.executiveSearch}
-            icon={Target}
-          />
+            <ServiceStatsCard
+              title="Executive Search"
+              value={stats.byType.executiveSearch}
+              icon={Target}
+            />
 
-          <ServiceStatsCard
-            title="RPO"
-            value={stats.byType.rpo}
-            icon={Building}
-          />
+            <ServiceStatsCard
+              title="RPO"
+              value={stats.byType.rpo}
+              icon={Building}
+            />
 
-          <ServiceStatsCard
-            title="Service Revenue"
-            value={`$${(stats.totalRevenue / 1000000).toFixed(1)}M`}
-            icon={DollarSign}
-            trend="up"
-            change="+22%"
-          />
-        </div>
+            <ServiceStatsCard
+              title="Service Revenue"
+              value={`$${(stats.totalRevenue / 1000000).toFixed(1)}M`}
+              icon={DollarSign}
+              trend="up"
+              change="+22%"
+            />
+          </div>
+        ) : null}
 
         {/* Data Table */}
         <DataTable

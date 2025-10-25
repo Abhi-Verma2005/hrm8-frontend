@@ -53,7 +53,12 @@ export const createServiceProjectColumns = (
           <Avatar key={consultant.id} className="h-8 w-8 border-2 border-background">
             <AvatarImage src={consultant.avatar} alt={consultant.name} />
             <AvatarFallback className="text-xs">
-              {consultant.name.split(' ').map(n => n[0]).join('')}
+              {consultant.name
+                .split(' ')
+                .filter(n => n.length > 0)
+                .map(n => n[0])
+                .join('')
+                .toUpperCase() || '?'}
             </AvatarFallback>
           </Avatar>
         ))}
@@ -84,7 +89,7 @@ export const createServiceProjectColumns = (
     sortable: true,
     render: (project) => (
       <span className="text-sm font-semibold">
-        ${getServiceBaseFee(project.serviceType).toLocaleString()}
+        ${project.projectValue.toLocaleString()}
         {isMonthlyService(project.serviceType) && '/mth'}
       </span>
     ),
