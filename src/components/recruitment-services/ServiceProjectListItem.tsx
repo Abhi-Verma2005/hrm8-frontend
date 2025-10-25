@@ -70,7 +70,7 @@ export function ServiceProjectListItem({
               </span>
             </div>
 
-            {/* Column 6: Value - 100px */}
+            {/* Column 6: Service Fee - 100px */}
             <div className="hidden lg:block w-[100px] flex-shrink-0">
               <span className="text-sm font-semibold flex items-center gap-1">
                 <DollarSign className="h-3 w-3" />
