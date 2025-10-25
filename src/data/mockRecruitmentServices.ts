@@ -3,7 +3,7 @@ import type { ServiceProject } from '@/types/recruitmentService';
 export const mockServiceProjects: ServiceProject[] = [
   {
     id: 'service_1',
-    name: 'Senior Software Engineers - TechCorp',
+    name: 'Senior Software Engineer - TechCorp',
     serviceType: 'full-service',
     status: 'active',
     priority: 'high',
@@ -15,15 +15,15 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_2', name: 'Sarah Johnson', role: 'support' }
     ],
     progress: 45,
-    targetPositions: 5,
-    positionsFilled: 1,
-    candidatesShortlisted: 15,
-    candidatesInterviewed: 8,
-    projectValue: 125000, // Full-service: $25K per position × 5 positions
+    targetPositions: 1,
+    positionsFilled: 0,
+    candidatesShortlisted: 1,
+    candidatesInterviewed: 1,
+    projectValue: 5990, // Full-service: $5,990 per vacancy
     currency: 'USD',
     startDate: '2025-01-15',
     deadline: '2025-03-31',
-    description: 'Full-service recruitment for 5 senior software engineering positions',
+    description: 'Full-service recruitment for senior software engineering position',
     requirements: ['React', 'Node.js', '5+ years experience', 'Team lead experience'],
     tags: ['tech', 'software', 'senior'],
     createdAt: '2025-01-10T00:00:00Z',
@@ -44,9 +44,9 @@ export const mockServiceProjects: ServiceProject[] = [
     progress: 70,
     targetPositions: 1,
     positionsFilled: 0,
-    candidatesShortlisted: 5,
-    candidatesInterviewed: 3,
-    projectValue: 55000, // Executive-search: $55K for CFO position
+    candidatesShortlisted: 1,
+    candidatesInterviewed: 1,
+    projectValue: 14990, // Executive-search: $14,990 for CFO over $100K
     currency: 'USD',
     startDate: '2024-12-01',
     deadline: '2025-02-28',
@@ -58,7 +58,7 @@ export const mockServiceProjects: ServiceProject[] = [
   },
   {
     id: 'service_3',
-    name: 'Marketing Team Shortlisting',
+    name: 'Marketing Specialist - Shortlisting',
     serviceType: 'shortlisting',
     status: 'active',
     priority: 'medium',
@@ -69,15 +69,15 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_4', name: 'Emily Davis', role: 'lead' }
     ],
     progress: 35,
-    targetPositions: 8,
+    targetPositions: 1,
     positionsFilled: 0,
-    candidatesShortlisted: 24,
+    candidatesShortlisted: 1,
     candidatesInterviewed: 0,
-    projectValue: 32000, // Shortlisting: $4K per position × 8 positions
+    projectValue: 1990, // Shortlisting: $1,990 per vacancy
     currency: 'USD',
     startDate: '2025-01-20',
     deadline: '2025-02-15',
-    description: 'Shortlisting candidates for various marketing positions',
+    description: 'Shortlisting candidates for marketing specialist position',
     requirements: ['Digital marketing', 'Social media', 'Content creation'],
     tags: ['marketing', 'digital', 'mid-level'],
     createdAt: '2025-01-18T00:00:00Z',
@@ -85,8 +85,8 @@ export const mockServiceProjects: ServiceProject[] = [
   },
   {
     id: 'service_4',
-    name: 'RPO Partnership - Healthcare Staffing',
-    serviceType: 'rpo',
+    name: 'Healthcare Nurse Position - Shortlisting',
+    serviceType: 'shortlisting',
     status: 'active',
     priority: 'high',
     stage: 'in-progress',
@@ -98,23 +98,23 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_6', name: 'Lisa Anderson', role: 'support' }
     ],
     progress: 55,
-    targetPositions: 50,
-    positionsFilled: 18,
-    candidatesShortlisted: 120,
-    candidatesInterviewed: 45,
-    projectValue: 600000, // RPO: Annual contract $600K for 50 positions
+    targetPositions: 1,
+    positionsFilled: 0,
+    candidatesShortlisted: 1,
+    candidatesInterviewed: 1,
+    projectValue: 1990, // Shortlisting: $1,990 per vacancy
     currency: 'USD',
     startDate: '2024-10-01',
     deadline: '2025-12-31',
-    description: 'Ongoing RPO partnership for healthcare staffing needs',
-    requirements: ['Healthcare professionals', 'Various roles', 'Ongoing partnership'],
-    tags: ['rpo', 'healthcare', 'long-term'],
+    description: 'Shortlisting candidates for healthcare nurse position',
+    requirements: ['Registered Nurse', 'Healthcare experience', 'Patient care'],
+    tags: ['shortlisting', 'healthcare', 'nursing'],
     createdAt: '2024-09-15T00:00:00Z',
     updatedAt: '2025-01-23T00:00:00Z'
   },
   {
     id: 'service_5',
-    name: 'Sales Representatives - Quick Hire',
+    name: 'Sales Representative - Quick Hire',
     serviceType: 'shortlisting',
     status: 'active',
     priority: 'medium',
@@ -125,16 +125,16 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_2', name: 'Sarah Johnson', role: 'lead' }
     ],
     progress: 100,
-    targetPositions: 10,
-    positionsFilled: 10,
-    candidatesShortlisted: 35,
-    candidatesInterviewed: 20,
-    projectValue: 30000, // Shortlisting: $3K per position × 10 positions
+    targetPositions: 1,
+    positionsFilled: 1,
+    candidatesShortlisted: 1,
+    candidatesInterviewed: 1,
+    projectValue: 1990, // Shortlisting: $1,990 per vacancy
     currency: 'USD',
     startDate: '2024-12-01',
     deadline: '2025-01-15',
     completedDate: '2025-01-12',
-    description: 'Shortlisting for sales representative positions',
+    description: 'Shortlisting for sales representative position',
     requirements: ['B2B sales', '2+ years experience', 'Strong communication'],
     tags: ['sales', 'b2b', 'completed'],
     createdAt: '2024-11-28T00:00:00Z',
@@ -142,7 +142,7 @@ export const mockServiceProjects: ServiceProject[] = [
   },
   {
     id: 'service_6',
-    name: 'Data Science Team - Full Service',
+    name: 'Data Scientist - Full Service',
     serviceType: 'full-service',
     status: 'active',
     priority: 'high',
@@ -154,15 +154,15 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_4', name: 'Emily Davis', role: 'support' }
     ],
     progress: 60,
-    targetPositions: 3,
-    positionsFilled: 1,
-    candidatesShortlisted: 12,
-    candidatesInterviewed: 6,
-    projectValue: 60000, // Full-service: $20K per position × 3 positions
+    targetPositions: 1,
+    positionsFilled: 0,
+    candidatesShortlisted: 1,
+    candidatesInterviewed: 1,
+    projectValue: 5990, // Full-service: $5,990 per vacancy
     currency: 'USD',
     startDate: '2025-01-05',
     deadline: '2025-03-15',
-    description: 'Full-service recruitment for data science team',
+    description: 'Full-service recruitment for data scientist position',
     requirements: ['Python', 'Machine Learning', 'PhD preferred', 'Research experience'],
     tags: ['tech', 'data-science', 'senior'],
     createdAt: '2025-01-02T00:00:00Z',
@@ -183,9 +183,9 @@ export const mockServiceProjects: ServiceProject[] = [
     progress: 15,
     targetPositions: 1,
     positionsFilled: 0,
-    candidatesShortlisted: 3,
+    candidatesShortlisted: 1,
     candidatesInterviewed: 0,
-    projectValue: 50000, // Executive-search: $50K for General Counsel
+    projectValue: 14990, // Executive-search: $14,990 for General Counsel over $100K
     currency: 'USD',
     startDate: '2025-01-10',
     deadline: '2025-04-30',
@@ -197,7 +197,7 @@ export const mockServiceProjects: ServiceProject[] = [
   },
   {
     id: 'service_8',
-    name: 'Engineering Interns - Shortlisting',
+    name: 'Engineering Intern - Shortlisting',
     serviceType: 'shortlisting',
     status: 'completed',
     priority: 'low',
@@ -208,16 +208,16 @@ export const mockServiceProjects: ServiceProject[] = [
       { id: 'consultant_6', name: 'Lisa Anderson', role: 'lead' }
     ],
     progress: 100,
-    targetPositions: 15,
-    positionsFilled: 15,
-    candidatesShortlisted: 60,
-    candidatesInterviewed: 30,
-    projectValue: 37500, // Shortlisting: $2.5K per position × 15 interns
+    targetPositions: 1,
+    positionsFilled: 1,
+    candidatesShortlisted: 1,
+    candidatesInterviewed: 1,
+    projectValue: 1990, // Shortlisting: $1,990 per vacancy
     currency: 'USD',
     startDate: '2024-11-01',
     deadline: '2024-12-20',
     completedDate: '2024-12-18',
-    description: 'Shortlisting for summer internship program',
+    description: 'Shortlisting for engineering internship position',
     requirements: ['Computer Science students', 'GPA 3.5+', 'Programming skills'],
     tags: ['intern', 'tech', 'completed'],
     createdAt: '2024-10-25T00:00:00Z',
