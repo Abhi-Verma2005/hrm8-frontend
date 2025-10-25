@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable } from '@/components/tables/DataTable';
 import { TableFilters, ActiveFilter } from '@/components/tables/TableFilters';
 import { TablePagination } from '@/components/tables/TablePagination';
-import { ConsultantTableColumns } from '@/components/consultants/ConsultantTableColumns';
+import { createConsultantColumns } from '@/components/consultants/ConsultantTableColumns';
 import { getAllConsultants, getConsultantStats } from '@/lib/consultantStorage';
 import { formatRevenue } from '@/lib/consultantUtils';
 import type { Consultant } from '@/types/consultant';
@@ -149,9 +149,8 @@ export default function ConsultantsPage() {
               />
 
               <DataTable
-                columns={ConsultantTableColumns}
+                columns={createConsultantColumns()}
                 data={paginatedData}
-                onRowClick={(consultant) => navigate(`/consultants/${consultant.id}`)}
               />
 
               <TablePagination
