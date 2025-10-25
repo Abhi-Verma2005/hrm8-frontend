@@ -3,6 +3,8 @@ import { createPayment, addLineItemToInvoice, getCurrentDraftInvoice, createInvo
 import type { JobPayment, ServicePricing } from '@/types/billing';
 import { SERVICE_PRICING } from '@/types/billing';
 import { PAYG_JOB_POSTING_COST } from './subscriptionConfig';
+import { createServiceProject } from './recruitmentServiceStorage';
+import type { ServiceType } from '@/types/recruitmentService';
 
 export function calculateServicePricing(
   serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo',
@@ -186,6 +188,39 @@ export async function processAccountPayment(
   
   createPayment(payment);
   
+  // Create service project if a paid recruitment service was selected
+  if (pricing.serviceType !== 'self-managed' && pricing.baseFee > 0) {
+    createServiceProject({
+      name: `Recruitment Service for Job #${jobId}`,
+      serviceType: pricing.serviceType as ServiceType,
+      status: 'active',
+      priority: 'medium',
+      stage: 'initiated',
+      
+      clientId: employerId,
+      clientName: employer.name,
+      clientLogo: employer.logo,
+      location: employer.location,
+      country: 'USA',
+      
+      consultants: [],
+      
+      progress: 0,
+      candidatesShortlisted: 0,
+      candidatesInterviewed: 0,
+      
+      jobId,
+      jobPaymentId: payment.id,
+      projectValue: pricing.baseFee,
+      upfrontPaid: pricing.totalUpfront,
+      balanceDue: pricing.balanceOnCompletion,
+      currency: 'USD',
+      
+      startDate: new Date().toISOString(),
+      deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+  }
+  
   let invoice = getCurrentDraftInvoice(employerId);
   if (!invoice) {
     invoice = {
@@ -271,6 +306,39 @@ export async function processCreditCardPayment(
   };
   
   createPayment(payment);
+  
+  // Create service project if a paid recruitment service was selected
+  if (pricing.serviceType !== 'self-managed' && pricing.baseFee > 0) {
+    createServiceProject({
+      name: `Recruitment Service for Job #${jobId}`,
+      serviceType: pricing.serviceType as ServiceType,
+      status: 'active',
+      priority: 'medium',
+      stage: 'initiated',
+      
+      clientId: employerId,
+      clientName: employer.name,
+      clientLogo: employer.logo,
+      location: employer.location,
+      country: 'USA',
+      
+      consultants: [],
+      
+      progress: 0,
+      candidatesShortlisted: 0,
+      candidatesInterviewed: 0,
+      
+      jobId,
+      jobPaymentId: payment.id,
+      projectValue: pricing.baseFee,
+      upfrontPaid: pricing.totalUpfront,
+      balanceDue: pricing.balanceOnCompletion,
+      currency: 'USD',
+      
+      startDate: new Date().toISOString(),
+      deadline: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+    });
+  }
   
   return { success: true, paymentId: payment.id };
 }

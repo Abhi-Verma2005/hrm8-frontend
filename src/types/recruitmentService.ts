@@ -28,13 +28,16 @@ export interface ServiceProject {
   
   // Progress metrics
   progress: number; // 0-100
-  targetPositions: number;
-  positionsFilled: number;
   candidatesShortlisted: number;
   candidatesInterviewed: number;
   
-  // Financial
-  projectValue: number;
+  // Financial (linked to JobPayment)
+  jobId?: string; // Reference to the job this service is for
+  jobTitle?: string; // For quick display
+  jobPaymentId?: string; // Reference to JobPayment record
+  projectValue: number; // Total service fee (serviceFee from JobPayment)
+  upfrontPaid: number; // Amount paid upfront (50%)
+  balanceDue: number; // Amount due on completion (50%)
   currency: string;
   
   // Dates

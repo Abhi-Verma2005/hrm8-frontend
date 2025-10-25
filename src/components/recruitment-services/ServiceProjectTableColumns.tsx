@@ -95,10 +95,16 @@ export const createServiceProjectColumns = (
     label: "Service Fee",
     sortable: true,
     render: (project) => (
-      <span className="text-sm font-semibold">
-        ${project.projectValue.toLocaleString()}
-        {isMonthlyService(project.serviceType) && '/mth'}
-      </span>
+      <div>
+        <div className="text-sm font-semibold">
+          ${project.projectValue.toLocaleString()}
+        </div>
+        {project.balanceDue > 0 && (
+          <div className="text-xs text-muted-foreground">
+            ${project.balanceDue.toLocaleString()} due on completion
+          </div>
+        )}
+      </div>
     ),
   },
   {
