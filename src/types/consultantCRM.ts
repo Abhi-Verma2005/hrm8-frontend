@@ -1,42 +1,75 @@
-/**
- * CRM-specific types for Consultant Management
- */
+export type CRMActivityType = 
+  | 'placement' 
+  | 'meeting' 
+  | 'call' 
+  | 'email' 
+  | 'note' 
+  | 'commission'
+  | 'assignment'
+  | 'status_change';
 
-export interface ConsultantNote {
+export interface CRMActivity {
   id: string;
   consultantId: string;
-  authorId: string;
-  authorName: string;
-  category: ConsultantNoteCategory;
-  content: string;
-  isPrivate: boolean;
-  createdAt: string;
-  updatedAt: string;
+  type: CRMActivityType;
+  title: string;
+  description: string;
+  timestamp: string;
+  relatedEntityType?: 'employer' | 'job' | 'candidate';
+  relatedEntityId?: string;
+  performedBy: string;
+  performedByName?: string;
+  metadata?: Record<string, any>;
 }
 
-export type ConsultantNoteCategory = 
-  | 'general' 
-  | 'performance-review' 
-  | '1-on-1' 
-  | 'concern'
-  | 'achievement'
-  | 'training';
+export interface CRMNote {
+  id: string;
+  consultantId: string;
+  content: string;
+  createdAt: string;
+  createdBy: string;
+  createdByName: string;
+  updatedAt?: string;
+  isPinned?: boolean;
+  attachments?: string[];
+}
 
-export interface ConsultantTask {
+export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'cancelled';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+export interface CRMTask {
   id: string;
   consultantId: string;
   title: string;
   description?: string;
-  dueDate: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
-  assignedTo: string;
-  assignedToName: string;
-  createdBy: string;
-  createdByName: string;
-  createdAt: string;
+  status: TaskStatus;
+  priority: TaskPriority;
+  dueDate?: string;
   completedAt?: string;
+  createdAt: string;
+  updatedAt?: string;
+  assignedTo: string;
+  assignedToName?: string;
+  assignedBy: string;
+  assignedByName?: string;
+  relatedEntityType?: 'employer' | 'job' | 'candidate';
+  relatedEntityId?: string;
 }
+
+// Legacy type names for compatibility with existing storage modules
+export type ConsultantActivityType =
+  | 'profile-updated'
+  | 'assignment-added'
+  | 'assignment-removed'
+  | 'task-created'
+  | 'task-completed'
+  | 'note-added'
+  | 'document-uploaded'
+  | 'status-changed'
+  | 'commission-earned'
+  | 'commission-paid'
+  | 'placement-completed'
+  | 'meeting-scheduled';
 
 export interface ConsultantActivity {
   id: string;
@@ -50,30 +83,48 @@ export interface ConsultantActivity {
   createdAt: string;
 }
 
-export type ConsultantActivityType =
-  | 'consultant-created'
-  | 'consultant-updated'
-  | 'status-changed'
-  | 'assignment-added'
-  | 'assignment-removed'
-  | 'placement-completed'
-  | 'commission-earned'
-  | 'commission-paid'
-  | 'performance-milestone'
-  | 'training-completed'
-  | 'certification-added'
-  | 'note-added'
-  | 'task-created'
-  | 'task-completed'
-  | 'document-uploaded'
-  | 'login'
-  | 'profile-updated';
+export interface ConsultantNote {
+  id: string;
+  consultantId: string;
+  category?: 'general' | 'performance' | 'issue' | 'achievement';
+  content: string;
+  authorId: string;
+  authorName: string;
+  isPinned?: boolean;
+  isPrivate?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConsultantTask {
+  id: string;
+  consultantId: string;
+  title: string;
+  description?: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
+  dueDate?: string;
+  completedAt?: string;
+  assignedTo?: string;
+  assignedToName?: string;
+  assignedBy?: string;
+  createdAt: string;
+}
+
+export type ConsultantDocumentType =
+  | 'contract'
+  | 'resume'
+  | 'certification'
+  | 'performance-review'
+  | 'commission-statement'
+  | 'tax-document'
+  | 'other';
 
 export interface ConsultantDocument {
   id: string;
   consultantId: string;
-  type: ConsultantDocumentType;
   name: string;
+  type: ConsultantDocumentType;
   fileName: string;
   fileSize: number;
   fileUrl: string;
@@ -81,64 +132,42 @@ export interface ConsultantDocument {
   uploadedByName: string;
   uploadedAt: string;
   expiryDate?: string;
-  notes?: string;
+  tags?: string[];
 }
 
-export type ConsultantDocumentType = 
-  | 'contract' 
-  | 'w9-form'
-  | 'i9-form'
-  | 'certification' 
-  | 'resume'
-  | 'offer-letter'
-  | 'nda'
-  | 'other';
+export type AssignmentStatus = 'active' | 'completed' | 'cancelled';
+
+export interface ConsultantAssignment {
+  id: string;
+  consultantId: string;
+  entityType: 'employer' | 'job';
+  entityId: string;
+  entityName: string;
+  role?: string;
+  isPrimary?: boolean;
+  status: AssignmentStatus;
+  assignedAt: string;
+  assignedBy?: string;
+  completedAt?: string;
+}
 
 export interface ConsultantSettings {
   consultantId: string;
-  
-  // Capacity Settings
   maxEmployers: number;
   maxJobs: number;
   autoAssign: boolean;
-  
-  // Commission Settings
   commissionStructure: 'percentage' | 'flat' | 'tiered' | 'custom';
   defaultCommissionRate?: number;
   customCommissionRates?: Record<string, number>;
-  
-  // Notification Settings
   emailNotifications: boolean;
   smsNotifications: boolean;
   notifyOnAssignment: boolean;
   notifyOnCommission: boolean;
   notifyOnPerformanceAlert: boolean;
-  
-  // Access Settings
   canViewAllCandidates: boolean;
   canViewAllEmployers: boolean;
   canManageOwnJobs: boolean;
   restrictedAccess: boolean;
-  
-  // Tags
   tags: string[];
-  
   updatedAt: string;
-}
-
-export interface ConsultantAssignment {
-  id: string;
-  consultantId: string;
-  consultantName: string;
-  entityType: 'employer' | 'job';
-  entityId: string;
-  entityName: string;
-  role?: 'account-manager' | 'recruiter' | 'primary' | 'support';
-  isPrimary: boolean;
-  assignedBy: string;
-  assignedByName: string;
-  assignedAt: string;
-  completedAt?: string;
-  status: 'active' | 'completed' | 'cancelled';
-  notes?: string;
 }

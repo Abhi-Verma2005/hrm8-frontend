@@ -1,33 +1,42 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Plus, DollarSign, TrendingUp, Clock, CheckCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, DollarSign, TrendingUp, Clock, CheckCircle, Search } from 'lucide-react';
 import { getConsultantCommissions, getCommissionStats } from '@/lib/commissionStorage';
 import { formatRevenue } from '@/lib/consultantUtils';
 import { format } from 'date-fns';
+import { useState } from 'react';
+import { CommissionStatusBadge } from './CommissionStatusBadge';
 import type { Consultant } from '@/types/consultant';
 import type { CommissionStatus } from '@/types/commission';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface CommissionsTabProps {
   consultantId: string;
   consultant: Consultant;
 }
 
-const getStatusBadge = (status: CommissionStatus) => {
-  const config = {
-    pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800' },
-    approved: { label: 'Approved', className: 'bg-blue-100 text-blue-800' },
-    paid: { label: 'Paid', className: 'bg-green-100 text-green-800' },
-    disputed: { label: 'Disputed', className: 'bg-red-100 text-red-800' },
-    cancelled: { label: 'Cancelled', className: 'bg-gray-100 text-gray-800' },
-  };
-  const { label, className } = config[status];
-  return <Badge variant="secondary" className={className}>{label}</Badge>;
-};
-
 export function CommissionsTab({ consultantId, consultant }: CommissionsTabProps) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  
   const commissions = getConsultantCommissions(consultantId);
   const stats = getCommissionStats(consultantId);
+
+  // Filter commissions
+  const filteredCommissions = commissions.filter(commission => {
+    const matchesSearch = searchTerm === '' || 
+      (commission.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       commission.entityName.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesStatus = statusFilter === 'all' || commission.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="space-y-6">
@@ -88,13 +97,37 @@ export function CommissionsTab({ consultantId, consultant }: CommissionsTabProps
           </Button>
         </CardHeader>
         <CardContent>
-          {commissions.length === 0 ? (
+          {/* Filters */}
+          <div className="flex gap-4 mb-6">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search commissions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="disputed">Disputed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {filteredCommissions.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No commission records yet
+              {commissions.length === 0 ? 'No commission records yet' : 'No commissions match your filters'}
             </div>
           ) : (
             <div className="space-y-4">
-              {commissions.map(commission => (
+              {filteredCommissions.map(commission => (
                 <div
                   key={commission.id}
                   className="flex items-center justify-between p-4 border rounded-lg"
@@ -110,7 +143,7 @@ export function CommissionsTab({ consultantId, consultant }: CommissionsTabProps
                       <div className="font-bold">${commission.commissionAmount.toLocaleString()}</div>
                       <div className="text-sm text-muted-foreground">{commission.commissionRate}%</div>
                     </div>
-                    {getStatusBadge(commission.status)}
+                    <CommissionStatusBadge status={commission.status as 'pending' | 'approved' | 'paid' | 'disputed'} />
                   </div>
                 </div>
               ))}
