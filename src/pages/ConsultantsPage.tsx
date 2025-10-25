@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Plus, Users, TrendingUp, DollarSign, Award } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { DataTable } from '@/components/tables/DataTable';
 import { TableFilters, ActiveFilter } from '@/components/tables/TableFilters';
 import { createConsultantColumns } from '@/components/consultants/ConsultantTableColumns';
@@ -96,10 +96,7 @@ export default function ConsultantsPage() {
         </div>
 
         <Card>
-          <CardHeader>
-            <CardTitle>All Consultants</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <div className="space-y-4">
               <TableFilters
                 searchValue={searchQuery}
