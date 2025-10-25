@@ -64,6 +64,19 @@ export function RecruitmentServicesFilterBar({
         </SelectContent>
       </Select>
 
+      <Select value={countryFilter} onValueChange={onCountryChange}>
+        <SelectTrigger className="w-full sm:w-[180px]">
+          <SelectValue placeholder="Country" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Countries</SelectItem>
+          <SelectItem value="United States">United States</SelectItem>
+          <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+          <SelectItem value="Australia">Australia</SelectItem>
+          <SelectItem value="Canada">Canada</SelectItem>
+        </SelectContent>
+      </Select>
+
       <Select value={statusFilter} onValueChange={onStatusChange}>
         <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue placeholder="Status" />
@@ -86,19 +99,6 @@ export function RecruitmentServicesFilterBar({
           <SelectItem value="high">High</SelectItem>
           <SelectItem value="medium">Medium</SelectItem>
           <SelectItem value="low">Low</SelectItem>
-        </SelectContent>
-      </Select>
-
-      <Select value={countryFilter} onValueChange={onCountryChange}>
-        <SelectTrigger className="w-full sm:w-[180px]">
-          <SelectValue placeholder="Country" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Countries</SelectItem>
-          <SelectItem value="United States">United States</SelectItem>
-          <SelectItem value="United Kingdom">United Kingdom</SelectItem>
-          <SelectItem value="Australia">Australia</SelectItem>
-          <SelectItem value="Canada">Canada</SelectItem>
         </SelectContent>
       </Select>
 
