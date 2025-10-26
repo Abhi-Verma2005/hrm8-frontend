@@ -5,7 +5,9 @@ import { ServicesOverviewCard } from "./ServicesOverviewCard";
 import { ActiveServicesList } from "./ActiveServicesList";
 import { RPOServiceCard } from "./RPOServiceCard";
 import { CreateRPOServiceDialog } from "./CreateRPOServiceDialog";
+import { RPOServiceDetailDialog } from "./RPOServiceDetailDialog";
 import { getRPOServicesByEmployer } from "@/lib/rpoServiceStorage";
+import { ServiceProject } from "@/types/recruitmentService";
 
 interface ServicesTabProps {
   employerId: string;
@@ -14,11 +16,23 @@ interface ServicesTabProps {
 export function ServicesTab({ employerId }: ServicesTabProps) {
   const [showCreateRPO, setShowCreateRPO] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedService, setSelectedService] = useState<ServiceProject | null>(null);
+  const [showDetailDialog, setShowDetailDialog] = useState(false);
   
   const rpoServices = getRPOServicesByEmployer(employerId);
 
   const handleRPOCreated = () => {
     setRefreshKey(prev => prev + 1);
+  };
+
+  const handleViewDetails = (service: ServiceProject) => {
+    setSelectedService(service);
+    setShowDetailDialog(true);
+  };
+
+  const handleEdit = (service: ServiceProject) => {
+    setSelectedService(service);
+    setShowCreateRPO(true);
   };
 
   return (
@@ -53,14 +67,8 @@ export function ServicesTab({ employerId }: ServicesTabProps) {
               <RPOServiceCard 
                 key={`${service.id}-${refreshKey}`} 
                 service={service}
-                onEdit={() => {
-                  // TODO: Open edit dialog
-                  console.log('Edit RPO:', service.id);
-                }}
-                onViewDetails={() => {
-                  // TODO: Open detail view
-                  console.log('View RPO details:', service.id);
-                }}
+                onEdit={() => handleEdit(service)}
+                onViewDetails={() => handleViewDetails(service)}
               />
             ))}
           </div>
@@ -79,6 +87,17 @@ export function ServicesTab({ employerId }: ServicesTabProps) {
         onOpenChange={setShowCreateRPO}
         employerId={employerId}
         onSuccess={handleRPOCreated}
+      />
+
+      {/* RPO Detail Dialog */}
+      <RPOServiceDetailDialog
+        service={selectedService}
+        open={showDetailDialog}
+        onOpenChange={setShowDetailDialog}
+        onEdit={() => {
+          setShowDetailDialog(false);
+          if (selectedService) handleEdit(selectedService);
+        }}
       />
     </div>
   );

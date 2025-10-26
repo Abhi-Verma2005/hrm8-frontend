@@ -375,6 +375,151 @@ export const mockServiceProjects: ServiceProject[] = [
     rpoAutoRenew: true,
     rpoNoticePeriod: 60,
     targetPlacements: 20,
-    rpoNotes: 'Auto-renews for additional 6 months if 80% placement target achieved'
+    rpoNotes: 'Auto-renews for additional 6 months if 80% placement target achieved',
+    rpoCountry: 'United States',
+    rpoPrimaryContactId: 'contact_1',
+    rpoPrimaryContactName: 'John Employer'
+  },
+  {
+    id: 'service_11',
+    name: 'RPO - Healthcare Nursing Expansion',
+    serviceType: 'rpo',
+    status: 'active',
+    priority: 'high',
+    stage: 'in-progress',
+    clientId: 'employer_4',
+    clientName: 'HealthCare Systems',
+    location: 'Toronto, ON',
+    country: 'Canada',
+    consultants: [
+      { id: 'consultant_1', name: 'Jennifer Martinez', role: 'lead' },
+      { id: 'consultant_4', name: 'James Wilson', role: 'support' }
+    ],
+    progress: 65,
+    candidatesShortlisted: 18,
+    candidatesInterviewed: 12,
+    numberOfVacancies: 25,
+    projectValue: 142500,
+    upfrontPaid: 60000,
+    balanceDue: 82500,
+    currency: 'USD',
+    startDate: '2024-10-01',
+    deadline: '2025-09-30',
+    description: 'Comprehensive RPO for healthcare nursing roles across multiple hospital locations',
+    requirements: ['Registered Nurses', 'Licensed Practical Nurses', 'Nurse Practitioners', 'ICU Nurses'],
+    tags: ['rpo', 'healthcare', 'nursing', 'high-volume'],
+    createdAt: '2024-09-15T00:00:00Z',
+    updatedAt: '2025-01-24T00:00:00Z',
+    isRPO: true,
+    rpoStartDate: '2024-10-01',
+    rpoEndDate: '2025-09-30',
+    rpoDuration: 12,
+    rpoFeeStructures: [
+      {
+        id: 'fee_1',
+        type: 'monthly-retainer',
+        name: 'Healthcare Recruitment Retainer',
+        amount: 8500,
+        frequency: 'monthly',
+        description: 'Dedicated healthcare recruiting team for nursing positions'
+      },
+      {
+        id: 'fee_2',
+        type: 'per-vacancy',
+        name: 'Per Nurse Placement',
+        amount: 2500,
+        frequency: 'per-placement',
+        description: 'Fee per successful nursing hire'
+      },
+      {
+        id: 'fee_3',
+        type: 'one-time',
+        name: 'Healthcare Setup Fee',
+        amount: 10000,
+        frequency: 'one-time',
+        description: 'Initial setup for healthcare compliance and screening processes'
+      }
+    ],
+    rpoMonthlyRetainer: 8500,
+    rpoPerVacancyFee: 2500,
+    rpoTotalContractValue: 142500, // (8500 * 12) + (2500 * 25) + 10000
+    rpoAutoRenew: true,
+    rpoNoticePeriod: 45,
+    targetPlacements: 25,
+    rpoNotes: 'Includes pre-employment background checks and license verification',
+    rpoCountry: 'Canada',
+    rpoPrimaryContactId: 'contact_2',
+    rpoPrimaryContactName: 'Sarah Healthcare',
+    rpoAdditionalContactIds: ['contact_3']
+  },
+  {
+    id: 'service_12',
+    name: 'RPO - Performance-Based Contract',
+    serviceType: 'rpo',
+    status: 'active',
+    priority: 'medium',
+    stage: 'in-progress',
+    clientId: 'employer_3',
+    clientName: 'Retail Giant Co',
+    location: 'Sydney, NSW',
+    country: 'Australia',
+    consultants: [
+      { id: 'consultant_3', name: 'Amanda Lee', role: 'lead' }
+    ],
+    progress: 35,
+    candidatesShortlisted: 14,
+    candidatesInterviewed: 8,
+    numberOfVacancies: 30,
+    projectValue: 165000,
+    upfrontPaid: 36000,
+    balanceDue: 129000,
+    currency: 'USD',
+    startDate: '2025-01-15',
+    deadline: '2026-01-14',
+    description: 'Performance-based RPO for retail management and sales positions',
+    requirements: ['Store Managers', 'Assistant Managers', 'Department Supervisors', 'Sales Associates'],
+    tags: ['rpo', 'retail', 'performance-based', 'annual'],
+    createdAt: '2025-01-10T00:00:00Z',
+    updatedAt: '2025-01-24T00:00:00Z',
+    isRPO: true,
+    rpoStartDate: '2025-01-15',
+    rpoEndDate: '2026-01-14',
+    rpoDuration: 12,
+    rpoFeeStructures: [
+      {
+        id: 'fee_1',
+        type: 'monthly-retainer',
+        name: 'Base Retainer (Reduced)',
+        amount: 3000,
+        frequency: 'monthly',
+        description: 'Low base retainer for performance-based model'
+      },
+      {
+        id: 'fee_2',
+        type: 'per-vacancy',
+        name: 'Per Successful Hire',
+        amount: 4500,
+        frequency: 'per-placement',
+        description: 'Higher per-placement fee for performance model'
+      },
+      {
+        id: 'fee_3',
+        type: 'milestone',
+        name: 'Quarterly Performance Bonus',
+        amount: 7500,
+        frequency: 'quarterly',
+        description: 'Bonus for meeting quarterly hiring targets'
+      }
+    ],
+    rpoMonthlyRetainer: 3000,
+    rpoPerVacancyFee: 4500,
+    rpoTotalContractValue: 165000, // (3000 * 12) + (4500 * 30) + (7500 * 4)
+    rpoAutoRenew: false,
+    rpoNoticePeriod: 30,
+    targetPlacements: 30,
+    rpoNotes: 'Performance bonuses tied to 90-day retention rate and time-to-fill targets',
+    rpoCountry: 'Australia',
+    rpoPrimaryContactId: 'contact_4',
+    rpoPrimaryContactName: 'Michael Retail'
   }
 ];
