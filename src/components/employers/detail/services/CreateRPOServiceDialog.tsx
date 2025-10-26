@@ -33,7 +33,6 @@ export function CreateRPOServiceDialog({
   // Form state
   const [serviceName, setServiceName] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<ServicePriority>("medium");
   const [location, setLocation] = useState("");
   
   const [startDate, setStartDate] = useState("");
@@ -57,7 +56,6 @@ export function CreateRPOServiceDialog({
     setStep(1);
     setServiceName("");
     setDescription("");
-    setPriority("medium");
     setLocation("");
     setStartDate("");
     setDuration("12");
@@ -160,7 +158,7 @@ export function CreateRPOServiceDialog({
       createRPOService({
         name: serviceName,
         description,
-        priority,
+        priority: "medium",
         clientId: employerId,
         clientName: employer?.name || '',
         location: location || employer?.location || '',
@@ -236,20 +234,6 @@ export function CreateRPOServiceDialog({
                     onChange={(e) => setDescription(e.target.value)}
                     rows={4}
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="priority">Priority</Label>
-                  <Select value={priority} onValueChange={(v) => setPriority(v as ServicePriority)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
 
                 <div className="space-y-2">
