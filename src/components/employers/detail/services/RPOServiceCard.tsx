@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { MoreVertical, Users, Target } from "lucide-react";
+import { MoreVertical, Users, Target, Mail } from "lucide-react";
 import { ServiceStatusBadge } from "@/components/recruitment-services/ServiceStatusBadge";
 import type { ServiceProject } from "@/types/recruitmentService";
 import { calculateRPOProgress } from "@/lib/rpoServiceStorage";
 import { format } from "date-fns";
+import { getEmployerContacts } from "@/lib/employerContactStorage";
 
 interface RPOServiceCardProps {
   service: ServiceProject;
@@ -20,6 +21,12 @@ export function RPOServiceCard({ service, onEdit, onViewDetails }: RPOServiceCar
   
   // Get primary fee structures to display (max 2)
   const primaryFees = service.rpoFeeStructures?.slice(0, 2) || [];
+  
+  // Get primary contact details if available
+  const contacts = getEmployerContacts(service.clientId);
+  const primaryContact = service.rpoPrimaryContactId 
+    ? contacts.find(c => c.id === service.rpoPrimaryContactId)
+    : null;
   
   return (
     <Card className="p-6">
@@ -34,9 +41,19 @@ export function RPOServiceCard({ service, onEdit, onViewDetails }: RPOServiceCar
               <ServiceStatusBadge status={service.status} />
             </div>
             <h3 className="font-semibold text-lg mb-1">{service.name}</h3>
-            <p className="text-sm text-muted-foreground">
-              {service.clientName} • Started {format(new Date(service.rpoStartDate || service.startDate), 'MMM d, yyyy')}
-            </p>
+            <div className="space-y-1">
+              <p className="text-sm text-muted-foreground">
+                {service.clientName} • Started {format(new Date(service.rpoStartDate || service.startDate), 'MMM d, yyyy')}
+              </p>
+              {primaryContact && (
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Mail className="h-3.5 w-3.5" />
+                  <span>
+                    {primaryContact.firstName} {primaryContact.lastName} ({primaryContact.title})
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
           <Button variant="ghost" size="icon">
             <MoreVertical className="h-4 w-4" />

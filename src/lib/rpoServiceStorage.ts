@@ -68,40 +68,67 @@ export function calculateRPOProgress(service: ServiceProject): {
  * Create a new RPO service project
  */
 export function createRPOService(data: Partial<ServiceProject>): ServiceProject {
-  // Calculate contract value if fee structures provided
-  let totalContractValue = data.rpoTotalContractValue || 0;
-  
-  if (data.rpoFeeStructures && data.rpoDuration) {
-    totalContractValue = calculateRPOContractValue(
-      data.rpoFeeStructures,
-      data.rpoDuration,
-      data.targetPlacements
-    );
-  }
-  
-  // Calculate end date from start date and duration
-  let endDate = data.rpoEndDate;
-  if (data.rpoStartDate && data.rpoDuration && !endDate) {
-    const start = new Date(data.rpoStartDate);
+  const feeStructures = data.rpoFeeStructures || [];
+  const duration = data.rpoDuration || 12;
+  const totalContractValue = calculateRPOContractValue(
+    feeStructures,
+    duration,
+    data.targetPlacements
+  );
+
+  // Calculate end date if start date and duration are provided
+  let endDate: string | undefined;
+  if (data.startDate && duration) {
+    const start = new Date(data.startDate);
     const end = new Date(start);
-    end.setMonth(end.getMonth() + data.rpoDuration);
+    end.setMonth(end.getMonth() + duration);
     endDate = end.toISOString().split('T')[0];
   }
-  
-  const rpoData: Partial<ServiceProject> = {
-    ...data,
+
+  const newService: ServiceProject = {
+    id: `service_${Date.now()}`,
+    name: data.name || 'New RPO Service',
     serviceType: 'rpo',
-    isRPO: true,
-    rpoTotalContractValue: totalContractValue,
-    rpoEndDate: endDate,
+    status: 'active',
+    priority: data.priority || 'medium',
+    stage: 'initiated',
+    clientId: data.clientId || '',
+    clientName: data.clientName || '',
+    location: data.location || '',
+    country: data.country || 'United States',
+    consultants: data.consultants || [],
+    progress: 0,
+    candidatesShortlisted: 0,
+    candidatesInterviewed: 0,
+    numberOfVacancies: 1,
     projectValue: totalContractValue,
-    // Set default values
-    rpoAutoRenew: data.rpoAutoRenew ?? false,
-    rpoNoticePeriod: data.rpoNoticePeriod ?? 30,
-    targetPlacements: data.targetPlacements ?? 0
+    upfrontPaid: 0,
+    balanceDue: totalContractValue,
+    currency: 'USD',
+    startDate: data.startDate || new Date().toISOString().split('T')[0],
+    deadline: endDate || data.deadline || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    description: data.description,
+    requirements: data.requirements,
+    tags: data.tags,
+    isRPO: true,
+    rpoStartDate: data.startDate,
+    rpoEndDate: endDate,
+    rpoDuration: duration,
+    rpoFeeStructures: feeStructures,
+    rpoTotalContractValue: totalContractValue,
+    rpoAutoRenew: data.rpoAutoRenew,
+    rpoNoticePeriod: data.rpoNoticePeriod,
+    rpoNotes: data.rpoNotes,
+    targetPlacements: data.targetPlacements,
+    rpoCountry: data.country,
+    rpoPrimaryContactId: data.rpoPrimaryContactId,
+    rpoPrimaryContactName: data.rpoPrimaryContactName,
+    rpoAdditionalContactIds: data.rpoAdditionalContactIds,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   };
-  
-  return createServiceProject(rpoData);
+
+  return createServiceProject(newService);
 }
 
 /**

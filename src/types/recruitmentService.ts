@@ -73,6 +73,10 @@ export interface ServiceProject {
   rpoNoticePeriod?: number; // Notice period in days
   rpoNotes?: string;
   targetPlacements?: number; // Expected number of placements
+  rpoCountry?: string; // Standardized country name
+  rpoPrimaryContactId?: string; // Reference to EmployerContact.id
+  rpoPrimaryContactName?: string; // Cached for display
+  rpoAdditionalContactIds?: string[]; // Array of additional contact IDs
   
   createdAt: string;
   updatedAt: string;
