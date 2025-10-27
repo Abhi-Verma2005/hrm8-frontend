@@ -127,7 +127,7 @@ export default function Employers() {
               Add Employer
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/dashboard/financial">
+              <Link to="/dashboard/employers">
                 <BarChart3 className="mr-2 h-4 w-4" />
                 View Dashboard
               </Link>

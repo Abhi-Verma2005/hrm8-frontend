@@ -697,11 +697,129 @@ export const DEFAULT_RECRUITMENT_SERVICES_LAYOUT: DashboardLayout = {
   updatedAt: new Date()
 };
 
+
+export const DEFAULT_EMPLOYERS_LAYOUT: DashboardLayout = {
+  id: 'employers',
+  name: 'Employers Dashboard',
+  dashboardType: 'employers',
+  widgets: [
+    {
+      id: 'stat-total-clients-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Total Employers',
+      gridArea: { x: 0, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Total Employers",
+        value: "18",
+        change: "+3",
+        trend: "up",
+        variant: "primary"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-active-projects-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Active Accounts',
+      gridArea: { x: 3, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Active Accounts",
+        value: "15",
+        change: "+2",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-total-revenue-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Monthly Revenue',
+      gridArea: { x: 6, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Monthly Revenue",
+        value: "$145K",
+        change: "+12%",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-profit-margin-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Profit Margin',
+      gridArea: { x: 9, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Profit Margin",
+        value: "28%",
+        change: "+3%",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'chart-client-distribution-1',
+      type: 'chart',
+      component: 'ClientDistributionChart',
+      title: 'Client Distribution',
+      gridArea: { x: 0, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-revenue-expense-1',
+      type: 'chart',
+      component: 'RevenueExpenseChart',
+      title: 'Revenue Trends',
+      gridArea: { x: 6, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-budget-analysis-1',
+      type: 'chart',
+      component: 'BudgetAnalysisChart',
+      title: 'Subscription Analysis',
+      gridArea: { x: 0, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-client-distribution-2',
+      type: 'chart',
+      component: 'ClientDistributionChart',
+      title: 'Account Status',
+      gridArea: { x: 6, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'activity-feed-1',
+      type: 'activity',
+      component: 'RecentActivityCard',
+      title: 'Recent Activity',
+      gridArea: { x: 0, y: 5, w: 12, h: 2 },
+      props: {},
+      isVisible: true,
+      isLocked: true
+    }
+  ],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
 export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   overview: DEFAULT_OVERVIEW_LAYOUT,
   jobs: DEFAULT_JOBS_LAYOUT,
   hrms: DEFAULT_HRMS_LAYOUT,
   financial: DEFAULT_FINANCIAL_LAYOUT,
   consulting: DEFAULT_CONSULTING_LAYOUT,
-  'recruitment-services': DEFAULT_RECRUITMENT_SERVICES_LAYOUT
+  'recruitment-services': DEFAULT_RECRUITMENT_SERVICES_LAYOUT,
+  employers: DEFAULT_EMPLOYERS_LAYOUT
 };
