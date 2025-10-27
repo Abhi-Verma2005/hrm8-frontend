@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { X, Calendar, DollarSign, Plus, Trash2, UserPlus } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { X, Edit, Plus, AlertCircle } from "lucide-react";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,17 +9,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { createRPOService } from "@/lib/rpoServiceStorage";
-import { RPOFeeStructure, ServicePriority } from "@/types/recruitmentService";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { createRPOService, updateRPOService } from "@/lib/rpoServiceStorage";
+import { RPOFeeStructure } from "@/types/recruitmentService";
 import { toast } from "sonner";
 import { getEmployerById } from "@/lib/employerService";
 import { COUNTRY_PHONE_CODES } from "@/lib/countryPhoneCodes";
 import { getEmployerContacts } from "@/lib/employerContactStorage";
+import { RPOFeeStructureBuilder } from "./RPOFeeStructureBuilder";
+import { RPOTeamSelector } from "./RPOTeamSelector";
 
 interface CreateRPOServiceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   employerId: string;
+  serviceId?: string; // If provided, dialog is in edit mode
   onSuccess?: () => void;
 }
 
@@ -27,32 +33,50 @@ export function CreateRPOServiceDialog({
   open,
   onOpenChange,
   employerId,
+  serviceId,
   onSuccess
 }: CreateRPOServiceDialogProps) {
   const [step, setStep] = useState(1);
   
   const employer = getEmployerById(employerId);
+  const isEditMode = !!serviceId;
   
   const availableContacts = useMemo(() => {
     return getEmployerContacts(employerId);
   }, [employerId]);
   
-  // Form state
+  // Step 1: Basic Info
   const [serviceName, setServiceName] = useState("");
   const [description, setDescription] = useState("");
   const [country, setCountry] = useState("");
   const [primaryContactId, setPrimaryContactId] = useState("");
   const [additionalContactIds, setAdditionalContactIds] = useState<string[]>([]);
   
+  // Step 2: Contract Terms
   const [startDate, setStartDate] = useState("");
   const [duration, setDuration] = useState("12");
   const [autoRenew, setAutoRenew] = useState(false);
   const [noticePeriod, setNoticePeriod] = useState("30");
   const [notes, setNotes] = useState("");
   
+  // Step 3: Fee Structure
   const [feeStructures, setFeeStructures] = useState<RPOFeeStructure[]>([]);
 
-  const totalSteps = 3;
+  // Step 4: Team Allocation
+  const [selectedConsultants, setSelectedConsultants] = useState<Array<{
+    id: string;
+    name: string;
+    role: 'lead' | 'support';
+    avatar?: string;
+  }>>([]);
+
+  // Step 5: Target Metrics
+  const [targetPlacements, setTargetPlacements] = useState("");
+  const [expectedRoles, setExpectedRoles] = useState("");
+  const [targetTimeToFill, setTargetTimeToFill] = useState("");
+  const [successCriteria, setSuccessCriteria] = useState("");
+
+  const totalSteps = 6;
 
   const resetForm = () => {
     setStep(1);
@@ -67,14 +91,11 @@ export function CreateRPOServiceDialog({
     setNoticePeriod("30");
     setNotes("");
     setFeeStructures([]);
-  };
-
-  const handleAddFee = (fee: RPOFeeStructure) => {
-    setFeeStructures([...feeStructures, fee]);
-  };
-
-  const handleRemoveFee = (feeId: string) => {
-    setFeeStructures(feeStructures.filter(f => f.id !== feeId));
+    setSelectedConsultants([]);
+    setTargetPlacements("");
+    setExpectedRoles("");
+    setTargetTimeToFill("");
+    setSuccessCriteria("");
   };
 
   const calculateTotal = () => {
@@ -90,9 +111,10 @@ export function CreateRPOServiceDialog({
   };
 
   const handleNext = () => {
+    // Step 1 validation
     if (step === 1) {
-      if (!serviceName.trim()) {
-        toast.error("Please enter a service name");
+      if (!serviceName.trim() || serviceName.length < 3) {
+        toast.error("Service name must be at least 3 characters");
         return;
       }
       if (!country) {
@@ -104,6 +126,50 @@ export function CreateRPOServiceDialog({
         return;
       }
     }
+    
+    // Step 2 validation
+    if (step === 2) {
+      if (!startDate) {
+        toast.error("Please select a start date");
+        return;
+      }
+      const durationNum = parseInt(duration);
+      if (!durationNum || durationNum < 1 || durationNum > 60) {
+        toast.error("Duration must be between 1 and 60 months");
+        return;
+      }
+    }
+    
+    // Step 3 validation
+    if (step === 3) {
+      if (feeStructures.length === 0) {
+        toast.error("Please add at least one fee structure");
+        return;
+      }
+    }
+    
+    // Step 4 validation
+    if (step === 4) {
+      if (selectedConsultants.length === 0) {
+        toast.error("Please select at least one consultant");
+        return;
+      }
+      const hasLead = selectedConsultants.some(c => c.role === 'lead');
+      if (!hasLead) {
+        toast.error("At least one consultant must be assigned as Lead");
+        return;
+      }
+    }
+    
+    // Step 5 validation
+    if (step === 5) {
+      const targetPlacementsNum = parseInt(targetPlacements);
+      if (!targetPlacementsNum || targetPlacementsNum <= 0) {
+        toast.error("Expected placements must be greater than 0");
+        return;
+      }
+    }
+    
     setStep(step + 1);
   };
 
@@ -113,19 +179,18 @@ export function CreateRPOServiceDialog({
     }
   };
 
-  const handleCreate = () => {
-    if (feeStructures.length === 0) {
-      toast.error("Please add at least one fee structure");
-      return;
-    }
+  const handleJumpToStep = (targetStep: number) => {
+    setStep(targetStep);
+  };
 
+  const handleCreate = () => {
     try {
       const primaryContact = availableContacts.find(c => c.id === primaryContactId);
       
-      createRPOService({
+      const serviceData = {
         name: serviceName,
         description,
-        priority: "medium",
+        priority: "medium" as const,
         clientId: employerId,
         clientName: employer?.name || '',
         location: country,
@@ -141,29 +206,47 @@ export function CreateRPOServiceDialog({
           ? `${primaryContact.firstName} ${primaryContact.lastName}` 
           : '',
         rpoAdditionalContactIds: additionalContactIds,
-      });
+        consultants: selectedConsultants,
+        targetPlacements: parseInt(targetPlacements),
+        requirements: expectedRoles.split(',').map(r => r.trim()).filter(Boolean),
+      };
 
-      toast.success("RPO Service created successfully");
+      if (isEditMode) {
+        updateRPOService(serviceId, serviceData);
+        toast.success("RPO Service updated successfully");
+      } else {
+        createRPOService(serviceData);
+        toast.success("RPO Service created successfully");
+      }
+
       resetForm();
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
-      toast.error("Failed to create RPO service");
+      toast.error(isEditMode ? "Failed to update RPO service" : "Failed to create RPO service");
       console.error(error);
+    }
+  };
+
+  const getStepTitle = () => {
+    switch (step) {
+      case 1: return "Basic Information";
+      case 2: return "Contract Terms";
+      case 3: return "Fee Structure";
+      case 4: return "Team Allocation";
+      case 5: return "Target Metrics";
+      case 6: return "Review & Confirm";
+      default: return "";
     }
   };
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-2xl p-0 flex flex-col">
+      <SheetContent side="right" className="w-full sm:max-w-3xl p-0 flex flex-col">
         <SheetHeader className="px-6 pt-6 pb-4 border-b">
-          <SheetTitle>Create RPO Service</SheetTitle>
+          <SheetTitle>{isEditMode ? "Edit" : "Create"} RPO Service</SheetTitle>
           <SheetDescription>
-            Step {step} of {totalSteps}: {
-              step === 1 ? "Basic Information" :
-              step === 2 ? "Contract Terms" :
-              "Fee Structure"
-            }
+            Step {step} of {totalSteps}: {getStepTitle()}
           </SheetDescription>
         </SheetHeader>
 
@@ -214,9 +297,12 @@ export function CreateRPOServiceDialog({
               <div className="space-y-2">
                 <Label htmlFor="primaryContact">Primary Contact *</Label>
                 {availableContacts.length === 0 ? (
-                  <div className="text-sm text-muted-foreground p-3 bg-muted/50 rounded-lg">
-                    No contacts available. Please add a contact first.
-                  </div>
+                  <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      No contacts available. Please add a contact first.
+                    </AlertDescription>
+                  </Alert>
                 ) : (
                   <>
                     <Select value={primaryContactId} onValueChange={setPrimaryContactId}>
@@ -241,12 +327,14 @@ export function CreateRPOServiceDialog({
                     {primaryContactId && (() => {
                       const contact = availableContacts.find(c => c.id === primaryContactId);
                       return contact ? (
-                        <div className="bg-muted/50 p-3 rounded-lg text-sm space-y-1">
-                          <div className="font-medium">{contact.firstName} {contact.lastName}</div>
-                          <div className="text-muted-foreground">{contact.title}</div>
-                          <div className="text-muted-foreground">{contact.email}</div>
-                          {contact.phone && <div className="text-muted-foreground">{contact.phone}</div>}
-                        </div>
+                        <Card>
+                          <CardContent className="pt-4 space-y-1 text-sm">
+                            <div className="font-medium">{contact.firstName} {contact.lastName}</div>
+                            <div className="text-muted-foreground">{contact.title}</div>
+                            <div className="text-muted-foreground">{contact.email}</div>
+                            {contact.phone && <div className="text-muted-foreground">{contact.phone}</div>}
+                          </CardContent>
+                        </Card>
                       ) : null;
                     })()}
                   </>
@@ -258,7 +346,7 @@ export function CreateRPOServiceDialog({
                 <Select 
                   value="" 
                   onValueChange={(value) => {
-                    if (value && !additionalContactIds.includes(value)) {
+                    if (value && !additionalContactIds.includes(value) && value !== primaryContactId) {
                       setAdditionalContactIds([...additionalContactIds, value]);
                     }
                   }}
@@ -300,11 +388,13 @@ export function CreateRPOServiceDialog({
                 )}
               </div>
 
-              <div className="bg-muted/50 p-4 rounded-lg">
-                <p className="text-sm">
-                  <span className="font-semibold">Client:</span> {employer?.name}
-                </p>
-              </div>
+              <Card className="bg-muted/50">
+                <CardContent className="pt-4">
+                  <p className="text-sm">
+                    <span className="font-semibold">Client:</span> {employer?.name}
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           )}
 
@@ -336,16 +426,18 @@ export function CreateRPOServiceDialog({
               </div>
 
               {startDate && duration && (
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <p className="text-sm">
-                    <span className="font-semibold">End Date:</span>{' '}
-                    {(() => {
-                      const end = new Date(startDate);
-                      end.setMonth(end.getMonth() + parseInt(duration));
-                      return end.toLocaleDateString();
-                    })()}
-                  </p>
-                </div>
+                <Card className="bg-muted/50">
+                  <CardContent className="pt-4">
+                    <p className="text-sm">
+                      <span className="font-semibold">End Date:</span>{' '}
+                      {(() => {
+                        const end = new Date(startDate);
+                        end.setMonth(end.getMonth() + parseInt(duration));
+                        return end.toLocaleDateString();
+                      })()}
+                    </p>
+                  </CardContent>
+                </Card>
               )}
 
               <div className="flex items-center gap-2">
@@ -386,55 +478,297 @@ export function CreateRPOServiceDialog({
           {/* Step 3: Fee Structure */}
           {step === 3 && (
             <div className="space-y-6">
-              <FeeStructureForm onAddFee={handleAddFee} />
+              <RPOFeeStructureBuilder 
+                fees={feeStructures} 
+                onChange={setFeeStructures} 
+              />
+            </div>
+          )}
 
-              {/* Fee List */}
-              {feeStructures.length > 0 && (
-                <div className="space-y-3">
-                  <h3 className="font-semibold">Fee Structures ({feeStructures.length})</h3>
+          {/* Step 4: Team Allocation */}
+          {step === 4 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Assign Consultants</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Select consultants to work on this RPO engagement. At least one must be assigned as Lead.
+                </p>
+              </div>
+              
+              <RPOTeamSelector
+                selectedConsultants={selectedConsultants}
+                onConsultantsChange={setSelectedConsultants}
+                requireLead={true}
+              />
+            </div>
+          )}
+
+          {/* Step 5: Target Metrics */}
+          {step === 5 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Define Target Metrics</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Set performance targets and success criteria for this RPO engagement.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="targetPlacements">Expected Placements *</Label>
+                  <Input
+                    id="targetPlacements"
+                    type="number"
+                    min="1"
+                    placeholder="e.g., 25"
+                    value={targetPlacements}
+                    onChange={(e) => setTargetPlacements(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="targetTimeToFill">Target Time-to-Fill (days)</Label>
+                  <Input
+                    id="targetTimeToFill"
+                    type="number"
+                    min="1"
+                    placeholder="e.g., 45"
+                    value={targetTimeToFill}
+                    onChange={(e) => setTargetTimeToFill(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {targetPlacements && duration && (
+                <Card className="bg-primary/5 border-primary/20">
+                  <CardContent className="pt-4">
+                    <p className="text-sm">
+                      <span className="font-semibold">Estimated placements per month:</span>{' '}
+                      {(parseInt(targetPlacements) / parseInt(duration)).toFixed(1)}
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="expectedRoles">Expected Roles</Label>
+                <Textarea
+                  id="expectedRoles"
+                  placeholder="Enter roles separated by commas (e.g., Sales Manager, Account Executive, BDR)"
+                  value={expectedRoles}
+                  onChange={(e) => setExpectedRoles(e.target.value)}
+                  rows={3}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Comma-separated list of roles you expect to recruit for
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="successCriteria">Success Criteria & KPIs</Label>
+                <Textarea
+                  id="successCriteria"
+                  placeholder="Define what success looks like for this engagement..."
+                  value={successCriteria}
+                  onChange={(e) => setSuccessCriteria(e.target.value)}
+                  rows={4}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Step 6: Review & Confirm */}
+          {step === 6 && (
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold mb-2">Review & Confirm</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Review all details before {isEditMode ? "updating" : "creating"} the RPO service.
+                </p>
+              </div>
+
+              {/* Basic Information */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base">Basic Information</CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => handleJumpToStep(1)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="grid grid-cols-2 gap-2">
+                    <span className="text-muted-foreground">Service Name:</span>
+                    <span className="font-medium">{serviceName}</span>
+                    <span className="text-muted-foreground">Country:</span>
+                    <span className="font-medium">{country}</span>
+                    <span className="text-muted-foreground">Client:</span>
+                    <span className="font-medium">{employer?.name}</span>
+                  </div>
+                  {description && (
+                    <>
+                      <Separator className="my-2" />
+                      <div>
+                        <span className="text-muted-foreground">Description:</span>
+                        <p className="mt-1">{description}</p>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Contract Terms */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base">Contract Terms</CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => handleJumpToStep(2)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="grid grid-cols-2 gap-2">
+                    <span className="text-muted-foreground">Start Date:</span>
+                    <span className="font-medium">{new Date(startDate).toLocaleDateString()}</span>
+                    <span className="text-muted-foreground">Duration:</span>
+                    <span className="font-medium">{duration} months</span>
+                    <span className="text-muted-foreground">End Date:</span>
+                    <span className="font-medium">
+                      {(() => {
+                        const end = new Date(startDate);
+                        end.setMonth(end.getMonth() + parseInt(duration));
+                        return end.toLocaleDateString();
+                      })()}
+                    </span>
+                    <span className="text-muted-foreground">Auto-Renew:</span>
+                    <span className="font-medium">{autoRenew ? 'Yes' : 'No'}</span>
+                    <span className="text-muted-foreground">Notice Period:</span>
+                    <span className="font-medium">{noticePeriod} days</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Fee Structure */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base">Fee Structure</CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => handleJumpToStep(3)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-3">
                   {feeStructures.map((fee) => (
-                    <div key={fee.id} className="border rounded-lg p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">{fee.name}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {fee.type.replace('-', ' ')}
-                            </Badge>
-                          </div>
-                          <div className="text-2xl font-bold">
-                            ${fee.amount.toLocaleString()}
-                            {fee.frequency && fee.frequency !== 'one-time' && (
-                              <span className="text-sm text-muted-foreground ml-2">
-                                / {fee.frequency}
-                              </span>
-                            )}
-                          </div>
-                          {fee.description && (
-                            <p className="text-sm text-muted-foreground">{fee.description}</p>
-                          )}
+                    <div key={fee.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <div>
+                        <div className="font-medium">{fee.name}</div>
+                        <div className="text-xs text-muted-foreground flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">{fee.type}</Badge>
+                          <span>{fee.frequency}</span>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleRemoveFee(fee.id)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
+                      </div>
+                      <div className="text-lg font-bold">
+                        ${fee.amount.toLocaleString()}
                       </div>
                     </div>
                   ))}
-
-                  <div className="border rounded-lg p-4 bg-primary/5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">Total Contract Value</span>
-                      <span className="text-2xl font-bold">
-                        ${calculateTotal().toLocaleString()}
-                      </span>
-                    </div>
+                  <Separator />
+                  <div className="flex items-center justify-between text-lg font-bold">
+                    <span>Total Contract Value</span>
+                    <span className="text-primary">${calculateTotal().toLocaleString()}</span>
                   </div>
-                </div>
-              )}
+                </CardContent>
+              </Card>
+
+              {/* Team */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base">Team ({selectedConsultants.length})</CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => handleJumpToStep(4)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {selectedConsultants.map((consultant) => (
+                    <div key={consultant.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                      <span className="font-medium">{consultant.name}</span>
+                      <Badge variant={consultant.role === 'lead' ? 'default' : 'secondary'}>
+                        {consultant.role}
+                      </Badge>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Target Metrics */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base">Target Metrics</CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => handleJumpToStep(5)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="grid grid-cols-2 gap-2">
+                    <span className="text-muted-foreground">Expected Placements:</span>
+                    <span className="font-medium">{targetPlacements}</span>
+                    {targetTimeToFill && (
+                      <>
+                        <span className="text-muted-foreground">Target Time-to-Fill:</span>
+                        <span className="font-medium">{targetTimeToFill} days</span>
+                      </>
+                    )}
+                  </div>
+                  {expectedRoles && (
+                    <>
+                      <Separator className="my-2" />
+                      <div>
+                        <span className="text-muted-foreground">Expected Roles:</span>
+                        <div className="flex flex-wrap gap-1 mt-2">
+                          {expectedRoles.split(',').map((role, idx) => (
+                            <Badge key={idx} variant="outline">{role.trim()}</Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Contacts */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-base">Contacts</CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => handleJumpToStep(1)}>
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  {(() => {
+                    const primaryContact = availableContacts.find(c => c.id === primaryContactId);
+                    return primaryContact ? (
+                      <div>
+                        <span className="text-muted-foreground">Primary Contact:</span>
+                        <div className="mt-1 font-medium">
+                          {primaryContact.firstName} {primaryContact.lastName} - {primaryContact.title}
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+                  {additionalContactIds.length > 0 && (
+                    <div>
+                      <span className="text-muted-foreground">Additional Contacts:</span>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {additionalContactIds.map(contactId => {
+                          const contact = availableContacts.find(c => c.id === contactId);
+                          return contact ? (
+                            <Badge key={contactId} variant="secondary">
+                              {contact.firstName} {contact.lastName}
+                            </Badge>
+                          ) : null;
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           )}
         </ScrollArea>
@@ -459,120 +793,12 @@ export function CreateRPOServiceDialog({
               </Button>
             ) : (
               <Button onClick={handleCreate}>
-                Create RPO Service
+                {isEditMode ? "Save Changes" : "Create RPO Service"}
               </Button>
             )}
           </div>
         </div>
       </SheetContent>
     </Sheet>
-  );
-}
-
-// Separate component for fee structure form
-function FeeStructureForm({ onAddFee }: { onAddFee: (fee: RPOFeeStructure) => void }) {
-  const [feeType, setFeeType] = useState<'monthly-retainer' | 'per-vacancy' | 'milestone' | 'custom'>('monthly-retainer');
-  const [feeName, setFeeName] = useState('');
-  const [feeAmount, setFeeAmount] = useState('');
-  const [feeFrequency, setFeeFrequency] = useState<'one-time' | 'monthly' | 'quarterly' | 'per-placement'>('monthly');
-  const [feeDescription, setFeeDescription] = useState('');
-
-  const handleAdd = () => {
-    if (!feeName || !feeAmount) {
-      toast.error("Please enter fee name and amount");
-      return;
-    }
-
-    const fee: RPOFeeStructure = {
-      id: `fee_${Date.now()}`,
-      type: feeType,
-      name: feeName,
-      amount: parseFloat(feeAmount),
-      frequency: feeFrequency,
-      description: feeDescription
-    };
-
-    onAddFee(fee);
-    
-    // Reset form
-    setFeeName('');
-    setFeeAmount('');
-    setFeeDescription('');
-  };
-
-  return (
-    <div className="border rounded-lg p-4">
-      <h3 className="font-semibold mb-4">Add Fee Structure</h3>
-      <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Fee Type</Label>
-            <Select value={feeType} onValueChange={(v: any) => setFeeType(v)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="monthly-retainer">Monthly Retainer</SelectItem>
-                <SelectItem value="per-vacancy">Per Vacancy</SelectItem>
-                <SelectItem value="milestone">Milestone</SelectItem>
-                <SelectItem value="custom">Custom</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Frequency</Label>
-            <Select value={feeFrequency} onValueChange={(v: any) => setFeeFrequency(v)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="one-time">One-time</SelectItem>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="quarterly">Quarterly</SelectItem>
-                <SelectItem value="per-placement">Per Placement</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Fee Name</Label>
-            <Input
-              placeholder="e.g., Monthly Retainer"
-              value={feeName}
-              onChange={(e) => setFeeName(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Amount ($)</Label>
-            <Input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="0.00"
-              value={feeAmount}
-              onChange={(e) => setFeeAmount(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Description (optional)</Label>
-          <Input
-            placeholder="Additional details..."
-            value={feeDescription}
-            onChange={(e) => setFeeDescription(e.target.value)}
-          />
-        </div>
-
-        <Button onClick={handleAdd} className="w-full">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Fee
-        </Button>
-      </div>
-    </div>
   );
 }

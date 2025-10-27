@@ -5,7 +5,7 @@ export type ServiceStage = 'initiated' | 'in-progress' | 'shortlisting' | 'inter
 
 export interface RPOFeeStructure {
   id: string;
-  type: 'monthly-retainer' | 'per-vacancy' | 'milestone' | 'custom';
+  type: 'monthly-retainer' | 'per-vacancy' | 'milestone' | 'one-time' | 'custom';
   name: string;
   amount: number;
   frequency?: 'one-time' | 'monthly' | 'quarterly' | 'per-placement';
