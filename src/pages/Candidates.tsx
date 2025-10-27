@@ -5,7 +5,7 @@ import { candidateTableColumns } from "@/components/candidates/CandidateTableCol
 import { CandidatesFilterBar } from "@/components/candidates/CandidatesFilterBar";
 import { CandidateStatsCard } from "@/components/candidates/CandidateStatsCard";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX } from "lucide-react";
+import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getCandidates } from "@/lib/mockCandidateStorage";
 import type { Candidate } from "@/types/entities";
@@ -106,12 +106,20 @@ export default function Candidates() {
               Manage candidate pool and placements
             </p>
           </div>
-          <Button asChild>
-            <Link to="/candidates/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Candidate
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild>
+              <Link to="/candidates/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Candidate
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/overview">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Dashboard
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive } from "lucide-react";
+import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3 } from "lucide-react";
 import { JobStatsCard } from "@/components/jobs/JobStatsCard";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { getJobs, deleteJob, getJobById } from "@/lib/mockJobStorage";
@@ -466,10 +466,18 @@ export default function Jobs() {
             <h1 className="text-3xl font-bold">Jobs</h1>
             <p className="text-muted-foreground">Create and manage job postings</p>
           </div>
-          <Button onClick={handleCreateJob}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Job
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={handleCreateJob}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Job
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/jobs">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Dashboard
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

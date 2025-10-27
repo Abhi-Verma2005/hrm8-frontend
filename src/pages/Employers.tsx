@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
-import { Plus, Download, Upload, Building, DollarSign, Briefcase, Clock } from "lucide-react";
+import { Plus, Download, Upload, Building, DollarSign, Briefcase, Clock, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DataTable } from "@/components/tables/DataTable";
 import { EmployerStatsCard } from "@/components/employers/EmployerStatsCard";
@@ -120,10 +121,18 @@ export default function Employers() {
               Manage employer relationships and accounts
             </p>
           </div>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Employer
-          </Button>
+          <div className="flex gap-2">
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Employer
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/financial">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Dashboard
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Stats Dashboard */}

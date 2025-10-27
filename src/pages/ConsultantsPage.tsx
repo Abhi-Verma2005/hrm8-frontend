@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Plus, Users, TrendingUp, DollarSign, Award, Upload, Download } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Plus, Users, TrendingUp, DollarSign, Award, Upload, Download, BarChart3 } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
@@ -69,10 +69,18 @@ export default function ConsultantsPage() {
             <h1 className="text-3xl font-bold">Consultants</h1>
             <p className="text-muted-foreground">Manage your consultant team</p>
           </div>
-          <Button onClick={() => navigate('/consultants/new')}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Consultant
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => navigate('/consultants/new')}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Consultant
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/consulting">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Dashboard
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
