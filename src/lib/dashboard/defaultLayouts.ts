@@ -47,7 +47,7 @@ export const DEFAULT_OVERVIEW_LAYOUT: DashboardLayout = {
         value: "$2.4M",
         change: "+18%",
         trend: "up",
-        variant: "success"
+        variant: "warning"
       },
       isVisible: true
     },
@@ -62,7 +62,7 @@ export const DEFAULT_OVERVIEW_LAYOUT: DashboardLayout = {
         value: "32",
         change: "+15%",
         trend: "up",
-        variant: "primary"
+        variant: "neutral"
       },
       isVisible: true
     },
@@ -365,7 +365,7 @@ export const DEFAULT_FINANCIAL_LAYOUT: DashboardLayout = {
         value: "$2.4M",
         change: "+18%",
         trend: "up",
-        variant: "success"
+        variant: "warning"
       },
       isVisible: true
     },
@@ -481,7 +481,7 @@ export const DEFAULT_CONSULTING_LAYOUT: DashboardLayout = {
         value: "32",
         change: "+15%",
         trend: "up",
-        variant: "primary"
+        variant: "neutral"
       },
       isVisible: true
     },
