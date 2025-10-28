@@ -42,17 +42,17 @@ export function EnhancedStatCard({
   menuItems = [],
 }: EnhancedStatCardProps) {
   const variantStyles = {
-    primary: "border-l-4 border-l-primary bg-gradient-to-br from-primary/5 to-transparent",
-    success: "border-l-4 border-l-success bg-gradient-to-br from-success/5 to-transparent",
-    warning: "border-l-4 border-l-warning bg-gradient-to-br from-warning/5 to-transparent",
-    neutral: "border-l-4 border-l-muted-foreground bg-card",
+    primary: "border-l-6 border-l-blue-500 bg-gradient-to-br from-blue-50/50 to-cyan-50/30",
+    success: "border-l-6 border-l-emerald-500 bg-gradient-to-br from-emerald-50/50 to-green-50/30",
+    warning: "border-l-6 border-l-orange-500 bg-gradient-to-br from-orange-50/50 to-amber-50/30",
+    neutral: "border-l-6 border-l-purple-500 bg-gradient-to-br from-purple-50/50 to-indigo-50/30",
   };
 
   const iconBgStyles = {
-    primary: "bg-gradient-to-br from-primary to-primary-glow text-primary-foreground",
-    success: "bg-gradient-to-br from-success to-success/80 text-white",
-    warning: "bg-gradient-to-br from-warning to-warning/80 text-white",
-    neutral: "bg-muted text-muted-foreground",
+    primary: "bg-blue-500 text-white shadow-lg shadow-blue-500/30",
+    success: "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30",
+    warning: "bg-orange-500 text-white shadow-lg shadow-orange-500/30",
+    neutral: "bg-purple-500 text-white shadow-lg shadow-purple-500/30",
   };
 
   return (
