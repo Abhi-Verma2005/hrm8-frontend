@@ -12,7 +12,7 @@ const data = [
 
 export function RevenueExpenseChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Revenue vs Expenses</CardTitle>
         <CardDescription>Revenue and expense trends (in thousands)</CardDescription>

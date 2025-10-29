@@ -12,7 +12,7 @@ const data = [
 
 export function LeaveAnalysisChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Leave Analysis</CardTitle>
         <CardDescription>Leave trends and types</CardDescription>

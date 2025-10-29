@@ -12,7 +12,7 @@ const data = [
 
 export function AttendanceTrendsChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Attendance Trends</CardTitle>
         <CardDescription>Daily attendance patterns over time</CardDescription>

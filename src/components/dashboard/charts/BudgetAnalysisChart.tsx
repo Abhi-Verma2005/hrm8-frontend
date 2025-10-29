@@ -12,7 +12,7 @@ const data = [
 
 export function BudgetAnalysisChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Budget Analysis</CardTitle>
         <CardDescription>Budget vs actual spending (in thousands)</CardDescription>

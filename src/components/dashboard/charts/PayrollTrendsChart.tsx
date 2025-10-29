@@ -12,7 +12,7 @@ const data = [
 
 export function PayrollTrendsChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Payroll Trends</CardTitle>
         <CardDescription>Payroll cost over time (in thousands)</CardDescription>

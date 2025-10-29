@@ -19,7 +19,7 @@ const COLORS = [
 
 export function ClientDistributionChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Client Distribution</CardTitle>
         <CardDescription>Clients by industry</CardDescription>

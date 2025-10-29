@@ -10,7 +10,7 @@ const data = [
 
 export function RevenueForecastChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Revenue Forecast</CardTitle>
         <CardDescription>Projected revenue by quarter (in thousands)</CardDescription>

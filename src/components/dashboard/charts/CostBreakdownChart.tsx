@@ -21,7 +21,7 @@ const COLORS = [
 
 export function CostBreakdownChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Cost Breakdown</CardTitle>
         <CardDescription>Expenses by category</CardDescription>

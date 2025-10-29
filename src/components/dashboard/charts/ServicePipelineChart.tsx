@@ -12,7 +12,7 @@ const data = [
 
 export function ServicePipelineChart() {
   return (
-    <Card>
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Service Pipeline</CardTitle>
         <CardDescription>Projects by stage</CardDescription>

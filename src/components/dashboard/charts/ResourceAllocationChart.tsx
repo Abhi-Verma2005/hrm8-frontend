@@ -11,7 +11,7 @@ const data = [
 
 export function ResourceAllocationChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Resource Allocation</CardTitle>
         <CardDescription>Team allocation across projects (%)</CardDescription>

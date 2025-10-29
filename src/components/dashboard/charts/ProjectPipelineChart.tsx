@@ -11,7 +11,7 @@ const data = [
 
 export function ProjectPipelineChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Project Pipeline</CardTitle>
         <CardDescription>Projects by status</CardDescription>
