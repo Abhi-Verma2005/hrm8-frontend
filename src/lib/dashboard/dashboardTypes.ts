@@ -1,7 +1,7 @@
 import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, Target, Building2, type LucideIcon } from "lucide-react";
 import type { WidgetType } from "./widgetRegistry";
 
-export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting' | 'recruitment-services' | 'employers';
+export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting' | 'recruitment-services' | 'employers' | 'candidates';
 
 export interface DashboardMetadata {
   id: DashboardType;
@@ -140,6 +140,26 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
       'chart-client-distribution',
       'chart-revenue-expense',
       'chart-budget-analysis',
+      'activity-feed'
+    ]
+  },
+  candidates: {
+    id: 'candidates',
+    name: 'Candidates',
+    description: 'Track candidate pipeline and talent pool analytics',
+    icon: UserCheck,
+    defaultRoute: '/dashboard/candidates',
+    availableWidgets: [
+      'stat-total-candidates',
+      'stat-active-candidates',
+      'stat-placed-candidates',
+      'stat-candidate-conversion-rate',
+      'chart-candidate-pipeline',
+      'chart-candidate-source-distribution',
+      'chart-candidate-experience-breakdown',
+      'chart-candidate-placement-trends',
+      'chart-top-skills-demand',
+      'chart-salary-expectations',
       'activity-feed'
     ]
   }

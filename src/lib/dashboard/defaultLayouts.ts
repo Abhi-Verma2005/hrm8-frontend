@@ -814,6 +814,140 @@ export const DEFAULT_EMPLOYERS_LAYOUT: DashboardLayout = {
   updatedAt: new Date()
 };
 
+export const DEFAULT_CANDIDATES_LAYOUT: DashboardLayout = {
+  id: 'candidates',
+  name: 'Candidates Dashboard',
+  dashboardType: 'candidates',
+  widgets: [
+    {
+      id: 'stat-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Total Candidates',
+      gridArea: { x: 0, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Total Candidates",
+        value: "150",
+        change: "+12%",
+        trend: "up",
+        variant: "primary"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-2',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Active Candidates',
+      gridArea: { x: 3, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Active Candidates",
+        value: "45",
+        change: "+8%",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-3',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Placed Candidates',
+      gridArea: { x: 6, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Placed Candidates",
+        value: "12",
+        change: "+15%",
+        trend: "up",
+        variant: "warning"
+      },
+      isVisible: true
+    },
+    {
+      id: 'stat-4',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Conversion Rate',
+      gridArea: { x: 9, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Conversion Rate",
+        value: "18.5%",
+        change: "+2.3%",
+        trend: "up",
+        variant: "neutral"
+      },
+      isVisible: true
+    },
+    {
+      id: 'chart-1',
+      type: 'chart',
+      component: 'CandidatePipelineChart',
+      title: 'Candidate Pipeline',
+      gridArea: { x: 0, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-2',
+      type: 'chart',
+      component: 'CandidateSourceDistributionChart',
+      title: 'Candidate Sources',
+      gridArea: { x: 6, y: 1, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-3',
+      type: 'chart',
+      component: 'CandidateExperienceBreakdownChart',
+      title: 'Experience Breakdown',
+      gridArea: { x: 0, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-4',
+      type: 'chart',
+      component: 'CandidatePlacementTrendsChart',
+      title: 'Placement Trends',
+      gridArea: { x: 6, y: 3, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-5',
+      type: 'chart',
+      component: 'TopSkillsDemandChart',
+      title: 'Top Skills in Demand',
+      gridArea: { x: 0, y: 5, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'chart-6',
+      type: 'chart',
+      component: 'SalaryExpectationsChart',
+      title: 'Salary Expectations',
+      gridArea: { x: 6, y: 5, w: 6, h: 2 },
+      props: {},
+      isVisible: true
+    },
+    {
+      id: 'activity-feed-1',
+      type: 'activity',
+      component: 'RecentActivityCard',
+      title: 'Recent Activity',
+      gridArea: { x: 0, y: 7, w: 12, h: 2 },
+      props: {},
+      isVisible: true,
+      isLocked: true
+    }
+  ],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
 export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   overview: DEFAULT_OVERVIEW_LAYOUT,
   jobs: DEFAULT_JOBS_LAYOUT,
@@ -821,5 +955,6 @@ export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   financial: DEFAULT_FINANCIAL_LAYOUT,
   consulting: DEFAULT_CONSULTING_LAYOUT,
   'recruitment-services': DEFAULT_RECRUITMENT_SERVICES_LAYOUT,
-  employers: DEFAULT_EMPLOYERS_LAYOUT
+  employers: DEFAULT_EMPLOYERS_LAYOUT,
+  candidates: DEFAULT_CANDIDATES_LAYOUT
 };

@@ -20,6 +20,12 @@ import { ProjectPipelineChart } from './charts/ProjectPipelineChart';
 import { ClientDistributionChart } from './charts/ClientDistributionChart';
 import { ResourceAllocationChart } from './charts/ResourceAllocationChart';
 import { RevenueForecastChart } from './charts/RevenueForecastChart';
+import { CandidatePipelineChart } from './charts/CandidatePipelineChart';
+import { CandidateSourceDistributionChart } from './charts/CandidateSourceDistributionChart';
+import { CandidateExperienceBreakdownChart } from './charts/CandidateExperienceBreakdownChart';
+import { CandidatePlacementTrendsChart } from './charts/CandidatePlacementTrendsChart';
+import { TopSkillsDemandChart } from './charts/TopSkillsDemandChart';
+import { SalaryExpectationsChart } from './charts/SalaryExpectationsChart';
 import { RecentActivityCard } from './RecentActivityCard';
 import { 
   Users, Briefcase, FileText, UserCheck, Eye, Plus, Filter, Download, XCircle, CheckCircle,
@@ -51,6 +57,12 @@ const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
   ClientDistributionChart,
   ResourceAllocationChart,
   RevenueForecastChart,
+  CandidatePipelineChart,
+  CandidateSourceDistributionChart,
+  CandidateExperienceBreakdownChart,
+  CandidatePlacementTrendsChart,
+  TopSkillsDemandChart,
+  SalaryExpectationsChart,
   RecentActivityCard
 };
 

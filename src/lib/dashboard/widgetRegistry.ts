@@ -57,6 +57,16 @@ export type WidgetType =
   | 'chart-consultant-performance'
   | 'chart-service-revenue-trends'
   | 'chart-project-completion-rate'
+  // Candidates widgets
+  | 'stat-active-candidates'
+  | 'stat-placed-candidates'
+  | 'stat-candidate-conversion-rate'
+  | 'chart-candidate-pipeline'
+  | 'chart-candidate-source-distribution'
+  | 'chart-candidate-experience-breakdown'
+  | 'chart-candidate-placement-trends'
+  | 'chart-top-skills-demand'
+  | 'chart-salary-expectations'
   // Shared
   | 'activity-feed';
 
@@ -791,6 +801,137 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 4 },
     allowedDashboards: ['recruitment-services']
+  },
+
+  // ===== CANDIDATES WIDGETS =====
+  'stat-active-candidates': {
+    id: 'stat-active-candidates',
+    name: 'Active Candidates',
+    description: 'Candidates actively seeking opportunities',
+    category: 'stat',
+    component: 'EnhancedStatCard',
+    icon: UserCheck,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      title: "Active Candidates",
+      value: "45",
+      change: "+8%",
+      trend: "up",
+      variant: "success"
+    },
+    allowedDashboards: ['candidates']
+  },
+  'stat-placed-candidates': {
+    id: 'stat-placed-candidates',
+    name: 'Placed Candidates',
+    description: 'Successfully placed candidates',
+    category: 'stat',
+    component: 'EnhancedStatCard',
+    icon: CheckCircle,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      title: "Placed Candidates",
+      value: "12",
+      change: "+15%",
+      trend: "up",
+      variant: "warning"
+    },
+    allowedDashboards: ['candidates']
+  },
+  'stat-candidate-conversion-rate': {
+    id: 'stat-candidate-conversion-rate',
+    name: 'Conversion Rate',
+    description: 'Application to placement conversion rate',
+    category: 'stat',
+    component: 'EnhancedStatCard',
+    icon: Percent,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      title: "Conversion Rate",
+      value: "18.5%",
+      change: "+2.3%",
+      trend: "up",
+      variant: "neutral"
+    },
+    allowedDashboards: ['candidates']
+  },
+  'chart-candidate-pipeline': {
+    id: 'chart-candidate-pipeline',
+    name: 'Candidate Pipeline',
+    description: 'Candidates by recruitment stage',
+    category: 'chart',
+    component: 'CandidatePipelineChart',
+    icon: TrendingUp,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 4 },
+    allowedDashboards: ['candidates']
+  },
+  'chart-candidate-source-distribution': {
+    id: 'chart-candidate-source-distribution',
+    name: 'Candidate Sources',
+    description: 'Distribution of candidate sources',
+    category: 'chart',
+    component: 'CandidateSourceDistributionChart',
+    icon: PieChart,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 4 },
+    allowedDashboards: ['candidates']
+  },
+  'chart-candidate-experience-breakdown': {
+    id: 'chart-candidate-experience-breakdown',
+    name: 'Experience Breakdown',
+    description: 'Candidates by experience level',
+    category: 'chart',
+    component: 'CandidateExperienceBreakdownChart',
+    icon: BarChart3,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 4 },
+    allowedDashboards: ['candidates']
+  },
+  'chart-candidate-placement-trends': {
+    id: 'chart-candidate-placement-trends',
+    name: 'Placement Trends',
+    description: 'Candidate placements over time',
+    category: 'chart',
+    component: 'CandidatePlacementTrendsChart',
+    icon: TrendingUp,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 4 },
+    allowedDashboards: ['candidates']
+  },
+  'chart-top-skills-demand': {
+    id: 'chart-top-skills-demand',
+    name: 'Top Skills in Demand',
+    description: 'Most common candidate skills',
+    category: 'chart',
+    component: 'TopSkillsDemandChart',
+    icon: Target,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 4 },
+    allowedDashboards: ['candidates']
+  },
+  'chart-salary-expectations': {
+    id: 'chart-salary-expectations',
+    name: 'Salary Expectations',
+    description: 'Salary ranges by experience level',
+    category: 'chart',
+    component: 'SalaryExpectationsChart',
+    icon: DollarSign,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 4 },
+    allowedDashboards: ['candidates']
   },
 
   // ===== SHARED WIDGETS =====
