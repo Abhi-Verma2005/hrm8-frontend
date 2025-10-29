@@ -10,7 +10,7 @@ const data = [
 
 export function ServiceTypeDistributionChart() {
   return (
-    <Card>
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Service Type Distribution</CardTitle>
         <CardDescription>Active projects by type</CardDescription>

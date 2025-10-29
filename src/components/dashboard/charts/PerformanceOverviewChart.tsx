@@ -11,7 +11,7 @@ const data = [
 
 export function PerformanceOverviewChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Performance Overview</CardTitle>
         <CardDescription>Employee performance metrics by department</CardDescription>

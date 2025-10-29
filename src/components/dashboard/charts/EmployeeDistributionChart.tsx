@@ -21,7 +21,7 @@ const COLORS = [
 
 export function EmployeeDistributionChart() {
   return (
-    <Card className="h-full">
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Employee Distribution</CardTitle>
         <CardDescription>Employees by department</CardDescription>

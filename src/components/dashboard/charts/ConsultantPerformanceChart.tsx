@@ -11,7 +11,7 @@ const data = [
 
 export function ConsultantPerformanceChart() {
   return (
-    <Card>
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Consultant Performance</CardTitle>
         <CardDescription>Active projects and placements by consultant</CardDescription>
