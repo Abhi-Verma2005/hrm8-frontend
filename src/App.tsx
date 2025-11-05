@@ -25,6 +25,7 @@ import ConsultantDetail from "./pages/ConsultantDetail";
 import RecruitmentServices from "./pages/RecruitmentServices";
 import ServiceProjectDetail from "./pages/ServiceProjectDetail";
 import HRMS from "./pages/HRMS";
+import EmployeeDetail from "./pages/EmployeeDetail";
 import Inbox from "./pages/Inbox";
 import Users from "./pages/Users";
 import Finance from "./pages/Finance";
@@ -64,6 +65,7 @@ function AppContent() {
             <Route path="/recruitment-services" element={<RecruitmentServices />} />
             <Route path="/recruitment-services/:id" element={<ServiceProjectDetail />} />
             <Route path="/hrms" element={<HRMS />} />
+            <Route path="/hrms/employees/:id" element={<EmployeeDetail />} />
             <Route path="/applications" element={<Applications />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />

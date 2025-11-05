@@ -1,43 +1,67 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Heart, BarChart3 } from "lucide-react";
+import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { DataTable } from "@/components/tables/DataTable";
+import { employeeColumns } from "@/components/hrms/EmployeeTableColumns";
+import { EmployeesFilterBar } from "@/components/hrms/EmployeesFilterBar";
+import { getEmployees } from "@/lib/employeeStorage";
 
 export default function HRMS() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [departmentFilter, setDepartmentFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
+
+  const employees = getEmployees();
+
+  const filteredEmployees = useMemo(() => {
+    return employees.filter(employee => {
+      const matchesSearch = 
+        employee.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        employee.employeeId.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesStatus = statusFilter === "all" || employee.status === statusFilter;
+      const matchesDepartment = departmentFilter === "all" || employee.department === departmentFilter;
+      const matchesLocation = locationFilter === "all" || employee.location === locationFilter;
+
+      return matchesSearch && matchesStatus && matchesDepartment && matchesLocation;
+    });
+  }, [employees, searchQuery, statusFilter, departmentFilter, locationFilter]);
+
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">HRMS</h1>
-            <p className="text-muted-foreground">Complete human resource management system</p>
+            <h1 className="text-3xl font-bold">Employee Records</h1>
+            <p className="text-muted-foreground">
+              Manage employee information, documents, and history
+            </p>
           </div>
-          <Button variant="outline" asChild>
-            <Link to="/dashboard/hrms">
-              <BarChart3 className="mr-2 h-4 w-4" />
-              View Dashboard
-            </Link>
+          <Button>
+            <Plus className="mr-2 h-4 w-4" />
+            Add Employee
           </Button>
         </div>
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                <Heart className="h-6 w-6 text-foreground" />
-              </div>
-              <div>
-                <CardTitle>Coming Soon</CardTitle>
-                <CardDescription>HRMS module with comprehensive HR features is under development</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              This module will provide employee management, attendance, payroll, performance reviews, and more.
-            </p>
-          </CardContent>
-        </Card>
+
+        <EmployeesFilterBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          departmentFilter={departmentFilter}
+          onDepartmentFilterChange={setDepartmentFilter}
+          locationFilter={locationFilter}
+          onLocationFilterChange={setLocationFilter}
+        />
+
+        <DataTable
+          columns={employeeColumns}
+          data={filteredEmployees}
+        />
       </div>
     </DashboardPageLayout>
   );
