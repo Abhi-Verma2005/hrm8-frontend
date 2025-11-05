@@ -281,31 +281,60 @@ export const mockFeedback360: Feedback360[] = [
     requestedByName: 'Michael Chen',
     status: 'in-progress',
     dueDate: '2025-02-15',
-    feedbackProviders: [
+    providers: [
       {
         id: 'fp1',
         providerId: '5',
         providerName: 'Michael Chen',
-        providerType: 'manager',
+        relationship: 'Manager',
+        email: 'michael.chen@example.com',
         status: 'submitted',
         submittedAt: '2025-01-20T14:30:00Z',
-        responses: [
-          { questionId: 'q1', question: 'Leadership skills', rating: 5, comments: 'Excellent technical leader' }
-        ]
       },
       {
         id: 'fp2',
         providerId: '2',
         providerName: 'David Martinez',
-        providerType: 'peer',
+        relationship: 'Peer',
+        email: 'david.martinez@example.com',
         status: 'pending'
       },
       {
         id: 'fp3',
         providerId: '3',
         providerName: 'Emily Chen',
-        providerType: 'peer',
+        relationship: 'Peer',
+        email: 'emily.chen@example.com',
         status: 'pending'
+      }
+    ],
+    questions: [
+      { id: 'q1', question: 'How would you rate their leadership skills?' },
+      { id: 'q2', question: 'How effective is their communication?' },
+      { id: 'q3', question: 'How well do they collaborate with the team?' }
+    ],
+    responses: [
+      {
+        id: 'r1',
+        providerId: '5',
+        providerName: 'Michael Chen',
+        relationship: 'Manager',
+        questionId: 'q1',
+        question: 'How would you rate their leadership skills?',
+        rating: 5,
+        comment: 'Excellent technical leader with great mentoring skills',
+        submittedAt: '2025-01-20T14:30:00Z',
+      },
+      {
+        id: 'r2',
+        providerId: '5',
+        providerName: 'Michael Chen',
+        relationship: 'Manager',
+        questionId: 'q2',
+        question: 'How effective is their communication?',
+        rating: 5,
+        comment: 'Clear and concise communicator',
+        submittedAt: '2025-01-20T14:30:00Z',
       }
     ],
     createdAt: '2025-01-15T09:00:00Z',

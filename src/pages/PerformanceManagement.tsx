@@ -10,6 +10,7 @@ import { Feedback360Card } from "@/components/performance/Feedback360Card";
 import { GoalFormDialog } from "@/components/performance/GoalFormDialog";
 import { GoalsFilterBar } from "@/components/performance/GoalsFilterBar";
 import { Feedback360RequestDialog } from "@/components/performance/Feedback360RequestDialog";
+import { Feedback360ResponseDialog } from "@/components/performance/Feedback360ResponseDialog";
 import { ReviewCompletionDialog } from "@/components/performance/ReviewCompletionDialog";
 import { GoalAnalyticsDashboard } from "@/components/performance/analytics/GoalAnalyticsDashboard";
 import { PerformanceReportExportDialog } from "@/components/performance/PerformanceReportExportDialog";
@@ -22,6 +23,8 @@ export default function PerformanceManagement() {
   const [goalDialogOpen, setGoalDialogOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<PerformanceGoal | undefined>(undefined);
   const [feedback360DialogOpen, setFeedback360DialogOpen] = useState(false);
+  const [feedbackResponseDialogOpen, setFeedbackResponseDialogOpen] = useState(false);
+  const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   
@@ -358,7 +361,22 @@ export default function PerformanceManagement() {
               ) : (
                 <div className="grid gap-4 md:grid-cols-2">
                   {my360Feedback.map((feedback) => (
-                    <Feedback360Card key={feedback.id} feedback={feedback} />
+                    <div key={feedback.id} className="relative">
+                      <Feedback360Card feedback={feedback} />
+                      {feedback.status === "pending" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="absolute top-4 right-4"
+                          onClick={() => {
+                            setSelectedFeedback(feedback);
+                            setFeedbackResponseDialogOpen(true);
+                          }}
+                        >
+                          Respond to Feedback
+                        </Button>
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
@@ -384,6 +402,16 @@ export default function PerformanceManagement() {
           onOpenChange={setFeedback360DialogOpen}
           onSuccess={() => setRefreshKey((prev) => prev + 1)}
         />
+
+        {selectedFeedback && (
+          <Feedback360ResponseDialog
+            open={feedbackResponseDialogOpen}
+            onOpenChange={setFeedbackResponseDialogOpen}
+            feedback={selectedFeedback}
+            providerId="current-user-id"
+            providerName="Current User"
+          />
+        )}
 
         <ReviewCompletionDialog
           open={reviewDialogOpen}

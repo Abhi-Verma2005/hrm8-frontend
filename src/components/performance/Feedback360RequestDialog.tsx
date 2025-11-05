@@ -136,18 +136,17 @@ export function Feedback360RequestDialog({
         requestedByName: "Current User",
         dueDate: dueDate.toISOString(),
         createdAt: new Date().toISOString(),
-        feedbackProviders: providers.map((p, index) => ({
+        providers: providers.map((p, index) => ({
           id: `provider-${Date.now()}-${index}`,
           providerId: `pid-${Date.now()}-${index}`,
           providerName: p.name,
-          providerType: p.relationship as any,
+          relationship: p.relationship,
+          email: p.email,
           status: "pending" as const,
-          responses: questions.map(q => ({
-            questionId: q.id,
-            question: q.question,
-            rating: undefined,
-            comments: undefined,
-          })),
+        })),
+        questions: questions.map((q, index) => ({
+          id: `question-${Date.now()}-${index}`,
+          question: q.question,
         })),
       };
 

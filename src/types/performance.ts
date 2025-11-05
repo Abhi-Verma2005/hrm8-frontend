@@ -100,28 +100,40 @@ export interface Feedback360 {
   reviewCycle: string;
   requestedBy: string;
   requestedByName: string;
-  feedbackProviders: FeedbackProvider[];
+  providers: FeedbackProvider[];
+  questions: FeedbackQuestion[];
+  responses?: FeedbackResponse[];
   status: 'pending' | 'in-progress' | 'completed';
   dueDate: string;
   createdAt: string;
   completedAt?: string;
 }
 
+export interface FeedbackQuestion {
+  id: string;
+  question: string;
+}
+
 export interface FeedbackProvider {
   id: string;
   providerId: string;
   providerName: string;
-  providerType: FeedbackType;
+  relationship: string;
+  email: string;
   status: 'pending' | 'submitted';
   submittedAt?: string;
-  responses?: FeedbackResponse[];
 }
 
 export interface FeedbackResponse {
+  id: string;
+  providerId: string;
+  providerName: string;
+  relationship: string;
   questionId: string;
   question: string;
-  rating?: number;
-  comments?: string;
+  rating: number;
+  comment: string;
+  submittedAt: string;
 }
 
 export interface ReviewSchedule {

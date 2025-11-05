@@ -10,8 +10,8 @@ interface Feedback360CardProps {
 }
 
 export function Feedback360Card({ feedback }: Feedback360CardProps) {
-  const submittedCount = feedback.feedbackProviders.filter(p => p.status === 'submitted').length;
-  const totalCount = feedback.feedbackProviders.length;
+  const submittedCount = feedback.providers.filter(p => p.status === 'submitted').length;
+  const totalCount = feedback.providers.length;
   const completionPercentage = (submittedCount / totalCount) * 100;
 
   const getStatusBadge = () => {
@@ -52,12 +52,12 @@ export function Feedback360Card({ feedback }: Feedback360CardProps) {
         </div>
 
         <div className="space-y-2">
-          {feedback.feedbackProviders.map((provider) => (
+          {feedback.providers.map((provider) => (
             <div key={provider.id} className="flex items-center justify-between text-sm p-2 rounded bg-muted/50">
               <div className="flex items-center gap-2">
                 <span className="font-medium">{provider.providerName}</span>
                 <Badge variant="outline" className="text-xs">
-                  {provider.providerType}
+                  {provider.relationship}
                 </Badge>
               </div>
               {provider.status === 'submitted' ? (
