@@ -24,6 +24,7 @@ const operationsNavItems = [
   { title: "Recruitment Services", url: "/recruitment-services", icon: Target },
   { title: "HRMS", url: "/hrms", icon: Heart },
   { title: "Leave Management", url: "/leave", icon: CalendarDays },
+  { title: "Performance", url: "/performance", icon: Target },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Calendar", url: "/calendar", icon: Calendar },
   { title: "Inbox", url: "/inbox", icon: Mail },

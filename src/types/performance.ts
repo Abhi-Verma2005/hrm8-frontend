@@ -1,134 +1,152 @@
+export type GoalStatus = 'not-started' | 'in-progress' | 'completed' | 'on-hold' | 'cancelled';
+export type GoalPriority = 'low' | 'medium' | 'high' | 'critical';
+export type ReviewCycle = 'monthly' | 'quarterly' | 'bi-annual' | 'annual';
+export type ReviewStatus = 'not-started' | 'in-progress' | 'completed' | 'overdue';
+export type FeedbackType = 'self' | 'manager' | 'peer' | 'direct-report' | 'other';
+
+export interface PerformanceGoal {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  title: string;
+  description: string;
+  category: string;
+  priority: GoalPriority;
+  status: GoalStatus;
+  startDate: string;
+  targetDate: string;
+  completedDate?: string;
+  progress: number; // 0-100
+  kpis: GoalKPI[];
+  alignedWith?: string; // Team or org goal ID
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GoalKPI {
+  id: string;
+  name: string;
+  target: number;
+  current: number;
+  unit: string;
+  description?: string;
+}
+
+export interface PerformanceReviewTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  cycle: ReviewCycle;
+  sections: ReviewSection[];
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReviewSection {
+  id: string;
+  title: string;
+  description?: string;
+  questions: ReviewQuestion[];
+  weight: number; // Percentage weight in overall score
+}
+
+export interface ReviewQuestion {
+  id: string;
+  question: string;
+  type: 'rating' | 'text' | 'yes-no' | 'multiple-choice';
+  required: boolean;
+  options?: string[]; // For multiple choice
+  helpText?: string;
+}
+
+export interface PerformanceReview {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  reviewerId: string;
+  reviewerName: string;
+  templateId: string;
+  templateName: string;
+  reviewPeriodStart: string;
+  reviewPeriodEnd: string;
+  status: ReviewStatus;
+  dueDate: string;
+  completedDate?: string;
+  overallRating?: number; // 1-5
+  responses: ReviewResponse[];
+  strengths?: string;
+  areasForImprovement?: string;
+  goals?: string;
+  managerComments?: string;
+  employeeComments?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReviewResponse {
+  sectionId: string;
+  questionId: string;
+  rating?: number;
+  textResponse?: string;
+  selectedOptions?: string[];
+}
+
+export interface Feedback360 {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  reviewCycle: string;
+  requestedBy: string;
+  requestedByName: string;
+  feedbackProviders: FeedbackProvider[];
+  status: 'pending' | 'in-progress' | 'completed';
+  dueDate: string;
+  createdAt: string;
+  completedAt?: string;
+}
+
+export interface FeedbackProvider {
+  id: string;
+  providerId: string;
+  providerName: string;
+  providerType: FeedbackType;
+  status: 'pending' | 'submitted';
+  submittedAt?: string;
+  responses?: FeedbackResponse[];
+}
+
+export interface FeedbackResponse {
+  questionId: string;
+  question: string;
+  rating?: number;
+  comments?: string;
+}
+
+export interface ReviewSchedule {
+  id: string;
+  name: string;
+  templateId: string;
+  templateName: string;
+  cycle: ReviewCycle;
+  nextReviewDate: string;
+  employeeIds: string[]; // If empty, applies to all
+  autoAssignToManager: boolean;
+  sendReminders: boolean;
+  reminderDaysBefore: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface PerformanceMetrics {
-  consultantId: string;
-  period: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'yearly' | 'all-time';
-  startDate: string;
-  endDate: string;
-  
-  // Placement Metrics
-  totalPlacements: number;
-  successfulPlacements: number;
-  failedPlacements: number;
-  pendingPlacements: number;
-  successRate: number;
-  
-  // Revenue Metrics
-  totalRevenue: number;
-  averageRevenuePerPlacement: number;
-  targetRevenue?: number;
-  revenueAchievement?: number; // percentage of target
-  
-  // Time Metrics
-  averageDaysToFill: number;
-  fastestPlacement: number;
-  slowestPlacement: number;
-  
-  // Activity Metrics
-  totalApplicationsReviewed: number;
-  totalInterviewsScheduled: number;
-  totalCandidatesPresented: number;
-  totalClientMeetings: number;
-  
-  // Quality Metrics
-  clientSatisfactionScore?: number;
-  candidateSatisfactionScore?: number;
-  retentionRate?: number;
-  offerAcceptanceRate?: number;
-  
-  // Commission Metrics
-  totalCommissionsEarned: number;
-  pendingCommissions: number;
-  averageCommissionPerPlacement: number;
-  
-  // Ranking
-  teamRank?: number;
-  companyRank?: number;
-  
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface PlacementRecord {
-  id: string;
-  consultantId: string;
-  consultantName: string;
-  
-  // Entities
-  candidateId: string;
-  candidateName: string;
-  employerId: string;
-  employerName: string;
-  jobId: string;
-  jobTitle: string;
-  
-  // Financial
-  placementFee: number;
-  salary: number;
-  commissionAmount: number;
-  currency: string;
-  
-  // Timeline
-  jobPostedDate: string;
-  candidateAppliedDate: string;
-  firstInterviewDate?: string;
-  offerDate?: string;
-  startDate: string;
-  
-  // Metrics
-  daysToFill: number;
-  applicantsReviewed: number;
-  candidatesPresented: number;
-  interviewsScheduled: number;
-  
-  // Status
-  status: 'active' | 'completed' | 'terminated' | 'replaced';
-  replacementReason?: string;
-  
-  // Satisfaction
-  clientSatisfaction?: number;
-  candidateSatisfaction?: number;
-  
-  // Metadata
-  notes?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface PerformanceTarget {
-  id: string;
-  consultantId: string;
-  period: 'monthly' | 'quarterly' | 'yearly';
-  year: number;
-  month?: number;
-  quarter?: number;
-  
-  // Revenue Targets
-  revenueTarget: number;
-  placementsTarget: number;
-  
-  // Quality Targets
-  successRateTarget: number;
-  satisfactionTarget: number;
-  daysToFillTarget: number;
-  
-  // Progress
-  currentRevenue: number;
-  currentPlacements: number;
-  achievement: number; // percentage
-  
-  status: 'on-track' | 'at-risk' | 'achieved' | 'missed';
-  
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface LeaderboardEntry {
-  rank: number;
-  consultantId: string;
-  consultantName: string;
-  consultantPhoto?: string;
-  consultantType: string;
-  metric: number;
-  metricType: 'placements' | 'revenue' | 'success-rate' | 'satisfaction';
-  period: string;
-  badge?: 'gold' | 'silver' | 'bronze';
+  employeeId: string;
+  averageRating: number;
+  goalsCompleted: number;
+  goalsInProgress: number;
+  totalGoals: number;
+  lastReviewDate?: string;
+  nextReviewDate?: string;
+  improvementTrend: 'improving' | 'stable' | 'declining' | 'new';
 }
