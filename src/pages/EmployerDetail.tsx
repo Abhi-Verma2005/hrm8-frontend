@@ -60,7 +60,6 @@ export default function EmployerDetail() {
 
   const handleEdit = () => {
     // TODO: Open edit drawer/dialog
-    console.log("Edit employer:", employer.id);
   };
 
   const handleEmployerUpdate = (updates: Partial<Employer>) => {

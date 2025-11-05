@@ -53,7 +53,6 @@ export default function ConsultantDetail() {
 
   const handleEdit = () => {
     // TODO: Open edit drawer/dialog
-    console.log('Edit consultant:', consultant.id);
   };
 
   const handleConsultantUpdate = (updates: Partial<Consultant>) => {

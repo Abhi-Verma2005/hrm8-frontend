@@ -1,8 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 
-interface CandidateStatsCardProps {
+interface StatsCardProps {
   title: string;
   value: string | number;
   icon: LucideIcon;
@@ -11,20 +12,24 @@ interface CandidateStatsCardProps {
     value: number;
     isPositive: boolean;
   };
+  change?: string;
   isLoading?: boolean;
+  className?: string;
 }
 
-export function CandidateStatsCard({
+export function StatsCard({
   title,
   value,
   icon: Icon,
   description,
   trend,
+  change,
   isLoading,
-}: CandidateStatsCardProps) {
+  className
+}: StatsCardProps) {
   if (isLoading) {
     return (
-      <Card>
+      <Card className={cn("shadow-md", className)}>
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="space-y-2 flex-1">
@@ -40,7 +45,7 @@ export function CandidateStatsCard({
   }
 
   return (
-    <Card>
+    <Card className={cn("shadow-md", className)}>
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div className="space-y-1">
@@ -53,6 +58,9 @@ export function CandidateStatsCard({
               <p className={`text-xs font-medium ${trend.isPositive ? 'text-success' : 'text-destructive'}`}>
                 {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}% from last month
               </p>
+            )}
+            {change && (
+              <p className="text-xs text-muted-foreground">{change}</p>
             )}
           </div>
           <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">

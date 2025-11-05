@@ -125,26 +125,17 @@ export function WidgetRenderer({ widget }: WidgetRendererProps) {
       'Active Jobs': [
         { label: "View all jobs", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/jobs') },
         { label: "Create new job", icon: <Plus className="h-4 w-4" />, onClick: () => navigate('/jobs') },
-        { label: "Filter by department", icon: <Filter className="h-4 w-4" />, onClick: () => console.log('Filter') },
-        { label: "Export to CSV", icon: <Download className="h-4 w-4" />, onClick: () => console.log('Export') },
       ],
       'Total Candidates': [
         { label: "Browse candidates", icon: <Users className="h-4 w-4" />, onClick: () => navigate('/candidates') },
         { label: "Add candidate", icon: <Plus className="h-4 w-4" />, onClick: () => navigate('/candidates') },
-        { label: "Filter by skills", icon: <Filter className="h-4 w-4" />, onClick: () => console.log('Filter') },
-        { label: "Export list", icon: <Download className="h-4 w-4" />, onClick: () => console.log('Export') },
       ],
       'Applications': [
         { label: "Review pending", icon: <FileText className="h-4 w-4" />, onClick: () => navigate('/applications') },
         { label: "View rejected", icon: <XCircle className="h-4 w-4" />, onClick: () => navigate('/applications') },
-        { label: "Filter by date", icon: <Filter className="h-4 w-4" />, onClick: () => console.log('Filter') },
-        { label: "Export data", icon: <Download className="h-4 w-4" />, onClick: () => console.log('Export') },
       ],
       'Hired This Month': [
         { label: "View hires", icon: <UserCheck className="h-4 w-4" />, onClick: () => navigate('/candidates') },
-        { label: "Onboarding status", icon: <CheckCircle className="h-4 w-4" />, onClick: () => console.log('Onboarding') },
-        { label: "Monthly report", icon: <FileText className="h-4 w-4" />, onClick: () => console.log('Report') },
-        { label: "Export hires", icon: <Download className="h-4 w-4" />, onClick: () => console.log('Export') },
       ],
     };
 

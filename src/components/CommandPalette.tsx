@@ -170,7 +170,7 @@ export function CommandPalette() {
       description: 'Create a new job posting',
       icon: Plus,
       action: () => {
-        console.log('Post Job');
+        navigate('/jobs/create');
         setOpen(false);
       },
       category: 'actions',
@@ -182,7 +182,7 @@ export function CommandPalette() {
       description: 'Add a new candidate',
       icon: UserPlus,
       action: () => {
-        console.log('Add Candidate');
+        navigate('/candidates');
         setOpen(false);
       },
       category: 'actions',
@@ -194,7 +194,7 @@ export function CommandPalette() {
       description: 'Schedule a new interview',
       icon: Calendar,
       action: () => {
-        console.log('Schedule Interview');
+        navigate('/calendar');
         setOpen(false);
       },
       category: 'actions',

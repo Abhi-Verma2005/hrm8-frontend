@@ -4,7 +4,7 @@ import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Buildin
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
-import { ServiceStatsCard } from '@/components/recruitment-services/ServiceStatsCard';
+import { StatsCard } from '@/components/ui/stats-card';
 import { createServiceProjectColumns } from '@/components/recruitment-services/ServiceProjectTableColumns';
 import { getAllServiceProjects, getServiceStats, updateServiceProject } from '@/lib/recruitmentServiceStorage';
 import { toast } from 'sonner';
@@ -104,43 +104,41 @@ export default function RecruitmentServices() {
           <div className="text-center py-8 text-muted-foreground">Loading...</div>
         ) : stats ? (
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-            <ServiceStatsCard
+            <StatsCard
               title="Active Projects"
               value={stats.totalActive}
               icon={FolderKanban}
-              trend="up"
               change="+7"
             />
             
-            <ServiceStatsCard
+            <StatsCard
               title="Shortlisting"
               value={stats.byType.shortlisting}
               icon={Users}
             />
 
-            <ServiceStatsCard
+            <StatsCard
               title="Full-Service"
               value={stats.byType.fullService}
               icon={Briefcase}
             />
 
-            <ServiceStatsCard
+            <StatsCard
               title="Executive Search"
               value={stats.byType.executiveSearch}
               icon={Target}
             />
 
-            <ServiceStatsCard
+            <StatsCard
               title="RPO"
               value={stats.byType.rpo}
               icon={Building}
             />
 
-            <ServiceStatsCard
+            <StatsCard
               title="Service Revenue"
               value={`$${(stats.totalRevenue / 1000000).toFixed(1)}M`}
               icon={DollarSign}
-              trend="up"
               change="+22%"
             />
           </div>

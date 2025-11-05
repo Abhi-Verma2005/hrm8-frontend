@@ -5,7 +5,7 @@ import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
 import { createConsultantColumns } from '@/components/consultants/ConsultantTableColumns';
-import { ConsultantStatsCard } from '@/components/consultants/ConsultantStatsCard';
+import { StatsCard } from '@/components/ui/stats-card';
 import { ConsultantsFilterBar } from '@/components/consultants/ConsultantsFilterBar';
 import { getAllConsultants, getConsultantStats } from '@/lib/consultantStorage';
 import { formatRevenue } from '@/lib/consultantUtils';
@@ -84,28 +84,28 @@ export default function ConsultantsPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <ConsultantStatsCard
+          <StatsCard
             title="Total Consultants"
             value={stats.total}
             icon={Users}
             description={`${stats.active} active`}
           />
 
-          <ConsultantStatsCard
+          <StatsCard
             title="Total Placements"
             value={stats.totalPlacements}
             icon={Award}
             description="Active consultants"
           />
 
-          <ConsultantStatsCard
+          <StatsCard
             title="Total Revenue"
             value={formatRevenue(stats.totalRevenue)}
             icon={TrendingUp}
             description="From active team"
           />
 
-          <ConsultantStatsCard
+          <StatsCard
             title="Commissions Paid"
             value={formatRevenue(stats.totalCommissionsPaid)}
             icon={DollarSign}

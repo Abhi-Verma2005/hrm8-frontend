@@ -1,5 +1,5 @@
 import { Employer } from "@/types/entities";
-import { EmployerStatsCard } from "./EmployerStatsCard";
+import { StatsCard } from "@/components/ui/stats-card";
 import { Sparkles, Briefcase, DollarSign, Activity } from "lucide-react";
 
 interface EmployerMetrics {
@@ -38,28 +38,28 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <EmployerStatsCard
+      <StatsCard
         title="Subscription"
         value={getTierLabel(employer.subscriptionTier)}
         icon={Sparkles}
         description={employer.status.charAt(0).toUpperCase() + employer.status.slice(1)}
       />
       
-      <EmployerStatsCard
+      <StatsCard
         title="Capacity"
         value={`${metrics.activeJobs}/${employer.totalJobsPosted || 0}`}
         icon={Briefcase}
         description={`${employer.currentUsers}/${employer.maxUsers === Infinity ? '∞' : employer.maxUsers} Users`}
       />
       
-      <EmployerStatsCard
+      <StatsCard
         title="Financial"
         value={`$${metrics.lifetimeValue.toLocaleString()}`}
         icon={DollarSign}
         description={`$${metrics.monthlyRevenue}/mo MRR`}
       />
       
-      <EmployerStatsCard
+      <StatsCard
         title="Activity"
         value={metrics.daysAsCustomer < 365 ? 
           `${Math.floor(metrics.daysAsCustomer / 30)} months` : 

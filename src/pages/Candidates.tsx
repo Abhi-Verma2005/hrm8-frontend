@@ -3,7 +3,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DataTable } from "@/components/tables/DataTable";
 import { candidateTableColumns } from "@/components/candidates/CandidateTableColumns";
 import { CandidatesFilterBar } from "@/components/candidates/CandidatesFilterBar";
-import { CandidateStatsCard } from "@/components/candidates/CandidateStatsCard";
+import { StatsCard } from "@/components/ui/stats-card";
 import { Button } from "@/components/ui/button";
 import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -123,25 +123,25 @@ export default function Candidates() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <CandidateStatsCard
+          <StatsCard
             title="Total Candidates"
             value={stats.total}
             icon={Users}
             description={`${stats.active} currently active`}
           />
-          <CandidateStatsCard
+          <StatsCard
             title="Active"
             value={stats.active}
             icon={UserCheck}
             description={`${stats.total > 0 ? ((stats.active / stats.total) * 100).toFixed(0) : 0}% of total`}
           />
-          <CandidateStatsCard
+          <StatsCard
             title="Placed"
             value={stats.placed}
             icon={Briefcase}
             description="Successfully placed"
           />
-          <CandidateStatsCard
+          <StatsCard
             title="Inactive"
             value={stats.inactive}
             icon={UserX}

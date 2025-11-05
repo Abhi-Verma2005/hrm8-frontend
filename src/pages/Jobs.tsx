@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3 } from "lucide-react";
-import { JobStatsCard } from "@/components/jobs/JobStatsCard";
+import { StatsCard } from "@/components/ui/stats-card";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { getJobs, deleteJob, getJobById } from "@/lib/mockJobStorage";
 import { Job } from "@/types/job";
@@ -481,25 +481,25 @@ export default function Jobs() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <JobStatsCard
+          <StatsCard
             title="Total Jobs"
             value={stats.total}
             icon={Briefcase}
             description={`${stats.active} currently active`}
           />
-          <JobStatsCard
+          <StatsCard
             title="Active Postings"
             value={stats.active}
             icon={Clock}
             description={`${stats.total > 0 ? ((stats.active / stats.total) * 100).toFixed(0) : 0}% of total`}
           />
-          <JobStatsCard
+          <StatsCard
             title="Total Applicants"
             value={stats.applicants}
             icon={FileText}
             description={`Avg ${stats.avgApplicants} per job`}
           />
-          <JobStatsCard
+          <StatsCard
             title="Filled Positions"
             value={stats.filled}
             icon={CheckCircle}

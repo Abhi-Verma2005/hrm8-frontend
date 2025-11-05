@@ -13,7 +13,7 @@ const data = [
 
 export function ServiceRevenueTrendsChart() {
   return (
-    <Card>
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Service Revenue Trends</CardTitle>
         <CardDescription>Revenue over time (in thousands)</CardDescription>

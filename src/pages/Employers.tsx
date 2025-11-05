@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DataTable } from "@/components/tables/DataTable";
-import { EmployerStatsCard } from "@/components/employers/EmployerStatsCard";
+import { StatsCard } from "@/components/ui/stats-card";
 import { EmployersFilterBar } from "@/components/employers/EmployersFilterBar";
 import { createEmployerColumns } from "@/components/employers/EmployerTableColumns";
 import { getEmployers } from "@/lib/employerService";
@@ -137,25 +137,25 @@ export default function Employers() {
 
         {/* Stats Dashboard */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <EmployerStatsCard
+          <StatsCard
             title="Total Employers"
             value={stats.total}
             icon={Building}
             description={`${stats.active} active`}
           />
-          <EmployerStatsCard
+          <StatsCard
             title="Active Accounts"
             value={stats.active}
             icon={Briefcase}
             description={`${((stats.active / stats.total) * 100).toFixed(0)}% of total`}
           />
-          <EmployerStatsCard
+          <StatsCard
             title="Monthly Revenue"
             value={formatRevenue(stats.revenue)}
             icon={DollarSign}
             description="From subscriptions"
           />
-          <EmployerStatsCard
+          <StatsCard
             title="Pending Renewals"
             value={stats.pendingRenewals}
             icon={Clock}

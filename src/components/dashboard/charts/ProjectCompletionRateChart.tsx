@@ -13,7 +13,7 @@ const data = [
 
 export function ProjectCompletionRateChart() {
   return (
-    <Card>
+    <Card className="shadow-md h-full">
       <CardHeader>
         <CardTitle>Project Completion Rate</CardTitle>
         <CardDescription>Completion rate trends over time</CardDescription>
