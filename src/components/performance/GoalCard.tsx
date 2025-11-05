@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GoalStatusBadge, GoalPriorityBadge } from "./GoalBadges";
 import { GoalProgressUpdateDialog } from "./GoalProgressUpdateDialog";
+import { GoalCompletionDialog } from "./GoalCompletionDialog";
 import type { PerformanceGoal } from "@/types/performance";
 import { format } from "date-fns";
-import { Calendar, Target, TrendingUp, Edit, RefreshCw } from "lucide-react";
+import { Calendar, Target, TrendingUp, Edit, RefreshCw, CheckCircle2 } from "lucide-react";
 
 interface GoalCardProps {
   goal: PerformanceGoal;
@@ -17,6 +18,10 @@ interface GoalCardProps {
 
 export function GoalCard({ goal, onEdit, onProgressUpdate }: GoalCardProps) {
   const [progressDialogOpen, setProgressDialogOpen] = useState(false);
+  const [completionDialogOpen, setCompletionDialogOpen] = useState(false);
+  
+  const canComplete = goal.status === 'in-progress' || goal.status === 'on-hold';
+  const isCompleted = goal.status === 'completed';
 
   return (
     <>
@@ -32,14 +37,27 @@ export function GoalCard({ goal, onEdit, onProgressUpdate }: GoalCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <GoalStatusBadge status={goal.status} />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setProgressDialogOpen(true)}
-              title="Update Progress"
-            >
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+            {canComplete && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => setCompletionDialogOpen(true)}
+                className="gap-1"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Complete
+              </Button>
+            )}
+            {!isCompleted && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setProgressDialogOpen(true)}
+                title="Update Progress"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            )}
             {onEdit && (
               <Button variant="ghost" size="icon" onClick={() => onEdit(goal)}>
                 <Edit className="h-4 w-4" />
@@ -114,6 +132,13 @@ export function GoalCard({ goal, onEdit, onProgressUpdate }: GoalCardProps) {
         onOpenChange={setProgressDialogOpen}
         goal={goal}
         onSuccess={onProgressUpdate}
+      />
+
+      <GoalCompletionDialog
+        goal={goal}
+        open={completionDialogOpen}
+        onOpenChange={setCompletionDialogOpen}
+        onComplete={onProgressUpdate}
       />
     </>
   );
