@@ -11,6 +11,7 @@ import { GoalFormDialog } from "@/components/performance/GoalFormDialog";
 import { GoalsFilterBar } from "@/components/performance/GoalsFilterBar";
 import { Feedback360RequestDialog } from "@/components/performance/Feedback360RequestDialog";
 import { ReviewCompletionDialog } from "@/components/performance/ReviewCompletionDialog";
+import { GoalAnalyticsDashboard } from "@/components/performance/analytics/GoalAnalyticsDashboard";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
 import type { PerformanceGoal } from "@/types/performance";
 
@@ -217,6 +218,10 @@ export default function PerformanceManagement() {
               <Target className="mr-2 h-4 w-4" />
               Goals & KPIs
             </TabsTrigger>
+            <TabsTrigger value="analytics">
+              <TrendingUp className="mr-2 h-4 w-4" />
+              Analytics
+            </TabsTrigger>
             <TabsTrigger value="reviews">
               <FileText className="mr-2 h-4 w-4" />
               Performance Reviews
@@ -289,6 +294,10 @@ export default function PerformanceManagement() {
                 </div>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <GoalAnalyticsDashboard />
           </TabsContent>
 
           <TabsContent value="reviews" className="space-y-6">
