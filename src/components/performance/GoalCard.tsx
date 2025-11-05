@@ -1,20 +1,26 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GoalStatusBadge, GoalPriorityBadge } from "./GoalBadges";
+import { GoalProgressUpdateDialog } from "./GoalProgressUpdateDialog";
 import type { PerformanceGoal } from "@/types/performance";
 import { format } from "date-fns";
-import { Calendar, Target, TrendingUp, Edit } from "lucide-react";
+import { Calendar, Target, TrendingUp, Edit, RefreshCw } from "lucide-react";
 
 interface GoalCardProps {
   goal: PerformanceGoal;
   onEdit?: (goal: PerformanceGoal) => void;
+  onProgressUpdate?: () => void;
 }
 
-export function GoalCard({ goal, onEdit }: GoalCardProps) {
+export function GoalCard({ goal, onEdit, onProgressUpdate }: GoalCardProps) {
+  const [progressDialogOpen, setProgressDialogOpen] = useState(false);
+
   return (
-    <Card>
+    <>
+      <Card>
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -26,6 +32,14 @@ export function GoalCard({ goal, onEdit }: GoalCardProps) {
           </div>
           <div className="flex items-center gap-2">
             <GoalStatusBadge status={goal.status} />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setProgressDialogOpen(true)}
+              title="Update Progress"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
             {onEdit && (
               <Button variant="ghost" size="icon" onClick={() => onEdit(goal)}>
                 <Edit className="h-4 w-4" />
@@ -93,6 +107,14 @@ export function GoalCard({ goal, onEdit }: GoalCardProps) {
           )}
         </div>
       </CardContent>
-    </Card>
+      </Card>
+
+      <GoalProgressUpdateDialog
+        open={progressDialogOpen}
+        onOpenChange={setProgressDialogOpen}
+        goal={goal}
+        onSuccess={onProgressUpdate}
+      />
+    </>
   );
 }

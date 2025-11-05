@@ -170,7 +170,12 @@ export default function PerformanceManagement() {
               ) : (
                 <div className="grid gap-4 md:grid-cols-2">
                   {myGoals.map((goal) => (
-                    <GoalCard key={goal.id} goal={goal} onEdit={handleEditGoal} />
+                    <GoalCard 
+                      key={goal.id} 
+                      goal={goal} 
+                      onEdit={handleEditGoal}
+                      onProgressUpdate={() => setRefreshKey((prev) => prev + 1)}
+                    />
                   ))}
                 </div>
               )}
