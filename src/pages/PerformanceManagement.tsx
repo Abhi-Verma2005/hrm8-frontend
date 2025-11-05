@@ -3,7 +3,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck } from "lucide-react";
+import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck, Download } from "lucide-react";
 import { GoalCard } from "@/components/performance/GoalCard";
 import { ReviewCard } from "@/components/performance/ReviewCard";
 import { Feedback360Card } from "@/components/performance/Feedback360Card";
@@ -12,6 +12,7 @@ import { GoalsFilterBar } from "@/components/performance/GoalsFilterBar";
 import { Feedback360RequestDialog } from "@/components/performance/Feedback360RequestDialog";
 import { ReviewCompletionDialog } from "@/components/performance/ReviewCompletionDialog";
 import { GoalAnalyticsDashboard } from "@/components/performance/analytics/GoalAnalyticsDashboard";
+import { PerformanceReportExportDialog } from "@/components/performance/PerformanceReportExportDialog";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
 import type { PerformanceGoal } from "@/types/performance";
 
@@ -21,6 +22,7 @@ export default function PerformanceManagement() {
   const [selectedGoal, setSelectedGoal] = useState<PerformanceGoal | undefined>(undefined);
   const [feedback360DialogOpen, setFeedback360DialogOpen] = useState(false);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
   
   // Filter and sort state
   const [searchValue, setSearchValue] = useState("");
@@ -139,6 +141,10 @@ export default function PerformanceManagement() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button onClick={() => setExportDialogOpen(true)} variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export Report
+            </Button>
             <Button onClick={() => setFeedback360DialogOpen(true)} variant="outline">
               <MessageSquare className="mr-2 h-4 w-4" />
               Request 360° Feedback
@@ -424,6 +430,11 @@ export default function PerformanceManagement() {
           open={reviewDialogOpen}
           onOpenChange={setReviewDialogOpen}
           onComplete={() => setRefreshKey((prev) => prev + 1)}
+        />
+
+        <PerformanceReportExportDialog
+          open={exportDialogOpen}
+          onOpenChange={setExportDialogOpen}
         />
       </div>
     </DashboardPageLayout>
