@@ -28,6 +28,7 @@ import HRMS from "./pages/HRMS";
 import Inbox from "./pages/Inbox";
 import Users from "./pages/Users";
 import Finance from "./pages/Finance";
+import Integrations from "./pages/Integrations";
 import Reports from "./pages/Reports";
 import AdminSettings from "./pages/AdminSettings";
 import SupportTickets from "./pages/SupportTickets";
@@ -68,6 +69,7 @@ function AppContent() {
             <Route path="/inbox" element={<Inbox />} />
             <Route path="/users" element={<Users />} />
             <Route path="/finance" element={<Finance />} />
+            <Route path="/integrations" element={<Integrations />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/admin-settings" element={<AdminSettings />} />
             <Route path="/support-tickets" element={<SupportTickets />} />
