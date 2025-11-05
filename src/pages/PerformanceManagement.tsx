@@ -7,13 +7,16 @@ import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp } f
 import { GoalCard } from "@/components/performance/GoalCard";
 import { ReviewCard } from "@/components/performance/ReviewCard";
 import { Feedback360Card } from "@/components/performance/Feedback360Card";
+import { GoalFormDialog } from "@/components/performance/GoalFormDialog";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
 
 export default function PerformanceManagement() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [goalDialogOpen, setGoalDialogOpen] = useState(false);
 
   // Mock current user
   const currentEmployeeId = "1";
+  const currentEmployeeName = "John Smith";
 
   const myGoals = useMemo(() => getPerformanceGoals(currentEmployeeId), [currentEmployeeId, refreshKey]);
   const myReviews = useMemo(() => getPerformanceReviews({ employeeId: currentEmployeeId }), [currentEmployeeId, refreshKey]);
@@ -36,7 +39,7 @@ export default function PerformanceManagement() {
               Track goals, reviews, and professional development
             </p>
           </div>
-          <Button>
+          <Button onClick={() => setGoalDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             New Goal
           </Button>
@@ -121,7 +124,7 @@ export default function PerformanceManagement() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">My Goals</h3>
-                <Button>
+                <Button onClick={() => setGoalDialogOpen(true)}>
                   <Plus className="mr-2 h-4 w-4" />
                   Add Goal
                 </Button>
@@ -135,7 +138,7 @@ export default function PerformanceManagement() {
                     <p className="text-sm text-muted-foreground mb-4">
                       Start tracking your performance by setting goals
                     </p>
-                    <Button>
+                    <Button onClick={() => setGoalDialogOpen(true)}>
                       <Plus className="mr-2 h-4 w-4" />
                       Create First Goal
                     </Button>
@@ -255,6 +258,14 @@ export default function PerformanceManagement() {
             </div>
           </TabsContent>
         </Tabs>
+
+        <GoalFormDialog
+          open={goalDialogOpen}
+          onOpenChange={setGoalDialogOpen}
+          employeeId={currentEmployeeId}
+          employeeName={currentEmployeeName}
+          onSuccess={() => setRefreshKey((prev) => prev + 1)}
+        />
       </div>
     </DashboardPageLayout>
   );
