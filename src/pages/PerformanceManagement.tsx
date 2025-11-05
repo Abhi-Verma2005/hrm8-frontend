@@ -3,13 +3,14 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp } from "lucide-react";
+import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck } from "lucide-react";
 import { GoalCard } from "@/components/performance/GoalCard";
 import { ReviewCard } from "@/components/performance/ReviewCard";
 import { Feedback360Card } from "@/components/performance/Feedback360Card";
 import { GoalFormDialog } from "@/components/performance/GoalFormDialog";
 import { GoalsFilterBar } from "@/components/performance/GoalsFilterBar";
 import { Feedback360RequestDialog } from "@/components/performance/Feedback360RequestDialog";
+import { ReviewCompletionDialog } from "@/components/performance/ReviewCompletionDialog";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
 import type { PerformanceGoal } from "@/types/performance";
 
@@ -18,6 +19,7 @@ export default function PerformanceManagement() {
   const [goalDialogOpen, setGoalDialogOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<PerformanceGoal | undefined>(undefined);
   const [feedback360DialogOpen, setFeedback360DialogOpen] = useState(false);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   
   // Filter and sort state
   const [searchValue, setSearchValue] = useState("");
@@ -135,13 +137,23 @@ export default function PerformanceManagement() {
               Track goals, reviews, and professional development
             </p>
           </div>
-          <Button onClick={() => {
-            setSelectedGoal(undefined);
-            setGoalDialogOpen(true);
-          }}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Goal
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={() => setFeedback360DialogOpen(true)} variant="outline">
+              <MessageSquare className="mr-2 h-4 w-4" />
+              Request 360° Feedback
+            </Button>
+            <Button onClick={() => setReviewDialogOpen(true)} variant="outline">
+              <ClipboardCheck className="mr-2 h-4 w-4" />
+              Complete Review
+            </Button>
+            <Button onClick={() => {
+              setSelectedGoal(undefined);
+              setGoalDialogOpen(true);
+            }}>
+              <Plus className="mr-2 h-4 w-4" />
+              New Goal
+            </Button>
+          </div>
         </div>
 
         {/* Stats Overview */}
@@ -397,6 +409,12 @@ export default function PerformanceManagement() {
           open={feedback360DialogOpen}
           onOpenChange={setFeedback360DialogOpen}
           onSuccess={() => setRefreshKey((prev) => prev + 1)}
+        />
+
+        <ReviewCompletionDialog
+          open={reviewDialogOpen}
+          onOpenChange={setReviewDialogOpen}
+          onComplete={() => setRefreshKey((prev) => prev + 1)}
         />
       </div>
     </DashboardPageLayout>
