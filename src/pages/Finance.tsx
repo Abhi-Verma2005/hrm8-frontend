@@ -1,14 +1,24 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DollarSign, BarChart3 } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { Link } from "react-router-dom";
 
 export default function Finance() {
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Finance</h1>
-          <p className="text-muted-foreground">Financial management, budgeting, and reporting</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Finance</h1>
+            <p className="text-muted-foreground">Financial management, budgeting, and reporting</p>
+          </div>
+          <Button variant="outline" asChild>
+            <Link to="/dashboard/financial">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              View Dashboard
+            </Link>
+          </Button>
         </div>
         <Card>
           <CardHeader>

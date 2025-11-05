@@ -1,14 +1,24 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Heart } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Heart, BarChart3 } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { Link } from "react-router-dom";
 
 export default function HRMS() {
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">HRMS</h1>
-          <p className="text-muted-foreground">Complete human resource management system</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">HRMS</h1>
+            <p className="text-muted-foreground">Complete human resource management system</p>
+          </div>
+          <Button variant="outline" asChild>
+            <Link to="/dashboard/hrms">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              View Dashboard
+            </Link>
+          </Button>
         </div>
         <Card>
           <CardHeader>
