@@ -9,6 +9,7 @@ import { ReviewCard } from "@/components/performance/ReviewCard";
 import { Feedback360Card } from "@/components/performance/Feedback360Card";
 import { GoalFormDialog } from "@/components/performance/GoalFormDialog";
 import { GoalsFilterBar } from "@/components/performance/GoalsFilterBar";
+import { Feedback360RequestDialog } from "@/components/performance/Feedback360RequestDialog";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
 import type { PerformanceGoal } from "@/types/performance";
 
@@ -16,6 +17,7 @@ export default function PerformanceManagement() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [goalDialogOpen, setGoalDialogOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<PerformanceGoal | undefined>(undefined);
+  const [feedback360DialogOpen, setFeedback360DialogOpen] = useState(false);
   
   // Filter and sort state
   const [searchValue, setSearchValue] = useState("");
@@ -305,7 +307,7 @@ export default function PerformanceManagement() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">360° Feedback</h3>
-                <Button>
+                <Button onClick={() => setFeedback360DialogOpen(true)}>
                   <Plus className="mr-2 h-4 w-4" />
                   Request Feedback
                 </Button>
@@ -319,7 +321,7 @@ export default function PerformanceManagement() {
                     <p className="text-sm text-muted-foreground mb-4">
                       Request feedback from your manager, peers, and team members
                     </p>
-                    <Button>
+                    <Button onClick={() => setFeedback360DialogOpen(true)}>
                       <Plus className="mr-2 h-4 w-4" />
                       Request Feedback
                     </Button>
@@ -388,6 +390,12 @@ export default function PerformanceManagement() {
           goal={selectedGoal}
           employeeId={currentEmployeeId}
           employeeName={currentEmployeeName}
+          onSuccess={() => setRefreshKey((prev) => prev + 1)}
+        />
+
+        <Feedback360RequestDialog
+          open={feedback360DialogOpen}
+          onOpenChange={setFeedback360DialogOpen}
           onSuccess={() => setRefreshKey((prev) => prev + 1)}
         />
       </div>
