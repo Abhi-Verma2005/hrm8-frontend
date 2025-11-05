@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { DataTable } from "@/components/tables/DataTable";
 import { employeeColumns } from "@/components/hrms/EmployeeTableColumns";
 import { EmployeesFilterBar } from "@/components/hrms/EmployeesFilterBar";
+import { AddEmployeeDialog } from "@/components/hrms/AddEmployeeDialog";
 import { getEmployees } from "@/lib/employeeStorage";
 
 export default function HRMS() {
@@ -12,8 +13,10 @@ export default function HRMS() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const employees = getEmployees();
+  const employees = useMemo(() => getEmployees(), [refreshKey]);
 
   const filteredEmployees = useMemo(() => {
     return employees.filter(employee => {
@@ -41,7 +44,7 @@ export default function HRMS() {
               Manage employee information, documents, and history
             </p>
           </div>
-          <Button>
+          <Button onClick={() => setAddDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Add Employee
           </Button>
@@ -61,6 +64,12 @@ export default function HRMS() {
         <DataTable
           columns={employeeColumns}
           data={filteredEmployees}
+        />
+
+        <AddEmployeeDialog
+          open={addDialogOpen}
+          onOpenChange={setAddDialogOpen}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
         />
       </div>
     </DashboardPageLayout>
