@@ -13,6 +13,7 @@ import { Feedback360RequestDialog } from "@/components/performance/Feedback360Re
 import { ReviewCompletionDialog } from "@/components/performance/ReviewCompletionDialog";
 import { GoalAnalyticsDashboard } from "@/components/performance/analytics/GoalAnalyticsDashboard";
 import { PerformanceReportExportDialog } from "@/components/performance/PerformanceReportExportDialog";
+import { ReviewTemplateBuilder } from "@/components/performance/ReviewTemplateBuilder";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
 import type { PerformanceGoal } from "@/types/performance";
 
@@ -365,49 +366,7 @@ export default function PerformanceManagement() {
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Review Templates</h3>
-                <Button>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Template
-                </Button>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                {templates.map((template) => (
-                  <Card key={template.id}>
-                    <CardHeader>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <CardTitle>{template.name}</CardTitle>
-                          <CardDescription>{template.description}</CardDescription>
-                        </div>
-                        <Button variant="outline" size="sm">
-                          Edit
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Review Cycle</span>
-                        <span className="font-medium capitalize">{template.cycle}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Sections</span>
-                        <span className="font-medium">{template.sections.length}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Questions</span>
-                        <span className="font-medium">
-                          {template.sections.reduce((sum, s) => sum + s.questions.length, 0)}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
+            <ReviewTemplateBuilder />
           </TabsContent>
         </Tabs>
 
