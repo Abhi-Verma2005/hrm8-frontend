@@ -9,10 +9,12 @@ import { ReviewCard } from "@/components/performance/ReviewCard";
 import { Feedback360Card } from "@/components/performance/Feedback360Card";
 import { GoalFormDialog } from "@/components/performance/GoalFormDialog";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
+import type { PerformanceGoal } from "@/types/performance";
 
 export default function PerformanceManagement() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [goalDialogOpen, setGoalDialogOpen] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<PerformanceGoal | undefined>(undefined);
 
   // Mock current user
   const currentEmployeeId = "1";
@@ -29,6 +31,18 @@ export default function PerformanceManagement() {
     ? myGoals.reduce((sum, g) => sum + g.progress, 0) / myGoals.length 
     : 0;
 
+  const handleEditGoal = (goal: PerformanceGoal) => {
+    setSelectedGoal(goal);
+    setGoalDialogOpen(true);
+  };
+
+  const handleDialogClose = (open: boolean) => {
+    setGoalDialogOpen(open);
+    if (!open) {
+      setSelectedGoal(undefined);
+    }
+  };
+
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
@@ -39,7 +53,10 @@ export default function PerformanceManagement() {
               Track goals, reviews, and professional development
             </p>
           </div>
-          <Button onClick={() => setGoalDialogOpen(true)}>
+          <Button onClick={() => {
+            setSelectedGoal(undefined);
+            setGoalDialogOpen(true);
+          }}>
             <Plus className="mr-2 h-4 w-4" />
             New Goal
           </Button>
@@ -124,7 +141,10 @@ export default function PerformanceManagement() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">My Goals</h3>
-                <Button onClick={() => setGoalDialogOpen(true)}>
+                <Button onClick={() => {
+                  setSelectedGoal(undefined);
+                  setGoalDialogOpen(true);
+                }}>
                   <Plus className="mr-2 h-4 w-4" />
                   Add Goal
                 </Button>
@@ -138,7 +158,10 @@ export default function PerformanceManagement() {
                     <p className="text-sm text-muted-foreground mb-4">
                       Start tracking your performance by setting goals
                     </p>
-                    <Button onClick={() => setGoalDialogOpen(true)}>
+                    <Button onClick={() => {
+                      setSelectedGoal(undefined);
+                      setGoalDialogOpen(true);
+                    }}>
                       <Plus className="mr-2 h-4 w-4" />
                       Create First Goal
                     </Button>
@@ -147,7 +170,7 @@ export default function PerformanceManagement() {
               ) : (
                 <div className="grid gap-4 md:grid-cols-2">
                   {myGoals.map((goal) => (
-                    <GoalCard key={goal.id} goal={goal} />
+                    <GoalCard key={goal.id} goal={goal} onEdit={handleEditGoal} />
                   ))}
                 </div>
               )}
@@ -261,7 +284,8 @@ export default function PerformanceManagement() {
 
         <GoalFormDialog
           open={goalDialogOpen}
-          onOpenChange={setGoalDialogOpen}
+          onOpenChange={handleDialogClose}
+          goal={selectedGoal}
           employeeId={currentEmployeeId}
           employeeName={currentEmployeeName}
           onSuccess={() => setRefreshKey((prev) => prev + 1)}
