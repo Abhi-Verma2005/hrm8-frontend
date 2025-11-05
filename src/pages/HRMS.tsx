@@ -3,9 +3,10 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { DataTable } from "@/components/tables/DataTable";
-import { employeeColumns } from "@/components/hrms/EmployeeTableColumns";
+import { createEmployeeColumns } from "@/components/hrms/EmployeeTableColumns";
 import { EmployeesFilterBar } from "@/components/hrms/EmployeesFilterBar";
-import { AddEmployeeDialog } from "@/components/hrms/AddEmployeeDialog";
+import { EmployeeFormDialog } from "@/components/hrms/EmployeeFormDialog";
+import { Employee } from "@/types/employee";
 import { getEmployees } from "@/lib/employeeStorage";
 
 export default function HRMS() {
@@ -13,7 +14,8 @@ export default function HRMS() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
-  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [editingEmployee, setEditingEmployee] = useState<Employee | undefined>();
   const [refreshKey, setRefreshKey] = useState(0);
 
   const employees = useMemo(() => getEmployees(), [refreshKey]);
@@ -34,6 +36,20 @@ export default function HRMS() {
     });
   }, [employees, searchQuery, statusFilter, departmentFilter, locationFilter]);
 
+  const handleEditEmployee = (employee: Employee) => {
+    setEditingEmployee(employee);
+    setFormDialogOpen(true);
+  };
+
+  const handleCloseDialog = () => {
+    setFormDialogOpen(false);
+    setEditingEmployee(undefined);
+  };
+
+  const employeeColumns = useMemo(() => createEmployeeColumns({
+    onEdit: handleEditEmployee,
+  }), []);
+
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
@@ -44,7 +60,7 @@ export default function HRMS() {
               Manage employee information, documents, and history
             </p>
           </div>
-          <Button onClick={() => setAddDialogOpen(true)}>
+          <Button onClick={() => setFormDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Add Employee
           </Button>
@@ -66,9 +82,10 @@ export default function HRMS() {
           data={filteredEmployees}
         />
 
-        <AddEmployeeDialog
-          open={addDialogOpen}
-          onOpenChange={setAddDialogOpen}
+        <EmployeeFormDialog
+          open={formDialogOpen}
+          onOpenChange={handleCloseDialog}
+          employee={editingEmployee}
           onSuccess={() => setRefreshKey(prev => prev + 1)}
         />
       </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -69,13 +69,15 @@ const employeeFormSchema = z.object({
 
 type EmployeeFormValues = z.infer<typeof employeeFormSchema>;
 
-interface AddEmployeeDialogProps {
+interface EmployeeFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  employee?: Employee; // If provided, we're editing; otherwise creating
   onSuccess?: () => void;
 }
 
-export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployeeDialogProps) {
+export function EmployeeFormDialog({ open, onOpenChange, employee, onSuccess }: EmployeeFormDialogProps) {
+  const isEditing = !!employee;
   const [skillsInput, setSkillsInput] = useState("");
   const [skillsList, setSkillsList] = useState<string[]>([]);
   const [certsInput, setCertsInput] = useState("");
@@ -92,6 +94,57 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
       country: "United States",
     },
   });
+
+  // Pre-fill form when editing
+  useEffect(() => {
+    if (employee && open) {
+      form.reset({
+        firstName: employee.firstName,
+        lastName: employee.lastName,
+        email: employee.email,
+        phone: employee.phone,
+        dateOfBirth: new Date(employee.dateOfBirth),
+        gender: employee.gender,
+        address: employee.address,
+        city: employee.city,
+        state: employee.state,
+        postalCode: employee.postalCode,
+        country: employee.country,
+        emergencyContactName: employee.emergencyContactName || "",
+        emergencyContactPhone: employee.emergencyContactPhone || "",
+        emergencyContactRelationship: employee.emergencyContactRelationship || "",
+        employeeId: employee.employeeId,
+        jobTitle: employee.jobTitle,
+        department: employee.department,
+        location: employee.location,
+        managerId: employee.managerId || "",
+        managerName: employee.managerName || "",
+        employmentType: employee.employmentType,
+        status: employee.status,
+        hireDate: new Date(employee.hireDate),
+        startDate: new Date(employee.startDate),
+        salary: employee.salary,
+        currency: employee.currency,
+        payFrequency: employee.payFrequency,
+        notes: employee.notes || "",
+      });
+      
+      setSkillsList(employee.skills || []);
+      setCertsList(employee.certifications || []);
+    } else if (!employee && open) {
+      // Reset for new employee
+      form.reset({
+        status: "active",
+        employmentType: "full-time",
+        currency: "USD",
+        payFrequency: "annually",
+        gender: "prefer-not-to-say",
+        country: "United States",
+      });
+      setSkillsList([]);
+      setCertsList([]);
+    }
+  }, [employee, open, form]);
 
   const addSkill = () => {
     if (skillsInput.trim() && !skillsList.includes(skillsInput.trim())) {
@@ -116,8 +169,8 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
   };
 
   const onSubmit = (data: EmployeeFormValues) => {
-    const newEmployee: Employee = {
-      id: crypto.randomUUID(),
+    const employeeData: Employee = {
+      id: employee?.id || crypto.randomUUID(),
       employeeId: data.employeeId,
       firstName: data.firstName,
       lastName: data.lastName,
@@ -148,20 +201,24 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
       skills: skillsList.length > 0 ? skillsList : undefined,
       certifications: certsList.length > 0 ? certsList : undefined,
       notes: data.notes,
-      createdAt: new Date().toISOString(),
+      createdAt: employee?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      createdBy: "current-user",
+      createdBy: employee?.createdBy || "current-user",
       lastActivityAt: new Date().toISOString(),
     };
 
-    saveEmployee(newEmployee);
-    toast.success("Employee created successfully", {
-      description: `${newEmployee.firstName} ${newEmployee.lastName} has been added to the system.`,
-    });
+    saveEmployee(employeeData);
     
-    form.reset();
-    setSkillsList([]);
-    setCertsList([]);
+    if (isEditing) {
+      toast.success("Employee updated successfully", {
+        description: `${employeeData.firstName} ${employeeData.lastName}'s information has been updated.`,
+      });
+    } else {
+      toast.success("Employee created successfully", {
+        description: `${employeeData.firstName} ${employeeData.lastName} has been added to the system.`,
+      });
+    }
+    
     onOpenChange(false);
     onSuccess?.();
   };
@@ -170,9 +227,11 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Add New Employee</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit Employee" : "Add New Employee"}</DialogTitle>
           <DialogDescription>
-            Enter employee information to create a new record
+            {isEditing 
+              ? "Update employee information" 
+              : "Enter employee information to create a new record"}
           </DialogDescription>
         </DialogHeader>
 
@@ -296,7 +355,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Gender</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select gender" />
@@ -446,10 +505,10 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
                       <FormItem>
                         <FormLabel>Employee ID</FormLabel>
                         <FormControl>
-                          <Input placeholder="EMP001" {...field} />
+                          <Input placeholder="EMP001" {...field} disabled={isEditing} />
                         </FormControl>
                         <FormDescription>
-                          Unique employee identifier
+                          {isEditing ? "Employee ID cannot be changed" : "Unique employee identifier"}
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -477,7 +536,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Department</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select department" />
@@ -505,7 +564,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Office Location</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select location" />
@@ -545,7 +604,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Employment Type</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select type" />
@@ -570,7 +629,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Status</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select status" />
@@ -699,7 +758,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Currency</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select currency" />
@@ -724,7 +783,7 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Pay Frequency</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Select frequency" />
@@ -837,7 +896,9 @@ export function AddEmployeeDialog({ open, onOpenChange, onSuccess }: AddEmployee
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">Create Employee</Button>
+              <Button type="submit">
+                {isEditing ? "Update Employee" : "Create Employee"}
+              </Button>
             </div>
           </form>
         </Form>

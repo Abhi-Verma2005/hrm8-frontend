@@ -4,12 +4,16 @@ import { EmployeeStatusBadge } from "./EmployeeStatusBadge";
 import { EmploymentTypeBadge } from "./EmploymentTypeBadge";
 import { EntityAvatar } from "@/components/tables/EntityAvatar";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Eye } from "lucide-react";
+import { MoreHorizontal, Eye, Edit } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
 
-export const employeeColumns: Column<Employee>[] = [
+interface EmployeeColumnsOptions {
+  onEdit?: (employee: Employee) => void;
+}
+
+export const createEmployeeColumns = (options?: EmployeeColumnsOptions): Column<Employee>[] => [
   {
     key: "employeeId",
     label: "Employee ID",
@@ -78,13 +82,19 @@ export const employeeColumns: Column<Employee>[] = [
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="end" className="bg-background">
           <DropdownMenuItem asChild>
             <Link to={`/hrms/employees/${employee.id}`}>
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </Link>
           </DropdownMenuItem>
+          {options?.onEdit && (
+            <DropdownMenuItem onClick={() => options.onEdit!(employee)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Employee
+            </DropdownMenuItem>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     ),

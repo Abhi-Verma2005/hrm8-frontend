@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
@@ -11,10 +12,13 @@ import { EmployeeOverviewTab } from "@/components/hrms/detail/EmployeeOverviewTa
 import { EmployeeDocumentsTab } from "@/components/hrms/detail/EmployeeDocumentsTab";
 import { EmployeeHistoryTab } from "@/components/hrms/detail/EmployeeHistoryTab";
 import { EmployeeNotesTab } from "@/components/hrms/detail/EmployeeNotesTab";
+import { EmployeeFormDialog } from "@/components/hrms/EmployeeFormDialog";
 
 export default function EmployeeDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   
   const employee = id ? getEmployeeById(id) : undefined;
 
@@ -80,7 +84,7 @@ export default function EmployeeDetail() {
                   </div>
                 </div>
               </div>
-              <Button>
+              <Button onClick={() => setEditDialogOpen(true)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit Profile
               </Button>
@@ -112,6 +116,16 @@ export default function EmployeeDetail() {
             <EmployeeNotesTab employeeId={employee.id} />
           </TabsContent>
         </Tabs>
+
+        <EmployeeFormDialog
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          employee={employee}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            window.location.reload(); // Refresh to show updated data
+          }}
+        />
       </div>
     </DashboardPageLayout>
   );
