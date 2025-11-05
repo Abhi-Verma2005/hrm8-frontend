@@ -8,6 +8,7 @@ import { GoalCard } from "@/components/performance/GoalCard";
 import { ReviewCard } from "@/components/performance/ReviewCard";
 import { Feedback360Card } from "@/components/performance/Feedback360Card";
 import { GoalFormDialog } from "@/components/performance/GoalFormDialog";
+import { GoalsFilterBar } from "@/components/performance/GoalsFilterBar";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
 import type { PerformanceGoal } from "@/types/performance";
 
@@ -15,21 +16,100 @@ export default function PerformanceManagement() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [goalDialogOpen, setGoalDialogOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<PerformanceGoal | undefined>(undefined);
+  
+  // Filter and sort state
+  const [searchValue, setSearchValue] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("progress-desc");
 
   // Mock current user
   const currentEmployeeId = "1";
   const currentEmployeeName = "John Smith";
 
-  const myGoals = useMemo(() => getPerformanceGoals(currentEmployeeId), [currentEmployeeId, refreshKey]);
+  const allGoals = useMemo(() => getPerformanceGoals(currentEmployeeId), [currentEmployeeId, refreshKey]);
   const myReviews = useMemo(() => getPerformanceReviews({ employeeId: currentEmployeeId }), [currentEmployeeId, refreshKey]);
   const my360Feedback = useMemo(() => getFeedback360(currentEmployeeId), [currentEmployeeId, refreshKey]);
   const templates = useMemo(() => getReviewTemplates(), [refreshKey]);
 
-  const activeGoals = myGoals.filter(g => g.status === 'in-progress');
-  const completedGoals = myGoals.filter(g => g.status === 'completed');
-  const avgProgress = myGoals.length > 0 
-    ? myGoals.reduce((sum, g) => sum + g.progress, 0) / myGoals.length 
+  // Apply filters and sorting
+  const myGoals = useMemo(() => {
+    let filtered = [...allGoals];
+
+    // Search filter
+    if (searchValue) {
+      const search = searchValue.toLowerCase();
+      filtered = filtered.filter(
+        (g) =>
+          g.title.toLowerCase().includes(search) ||
+          g.description.toLowerCase().includes(search)
+      );
+    }
+
+    // Status filter
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((g) => g.status === statusFilter);
+    }
+
+    // Priority filter
+    if (priorityFilter !== "all") {
+      filtered = filtered.filter((g) => g.priority === priorityFilter);
+    }
+
+    // Category filter
+    if (categoryFilter !== "all") {
+      filtered = filtered.filter((g) => g.category === categoryFilter);
+    }
+
+    // Sorting
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "progress-desc":
+          return b.progress - a.progress;
+        case "progress-asc":
+          return a.progress - b.progress;
+        case "priority-desc": {
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          return priorityOrder[b.priority] - priorityOrder[a.priority];
+        }
+        case "priority-asc": {
+          const priorityOrder = { high: 3, medium: 2, low: 1 };
+          return priorityOrder[a.priority] - priorityOrder[b.priority];
+        }
+        case "date-newest":
+          return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+        case "date-oldest":
+          return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+        case "target-date":
+          return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+        default:
+          return 0;
+      }
+    });
+
+    return filtered;
+  }, [allGoals, searchValue, statusFilter, priorityFilter, categoryFilter, sortBy]);
+
+  const activeGoals = allGoals.filter(g => g.status === 'in-progress');
+  const completedGoals = allGoals.filter(g => g.status === 'completed');
+  const avgProgress = allGoals.length > 0 
+    ? allGoals.reduce((sum, g) => sum + g.progress, 0) / allGoals.length 
     : 0;
+
+  const activeFiltersCount = [
+    searchValue !== "",
+    statusFilter !== "all",
+    priorityFilter !== "all",
+    categoryFilter !== "all",
+  ].filter(Boolean).length;
+
+  const handleClearFilters = () => {
+    setSearchValue("");
+    setStatusFilter("all");
+    setPriorityFilter("all");
+    setCategoryFilter("all");
+  };
 
   const handleEditGoal = (goal: PerformanceGoal) => {
     setSelectedGoal(goal);
@@ -149,6 +229,21 @@ export default function PerformanceManagement() {
                   Add Goal
                 </Button>
               </div>
+
+              <GoalsFilterBar
+                searchValue={searchValue}
+                onSearchChange={setSearchValue}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+                priorityFilter={priorityFilter}
+                onPriorityFilterChange={setPriorityFilter}
+                categoryFilter={categoryFilter}
+                onCategoryFilterChange={setCategoryFilter}
+                sortBy={sortBy}
+                onSortByChange={setSortBy}
+                onClearFilters={handleClearFilters}
+                activeFiltersCount={activeFiltersCount}
+              />
 
               {myGoals.length === 0 ? (
                 <Card>
