@@ -14,6 +14,7 @@ import { Feedback360ResponseDialog } from "@/components/performance/Feedback360R
 import { ReviewCompletionDialog } from "@/components/performance/ReviewCompletionDialog";
 import { GoalAnalyticsDashboard } from "@/components/performance/analytics/GoalAnalyticsDashboard";
 import { GoalRecommendationsDialog } from "@/components/performance/GoalRecommendationsDialog";
+import { PerformanceCalendar } from "@/components/performance/PerformanceCalendar";
 import { PerformanceReportExportDialog } from "@/components/performance/PerformanceReportExportDialog";
 import { ReviewTemplateBuilder } from "@/components/performance/ReviewTemplateBuilder";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
@@ -245,6 +246,10 @@ export default function PerformanceManagement() {
               <Users className="mr-2 h-4 w-4" />
               360° Feedback
             </TabsTrigger>
+            <TabsTrigger value="calendar">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              Calendar
+            </TabsTrigger>
             <TabsTrigger value="templates">
               <CalendarIcon className="mr-2 h-4 w-4" />
               Review Templates
@@ -395,6 +400,14 @@ export default function PerformanceManagement() {
                 </div>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="calendar" className="space-y-6">
+            <PerformanceCalendar
+              goals={allGoals}
+              reviews={myReviews}
+              feedback={my360Feedback}
+            />
           </TabsContent>
 
           <TabsContent value="templates" className="space-y-6">
