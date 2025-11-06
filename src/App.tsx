@@ -27,6 +27,8 @@ import RecruitmentServices from "./pages/RecruitmentServices";
 import ServiceProjectDetail from "./pages/ServiceProjectDetail";
 import HRMS from "./pages/HRMS";
 import EmployeeDetail from "./pages/EmployeeDetail";
+import HRAnalytics from "./pages/HRAnalytics";
+import OrgChart from "./pages/OrgChart";
 import LeaveManagement from "./pages/LeaveManagement";
 import PerformanceManagement from "./pages/PerformanceManagement";
 import Inbox from "./pages/Inbox";
@@ -70,6 +72,8 @@ function AppContent() {
             <Route path="/recruitment-services/:id" element={<ServiceProjectDetail />} />
             <Route path="/hrms" element={<HRMS />} />
             <Route path="/hrms/employees/:id" element={<EmployeeDetail />} />
+            <Route path="/hrms/analytics" element={<HRAnalytics />} />
+            <Route path="/hrms/org-chart" element={<OrgChart />} />
             <Route path="/leave" element={<LeaveManagement />} />
             <Route path="/performance" element={<PerformanceManagement />} />
             <Route path="/applications" element={<Applications />} />

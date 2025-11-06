@@ -22,7 +22,16 @@ const operationsNavItems = [
   { title: "Employers", url: "/employers", icon: Building },
   { title: "Consultants", url: "/consultants", icon: UserCog },
   { title: "Recruitment Services", url: "/recruitment-services", icon: Target },
-  { title: "HRMS", url: "/hrms", icon: Heart },
+  { 
+    title: "HRMS", 
+    url: "/hrms", 
+    icon: Heart,
+    subItems: [
+      { title: "Employees", url: "/hrms" },
+      { title: "Analytics", url: "/hrms/analytics" },
+      { title: "Org Chart", url: "/hrms/org-chart" },
+    ]
+  },
   { title: "Leave Management", url: "/leave", icon: CalendarDays },
   { title: "Performance", url: "/performance", icon: Target },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
