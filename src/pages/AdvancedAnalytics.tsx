@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TrendingUp, TrendingDown, Minus, AlertCircle, Lightbulb, Activity, AlertTriangle } from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { getPredictiveMetrics, getDepartmentComparisons, getSkillGaps, getWorkforceInsights } from '@/lib/advancedAnalyticsStorage';
 import type { PredictiveMetric, DepartmentComparison, SkillGapAnalysis, WorkforceInsight } from '@/types/advancedAnalytics';
 
@@ -47,7 +48,33 @@ export default function AdvancedAnalytics() {
           </p>
         </div>
 
-        {/* Predictive Metrics */}
+        {/* Predictive Trends Chart */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Predictive Trends</CardTitle>
+            <CardDescription>Forecasted vs. current metrics over time</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={predictiveMetrics.map(m => ({
+                name: m.metricName.split(' ').slice(0, 2).join(' '),
+                current: m.currentValue,
+                predicted: m.predictedValue,
+                confidence: m.confidence
+              }))}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="current" stroke="hsl(var(--primary))" strokeWidth={2} name="Current Value" />
+                <Line type="monotone" dataKey="predicted" stroke="hsl(var(--chart-2))" strokeWidth={2} strokeDasharray="5 5" name="Predicted Value" />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Predictive Metrics Details */}
         <Card>
           <CardHeader>
             <CardTitle>Predictive Metrics</CardTitle>
@@ -128,11 +155,54 @@ export default function AdvancedAnalytics() {
           </CardContent>
         </Card>
 
-        {/* Department Comparison */}
+        {/* Department Performance Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Department Metrics</CardTitle>
+              <CardDescription>Performance and engagement scores</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={departments}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="department" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="performanceScore" fill="hsl(var(--chart-1))" name="Performance" />
+                  <Bar dataKey="engagementScore" fill="hsl(var(--chart-2))" name="Engagement" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Department Radar</CardTitle>
+              <CardDescription>Multi-dimensional performance view</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <RadarChart data={departments}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="department" />
+                  <PolarRadiusAxis angle={90} domain={[0, 10]} />
+                  <Radar name="Performance" dataKey="performanceScore" stroke="hsl(var(--chart-1))" fill="hsl(var(--chart-1))" fillOpacity={0.6} />
+                  <Radar name="Engagement" dataKey="engagementScore" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.6} />
+                  <Tooltip />
+                  <Legend />
+                </RadarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Department Comparison Table */}
         <Card>
           <CardHeader>
             <CardTitle>Department Performance Comparison</CardTitle>
-            <CardDescription>Benchmarking across organizational units</CardDescription>
+            <CardDescription>Detailed benchmarking across organizational units</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
