@@ -8,9 +8,12 @@ import { getAllUserRoles } from "@/lib/rbacService";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { UserRole, ROLE_PERMISSIONS } from "@/types/rbac";
+import { RoleAssignmentDialog } from "@/components/rbac/RoleAssignmentDialog";
 
 export default function RoleManagement() {
   const { isSuperAdmin } = useRBAC();
+  const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const userRoles = getAllUserRoles();
 
   const roleColumns: Column<UserRole>[] = [
@@ -91,7 +94,7 @@ export default function RoleManagement() {
               Manage user roles and permissions across the system
             </p>
           </div>
-          <Button>
+          <Button onClick={() => setRoleDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Assign Role
           </Button>
@@ -191,6 +194,12 @@ export default function RoleManagement() {
             />
           </CardContent>
         </Card>
+
+        <RoleAssignmentDialog
+          open={roleDialogOpen}
+          onOpenChange={setRoleDialogOpen}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
       </div>
     </DashboardPageLayout>
   );

@@ -3,16 +3,21 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, FileText, AlertTriangle, CheckCircle, History, Database } from "lucide-react";
+import { Shield, FileText, AlertTriangle, CheckCircle, History, Database, Plus } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
 import { getAuditLogs, getPolicies, getPolicyAcknowledgments, getComplianceAlerts, getDataSubjectRequests } from "@/lib/complianceStorage";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { AuditLog, CompliancePolicy, ComplianceAlert } from "@/types/compliance";
+import { PolicyDialog } from "@/components/compliance/PolicyDialog";
+import { DataSubjectRequestDialog } from "@/components/compliance/DataSubjectRequestDialog";
 
 export default function Compliance() {
   const { isHRAdmin, isSuperAdmin } = useRBAC();
   const [activeTab, setActiveTab] = useState("overview");
+  const [policyDialogOpen, setPolicyDialogOpen] = useState(false);
+  const [dsrDialogOpen, setDsrDialogOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const auditLogs = getAuditLogs();
   const policies = getPolicies();
@@ -278,7 +283,7 @@ export default function Compliance() {
                     <CardTitle>Company Policies</CardTitle>
                     <CardDescription>Manage organizational policies</CardDescription>
                   </div>
-                  <Button>
+                  <Button onClick={() => setPolicyDialogOpen(true)}>
                     <FileText className="h-4 w-4 mr-2" />
                     Add Policy
                   </Button>
@@ -341,6 +346,17 @@ export default function Compliance() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <PolicyDialog
+          open={policyDialogOpen}
+          onOpenChange={setPolicyDialogOpen}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
+        <DataSubjectRequestDialog
+          open={dsrDialogOpen}
+          onOpenChange={setDsrDialogOpen}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
       </div>
     </DashboardPageLayout>
   );

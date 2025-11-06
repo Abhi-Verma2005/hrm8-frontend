@@ -1,15 +1,19 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { useRBAC } from "@/hooks/useRBAC";
 import { getESSProfile, getESSStats, getQuickActions } from "@/lib/essStorage";
-import { User, FileText, Calendar, Receipt, Heart, Clock, TrendingUp, Bell, CheckCircle2, AlertCircle } from "lucide-react";
+import { User, FileText, Calendar, Receipt, Heart, Clock, TrendingUp, Bell, CheckCircle2, AlertCircle, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { ProfileEditDialog } from "@/components/ess/ProfileEditDialog";
 
 export default function EmployeeSelfService() {
   const { userId } = useRBAC();
   const navigate = useNavigate();
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const profile = getESSProfile(userId);
   const stats = getESSStats(userId);
   const quickActions = getQuickActions(userId);
@@ -134,11 +138,19 @@ export default function EmployeeSelfService() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Personal Information
-              </CardTitle>
-              <CardDescription>Your basic details</CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <User className="h-5 w-5" />
+                    Personal Information
+                  </CardTitle>
+                  <CardDescription>Your basic details</CardDescription>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setProfileDialogOpen(true)}>
+                  <Edit className="h-4 w-4 mr-1" />
+                  Edit
+                </Button>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -201,6 +213,13 @@ export default function EmployeeSelfService() {
             </CardContent>
           </Card>
         </div>
+
+        <ProfileEditDialog
+          open={profileDialogOpen}
+          onOpenChange={setProfileDialogOpen}
+          employeeId={userId}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
       </div>
     </DashboardPageLayout>
   );

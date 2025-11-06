@@ -10,11 +10,14 @@ import { DataTable, Column } from "@/components/tables/DataTable";
 import { AccrualPolicy, AccrualTransaction } from "@/types/accrual";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { AccrualPolicyDialog } from "@/components/accrual/AccrualPolicyDialog";
 
 export default function AccrualPolicies() {
   const { isHRAdmin, isSuperAdmin } = useRBAC();
   const [activeTab, setActiveTab] = useState("policies");
   const [processing, setProcessing] = useState(false);
+  const [policyDialogOpen, setPolicyDialogOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const policies = getAccrualPolicies();
   const transactions = getAccrualTransactions();
@@ -173,7 +176,7 @@ export default function AccrualPolicies() {
               <Play className="h-4 w-4 mr-2" />
               {processing ? "Processing..." : "Run Accruals"}
             </Button>
-            <Button>
+            <Button onClick={() => setPolicyDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Create Policy
             </Button>
@@ -338,6 +341,12 @@ export default function AccrualPolicies() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <AccrualPolicyDialog
+          open={policyDialogOpen}
+          onOpenChange={setPolicyDialogOpen}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
       </div>
     </DashboardPageLayout>
   );

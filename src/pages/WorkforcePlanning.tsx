@@ -9,10 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { HeadcountPlan } from "@/types/workforcePlanning";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { HeadcountPlanDialog } from "@/components/workforce/HeadcountPlanDialog";
 
 export default function WorkforcePlanning() {
   const { isHRAdmin, isSuperAdmin, isManager } = useRBAC();
   const [activeTab, setActiveTab] = useState("headcount");
+  const [planDialogOpen, setPlanDialogOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const plans = getHeadcountPlans();
   const demographics = getWorkforceDemographics();
@@ -102,7 +105,7 @@ export default function WorkforcePlanning() {
               Strategic headcount planning and budget forecasting
             </p>
           </div>
-          <Button>
+          <Button onClick={() => setPlanDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Create Plan
           </Button>
@@ -315,6 +318,12 @@ export default function WorkforcePlanning() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <HeadcountPlanDialog
+          open={planDialogOpen}
+          onOpenChange={setPlanDialogOpen}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
       </div>
     </DashboardPageLayout>
   );

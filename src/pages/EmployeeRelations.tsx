@@ -9,10 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { ERCase } from "@/types/employeeRelations";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ERCaseDialog } from "@/components/employee-relations/ERCaseDialog";
 
 export default function EmployeeRelations() {
   const { isHRAdmin, isSuperAdmin, isManager } = useRBAC();
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
+  const [caseDialogOpen, setCaseDialogOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const cases = getERCases({ status: statusFilter });
   const stats = getERCaseStats();
@@ -128,7 +131,7 @@ export default function EmployeeRelations() {
               Manage grievances, investigations, and disciplinary cases
             </p>
           </div>
-          <Button>
+          <Button onClick={() => setCaseDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             New Case
           </Button>
@@ -308,6 +311,12 @@ export default function EmployeeRelations() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <ERCaseDialog
+          open={caseDialogOpen}
+          onOpenChange={setCaseDialogOpen}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
       </div>
     </DashboardPageLayout>
   );

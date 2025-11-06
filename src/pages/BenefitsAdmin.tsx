@@ -9,10 +9,17 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { EnrollmentPeriod, LifeEvent, COBRAEvent } from "@/types/benefitsEnhanced";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EnrollmentPeriodDialog } from "@/components/benefits/EnrollmentPeriodDialog";
+import { LifeEventDialog } from "@/components/benefits/LifeEventDialog";
+import { COBRADialog } from "@/components/benefits/COBRADialog";
 
 export default function BenefitsAdmin() {
   const { isHRAdmin, isSuperAdmin } = useRBAC();
   const [activeTab, setActiveTab] = useState("enrollment");
+  const [enrollmentDialogOpen, setEnrollmentDialogOpen] = useState(false);
+  const [lifeEventDialogOpen, setLifeEventDialogOpen] = useState(false);
+  const [cobraDialogOpen, setCobraDialogOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const enrollmentPeriods = getEnrollmentPeriods();
   const lifeEvents = getLifeEvents({ processed: false });
@@ -203,7 +210,7 @@ export default function BenefitsAdmin() {
               Manage enrollments, life events, and COBRA administration
             </p>
           </div>
-          <Button>
+          <Button onClick={() => setEnrollmentDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Create Enrollment Period
           </Button>
@@ -295,10 +302,18 @@ export default function BenefitsAdmin() {
           <TabsContent value="life-events" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Life Events</CardTitle>
-                <CardDescription>
-                  Process qualifying life events and special enrollment periods
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Life Events</CardTitle>
+                    <CardDescription>
+                      Process qualifying life events and special enrollment periods
+                    </CardDescription>
+                  </div>
+                  <Button onClick={() => setLifeEventDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Record Event
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {lifeEvents.length > 0 ? (
@@ -335,10 +350,18 @@ export default function BenefitsAdmin() {
           <TabsContent value="cobra" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>COBRA Administration</CardTitle>
-                <CardDescription>
-                  Manage COBRA qualifying events and continuation coverage
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>COBRA Administration</CardTitle>
+                    <CardDescription>
+                      Manage COBRA qualifying events and continuation coverage
+                    </CardDescription>
+                  </div>
+                  <Button onClick={() => setCobraDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create COBRA Event
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {cobraEvents.length > 0 ? (
@@ -372,6 +395,22 @@ export default function BenefitsAdmin() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <EnrollmentPeriodDialog
+          open={enrollmentDialogOpen}
+          onOpenChange={setEnrollmentDialogOpen}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
+        <LifeEventDialog
+          open={lifeEventDialogOpen}
+          onOpenChange={setLifeEventDialogOpen}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
+        <COBRADialog
+          open={cobraDialogOpen}
+          onOpenChange={setCobraDialogOpen}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
       </div>
     </DashboardPageLayout>
   );
