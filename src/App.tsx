@@ -47,6 +47,9 @@ import EmployeeSelfService from "./pages/EmployeeSelfService";
 import Compliance from "./pages/Compliance";
 import EmployeeRelations from "./pages/EmployeeRelations";
 import RoleManagement from "./pages/RoleManagement";
+import AccrualPolicies from "./pages/AccrualPolicies";
+import WorkforcePlanning from "./pages/WorkforcePlanning";
+import BenefitsAdmin from "./pages/BenefitsAdmin";
 import Finance from "./pages/Finance";
 import Integrations from "./pages/Integrations";
 import Reports from "./pages/Reports";
@@ -108,6 +111,9 @@ function AppContent() {
           <Route path="/compliance" element={<Compliance />} />
           <Route path="/employee-relations" element={<EmployeeRelations />} />
           <Route path="/role-management" element={<RoleManagement />} />
+          <Route path="/accrual-policies" element={<AccrualPolicies />} />
+          <Route path="/workforce-planning" element={<WorkforcePlanning />} />
+          <Route path="/benefits-admin" element={<BenefitsAdmin />} />
             <Route path="/finance" element={<Finance />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/reports" element={<Reports />} />

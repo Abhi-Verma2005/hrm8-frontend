@@ -1,0 +1,344 @@
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { Clock, Plus, Play, TrendingUp, Calendar, FileText } from "lucide-react";
+import { useRBAC } from "@/hooks/useRBAC";
+import { getAccrualPolicies, getAccrualTransactions, processMonthlyAccruals } from "@/lib/accrualStorage";
+import { Badge } from "@/components/ui/badge";
+import { DataTable, Column } from "@/components/tables/DataTable";
+import { AccrualPolicy, AccrualTransaction } from "@/types/accrual";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
+
+export default function AccrualPolicies() {
+  const { isHRAdmin, isSuperAdmin } = useRBAC();
+  const [activeTab, setActiveTab] = useState("policies");
+  const [processing, setProcessing] = useState(false);
+
+  const policies = getAccrualPolicies();
+  const transactions = getAccrualTransactions();
+
+  const hasAccess = isHRAdmin || isSuperAdmin;
+
+  const policyColumns: Column<AccrualPolicy>[] = [
+    {
+      key: "name",
+      label: "Policy Name",
+      sortable: true,
+    },
+    {
+      key: "leaveTypeName",
+      label: "Leave Type",
+      sortable: true,
+      render: (policy) => (
+        <Badge variant="secondary">{policy.leaveTypeName}</Badge>
+      ),
+    },
+    {
+      key: "accrualMethod",
+      label: "Method",
+      sortable: true,
+      render: (policy) => (
+        <Badge variant="outline">{policy.accrualMethod}</Badge>
+      ),
+    },
+    {
+      key: "accrualRate",
+      label: "Rate",
+      sortable: true,
+      render: (policy) => `${policy.accrualRate} days/${policy.accrualFrequency}`,
+    },
+    {
+      key: "maxAccrual",
+      label: "Max Accrual",
+      sortable: true,
+      render: (policy) => policy.maxAccrual ? `${policy.maxAccrual} days` : "Unlimited",
+    },
+    {
+      key: "carryoverAllowed",
+      label: "Carryover",
+      render: (policy) => (
+        <Badge variant={policy.carryoverAllowed ? "default" : "secondary"}>
+          {policy.carryoverAllowed ? `${policy.maxCarryover || 'Unlimited'} days` : 'No'}
+        </Badge>
+      ),
+    },
+    {
+      key: "isActive",
+      label: "Status",
+      sortable: true,
+      render: (policy) => (
+        <Badge variant={policy.isActive ? "default" : "secondary"}>
+          {policy.isActive ? "Active" : "Inactive"}
+        </Badge>
+      ),
+    },
+  ];
+
+  const transactionColumns: Column<AccrualTransaction>[] = [
+    {
+      key: "employeeName",
+      label: "Employee",
+      sortable: true,
+    },
+    {
+      key: "leaveTypeName",
+      label: "Leave Type",
+      sortable: true,
+    },
+    {
+      key: "transactionType",
+      label: "Type",
+      sortable: true,
+      render: (txn) => {
+        const colors = {
+          accrual: "bg-green-50 text-green-700",
+          adjustment: "bg-blue-50 text-blue-700",
+          carryover: "bg-purple-50 text-purple-700",
+          expiry: "bg-orange-50 text-orange-700",
+          usage: "bg-red-50 text-red-700",
+        };
+        return <Badge className={colors[txn.transactionType]}>{txn.transactionType}</Badge>;
+      },
+    },
+    {
+      key: "amount",
+      label: "Amount",
+      sortable: true,
+      render: (txn) => `${txn.amount > 0 ? '+' : ''}${txn.amount} days`,
+    },
+    {
+      key: "balance",
+      label: "Balance",
+      sortable: true,
+      render: (txn) => `${txn.balance} days`,
+    },
+    {
+      key: "effectiveDate",
+      label: "Effective Date",
+      sortable: true,
+      render: (txn) => new Date(txn.effectiveDate).toLocaleDateString(),
+    },
+  ];
+
+  const handleRunAccruals = async () => {
+    setProcessing(true);
+    try {
+      const processed = processMonthlyAccruals();
+      toast.success(`Processed accruals for ${processed} policies`);
+    } catch (error) {
+      toast.error("Failed to process accruals");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  if (!hasAccess) {
+    return (
+      <DashboardPageLayout>
+        <div className="p-6">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-3 text-muted-foreground">
+                <Clock className="h-8 w-8" />
+                <div>
+                  <p className="font-semibold">Access Restricted</p>
+                  <p className="text-sm">You don't have permission to manage accrual policies.</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </DashboardPageLayout>
+    );
+  }
+
+  return (
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <Clock className="h-8 w-8" />
+              Accrual Policies
+            </h1>
+            <p className="text-muted-foreground">
+              Automate time-off accruals and manage carryover rules
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={handleRunAccruals} disabled={processing}>
+              <Play className="h-4 w-4 mr-2" />
+              {processing ? "Processing..." : "Run Accruals"}
+            </Button>
+            <Button>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Policy
+            </Button>
+          </div>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Active Policies</p>
+                  <p className="text-2xl font-bold">{policies.length}</p>
+                </div>
+                <FileText className="h-8 w-8 text-blue-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Transactions</p>
+                  <p className="text-2xl font-bold">{transactions.length}</p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-green-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Next Run</p>
+                  <p className="text-2xl font-bold">3 days</p>
+                </div>
+                <Calendar className="h-8 w-8 text-purple-500" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Avg. Accrual</p>
+                  <p className="text-2xl font-bold">1.5 days</p>
+                </div>
+                <Clock className="h-8 w-8 text-orange-500" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Main Content */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="policies">Policies</TabsTrigger>
+            <TabsTrigger value="transactions">Transactions</TabsTrigger>
+            <TabsTrigger value="schedules">Schedules</TabsTrigger>
+            <TabsTrigger value="simulator">Simulator</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="policies" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Accrual Policies</CardTitle>
+                <CardDescription>
+                  {policies.length === 0
+                    ? "No policies configured. Create your first policy to automate accruals."
+                    : `Managing ${policies.length} active accrual polic${policies.length > 1 ? 'ies' : 'y'}`}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {policies.length > 0 ? (
+                  <DataTable
+                    columns={policyColumns}
+                    data={policies}
+                    searchKeys={["name", "leaveTypeName"]}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <Clock className="h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No Policies Yet</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Create your first accrual policy to automate time-off calculations
+                    </p>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create First Policy
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="transactions" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Accrual Transactions</CardTitle>
+                <CardDescription>History of all accrual calculations and adjustments</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {transactions.length > 0 ? (
+                  <DataTable
+                    columns={transactionColumns}
+                    data={transactions}
+                    searchKeys={["employeeName", "leaveTypeName"]}
+                  />
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-8">
+                    No transactions yet. Accruals will appear here once processed.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="schedules" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Accrual Schedules</CardTitle>
+                <CardDescription>Automated processing schedules for each policy</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {policies.map((policy) => (
+                    <div key={policy.id} className="p-4 rounded-lg border">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">{policy.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Runs {policy.accrualFrequency} • Next: 1st of next month
+                          </p>
+                        </div>
+                        <Badge>Active</Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="simulator" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Accrual Simulator</CardTitle>
+                <CardDescription>
+                  Test policy changes before applying them
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  Accrual simulator will allow you to model policy changes and see projected balances.
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DashboardPageLayout>
+  );
+}

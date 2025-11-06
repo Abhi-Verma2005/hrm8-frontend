@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
-import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2 } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 
@@ -54,6 +54,9 @@ const hrManagementNavItems = [
   { title: "Compliance", url: "/compliance", icon: Shield },
   { title: "Employee Relations", url: "/employee-relations", icon: Shield },
   { title: "Role Management", url: "/role-management", icon: Crown },
+  { title: "Accrual Policies", url: "/accrual-policies", icon: CalendarClock },
+  { title: "Workforce Planning", url: "/workforce-planning", icon: BarChart2 },
+  { title: "Benefits Admin", url: "/benefits-admin", icon: Heart },
 ];
 
 // MANAGEMENT Section
