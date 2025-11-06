@@ -3,7 +3,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck, Download, Sparkles, Award, AlertTriangle } from "lucide-react";
+import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck, Download, Sparkles, Award, AlertTriangle, GraduationCap } from "lucide-react";
 import { GoalCard } from "@/components/performance/GoalCard";
 import { ReviewCard } from "@/components/performance/ReviewCard";
 import { Feedback360Card } from "@/components/performance/Feedback360Card";
@@ -87,6 +87,14 @@ export default function PerformanceManagement() {
   }, [refreshKey]);
   const employees = useMemo(() => getEmployees(), []);
   const currentEmployee = employees.find(e => e.id === currentEmployeeId) || employees[0];
+
+  // Learning & Development data
+  const courses = useMemo(() => getCourses(), [refreshKey]);
+  const trainingPaths = useMemo(() => getTrainingPaths(), [refreshKey]);
+  const courseEnrollments = useMemo(() => getCourseEnrollments(currentEmployeeId), [currentEmployeeId, refreshKey]);
+  const employeeCertifications = useMemo(() => getEmployeeCertifications(currentEmployeeId), [currentEmployeeId, refreshKey]);
+  const skillDevelopmentPrograms = useMemo(() => getSkillDevelopmentPrograms(currentEmployeeId), [currentEmployeeId, refreshKey]);
+  const learningAnalytics = useMemo(() => getLearningAnalytics(currentEmployeeId), [currentEmployeeId, refreshKey]);
 
   // Apply filters and sorting
   const myGoals = useMemo(() => {
@@ -245,6 +253,20 @@ export default function PerformanceManagement() {
     setRefreshKey(prev => prev + 1);
   };
 
+  const handleEnrollCourse = (courseId: string) => {
+    toast.success("Enrolled in course successfully");
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleStartCourse = (enrollmentId: string) => {
+    toast.success("Course started");
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleViewCertificate = (certificationId: string) => {
+    toast.success("Opening certificate");
+  };
+
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
@@ -382,6 +404,10 @@ export default function PerformanceManagement() {
             <TabsTrigger value="succession">
               <Users className="mr-2 h-4 w-4" />
               Succession Planning
+            </TabsTrigger>
+            <TabsTrigger value="learning">
+              <GraduationCap className="mr-2 h-4 w-4" />
+              Learning & Development
             </TabsTrigger>
             <TabsTrigger value="calendar">
               <CalendarIcon className="mr-2 h-4 w-4" />
@@ -630,6 +656,20 @@ export default function PerformanceManagement() {
               successionPlans={successionPlans}
               nineBoxData={mockNineBoxData}
               leadershipPipeline={mockLeadershipPipeline}
+            />
+          </TabsContent>
+
+          <TabsContent value="learning" className="space-y-6">
+            <LearningDevelopment
+              courses={courses}
+              trainingPaths={trainingPaths}
+              enrollments={courseEnrollments}
+              certifications={employeeCertifications}
+              skillPrograms={skillDevelopmentPrograms}
+              analytics={learningAnalytics!}
+              onEnrollCourse={handleEnrollCourse}
+              onStartCourse={handleStartCourse}
+              onViewCertificate={handleViewCertificate}
             />
           </TabsContent>
 
