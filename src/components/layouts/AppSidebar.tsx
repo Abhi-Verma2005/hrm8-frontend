@@ -287,7 +287,43 @@ export function AppSidebar() {
         <SidebarSeparator />
 
         {/* INTEGRATIONS & INTELLIGENCE Section */}
-        {renderNavSection("Integration & Intelligence", integrationsNavItems, isExpanded)}
+        <SidebarGroup>
+          {isExpanded && (
+            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Integration & Intelligence
+            </SidebarGroupLabel>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {integrationsNavItems.map(item => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive(item.url)}
+                    className={cn(
+                      "relative transition-all duration-200",
+                      "hover:bg-sidebar-accent/50",
+                      isActive(item.url) && [
+                        "bg-primary/10",
+                        "text-primary",
+                        "font-medium",
+                        isExpanded && "border-l-4 border-primary"
+                      ]
+                    )}
+                  >
+                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                      <item.icon className={cn(
+                        "h-5 w-5 transition-all",
+                        !isExpanded && "mx-auto"
+                      )} />
+                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
         {/* SYSTEM Section */}
         <SidebarGroup>
