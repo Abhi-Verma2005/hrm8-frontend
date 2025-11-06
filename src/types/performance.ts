@@ -18,8 +18,50 @@ export interface PerformanceGoal {
   completedDate?: string;
   progress: number; // 0-100
   kpis: GoalKPI[];
-  alignedWith?: string; // Team or org goal ID
+  alignedWith?: string; // Parent goal or OKR ID
+  alignmentType?: 'company-okr' | 'team-objective' | 'individual-goal';
   createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CompanyOKR {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  owner: string;
+  ownerName: string;
+  startDate: string;
+  targetDate: string;
+  progress: number;
+  status: GoalStatus;
+  keyResults: KeyResult[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface KeyResult {
+  id: string;
+  title: string;
+  target: number;
+  current: number;
+  unit: string;
+  progress: number;
+}
+
+export interface TeamObjective {
+  id: string;
+  title: string;
+  description: string;
+  teamName: string;
+  alignedWithOKR: string; // Company OKR ID
+  owner: string;
+  ownerName: string;
+  startDate: string;
+  targetDate: string;
+  progress: number;
+  status: GoalStatus;
   createdAt: string;
   updatedAt: string;
 }

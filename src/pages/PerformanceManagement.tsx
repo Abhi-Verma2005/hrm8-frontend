@@ -17,9 +17,10 @@ import { GoalRecommendationsDialog } from "@/components/performance/GoalRecommen
 import { PerformanceCalendar } from "@/components/performance/PerformanceCalendar";
 import { ReviewDetailDialog } from "@/components/performance/ReviewDetailDialog";
 import { PerformanceBenchmarking } from "@/components/performance/PerformanceBenchmarking";
+import { GoalAlignmentView } from "@/components/performance/GoalAlignmentView";
 import { PerformanceReportExportDialog } from "@/components/performance/PerformanceReportExportDialog";
 import { ReviewTemplateBuilder } from "@/components/performance/ReviewTemplateBuilder";
-import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
+import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives } from "@/lib/performanceStorage";
 import { getEmployees } from "@/lib/employeeStorage";
 import type { PerformanceGoal, PerformanceReview } from "@/types/performance";
 
@@ -262,6 +263,10 @@ export default function PerformanceManagement() {
               <TrendingUp className="mr-2 h-4 w-4" />
               Benchmarking
             </TabsTrigger>
+            <TabsTrigger value="alignment">
+              <Target className="mr-2 h-4 w-4" />
+              Goal Alignment
+            </TabsTrigger>
             <TabsTrigger value="reviews">
               <FileText className="mr-2 h-4 w-4" />
               Performance Reviews
@@ -358,6 +363,15 @@ export default function PerformanceManagement() {
               goals={allGoals}
               reviews={myReviews}
               employees={employees}
+            />
+          </TabsContent>
+
+          <TabsContent value="alignment" className="space-y-6">
+            <GoalAlignmentView
+              goals={allGoals}
+              companyOKRs={mockCompanyOKRs}
+              teamObjectives={mockTeamObjectives}
+              onViewGoal={handleEditGoal}
             />
           </TabsContent>
 

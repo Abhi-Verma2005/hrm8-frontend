@@ -1,5 +1,8 @@
 import type { PerformanceGoal, PerformanceReviewTemplate, PerformanceReview, Feedback360, ReviewSchedule } from '@/types/performance';
-import { mockPerformanceGoals, mockReviewTemplates, mockPerformanceReviews, mockFeedback360, mockReviewSchedules } from '@/data/mockPerformanceData';
+import { mockPerformanceGoals, mockReviewTemplates, mockPerformanceReviews, mockFeedback360, mockReviewSchedules, mockCompanyOKRs, mockTeamObjectives } from '@/data/mockPerformanceData';
+
+// Export OKR data
+export { mockCompanyOKRs, mockTeamObjectives };
 
 const GOALS_KEY = 'hrms_performance_goals';
 const TEMPLATES_KEY = 'hrms_review_templates';

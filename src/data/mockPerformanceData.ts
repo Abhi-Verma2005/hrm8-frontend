@@ -1,4 +1,5 @@
 import type { PerformanceGoal, PerformanceReviewTemplate, PerformanceReview, Feedback360, ReviewSchedule } from '@/types/performance';
+export { mockCompanyOKRs, mockTeamObjectives } from './mockOKRData';
 
 export const mockPerformanceGoals: PerformanceGoal[] = [
   {
@@ -13,6 +14,8 @@ export const mockPerformanceGoals: PerformanceGoal[] = [
     startDate: '2025-01-01',
     targetDate: '2025-06-30',
     progress: 65,
+    alignedWith: 'team-obj1',
+    alignmentType: 'team-objective',
     kpis: [
       {
         id: 'kpi1',
@@ -46,6 +49,8 @@ export const mockPerformanceGoals: PerformanceGoal[] = [
     startDate: '2024-10-01',
     targetDate: '2025-03-31',
     progress: 45,
+    alignedWith: 'team-obj1',
+    alignmentType: 'team-objective',
     kpis: [
       {
         id: 'kpi3',
@@ -79,6 +84,8 @@ export const mockPerformanceGoals: PerformanceGoal[] = [
     targetDate: '2025-01-15',
     completedDate: '2025-01-14',
     progress: 100,
+    alignedWith: 'team-obj2',
+    alignmentType: 'team-objective',
     kpis: [
       {
         id: 'kpi5',
