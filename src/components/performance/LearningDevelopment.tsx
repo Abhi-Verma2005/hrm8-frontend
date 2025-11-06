@@ -37,6 +37,7 @@ import {
 } from '@/types/performance';
 import { CourseContentViewer } from './CourseContentViewer';
 import { AILearningRecommendations } from './AILearningRecommendations';
+import { TeamLearningAnalytics } from './TeamLearningAnalytics';
 import { toast } from 'sonner';
 
 interface LearningDevelopmentProps {
@@ -59,6 +60,7 @@ interface LearningDevelopmentProps {
   };
   goals?: any[];
   performanceGaps?: any[];
+  showTeamAnalytics?: boolean;
 }
 
 export function LearningDevelopment({
@@ -74,6 +76,7 @@ export function LearningDevelopment({
   employeeData,
   goals = [],
   performanceGaps = [],
+  showTeamAnalytics = false,
 }: LearningDevelopmentProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -81,6 +84,8 @@ export function LearningDevelopment({
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
   const [aiRecommendationsOpen, setAiRecommendationsOpen] = useState(false);
+  const [teamAnalyticsTimeRange, setTeamAnalyticsTimeRange] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
+  const [viewMode, setViewMode] = useState<'individual' | 'team'>(showTeamAnalytics ? 'team' : 'individual');
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -151,9 +156,52 @@ export function LearningDevelopment({
 
   const categories = Array.from(new Set(courses.map(c => c.category)));
 
+  // Mock team analytics data (in real app, this would come from props or API)
+  const mockDepartmentStats = [
+    { department: 'Engineering', totalEmployees: 85, enrolledEmployees: 72, completedCourses: 145, inProgressCourses: 38, averageProgress: 78, totalLearningHours: 1240, certificationsEarned: 28, skillsGapScore: 2.3, investmentAmount: 42500, estimatedROI: 145 },
+    { department: 'Product', totalEmployees: 42, enrolledEmployees: 38, completedCourses: 89, inProgressCourses: 22, averageProgress: 82, totalLearningHours: 680, certificationsEarned: 18, skillsGapScore: 1.8, investmentAmount: 28000, estimatedROI: 156 },
+    { department: 'Marketing', totalEmployees: 35, enrolledEmployees: 31, completedCourses: 67, inProgressCourses: 19, averageProgress: 75, totalLearningHours: 520, certificationsEarned: 12, skillsGapScore: 2.1, investmentAmount: 18500, estimatedROI: 138 },
+    { department: 'Sales', totalEmployees: 56, enrolledEmployees: 48, completedCourses: 92, inProgressCourses: 28, averageProgress: 71, totalLearningHours: 720, certificationsEarned: 15, skillsGapScore: 2.5, investmentAmount: 24000, estimatedROI: 165 },
+  ];
+
+  const mockSkillGaps = [
+    { skill: 'React Advanced Patterns', currentLevel: 2.8, requiredLevel: 4.5, gap: 1.7, departmentsAffected: ['Engineering', 'Product'] },
+    { skill: 'Data Analysis', currentLevel: 2.5, requiredLevel: 4.0, gap: 1.5, departmentsAffected: ['Marketing', 'Sales'] },
+    { skill: 'Leadership', currentLevel: 3.2, requiredLevel: 4.8, gap: 1.6, departmentsAffected: ['All Departments'] },
+    { skill: 'Cloud Architecture', currentLevel: 2.3, requiredLevel: 4.2, gap: 1.9, departmentsAffected: ['Engineering'] },
+  ];
+
   return (
     <div className="space-y-6">
-      {/* AI Recommendations Banner */}
+      {/* View Mode Toggle */}
+      {showTeamAnalytics && (
+        <div className="flex justify-end">
+          <Tabs value={viewMode} onValueChange={(value: any) => setViewMode(value)} className="w-auto">
+            <TabsList>
+              <TabsTrigger value="individual">
+                <Users className="h-4 w-4 mr-2" />
+                My Learning
+              </TabsTrigger>
+              <TabsTrigger value="team">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Team Analytics
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      )}
+
+      {/* Conditionally render Team Analytics or Individual Learning */}
+      {viewMode === 'team' ? (
+        <TeamLearningAnalytics
+          departmentStats={mockDepartmentStats}
+          skillGaps={mockSkillGaps}
+          timeRange={teamAnalyticsTimeRange}
+          onTimeRangeChange={setTeamAnalyticsTimeRange}
+        />
+      ) : (
+        <>
+          {/* AI Recommendations Banner */}
       <Card className="border-primary/50 bg-primary/5">
         <CardContent className="pt-6">
           <div className="flex items-center justify-between">
@@ -693,6 +741,8 @@ export function LearningDevelopment({
           </Card>
         </TabsContent>
       </Tabs>
+        </>
+      )}
 
       {/* Course Content Viewer Dialog */}
       {selectedCourse && (

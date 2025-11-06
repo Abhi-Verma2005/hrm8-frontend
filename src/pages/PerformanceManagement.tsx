@@ -680,6 +680,7 @@ export default function PerformanceManagement() {
               }}
               goals={allGoals}
               performanceGaps={[]}
+              showTeamAnalytics={currentUserRole === 'hr'}
             />
           </TabsContent>
 
