@@ -4,20 +4,46 @@ import { Helmet } from 'react-helmet-async';
 import { CertificateVerification } from '@/components/performance/CertificateVerification';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Home } from 'lucide-react';
-import { verifyCertificate } from '@/lib/certificateStorage';
+import { verifyCertificate, getCertificateTemplate } from '@/lib/certificateStorage';
+import { generateCertificateImage } from '@/lib/certificateImageGenerator';
 import type { Certificate } from '@/types/performance';
 
 export default function VerifyCertificate() {
   const { code } = useParams<{ code?: string }>();
   const [certificate, setCertificate] = useState<Certificate | null>(null);
+  const [certificateImageUrl, setCertificateImageUrl] = useState<string>('');
 
   useEffect(() => {
-    if (code) {
-      const verified = verifyCertificate(code);
-      if (verified) {
-        setCertificate(verified);
+    async function loadCertificate() {
+      if (code) {
+        const verified = verifyCertificate(code);
+        if (verified) {
+          setCertificate(verified);
+          
+          // Generate certificate image for social sharing
+          try {
+            const template = getCertificateTemplate('professional') || {
+              id: 'professional',
+              name: 'Professional',
+              type: 'professional',
+              layout: 'landscape' as const,
+              colors: {
+                primary: '#1e40af',
+                secondary: '#3b82f6',
+                accent: '#fbbf24'
+              }
+            };
+            
+            const imageUrl = await generateCertificateImage(verified, template);
+            setCertificateImageUrl(imageUrl);
+          } catch (error) {
+            console.error('Failed to generate certificate image:', error);
+          }
+        }
       }
     }
+    
+    loadCertificate();
   }, [code]);
 
   const pageTitle = certificate 
@@ -28,7 +54,9 @@ export default function VerifyCertificate() {
     ? `${certificate.employeeName} earned ${certificate.title} on ${new Date(certificate.issueDate).toLocaleDateString()}`
     : 'Verify certificate authenticity and view achievement details';
 
-  const imageUrl = '/placeholder.svg'; // Default image for social sharing
+  // Use generated certificate image or fallback to placeholder
+  const imageUrl = certificateImageUrl || '/placeholder.svg';
+  const imageAlt = certificate ? `Certificate: ${certificate.title}` : 'Certificate Verification';
 
   return (
     <>
@@ -41,6 +69,9 @@ export default function VerifyCertificate() {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:image" content={imageUrl} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={imageAlt} />
         <meta property="og:url" content={window.location.href} />
         <meta property="og:site_name" content="Learning & Development System" />
         
@@ -49,11 +80,14 @@ export default function VerifyCertificate() {
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
         <meta name="twitter:image" content={imageUrl} />
+        <meta name="twitter:image:alt" content={imageAlt} />
         
         {certificate && (
           <>
             <meta property="article:published_time" content={new Date(certificate.issueDate).toISOString()} />
-            <meta property="og:image:alt" content={`Certificate: ${certificate.title}`} />
+            <meta property="article:author" content={certificate.employeeName} />
+            <meta property="article:section" content="Certificates" />
+            <meta property="article:tag" content={certificate.type} />
           </>
         )}
       </Helmet>

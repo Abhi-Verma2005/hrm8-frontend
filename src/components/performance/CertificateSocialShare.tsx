@@ -24,12 +24,25 @@ export function CertificateSocialShare({ certificate, open, onOpenChange }: Cert
     
     setIsGenerating(true);
     try {
-      const template = getCertificateTemplate('template-1');
-      if (template) {
-        const url = await generateCertificateImage(certificate, template);
-        setImageUrl(url);
-      }
+      const template = getCertificateTemplate('template-1') || {
+        id: 'professional',
+        name: 'Professional',
+        type: 'professional',
+        layout: 'landscape' as const,
+        colors: {
+          primary: '#1e40af',
+          secondary: '#3b82f6',
+          accent: '#fbbf24'
+        }
+      };
+      
+      // Generate image with optional employee photo
+      // If you want to add employee photos, pass the photo URL as the third parameter
+      const url = await generateCertificateImage(certificate, template);
+      setImageUrl(url);
+      toast.success('Certificate image generated!');
     } catch (error) {
+      console.error('Image generation error:', error);
       toast.error('Failed to generate certificate image');
     } finally {
       setIsGenerating(false);
