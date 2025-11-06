@@ -7,12 +7,16 @@ import { Receipt, DollarSign, Clock, CheckCircle, XCircle, Plus, Download } from
 import { getExpenses, calculateExpenseStats } from "@/lib/expenseStorage";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { ExpenseSubmissionDialog } from "@/components/expenses/ExpenseSubmissionDialog";
 
 export default function Expenses() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
 
   const expenses = useMemo(() => getExpenses(), [refreshKey]);
   const stats = useMemo(() => calculateExpenseStats(), [refreshKey]);
+
+  const handleRefresh = () => setRefreshKey(prev => prev + 1);
 
   const myExpenses = expenses.filter(e => e.employeeId === 'current-user');
   const pendingApprovals = expenses.filter(e => e.status === 'submitted');
@@ -83,7 +87,7 @@ export default function Expenses() {
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button size="sm">
+              <Button size="sm" onClick={() => setExpenseDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Submit Expense
               </Button>
@@ -194,6 +198,12 @@ export default function Expenses() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <ExpenseSubmissionDialog 
+          open={expenseDialogOpen} 
+          onOpenChange={setExpenseDialogOpen}
+          onSuccess={handleRefresh}
+        />
       </div>
     </DashboardPageLayout>
   );

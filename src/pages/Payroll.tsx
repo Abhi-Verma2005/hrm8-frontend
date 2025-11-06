@@ -7,13 +7,17 @@ import { Wallet, DollarSign, Users, Calendar, Download, Plus } from "lucide-reac
 import { getPayrollRuns, getPayslips, calculatePayrollStats } from "@/lib/payrollStorage";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { PayrollRunDialog } from "@/components/payroll/PayrollRunDialog";
 
 export default function Payroll() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [payrollDialogOpen, setPayrollDialogOpen] = useState(false);
 
   const payrollRuns = useMemo(() => getPayrollRuns(), [refreshKey]);
   const payslips = useMemo(() => getPayslips(), [refreshKey]);
   const stats = useMemo(() => calculatePayrollStats(), [refreshKey]);
+
+  const handleRefresh = () => setRefreshKey(prev => prev + 1);
 
   return (
     <DashboardPageLayout>
@@ -81,9 +85,9 @@ export default function Payroll() {
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button size="sm">
+              <Button size="sm" onClick={() => setPayrollDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                New Payroll Run
+                Run Payroll
               </Button>
             </div>
           </div>
@@ -188,6 +192,12 @@ export default function Payroll() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <PayrollRunDialog 
+          open={payrollDialogOpen} 
+          onOpenChange={setPayrollDialogOpen}
+          onSuccess={handleRefresh}
+        />
       </div>
     </DashboardPageLayout>
   );

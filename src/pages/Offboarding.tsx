@@ -7,12 +7,16 @@ import { UserMinus, Clock, CheckCircle, AlertCircle, Plus } from "lucide-react";
 import { getOffboardingWorkflows, calculateOffboardingStats } from "@/lib/offboardingStorage";
 import { Badge } from "@/components/ui/badge";
 import { format, differenceInDays } from "date-fns";
+import { OffboardingChecklistDialog } from "@/components/offboarding/OffboardingChecklistDialog";
 
 export default function Offboarding() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [offboardingDialogOpen, setOffboardingDialogOpen] = useState(false);
 
   const workflows = useMemo(() => getOffboardingWorkflows(), [refreshKey]);
   const stats = useMemo(() => calculateOffboardingStats(), [refreshKey]);
+
+  const handleRefresh = () => setRefreshKey(prev => prev + 1);
 
   const activeWorkflows = workflows.filter(w => w.status === 'in-progress');
   const completedWorkflows = workflows.filter(w => w.status === 'completed');
@@ -78,9 +82,9 @@ export default function Offboarding() {
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
             </TabsList>
 
-            <Button size="sm">
+            <Button size="sm" onClick={() => setOffboardingDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Initiate Offboarding
+              Start Offboarding
             </Button>
           </div>
 
@@ -230,6 +234,12 @@ export default function Offboarding() {
             </div>
           </TabsContent>
         </Tabs>
+
+        <OffboardingChecklistDialog 
+          open={offboardingDialogOpen} 
+          onOpenChange={setOffboardingDialogOpen}
+          onSuccess={handleRefresh}
+        />
       </div>
     </DashboardPageLayout>
   );

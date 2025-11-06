@@ -7,13 +7,17 @@ import { DollarSign, TrendingUp, Users, Award, Plus, Download } from "lucide-rea
 import { getSalaryBands, getCompensationReviews, calculateCompensationStats } from "@/lib/compensationStorage";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { CompensationAdjustmentDialog } from "@/components/compensation/CompensationAdjustmentDialog";
 
 export default function Compensation() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [compensationDialogOpen, setCompensationDialogOpen] = useState(false);
 
   const salaryBands = useMemo(() => getSalaryBands(), [refreshKey]);
   const reviews = useMemo(() => getCompensationReviews(), [refreshKey]);
   const stats = useMemo(() => calculateCompensationStats(), [refreshKey]);
+
+  const handleRefresh = () => setRefreshKey(prev => prev + 1);
 
   return (
     <DashboardPageLayout>
@@ -82,9 +86,9 @@ export default function Compensation() {
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button size="sm">
+              <Button size="sm" onClick={() => setCompensationDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
-                New Review
+                Request Change
               </Button>
             </div>
           </div>
@@ -195,6 +199,12 @@ export default function Compensation() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <CompensationAdjustmentDialog 
+          open={compensationDialogOpen} 
+          onOpenChange={setCompensationDialogOpen}
+          onSuccess={handleRefresh}
+        />
       </div>
     </DashboardPageLayout>
   );

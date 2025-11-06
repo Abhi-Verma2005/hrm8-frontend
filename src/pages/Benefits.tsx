@@ -3,16 +3,20 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Gift, Users, DollarSign, TrendingUp, Plus } from "lucide-react";
+import { Gift, Users, DollarSign, TrendingUp, Plus, Download } from "lucide-react";
 import { getBenefitPlans, getBenefitEnrollments, calculateBenefitsStats } from "@/lib/benefitsStorage";
 import { Badge } from "@/components/ui/badge";
+import { BenefitEnrollmentDialog } from "@/components/benefits/BenefitEnrollmentDialog";
 
 export default function Benefits() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [benefitDialogOpen, setBenefitDialogOpen] = useState(false);
 
   const plans = useMemo(() => getBenefitPlans(), [refreshKey]);
   const enrollments = useMemo(() => getBenefitEnrollments(), [refreshKey]);
   const stats = useMemo(() => calculateBenefitsStats(), [refreshKey]);
+
+  const handleRefresh = () => setRefreshKey(prev => prev + 1);
 
   return (
     <DashboardPageLayout>
@@ -75,10 +79,16 @@ export default function Benefits() {
               <TabsTrigger value="reports">Reports</TabsTrigger>
             </TabsList>
 
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Plan
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+              <Button size="sm" onClick={() => setBenefitDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Enroll in Benefits
+              </Button>
+            </div>
           </div>
 
           <TabsContent value="plans" className="space-y-4">
@@ -180,6 +190,12 @@ export default function Benefits() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <BenefitEnrollmentDialog 
+          open={benefitDialogOpen} 
+          onOpenChange={setBenefitDialogOpen}
+          onSuccess={handleRefresh}
+        />
       </div>
     </DashboardPageLayout>
   );

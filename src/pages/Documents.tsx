@@ -7,14 +7,18 @@ import { getDocuments, getFolders, calculateDocumentStats } from "@/lib/document
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
+import { DocumentUploadDialog } from "@/components/documents/DocumentUploadDialog";
 
 export default function Documents() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [documentDialogOpen, setDocumentDialogOpen] = useState(false);
 
   const documents = useMemo(() => getDocuments(), [refreshKey]);
   const folders = useMemo(() => getFolders(), [refreshKey]);
   const stats = useMemo(() => calculateDocumentStats(), [refreshKey]);
+
+  const handleRefresh = () => setRefreshKey(prev => prev + 1);
 
   const filteredDocuments = useMemo(() => {
     return documents.filter(doc =>
@@ -96,9 +100,9 @@ export default function Documents() {
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={() => setDocumentDialogOpen(true)}>
               <Upload className="h-4 w-4 mr-2" />
-              Upload
+              Upload Document
             </Button>
           </div>
         </div>
@@ -170,6 +174,12 @@ export default function Documents() {
             </div>
           </CardContent>
         </Card>
+
+        <DocumentUploadDialog 
+          open={documentDialogOpen} 
+          onOpenChange={setDocumentDialogOpen}
+          onSuccess={handleRefresh}
+        />
       </div>
     </DashboardPageLayout>
   );
