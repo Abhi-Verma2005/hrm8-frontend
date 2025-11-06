@@ -8,6 +8,7 @@ import type { Certificate } from '@/types/performance';
 import { getCertificates } from '@/lib/certificateStorage';
 import { getCertificateTemplate } from '@/lib/certificateStorage';
 import { downloadCertificate, previewCertificate } from './CertificateGenerator';
+import { CertificateSocialShare } from './CertificateSocialShare';
 import { toast } from 'sonner';
 
 interface CertificateGalleryProps {
@@ -18,6 +19,8 @@ export function CertificateGallery({ employeeId }: CertificateGalleryProps) {
   const [certificates] = useState<Certificate[]>(getCertificates(employeeId));
   const [selectedCertificate, setSelectedCertificate] = useState<Certificate | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>('');
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [certificateToShare, setCertificateToShare] = useState<Certificate | null>(null);
 
   const handlePreview = (certificate: Certificate) => {
     setSelectedCertificate(certificate);
@@ -37,22 +40,8 @@ export function CertificateGallery({ employeeId }: CertificateGalleryProps) {
   };
 
   const handleShare = (certificate: Certificate) => {
-    if (navigator.share) {
-      navigator.share({
-        title: certificate.title,
-        text: `I earned a certificate: ${certificate.title}`,
-        url: certificate.credentialUrl
-      }).then(() => {
-        toast.success('Certificate shared!');
-      }).catch(() => {
-        // Fallback to clipboard
-        navigator.clipboard.writeText(certificate.credentialUrl);
-        toast.success('Link copied to clipboard!');
-      });
-    } else {
-      navigator.clipboard.writeText(certificate.credentialUrl);
-      toast.success('Link copied to clipboard!');
-    }
+    setCertificateToShare(certificate);
+    setShareDialogOpen(true);
   };
 
   const getCertificateTypeLabel = (type: Certificate['type']) => {
@@ -193,6 +182,13 @@ export function CertificateGallery({ employeeId }: CertificateGalleryProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Social Share Dialog */}
+      <CertificateSocialShare
+        certificate={certificateToShare}
+        open={shareDialogOpen}
+        onOpenChange={setShareDialogOpen}
+      />
     </>
   );
 }

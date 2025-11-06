@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,17 +10,28 @@ import { verifyCertificate } from '@/lib/certificateStorage';
 import type { Certificate } from '@/types/performance';
 
 export function CertificateVerification() {
+  const { code: urlCode } = useParams<{ code?: string }>();
   const [verificationCode, setVerificationCode] = useState('');
   const [certificate, setCertificate] = useState<Certificate | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [notFound, setNotFound] = useState(false);
 
-  const handleVerify = () => {
+  // Auto-verify if code is in URL
+  useEffect(() => {
+    if (urlCode) {
+      setVerificationCode(urlCode);
+      verifyCode(urlCode);
+    }
+  }, [urlCode]);
+
+  const verifyCode = (code: string) => {
+    if (!code) return;
+
     setIsVerifying(true);
     setNotFound(false);
     
     setTimeout(() => {
-      const cert = verifyCertificate(verificationCode.toUpperCase());
+      const cert = verifyCertificate(code.toUpperCase());
       if (cert) {
         setCertificate(cert);
       } else {
@@ -28,6 +40,10 @@ export function CertificateVerification() {
       }
       setIsVerifying(false);
     }, 500);
+  };
+
+  const handleVerify = () => {
+    verifyCode(verificationCode);
   };
 
   return (

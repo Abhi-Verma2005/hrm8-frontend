@@ -35,6 +35,7 @@ import Integrations from "./pages/Integrations";
 import Reports from "./pages/Reports";
 import AdminSettings from "./pages/AdminSettings";
 import SupportTickets from "./pages/SupportTickets";
+import VerifyCertificate from "./pages/VerifyCertificate";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,9 @@ function AppContent() {
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
           </Route>
+          
+          {/* Public routes (no sidebar) */}
+          <Route path="/verify/:code?" element={<VerifyCertificate />} />
           
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
