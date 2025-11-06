@@ -6,7 +6,7 @@ import { Upload, FileSpreadsheet, Download, CheckCircle2, XCircle, Loader2, Aler
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
 import { Employee } from '@/types/employee';
-import { saveEmployee } from '@/lib/employeeStorage';
+import { saveEmployee, getEmployees } from '@/lib/employeeStorage';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -82,6 +82,7 @@ export function BulkImportDialog({ open, onOpenChange, onSuccess }: BulkImportDi
       const worksheet = workbook.Sheets[sheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
+      const employees = getEmployees();
       const parsedData: ImportRow[] = jsonData.map((row: any, index) => {
         const employee: Partial<Employee> = {
           id: crypto.randomUUID(),
@@ -117,15 +118,30 @@ export function BulkImportDialog({ open, onOpenChange, onSuccess }: BulkImportDi
           createdBy: 'bulk-import',
         };
 
+        // Check for duplicates
+        const isDuplicateId = employees.some(emp => emp.employeeId === employee.employeeId);
+        const isDuplicateEmail = employees.some(emp => emp.email === employee.email);
+
+        let warning = '';
+        if (isDuplicateId) warning = 'Duplicate Employee ID';
+        else if (isDuplicateEmail) warning = 'Duplicate Email';
+
         return {
           data: employee,
-          status: 'pending' as const,
-          rowNumber: index + 2, // +2 because Excel rows start at 1 and we have header
+          status: (isDuplicateId || isDuplicateEmail) ? 'error' : 'pending' as const,
+          error: warning,
+          rowNumber: index + 2,
         };
       });
 
       setImportData(parsedData);
-      toast.success(`Parsed ${parsedData.length} employee records`);
+      
+      const duplicates = parsedData.filter(r => r.status === 'error').length;
+      if (duplicates > 0) {
+        toast.warning(`Parsed ${parsedData.length} records. ${duplicates} duplicates detected.`);
+      } else {
+        toast.success(`Parsed ${parsedData.length} employee records`);
+      }
     } catch (error) {
       console.error('Parse error:', error);
       toast.error('Failed to parse file. Please check the format.');

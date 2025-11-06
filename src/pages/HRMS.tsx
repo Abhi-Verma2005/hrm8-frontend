@@ -1,14 +1,18 @@
 import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload } from "lucide-react";
+import { Plus, Upload, Download, Image as ImageIcon, Edit2 } from "lucide-react";
 import { DataTable } from "@/components/tables/DataTable";
 import { createEmployeeColumns } from "@/components/hrms/EmployeeTableColumns";
 import { EmployeesFilterBar } from "@/components/hrms/EmployeesFilterBar";
 import { EmployeeFormDialog } from "@/components/hrms/EmployeeFormDialog";
 import { BulkImportDialog } from "@/components/hrms/BulkImportDialog";
+import { ExportDialog } from "@/components/hrms/ExportDialog";
+import { BulkPhotoUploadDialog } from "@/components/hrms/BulkPhotoUploadDialog";
+import { BulkEditDialog } from "@/components/hrms/BulkEditDialog";
 import { Employee } from "@/types/employee";
 import { getEmployees } from "@/lib/employeeStorage";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 
 export default function HRMS() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,7 +21,11 @@ export default function HRMS() {
   const [locationFilter, setLocationFilter] = useState("all");
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [bulkImportDialogOpen, setBulkImportDialogOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [bulkPhotoDialogOpen, setBulkPhotoDialogOpen] = useState(false);
+  const [bulkEditDialogOpen, setBulkEditDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | undefined>();
+  const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const employees = useMemo(() => getEmployees(), [refreshKey]);
@@ -63,10 +71,40 @@ export default function HRMS() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setBulkImportDialogOpen(true)}>
-              <Upload className="mr-2 h-4 w-4" />
-              Bulk Import
+            {selectedEmployees.length > 0 && (
+              <Button 
+                variant="outline" 
+                onClick={() => setBulkEditDialogOpen(true)}
+              >
+                <Edit2 className="mr-2 h-4 w-4" />
+                Edit {selectedEmployees.length}
+              </Button>
+            )}
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-background">
+                <DropdownMenuItem onClick={() => setBulkImportDialogOpen(true)}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Import Employees (CSV/Excel)
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setBulkPhotoDialogOpen(true)}>
+                  <ImageIcon className="mr-2 h-4 w-4" />
+                  Import Photos (ZIP)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button variant="outline" onClick={() => setExportDialogOpen(true)}>
+              <Download className="mr-2 h-4 w-4" />
+              Export
             </Button>
+
             <Button onClick={() => setFormDialogOpen(true)}>
               <Plus className="mr-2 h-4 w-4" />
               Add Employee
@@ -88,6 +126,11 @@ export default function HRMS() {
         <DataTable
           columns={employeeColumns}
           data={filteredEmployees}
+          selectable
+          onSelectedRowsChange={(ids) => {
+            const selected = filteredEmployees.filter(emp => ids.includes(emp.id));
+            setSelectedEmployees(selected);
+          }}
         />
 
         <EmployeeFormDialog
@@ -101,6 +144,28 @@ export default function HRMS() {
           open={bulkImportDialogOpen}
           onOpenChange={setBulkImportDialogOpen}
           onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
+
+        <ExportDialog
+          open={exportDialogOpen}
+          onOpenChange={setExportDialogOpen}
+          selectedEmployees={selectedEmployees.length > 0 ? selectedEmployees : undefined}
+        />
+
+        <BulkPhotoUploadDialog
+          open={bulkPhotoDialogOpen}
+          onOpenChange={setBulkPhotoDialogOpen}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
+
+        <BulkEditDialog
+          open={bulkEditDialogOpen}
+          onOpenChange={setBulkEditDialogOpen}
+          selectedEmployees={selectedEmployees}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            setSelectedEmployees([]);
+          }}
         />
       </div>
     </DashboardPageLayout>
