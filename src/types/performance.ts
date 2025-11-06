@@ -814,3 +814,118 @@ export interface LearningAnalytics {
     coursesCompleted: number;
   }[];
 }
+
+// ============= Certificate System Types =============
+
+export interface Certificate {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  type: 'course' | 'certification' | 'skill-mastery' | 'program-completion';
+  title: string;
+  description: string;
+  issueDate: Date;
+  expiryDate?: Date;
+  issuer: string;
+  issuerSignature: string;
+  verificationCode: string;
+  skills: string[];
+  credentialUrl: string;
+  certificateData: {
+    courseId?: string;
+    courseName?: string;
+    score?: number;
+    hours?: number;
+    instructorName?: string;
+  };
+}
+
+export interface CertificateTemplate {
+  id: string;
+  name: string;
+  type: string;
+  layout: 'landscape' | 'portrait';
+  colors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+  };
+  logoUrl?: string;
+  backgroundPattern?: string;
+}
+
+// ============= Gamification Types =============
+
+export interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: 'achievement' | 'skill' | 'milestone' | 'special';
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  requirements: {
+    type: string;
+    target: number;
+    criteria: string;
+  };
+  points: number;
+}
+
+export interface EmployeeBadge {
+  id: string;
+  employeeId: string;
+  badgeId: string;
+  badge: Badge;
+  earnedDate: Date;
+  progress?: number;
+}
+
+export interface GamificationProfile {
+  employeeId: string;
+  totalPoints: number;
+  level: number;
+  rank: string;
+  badges: EmployeeBadge[];
+  streak: number;
+  longestStreak: number;
+  completedChallenges: string[];
+  achievements: Achievement[];
+  lastActivity: Date;
+}
+
+export interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  unlockedDate: Date;
+  icon: string;
+  points: number;
+}
+
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  type: 'weekly' | 'monthly' | 'team' | 'skill';
+  startDate: Date;
+  endDate: Date;
+  target: number;
+  current: number;
+  reward: {
+    points: number;
+    badges?: string[];
+  };
+  participants: string[];
+  status: 'active' | 'completed' | 'expired';
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  points: number;
+  level: number;
+  badges: number;
+  change: number; // position change from last period
+}

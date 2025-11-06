@@ -132,7 +132,10 @@ export function CourseContentViewer({
     newCompleted.add(currentLesson.id);
     setCompletedLessons(newCompleted);
     onCompleteLesson(currentLesson.id);
-    toast.success('Lesson completed!');
+    
+    // Award points for lesson completion
+    const points = 50;
+    toast.success(`Lesson completed! +${points} XP`);
     
     // Auto-advance to next lesson
     setTimeout(handleNextLesson, 1000);
@@ -155,7 +158,9 @@ export function CourseContentViewer({
     setQuizState({ ...quizState, submitted: true, score });
 
     if (score >= currentModule.assessment.passingScore) {
-      toast.success(`Quiz passed with ${score.toFixed(0)}%!`);
+      const points = score === 100 ? 100 : 75;
+      const bonus = score === 100 ? ' + 50 bonus!' : '';
+      toast.success(`Quiz passed with ${score.toFixed(0)}%! +${points} XP${bonus}`);
       onCompleteAssessment(currentModule.assessment.id, score);
     } else {
       toast.error(`Score: ${score.toFixed(0)}%. Passing score is ${currentModule.assessment.passingScore}%`);
