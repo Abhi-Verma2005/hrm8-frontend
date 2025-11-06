@@ -57,6 +57,8 @@ export function ExpenseSubmissionDialog({ open, onOpenChange, onSuccess }: Expen
         description: data.description,
         receiptUrl: data.receiptUrl,
         status: 'submitted',
+        approvalWorkflow: [],
+        currentApprovalLevel: 0,
       });
 
       toast({

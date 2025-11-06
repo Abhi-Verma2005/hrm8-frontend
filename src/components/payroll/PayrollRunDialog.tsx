@@ -48,19 +48,33 @@ export function PayrollRunDialog({ open, onOpenChange, onSuccess }: PayrollRunDi
       const netPay = grossPay - totalDeductions;
 
       savePayslip({
+        payrollRunId: 'run-' + Date.now(),
         employeeId: 'emp-' + Date.now(),
         employeeName: data.employeeName,
-        payPeriodStart: data.payPeriodStart,
-        payPeriodEnd: data.payPeriodEnd,
+        period: data.payPeriodStart.slice(0, 7),
         baseSalary: data.baseSalary,
-        overtime: 0,
-        bonuses: data.bonus || 0,
+        allowances: data.bonus ? [{
+          id: 'bonus-1',
+          name: 'Bonus',
+          type: 'bonus' as const,
+          amount: data.bonus,
+          isPercentage: false,
+          isRecurring: false,
+        }] : [],
+        deductions: data.deductions ? [{
+          id: 'deduction-1',
+          name: 'Deductions',
+          type: 'other' as const,
+          amount: data.deductions,
+          isPercentage: false,
+          isRecurring: false,
+        }] : [],
         grossPay,
-        taxDeductions: 0,
-        otherDeductions: totalDeductions,
         netPay,
+        workDays: 22,
+        overtimeHours: 0,
+        leaveDays: 0,
         status: 'draft',
-        paymentMethod: 'direct-deposit',
       });
 
       toast({

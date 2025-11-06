@@ -47,11 +47,16 @@ export function DocumentUploadDialog({ open, onOpenChange, onSuccess }: Document
         description: data.description,
         category: data.type as any,
         fileUrl: data.fileUrl,
+        fileName: data.fileUrl.split('-').pop() || 'document',
         fileSize: 0,
-        mimeType: 'application/pdf',
-        status: 'active',
-        createdByName: data.employeeName,
+        fileType: 'application/pdf',
         version: 1,
+        status: 'active',
+        accessLevel: 'private',
+        tags: [],
+        requiresSignature: false,
+        createdBy: 'user-1',
+        createdByName: data.employeeName,
       });
 
       toast({

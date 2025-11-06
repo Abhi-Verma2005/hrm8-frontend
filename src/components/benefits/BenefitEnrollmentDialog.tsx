@@ -46,13 +46,14 @@ export function BenefitEnrollmentDialog({ open, onOpenChange, onSuccess }: Benef
       saveBenefitEnrollment({
         employeeId: 'emp-' + Date.now(),
         employeeName: data.employeeName,
+        benefitPlanId: 'plan-1',
         benefitPlanName: data.planName,
         coverageLevel: data.coverageLevel as any,
-        monthlyPremium: 250,
+        status: 'pending',
+        effectiveDate: data.effectiveDate,
         employeeCost: 100,
         employerCost: 150,
-        effectiveDate: data.effectiveDate,
-        status: 'pending',
+        dependents: [],
       });
 
       toast({
