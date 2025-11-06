@@ -56,6 +56,9 @@ import Reports from "./pages/Reports";
 import AdminSettings from "./pages/AdminSettings";
 import SupportTickets from "./pages/SupportTickets";
 import VerifyCertificate from "./pages/VerifyCertificate";
+import AdvancedAnalytics from "./pages/AdvancedAnalytics";
+import RecruitmentIntegration from "./pages/RecruitmentIntegration";
+import EnhancedLearning from "./pages/EnhancedLearning";
 
 const queryClient = new QueryClient();
 
@@ -113,9 +116,12 @@ function AppContent() {
           <Route path="/role-management" element={<RoleManagement />} />
           <Route path="/accrual-policies" element={<AccrualPolicies />} />
           <Route path="/workforce-planning" element={<WorkforcePlanning />} />
-          <Route path="/benefits-admin" element={<BenefitsAdmin />} />
+            <Route path="/benefits-admin" element={<BenefitsAdmin />} />
             <Route path="/finance" element={<Finance />} />
             <Route path="/integrations" element={<Integrations />} />
+            <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
+            <Route path="/recruitment-integration" element={<RecruitmentIntegration />} />
+            <Route path="/enhanced-learning" element={<EnhancedLearning />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/admin-settings" element={<AdminSettings />} />
             <Route path="/support-tickets" element={<SupportTickets />} />

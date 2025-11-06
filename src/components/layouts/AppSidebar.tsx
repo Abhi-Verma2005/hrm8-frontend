@@ -67,6 +67,14 @@ const managementNavItems = [
   { title: "Reports", url: "/reports", icon: FileBarChart },
 ];
 
+// INTEGRATIONS Section
+const integrationsNavItems = [
+  { title: "Advanced Analytics", url: "/advanced-analytics", icon: BarChart2 },
+  { title: "Recruitment Integration", url: "/recruitment-integration", icon: Users },
+  { title: "Enhanced Learning", url: "/enhanced-learning", icon: GraduationCap },
+  { title: "Integrations", url: "/integrations", icon: Plug },
+];
+
 // SYSTEM Section
 const systemNavItems = [
   { title: "Admin Settings", url: "/admin-settings", icon: Shield },
@@ -277,6 +285,9 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarSeparator />
+
+        {/* INTEGRATIONS & INTELLIGENCE Section */}
+        {renderNavSection("Integration & Intelligence", integrationsNavItems, isExpanded)}
 
         {/* SYSTEM Section */}
         <SidebarGroup>
