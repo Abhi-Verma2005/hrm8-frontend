@@ -25,12 +25,14 @@ import { OneOnOneMeetingTracker } from "@/components/performance/OneOnOneMeeting
 import { CalibrationSessionManager } from "@/components/performance/CalibrationSessionManager";
 import { SkillsAssessmentMatrix } from "@/components/performance/SkillsAssessmentMatrix";
 import { PIPManager } from "@/components/performance/PIPManager";
-import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules, getCalibrationSessions, saveCalibrationSession, updateCalibrationSession, getSkillsAssessments, saveSkillsAssessment, updateSkillsAssessment, getPIPs, updatePIP } from "@/lib/performanceStorage";
+import { SuccessionPlanning } from "@/components/performance/SuccessionPlanning";
+import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules, getCalibrationSessions, saveCalibrationSession, updateCalibrationSession, getSkillsAssessments, saveSkillsAssessment, updateSkillsAssessment, getPIPs, updatePIP, getSuccessionPlans } from "@/lib/performanceStorage";
 import { getEmployees } from "@/lib/employeeStorage";
 import type { PerformanceGoal, PerformanceReview, OneOnOneMeeting, MeetingAgendaTemplate, ReviewSchedule, Feedback360, CalibrationSession, SkillAssessment, PerformanceImprovementPlan, PIPCheckIn } from "@/types/performance";
 import { mockCalibrationSessions } from "@/data/mockCalibrationData";
 import { mockSkillCategories, mockSkillAssessments, mockRoleSkillRequirements } from "@/data/mockSkillsData";
 import { mockPIPs } from "@/data/mockPIPData";
+import { mockSuccessionPlans, mockNineBoxData, mockLeadershipPipeline } from "@/data/mockSuccessionData";
 import { toast } from "sonner";
 
 export default function PerformanceManagement() {
@@ -76,6 +78,10 @@ export default function PerformanceManagement() {
   const pips = useMemo(() => {
     const stored = getPIPs();
     return stored.length > 0 ? stored : mockPIPs;
+  }, [refreshKey]);
+  const successionPlans = useMemo(() => {
+    const stored = getSuccessionPlans();
+    return stored.length > 0 ? stored : mockSuccessionPlans;
   }, [refreshKey]);
   const employees = useMemo(() => getEmployees(), []);
   const currentEmployee = employees.find(e => e.id === currentEmployeeId) || employees[0];
@@ -371,6 +377,10 @@ export default function PerformanceManagement() {
               <AlertTriangle className="mr-2 h-4 w-4" />
               PIPs
             </TabsTrigger>
+            <TabsTrigger value="succession">
+              <Users className="mr-2 h-4 w-4" />
+              Succession Planning
+            </TabsTrigger>
             <TabsTrigger value="calendar">
               <CalendarIcon className="mr-2 h-4 w-4" />
               Calendar
@@ -610,6 +620,14 @@ export default function PerformanceManagement() {
               pips={pips}
               onUpdatePIP={handleUpdatePIP}
               onCreateCheckIn={handleCreatePIPCheckIn}
+            />
+          </TabsContent>
+
+          <TabsContent value="succession" className="space-y-6">
+            <SuccessionPlanning
+              successionPlans={successionPlans}
+              nineBoxData={mockNineBoxData}
+              leadershipPipeline={mockLeadershipPipeline}
             />
           </TabsContent>
 

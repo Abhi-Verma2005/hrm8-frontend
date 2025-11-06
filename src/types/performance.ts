@@ -507,3 +507,105 @@ export interface PIPAlert {
   acknowledgedBy?: string;
   acknowledgedDate?: string;
 }
+
+export type ReadinessLevel = 'ready-now' | 'ready-1-2-years' | 'ready-3-5-years' | 'not-ready';
+export type PotentialLevel = 'low' | 'medium' | 'high' | 'exceptional';
+export type PerformanceLevel = 'low' | 'medium' | 'high' | 'exceptional';
+export type RiskOfLoss = 'low' | 'medium' | 'high' | 'critical';
+
+export interface SuccessionPlan {
+  id: string;
+  positionId: string;
+  positionTitle: string;
+  department: string;
+  level: string;
+  incumbentId?: string;
+  incumbentName?: string;
+  criticality: 'low' | 'medium' | 'high' | 'critical';
+  vacancyRisk: RiskOfLoss;
+  successors: SuccessionCandidate[];
+  developmentPrograms: string[];
+  notes?: string;
+  lastReviewDate: string;
+  nextReviewDate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SuccessionCandidate {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  currentRole: string;
+  department: string;
+  readinessLevel: ReadinessLevel;
+  potentialLevel: PotentialLevel;
+  performanceLevel: PerformanceLevel;
+  riskOfLoss: RiskOfLoss;
+  strengths: string[];
+  developmentNeeds: string[];
+  developmentPlan?: DevelopmentPath;
+  lastAssessmentDate: string;
+  assessedBy: string;
+  assessedByName: string;
+  priority: number; // 1 = highest priority
+}
+
+export interface DevelopmentPath {
+  id: string;
+  candidateId: string;
+  targetRole: string;
+  estimatedTimeframe: string;
+  milestones: DevelopmentMilestone[];
+  requiredSkills: {
+    skillId: string;
+    skillName: string;
+    currentLevel: ProficiencyLevel;
+    targetLevel: ProficiencyLevel;
+  }[];
+  assignedMentor?: {
+    id: string;
+    name: string;
+  };
+  progress: number;
+  status: 'not-started' | 'in-progress' | 'completed' | 'on-hold';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DevelopmentMilestone {
+  id: string;
+  title: string;
+  description: string;
+  type: 'training' | 'project' | 'mentorship' | 'stretch-assignment' | 'certification' | 'other';
+  targetDate: string;
+  completedDate?: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'overdue';
+}
+
+export interface NineBoxPosition {
+  employeeId: string;
+  employeeName: string;
+  currentRole: string;
+  department: string;
+  performance: PerformanceLevel;
+  potential: PotentialLevel;
+  riskOfLoss: RiskOfLoss;
+  lastAssessmentDate: string;
+}
+
+export interface LeadershipPipeline {
+  level: string;
+  positions: {
+    positionId: string;
+    title: string;
+    department: string;
+    incumbentId?: string;
+    incumbentName?: string;
+    vacancyRisk: RiskOfLoss;
+    successorCount: number;
+    readyNowCount: number;
+  }[];
+  totalPositions: number;
+  coverageRate: number; // Percentage of positions with ready successors
+}

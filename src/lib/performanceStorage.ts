@@ -377,6 +377,45 @@ export function updatePIP(id: string, updates: any): void {
   }
 }
 
+// Succession Planning
+const SUCCESSION_PLANS_KEY = 'hrms_succession_plans';
+
+export function getSuccessionPlans(department?: string): any[] {
+  const stored = localStorage.getItem(SUCCESSION_PLANS_KEY);
+  let plans = stored ? JSON.parse(stored) : [];
+  
+  if (department && department !== 'all') {
+    plans = plans.filter((p: any) => p.department === department);
+  }
+  
+  return plans.sort((a: any, b: any) => 
+    new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  );
+}
+
+export function saveSuccessionPlan(plan: any): void {
+  const plans = getSuccessionPlans();
+  const index = plans.findIndex(p => p.id === plan.id);
+  
+  if (index >= 0) {
+    plans[index] = { ...plan, updatedAt: new Date().toISOString() };
+  } else {
+    plans.push(plan);
+  }
+  
+  localStorage.setItem(SUCCESSION_PLANS_KEY, JSON.stringify(plans));
+}
+
+export function updateSuccessionPlan(id: string, updates: any): void {
+  const plans = getSuccessionPlans();
+  const index = plans.findIndex(p => p.id === id);
+  
+  if (index >= 0) {
+    plans[index] = { ...plans[index], ...updates, updatedAt: new Date().toISOString() };
+    localStorage.setItem(SUCCESSION_PLANS_KEY, JSON.stringify(plans));
+  }
+}
+
 // Legacy functions for consultants module
 export function getPerformanceBreakdown(consultantId: string) {
   return [];
