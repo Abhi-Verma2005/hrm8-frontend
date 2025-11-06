@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { PerformanceReview } from "@/types/performance";
 import { format } from "date-fns";
-import { Calendar, FileText, Star, Eye } from "lucide-react";
+import { Calendar, FileText, Star, Eye, CheckCircle2, Clock, XCircle } from "lucide-react";
 
 interface ReviewCardProps {
   review: PerformanceReview;
@@ -22,14 +22,36 @@ export function ReviewCard({ review, onView }: ReviewCardProps) {
     return <Badge variant={variant}>{label}</Badge>;
   };
 
+  const getApprovalStatusBadge = () => {
+    if (!review.approvalWorkflow) return null;
+
+    const statusConfig = {
+      'approved': { icon: CheckCircle2, label: 'Approved', className: 'text-green-600 bg-green-50' },
+      'rejected': { icon: XCircle, label: 'Rejected', className: 'text-red-600 bg-red-50' },
+      'in-progress': { icon: Clock, label: 'In Approval', className: 'text-blue-600 bg-blue-50' },
+      'pending': { icon: Clock, label: 'Pending Approval', className: 'text-yellow-600 bg-yellow-50' },
+    };
+
+    const config = statusConfig[review.approvalWorkflow.overallStatus];
+    const Icon = config.icon;
+
+    return (
+      <Badge variant="outline" className={config.className}>
+        <Icon className="h-3 w-3 mr-1" />
+        {config.label}
+      </Badge>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
               <CardTitle className="text-base">{review.templateName}</CardTitle>
               {getStatusBadge()}
+              {getApprovalStatusBadge()}
             </div>
             <p className="text-sm text-muted-foreground">
               Reviewer: {review.reviewerName}
@@ -67,6 +89,31 @@ export function ReviewCard({ review, onView }: ReviewCardProps) {
           <div className="text-sm">
             <p className="text-muted-foreground mb-1">Completed</p>
             <p className="font-medium">{format(new Date(review.completedDate), "MMM d, yyyy 'at' h:mm a")}</p>
+          </div>
+        )}
+
+        {/* Approval Progress */}
+        {review.approvalWorkflow && (
+          <div className="pt-3 border-t">
+            <p className="text-sm font-semibold mb-2">Approval Progress</p>
+            <div className="flex items-center gap-2">
+              {review.approvalWorkflow.stages.map((stage, index) => (
+                <div key={stage.id} className="flex items-center">
+                  <div className={`h-2 w-2 rounded-full ${
+                    stage.status === 'approved' ? 'bg-green-600' :
+                    stage.status === 'rejected' ? 'bg-red-600' :
+                    stage.status === 'pending' && index === review.approvalWorkflow!.currentStageIndex ? 'bg-blue-600' :
+                    'bg-muted'
+                  }`} />
+                  {index < review.approvalWorkflow.stages.length - 1 && (
+                    <div className="h-0.5 w-4 bg-muted mx-1" />
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {review.approvalWorkflow.stages.filter(s => s.status === 'approved').length} of {review.approvalWorkflow.stages.length} stages approved
+            </p>
           </div>
         )}
 

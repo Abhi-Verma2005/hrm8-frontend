@@ -81,8 +81,27 @@ export interface PerformanceReview {
   goals?: string;
   managerComments?: string;
   employeeComments?: string;
+  approvalWorkflow?: ApprovalWorkflow;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ApprovalWorkflow {
+  stages: ApprovalStage[];
+  currentStageIndex: number;
+  overallStatus: 'pending' | 'in-progress' | 'approved' | 'rejected';
+}
+
+export interface ApprovalStage {
+  id: string;
+  name: string;
+  role: 'manager' | 'hr' | 'senior-manager' | 'executive';
+  approverId?: string;
+  approverName?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  comments?: string;
+  actionDate?: string;
+  required: boolean;
 }
 
 export interface ReviewResponse {

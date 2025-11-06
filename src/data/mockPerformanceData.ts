@@ -249,6 +249,34 @@ export const mockPerformanceReviews: PerformanceReview[] = [
     areasForImprovement: 'Time management for multiple projects',
     goals: 'Complete AWS certification, lead one more major project',
     managerComments: 'Exceptional performance this quarter. Ready for senior role.',
+    approvalWorkflow: {
+      stages: [
+        {
+          id: 'stage1',
+          name: 'Manager Review',
+          role: 'manager',
+          approverId: '5',
+          approverName: 'Michael Chen',
+          status: 'approved',
+          comments: 'Great work this quarter. Approved for HR review.',
+          actionDate: '2025-01-12T10:00:00Z',
+          required: true
+        },
+        {
+          id: 'stage2',
+          name: 'HR Verification',
+          role: 'hr',
+          approverId: '10',
+          approverName: 'Emma Wilson',
+          status: 'approved',
+          comments: 'All documentation complete. Performance aligns with promotion criteria.',
+          actionDate: '2025-01-13T14:30:00Z',
+          required: true
+        }
+      ],
+      currentStageIndex: 2,
+      overallStatus: 'approved'
+    },
     createdAt: '2024-12-15T09:00:00Z',
     updatedAt: '2025-01-12T15:30:00Z',
   },
@@ -266,6 +294,35 @@ export const mockPerformanceReviews: PerformanceReview[] = [
     dueDate: '2025-01-30',
     overallRating: undefined,
     responses: [],
+    approvalWorkflow: {
+      stages: [
+        {
+          id: 'stage1',
+          name: 'Manager Review',
+          role: 'manager',
+          approverId: '6',
+          approverName: 'Lisa Anderson',
+          status: 'pending',
+          required: true
+        },
+        {
+          id: 'stage2',
+          name: 'HR Verification',
+          role: 'hr',
+          status: 'pending',
+          required: true
+        },
+        {
+          id: 'stage3',
+          name: 'Senior Management Sign-off',
+          role: 'senior-manager',
+          status: 'pending',
+          required: false
+        }
+      ],
+      currentStageIndex: 0,
+      overallStatus: 'pending'
+    },
     createdAt: '2025-01-05T09:00:00Z',
     updatedAt: '2025-01-05T09:00:00Z',
   }

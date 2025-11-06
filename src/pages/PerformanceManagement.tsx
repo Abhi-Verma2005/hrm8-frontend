@@ -15,11 +15,12 @@ import { ReviewCompletionDialog } from "@/components/performance/ReviewCompletio
 import { GoalAnalyticsDashboard } from "@/components/performance/analytics/GoalAnalyticsDashboard";
 import { GoalRecommendationsDialog } from "@/components/performance/GoalRecommendationsDialog";
 import { PerformanceCalendar } from "@/components/performance/PerformanceCalendar";
+import { ReviewDetailDialog } from "@/components/performance/ReviewDetailDialog";
 import { PerformanceReportExportDialog } from "@/components/performance/PerformanceReportExportDialog";
 import { ReviewTemplateBuilder } from "@/components/performance/ReviewTemplateBuilder";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
 import { getEmployees } from "@/lib/employeeStorage";
-import type { PerformanceGoal } from "@/types/performance";
+import type { PerformanceGoal, PerformanceReview } from "@/types/performance";
 
 export default function PerformanceManagement() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -31,6 +32,9 @@ export default function PerformanceManagement() {
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [recommendationsDialogOpen, setRecommendationsDialogOpen] = useState(false);
+  const [reviewDetailOpen, setReviewDetailOpen] = useState(false);
+  const [selectedReview, setSelectedReview] = useState<PerformanceReview | null>(null);
+  const [currentUserRole] = useState<'manager' | 'hr'>('manager'); // Mock role
   
   // Filter and sort state
   const [searchValue, setSearchValue] = useState("");
@@ -138,6 +142,21 @@ export default function PerformanceManagement() {
     if (!open) {
       setSelectedGoal(undefined);
     }
+  };
+
+  const handleViewReview = (reviewId: string) => {
+    const review = myReviews.find(r => r.id === reviewId);
+    if (review) {
+      setSelectedReview(review);
+      setReviewDetailOpen(true);
+    }
+  };
+
+  const handleApprovalUpdate = (reviewId: string, stageId: string, action: 'approve' | 'reject', comments: string) => {
+    // In a real app, this would update the backend
+    console.log('Approval action:', { reviewId, stageId, action, comments });
+    setRefreshKey(prev => prev + 1);
+    return Promise.resolve();
   };
 
   return (
@@ -346,7 +365,7 @@ export default function PerformanceManagement() {
               ) : (
                 <div className="grid gap-4 md:grid-cols-2">
                   {myReviews.map((review) => (
-                    <ReviewCard key={review.id} review={review} />
+                    <ReviewCard key={review.id} review={review} onView={handleViewReview} />
                   ))}
                 </div>
               )}
@@ -485,6 +504,16 @@ export default function PerformanceManagement() {
             setGoalDialogOpen(true);
           }}
         />
+
+        {selectedReview && (
+          <ReviewDetailDialog
+            open={reviewDetailOpen}
+            onOpenChange={setReviewDetailOpen}
+            review={selectedReview}
+            currentUserRole={currentUserRole}
+            onApprovalUpdate={handleApprovalUpdate}
+          />
+        )}
       </div>
     </DashboardPageLayout>
   );
