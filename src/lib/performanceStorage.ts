@@ -1,5 +1,6 @@
-import type { PerformanceGoal, PerformanceReviewTemplate, PerformanceReview, Feedback360, ReviewSchedule } from '@/types/performance';
+import type { PerformanceGoal, PerformanceReviewTemplate, PerformanceReview, Feedback360, ReviewSchedule, OneOnOneMeeting, MeetingAgendaTemplate } from '@/types/performance';
 import { mockPerformanceGoals, mockReviewTemplates, mockPerformanceReviews, mockFeedback360, mockReviewSchedules, mockCompanyOKRs, mockTeamObjectives } from '@/data/mockPerformanceData';
+import { mockOneOnOneMeetings, mockMeetingTemplates } from '@/data/mockMeetingData';
 
 // Export OKR data
 export { mockCompanyOKRs, mockTeamObjectives };
@@ -9,6 +10,8 @@ const TEMPLATES_KEY = 'hrms_review_templates';
 const REVIEWS_KEY = 'hrms_performance_reviews';
 const FEEDBACK_360_KEY = 'hrms_feedback_360';
 const SCHEDULES_KEY = 'hrms_review_schedules';
+const MEETINGS_KEY = 'hrms_one_on_one_meetings';
+const MEETING_TEMPLATES_KEY = 'hrms_meeting_templates';
 
 // Performance Goals
 export function getPerformanceGoals(employeeId?: string, status?: string): PerformanceGoal[] {
@@ -179,6 +182,80 @@ export function saveReviewSchedule(schedule: ReviewSchedule): void {
   }
   
   localStorage.setItem(SCHEDULES_KEY, JSON.stringify(schedules));
+}
+
+// One-on-One Meetings
+export function getOneOnOneMeetings(filters?: {
+  employeeId?: string;
+  managerId?: string;
+  status?: string;
+}): OneOnOneMeeting[] {
+  const stored = localStorage.getItem(MEETINGS_KEY);
+  let meetings = stored ? JSON.parse(stored) : mockOneOnOneMeetings;
+
+  if (filters?.employeeId) {
+    meetings = meetings.filter((m: OneOnOneMeeting) => m.employeeId === filters.employeeId);
+  }
+
+  if (filters?.managerId) {
+    meetings = meetings.filter((m: OneOnOneMeeting) => m.managerId === filters.managerId);
+  }
+
+  if (filters?.status) {
+    meetings = meetings.filter((m: OneOnOneMeeting) => m.status === filters.status);
+  }
+
+  return meetings.sort((a: OneOnOneMeeting, b: OneOnOneMeeting) => 
+    new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime()
+  );
+}
+
+export function getMeetingById(id: string): OneOnOneMeeting | undefined {
+  const meetings = getOneOnOneMeetings();
+  return meetings.find(meeting => meeting.id === id);
+}
+
+export function saveOneOnOneMeeting(meeting: OneOnOneMeeting): void {
+  const meetings = getOneOnOneMeetings();
+  const index = meetings.findIndex(m => m.id === meeting.id);
+  
+  if (index >= 0) {
+    meetings[index] = { ...meeting, updatedAt: new Date().toISOString() };
+  } else {
+    meetings.push(meeting);
+  }
+  
+  localStorage.setItem(MEETINGS_KEY, JSON.stringify(meetings));
+}
+
+export function deleteOneOnOneMeeting(id: string): void {
+  const meetings = getOneOnOneMeetings();
+  const filtered = meetings.filter(meeting => meeting.id !== id);
+  localStorage.setItem(MEETINGS_KEY, JSON.stringify(filtered));
+}
+
+// Meeting Templates
+export function getMeetingTemplates(): MeetingAgendaTemplate[] {
+  const stored = localStorage.getItem(MEETING_TEMPLATES_KEY);
+  return stored ? JSON.parse(stored) : mockMeetingTemplates;
+}
+
+export function getMeetingTemplateById(id: string): MeetingAgendaTemplate | undefined {
+  const templates = getMeetingTemplates();
+  return templates.find(template => template.id === id);
+}
+
+export function saveMeetingTemplate(template: MeetingAgendaTemplate): void {
+  const templates = getMeetingTemplates();
+  const index = templates.findIndex(t => t.id === template.id);
+  
+  if (index >= 0) {
+    templates[index] = { ...template, updatedAt: new Date().toISOString() };
+  } else {
+    templates.push(template);
+  }
+  
+  localStorage.setItem(MEETING_TEMPLATES_KEY, JSON.stringify(templates));
 }
 
 // Legacy functions for consultants module

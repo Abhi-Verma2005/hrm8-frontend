@@ -21,9 +21,10 @@ import { GoalAlignmentView } from "@/components/performance/GoalAlignmentView";
 import { PerformanceReportExportDialog } from "@/components/performance/PerformanceReportExportDialog";
 import { ReviewTemplateBuilder } from "@/components/performance/ReviewTemplateBuilder";
 import { PerformanceInsightsDashboard } from "@/components/performance/PerformanceInsightsDashboard";
-import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives } from "@/lib/performanceStorage";
+import { OneOnOneMeetingTracker } from "@/components/performance/OneOnOneMeetingTracker";
+import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules } from "@/lib/performanceStorage";
 import { getEmployees } from "@/lib/employeeStorage";
-import type { PerformanceGoal, PerformanceReview } from "@/types/performance";
+import type { PerformanceGoal, PerformanceReview, OneOnOneMeeting, MeetingAgendaTemplate, ReviewSchedule, Feedback360 } from "@/types/performance";
 
 export default function PerformanceManagement() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -54,6 +55,9 @@ export default function PerformanceManagement() {
   const myReviews = useMemo(() => getPerformanceReviews({ employeeId: currentEmployeeId }), [currentEmployeeId, refreshKey]);
   const my360Feedback = useMemo(() => getFeedback360(currentEmployeeId), [currentEmployeeId, refreshKey]);
   const templates = useMemo(() => getReviewTemplates(), [refreshKey]);
+  const schedules = useMemo(() => getReviewSchedules(), [refreshKey]);
+  const meetings = useMemo(() => getOneOnOneMeetings(), [refreshKey]);
+  const meetingTemplates = useMemo(() => getMeetingTemplates(), [refreshKey]);
   const employees = useMemo(() => getEmployees(), []);
   const currentEmployee = employees.find(e => e.id === currentEmployeeId) || employees[0];
 
@@ -280,6 +284,10 @@ export default function PerformanceManagement() {
               <Users className="mr-2 h-4 w-4" />
               360° Feedback
             </TabsTrigger>
+            <TabsTrigger value="meetings">
+              <Users className="mr-2 h-4 w-4" />
+              1-on-1s
+            </TabsTrigger>
             <TabsTrigger value="calendar">
               <CalendarIcon className="mr-2 h-4 w-4" />
               Calendar
@@ -466,6 +474,32 @@ export default function PerformanceManagement() {
               goals={allGoals}
               reviews={myReviews}
               feedback={my360Feedback}
+            />
+          </TabsContent>
+
+          <TabsContent value="meetings" className="space-y-6">
+            <OneOnOneMeetingTracker
+              meetings={meetings}
+              templates={meetingTemplates}
+              onScheduleMeeting={(meeting) => {
+                saveOneOnOneMeeting(meeting);
+                setRefreshKey(prev => prev + 1);
+              }}
+              onUpdateMeeting={(meeting) => {
+                saveOneOnOneMeeting(meeting);
+                setRefreshKey(prev => prev + 1);
+              }}
+              onUpdateActionItem={(meetingId, actionItem) => {
+                const meeting = meetings.find(m => m.id === meetingId);
+                if (meeting) {
+                  const updated = {
+                    ...meeting,
+                    actionItems: meeting.actionItems.map(a => a.id === actionItem.id ? actionItem : a)
+                  };
+                  saveOneOnOneMeeting(updated);
+                  setRefreshKey(prev => prev + 1);
+                }
+              }}
             />
           </TabsContent>
 

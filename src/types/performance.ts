@@ -223,3 +223,59 @@ export interface PerformanceMetrics {
   nextReviewDate?: string;
   improvementTrend: 'improving' | 'stable' | 'declining' | 'new';
 }
+
+export interface MeetingAgendaTemplate {
+  id: string;
+  name: string;
+  description: string;
+  sections: {
+    id: string;
+    title: string;
+    description?: string;
+    order: number;
+  }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MeetingActionItem {
+  id: string;
+  description: string;
+  assignedTo: string;
+  assignedToName: string;
+  dueDate: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'blocked';
+  priority: 'low' | 'medium' | 'high';
+  createdAt: string;
+  completedAt?: string;
+}
+
+export interface OneOnOneMeeting {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  managerId: string;
+  managerName: string;
+  scheduledDate: string;
+  duration: number;
+  status: 'scheduled' | 'completed' | 'cancelled' | 'rescheduled';
+  templateId?: string;
+  agendaItems: {
+    id: string;
+    sectionTitle: string;
+    notes: string;
+    order: number;
+  }[];
+  actionItems: MeetingActionItem[];
+  privateNotes?: {
+    employeeNotes?: string;
+    managerNotes?: string;
+  };
+  recurringSchedule?: {
+    frequency: 'weekly' | 'biweekly' | 'monthly';
+    nextMeetingDate?: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+}
