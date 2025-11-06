@@ -77,10 +77,23 @@ export function AccrualPolicyDialog({ open, onOpenChange, onSuccess, editingPoli
         toast.success("Accrual policy updated successfully");
       } else {
         createAccrualPolicy({
-          ...data,
+          name: data.name!,
+          leaveTypeId: data.leaveTypeId!,
+          leaveTypeName: data.leaveTypeName!,
+          accrualMethod: data.accrualMethod!,
+          accrualRate: data.accrualRate!,
+          accrualFrequency: data.accrualFrequency!,
+          startDate: data.startDate!,
+          prorateFirstYear: data.prorateFirstYear!,
+          prorateLastYear: data.prorateLastYear!,
+          maxAccrual: data.maxAccrual,
+          carryoverAllowed: data.carryoverAllowed!,
+          maxCarryover: data.maxCarryover,
+          negativeBalanceAllowed: data.negativeBalanceAllowed!,
           tenureBasedRates: tenureRates,
-          createdBy: "current-user",
+          effectiveDate: data.effectiveDate!,
           isActive: true,
+          createdBy: "current-user",
         });
         toast.success("Accrual policy created successfully");
       }

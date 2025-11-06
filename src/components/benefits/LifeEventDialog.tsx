@@ -8,13 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { lifeEventSchema, type LifeEventFormData } from "@/schemas/lifeEventSchema";
-import { createLifeEvent } from "@/lib/benefitsEnhancedStorage";
+import { createLifeEvent, updateLifeEvent, type LifeEvent } from "@/lib/benefitsEnhancedStorage";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface LifeEventDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  editingEvent?: LifeEvent | null;
 }
 
 export function LifeEventDialog({ open, onOpenChange, onSuccess, editingEvent }: LifeEventDialogProps) {

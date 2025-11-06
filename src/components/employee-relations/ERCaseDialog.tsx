@@ -73,11 +73,17 @@ export function ERCaseDialog({ open, onOpenChange, onSuccess, editingCase }: ERC
         toast.success("ER case updated successfully");
       } else {
         createERCase({
-          ...data,
-          affectedEmployees: selectedAffected,
-          assignedTo: selectedInvestigators,
-          openedDate: new Date().toISOString().split("T")[0],
+          type: data.type!,
+          category: data.category!,
+          priority: data.priority!,
           status: "open",
+          confidential: data.confidential!,
+          reportedBy: data.reportedBy,
+          reportedByName: data.reportedByName,
+          affectedEmployees: selectedAffected,
+          description: data.description!,
+          openedDate: new Date().toISOString().split("T")[0],
+          assignedTo: selectedInvestigators,
           accessControlList: [...selectedInvestigators, data.reportedBy || ""].filter(Boolean) as string[],
         });
         toast.success("ER case created successfully");

@@ -8,13 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { cobraSchema, type COBRAFormData } from "@/schemas/cobraSchema";
-import { createCOBRAEvent } from "@/lib/benefitsEnhancedStorage";
+import { createCOBRAEvent, updateCOBRAEvent, type COBRAEvent } from "@/lib/benefitsEnhancedStorage";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface COBRADialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  editingEvent?: COBRAEvent | null;
 }
 
 export function COBRADialog({ open, onOpenChange, onSuccess, editingEvent }: COBRADialogProps) {
