@@ -31,6 +31,7 @@ import HRAnalytics from "./pages/HRAnalytics";
 import OrgChart from "./pages/OrgChart";
 import LeaveManagement from "./pages/LeaveManagement";
 import PerformanceManagement from "./pages/PerformanceManagement";
+import OnboardingManagement from "./pages/OnboardingManagement";
 import Inbox from "./pages/Inbox";
 import Users from "./pages/Users";
 import Finance from "./pages/Finance";
@@ -76,6 +77,8 @@ function AppContent() {
             <Route path="/hrms/org-chart" element={<OrgChart />} />
             <Route path="/leave" element={<LeaveManagement />} />
             <Route path="/performance" element={<PerformanceManagement />} />
+            <Route path="/onboarding" element={<OnboardingManagement />} />
+            <Route path="/onboarding/:id" element={<OnboardingManagement />} />
             <Route path="/applications" element={<Applications />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />
