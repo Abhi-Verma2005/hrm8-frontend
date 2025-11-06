@@ -20,6 +20,7 @@ import { PerformanceBenchmarking } from "@/components/performance/PerformanceBen
 import { GoalAlignmentView } from "@/components/performance/GoalAlignmentView";
 import { PerformanceReportExportDialog } from "@/components/performance/PerformanceReportExportDialog";
 import { ReviewTemplateBuilder } from "@/components/performance/ReviewTemplateBuilder";
+import { PerformanceInsightsDashboard } from "@/components/performance/PerformanceInsightsDashboard";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives } from "@/lib/performanceStorage";
 import { getEmployees } from "@/lib/employeeStorage";
 import type { PerformanceGoal, PerformanceReview } from "@/types/performance";
@@ -255,6 +256,10 @@ export default function PerformanceManagement() {
               <Target className="mr-2 h-4 w-4" />
               Goals & KPIs
             </TabsTrigger>
+            <TabsTrigger value="insights">
+              <Sparkles className="mr-2 h-4 w-4" />
+              AI Insights
+            </TabsTrigger>
             <TabsTrigger value="analytics">
               <TrendingUp className="mr-2 h-4 w-4" />
               Analytics
@@ -352,6 +357,14 @@ export default function PerformanceManagement() {
                 </div>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="insights" className="space-y-6">
+            <PerformanceInsightsDashboard
+              goals={allGoals}
+              reviews={myReviews}
+              employees={employees}
+            />
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
