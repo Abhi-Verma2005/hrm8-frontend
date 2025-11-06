@@ -2,25 +2,53 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Users, Plus, TrendingUp, DollarSign, Building, MapPin, BarChart3 } from "lucide-react";
+import { Users, Plus, TrendingUp, DollarSign, Building, MapPin, BarChart3, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
-import { getHeadcountPlans, getWorkforceDemographics } from "@/lib/workforcePlanningStorage";
+import { getHeadcountPlans, getWorkforceDemographics, deleteHeadcountPlan } from "@/lib/workforcePlanningStorage";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { HeadcountPlan } from "@/types/workforcePlanning";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HeadcountPlanDialog } from "@/components/workforce/HeadcountPlanDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DeleteConfirmationDialog } from "@/components/shared/DeleteConfirmationDialog";
+import { toast } from "sonner";
 
 export default function WorkforcePlanning() {
   const { isHRAdmin, isSuperAdmin, isManager } = useRBAC();
   const [activeTab, setActiveTab] = useState("headcount");
   const [planDialogOpen, setPlanDialogOpen] = useState(false);
+  const [editingPlan, setEditingPlan] = useState<HeadcountPlan | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [planToDelete, setPlanToDelete] = useState<HeadcountPlan | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const plans = getHeadcountPlans();
   const demographics = getWorkforceDemographics();
 
   const hasAccess = isHRAdmin || isSuperAdmin || isManager;
+
+  const handleDeletePlan = () => {
+    if (!planToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const success = deleteHeadcountPlan(planToDelete.id);
+      if (success) {
+        toast.success("Headcount plan deleted successfully");
+        setDeleteDialogOpen(false);
+        setPlanToDelete(null);
+        setRefreshKey(prev => prev + 1);
+      } else {
+        toast.error("Failed to delete plan");
+      }
+    } catch (error) {
+      toast.error("Failed to delete plan");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const planColumns: Column<HeadcountPlan>[] = [
     {
@@ -68,6 +96,38 @@ export default function WorkforcePlanning() {
         };
         return <Badge className={colors[plan.status]}>{plan.status}</Badge>;
       },
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (plan) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background">
+            <DropdownMenuItem onClick={() => {
+              setEditingPlan(plan);
+              setPlanDialogOpen(true);
+            }}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Plan
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => {
+                setPlanToDelete(plan);
+                setDeleteDialogOpen(true);
+              }}
+              className="text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Plan
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
     },
   ];
 
@@ -321,8 +381,24 @@ export default function WorkforcePlanning() {
 
         <HeadcountPlanDialog
           open={planDialogOpen}
-          onOpenChange={setPlanDialogOpen}
-          onSuccess={() => setRefreshKey(prev => prev + 1)}
+          onOpenChange={(open) => {
+            setPlanDialogOpen(open);
+            if (!open) setEditingPlan(null);
+          }}
+          editingPlan={editingPlan}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            setEditingPlan(null);
+          }}
+        />
+        
+        <DeleteConfirmationDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title="Delete Headcount Plan"
+          description={`Are you sure you want to delete the plan for ${planToDelete?.department} - FY${planToDelete?.fiscalYear}? This action cannot be undone.`}
+          onConfirm={handleDeletePlan}
+          isDeleting={isDeleting}
         />
       </div>
     </DashboardPageLayout>

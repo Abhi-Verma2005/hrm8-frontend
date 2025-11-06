@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Heart, Plus, Calendar, AlertCircle, FileCheck, Users, DollarSign } from "lucide-react";
+import { Heart, Plus, Calendar, AlertCircle, FileCheck, Users, DollarSign, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
-import { getEnrollmentPeriods, getLifeEvents, getCOBRAEvents } from "@/lib/benefitsEnhancedStorage";
+import { getEnrollmentPeriods, getLifeEvents, getCOBRAEvents, deleteEnrollmentPeriod, deleteLifeEvent, deleteCOBRAEvent } from "@/lib/benefitsEnhancedStorage";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { EnrollmentPeriod, LifeEvent, COBRAEvent } from "@/types/benefitsEnhanced";
@@ -12,6 +12,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EnrollmentPeriodDialog } from "@/components/benefits/EnrollmentPeriodDialog";
 import { LifeEventDialog } from "@/components/benefits/LifeEventDialog";
 import { COBRADialog } from "@/components/benefits/COBRADialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DeleteConfirmationDialog } from "@/components/shared/DeleteConfirmationDialog";
+import { toast } from "sonner";
 
 export default function BenefitsAdmin() {
   const { isHRAdmin, isSuperAdmin } = useRBAC();
@@ -19,6 +22,13 @@ export default function BenefitsAdmin() {
   const [enrollmentDialogOpen, setEnrollmentDialogOpen] = useState(false);
   const [lifeEventDialogOpen, setLifeEventDialogOpen] = useState(false);
   const [cobraDialogOpen, setCobraDialogOpen] = useState(false);
+  const [editingEnrollment, setEditingEnrollment] = useState<EnrollmentPeriod | null>(null);
+  const [editingLifeEvent, setEditingLifeEvent] = useState<LifeEvent | null>(null);
+  const [editingCOBRA, setEditingCOBRA] = useState<COBRAEvent | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteType, setDeleteType] = useState<"enrollment" | "life-event" | "cobra" | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const enrollmentPeriods = getEnrollmentPeriods();
@@ -26,6 +36,41 @@ export default function BenefitsAdmin() {
   const cobraEvents = getCOBRAEvents();
 
   const hasAccess = isHRAdmin || isSuperAdmin;
+
+  const handleDelete = () => {
+    if (!itemToDelete || !deleteType) return;
+    
+    setIsDeleting(true);
+    try {
+      let success = false;
+      let message = "";
+      
+      if (deleteType === "enrollment") {
+        success = deleteEnrollmentPeriod(itemToDelete.id);
+        message = "Enrollment period deleted successfully";
+      } else if (deleteType === "life-event") {
+        success = deleteLifeEvent(itemToDelete.id);
+        message = "Life event deleted successfully";
+      } else if (deleteType === "cobra") {
+        success = deleteCOBRAEvent(itemToDelete.id);
+        message = "COBRA event deleted successfully";
+      }
+      
+      if (success) {
+        toast.success(message);
+        setDeleteDialogOpen(false);
+        setItemToDelete(null);
+        setDeleteType(null);
+        setRefreshKey(prev => prev + 1);
+      } else {
+        toast.error("Failed to delete item");
+      }
+    } catch (error) {
+      toast.error("Failed to delete item");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const enrollmentColumns: Column<EnrollmentPeriod>[] = [
     {
@@ -77,6 +122,39 @@ export default function BenefitsAdmin() {
         return <Badge className={colors[period.status]}>{period.status}</Badge>;
       },
     },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (period) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background">
+            <DropdownMenuItem onClick={() => {
+              setEditingEnrollment(period);
+              setEnrollmentDialogOpen(true);
+            }}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Period
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => {
+                setDeleteType("enrollment");
+                setItemToDelete(period);
+                setDeleteDialogOpen(true);
+              }}
+              className="text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Period
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
   ];
 
   const lifeEventColumns: Column<LifeEvent>[] = [
@@ -126,6 +204,39 @@ export default function BenefitsAdmin() {
         </Badge>
       ),
     },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (event) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background">
+            <DropdownMenuItem onClick={() => {
+              setEditingLifeEvent(event);
+              setLifeEventDialogOpen(true);
+            }}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Event
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => {
+                setDeleteType("life-event");
+                setItemToDelete(event);
+                setDeleteDialogOpen(true);
+              }}
+              className="text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Event
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
   ];
 
   const cobraColumns: Column<COBRAEvent>[] = [
@@ -173,6 +284,39 @@ export default function BenefitsAdmin() {
         };
         return <Badge className={colors[cobra.status]}>{cobra.status}</Badge>;
       },
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (cobra) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background">
+            <DropdownMenuItem onClick={() => {
+              setEditingCOBRA(cobra);
+              setCobraDialogOpen(true);
+            }}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit COBRA
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => {
+                setDeleteType("cobra");
+                setItemToDelete(cobra);
+                setDeleteDialogOpen(true);
+              }}
+              className="text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete COBRA
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
     },
   ];
 
@@ -398,18 +542,48 @@ export default function BenefitsAdmin() {
 
         <EnrollmentPeriodDialog
           open={enrollmentDialogOpen}
-          onOpenChange={setEnrollmentDialogOpen}
-          onSuccess={() => setRefreshKey(prev => prev + 1)}
+          onOpenChange={(open) => {
+            setEnrollmentDialogOpen(open);
+            if (!open) setEditingEnrollment(null);
+          }}
+          editingPeriod={editingEnrollment}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            setEditingEnrollment(null);
+          }}
         />
         <LifeEventDialog
           open={lifeEventDialogOpen}
-          onOpenChange={setLifeEventDialogOpen}
-          onSuccess={() => setRefreshKey(prev => prev + 1)}
+          onOpenChange={(open) => {
+            setLifeEventDialogOpen(open);
+            if (!open) setEditingLifeEvent(null);
+          }}
+          editingEvent={editingLifeEvent}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            setEditingLifeEvent(null);
+          }}
         />
         <COBRADialog
           open={cobraDialogOpen}
-          onOpenChange={setCobraDialogOpen}
-          onSuccess={() => setRefreshKey(prev => prev + 1)}
+          onOpenChange={(open) => {
+            setCobraDialogOpen(open);
+            if (!open) setEditingCOBRA(null);
+          }}
+          editingEvent={editingCOBRA}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            setEditingCOBRA(null);
+          }}
+        />
+        
+        <DeleteConfirmationDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title={`Delete ${deleteType === "enrollment" ? "Enrollment Period" : deleteType === "life-event" ? "Life Event" : "COBRA Event"}`}
+          description={`Are you sure you want to delete this ${deleteType === "enrollment" ? "enrollment period" : deleteType === "life-event" ? "life event" : "COBRA event"}? This action cannot be undone.`}
+          onConfirm={handleDelete}
+          isDeleting={isDeleting}
         />
       </div>
     </DashboardPageLayout>

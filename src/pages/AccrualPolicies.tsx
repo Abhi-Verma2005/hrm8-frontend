@@ -2,21 +2,27 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Clock, Plus, Play, TrendingUp, Calendar, FileText } from "lucide-react";
+import { Clock, Plus, Play, TrendingUp, Calendar, FileText, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
-import { getAccrualPolicies, getAccrualTransactions, processMonthlyAccruals } from "@/lib/accrualStorage";
+import { getAccrualPolicies, getAccrualTransactions, processMonthlyAccruals, deleteAccrualPolicy } from "@/lib/accrualStorage";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { AccrualPolicy, AccrualTransaction } from "@/types/accrual";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { AccrualPolicyDialog } from "@/components/accrual/AccrualPolicyDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DeleteConfirmationDialog } from "@/components/shared/DeleteConfirmationDialog";
 
 export default function AccrualPolicies() {
   const { isHRAdmin, isSuperAdmin } = useRBAC();
   const [activeTab, setActiveTab] = useState("policies");
   const [processing, setProcessing] = useState(false);
   const [policyDialogOpen, setPolicyDialogOpen] = useState(false);
+  const [editingPolicy, setEditingPolicy] = useState<AccrualPolicy | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [policyToDelete, setPolicyToDelete] = useState<AccrualPolicy | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const policies = getAccrualPolicies();
@@ -77,6 +83,38 @@ export default function AccrualPolicies() {
         </Badge>
       ),
     },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (policy) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background">
+            <DropdownMenuItem onClick={() => {
+              setEditingPolicy(policy);
+              setPolicyDialogOpen(true);
+            }}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Policy
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => {
+                setPolicyToDelete(policy);
+                setDeleteDialogOpen(true);
+              }}
+              className="text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Policy
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
   ];
 
   const transactionColumns: Column<AccrualTransaction>[] = [
@@ -134,6 +172,27 @@ export default function AccrualPolicies() {
       toast.error("Failed to process accruals");
     } finally {
       setProcessing(false);
+    }
+  };
+
+  const handleDeletePolicy = () => {
+    if (!policyToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const success = deleteAccrualPolicy(policyToDelete.id);
+      if (success) {
+        toast.success("Accrual policy deleted successfully");
+        setDeleteDialogOpen(false);
+        setPolicyToDelete(null);
+        setRefreshKey(prev => prev + 1);
+      } else {
+        toast.error("Failed to delete policy");
+      }
+    } catch (error) {
+      toast.error("Failed to delete policy");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -344,8 +403,24 @@ export default function AccrualPolicies() {
 
         <AccrualPolicyDialog
           open={policyDialogOpen}
-          onOpenChange={setPolicyDialogOpen}
-          onSuccess={() => setRefreshKey(prev => prev + 1)}
+          onOpenChange={(open) => {
+            setPolicyDialogOpen(open);
+            if (!open) setEditingPolicy(null);
+          }}
+          editingPolicy={editingPolicy}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            setEditingPolicy(null);
+          }}
+        />
+        
+        <DeleteConfirmationDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title="Delete Accrual Policy"
+          description={`Are you sure you want to delete "${policyToDelete?.name}"? This action cannot be undone.`}
+          onConfirm={handleDeletePolicy}
+          isDeleting={isDeleting}
         />
       </div>
     </DashboardPageLayout>

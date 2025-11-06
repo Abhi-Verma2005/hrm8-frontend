@@ -3,20 +3,29 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, FileText, AlertTriangle, CheckCircle, History, Database, Plus } from "lucide-react";
+import { Shield, FileText, AlertTriangle, CheckCircle, History, Database, Plus, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
-import { getAuditLogs, getPolicies, getPolicyAcknowledgments, getComplianceAlerts, getDataSubjectRequests } from "@/lib/complianceStorage";
+import { getAuditLogs, getPolicies, getPolicyAcknowledgments, getComplianceAlerts, getDataSubjectRequests, deletePolicy, deleteDataSubjectRequest } from "@/lib/complianceStorage";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
-import { AuditLog, CompliancePolicy, ComplianceAlert } from "@/types/compliance";
+import { AuditLog, CompliancePolicy, ComplianceAlert, DataSubjectRequest } from "@/types/compliance";
 import { PolicyDialog } from "@/components/compliance/PolicyDialog";
 import { DataSubjectRequestDialog } from "@/components/compliance/DataSubjectRequestDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DeleteConfirmationDialog } from "@/components/shared/DeleteConfirmationDialog";
+import { toast } from "sonner";
 
 export default function Compliance() {
   const { isHRAdmin, isSuperAdmin } = useRBAC();
   const [activeTab, setActiveTab] = useState("overview");
   const [policyDialogOpen, setPolicyDialogOpen] = useState(false);
   const [dsrDialogOpen, setDsrDialogOpen] = useState(false);
+  const [editingPolicy, setEditingPolicy] = useState<CompliancePolicy | null>(null);
+  const [editingDSR, setEditingDSR] = useState<DataSubjectRequest | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteType, setDeleteType] = useState<"policy" | "dsr" | null>(null);
+  const [itemToDelete, setItemToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const auditLogs = getAuditLogs();
@@ -90,7 +99,134 @@ export default function Compliance() {
         )
       ),
     },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (policy) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background">
+            <DropdownMenuItem onClick={() => {
+              setEditingPolicy(policy);
+              setPolicyDialogOpen(true);
+            }}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Policy
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => {
+                setDeleteType("policy");
+                setItemToDelete(policy);
+                setDeleteDialogOpen(true);
+              }}
+              className="text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Policy
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
   ];
+
+  const dsrColumns: Column<DataSubjectRequest>[] = [
+    {
+      key: "type",
+      label: "Request Type",
+      sortable: true,
+      render: (dsr) => <Badge variant="outline">{dsr.type}</Badge>,
+    },
+    {
+      key: "requestDate",
+      label: "Requested",
+      sortable: true,
+      render: (dsr) => new Date(dsr.requestDate).toLocaleDateString(),
+    },
+    {
+      key: "status",
+      label: "Status",
+      sortable: true,
+      render: (dsr) => {
+        const colors = {
+          pending: "bg-yellow-50 text-yellow-700",
+          "in-progress": "bg-blue-50 text-blue-700",
+          completed: "bg-green-50 text-green-700",
+          rejected: "bg-red-50 text-red-700",
+        };
+        return <Badge className={colors[dsr.status]}>{dsr.status}</Badge>;
+      },
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (dsr) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background">
+            <DropdownMenuItem onClick={() => {
+              setEditingDSR(dsr);
+              setDsrDialogOpen(true);
+            }}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Request
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => {
+                setDeleteType("dsr");
+                setItemToDelete(dsr);
+                setDeleteDialogOpen(true);
+              }}
+              className="text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Request
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
+  ];
+
+  const handleDelete = () => {
+    if (!itemToDelete || !deleteType) return;
+    
+    setIsDeleting(true);
+    try {
+      let success = false;
+      let message = "";
+      
+      if (deleteType === "policy") {
+        success = deletePolicy(itemToDelete.id);
+        message = "Policy deleted successfully";
+      } else if (deleteType === "dsr") {
+        success = deleteDataSubjectRequest(itemToDelete.id);
+        message = "Data subject request deleted successfully";
+      }
+      
+      if (success) {
+        toast.success(message);
+        setDeleteDialogOpen(false);
+        setItemToDelete(null);
+        setDeleteType(null);
+        setRefreshKey(prev => prev + 1);
+      } else {
+        toast.error("Failed to delete item");
+      }
+    } catch (error) {
+      toast.error("Failed to delete item");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (!isHRAdmin && !isSuperAdmin) {
     return (
@@ -349,13 +485,36 @@ export default function Compliance() {
 
         <PolicyDialog
           open={policyDialogOpen}
-          onOpenChange={setPolicyDialogOpen}
-          onSuccess={() => setRefreshKey(prev => prev + 1)}
+          onOpenChange={(open) => {
+            setPolicyDialogOpen(open);
+            if (!open) setEditingPolicy(null);
+          }}
+          editingPolicy={editingPolicy}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            setEditingPolicy(null);
+          }}
         />
         <DataSubjectRequestDialog
           open={dsrDialogOpen}
-          onOpenChange={setDsrDialogOpen}
-          onSuccess={() => setRefreshKey(prev => prev + 1)}
+          onOpenChange={(open) => {
+            setDsrDialogOpen(open);
+            if (!open) setEditingDSR(null);
+          }}
+          editingRequest={editingDSR}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            setEditingDSR(null);
+          }}
+        />
+        
+        <DeleteConfirmationDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title={`Delete ${deleteType === "policy" ? "Policy" : "Data Subject Request"}`}
+          description={`Are you sure you want to delete this ${deleteType === "policy" ? "policy" : "data subject request"}? This action cannot be undone.`}
+          onConfirm={handleDelete}
+          isDeleting={isDeleting}
         />
       </div>
     </DashboardPageLayout>

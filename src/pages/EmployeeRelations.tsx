@@ -2,25 +2,53 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Shield, Plus, FileText, AlertCircle, Clock, CheckCircle2, TrendingUp } from "lucide-react";
+import { Shield, Plus, FileText, AlertCircle, Clock, CheckCircle2, TrendingUp, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
-import { getERCases, getERCaseStats } from "@/lib/employeeRelationsStorage";
+import { getERCases, getERCaseStats, deleteERCase } from "@/lib/employeeRelationsStorage";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { ERCase } from "@/types/employeeRelations";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ERCaseDialog } from "@/components/employee-relations/ERCaseDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DeleteConfirmationDialog } from "@/components/shared/DeleteConfirmationDialog";
+import { toast } from "sonner";
 
 export default function EmployeeRelations() {
   const { isHRAdmin, isSuperAdmin, isManager } = useRBAC();
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [caseDialogOpen, setCaseDialogOpen] = useState(false);
+  const [editingCase, setEditingCase] = useState<ERCase | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [caseToDelete, setCaseToDelete] = useState<ERCase | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const cases = getERCases({ status: statusFilter });
   const stats = getERCaseStats();
 
   const hasAccess = isHRAdmin || isSuperAdmin || isManager;
+
+  const handleDeleteCase = () => {
+    if (!caseToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const success = deleteERCase(caseToDelete.id);
+      if (success) {
+        toast.success("ER case deleted successfully");
+        setDeleteDialogOpen(false);
+        setCaseToDelete(null);
+        setRefreshKey(prev => prev + 1);
+      } else {
+        toast.error("Failed to delete case");
+      }
+    } catch (error) {
+      toast.error("Failed to delete case");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const caseColumns: Column<ERCase>[] = [
     {
@@ -94,6 +122,38 @@ export default function EmployeeRelations() {
         ) : (
           <span className="text-muted-foreground">-</span>
         ),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (erCase) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background">
+            <DropdownMenuItem onClick={() => {
+              setEditingCase(erCase);
+              setCaseDialogOpen(true);
+            }}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Case
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => {
+                setCaseToDelete(erCase);
+                setDeleteDialogOpen(true);
+              }}
+              className="text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Delete Case
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
     },
   ];
 
@@ -314,8 +374,24 @@ export default function EmployeeRelations() {
 
         <ERCaseDialog
           open={caseDialogOpen}
-          onOpenChange={setCaseDialogOpen}
-          onSuccess={() => setRefreshKey(prev => prev + 1)}
+          onOpenChange={(open) => {
+            setCaseDialogOpen(open);
+            if (!open) setEditingCase(null);
+          }}
+          editingCase={editingCase}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            setEditingCase(null);
+          }}
+        />
+        
+        <DeleteConfirmationDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title="Delete ER Case"
+          description={`Are you sure you want to delete case ${caseToDelete?.caseNumber}? This action cannot be undone.`}
+          onConfirm={handleDeleteCase}
+          isDeleting={isDeleting}
         />
       </div>
     </DashboardPageLayout>

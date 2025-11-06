@@ -2,17 +2,25 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Shield, Plus, Crown, Users } from "lucide-react";
+import { Shield, Plus, Crown, Users, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
 import { getAllUserRoles } from "@/lib/rbacService";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { UserRole, ROLE_PERMISSIONS } from "@/types/rbac";
 import { RoleAssignmentDialog } from "@/components/rbac/RoleAssignmentDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DeleteConfirmationDialog } from "@/components/shared/DeleteConfirmationDialog";
+import { deleteRoleAssignment } from "@/lib/rbacStorage";
+import { toast } from "sonner";
 
 export default function RoleManagement() {
   const { isSuperAdmin } = useRBAC();
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
+  const [editingRole, setEditingRole] = useState<any | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [roleToDelete, setRoleToDelete] = useState<UserRole | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const userRoles = getAllUserRoles();
 
@@ -58,7 +66,60 @@ export default function RoleManagement() {
         </Badge>
       ),
     },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (userRole) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="bg-background">
+            <DropdownMenuItem onClick={() => {
+              setEditingRole(userRole);
+              setRoleDialogOpen(true);
+            }}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Assignment
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => {
+                setRoleToDelete(userRole);
+                setDeleteDialogOpen(true);
+              }}
+              className="text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" />
+              Revoke Role
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+    },
   ];
+
+  const handleDeleteRole = () => {
+    if (!roleToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const success = deleteRoleAssignment(roleToDelete.id);
+      if (success) {
+        toast.success("Role assignment revoked successfully");
+        setDeleteDialogOpen(false);
+        setRoleToDelete(null);
+        setRefreshKey(prev => prev + 1);
+      } else {
+        toast.error("Failed to revoke role");
+      }
+    } catch (error) {
+      toast.error("Failed to revoke role");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (!isSuperAdmin) {
     return (
@@ -197,8 +258,24 @@ export default function RoleManagement() {
 
         <RoleAssignmentDialog
           open={roleDialogOpen}
-          onOpenChange={setRoleDialogOpen}
-          onSuccess={() => setRefreshKey(prev => prev + 1)}
+          onOpenChange={(open) => {
+            setRoleDialogOpen(open);
+            if (!open) setEditingRole(null);
+          }}
+          editingAssignment={editingRole}
+          onSuccess={() => {
+            setRefreshKey(prev => prev + 1);
+            setEditingRole(null);
+          }}
+        />
+        
+        <DeleteConfirmationDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          title="Revoke Role Assignment"
+          description={`Are you sure you want to revoke ${roleToDelete?.role} role from user ${roleToDelete?.userId}? This action cannot be undone.`}
+          onConfirm={handleDeleteRole}
+          isDeleting={isDeleting}
         />
       </div>
     </DashboardPageLayout>
