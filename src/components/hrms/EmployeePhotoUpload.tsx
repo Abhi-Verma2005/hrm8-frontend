@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Camera, X, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { ImageCropDialog } from './ImageCropDialog';
 
 interface EmployeePhotoUploadProps {
   photo?: string;
@@ -15,6 +16,8 @@ export function EmployeePhotoUpload({ photo, name, onPhotoChange }: EmployeePhot
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [cropDialogOpen, setCropDialogOpen] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState<string>('');
 
   const getInitials = (name: string) => {
     return name
@@ -44,9 +47,9 @@ export function EmployeePhotoUpload({ photo, name, onPhotoChange }: EmployeePhot
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        onPhotoChange(result);
+        setImageToCrop(result);
+        setCropDialogOpen(true);
         setIsLoading(false);
-        toast.success('Photo uploaded successfully');
       };
       reader.onerror = () => {
         toast.error('Failed to read image file');
@@ -57,6 +60,11 @@ export function EmployeePhotoUpload({ photo, name, onPhotoChange }: EmployeePhot
       toast.error('Failed to upload photo');
       setIsLoading(false);
     }
+  };
+
+  const handleCropComplete = (croppedImage: string) => {
+    onPhotoChange(croppedImage);
+    toast.success('Photo uploaded successfully');
   };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,6 +181,13 @@ export function EmployeePhotoUpload({ photo, name, onPhotoChange }: EmployeePhot
           )}
         </div>
       </div>
+
+      <ImageCropDialog
+        open={cropDialogOpen}
+        onOpenChange={setCropDialogOpen}
+        imageSrc={imageToCrop}
+        onCropComplete={handleCropComplete}
+      />
     </div>
   );
 }
