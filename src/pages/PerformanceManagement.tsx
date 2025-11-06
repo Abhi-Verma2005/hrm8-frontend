@@ -3,14 +3,11 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck, Download, Sparkles, Award, AlertTriangle, GraduationCap } from "lucide-react";
+import { Plus, Target, FileText, Calendar as CalendarIcon, TrendingUp, ClipboardCheck, Download, Sparkles } from "lucide-react";
 import { GoalCard } from "@/components/performance/GoalCard";
 import { ReviewCard } from "@/components/performance/ReviewCard";
-import { Feedback360Card } from "@/components/performance/Feedback360Card";
 import { GoalFormDialog } from "@/components/performance/GoalFormDialog";
 import { GoalsFilterBar } from "@/components/performance/GoalsFilterBar";
-import { Feedback360RequestDialog } from "@/components/performance/Feedback360RequestDialog";
-import { Feedback360ResponseDialog } from "@/components/performance/Feedback360ResponseDialog";
 import { ReviewCompletionDialog } from "@/components/performance/ReviewCompletionDialog";
 import { GoalAnalyticsDashboard } from "@/components/performance/analytics/GoalAnalyticsDashboard";
 import { GoalRecommendationsDialog } from "@/components/performance/GoalRecommendationsDialog";
@@ -21,39 +18,20 @@ import { GoalAlignmentView } from "@/components/performance/GoalAlignmentView";
 import { PerformanceReportExportDialog } from "@/components/performance/PerformanceReportExportDialog";
 import { ReviewTemplateBuilder } from "@/components/performance/ReviewTemplateBuilder";
 import { PerformanceInsightsDashboard } from "@/components/performance/PerformanceInsightsDashboard";
-import { OneOnOneMeetingTracker } from "@/components/performance/OneOnOneMeetingTracker";
-import { CalibrationSessionManager } from "@/components/performance/CalibrationSessionManager";
-import { SkillsAssessmentMatrix } from "@/components/performance/SkillsAssessmentMatrix";
-import { PIPManager } from "@/components/performance/PIPManager";
-import { SuccessionPlanning } from "@/components/performance/SuccessionPlanning";
-import { LearningDevelopment } from "@/components/performance/LearningDevelopment";
-import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules, getCalibrationSessions, saveCalibrationSession, updateCalibrationSession, getSkillsAssessments, saveSkillsAssessment, updateSkillsAssessment, getPIPs, updatePIP, getSuccessionPlans } from "@/lib/performanceStorage";
-import { getCourses, getTrainingPaths, getCourseEnrollments, getEmployeeCertifications, getSkillDevelopmentPrograms, getLearningAnalytics } from "@/lib/learningStorage";
-import { getGamificationProfile, saveGamificationProfile } from "@/lib/gamificationStorage";
-import { getCertificates } from "@/lib/certificateStorage";
-import { mockChallenges } from "@/data/mockGamificationData";
+import { getPerformanceGoals, getPerformanceReviews, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getReviewSchedules } from "@/lib/performanceStorage";
 import { getEmployees } from "@/lib/employeeStorage";
-import type { GamificationProfile } from "@/types/performance";
-import type { PerformanceGoal, PerformanceReview, OneOnOneMeeting, MeetingAgendaTemplate, ReviewSchedule, Feedback360, CalibrationSession, SkillAssessment, PerformanceImprovementPlan, PIPCheckIn } from "@/types/performance";
-import { mockCalibrationSessions } from "@/data/mockCalibrationData";
-import { mockSkillCategories, mockSkillAssessments, mockRoleSkillRequirements } from "@/data/mockSkillsData";
-import { mockPIPs } from "@/data/mockPIPData";
-import { mockSuccessionPlans, mockNineBoxData, mockLeadershipPipeline } from "@/data/mockSuccessionData";
-import { toast } from "sonner";
+import type { PerformanceGoal, PerformanceReview } from "@/types/performance";
 
 export default function PerformanceManagement() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [goalDialogOpen, setGoalDialogOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<PerformanceGoal | undefined>(undefined);
-  const [feedback360DialogOpen, setFeedback360DialogOpen] = useState(false);
-  const [feedbackResponseDialogOpen, setFeedbackResponseDialogOpen] = useState(false);
-  const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [recommendationsDialogOpen, setRecommendationsDialogOpen] = useState(false);
   const [reviewDetailOpen, setReviewDetailOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState<PerformanceReview | null>(null);
-  const [currentUserRole] = useState<'manager' | 'hr'>('manager'); // Mock role
+  const [currentUserRole] = useState<'manager' | 'hr'>('manager');
   
   // Filter and sort state
   const [searchValue, setSearchValue] = useState("");
@@ -68,62 +46,10 @@ export default function PerformanceManagement() {
 
   const allGoals = useMemo(() => getPerformanceGoals(currentEmployeeId), [currentEmployeeId, refreshKey]);
   const myReviews = useMemo(() => getPerformanceReviews({ employeeId: currentEmployeeId }), [currentEmployeeId, refreshKey]);
-  const my360Feedback = useMemo(() => getFeedback360(currentEmployeeId), [currentEmployeeId, refreshKey]);
   const templates = useMemo(() => getReviewTemplates(), [refreshKey]);
   const schedules = useMemo(() => getReviewSchedules(), [refreshKey]);
-  const meetings = useMemo(() => getOneOnOneMeetings(), [refreshKey]);
-  const meetingTemplates = useMemo(() => getMeetingTemplates(), [refreshKey]);
-  const calibrationSessions = useMemo(() => {
-    const stored = getCalibrationSessions();
-    return stored.length > 0 ? stored : mockCalibrationSessions;
-  }, [refreshKey]);
-  const skillsAssessments = useMemo(() => {
-    const stored = getSkillsAssessments();
-    return stored.length > 0 ? stored : mockSkillAssessments;
-  }, [refreshKey]);
-  const pips = useMemo(() => {
-    const stored = getPIPs();
-    return stored.length > 0 ? stored : mockPIPs;
-  }, [refreshKey]);
-  const successionPlans = useMemo(() => {
-    const stored = getSuccessionPlans();
-    return stored.length > 0 ? stored : mockSuccessionPlans;
-  }, [refreshKey]);
   const employees = useMemo(() => getEmployees(), []);
   const currentEmployee = employees.find(e => e.id === currentEmployeeId) || employees[0];
-
-  // Learning & Development data
-  const courses = useMemo(() => getCourses(), [refreshKey]);
-  const trainingPaths = useMemo(() => getTrainingPaths(), [refreshKey]);
-  const courseEnrollments = useMemo(() => getCourseEnrollments(currentEmployeeId), [currentEmployeeId, refreshKey]);
-  const employeeCertifications = useMemo(() => getEmployeeCertifications(currentEmployeeId), [currentEmployeeId, refreshKey]);
-  const skillDevelopmentPrograms = useMemo(() => getSkillDevelopmentPrograms(currentEmployeeId), [currentEmployeeId, refreshKey]);
-  const learningAnalytics = useMemo(() => getLearningAnalytics(currentEmployeeId), [currentEmployeeId, refreshKey]);
-
-  // Gamification data
-  const gamificationProfile = useMemo(() => {
-    let profile = getGamificationProfile(currentEmployeeId);
-    if (!profile) {
-      // Create default profile
-      const defaultProfile: GamificationProfile = {
-        employeeId: currentEmployeeId,
-        totalPoints: 0,
-        level: 1,
-        rank: 'Novice',
-        badges: [],
-        streak: 0,
-        longestStreak: 0,
-        completedChallenges: [],
-        achievements: [],
-        lastActivity: new Date()
-      };
-      saveGamificationProfile(defaultProfile);
-      profile = defaultProfile;
-    }
-    return profile;
-  }, [currentEmployeeId, refreshKey]);
-  const challenges = useMemo(() => mockChallenges, [refreshKey]);
-  const myCertificates = useMemo(() => getCertificates(currentEmployeeId), [currentEmployeeId, refreshKey]);
 
   // Apply filters and sorting
   const myGoals = useMemo(() => {
@@ -224,81 +150,9 @@ export default function PerformanceManagement() {
   };
 
   const handleApprovalUpdate = (reviewId: string, stageId: string, action: 'approve' | 'reject', comments: string) => {
-    // In a real app, this would update the backend
     console.log('Approval action:', { reviewId, stageId, action, comments });
     setRefreshKey(prev => prev + 1);
     return Promise.resolve();
-  };
-
-  const handleCreateCalibrationSession = (session: Partial<CalibrationSession>) => {
-    const newSession: CalibrationSession = {
-      ...session as CalibrationSession,
-      id: `cal-${Date.now()}`,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    saveCalibrationSession(newSession);
-    setRefreshKey(prev => prev + 1);
-  };
-
-  const handleUpdateCalibrationSession = (id: string, updates: Partial<CalibrationSession>) => {
-    updateCalibrationSession(id, updates);
-    setRefreshKey(prev => prev + 1);
-  };
-
-  const handleCreateSkillsAssessment = (assessment: Partial<SkillAssessment>) => {
-    const newAssessment: SkillAssessment = {
-      ...assessment as SkillAssessment,
-      id: `skills-assess-${Date.now()}`,
-      employeeName: `${currentEmployee.firstName} ${currentEmployee.lastName}`,
-      role: currentEmployee.jobTitle,
-      department: currentEmployee.department,
-      assessorId: currentEmployeeId,
-      assessorName: `${currentEmployee.firstName} ${currentEmployee.lastName}`,
-      assessmentDate: assessment.assessmentDate || new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    saveSkillsAssessment(newAssessment);
-    setRefreshKey(prev => prev + 1);
-  };
-
-  const handleUpdateSkillsAssessment = (id: string, updates: Partial<SkillAssessment>) => {
-    updateSkillsAssessment(id, updates);
-    setRefreshKey(prev => prev + 1);
-  };
-
-  const handleUpdatePIP = (id: string, updates: Partial<PerformanceImprovementPlan>) => {
-    updatePIP(id, updates);
-    setRefreshKey(prev => prev + 1);
-  };
-
-  const handleCreatePIPCheckIn = (pipId: string, checkIn: Partial<PIPCheckIn>) => {
-    const pip = pips.find(p => p.id === pipId);
-    if (!pip) return;
-
-    const updatedCheckIns = [...pip.checkIns, checkIn as PIPCheckIn];
-    updatePIP(pipId, { checkIns: updatedCheckIns });
-    setRefreshKey(prev => prev + 1);
-  };
-
-  const handleEnrollCourse = (courseId: string) => {
-    toast.success("Enrolled in course successfully");
-    setRefreshKey(prev => prev + 1);
-  };
-
-  const handleStartCourse = (enrollmentId: string) => {
-    toast.success("Course started");
-    setRefreshKey(prev => prev + 1);
-  };
-
-  const handleViewCertificate = (certificationId: string) => {
-    toast.success("Opening certificate");
-  };
-
-  const handleJoinChallenge = (challengeId: string) => {
-    toast.success("Joined challenge successfully!");
-    setRefreshKey(prev => prev + 1);
   };
 
   return (
@@ -308,17 +162,13 @@ export default function PerformanceManagement() {
           <div>
             <h1 className="text-3xl font-bold">Performance Management</h1>
             <p className="text-muted-foreground">
-              Track goals, reviews, and professional development
+              Track goals, reviews, and performance analytics
             </p>
           </div>
           <div className="flex gap-2">
             <Button onClick={() => setExportDialogOpen(true)} variant="outline">
               <Download className="mr-2 h-4 w-4" />
               Export Report
-            </Button>
-            <Button onClick={() => setFeedback360DialogOpen(true)} variant="outline">
-              <MessageSquare className="mr-2 h-4 w-4" />
-              Request 360° Feedback
             </Button>
             <Button onClick={() => setReviewDialogOpen(true)} variant="outline">
               <ClipboardCheck className="mr-2 h-4 w-4" />
@@ -377,13 +227,13 @@ export default function PerformanceManagement() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">360 Feedback</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Scheduled Reviews</CardTitle>
+              <CalendarIcon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{my360Feedback.length}</div>
+              <div className="text-2xl font-bold">{schedules.length}</div>
               <p className="text-xs text-muted-foreground">
-                {my360Feedback.filter(f => f.status === 'in-progress').length} in progress
+                Upcoming reviews
               </p>
             </CardContent>
           </Card>
@@ -415,40 +265,12 @@ export default function PerformanceManagement() {
               <FileText className="mr-2 h-4 w-4" />
               Performance Reviews
             </TabsTrigger>
-            <TabsTrigger value="feedback">
-              <Users className="mr-2 h-4 w-4" />
-              360° Feedback
-            </TabsTrigger>
-            <TabsTrigger value="meetings">
-              <Users className="mr-2 h-4 w-4" />
-              1-on-1s
-            </TabsTrigger>
-            <TabsTrigger value="calibration">
-              <Users className="mr-2 h-4 w-4" />
-              Calibration
-            </TabsTrigger>
-            <TabsTrigger value="skills">
-              <Award className="mr-2 h-4 w-4" />
-              Skills Matrix
-            </TabsTrigger>
-            <TabsTrigger value="pip">
-              <AlertTriangle className="mr-2 h-4 w-4" />
-              PIPs
-            </TabsTrigger>
-            <TabsTrigger value="succession">
-              <Users className="mr-2 h-4 w-4" />
-              Succession Planning
-            </TabsTrigger>
-            <TabsTrigger value="learning">
-              <GraduationCap className="mr-2 h-4 w-4" />
-              Learning & Development
-            </TabsTrigger>
             <TabsTrigger value="calendar">
               <CalendarIcon className="mr-2 h-4 w-4" />
               Calendar
             </TabsTrigger>
             <TabsTrigger value="templates">
-              <CalendarIcon className="mr-2 h-4 w-4" />
+              <FileText className="mr-2 h-4 w-4" />
               Review Templates
             </TabsTrigger>
           </TabsList>
@@ -575,150 +397,11 @@ export default function PerformanceManagement() {
             </div>
           </TabsContent>
 
-          <TabsContent value="feedback" className="space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">360° Feedback</h3>
-                <Button onClick={() => setFeedback360DialogOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Request Feedback
-                </Button>
-              </div>
-
-              {my360Feedback.length === 0 ? (
-                <Card>
-                  <CardContent className="p-12 text-center">
-                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No 360° Feedback</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Request feedback from your manager, peers, and team members
-                    </p>
-                    <Button onClick={() => setFeedback360DialogOpen(true)}>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Request Feedback
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="grid gap-4 md:grid-cols-2">
-                  {my360Feedback.map((feedback) => (
-                    <div key={feedback.id} className="relative">
-                      <Feedback360Card feedback={feedback} />
-                      {feedback.status === "pending" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="absolute top-4 right-4"
-                          onClick={() => {
-                            setSelectedFeedback(feedback);
-                            setFeedbackResponseDialogOpen(true);
-                          }}
-                        >
-                          Respond to Feedback
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
           <TabsContent value="calendar" className="space-y-6">
             <PerformanceCalendar
               goals={allGoals}
               reviews={myReviews}
-              feedback={my360Feedback}
-            />
-          </TabsContent>
-
-          <TabsContent value="meetings" className="space-y-6">
-            <OneOnOneMeetingTracker
-              meetings={meetings}
-              templates={meetingTemplates}
-              onScheduleMeeting={(meeting) => {
-                saveOneOnOneMeeting(meeting);
-                setRefreshKey(prev => prev + 1);
-              }}
-              onUpdateMeeting={(meeting) => {
-                saveOneOnOneMeeting(meeting);
-                setRefreshKey(prev => prev + 1);
-              }}
-              onUpdateActionItem={(meetingId, actionItem) => {
-                const meeting = meetings.find(m => m.id === meetingId);
-                if (meeting) {
-                  const updated = {
-                    ...meeting,
-                    actionItems: meeting.actionItems.map(a => a.id === actionItem.id ? actionItem : a)
-                  };
-                  saveOneOnOneMeeting(updated);
-                  setRefreshKey(prev => prev + 1);
-                }
-              }}
-            />
-          </TabsContent>
-
-          <TabsContent value="calibration" className="space-y-6">
-            <CalibrationSessionManager
-              sessions={calibrationSessions}
-              onCreateSession={handleCreateCalibrationSession}
-              onUpdateSession={handleUpdateCalibrationSession}
-            />
-          </TabsContent>
-
-          <TabsContent value="skills" className="space-y-6">
-            <SkillsAssessmentMatrix
-              categories={mockSkillCategories}
-              assessments={skillsAssessments}
-              roleRequirements={mockRoleSkillRequirements}
-              currentEmployeeId={currentEmployeeId}
-              onCreateAssessment={handleCreateSkillsAssessment}
-              onUpdateAssessment={handleUpdateSkillsAssessment}
-            />
-          </TabsContent>
-
-          <TabsContent value="pip" className="space-y-6">
-            <PIPManager
-              pips={pips}
-              onUpdatePIP={handleUpdatePIP}
-              onCreateCheckIn={handleCreatePIPCheckIn}
-            />
-          </TabsContent>
-
-          <TabsContent value="succession" className="space-y-6">
-            <SuccessionPlanning
-              successionPlans={successionPlans}
-              nineBoxData={mockNineBoxData}
-              leadershipPipeline={mockLeadershipPipeline}
-            />
-          </TabsContent>
-
-          <TabsContent value="learning" className="space-y-6">
-            <LearningDevelopment
-              courses={courses}
-              trainingPaths={trainingPaths}
-              enrollments={courseEnrollments}
-              certifications={employeeCertifications}
-              skillPrograms={skillDevelopmentPrograms}
-              analytics={learningAnalytics!}
-              onEnrollCourse={handleEnrollCourse}
-              onStartCourse={handleStartCourse}
-              onViewCertificate={handleViewCertificate}
-              employeeData={{
-                id: currentEmployeeId,
-                name: currentEmployeeName,
-                role: currentEmployee.jobTitle,
-                department: currentEmployee.department,
-                skills: ['React', 'TypeScript', 'Leadership'],
-                experienceLevel: 'Senior',
-              }}
-              goals={allGoals}
-              performanceGaps={[]}
-              showTeamAnalytics={currentUserRole === 'hr'}
-              gamificationProfile={gamificationProfile}
-              challenges={challenges}
-              certificates={myCertificates}
-              onJoinChallenge={handleJoinChallenge}
+              feedback={[]}
             />
           </TabsContent>
 
@@ -735,22 +418,6 @@ export default function PerformanceManagement() {
           employeeName={currentEmployeeName}
           onSuccess={() => setRefreshKey((prev) => prev + 1)}
         />
-
-        <Feedback360RequestDialog
-          open={feedback360DialogOpen}
-          onOpenChange={setFeedback360DialogOpen}
-          onSuccess={() => setRefreshKey((prev) => prev + 1)}
-        />
-
-        {selectedFeedback && (
-          <Feedback360ResponseDialog
-            open={feedbackResponseDialogOpen}
-            onOpenChange={setFeedbackResponseDialogOpen}
-            feedback={selectedFeedback}
-            providerId="current-user-id"
-            providerName="Current User"
-          />
-        )}
 
         <ReviewCompletionDialog
           open={reviewDialogOpen}

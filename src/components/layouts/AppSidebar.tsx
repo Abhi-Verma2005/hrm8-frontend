@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
-import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 
@@ -40,7 +40,8 @@ const hrManagementNavItems = [
     ]
   },
   { title: "Onboarding", url: "/onboarding", icon: UserCheck },
-  { title: "Performance", url: "/performance", icon: Target },
+  { title: "Performance", url: "/performance", icon: TrendingUp },
+  { title: "Talent Development", url: "/talent-development", icon: GraduationCap },
   { title: "Leave Management", url: "/leave", icon: CalendarDays },
   { title: "Time & Attendance", url: "/attendance", icon: Clock },
   { title: "Payroll", url: "/payroll", icon: Wallet },
