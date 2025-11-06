@@ -3,7 +3,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck, Download, Sparkles, Award } from "lucide-react";
+import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck, Download, Sparkles, Award, AlertTriangle } from "lucide-react";
 import { GoalCard } from "@/components/performance/GoalCard";
 import { ReviewCard } from "@/components/performance/ReviewCard";
 import { Feedback360Card } from "@/components/performance/Feedback360Card";
@@ -24,11 +24,13 @@ import { PerformanceInsightsDashboard } from "@/components/performance/Performan
 import { OneOnOneMeetingTracker } from "@/components/performance/OneOnOneMeetingTracker";
 import { CalibrationSessionManager } from "@/components/performance/CalibrationSessionManager";
 import { SkillsAssessmentMatrix } from "@/components/performance/SkillsAssessmentMatrix";
-import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules, getCalibrationSessions, saveCalibrationSession, updateCalibrationSession, getSkillsAssessments, saveSkillsAssessment, updateSkillsAssessment } from "@/lib/performanceStorage";
+import { PIPManager } from "@/components/performance/PIPManager";
+import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules, getCalibrationSessions, saveCalibrationSession, updateCalibrationSession, getSkillsAssessments, saveSkillsAssessment, updateSkillsAssessment, getPIPs, updatePIP } from "@/lib/performanceStorage";
 import { getEmployees } from "@/lib/employeeStorage";
-import type { PerformanceGoal, PerformanceReview, OneOnOneMeeting, MeetingAgendaTemplate, ReviewSchedule, Feedback360, CalibrationSession, SkillAssessment } from "@/types/performance";
+import type { PerformanceGoal, PerformanceReview, OneOnOneMeeting, MeetingAgendaTemplate, ReviewSchedule, Feedback360, CalibrationSession, SkillAssessment, PerformanceImprovementPlan, PIPCheckIn } from "@/types/performance";
 import { mockCalibrationSessions } from "@/data/mockCalibrationData";
 import { mockSkillCategories, mockSkillAssessments, mockRoleSkillRequirements } from "@/data/mockSkillsData";
+import { mockPIPs } from "@/data/mockPIPData";
 import { toast } from "sonner";
 
 export default function PerformanceManagement() {
@@ -70,6 +72,10 @@ export default function PerformanceManagement() {
   const skillsAssessments = useMemo(() => {
     const stored = getSkillsAssessments();
     return stored.length > 0 ? stored : mockSkillAssessments;
+  }, [refreshKey]);
+  const pips = useMemo(() => {
+    const stored = getPIPs();
+    return stored.length > 0 ? stored : mockPIPs;
   }, [refreshKey]);
   const employees = useMemo(() => getEmployees(), []);
   const currentEmployee = employees.find(e => e.id === currentEmployeeId) || employees[0];
@@ -217,6 +223,20 @@ export default function PerformanceManagement() {
     setRefreshKey(prev => prev + 1);
   };
 
+  const handleUpdatePIP = (id: string, updates: Partial<PerformanceImprovementPlan>) => {
+    updatePIP(id, updates);
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleCreatePIPCheckIn = (pipId: string, checkIn: Partial<PIPCheckIn>) => {
+    const pip = pips.find(p => p.id === pipId);
+    if (!pip) return;
+
+    const updatedCheckIns = [...pip.checkIns, checkIn as PIPCheckIn];
+    updatePIP(pipId, { checkIns: updatedCheckIns });
+    setRefreshKey(prev => prev + 1);
+  };
+
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
@@ -346,6 +366,10 @@ export default function PerformanceManagement() {
             <TabsTrigger value="skills">
               <Award className="mr-2 h-4 w-4" />
               Skills Matrix
+            </TabsTrigger>
+            <TabsTrigger value="pip">
+              <AlertTriangle className="mr-2 h-4 w-4" />
+              PIPs
             </TabsTrigger>
             <TabsTrigger value="calendar">
               <CalendarIcon className="mr-2 h-4 w-4" />
@@ -578,6 +602,14 @@ export default function PerformanceManagement() {
               currentEmployeeId={currentEmployeeId}
               onCreateAssessment={handleCreateSkillsAssessment}
               onUpdateAssessment={handleUpdateSkillsAssessment}
+            />
+          </TabsContent>
+
+          <TabsContent value="pip" className="space-y-6">
+            <PIPManager
+              pips={pips}
+              onUpdatePIP={handleUpdatePIP}
+              onCreateCheckIn={handleCreatePIPCheckIn}
             />
           </TabsContent>
 

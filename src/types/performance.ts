@@ -416,3 +416,94 @@ export interface SkillGapAnalysis {
   }[];
   developmentRecommendations: string[];
 }
+
+export type PIPStatus = 'active' | 'on-track' | 'at-risk' | 'completed' | 'failed' | 'cancelled';
+export type PIPSeverity = 'low' | 'medium' | 'high' | 'critical';
+
+export interface PerformanceImprovementPlan {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  managerId: string;
+  managerName: string;
+  hrPartnerId?: string;
+  hrPartnerName?: string;
+  startDate: string;
+  endDate: string;
+  status: PIPStatus;
+  severity: PIPSeverity;
+  triggerReason: string;
+  performanceIssues: string[];
+  expectedOutcomes: string[];
+  consequences: string;
+  milestones: PIPMilestone[];
+  checkIns: PIPCheckIn[];
+  resources: PIPResource[];
+  alerts: PIPAlert[];
+  notes?: string;
+  finalOutcome?: {
+    status: 'successful' | 'unsuccessful';
+    summary: string;
+    nextSteps: string;
+    completedDate: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PIPMilestone {
+  id: string;
+  title: string;
+  description: string;
+  targetDate: string;
+  completedDate?: string;
+  status: 'pending' | 'in-progress' | 'completed' | 'overdue';
+  successCriteria: string[];
+  actualResults?: string;
+  evidence?: string[];
+}
+
+export interface PIPCheckIn {
+  id: string;
+  scheduledDate: string;
+  completedDate?: string;
+  attendees: {
+    id: string;
+    name: string;
+    role: string;
+  }[];
+  discussionPoints: string[];
+  progressRating: 1 | 2 | 3 | 4 | 5;
+  managerNotes: string;
+  employeeNotes?: string;
+  actionItems: {
+    id: string;
+    description: string;
+    dueDate: string;
+    status: 'pending' | 'completed';
+  }[];
+  concerns?: string[];
+  positives?: string[];
+}
+
+export interface PIPResource {
+  id: string;
+  type: 'training' | 'mentoring' | 'coaching' | 'documentation' | 'tool' | 'other';
+  title: string;
+  description: string;
+  url?: string;
+  provider?: string;
+  completionDate?: string;
+  status: 'pending' | 'in-progress' | 'completed';
+}
+
+export interface PIPAlert {
+  id: string;
+  type: 'milestone-due' | 'checkin-due' | 'at-risk' | 'improvement' | 'deadline-approaching';
+  severity: 'info' | 'warning' | 'critical';
+  message: string;
+  date: string;
+  acknowledged: boolean;
+  acknowledgedBy?: string;
+  acknowledgedDate?: string;
+}

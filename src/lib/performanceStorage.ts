@@ -338,6 +338,45 @@ export function updateSkillsAssessment(id: string, updates: any): void {
   }
 }
 
+// Performance Improvement Plans
+const PIPS_KEY = 'hrms_performance_improvement_plans';
+
+export function getPIPs(employeeId?: string): any[] {
+  const stored = localStorage.getItem(PIPS_KEY);
+  let pips = stored ? JSON.parse(stored) : [];
+  
+  if (employeeId) {
+    pips = pips.filter((p: any) => p.employeeId === employeeId);
+  }
+  
+  return pips.sort((a: any, b: any) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+}
+
+export function savePIP(pip: any): void {
+  const pips = getPIPs();
+  const index = pips.findIndex(p => p.id === pip.id);
+  
+  if (index >= 0) {
+    pips[index] = { ...pip, updatedAt: new Date().toISOString() };
+  } else {
+    pips.push(pip);
+  }
+  
+  localStorage.setItem(PIPS_KEY, JSON.stringify(pips));
+}
+
+export function updatePIP(id: string, updates: any): void {
+  const pips = getPIPs();
+  const index = pips.findIndex(p => p.id === id);
+  
+  if (index >= 0) {
+    pips[index] = { ...pips[index], ...updates, updatedAt: new Date().toISOString() };
+    localStorage.setItem(PIPS_KEY, JSON.stringify(pips));
+  }
+}
+
 // Legacy functions for consultants module
 export function getPerformanceBreakdown(consultantId: string) {
   return [];
