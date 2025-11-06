@@ -8,6 +8,7 @@ import { getSalaryBands, getCompensationReviews, calculateCompensationStats } fr
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { CompensationAdjustmentDialog } from "@/components/compensation/CompensationAdjustmentDialog";
+import { CompensationApprovalActions } from "@/components/compensation/CompensationApprovalActions";
 
 export default function Compensation() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -128,6 +129,9 @@ export default function Compensation() {
                         >
                           {review.status}
                         </Badge>
+                        {review.status === 'pending' && (
+                          <CompensationApprovalActions reviewId={review.id} onUpdate={handleRefresh} />
+                        )}
                       </div>
                     </div>
                   ))}

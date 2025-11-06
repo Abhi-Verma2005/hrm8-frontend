@@ -3,20 +3,48 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Receipt, DollarSign, Clock, CheckCircle, XCircle, Plus, Download } from "lucide-react";
+import { Receipt, DollarSign, Clock, CheckCircle, XCircle, Plus, Download, Eye } from "lucide-react";
 import { getExpenses, calculateExpenseStats } from "@/lib/expenseStorage";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ExpenseSubmissionDialog } from "@/components/expenses/ExpenseSubmissionDialog";
+import { ExpenseApprovalActions } from "@/components/expenses/ExpenseApprovalActions";
+import { ExpenseDetailDialog } from "@/components/expenses/ExpenseDetailDialog";
+import { ExportButton } from "@/components/common/ExportButton";
+import { SearchInput } from "@/components/common/SearchInput";
+import { FilterDropdown } from "@/components/common/FilterDropdown";
+import type { Expense } from "@/types/expense";
 
 export default function Expenses() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   const expenses = useMemo(() => getExpenses(), [refreshKey]);
   const stats = useMemo(() => calculateExpenseStats(), [refreshKey]);
 
+  const filteredExpenses = useMemo(() => {
+    return expenses.filter(expense => {
+      const matchesSearch = 
+        expense.employeeName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        expense.merchant.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        expense.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || expense.status === statusFilter;
+      const matchesCategory = categoryFilter === 'all' || expense.category === categoryFilter;
+      return matchesSearch && matchesStatus && matchesCategory;
+    });
+  }, [expenses, searchQuery, statusFilter, categoryFilter]);
+
   const handleRefresh = () => setRefreshKey(prev => prev + 1);
+
+  const handleViewDetails = (expense: Expense) => {
+    setSelectedExpense(expense);
+    setDetailDialogOpen(true);
+  };
 
   const myExpenses = expenses.filter(e => e.employeeId === 'current-user');
   const pendingApprovals = expenses.filter(e => e.status === 'submitted');
@@ -83,10 +111,11 @@ export default function Expenses() {
             </TabsList>
 
             <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
+              <ExportButton 
+                data={filteredExpenses} 
+                filename="expense_claims"
+                fields={['employeeName', 'date', 'category', 'merchant', 'amount', 'status']}
+              />
               <Button size="sm" onClick={() => setExpenseDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Submit Expense
@@ -95,13 +124,45 @@ export default function Expenses() {
           </div>
 
           <TabsContent value="my-expenses" className="space-y-4">
+            <div className="flex gap-4 mb-4">
+              <SearchInput 
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search expenses..."
+                className="flex-1 max-w-md"
+              />
+              <FilterDropdown 
+                label="Status"
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={[
+                  { label: 'Submitted', value: 'submitted' },
+                  { label: 'Approved', value: 'approved' },
+                  { label: 'Rejected', value: 'rejected' },
+                  { label: 'Reimbursed', value: 'reimbursed' },
+                ]}
+              />
+              <FilterDropdown 
+                label="Category"
+                value={categoryFilter}
+                onChange={setCategoryFilter}
+                options={[
+                  { label: 'Travel', value: 'travel' },
+                  { label: 'Meals', value: 'meals' },
+                  { label: 'Accommodation', value: 'accommodation' },
+                  { label: 'Supplies', value: 'supplies' },
+                  { label: 'Equipment', value: 'equipment' },
+                ]}
+              />
+            </div>
+            
             <Card>
               <CardHeader>
                 <CardTitle>My Expenses</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {expenses.slice(0, 10).map(expense => (
+                  {filteredExpenses.slice(0, 10).map(expense => (
                     <div key={expense.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex-1">
                         <p className="font-medium">{expense.merchant}</p>
@@ -127,6 +188,9 @@ export default function Expenses() {
                         >
                           {expense.status}
                         </Badge>
+                        <Button size="sm" variant="ghost" onClick={() => handleViewDetails(expense)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -158,10 +222,7 @@ export default function Expenses() {
                         <div className="text-right">
                           <p className="font-bold">${expense.amount.toLocaleString()}</p>
                         </div>
-                        <div className="flex gap-2">
-                          <Button size="sm" variant="default">Approve</Button>
-                          <Button size="sm" variant="destructive">Reject</Button>
-                        </div>
+                        <ExpenseApprovalActions expenseId={expense.id} onUpdate={handleRefresh} />
                       </div>
                     </div>
                   ))}
@@ -203,6 +264,11 @@ export default function Expenses() {
           open={expenseDialogOpen} 
           onOpenChange={setExpenseDialogOpen}
           onSuccess={handleRefresh}
+        />
+        <ExpenseDetailDialog 
+          open={detailDialogOpen} 
+          onOpenChange={setDetailDialogOpen}
+          expense={selectedExpense}
         />
       </div>
     </DashboardPageLayout>

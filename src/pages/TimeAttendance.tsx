@@ -3,24 +3,47 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Clock, Calendar, UserCheck, TrendingUp, Download, Plus } from "lucide-react";
+import { Clock, Calendar, UserCheck, TrendingUp, Download, Plus, Eye } from "lucide-react";
 import { getAttendanceRecords, getOvertimeRequests } from "@/lib/attendanceStorage";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { ClockInOutDialog } from "@/components/attendance/ClockInOutDialog";
 import { ManualAttendanceDialog } from "@/components/attendance/ManualAttendanceDialog";
 import { OvertimeRequestDialog } from "@/components/attendance/OvertimeRequestDialog";
+import { OvertimeApprovalActions } from "@/components/attendance/OvertimeApprovalActions";
+import { AttendanceDetailDialog } from "@/components/attendance/AttendanceDetailDialog";
+import { ExportButton } from "@/components/common/ExportButton";
+import { SearchInput } from "@/components/common/SearchInput";
+import { FilterDropdown } from "@/components/common/FilterDropdown";
+import type { AttendanceRecord } from "@/types/attendance";
 
 export default function TimeAttendance() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [clockDialogOpen, setClockDialogOpen] = useState(false);
   const [manualDialogOpen, setManualDialogOpen] = useState(false);
   const [overtimeDialogOpen, setOvertimeDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const attendanceRecords = useMemo(() => getAttendanceRecords(), [refreshKey]);
   const overtimeRequests = useMemo(() => getOvertimeRequests(), [refreshKey]);
 
+  const filteredRecords = useMemo(() => {
+    return attendanceRecords.filter(record => {
+      const matchesSearch = record.employeeName.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus = statusFilter === 'all' || record.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [attendanceRecords, searchQuery, statusFilter]);
+
   const handleRefresh = () => setRefreshKey(prev => prev + 1);
+
+  const handleViewDetails = (record: AttendanceRecord) => {
+    setSelectedRecord(record);
+    setDetailDialogOpen(true);
+  };
 
   const stats = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -100,10 +123,11 @@ export default function TimeAttendance() {
                 <Clock className="h-4 w-4 mr-2" />
                 Clock In/Out
               </Button>
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
+              <ExportButton 
+                data={filteredRecords} 
+                filename="attendance_records"
+                fields={['employeeName', 'date', 'shiftName', 'status', 'workHours']}
+              />
               <Button size="sm" onClick={() => setManualDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Mark Attendance
@@ -112,13 +136,33 @@ export default function TimeAttendance() {
           </div>
 
           <TabsContent value="attendance" className="space-y-4">
+            <div className="flex gap-4 mb-4">
+              <SearchInput 
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder="Search by employee name..."
+                className="flex-1 max-w-md"
+              />
+              <FilterDropdown 
+                label="Filter by Status"
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={[
+                  { label: 'Present', value: 'present' },
+                  { label: 'Absent', value: 'absent' },
+                  { label: 'Late', value: 'late' },
+                  { label: 'On Leave', value: 'on-leave' },
+                ]}
+              />
+            </div>
+            
             <Card>
               <CardHeader>
                 <CardTitle>Today's Attendance</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {attendanceRecords
+                  {filteredRecords
                     .filter(r => r.date === new Date().toISOString().split('T')[0])
                     .map(record => (
                       <div key={record.id} className="flex items-center justify-between p-3 border rounded-lg">
@@ -148,6 +192,9 @@ export default function TimeAttendance() {
                           >
                             {record.status}
                           </Badge>
+                          <Button size="sm" variant="ghost" onClick={() => handleViewDetails(record)}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     ))}
@@ -186,6 +233,9 @@ export default function TimeAttendance() {
                         >
                           {request.status}
                         </Badge>
+                        {request.status === 'pending' && (
+                          <OvertimeApprovalActions requestId={request.id} onUpdate={handleRefresh} />
+                        )}
                       </div>
                     </div>
                   ))}
@@ -237,6 +287,11 @@ export default function TimeAttendance() {
           open={overtimeDialogOpen} 
           onOpenChange={setOvertimeDialogOpen}
           onSuccess={handleRefresh}
+        />
+        <AttendanceDetailDialog 
+          open={detailDialogOpen} 
+          onOpenChange={setDetailDialogOpen}
+          record={selectedRecord}
         />
       </div>
     </DashboardPageLayout>

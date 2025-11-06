@@ -3,21 +3,30 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Wallet, DollarSign, Users, Calendar, Download, Plus } from "lucide-react";
+import { Wallet, DollarSign, Users, Calendar, Download, Plus, Eye } from "lucide-react";
 import { getPayrollRuns, getPayslips, calculatePayrollStats } from "@/lib/payrollStorage";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { PayrollRunDialog } from "@/components/payroll/PayrollRunDialog";
+import { PayslipDetailDialog } from "@/components/payroll/PayslipDetailDialog";
+import type { Payslip } from "@/types/payroll";
 
 export default function Payroll() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [payrollDialogOpen, setPayrollDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedPayslip, setSelectedPayslip] = useState<Payslip | null>(null);
 
   const payrollRuns = useMemo(() => getPayrollRuns(), [refreshKey]);
   const payslips = useMemo(() => getPayslips(), [refreshKey]);
   const stats = useMemo(() => calculatePayrollStats(), [refreshKey]);
 
   const handleRefresh = () => setRefreshKey(prev => prev + 1);
+
+  const handleViewDetails = (payslip: Payslip) => {
+    setSelectedPayslip(payslip);
+    setDetailDialogOpen(true);
+  };
 
   return (
     <DashboardPageLayout>
@@ -156,6 +165,9 @@ export default function Payroll() {
                           <p className="font-bold text-primary">${payslip.netPay.toLocaleString()}</p>
                         </div>
                         <Badge variant="outline">{payslip.status}</Badge>
+                        <Button size="sm" variant="ghost" onClick={() => handleViewDetails(payslip)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -197,6 +209,11 @@ export default function Payroll() {
           open={payrollDialogOpen} 
           onOpenChange={setPayrollDialogOpen}
           onSuccess={handleRefresh}
+        />
+        <PayslipDetailDialog 
+          open={detailDialogOpen} 
+          onOpenChange={setDetailDialogOpen}
+          payslip={selectedPayslip}
         />
       </div>
     </DashboardPageLayout>
