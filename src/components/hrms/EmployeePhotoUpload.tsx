@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Camera, X } from 'lucide-react';
+import { Camera, X, Upload } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface EmployeePhotoUploadProps {
   photo?: string;
@@ -13,6 +14,7 @@ interface EmployeePhotoUploadProps {
 export function EmployeePhotoUpload({ photo, name, onPhotoChange }: EmployeePhotoUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const getInitials = (name: string) => {
     return name
@@ -23,10 +25,7 @@ export function EmployeePhotoUpload({ photo, name, onPhotoChange }: EmployeePhot
       .slice(0, 2);
   };
 
-  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
+  const validateAndProcessFile = async (file: File) => {
     // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
@@ -60,6 +59,39 @@ export function EmployeePhotoUpload({ photo, name, onPhotoChange }: EmployeePhot
     }
   };
 
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    await validateAndProcessFile(file);
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    await validateAndProcessFile(file);
+  };
+
   const handleRemovePhoto = () => {
     onPhotoChange(undefined);
     if (fileInputRef.current) {
@@ -69,15 +101,15 @@ export function EmployeePhotoUpload({ photo, name, onPhotoChange }: EmployeePhot
   };
 
   return (
-    <div className="flex items-center gap-4">
-      <Avatar className="h-24 w-24">
+    <div className="flex items-start gap-4">
+      <Avatar className="h-24 w-24 shrink-0">
         <AvatarImage src={photo} alt={name} />
         <AvatarFallback className="text-xl">
           {getInitials(name)}
         </AvatarFallback>
       </Avatar>
 
-      <div className="flex flex-col gap-2">
+      <div className="flex-1 space-y-3">
         <input
           ref={fileInputRef}
           type="file"
@@ -86,33 +118,60 @@ export function EmployeePhotoUpload({ photo, name, onPhotoChange }: EmployeePhot
           className="hidden"
         />
         
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
+        <div
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          disabled={isLoading}
+          className={cn(
+            "relative border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer",
+            "hover:border-primary hover:bg-accent/50",
+            isDragging && "border-primary bg-accent border-solid",
+            isLoading && "opacity-50 cursor-not-allowed pointer-events-none"
+          )}
         >
-          <Camera className="h-4 w-4 mr-2" />
-          {photo ? 'Change Photo' : 'Upload Photo'}
-        </Button>
+          <div className="flex flex-col items-center gap-2 text-center">
+            <div className={cn(
+              "rounded-full p-3 transition-colors",
+              isDragging ? "bg-primary/20" : "bg-muted"
+            )}>
+              {isDragging ? (
+                <Upload className="h-6 w-6 text-primary" />
+              ) : (
+                <Camera className="h-6 w-6 text-muted-foreground" />
+              )}
+            </div>
+            
+            <div>
+              <p className="text-sm font-medium">
+                {isDragging ? 'Drop photo here' : 'Drag & drop or click to upload'}
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                JPG, PNG or GIF (max 5MB)
+              </p>
+            </div>
+          </div>
+        </div>
 
-        {photo && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={handleRemovePhoto}
-            disabled={isLoading}
-          >
-            <X className="h-4 w-4 mr-2" />
-            Remove Photo
-          </Button>
-        )}
-
-        <p className="text-xs text-muted-foreground">
-          JPG, PNG or GIF (max 5MB)
-        </p>
+        <div className="flex gap-2">
+          {photo && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleRemovePhoto();
+              }}
+              disabled={isLoading}
+              className="flex-1"
+            >
+              <X className="h-4 w-4 mr-2" />
+              Remove Photo
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
