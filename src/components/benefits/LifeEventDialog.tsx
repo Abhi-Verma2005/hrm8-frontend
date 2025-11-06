@@ -39,9 +39,10 @@ export function LifeEventDialog({ open, onOpenChange, onSuccess }: LifeEventDial
         employeeName: data.employeeName,
         eventType: data.eventType === 'loss-coverage' ? 'loss-of-coverage' : (data.eventType === 'other' ? 'loss-of-coverage' : data.eventType),
         eventDate: data.eventDate,
+        documentationRequired: true,
         documentationReceived: data.documentationReceived,
         specialEnrollmentPeriod: data.specialEnrollmentPeriod,
-        notes: data.notes,
+        notes: data.notes || "",
         processed: data.processed,
       });
       toast.success("Life event recorded successfully");

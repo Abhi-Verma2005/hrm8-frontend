@@ -44,15 +44,14 @@ export function COBRADialog({ open, onOpenChange, onSuccess }: COBRADialogProps)
         qualifyingEvent: data.qualifyingEvent === 'loss-dependent' ? 'termination' : (data.qualifyingEvent === 'medicare' ? 'medicare-eligible' : data.qualifyingEvent),
         eventDate: data.eventDate,
         notificationDate: data.notificationDate,
-        electionDeadline: data.electionDeadline,
+        notificationSent: true,
+        elected: data.coverageElected,
+        electionDate: data.coverageElected ? new Date().toISOString() : undefined,
         cobraStartDate: data.cobraStartDate,
-        cobraEndDate: new Date(new Date(data.cobraStartDate).getTime() + data.maxCoverageDuration * 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-        maxCoverageDuration: data.maxCoverageDuration,
-        premiumAmount: data.premiumAmount,
-        administrativeFee: data.administrativeFee,
+        coverageEndDate: data.eventDate,
+        cobraEndDate: new Date(new Date(data.cobraStartDate).setMonth(new Date(data.cobraStartDate).getMonth() + data.maxCoverageDuration)).toISOString(),
+        premiumAmount: data.premiumAmount + data.administrativeFee,
         status: data.status,
-        coverageElected: data.coverageElected,
-        notes: data.notes,
       });
       toast.success("COBRA event created successfully");
       onOpenChange(false);

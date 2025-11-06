@@ -41,10 +41,9 @@ export function EnrollmentPeriodDialog({ open, onOpenChange, onSuccess }: Enroll
         startDate: data.startDate,
         endDate: data.endDate,
         effectiveDate: data.effectiveDate,
-        eligiblePlans: data.eligiblePlanIds,
+      eligiblePlans: data.eligiblePlanIds,
         notifications: [],
         status: data.status,
-        createdBy: "current-user",
       });
       toast.success("Enrollment period created successfully");
       onOpenChange(false);
