@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Upload } from "lucide-react";
 import { DataTable } from "@/components/tables/DataTable";
 import { createEmployeeColumns } from "@/components/hrms/EmployeeTableColumns";
 import { EmployeesFilterBar } from "@/components/hrms/EmployeesFilterBar";
 import { EmployeeFormDialog } from "@/components/hrms/EmployeeFormDialog";
+import { BulkImportDialog } from "@/components/hrms/BulkImportDialog";
 import { Employee } from "@/types/employee";
 import { getEmployees } from "@/lib/employeeStorage";
 
@@ -15,6 +16,7 @@ export default function HRMS() {
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
   const [formDialogOpen, setFormDialogOpen] = useState(false);
+  const [bulkImportDialogOpen, setBulkImportDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | undefined>();
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -60,10 +62,16 @@ export default function HRMS() {
               Manage employee information, documents, and history
             </p>
           </div>
-          <Button onClick={() => setFormDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Employee
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setBulkImportDialogOpen(true)}>
+              <Upload className="mr-2 h-4 w-4" />
+              Bulk Import
+            </Button>
+            <Button onClick={() => setFormDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Employee
+            </Button>
+          </div>
         </div>
 
         <EmployeesFilterBar
@@ -86,6 +94,12 @@ export default function HRMS() {
           open={formDialogOpen}
           onOpenChange={handleCloseDialog}
           employee={editingEmployee}
+          onSuccess={() => setRefreshKey(prev => prev + 1)}
+        />
+
+        <BulkImportDialog
+          open={bulkImportDialogOpen}
+          onOpenChange={setBulkImportDialogOpen}
           onSuccess={() => setRefreshKey(prev => prev + 1)}
         />
       </div>
