@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
-import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 
@@ -22,8 +22,15 @@ const operationsNavItems = [
   { title: "Employers", url: "/employers", icon: Building },
   { title: "Consultants", url: "/consultants", icon: UserCog },
   { title: "Recruitment Services", url: "/recruitment-services", icon: Target },
+  { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Calendar", url: "/calendar", icon: Calendar },
+  { title: "Inbox", url: "/inbox", icon: Mail },
+];
+
+// HR MANAGEMENT Section
+const hrManagementNavItems = [
   { 
-    title: "HRMS", 
+    title: "Employees", 
     url: "/hrms", 
     icon: Heart,
     subItems: [
@@ -32,11 +39,16 @@ const operationsNavItems = [
       { title: "Org Chart", url: "/hrms/org-chart" },
     ]
   },
-  { title: "Leave Management", url: "/leave", icon: CalendarDays },
+  { title: "Onboarding", url: "/onboarding", icon: UserCheck },
   { title: "Performance", url: "/performance", icon: Target },
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
-  { title: "Calendar", url: "/calendar", icon: Calendar },
-  { title: "Inbox", url: "/inbox", icon: Mail },
+  { title: "Leave Management", url: "/leave", icon: CalendarDays },
+  { title: "Time & Attendance", url: "/attendance", icon: Clock },
+  { title: "Payroll", url: "/payroll", icon: Wallet },
+  { title: "Benefits", url: "/benefits", icon: Gift },
+  { title: "Expenses", url: "/expenses", icon: Receipt },
+  { title: "Compensation", url: "/compensation", icon: DollarSignIcon },
+  { title: "Documents", url: "/documents", icon: FolderOpen },
+  { title: "Offboarding", url: "/offboarding", icon: UserMinus },
 ];
 
 // MANAGEMENT Section
@@ -145,6 +157,47 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {operationsNavItems.map(item => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive(item.url)}
+                    className={cn(
+                      "relative transition-all duration-200",
+                      "hover:bg-sidebar-accent/50",
+                      isActive(item.url) && [
+                        "bg-primary/10",
+                        "text-primary",
+                        "font-medium",
+                        isExpanded && "border-l-4 border-primary"
+                      ]
+                    )}
+                  >
+                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                      <item.icon className={cn(
+                        "h-5 w-5 transition-all",
+                        !isExpanded && "mx-auto"
+                      )} />
+                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        {/* HR MANAGEMENT Section */}
+        <SidebarGroup>
+          {isExpanded && (
+            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              HR Management
+            </SidebarGroupLabel>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {hrManagementNavItems.map(item => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
