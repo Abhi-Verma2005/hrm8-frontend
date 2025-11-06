@@ -1,5 +1,7 @@
 import { EnrollmentPeriod, EligibilityRule, LifeEvent, BenefitsCostBreakdown, COBRAEvent } from "@/types/benefitsEnhanced";
 
+export type { EnrollmentPeriod, EligibilityRule, LifeEvent, COBRAEvent };
+
 // Mock data
 const mockEnrollmentPeriods: EnrollmentPeriod[] = [
   {
@@ -157,5 +159,51 @@ export function calculateBenefitsCost(planId: string, tier: string, employeeId: 
 
 export function checkEligibility(employeeId: string, planId: string): boolean {
   // Mock eligibility check
+  return true;
+}
+
+export function updateEnrollmentPeriod(id: string, updates: Partial<EnrollmentPeriod>): EnrollmentPeriod | null {
+  const index = enrollmentPeriods.findIndex((p) => p.id === id);
+  if (index === -1) return null;
+
+  enrollmentPeriods[index] = {
+    ...enrollmentPeriods[index],
+    ...updates,
+  };
+  return enrollmentPeriods[index];
+}
+
+export function deleteEnrollmentPeriod(id: string): boolean {
+  const index = enrollmentPeriods.findIndex((p) => p.id === id);
+  if (index === -1) return false;
+
+  enrollmentPeriods.splice(index, 1);
+  return true;
+}
+
+export function updateCOBRAEvent(id: string, updates: Partial<COBRAEvent>): COBRAEvent | null {
+  const index = cobraEvents.findIndex((e) => e.id === id);
+  if (index === -1) return null;
+
+  cobraEvents[index] = {
+    ...cobraEvents[index],
+    ...updates,
+  };
+  return cobraEvents[index];
+}
+
+export function deleteCOBRAEvent(id: string): boolean {
+  const index = cobraEvents.findIndex((e) => e.id === id);
+  if (index === -1) return false;
+
+  cobraEvents.splice(index, 1);
+  return true;
+}
+
+export function deleteLifeEvent(id: string): boolean {
+  const index = lifeEvents.findIndex((e) => e.id === id);
+  if (index === -1) return false;
+
+  lifeEvents.splice(index, 1);
   return true;
 }

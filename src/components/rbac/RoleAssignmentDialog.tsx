@@ -6,17 +6,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { roleAssignmentSchema, type RoleAssignmentFormData } from "@/schemas/roleAssignmentSchema";
-import { createRoleAssignment } from "@/lib/rbacStorage";
+import { createRoleAssignment, updateRoleAssignment, type RoleAssignment } from "@/lib/rbacStorage";
 import { getEmployees } from "@/lib/employeeStorage";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface RoleAssignmentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  editingAssignment?: RoleAssignment | null;
 }
 
-export function RoleAssignmentDialog({ open, onOpenChange, onSuccess }: RoleAssignmentDialogProps) {
+export function RoleAssignmentDialog({ open, onOpenChange, onSuccess, editingAssignment }: RoleAssignmentDialogProps) {
   const employees = getEmployees();
 
   const form = useForm<RoleAssignmentFormData>({
@@ -31,24 +33,46 @@ export function RoleAssignmentDialog({ open, onOpenChange, onSuccess }: RoleAssi
 
   const selectedRole = form.watch("role");
 
+  useEffect(() => {
+    if (editingAssignment && open) {
+      form.reset({
+        userId: editingAssignment.userId,
+        role: editingAssignment.role,
+        departmentId: editingAssignment.departmentId || "",
+        expiresAt: editingAssignment.expiresAt || "",
+      });
+    } else if (!open) {
+      form.reset();
+    }
+  }, [editingAssignment, open, form]);
+
   const onSubmit = (data: RoleAssignmentFormData) => {
     try {
       const user = employees.find(e => e.id === data.userId);
-      createRoleAssignment({
-        userId: data.userId,
-        userName: user ? `${user.firstName} ${user.lastName}` : "Unknown User",
-        role: data.role,
-        departmentId: data.departmentId,
-        departmentName: data.departmentId ? employees.find(e => e.id === data.userId)?.department : undefined,
-        assignedBy: "current-user",
-        expiresAt: data.expiresAt,
-      });
-      toast.success("Role assigned successfully");
+      if (editingAssignment) {
+        updateRoleAssignment(editingAssignment.id, {
+          ...data,
+          userName: user ? `${user.firstName} ${user.lastName}` : editingAssignment.userName,
+          departmentName: data.departmentId ? user?.department : undefined,
+        });
+        toast.success("Role updated successfully");
+      } else {
+        createRoleAssignment({
+          userId: data.userId,
+          userName: user ? `${user.firstName} ${user.lastName}` : "Unknown User",
+          role: data.role,
+          departmentId: data.departmentId,
+          departmentName: data.departmentId ? user?.department : undefined,
+          assignedBy: "current-user",
+          expiresAt: data.expiresAt,
+        });
+        toast.success("Role assigned successfully");
+      }
       onOpenChange(false);
       onSuccess?.();
       form.reset();
     } catch (error) {
-      toast.error("Failed to assign role");
+      toast.error(editingAssignment ? "Failed to update role" : "Failed to assign role");
     }
   };
 
@@ -56,7 +80,7 @@ export function RoleAssignmentDialog({ open, onOpenChange, onSuccess }: RoleAssi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Assign Role</DialogTitle>
+          <DialogTitle>{editingAssignment ? "Edit Role Assignment" : "Assign Role"}</DialogTitle>
           <DialogDescription>Grant a user access and permissions in the system</DialogDescription>
         </DialogHeader>
 
@@ -138,7 +162,7 @@ export function RoleAssignmentDialog({ open, onOpenChange, onSuccess }: RoleAssi
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Assign Role</Button>
+            <Button type="submit">{editingAssignment ? "Update Role" : "Assign Role"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

@@ -1,5 +1,7 @@
 import { ERCase, ERCaseStats, InvestigationNote, ActionPlan, CaseOutcome } from "@/types/employeeRelations";
 
+export type { ERCase, ERCaseStats, InvestigationNote, ActionPlan, CaseOutcome };
+
 // Mock data
 const mockCases: ERCase[] = [];
 
@@ -136,4 +138,12 @@ export function checkCaseAccess(caseId: string, userId: string): boolean {
 
   // Check if user is in access control list or assigned to the case
   return erCase.accessControlList.includes(userId) || erCase.assignedTo.includes(userId);
+}
+
+export function deleteERCase(id: string): boolean {
+  const index = cases.findIndex((c) => c.id === id);
+  if (index === -1) return false;
+
+  cases.splice(index, 1);
+  return true;
 }

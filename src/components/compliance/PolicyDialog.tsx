@@ -8,16 +8,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { compliancePolicySchema, type CompliancePolicyFormData } from "@/schemas/compliancePolicySchema";
-import { createPolicy } from "@/lib/complianceStorage";
+import { createPolicy, updatePolicy, type CompliancePolicy } from "@/lib/complianceStorage";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface PolicyDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  editingPolicy?: CompliancePolicy | null;
 }
 
-export function PolicyDialog({ open, onOpenChange, onSuccess }: PolicyDialogProps) {
+export function PolicyDialog({ open, onOpenChange, onSuccess, editingPolicy }: PolicyDialogProps) {
   const form = useForm<CompliancePolicyFormData>({
     resolver: zodResolver(compliancePolicySchema),
     defaultValues: {
@@ -147,7 +149,7 @@ export function PolicyDialog({ open, onOpenChange, onSuccess }: PolicyDialogProp
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Create Policy</Button>
+            <Button type="submit">{editingPolicy ? "Update Policy" : "Create Policy"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

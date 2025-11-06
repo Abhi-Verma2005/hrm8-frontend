@@ -17,7 +17,7 @@ interface COBRADialogProps {
   onSuccess?: () => void;
 }
 
-export function COBRADialog({ open, onOpenChange, onSuccess }: COBRADialogProps) {
+export function COBRADialog({ open, onOpenChange, onSuccess, editingEvent }: COBRADialogProps) {
   const form = useForm<COBRAFormData>({
     resolver: zodResolver(cobraSchema),
     defaultValues: {
@@ -161,7 +161,7 @@ export function COBRADialog({ open, onOpenChange, onSuccess }: COBRADialogProps)
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Create COBRA Event</Button>
+            <Button type="submit">{editingEvent ? "Update Event" : "Create COBRA Event"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

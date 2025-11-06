@@ -7,16 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { enrollmentPeriodSchema, type EnrollmentPeriodFormData } from "@/schemas/enrollmentPeriodSchema";
-import { createEnrollmentPeriod } from "@/lib/benefitsEnhancedStorage";
+import { createEnrollmentPeriod, updateEnrollmentPeriod, type EnrollmentPeriod } from "@/lib/benefitsEnhancedStorage";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface EnrollmentPeriodDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  editingPeriod?: EnrollmentPeriod | null;
 }
 
-export function EnrollmentPeriodDialog({ open, onOpenChange, onSuccess }: EnrollmentPeriodDialogProps) {
+export function EnrollmentPeriodDialog({ open, onOpenChange, onSuccess, editingPeriod }: EnrollmentPeriodDialogProps) {
   const form = useForm<EnrollmentPeriodFormData>({
     resolver: zodResolver(enrollmentPeriodSchema),
     defaultValues: {

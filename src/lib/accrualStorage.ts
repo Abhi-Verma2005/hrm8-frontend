@@ -1,5 +1,7 @@
 import { AccrualPolicy, AccrualTransaction, AccrualSchedule } from "@/types/accrual";
 
+export type { AccrualPolicy };
+
 // Mock data
 const mockPolicies: AccrualPolicy[] = [
   {
@@ -125,4 +127,12 @@ export function calculateEmployeeAccrual(
   );
 
   return rate?.accrualRate || policy.accrualRate;
+}
+
+export function deleteAccrualPolicy(id: string): boolean {
+  const index = policies.findIndex((p) => p.id === id);
+  if (index === -1) return false;
+
+  policies.splice(index, 1);
+  return true;
 }

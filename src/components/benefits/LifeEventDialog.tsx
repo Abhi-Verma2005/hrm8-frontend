@@ -17,7 +17,7 @@ interface LifeEventDialogProps {
   onSuccess?: () => void;
 }
 
-export function LifeEventDialog({ open, onOpenChange, onSuccess }: LifeEventDialogProps) {
+export function LifeEventDialog({ open, onOpenChange, onSuccess, editingEvent }: LifeEventDialogProps) {
   const form = useForm<LifeEventFormData>({
     resolver: zodResolver(lifeEventSchema),
     defaultValues: {
@@ -131,7 +131,7 @@ export function LifeEventDialog({ open, onOpenChange, onSuccess }: LifeEventDial
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Record Event</Button>
+            <Button type="submit">{editingEvent ? "Update Event" : "Record Event"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

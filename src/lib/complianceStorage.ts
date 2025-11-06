@@ -1,5 +1,7 @@
 import { AuditLog, CompliancePolicy, PolicyAcknowledgment, ComplianceReport, ComplianceAlert, DataSubjectRequest } from "@/types/compliance";
 
+export type { CompliancePolicy, DataSubjectRequest, AuditLog };
+
 // Mock data
 const mockAuditLogs: AuditLog[] = [
   {
@@ -168,4 +170,31 @@ export function createDataSubjectRequest(request: Omit<DataSubjectRequest, 'id' 
 
 export function getDataSubjectRequests(): DataSubjectRequest[] {
   return dsRequests;
+}
+
+export function deletePolicy(id: string): boolean {
+  const index = policies.findIndex((p) => p.id === id);
+  if (index === -1) return false;
+
+  policies.splice(index, 1);
+  return true;
+}
+
+export function updateDataSubjectRequest(id: string, updates: Partial<DataSubjectRequest>): DataSubjectRequest | null {
+  const index = dsRequests.findIndex((r) => r.id === id);
+  if (index === -1) return null;
+
+  dsRequests[index] = {
+    ...dsRequests[index],
+    ...updates,
+  };
+  return dsRequests[index];
+}
+
+export function deleteDataSubjectRequest(id: string): boolean {
+  const index = dsRequests.findIndex((r) => r.id === id);
+  if (index === -1) return false;
+
+  dsRequests.splice(index, 1);
+  return true;
 }

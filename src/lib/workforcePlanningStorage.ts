@@ -1,5 +1,7 @@
 import { HeadcountPlan, WorkforceScenario, WorkforceDemographics, BudgetForecast } from "@/types/workforcePlanning";
 
+export type { HeadcountPlan, WorkforceScenario, WorkforceDemographics, BudgetForecast };
+
 // Mock data
 const mockPlans: HeadcountPlan[] = [
   {
@@ -154,4 +156,12 @@ export function calculateProjections(baseYear: number, assumptions: any): any[] 
     });
   }
   return projections;
+}
+
+export function deleteHeadcountPlan(id: string): boolean {
+  const index = plans.findIndex((p) => p.id === id);
+  if (index === -1) return false;
+
+  plans.splice(index, 1);
+  return true;
 }

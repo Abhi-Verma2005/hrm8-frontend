@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { accrualPolicySchema, type AccrualPolicyFormData } from "@/schemas/accrualPolicySchema";
-import { createAccrualPolicy } from "@/lib/accrualStorage";
+import { createAccrualPolicy, updateAccrualPolicy, type AccrualPolicy } from "@/lib/accrualStorage";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 
@@ -16,9 +16,10 @@ interface AccrualPolicyDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  editingPolicy?: AccrualPolicy | null;
 }
 
-export function AccrualPolicyDialog({ open, onOpenChange, onSuccess }: AccrualPolicyDialogProps) {
+export function AccrualPolicyDialog({ open, onOpenChange, onSuccess, editingPolicy }: AccrualPolicyDialogProps) {
   const [tenureRates, setTenureRates] = useState<Array<{ yearsFrom: number; yearsTo?: number; accrualRate: number }>>([]);
   
   const form = useForm<AccrualPolicyFormData>({
@@ -41,35 +42,54 @@ export function AccrualPolicyDialog({ open, onOpenChange, onSuccess }: AccrualPo
     },
   });
 
+  useEffect(() => {
+    if (editingPolicy && open) {
+      form.reset({
+        name: editingPolicy.name,
+        leaveTypeId: editingPolicy.leaveTypeId,
+        leaveTypeName: editingPolicy.leaveTypeName,
+        accrualMethod: editingPolicy.accrualMethod,
+        accrualRate: editingPolicy.accrualRate,
+        accrualFrequency: editingPolicy.accrualFrequency,
+        startDate: editingPolicy.startDate,
+        prorateFirstYear: editingPolicy.prorateFirstYear,
+        prorateLastYear: editingPolicy.prorateLastYear,
+        maxAccrual: editingPolicy.maxAccrual,
+        carryoverAllowed: editingPolicy.carryoverAllowed,
+        maxCarryover: editingPolicy.maxCarryover,
+        negativeBalanceAllowed: editingPolicy.negativeBalanceAllowed,
+        effectiveDate: editingPolicy.effectiveDate,
+      });
+      setTenureRates(editingPolicy.tenureBasedRates);
+    } else if (!open) {
+      form.reset();
+      setTenureRates([]);
+    }
+  }, [editingPolicy, open, form]);
+
   const onSubmit = (data: AccrualPolicyFormData) => {
     try {
-      createAccrualPolicy({
-        name: data.name,
-        leaveTypeId: data.leaveTypeId,
-        leaveTypeName: data.leaveTypeName,
-        accrualMethod: data.accrualMethod,
-        accrualRate: data.accrualRate,
-        accrualFrequency: data.accrualFrequency,
-        startDate: data.startDate,
-        prorateFirstYear: data.prorateFirstYear,
-        prorateLastYear: data.prorateLastYear,
-        maxAccrual: data.maxAccrual,
-        carryoverAllowed: data.carryoverAllowed,
-        maxCarryover: data.maxCarryover,
-        carryoverExpiry: data.carryoverExpiry,
-        negativeBalanceAllowed: data.negativeBalanceAllowed,
-        tenureBasedRates: tenureRates,
-        effectiveDate: data.effectiveDate,
-        isActive: data.isActive,
-        createdBy: "current-user",
-      });
-      toast.success("Accrual policy created successfully");
+      if (editingPolicy) {
+        updateAccrualPolicy(editingPolicy.id, {
+          ...data,
+          tenureBasedRates: tenureRates,
+        });
+        toast.success("Accrual policy updated successfully");
+      } else {
+        createAccrualPolicy({
+          ...data,
+          tenureBasedRates: tenureRates,
+          createdBy: "current-user",
+          isActive: true,
+        });
+        toast.success("Accrual policy created successfully");
+      }
       onOpenChange(false);
       onSuccess?.();
       form.reset();
       setTenureRates([]);
     } catch (error) {
-      toast.error("Failed to create accrual policy");
+      toast.error(editingPolicy ? "Failed to update accrual policy" : "Failed to create accrual policy");
     }
   };
 
@@ -85,7 +105,7 @@ export function AccrualPolicyDialog({ open, onOpenChange, onSuccess }: AccrualPo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Accrual Policy</DialogTitle>
+          <DialogTitle>{editingPolicy ? "Edit Accrual Policy" : "Create Accrual Policy"}</DialogTitle>
           <DialogDescription>Configure automated time-off accrual rules</DialogDescription>
         </DialogHeader>
 
@@ -203,7 +223,7 @@ export function AccrualPolicyDialog({ open, onOpenChange, onSuccess }: AccrualPo
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Create Policy</Button>
+            <Button type="submit">{editingPolicy ? "Update Policy" : "Create Policy"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

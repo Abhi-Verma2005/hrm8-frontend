@@ -6,16 +6,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { headcountPlanSchema, type HeadcountPlanFormData } from "@/schemas/headcountPlanSchema";
-import { createHeadcountPlan } from "@/lib/workforcePlanningStorage";
+import { createHeadcountPlan, updateHeadcountPlan, type HeadcountPlan } from "@/lib/workforcePlanningStorage";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface HeadcountPlanDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  editingPlan?: HeadcountPlan | null;
 }
 
-export function HeadcountPlanDialog({ open, onOpenChange, onSuccess }: HeadcountPlanDialogProps) {
+export function HeadcountPlanDialog({ open, onOpenChange, onSuccess, editingPlan }: HeadcountPlanDialogProps) {
   const form = useForm<HeadcountPlanFormData>({
     resolver: zodResolver(headcountPlanSchema),
     defaultValues: {
@@ -162,7 +164,7 @@ export function HeadcountPlanDialog({ open, onOpenChange, onSuccess }: Headcount
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Create Plan</Button>
+            <Button type="submit">{editingPlan ? "Update Plan" : "Create Plan"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

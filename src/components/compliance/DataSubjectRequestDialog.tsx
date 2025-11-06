@@ -7,16 +7,18 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { dataSubjectRequestSchema, type DataSubjectRequestFormData } from "@/schemas/dataSubjectRequestSchema";
-import { createDataSubjectRequest } from "@/lib/complianceStorage";
+import { createDataSubjectRequest, updateDataSubjectRequest, type DataSubjectRequest } from "@/lib/complianceStorage";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 interface DataSubjectRequestDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  editingRequest?: DataSubjectRequest | null;
 }
 
-export function DataSubjectRequestDialog({ open, onOpenChange, onSuccess }: DataSubjectRequestDialogProps) {
+export function DataSubjectRequestDialog({ open, onOpenChange, onSuccess, editingRequest }: DataSubjectRequestDialogProps) {
   const form = useForm<DataSubjectRequestFormData>({
     resolver: zodResolver(dataSubjectRequestSchema),
     defaultValues: {
@@ -114,7 +116,7 @@ export function DataSubjectRequestDialog({ open, onOpenChange, onSuccess }: Data
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Create Request</Button>
+            <Button type="submit">{editingRequest ? "Update Request" : "Create Request"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

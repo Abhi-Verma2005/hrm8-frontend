@@ -7,20 +7,22 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { erCaseSchema, type ERCaseFormData } from "@/schemas/erCaseSchema";
-import { createERCase } from "@/lib/employeeRelationsStorage";
+import { createERCase, updateERCase, type ERCase } from "@/lib/employeeRelationsStorage";
 import { getEmployees } from "@/lib/employeeStorage";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
 interface ERCaseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
+  editingCase?: ERCase | null;
 }
 
-export function ERCaseDialog({ open, onOpenChange, onSuccess }: ERCaseDialogProps) {
+export function ERCaseDialog({ open, onOpenChange, onSuccess, editingCase }: ERCaseDialogProps) {
   const employees = getEmployees();
   const [selectedAffected, setSelectedAffected] = useState<string[]>([]);
   const [selectedInvestigators, setSelectedInvestigators] = useState<string[]>([]);
@@ -38,38 +40,55 @@ export function ERCaseDialog({ open, onOpenChange, onSuccess }: ERCaseDialogProp
     },
   });
 
+  useEffect(() => {
+    if (editingCase && open) {
+      form.reset({
+        type: editingCase.type,
+        category: editingCase.category,
+        priority: editingCase.priority,
+        reportedBy: editingCase.reportedBy,
+        reportedByName: editingCase.reportedByName,
+        affectedEmployees: editingCase.affectedEmployees,
+        description: editingCase.description,
+        confidential: editingCase.confidential,
+        assignedTo: editingCase.assignedTo,
+      });
+      setSelectedAffected(editingCase.affectedEmployees || []);
+      setSelectedInvestigators(editingCase.assignedTo || []);
+    } else if (!open) {
+      form.reset();
+      setSelectedAffected([]);
+      setSelectedInvestigators([]);
+    }
+  }, [editingCase, open, form]);
+
   const onSubmit = (data: ERCaseFormData) => {
     try {
-      createERCase({
-        type: data.type,
-        category: data.category,
-        priority: data.priority,
-        status: "open",
-        confidential: data.confidential,
-        reportedBy: data.reportedBy,
-        reportedByName: data.reportedByName,
-        affectedEmployees: data.affectedEmployees,
-        affectedEmployeeNames: data.affectedEmployees.map(id => {
-          const emp = employees.find(e => e.id === id);
-          return emp ? `${emp.firstName} ${emp.lastName}` : "Unknown";
-        }),
-        description: data.description,
-        openedDate: new Date().toISOString(),
-        assignedTo: data.assignedTo,
-        assignedToNames: data.assignedTo.map(id => {
-          const emp = employees.find(e => e.id === id);
-          return emp ? `${emp.firstName} ${emp.lastName}` : "Unknown";
-        }),
-        accessControlList: [...data.assignedTo, data.reportedBy || ""].filter(Boolean),
-      });
-      toast.success("ER case created successfully");
+      if (editingCase) {
+        updateERCase(editingCase.id, {
+          ...data,
+          affectedEmployees: selectedAffected,
+          assignedTo: selectedInvestigators,
+        });
+        toast.success("ER case updated successfully");
+      } else {
+        createERCase({
+          ...data,
+          affectedEmployees: selectedAffected,
+          assignedTo: selectedInvestigators,
+          openedDate: new Date().toISOString().split("T")[0],
+          status: "open",
+          accessControlList: [...selectedInvestigators, data.reportedBy || ""].filter(Boolean) as string[],
+        });
+        toast.success("ER case created successfully");
+      }
       onOpenChange(false);
       onSuccess?.();
       form.reset();
       setSelectedAffected([]);
       setSelectedInvestigators([]);
     } catch (error) {
-      toast.error("Failed to create ER case");
+      toast.error(editingCase ? "Failed to update ER case" : "Failed to create ER case");
     }
   };
 
@@ -105,8 +124,8 @@ export function ERCaseDialog({ open, onOpenChange, onSuccess }: ERCaseDialogProp
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create ER Case</DialogTitle>
-          <DialogDescription>Open a new employee relations case for investigation</DialogDescription>
+          <DialogTitle>{editingCase ? "Edit ER Case" : "Create ER Case"}</DialogTitle>
+          <DialogDescription>Document and track an employee relations issue</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -265,7 +284,7 @@ export function ERCaseDialog({ open, onOpenChange, onSuccess }: ERCaseDialogProp
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Create Case</Button>
+            <Button type="submit">{editingCase ? "Update Case" : "Create Case"}</Button>
           </DialogFooter>
         </form>
       </DialogContent>
