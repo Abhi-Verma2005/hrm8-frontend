@@ -1,0 +1,11 @@
+# Supabase Configuration File
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public"]
+max_rows = 1000
+
+[functions.learning-recommendations]
+verify_jwt = false

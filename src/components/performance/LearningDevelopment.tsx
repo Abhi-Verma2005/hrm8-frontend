@@ -25,6 +25,7 @@ import {
   Star,
   ArrowRight,
   Trophy,
+  Sparkles,
 } from 'lucide-react';
 import {
   Course,
@@ -35,6 +36,7 @@ import {
   LearningAnalytics,
 } from '@/types/performance';
 import { CourseContentViewer } from './CourseContentViewer';
+import { AILearningRecommendations } from './AILearningRecommendations';
 import { toast } from 'sonner';
 
 interface LearningDevelopmentProps {
@@ -47,6 +49,16 @@ interface LearningDevelopmentProps {
   onEnrollCourse: (courseId: string) => void;
   onStartCourse: (enrollmentId: string) => void;
   onViewCertificate: (certificationId: string) => void;
+  employeeData?: {
+    id: string;
+    name: string;
+    role: string;
+    department: string;
+    skills?: string[];
+    experienceLevel?: string;
+  };
+  goals?: any[];
+  performanceGaps?: any[];
 }
 
 export function LearningDevelopment({
@@ -59,12 +71,16 @@ export function LearningDevelopment({
   onEnrollCourse,
   onStartCourse,
   onViewCertificate,
+  employeeData,
+  goals = [],
+  performanceGaps = [],
 }: LearningDevelopmentProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [levelFilter, setLevelFilter] = useState<string>('all');
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
+  const [aiRecommendationsOpen, setAiRecommendationsOpen] = useState(false);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -137,6 +153,29 @@ export function LearningDevelopment({
 
   return (
     <div className="space-y-6">
+      {/* AI Recommendations Banner */}
+      <Card className="border-primary/50 bg-primary/5">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-start gap-4">
+              <div className="rounded-lg bg-primary/10 p-3">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold mb-1">AI-Powered Course Recommendations</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get personalized course suggestions based on your skills, goals, and performance data
+                </p>
+              </div>
+            </div>
+            <Button onClick={() => setAiRecommendationsOpen(true)}>
+              <Sparkles className="mr-2 h-4 w-4" />
+              Get Recommendations
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Analytics Overview */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
@@ -665,6 +704,19 @@ export function LearningDevelopment({
           onProgressUpdate={handleProgressUpdate}
           onCompleteLesson={handleCompleteLesson}
           onCompleteAssessment={handleCompleteAssessment}
+        />
+      )}
+
+      {/* AI Recommendations Dialog */}
+      {employeeData && (
+        <AILearningRecommendations
+          open={aiRecommendationsOpen}
+          onOpenChange={setAiRecommendationsOpen}
+          employeeData={employeeData}
+          availableCourses={courses}
+          goals={goals}
+          performanceGaps={performanceGaps}
+          onEnrollCourse={onEnrollCourse}
         />
       )}
     </div>

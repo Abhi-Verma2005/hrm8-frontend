@@ -670,6 +670,16 @@ export default function PerformanceManagement() {
               onEnrollCourse={handleEnrollCourse}
               onStartCourse={handleStartCourse}
               onViewCertificate={handleViewCertificate}
+              employeeData={{
+                id: currentEmployeeId,
+                name: currentEmployeeName,
+                role: currentEmployee.jobTitle,
+                department: currentEmployee.department,
+                skills: ['React', 'TypeScript', 'Leadership'],
+                experienceLevel: 'Senior',
+              }}
+              goals={allGoals}
+              performanceGaps={[]}
             />
           </TabsContent>
 
