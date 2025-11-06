@@ -22,9 +22,12 @@ import { PerformanceReportExportDialog } from "@/components/performance/Performa
 import { ReviewTemplateBuilder } from "@/components/performance/ReviewTemplateBuilder";
 import { PerformanceInsightsDashboard } from "@/components/performance/PerformanceInsightsDashboard";
 import { OneOnOneMeetingTracker } from "@/components/performance/OneOnOneMeetingTracker";
-import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules } from "@/lib/performanceStorage";
+import { CalibrationSessionManager } from "@/components/performance/CalibrationSessionManager";
+import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules, getCalibrationSessions, saveCalibrationSession, updateCalibrationSession } from "@/lib/performanceStorage";
 import { getEmployees } from "@/lib/employeeStorage";
-import type { PerformanceGoal, PerformanceReview, OneOnOneMeeting, MeetingAgendaTemplate, ReviewSchedule, Feedback360 } from "@/types/performance";
+import type { PerformanceGoal, PerformanceReview, OneOnOneMeeting, MeetingAgendaTemplate, ReviewSchedule, Feedback360, CalibrationSession } from "@/types/performance";
+import { mockCalibrationSessions } from "@/data/mockCalibrationData";
+import { toast } from "sonner";
 
 export default function PerformanceManagement() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -58,6 +61,10 @@ export default function PerformanceManagement() {
   const schedules = useMemo(() => getReviewSchedules(), [refreshKey]);
   const meetings = useMemo(() => getOneOnOneMeetings(), [refreshKey]);
   const meetingTemplates = useMemo(() => getMeetingTemplates(), [refreshKey]);
+  const calibrationSessions = useMemo(() => {
+    const stored = getCalibrationSessions();
+    return stored.length > 0 ? stored : mockCalibrationSessions;
+  }, [refreshKey]);
   const employees = useMemo(() => getEmployees(), []);
   const currentEmployee = employees.find(e => e.id === currentEmployeeId) || employees[0];
 
@@ -164,6 +171,22 @@ export default function PerformanceManagement() {
     console.log('Approval action:', { reviewId, stageId, action, comments });
     setRefreshKey(prev => prev + 1);
     return Promise.resolve();
+  };
+
+  const handleCreateCalibrationSession = (session: Partial<CalibrationSession>) => {
+    const newSession: CalibrationSession = {
+      ...session as CalibrationSession,
+      id: `cal-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    saveCalibrationSession(newSession);
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleUpdateCalibrationSession = (id: string, updates: Partial<CalibrationSession>) => {
+    updateCalibrationSession(id, updates);
+    setRefreshKey(prev => prev + 1);
   };
 
   return (
@@ -287,6 +310,10 @@ export default function PerformanceManagement() {
             <TabsTrigger value="meetings">
               <Users className="mr-2 h-4 w-4" />
               1-on-1s
+            </TabsTrigger>
+            <TabsTrigger value="calibration">
+              <Users className="mr-2 h-4 w-4" />
+              Calibration
             </TabsTrigger>
             <TabsTrigger value="calendar">
               <CalendarIcon className="mr-2 h-4 w-4" />
@@ -500,6 +527,14 @@ export default function PerformanceManagement() {
                   setRefreshKey(prev => prev + 1);
                 }
               }}
+            />
+          </TabsContent>
+
+          <TabsContent value="calibration" className="space-y-6">
+            <CalibrationSessionManager
+              sessions={calibrationSessions}
+              onCreateSession={handleCreateCalibrationSession}
+              onUpdateSession={handleUpdateCalibrationSession}
             />
           </TabsContent>
 

@@ -279,3 +279,55 @@ export interface OneOnOneMeeting {
   updatedAt: string;
   completedAt?: string;
 }
+
+export interface CalibrationSession {
+  id: string;
+  name: string;
+  description?: string;
+  scheduledDate: string;
+  status: 'scheduled' | 'in-progress' | 'completed' | 'cancelled';
+  facilitatorId: string;
+  facilitatorName: string;
+  participants: CalibrationParticipant[];
+  employees: CalibrationEmployee[];
+  ratingDistribution?: {
+    beforeCalibration: Record<number, number>;
+    afterCalibration: Record<number, number>;
+  };
+  discussionNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+}
+
+export interface CalibrationParticipant {
+  id: string;
+  userId: string;
+  userName: string;
+  role: string;
+  department: string;
+  attendance: 'pending' | 'attending' | 'declined';
+}
+
+export interface CalibrationEmployee {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  role: string;
+  managerId: string;
+  managerName: string;
+  initialRating: number;
+  proposedRating?: number;
+  finalRating?: number;
+  rationale?: string;
+  discussionNotes?: string;
+  performanceHighlights?: string[];
+  developmentAreas?: string[];
+  comparisonMetrics?: {
+    goalsCompleted: number;
+    totalGoals: number;
+    avgReviewRating: number;
+    tenure: number;
+  };
+}

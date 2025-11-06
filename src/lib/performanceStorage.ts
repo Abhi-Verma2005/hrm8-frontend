@@ -1,4 +1,4 @@
-import type { PerformanceGoal, PerformanceReviewTemplate, PerformanceReview, Feedback360, ReviewSchedule, OneOnOneMeeting, MeetingAgendaTemplate } from '@/types/performance';
+import type { PerformanceGoal, PerformanceReviewTemplate, PerformanceReview, Feedback360, ReviewSchedule, OneOnOneMeeting, MeetingAgendaTemplate, CalibrationSession } from '@/types/performance';
 import { mockPerformanceGoals, mockReviewTemplates, mockPerformanceReviews, mockFeedback360, mockReviewSchedules, mockCompanyOKRs, mockTeamObjectives } from '@/data/mockPerformanceData';
 import { mockOneOnOneMeetings, mockMeetingTemplates } from '@/data/mockMeetingData';
 
@@ -256,6 +256,47 @@ export function saveMeetingTemplate(template: MeetingAgendaTemplate): void {
   }
   
   localStorage.setItem(MEETING_TEMPLATES_KEY, JSON.stringify(templates));
+}
+
+// Calibration Sessions
+const CALIBRATION_KEY = 'hrms_calibration_sessions';
+
+export function getCalibrationSessions(): CalibrationSession[] {
+  const stored = localStorage.getItem(CALIBRATION_KEY);
+  return stored ? JSON.parse(stored) : [];
+}
+
+export function getCalibrationSessionById(id: string): CalibrationSession | undefined {
+  const sessions = getCalibrationSessions();
+  return sessions.find(session => session.id === id);
+}
+
+export function saveCalibrationSession(session: CalibrationSession): void {
+  const sessions = getCalibrationSessions();
+  const index = sessions.findIndex(s => s.id === session.id);
+  
+  if (index >= 0) {
+    sessions[index] = { ...session, updatedAt: new Date().toISOString() };
+  } else {
+    sessions.push(session);
+  }
+  
+  localStorage.setItem(CALIBRATION_KEY, JSON.stringify(sessions));
+}
+
+export function updateCalibrationSession(id: string, updates: Partial<CalibrationSession>): void {
+  const sessions = getCalibrationSessions();
+  const index = sessions.findIndex(s => s.id === id);
+  
+  if (index >= 0) {
+    sessions[index] = { ...sessions[index], ...updates, updatedAt: new Date().toISOString() };
+    localStorage.setItem(CALIBRATION_KEY, JSON.stringify(sessions));
+  }
+}
+
+export function deleteCalibrationSession(id: string): void {
+  const sessions = getCalibrationSessions().filter(s => s.id !== id);
+  localStorage.setItem(CALIBRATION_KEY, JSON.stringify(sessions));
 }
 
 // Legacy functions for consultants module
