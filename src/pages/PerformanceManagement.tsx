@@ -3,7 +3,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck, Download } from "lucide-react";
+import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck, Download, Sparkles } from "lucide-react";
 import { GoalCard } from "@/components/performance/GoalCard";
 import { ReviewCard } from "@/components/performance/ReviewCard";
 import { Feedback360Card } from "@/components/performance/Feedback360Card";
@@ -13,9 +13,11 @@ import { Feedback360RequestDialog } from "@/components/performance/Feedback360Re
 import { Feedback360ResponseDialog } from "@/components/performance/Feedback360ResponseDialog";
 import { ReviewCompletionDialog } from "@/components/performance/ReviewCompletionDialog";
 import { GoalAnalyticsDashboard } from "@/components/performance/analytics/GoalAnalyticsDashboard";
+import { GoalRecommendationsDialog } from "@/components/performance/GoalRecommendationsDialog";
 import { PerformanceReportExportDialog } from "@/components/performance/PerformanceReportExportDialog";
 import { ReviewTemplateBuilder } from "@/components/performance/ReviewTemplateBuilder";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
+import { getEmployees } from "@/lib/employeeStorage";
 import type { PerformanceGoal } from "@/types/performance";
 
 export default function PerformanceManagement() {
@@ -27,6 +29,7 @@ export default function PerformanceManagement() {
   const [selectedFeedback, setSelectedFeedback] = useState<any>(null);
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [recommendationsDialogOpen, setRecommendationsDialogOpen] = useState(false);
   
   // Filter and sort state
   const [searchValue, setSearchValue] = useState("");
@@ -43,6 +46,8 @@ export default function PerformanceManagement() {
   const myReviews = useMemo(() => getPerformanceReviews({ employeeId: currentEmployeeId }), [currentEmployeeId, refreshKey]);
   const my360Feedback = useMemo(() => getFeedback360(currentEmployeeId), [currentEmployeeId, refreshKey]);
   const templates = useMemo(() => getReviewTemplates(), [refreshKey]);
+  const employees = useMemo(() => getEmployees(), []);
+  const currentEmployee = employees.find(e => e.id === currentEmployeeId) || employees[0];
 
   // Apply filters and sorting
   const myGoals = useMemo(() => {
@@ -250,13 +255,22 @@ export default function PerformanceManagement() {
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">My Goals</h3>
-                <Button onClick={() => {
-                  setSelectedGoal(undefined);
-                  setGoalDialogOpen(true);
-                }}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Goal
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setRecommendationsDialogOpen(true)}
+                  >
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    AI Recommendations
+                  </Button>
+                  <Button onClick={() => {
+                    setSelectedGoal(undefined);
+                    setGoalDialogOpen(true);
+                  }}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Goal
+                  </Button>
+                </div>
               </div>
 
               <GoalsFilterBar
@@ -422,6 +436,41 @@ export default function PerformanceManagement() {
         <PerformanceReportExportDialog
           open={exportDialogOpen}
           onOpenChange={setExportDialogOpen}
+        />
+
+        <GoalRecommendationsDialog
+          open={recommendationsDialogOpen}
+          onOpenChange={setRecommendationsDialogOpen}
+          employee={currentEmployee}
+          existingGoals={allGoals}
+          onSelectGoal={(rec) => {
+            // Pre-fill the goal form with recommendation
+            setSelectedGoal({
+              id: `goal-${Date.now()}`,
+              employeeId: currentEmployeeId,
+              employeeName: currentEmployeeName,
+              title: rec.title,
+              description: rec.description,
+              category: rec.category,
+              priority: rec.priority,
+              status: 'not-started',
+              progress: 0,
+              startDate: new Date().toISOString().split('T')[0],
+              targetDate: rec.timeline.includes('Q2') ? '2024-06-30' : '2024-12-31',
+              kpis: [{
+                id: 'kpi-1',
+                name: rec.suggestedTarget,
+                target: 100,
+                current: 0,
+                unit: '%'
+              }],
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              createdBy: currentEmployeeId
+            });
+            setRecommendationsDialogOpen(false);
+            setGoalDialogOpen(true);
+          }}
         />
       </div>
     </DashboardPageLayout>
