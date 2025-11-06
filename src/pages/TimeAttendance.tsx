@@ -7,12 +7,20 @@ import { Clock, Calendar, UserCheck, TrendingUp, Download, Plus } from "lucide-r
 import { getAttendanceRecords, getOvertimeRequests } from "@/lib/attendanceStorage";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { ClockInOutDialog } from "@/components/attendance/ClockInOutDialog";
+import { ManualAttendanceDialog } from "@/components/attendance/ManualAttendanceDialog";
+import { OvertimeRequestDialog } from "@/components/attendance/OvertimeRequestDialog";
 
 export default function TimeAttendance() {
   const [refreshKey, setRefreshKey] = useState(0);
+  const [clockDialogOpen, setClockDialogOpen] = useState(false);
+  const [manualDialogOpen, setManualDialogOpen] = useState(false);
+  const [overtimeDialogOpen, setOvertimeDialogOpen] = useState(false);
 
   const attendanceRecords = useMemo(() => getAttendanceRecords(), [refreshKey]);
   const overtimeRequests = useMemo(() => getOvertimeRequests(), [refreshKey]);
+
+  const handleRefresh = () => setRefreshKey(prev => prev + 1);
 
   const stats = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
@@ -88,11 +96,15 @@ export default function TimeAttendance() {
             </TabsList>
 
             <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setClockDialogOpen(true)}>
+                <Clock className="h-4 w-4 mr-2" />
+                Clock In/Out
+              </Button>
               <Button variant="outline" size="sm">
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
-              <Button size="sm">
+              <Button size="sm" onClick={() => setManualDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Mark Attendance
               </Button>
@@ -146,8 +158,12 @@ export default function TimeAttendance() {
 
           <TabsContent value="overtime" className="space-y-4">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
                 <CardTitle>Overtime Requests</CardTitle>
+                <Button size="sm" onClick={() => setOvertimeDialogOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Request Overtime
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -206,6 +222,22 @@ export default function TimeAttendance() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        <ClockInOutDialog 
+          open={clockDialogOpen} 
+          onOpenChange={setClockDialogOpen}
+          onSuccess={handleRefresh}
+        />
+        <ManualAttendanceDialog 
+          open={manualDialogOpen} 
+          onOpenChange={setManualDialogOpen}
+          onSuccess={handleRefresh}
+        />
+        <OvertimeRequestDialog 
+          open={overtimeDialogOpen} 
+          onOpenChange={setOvertimeDialogOpen}
+          onSuccess={handleRefresh}
+        />
       </div>
     </DashboardPageLayout>
   );
