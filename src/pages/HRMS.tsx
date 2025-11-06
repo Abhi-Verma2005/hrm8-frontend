@@ -13,12 +13,19 @@ import { BulkEditDialog } from "@/components/hrms/BulkEditDialog";
 import { Employee } from "@/types/employee";
 import { getEmployees } from "@/lib/employeeStorage";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import type { DateRange } from "react-day-picker";
+import { isWithinInterval, parseISO } from "date-fns";
 
 export default function HRMS() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
   const [locationFilter, setLocationFilter] = useState("all");
+  const [skillsFilter, setSkillsFilter] = useState("");
+  const [certificationsFilter, setCertificationsFilter] = useState("");
+  const [salaryMin, setSalaryMin] = useState("");
+  const [salaryMax, setSalaryMax] = useState("");
+  const [hireDateRange, setHireDateRange] = useState<DateRange | undefined>();
   const [formDialogOpen, setFormDialogOpen] = useState(false);
   const [bulkImportDialogOpen, setBulkImportDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
@@ -42,9 +49,42 @@ export default function HRMS() {
       const matchesDepartment = departmentFilter === "all" || employee.department === departmentFilter;
       const matchesLocation = locationFilter === "all" || employee.location === locationFilter;
 
-      return matchesSearch && matchesStatus && matchesDepartment && matchesLocation;
+      // Skills filter - check if employee has any matching skill
+      const matchesSkills = !skillsFilter || 
+        (employee.skills && employee.skills.some(skill => 
+          skill.toLowerCase().includes(skillsFilter.toLowerCase())
+        ));
+
+      // Certifications filter - check if employee has any matching certification
+      const matchesCertifications = !certificationsFilter || 
+        (employee.certifications && employee.certifications.some(cert => 
+          cert.toLowerCase().includes(certificationsFilter.toLowerCase())
+        ));
+
+      // Salary range filter
+      const minSalary = salaryMin ? parseFloat(salaryMin) : null;
+      const maxSalary = salaryMax ? parseFloat(salaryMax) : null;
+      const matchesSalary = 
+        (!minSalary || employee.salary >= minSalary) &&
+        (!maxSalary || employee.salary <= maxSalary);
+
+      // Hire date range filter
+      const matchesHireDate = !hireDateRange?.from || (() => {
+        try {
+          const hireDate = parseISO(employee.hireDate);
+          const from = hireDateRange.from;
+          const to = hireDateRange.to || hireDateRange.from;
+          return isWithinInterval(hireDate, { start: from, end: to });
+        } catch {
+          return true;
+        }
+      })();
+
+      return matchesSearch && matchesStatus && matchesDepartment && matchesLocation &&
+        matchesSkills && matchesCertifications && matchesSalary && matchesHireDate;
     });
-  }, [employees, searchQuery, statusFilter, departmentFilter, locationFilter]);
+  }, [employees, searchQuery, statusFilter, departmentFilter, locationFilter, 
+      skillsFilter, certificationsFilter, salaryMin, salaryMax, hireDateRange]);
 
   const handleEditEmployee = (employee: Employee) => {
     setEditingEmployee(employee);
@@ -59,6 +99,28 @@ export default function HRMS() {
   const employeeColumns = useMemo(() => createEmployeeColumns({
     onEdit: handleEditEmployee,
   }), []);
+
+  const activeFiltersCount = [
+    statusFilter !== "all",
+    departmentFilter !== "all",
+    locationFilter !== "all",
+    skillsFilter,
+    certificationsFilter,
+    salaryMin,
+    salaryMax,
+    hireDateRange?.from
+  ].filter(Boolean).length;
+
+  const handleClearFilters = () => {
+    setStatusFilter("all");
+    setDepartmentFilter("all");
+    setLocationFilter("all");
+    setSkillsFilter("");
+    setCertificationsFilter("");
+    setSalaryMin("");
+    setSalaryMax("");
+    setHireDateRange(undefined);
+  };
 
   return (
     <DashboardPageLayout>
@@ -121,6 +183,18 @@ export default function HRMS() {
           onDepartmentFilterChange={setDepartmentFilter}
           locationFilter={locationFilter}
           onLocationFilterChange={setLocationFilter}
+          skillsFilter={skillsFilter}
+          onSkillsFilterChange={setSkillsFilter}
+          certificationsFilter={certificationsFilter}
+          onCertificationsFilterChange={setCertificationsFilter}
+          salaryMin={salaryMin}
+          onSalaryMinChange={setSalaryMin}
+          salaryMax={salaryMax}
+          onSalaryMaxChange={setSalaryMax}
+          hireDateRange={hireDateRange}
+          onHireDateRangeChange={setHireDateRange}
+          onClearFilters={handleClearFilters}
+          activeFiltersCount={activeFiltersCount}
         />
 
         <DataTable
