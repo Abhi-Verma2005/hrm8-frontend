@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { TrendingUp, TrendingDown, Minus, AlertCircle, Lightbulb, Activity, AlertTriangle } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { getPredictiveMetrics, getDepartmentComparisons, getSkillGaps, getWorkforceInsights } from '@/lib/advancedAnalyticsStorage';
 import type { PredictiveMetric, DepartmentComparison, SkillGapAnalysis, WorkforceInsight } from '@/types/advancedAnalytics';
 
@@ -37,6 +37,24 @@ export default function AdvancedAnalytics() {
       default: return <AlertCircle className="h-5 w-5 text-warning" />;
     }
   };
+
+  // Chart colors
+  const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
+
+  // Prepare workforce distribution data
+  const workforceDistribution = departments.map(dept => ({
+    name: dept.department,
+    value: dept.headcount
+  }));
+
+  // Prepare skill gap data for area chart
+  const skillGapTrendData = skillGaps.map((gap, index) => ({
+    name: gap.skillName,
+    currentLevel: gap.currentLevel,
+    requiredLevel: gap.requiredLevel,
+    gap: gap.gap,
+    employees: gap.affectedEmployees
+  }));
 
   return (
     <DashboardPageLayout>
@@ -236,11 +254,62 @@ export default function AdvancedAnalytics() {
           </CardContent>
         </Card>
 
-        {/* Skill Gap Analysis */}
+        {/* Workforce Distribution & Skill Gaps Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Workforce Distribution</CardTitle>
+              <CardDescription>Headcount by department</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={workforceDistribution}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {workforceDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Skill Gap Analysis</CardTitle>
+              <CardDescription>Current vs. required skill levels</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={skillGapTrendData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis domain={[0, 5]} />
+                  <Tooltip />
+                  <Legend />
+                  <Area type="monotone" dataKey="currentLevel" stackId="1" stroke="hsl(var(--chart-3))" fill="hsl(var(--chart-3))" fillOpacity={0.6} name="Current Level" />
+                  <Area type="monotone" dataKey="gap" stackId="1" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.6} name="Skill Gap" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Skill Gap Details */}
         <Card>
           <CardHeader>
-            <CardTitle>Skill Gap Analysis</CardTitle>
-            <CardDescription>Critical skills requiring development or acquisition</CardDescription>
+            <CardTitle>Critical Skill Gaps</CardTitle>
+            <CardDescription>Areas requiring immediate attention and development</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
