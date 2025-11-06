@@ -43,6 +43,10 @@ import Compensation from "./pages/Compensation";
 import Offboarding from "./pages/Offboarding";
 import Inbox from "./pages/Inbox";
 import Users from "./pages/Users";
+import EmployeeSelfService from "./pages/EmployeeSelfService";
+import Compliance from "./pages/Compliance";
+import EmployeeRelations from "./pages/EmployeeRelations";
+import RoleManagement from "./pages/RoleManagement";
 import Finance from "./pages/Finance";
 import Integrations from "./pages/Integrations";
 import Reports from "./pages/Reports";
@@ -99,7 +103,11 @@ function AppContent() {
             <Route path="/applications" element={<Applications />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />
-            <Route path="/users" element={<Users />} />
+          <Route path="/users" element={<Users />} />
+          <Route path="/ess" element={<EmployeeSelfService />} />
+          <Route path="/compliance" element={<Compliance />} />
+          <Route path="/employee-relations" element={<EmployeeRelations />} />
+          <Route path="/role-management" element={<RoleManagement />} />
             <Route path="/finance" element={<Finance />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/reports" element={<Reports />} />
