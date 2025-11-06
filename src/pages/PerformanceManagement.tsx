@@ -16,6 +16,7 @@ import { GoalAnalyticsDashboard } from "@/components/performance/analytics/GoalA
 import { GoalRecommendationsDialog } from "@/components/performance/GoalRecommendationsDialog";
 import { PerformanceCalendar } from "@/components/performance/PerformanceCalendar";
 import { ReviewDetailDialog } from "@/components/performance/ReviewDetailDialog";
+import { PerformanceBenchmarking } from "@/components/performance/PerformanceBenchmarking";
 import { PerformanceReportExportDialog } from "@/components/performance/PerformanceReportExportDialog";
 import { ReviewTemplateBuilder } from "@/components/performance/ReviewTemplateBuilder";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates } from "@/lib/performanceStorage";
@@ -257,6 +258,10 @@ export default function PerformanceManagement() {
               <TrendingUp className="mr-2 h-4 w-4" />
               Analytics
             </TabsTrigger>
+            <TabsTrigger value="benchmarking">
+              <TrendingUp className="mr-2 h-4 w-4" />
+              Benchmarking
+            </TabsTrigger>
             <TabsTrigger value="reviews">
               <FileText className="mr-2 h-4 w-4" />
               Performance Reviews
@@ -346,6 +351,14 @@ export default function PerformanceManagement() {
 
           <TabsContent value="analytics" className="space-y-6">
             <GoalAnalyticsDashboard />
+          </TabsContent>
+
+          <TabsContent value="benchmarking" className="space-y-6">
+            <PerformanceBenchmarking 
+              goals={allGoals}
+              reviews={myReviews}
+              employees={employees}
+            />
           </TabsContent>
 
           <TabsContent value="reviews" className="space-y-6">
