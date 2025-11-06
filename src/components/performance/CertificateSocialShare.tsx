@@ -13,9 +13,10 @@ interface CertificateSocialShareProps {
   certificate: Certificate | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  employeePhotoUrl?: string;
 }
 
-export function CertificateSocialShare({ certificate, open, onOpenChange }: CertificateSocialShareProps) {
+export function CertificateSocialShare({ certificate, open, onOpenChange, employeePhotoUrl }: CertificateSocialShareProps) {
   const [imageUrl, setImageUrl] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -36,9 +37,8 @@ export function CertificateSocialShare({ certificate, open, onOpenChange }: Cert
         }
       };
       
-      // Generate image with optional employee photo
-      // If you want to add employee photos, pass the photo URL as the third parameter
-      const url = await generateCertificateImage(certificate, template);
+      // Generate image with employee photo if available
+      const url = await generateCertificateImage(certificate, template, employeePhotoUrl);
       setImageUrl(url);
       toast.success('Certificate image generated!');
     } catch (error) {

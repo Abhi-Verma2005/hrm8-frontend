@@ -20,6 +20,7 @@ import { saveEmployee } from "@/lib/employeeStorage";
 import { Employee } from "@/types/employee";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { EmployeePhotoUpload } from "./EmployeePhotoUpload";
 
 const employeeFormSchema = z.object({
   // Personal Information
@@ -82,6 +83,7 @@ export function EmployeeFormDialog({ open, onOpenChange, employee, onSuccess }: 
   const [skillsList, setSkillsList] = useState<string[]>([]);
   const [certsInput, setCertsInput] = useState("");
   const [certsList, setCertsList] = useState<string[]>([]);
+  const [employeePhoto, setEmployeePhoto] = useState<string | undefined>(employee?.avatar);
 
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeFormSchema),
@@ -131,6 +133,7 @@ export function EmployeeFormDialog({ open, onOpenChange, employee, onSuccess }: 
       
       setSkillsList(employee.skills || []);
       setCertsList(employee.certifications || []);
+      setEmployeePhoto(employee.avatar);
     } else if (!employee && open) {
       // Reset for new employee
       form.reset({
@@ -143,6 +146,7 @@ export function EmployeeFormDialog({ open, onOpenChange, employee, onSuccess }: 
       });
       setSkillsList([]);
       setCertsList([]);
+      setEmployeePhoto(undefined);
     }
   }, [employee, open, form]);
 
@@ -178,6 +182,7 @@ export function EmployeeFormDialog({ open, onOpenChange, employee, onSuccess }: 
       phone: data.phone,
       dateOfBirth: data.dateOfBirth.toISOString().split('T')[0],
       gender: data.gender,
+      avatar: employeePhoto,
       jobTitle: data.jobTitle,
       department: data.department,
       location: data.location,
@@ -247,6 +252,15 @@ export function EmployeeFormDialog({ open, onOpenChange, employee, onSuccess }: 
                 </TabsList>
 
                 <TabsContent value="personal" className="space-y-4 mt-4">
+                  <div className="mb-6">
+                    <Label className="mb-2 block">Employee Photo</Label>
+                    <EmployeePhotoUpload
+                      photo={employeePhoto}
+                      name={`${form.watch('firstName') || ''} ${form.watch('lastName') || ''}`}
+                      onPhotoChange={setEmployeePhoto}
+                    />
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}

@@ -10,6 +10,7 @@ import { getCertificateTemplate } from '@/lib/certificateStorage';
 import { downloadCertificate, previewCertificate } from './CertificateGenerator';
 import { CertificateSocialShare } from './CertificateSocialShare';
 import { toast } from 'sonner';
+import { getEmployeeById } from '@/lib/employeeStorage';
 
 interface CertificateGalleryProps {
   employeeId: string;
@@ -21,6 +22,9 @@ export function CertificateGallery({ employeeId }: CertificateGalleryProps) {
   const [previewUrl, setPreviewUrl] = useState<string>('');
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [certificateToShare, setCertificateToShare] = useState<Certificate | null>(null);
+  
+  const employee = getEmployeeById(employeeId);
+  const employeePhotoUrl = employee?.avatar;
 
   const handlePreview = (certificate: Certificate) => {
     setSelectedCertificate(certificate);
@@ -188,6 +192,7 @@ export function CertificateGallery({ employeeId }: CertificateGalleryProps) {
         certificate={certificateToShare}
         open={shareDialogOpen}
         onOpenChange={setShareDialogOpen}
+        employeePhotoUrl={employeePhotoUrl}
       />
     </>
   );
