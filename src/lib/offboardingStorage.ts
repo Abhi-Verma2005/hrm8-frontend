@@ -1,9 +1,17 @@
 import type { OffboardingWorkflow, ExitInterview, OffboardingStats } from '@/types/offboarding';
+import { mockOffboardingWorkflows } from '@/data/mockOffboardingData';
 
 const WORKFLOWS_KEY = 'offboarding_workflows';
 const INTERVIEWS_KEY = 'exit_interviews';
 
+function initializeData() {
+  if (!localStorage.getItem(WORKFLOWS_KEY)) {
+    localStorage.setItem(WORKFLOWS_KEY, JSON.stringify(mockOffboardingWorkflows));
+  }
+}
+
 export function getOffboardingWorkflows(): OffboardingWorkflow[] {
+  initializeData();
   const stored = localStorage.getItem(WORKFLOWS_KEY);
   return stored ? JSON.parse(stored) : [];
 }

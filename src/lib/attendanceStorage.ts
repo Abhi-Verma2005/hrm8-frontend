@@ -1,10 +1,24 @@
 import type { AttendanceRecord, OvertimeRequest, Shift, AttendanceStats } from '@/types/attendance';
+import { mockAttendanceRecords, mockOvertimeRequests, mockShifts } from '@/data/mockAttendanceData';
 
 const STORAGE_KEY = 'attendance_records';
 const OVERTIME_KEY = 'overtime_requests';
 const SHIFTS_KEY = 'shifts';
 
+function initializeData() {
+  if (!localStorage.getItem(STORAGE_KEY)) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(mockAttendanceRecords));
+  }
+  if (!localStorage.getItem(OVERTIME_KEY)) {
+    localStorage.setItem(OVERTIME_KEY, JSON.stringify(mockOvertimeRequests));
+  }
+  if (!localStorage.getItem(SHIFTS_KEY)) {
+    localStorage.setItem(SHIFTS_KEY, JSON.stringify(mockShifts));
+  }
+}
+
 export function getAttendanceRecords(): AttendanceRecord[] {
+  initializeData();
   const stored = localStorage.getItem(STORAGE_KEY);
   return stored ? JSON.parse(stored) : [];
 }
@@ -37,6 +51,7 @@ export function updateAttendanceRecord(id: string, updates: Partial<AttendanceRe
 }
 
 export function getOvertimeRequests(): OvertimeRequest[] {
+  initializeData();
   const stored = localStorage.getItem(OVERTIME_KEY);
   return stored ? JSON.parse(stored) : [];
 }
@@ -64,6 +79,7 @@ export function updateOvertimeRequest(id: string, updates: Partial<OvertimeReque
 }
 
 export function getShifts(): Shift[] {
+  initializeData();
   const stored = localStorage.getItem(SHIFTS_KEY);
   return stored ? JSON.parse(stored) : [];
 }

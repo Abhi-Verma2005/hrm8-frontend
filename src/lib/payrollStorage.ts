@@ -1,9 +1,20 @@
 import type { PayrollRun, Payslip, PayrollStats } from '@/types/payroll';
+import { mockPayrollRuns, mockPayslips } from '@/data/mockPayrollData';
 
 const PAYROLL_RUNS_KEY = 'payroll_runs';
 const PAYSLIPS_KEY = 'payslips';
 
+function initializeData() {
+  if (!localStorage.getItem(PAYROLL_RUNS_KEY)) {
+    localStorage.setItem(PAYROLL_RUNS_KEY, JSON.stringify(mockPayrollRuns));
+  }
+  if (!localStorage.getItem(PAYSLIPS_KEY)) {
+    localStorage.setItem(PAYSLIPS_KEY, JSON.stringify(mockPayslips));
+  }
+}
+
 export function getPayrollRuns(): PayrollRun[] {
+  initializeData();
   const stored = localStorage.getItem(PAYROLL_RUNS_KEY);
   return stored ? JSON.parse(stored) : [];
 }
@@ -36,6 +47,7 @@ export function updatePayrollRun(id: string, updates: Partial<PayrollRun>): Payr
 }
 
 export function getPayslips(): Payslip[] {
+  initializeData();
   const stored = localStorage.getItem(PAYSLIPS_KEY);
   return stored ? JSON.parse(stored) : [];
 }

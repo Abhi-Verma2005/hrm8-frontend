@@ -1,10 +1,21 @@
 import type { Document, DocumentFolder, DocumentVersion, DocumentStats } from '@/types/document';
+import { mockDocuments, mockFolders } from '@/data/mockDocumentData';
 
 const DOCUMENTS_KEY = 'documents';
 const FOLDERS_KEY = 'document_folders';
 const VERSIONS_KEY = 'document_versions';
 
+function initializeData() {
+  if (!localStorage.getItem(DOCUMENTS_KEY)) {
+    localStorage.setItem(DOCUMENTS_KEY, JSON.stringify(mockDocuments));
+  }
+  if (!localStorage.getItem(FOLDERS_KEY)) {
+    localStorage.setItem(FOLDERS_KEY, JSON.stringify(mockFolders));
+  }
+}
+
 export function getDocuments(): Document[] {
+  initializeData();
   const stored = localStorage.getItem(DOCUMENTS_KEY);
   return stored ? JSON.parse(stored) : [];
 }
@@ -39,6 +50,7 @@ export function updateDocument(id: string, updates: Partial<Document>): Document
 }
 
 export function getFolders(): DocumentFolder[] {
+  initializeData();
   const stored = localStorage.getItem(FOLDERS_KEY);
   return stored ? JSON.parse(stored) : [];
 }

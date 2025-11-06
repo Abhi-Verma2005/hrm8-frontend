@@ -27,11 +27,13 @@ export default function TimeAttendance() {
   }, [attendanceRecords, overtimeRequests]);
 
   return (
-    <DashboardPageLayout
-      title="Time & Attendance"
-      description="Track employee attendance, shifts, and overtime"
-    >
-      <div className="space-y-6">
+    <DashboardPageLayout>
+      <div className="space-y-6 p-8">
+        {/* Page Header */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Time & Attendance</h1>
+          <p className="text-muted-foreground">Track employee attendance, shifts, and overtime</p>
+        </div>
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-4">
           <Card>

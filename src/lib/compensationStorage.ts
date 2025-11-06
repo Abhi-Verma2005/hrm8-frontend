@@ -1,11 +1,22 @@
 import type { SalaryBand, CompensationReview, BonusPlan, EquityGrant, CompensationStats } from '@/types/compensation';
+import { mockSalaryBands, mockCompensationReviews } from '@/data/mockCompensationData';
 
 const BANDS_KEY = 'salary_bands';
 const REVIEWS_KEY = 'compensation_reviews';
 const BONUSES_KEY = 'bonus_plans';
 const EQUITY_KEY = 'equity_grants';
 
+function initializeData() {
+  if (!localStorage.getItem(BANDS_KEY)) {
+    localStorage.setItem(BANDS_KEY, JSON.stringify(mockSalaryBands));
+  }
+  if (!localStorage.getItem(REVIEWS_KEY)) {
+    localStorage.setItem(REVIEWS_KEY, JSON.stringify(mockCompensationReviews));
+  }
+}
+
 export function getSalaryBands(): SalaryBand[] {
+  initializeData();
   const stored = localStorage.getItem(BANDS_KEY);
   return stored ? JSON.parse(stored) : [];
 }
@@ -24,6 +35,7 @@ export function saveSalaryBand(band: Omit<SalaryBand, 'id' | 'createdAt' | 'upda
 }
 
 export function getCompensationReviews(): CompensationReview[] {
+  initializeData();
   const stored = localStorage.getItem(REVIEWS_KEY);
   return stored ? JSON.parse(stored) : [];
 }

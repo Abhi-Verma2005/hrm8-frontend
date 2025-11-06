@@ -1,10 +1,21 @@
 import type { Expense, ExpenseReport, ExpenseStats, ExpensePolicy } from '@/types/expense';
+import { mockExpenses, mockExpensePolicies } from '@/data/mockExpenseData';
 
 const EXPENSES_KEY = 'expenses';
 const REPORTS_KEY = 'expense_reports';
 const POLICIES_KEY = 'expense_policies';
 
+function initializeData() {
+  if (!localStorage.getItem(EXPENSES_KEY)) {
+    localStorage.setItem(EXPENSES_KEY, JSON.stringify(mockExpenses));
+  }
+  if (!localStorage.getItem(POLICIES_KEY)) {
+    localStorage.setItem(POLICIES_KEY, JSON.stringify(mockExpensePolicies));
+  }
+}
+
 export function getExpenses(): Expense[] {
+  initializeData();
   const stored = localStorage.getItem(EXPENSES_KEY);
   return stored ? JSON.parse(stored) : [];
 }
@@ -53,6 +64,7 @@ export function saveExpenseReport(report: Omit<ExpenseReport, 'id'>): ExpenseRep
 }
 
 export function getExpensePolicies(): ExpensePolicy[] {
+  initializeData();
   const stored = localStorage.getItem(POLICIES_KEY);
   return stored ? JSON.parse(stored) : [];
 }

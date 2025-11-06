@@ -18,11 +18,13 @@ export default function Expenses() {
   const pendingApprovals = expenses.filter(e => e.status === 'submitted');
 
   return (
-    <DashboardPageLayout
-      title="Expense Management"
-      description="Submit and manage expense claims and reimbursements"
-    >
-      <div className="space-y-6">
+    <DashboardPageLayout>
+      <div className="space-y-6 p-8">
+        {/* Page Header */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Expense Management</h1>
+          <p className="text-muted-foreground">Submit and manage expense claims and reimbursements</p>
+        </div>
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-4">
           <Card>

@@ -15,11 +15,13 @@ export default function Benefits() {
   const stats = useMemo(() => calculateBenefitsStats(), [refreshKey]);
 
   return (
-    <DashboardPageLayout
-      title="Benefits Administration"
-      description="Manage employee benefits, enrollments, and providers"
-    >
-      <div className="space-y-6">
+    <DashboardPageLayout>
+      <div className="space-y-6 p-8">
+        {/* Page Header */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Benefits Administration</h1>
+          <p className="text-muted-foreground">Manage employee benefits, enrollments, and providers</p>
+        </div>
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-4">
           <Card>

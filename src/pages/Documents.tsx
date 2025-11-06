@@ -24,11 +24,13 @@ export default function Documents() {
   }, [documents, searchQuery]);
 
   return (
-    <DashboardPageLayout
-      title="Document Management"
-      description="Centralized document repository with version control"
-    >
-      <div className="space-y-6">
+    <DashboardPageLayout>
+      <div className="space-y-6 p-8">
+        {/* Page Header */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Document Management</h1>
+          <p className="text-muted-foreground">Centralized document repository with version control</p>
+        </div>
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-4">
           <Card>

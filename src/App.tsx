@@ -33,6 +33,13 @@ import LeaveManagement from "./pages/LeaveManagement";
 import PerformanceManagement from "./pages/PerformanceManagement";
 import OnboardingManagement from "./pages/OnboardingManagement";
 import OnboardingWorkflowDetail from "./pages/OnboardingWorkflowDetail";
+import TimeAttendance from "./pages/TimeAttendance";
+import Payroll from "./pages/Payroll";
+import Benefits from "./pages/Benefits";
+import Expenses from "./pages/Expenses";
+import Documents from "./pages/Documents";
+import Compensation from "./pages/Compensation";
+import Offboarding from "./pages/Offboarding";
 import Inbox from "./pages/Inbox";
 import Users from "./pages/Users";
 import Finance from "./pages/Finance";
@@ -80,6 +87,13 @@ function AppContent() {
             <Route path="/performance" element={<PerformanceManagement />} />
             <Route path="/onboarding" element={<OnboardingManagement />} />
             <Route path="/onboarding/:id" element={<OnboardingWorkflowDetail />} />
+            <Route path="/attendance" element={<TimeAttendance />} />
+            <Route path="/payroll" element={<Payroll />} />
+            <Route path="/benefits" element={<Benefits />} />
+            <Route path="/expenses" element={<Expenses />} />
+            <Route path="/documents" element={<Documents />} />
+            <Route path="/compensation" element={<Compensation />} />
+            <Route path="/offboarding" element={<Offboarding />} />
             <Route path="/applications" element={<Applications />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />

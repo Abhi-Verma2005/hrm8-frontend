@@ -1,9 +1,20 @@
 import type { BenefitPlan, BenefitEnrollment, BenefitsStats } from '@/types/benefits';
+import { mockBenefitPlans, mockBenefitEnrollments } from '@/data/mockBenefitsData';
 
 const PLANS_KEY = 'benefit_plans';
 const ENROLLMENTS_KEY = 'benefit_enrollments';
 
+function initializeData() {
+  if (!localStorage.getItem(PLANS_KEY)) {
+    localStorage.setItem(PLANS_KEY, JSON.stringify(mockBenefitPlans));
+  }
+  if (!localStorage.getItem(ENROLLMENTS_KEY)) {
+    localStorage.setItem(ENROLLMENTS_KEY, JSON.stringify(mockBenefitEnrollments));
+  }
+}
+
 export function getBenefitPlans(): BenefitPlan[] {
+  initializeData();
   const stored = localStorage.getItem(PLANS_KEY);
   return stored ? JSON.parse(stored) : [];
 }
@@ -22,6 +33,7 @@ export function saveBenefitPlan(plan: Omit<BenefitPlan, 'id' | 'createdAt' | 'up
 }
 
 export function getBenefitEnrollments(): BenefitEnrollment[] {
+  initializeData();
   const stored = localStorage.getItem(ENROLLMENTS_KEY);
   return stored ? JSON.parse(stored) : [];
 }

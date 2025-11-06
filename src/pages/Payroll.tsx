@@ -16,11 +16,13 @@ export default function Payroll() {
   const stats = useMemo(() => calculatePayrollStats(), [refreshKey]);
 
   return (
-    <DashboardPageLayout
-      title="Payroll Management"
-      description="Process payroll, generate payslips, and manage compensation"
-    >
-      <div className="space-y-6">
+    <DashboardPageLayout>
+      <div className="space-y-6 p-8">
+        {/* Page Header */}
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">Payroll Management</h1>
+          <p className="text-muted-foreground">Process payroll, generate payslips, and manage compensation</p>
+        </div>
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
