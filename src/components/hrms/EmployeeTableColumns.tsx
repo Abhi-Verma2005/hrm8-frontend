@@ -15,14 +15,6 @@ interface EmployeeColumnsOptions {
 
 export const createEmployeeColumns = (options?: EmployeeColumnsOptions): Column<Employee>[] => [
   {
-    key: "employeeId",
-    label: "Employee ID",
-    sortable: true,
-    render: (employee) => (
-      <span className="font-mono text-sm">{employee.employeeId}</span>
-    ),
-  },
-  {
     key: "name",
     label: "Name",
     sortable: true,
@@ -31,12 +23,22 @@ export const createEmployeeColumns = (options?: EmployeeColumnsOptions): Column<
         <EntityAvatar
           name={`${employee.firstName} ${employee.lastName}`}
           src={employee.avatar}
+          type="person"
+          size="md"
         />
-        <div>
-          <div className="font-medium">{employee.firstName} {employee.lastName}</div>
-          <div className="text-sm text-muted-foreground">{employee.email}</div>
+        <div className="min-w-0 flex-1">
+          <div className="font-medium truncate">{employee.firstName} {employee.lastName}</div>
+          <div className="text-sm text-muted-foreground truncate">{employee.email}</div>
         </div>
       </div>
+    ),
+  },
+  {
+    key: "employeeId",
+    label: "Employee ID",
+    sortable: true,
+    render: (employee) => (
+      <span className="font-mono text-sm">{employee.employeeId}</span>
     ),
   },
   {
