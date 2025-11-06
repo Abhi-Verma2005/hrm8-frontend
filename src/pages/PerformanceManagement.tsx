@@ -3,7 +3,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck, Download, Sparkles } from "lucide-react";
+import { Plus, Target, FileText, Users, Calendar as CalendarIcon, TrendingUp, MessageSquare, ClipboardCheck, Download, Sparkles, Award } from "lucide-react";
 import { GoalCard } from "@/components/performance/GoalCard";
 import { ReviewCard } from "@/components/performance/ReviewCard";
 import { Feedback360Card } from "@/components/performance/Feedback360Card";
@@ -23,10 +23,12 @@ import { ReviewTemplateBuilder } from "@/components/performance/ReviewTemplateBu
 import { PerformanceInsightsDashboard } from "@/components/performance/PerformanceInsightsDashboard";
 import { OneOnOneMeetingTracker } from "@/components/performance/OneOnOneMeetingTracker";
 import { CalibrationSessionManager } from "@/components/performance/CalibrationSessionManager";
-import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules, getCalibrationSessions, saveCalibrationSession, updateCalibrationSession } from "@/lib/performanceStorage";
+import { SkillsAssessmentMatrix } from "@/components/performance/SkillsAssessmentMatrix";
+import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules, getCalibrationSessions, saveCalibrationSession, updateCalibrationSession, getSkillsAssessments, saveSkillsAssessment, updateSkillsAssessment } from "@/lib/performanceStorage";
 import { getEmployees } from "@/lib/employeeStorage";
-import type { PerformanceGoal, PerformanceReview, OneOnOneMeeting, MeetingAgendaTemplate, ReviewSchedule, Feedback360, CalibrationSession } from "@/types/performance";
+import type { PerformanceGoal, PerformanceReview, OneOnOneMeeting, MeetingAgendaTemplate, ReviewSchedule, Feedback360, CalibrationSession, SkillAssessment } from "@/types/performance";
 import { mockCalibrationSessions } from "@/data/mockCalibrationData";
+import { mockSkillCategories, mockSkillAssessments, mockRoleSkillRequirements } from "@/data/mockSkillsData";
 import { toast } from "sonner";
 
 export default function PerformanceManagement() {
@@ -64,6 +66,10 @@ export default function PerformanceManagement() {
   const calibrationSessions = useMemo(() => {
     const stored = getCalibrationSessions();
     return stored.length > 0 ? stored : mockCalibrationSessions;
+  }, [refreshKey]);
+  const skillsAssessments = useMemo(() => {
+    const stored = getSkillsAssessments();
+    return stored.length > 0 ? stored : mockSkillAssessments;
   }, [refreshKey]);
   const employees = useMemo(() => getEmployees(), []);
   const currentEmployee = employees.find(e => e.id === currentEmployeeId) || employees[0];
@@ -186,6 +192,28 @@ export default function PerformanceManagement() {
 
   const handleUpdateCalibrationSession = (id: string, updates: Partial<CalibrationSession>) => {
     updateCalibrationSession(id, updates);
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleCreateSkillsAssessment = (assessment: Partial<SkillAssessment>) => {
+    const newAssessment: SkillAssessment = {
+      ...assessment as SkillAssessment,
+      id: `skills-assess-${Date.now()}`,
+      employeeName: `${currentEmployee.firstName} ${currentEmployee.lastName}`,
+      role: currentEmployee.jobTitle,
+      department: currentEmployee.department,
+      assessorId: currentEmployeeId,
+      assessorName: `${currentEmployee.firstName} ${currentEmployee.lastName}`,
+      assessmentDate: assessment.assessmentDate || new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    saveSkillsAssessment(newAssessment);
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleUpdateSkillsAssessment = (id: string, updates: Partial<SkillAssessment>) => {
+    updateSkillsAssessment(id, updates);
     setRefreshKey(prev => prev + 1);
   };
 
@@ -314,6 +342,10 @@ export default function PerformanceManagement() {
             <TabsTrigger value="calibration">
               <Users className="mr-2 h-4 w-4" />
               Calibration
+            </TabsTrigger>
+            <TabsTrigger value="skills">
+              <Award className="mr-2 h-4 w-4" />
+              Skills Matrix
             </TabsTrigger>
             <TabsTrigger value="calendar">
               <CalendarIcon className="mr-2 h-4 w-4" />
@@ -535,6 +567,17 @@ export default function PerformanceManagement() {
               sessions={calibrationSessions}
               onCreateSession={handleCreateCalibrationSession}
               onUpdateSession={handleUpdateCalibrationSession}
+            />
+          </TabsContent>
+
+          <TabsContent value="skills" className="space-y-6">
+            <SkillsAssessmentMatrix
+              categories={mockSkillCategories}
+              assessments={skillsAssessments}
+              roleRequirements={mockRoleSkillRequirements}
+              currentEmployeeId={currentEmployeeId}
+              onCreateAssessment={handleCreateSkillsAssessment}
+              onUpdateAssessment={handleUpdateSkillsAssessment}
             />
           </TabsContent>
 

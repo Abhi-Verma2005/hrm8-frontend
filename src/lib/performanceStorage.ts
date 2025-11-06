@@ -299,6 +299,45 @@ export function deleteCalibrationSession(id: string): void {
   localStorage.setItem(CALIBRATION_KEY, JSON.stringify(sessions));
 }
 
+// Skills Assessments
+const SKILLS_ASSESSMENTS_KEY = 'hrms_skills_assessments';
+
+export function getSkillsAssessments(employeeId?: string): any[] {
+  const stored = localStorage.getItem(SKILLS_ASSESSMENTS_KEY);
+  let assessments = stored ? JSON.parse(stored) : [];
+  
+  if (employeeId) {
+    assessments = assessments.filter((a: any) => a.employeeId === employeeId);
+  }
+  
+  return assessments.sort((a: any, b: any) => 
+    new Date(b.assessmentDate).getTime() - new Date(a.assessmentDate).getTime()
+  );
+}
+
+export function saveSkillsAssessment(assessment: any): void {
+  const assessments = getSkillsAssessments();
+  const index = assessments.findIndex(a => a.id === assessment.id);
+  
+  if (index >= 0) {
+    assessments[index] = { ...assessment, updatedAt: new Date().toISOString() };
+  } else {
+    assessments.push(assessment);
+  }
+  
+  localStorage.setItem(SKILLS_ASSESSMENTS_KEY, JSON.stringify(assessments));
+}
+
+export function updateSkillsAssessment(id: string, updates: any): void {
+  const assessments = getSkillsAssessments();
+  const index = assessments.findIndex(a => a.id === id);
+  
+  if (index >= 0) {
+    assessments[index] = { ...assessments[index], ...updates, updatedAt: new Date().toISOString() };
+    localStorage.setItem(SKILLS_ASSESSMENTS_KEY, JSON.stringify(assessments));
+  }
+}
+
 // Legacy functions for consultants module
 export function getPerformanceBreakdown(consultantId: string) {
   return [];

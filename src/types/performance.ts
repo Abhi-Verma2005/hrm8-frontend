@@ -331,3 +331,88 @@ export interface CalibrationEmployee {
     tenure: number;
   };
 }
+
+export type ProficiencyLevel = 'none' | 'beginner' | 'intermediate' | 'advanced' | 'expert';
+
+export interface SkillCategory {
+  id: string;
+  name: string;
+  description?: string;
+  type: 'technical' | 'soft' | 'leadership' | 'domain';
+  skills: Skill[];
+}
+
+export interface Skill {
+  id: string;
+  name: string;
+  description?: string;
+  categoryId: string;
+  importance: 'low' | 'medium' | 'high' | 'critical';
+}
+
+export interface SkillAssessment {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  role: string;
+  department: string;
+  assessorId: string;
+  assessorName: string;
+  assessmentDate: string;
+  assessmentType: 'self' | 'manager' | 'peer' | '360';
+  skillRatings: SkillRating[];
+  overallNotes?: string;
+  developmentPlan?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SkillRating {
+  skillId: string;
+  skillName: string;
+  categoryId: string;
+  currentLevel: ProficiencyLevel;
+  targetLevel?: ProficiencyLevel;
+  requiredLevel?: ProficiencyLevel;
+  lastAssessed: string;
+  trend?: 'improving' | 'stable' | 'declining';
+  notes?: string;
+  evidenceLinks?: string[];
+}
+
+export interface RoleSkillRequirement {
+  id: string;
+  roleName: string;
+  department: string;
+  level: 'junior' | 'mid' | 'senior' | 'lead' | 'principal';
+  requiredSkills: {
+    skillId: string;
+    skillName: string;
+    categoryId: string;
+    minimumLevel: ProficiencyLevel;
+    importance: 'required' | 'preferred' | 'nice-to-have';
+  }[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SkillGapAnalysis {
+  employeeId: string;
+  employeeName: string;
+  role: string;
+  targetRole?: string;
+  gaps: {
+    skillId: string;
+    skillName: string;
+    currentLevel: ProficiencyLevel;
+    requiredLevel: ProficiencyLevel;
+    gap: number;
+    priority: 'low' | 'medium' | 'high' | 'critical';
+  }[];
+  strengths: {
+    skillId: string;
+    skillName: string;
+    level: ProficiencyLevel;
+  }[];
+  developmentRecommendations: string[];
+}
