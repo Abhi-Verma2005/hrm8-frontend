@@ -15,37 +15,43 @@ export default function RoleManagement() {
 
   const roleColumns: Column<UserRole>[] = [
     {
-      accessorKey: "userId",
-      header: "User ID",
+      key: "userId",
+      label: "User ID",
+      sortable: true,
     },
     {
-      accessorKey: "role",
-      header: "Role",
-      cell: ({ row }) => (
-        <Badge variant="default">{row.original.role}</Badge>
+      key: "role",
+      label: "Role",
+      sortable: true,
+      render: (userRole) => (
+        <Badge variant="default">{userRole.role}</Badge>
       ),
     },
     {
-      accessorKey: "departmentId",
-      header: "Department",
-      cell: ({ row }) => row.original.departmentId || "-",
+      key: "departmentId",
+      label: "Department",
+      sortable: true,
+      render: (userRole) => userRole.departmentId || "-",
     },
     {
-      accessorKey: "grantedAt",
-      header: "Granted",
-      cell: ({ row }) => new Date(row.original.grantedAt).toLocaleDateString(),
+      key: "grantedAt",
+      label: "Granted",
+      sortable: true,
+      render: (userRole) => new Date(userRole.grantedAt).toLocaleDateString(),
     },
     {
-      accessorKey: "expiresAt",
-      header: "Expires",
-      cell: ({ row }) => (row.original.expiresAt ? new Date(row.original.expiresAt).toLocaleDateString() : "Never"),
+      key: "expiresAt",
+      label: "Expires",
+      sortable: true,
+      render: (userRole) => (userRole.expiresAt ? new Date(userRole.expiresAt).toLocaleDateString() : "Never"),
     },
     {
-      accessorKey: "isActive",
-      header: "Status",
-      cell: ({ row }) => (
-        <Badge variant={row.original.isActive ? "default" : "secondary"}>
-          {row.original.isActive ? "Active" : "Inactive"}
+      key: "isActive",
+      label: "Status",
+      sortable: true,
+      render: (userRole) => (
+        <Badge variant={userRole.isActive ? "default" : "secondary"}>
+          {userRole.isActive ? "Active" : "Inactive"}
         </Badge>
       ),
     },
@@ -181,8 +187,7 @@ export default function RoleManagement() {
             <DataTable
               columns={roleColumns}
               data={userRoles}
-              searchKey="userId"
-              searchPlaceholder="Search by user ID..."
+              searchKeys={["userId", "role"]}
             />
           </CardContent>
         </Card>

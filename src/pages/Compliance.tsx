@@ -21,56 +21,64 @@ export default function Compliance() {
 
   const auditColumns: Column<AuditLog>[] = [
     {
-      accessorKey: "timestamp",
-      header: "Timestamp",
-      cell: ({ row }) => new Date(row.original.timestamp).toLocaleString(),
+      key: "timestamp",
+      label: "Timestamp",
+      sortable: true,
+      render: (log) => new Date(log.timestamp).toLocaleString(),
     },
     {
-      accessorKey: "userName",
-      header: "User",
+      key: "userName",
+      label: "User",
+      sortable: true,
     },
     {
-      accessorKey: "action",
-      header: "Action",
-      cell: ({ row }) => (
-        <Badge variant="outline">{row.original.action}</Badge>
+      key: "action",
+      label: "Action",
+      sortable: true,
+      render: (log) => (
+        <Badge variant="outline">{log.action}</Badge>
       ),
     },
     {
-      accessorKey: "module",
-      header: "Module",
+      key: "module",
+      label: "Module",
+      sortable: true,
     },
     {
-      accessorKey: "ipAddress",
-      header: "IP Address",
+      key: "ipAddress",
+      label: "IP Address",
     },
   ];
 
   const policyColumns: Column<CompliancePolicy>[] = [
     {
-      accessorKey: "title",
-      header: "Policy Title",
+      key: "title",
+      label: "Policy Title",
+      sortable: true,
     },
     {
-      accessorKey: "category",
-      header: "Category",
-      cell: ({ row }) => (
-        <Badge variant="secondary">{row.original.category}</Badge>
+      key: "category",
+      label: "Category",
+      sortable: true,
+      render: (policy) => (
+        <Badge variant="secondary">{policy.category}</Badge>
       ),
     },
     {
-      accessorKey: "version",
-      header: "Version",
+      key: "version",
+      label: "Version",
+      sortable: true,
     },
     {
-      accessorKey: "effectiveDate",
-      header: "Effective Date",
+      key: "effectiveDate",
+      label: "Effective Date",
+      sortable: true,
     },
     {
-      accessorKey: "requiresAcknowledgment",
-      header: "Requires Ack.",
-      cell: ({ row }) => (
-        row.original.requiresAcknowledgment ? (
+      key: "requiresAcknowledgment",
+      label: "Requires Ack.",
+      render: (policy) => (
+        policy.requiresAcknowledgment ? (
           <CheckCircle className="h-4 w-4 text-green-500" />
         ) : (
           <span className="text-muted-foreground">-</span>
@@ -256,8 +264,7 @@ export default function Compliance() {
                 <DataTable
                   columns={auditColumns}
                   data={auditLogs.slice(0, 50)}
-                  searchKey="userName"
-                  searchPlaceholder="Search by user..."
+                  searchKeys={["userName", "module", "action"]}
                 />
               </CardContent>
             </Card>
@@ -281,8 +288,7 @@ export default function Compliance() {
                 <DataTable
                   columns={policyColumns}
                   data={policies}
-                  searchKey="title"
-                  searchPlaceholder="Search policies..."
+                  searchKeys={["title", "category"]}
                 />
               </CardContent>
             </Card>

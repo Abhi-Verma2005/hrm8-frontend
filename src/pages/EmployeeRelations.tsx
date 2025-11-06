@@ -21,28 +21,32 @@ export default function EmployeeRelations() {
 
   const caseColumns: Column<ERCase>[] = [
     {
-      accessorKey: "caseNumber",
-      header: "Case #",
+      key: "caseNumber",
+      label: "Case #",
+      sortable: true,
     },
     {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => (
-        <Badge variant="outline">{row.original.type}</Badge>
+      key: "type",
+      label: "Type",
+      sortable: true,
+      render: (erCase) => (
+        <Badge variant="outline">{erCase.type}</Badge>
       ),
     },
     {
-      accessorKey: "category",
-      header: "Category",
-      cell: ({ row }) => (
-        <Badge variant="secondary">{row.original.category}</Badge>
+      key: "category",
+      label: "Category",
+      sortable: true,
+      render: (erCase) => (
+        <Badge variant="secondary">{erCase.category}</Badge>
       ),
     },
     {
-      accessorKey: "priority",
-      header: "Priority",
-      cell: ({ row }) => {
-        const priority = row.original.priority;
+      key: "priority",
+      label: "Priority",
+      sortable: true,
+      render: (erCase) => {
+        const priority = erCase.priority;
         const colors = {
           low: "text-blue-600",
           medium: "text-yellow-600",
@@ -57,10 +61,11 @@ export default function EmployeeRelations() {
       },
     },
     {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.status;
+      key: "status",
+      label: "Status",
+      sortable: true,
+      render: (erCase) => {
+        const status = erCase.status;
         const colors = {
           open: "bg-blue-50 text-blue-700",
           investigating: "bg-yellow-50 text-yellow-700",
@@ -72,15 +77,16 @@ export default function EmployeeRelations() {
       },
     },
     {
-      accessorKey: "openedDate",
-      header: "Opened",
-      cell: ({ row }) => new Date(row.original.openedDate).toLocaleDateString(),
+      key: "openedDate",
+      label: "Opened",
+      sortable: true,
+      render: (erCase) => new Date(erCase.openedDate).toLocaleDateString(),
     },
     {
-      accessorKey: "confidential",
-      header: "Confidential",
-      cell: ({ row }) =>
-        row.original.confidential ? (
+      key: "confidential",
+      label: "Confidential",
+      render: (erCase) =>
+        erCase.confidential ? (
           <Shield className="h-4 w-4 text-red-500" />
         ) : (
           <span className="text-muted-foreground">-</span>
@@ -235,8 +241,7 @@ export default function EmployeeRelations() {
                   <DataTable
                     columns={caseColumns}
                     data={cases}
-                    searchKey="caseNumber"
-                    searchPlaceholder="Search by case number..."
+                    searchKeys={["caseNumber", "type", "category"]}
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -265,8 +270,7 @@ export default function EmployeeRelations() {
                 <DataTable
                   columns={caseColumns}
                   data={cases}
-                  searchKey="caseNumber"
-                  searchPlaceholder="Search cases..."
+                  searchKeys={["caseNumber", "type", "category"]}
                 />
               </CardContent>
             </Card>
@@ -282,8 +286,7 @@ export default function EmployeeRelations() {
                 <DataTable
                   columns={caseColumns}
                   data={cases}
-                  searchKey="caseNumber"
-                  searchPlaceholder="Search cases..."
+                  searchKeys={["caseNumber", "type", "category"]}
                 />
               </CardContent>
             </Card>
@@ -299,8 +302,7 @@ export default function EmployeeRelations() {
                 <DataTable
                   columns={caseColumns}
                   data={cases}
-                  searchKey="caseNumber"
-                  searchPlaceholder="Search cases..."
+                  searchKeys={["caseNumber", "type", "category"]}
                 />
               </CardContent>
             </Card>
