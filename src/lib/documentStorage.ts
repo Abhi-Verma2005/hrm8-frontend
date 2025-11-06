@@ -87,3 +87,7 @@ export function calculateDocumentStats(): DocumentStats {
     totalStorage: documents.reduce((sum, d) => sum + d.fileSize, 0),
   };
 }
+
+export function getDocumentStats(): DocumentStats {
+  return calculateDocumentStats();
+}
