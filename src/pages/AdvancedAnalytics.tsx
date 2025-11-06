@@ -3,8 +3,14 @@ import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, Minus, AlertCircle, Lightbulb, Activity, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { TrendingUp, TrendingDown, Minus, AlertCircle, Lightbulb, Activity, AlertTriangle, CalendarIcon, Filter, X } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import { getPredictiveMetrics, getDepartmentComparisons, getSkillGaps, getWorkforceInsights } from '@/lib/advancedAnalyticsStorage';
 import type { PredictiveMetric, DepartmentComparison, SkillGapAnalysis, WorkforceInsight } from '@/types/advancedAnalytics';
 
@@ -14,12 +20,68 @@ export default function AdvancedAnalytics() {
   const [skillGaps, setSkillGaps] = useState<SkillGapAnalysis[]>([]);
   const [insights, setInsights] = useState<WorkforceInsight[]>([]);
 
+  // Filter states
+  const [dateRange, setDateRange] = useState<{ from: Date | undefined; to: Date | undefined }>({
+    from: new Date(new Date().setMonth(new Date().getMonth() - 6)),
+    to: new Date(),
+  });
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+  const [selectedMetricTypes, setSelectedMetricTypes] = useState<string[]>(['turnover', 'performance', 'engagement']);
+  const [selectedPriority, setSelectedPriority] = useState<string>('all');
+  const [showFilters, setShowFilters] = useState(false);
+
   useEffect(() => {
     setPredictiveMetrics(getPredictiveMetrics());
     setDepartments(getDepartmentComparisons());
     setSkillGaps(getSkillGaps());
     setInsights(getWorkforceInsights());
   }, []);
+
+  // Apply filters to data
+  const filteredDepartments = departments.filter(dept => 
+    selectedDepartments.length === 0 || selectedDepartments.includes(dept.department)
+  );
+
+  const filteredMetrics = predictiveMetrics.filter(metric =>
+    selectedMetricTypes.length === 0 || selectedMetricTypes.includes(metric.category)
+  );
+
+  const filteredSkillGaps = skillGaps.filter(gap =>
+    selectedPriority === 'all' || gap.priority === selectedPriority
+  );
+
+  const filteredInsights = insights.filter(insight =>
+    selectedPriority === 'all' || 
+    (selectedPriority === 'high' && insight.impact === 'high') ||
+    (selectedPriority === 'medium' && insight.impact === 'medium') ||
+    (selectedPriority === 'low' && insight.impact === 'low')
+  );
+
+  const allDepartments = [...new Set(departments.map(d => d.department))];
+  const activeFilterCount = 
+    (selectedDepartments.length > 0 ? 1 : 0) +
+    (selectedMetricTypes.length < 3 ? 1 : 0) +
+    (selectedPriority !== 'all' ? 1 : 0) +
+    (dateRange.from || dateRange.to ? 1 : 0);
+
+  const clearAllFilters = () => {
+    setSelectedDepartments([]);
+    setSelectedMetricTypes(['turnover', 'performance', 'engagement']);
+    setSelectedPriority('all');
+    setDateRange({ from: new Date(new Date().setMonth(new Date().getMonth() - 6)), to: new Date() });
+  };
+
+  const toggleDepartment = (dept: string) => {
+    setSelectedDepartments(prev =>
+      prev.includes(dept) ? prev.filter(d => d !== dept) : [...prev, dept]
+    );
+  };
+
+  const toggleMetricType = (type: string) => {
+    setSelectedMetricTypes(prev =>
+      prev.includes(type) ? prev.filter(t => t !== type) : [...prev, type]
+    );
+  };
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
@@ -42,13 +104,13 @@ export default function AdvancedAnalytics() {
   const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
   // Prepare workforce distribution data
-  const workforceDistribution = departments.map(dept => ({
+  const workforceDistribution = filteredDepartments.map(dept => ({
     name: dept.department,
     value: dept.headcount
   }));
 
   // Prepare skill gap data for area chart
-  const skillGapTrendData = skillGaps.map((gap, index) => ({
+  const skillGapTrendData = filteredSkillGaps.map((gap, index) => ({
     name: gap.skillName,
     currentLevel: gap.currentLevel,
     requiredLevel: gap.requiredLevel,
@@ -59,12 +121,184 @@ export default function AdvancedAnalytics() {
   return (
     <DashboardPageLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Advanced Analytics</h1>
-          <p className="text-muted-foreground mt-2">
-            Predictive insights, workforce intelligence, and strategic recommendations
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Advanced Analytics</h1>
+            <p className="text-muted-foreground mt-2">
+              Predictive insights, workforce intelligence, and strategic recommendations
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant={showFilters ? "default" : "outline"}
+              onClick={() => setShowFilters(!showFilters)}
+              className="gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Filters
+              {activeFilterCount > 0 && (
+                <Badge variant="secondary" className="ml-1 rounded-full h-5 w-5 p-0 flex items-center justify-center">
+                  {activeFilterCount}
+                </Badge>
+              )}
+            </Button>
+            {activeFilterCount > 0 && (
+              <Button variant="ghost" onClick={clearAllFilters} className="gap-2">
+                <X className="h-4 w-4" />
+                Clear All
+              </Button>
+            )}
+          </div>
         </div>
+
+        {/* Filters Panel */}
+        {showFilters && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Filters</CardTitle>
+              <CardDescription>Refine data visualization and analysis</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Date Range Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Date Range</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !dateRange.from && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dateRange.from ? (
+                          dateRange.to ? (
+                            <>
+                              {format(dateRange.from, "LLL dd, y")} -{" "}
+                              {format(dateRange.to, "LLL dd, y")}
+                            </>
+                          ) : (
+                            format(dateRange.from, "LLL dd, y")
+                          )
+                        ) : (
+                          <span>Pick a date range</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        initialFocus
+                        mode="range"
+                        defaultMonth={dateRange.from}
+                        selected={{ from: dateRange.from, to: dateRange.to }}
+                        onSelect={(range) => setDateRange({ from: range?.from, to: range?.to })}
+                        numberOfMonths={2}
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                {/* Department Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Departments</label>
+                  <Select
+                    value={selectedDepartments.length === 0 ? "all" : selectedDepartments[0]}
+                    onValueChange={(value) => {
+                      if (value === "all") {
+                        setSelectedDepartments([]);
+                      } else {
+                        toggleDepartment(value);
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Departments" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Departments</SelectItem>
+                      {allDepartments.map(dept => (
+                        <SelectItem key={dept} value={dept}>
+                          {dept}
+                          {selectedDepartments.includes(dept) && " ✓"}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedDepartments.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {selectedDepartments.map(dept => (
+                        <Badge key={dept} variant="secondary" className="gap-1">
+                          {dept}
+                          <X
+                            className="h-3 w-3 cursor-pointer"
+                            onClick={() => toggleDepartment(dept)}
+                          />
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Metric Type Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Metric Types</label>
+                  <div className="space-y-2">
+                    {['turnover', 'performance', 'engagement', 'productivity', 'cost'].map(type => (
+                      <label key={type} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selectedMetricTypes.includes(type)}
+                          onChange={() => toggleMetricType(type)}
+                          className="rounded border-gray-300"
+                        />
+                        <span className="capitalize">{type}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Priority Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Priority Level</label>
+                  <Select value={selectedPriority} onValueChange={setSelectedPriority}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Priorities" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Priorities</SelectItem>
+                      <SelectItem value="critical">Critical</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Data Summary */}
+        {activeFilterCount > 0 && (
+          <Card className="bg-muted/50">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">Filtered Results</p>
+                  <p className="text-xs text-muted-foreground">
+                    Showing {filteredDepartments.length} departments, {filteredMetrics.length} metrics, {filteredSkillGaps.length} skill gaps
+                  </p>
+                </div>
+                <Button variant="outline" size="sm" onClick={clearAllFilters}>
+                  Reset Filters
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Predictive Trends Chart */}
         <Card>
@@ -74,7 +308,7 @@ export default function AdvancedAnalytics() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={predictiveMetrics.map(m => ({
+              <LineChart data={filteredMetrics.map(m => ({
                 name: m.metricName.split(' ').slice(0, 2).join(' '),
                 current: m.currentValue,
                 predicted: m.predictedValue,
@@ -100,7 +334,7 @@ export default function AdvancedAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {predictiveMetrics.map((metric) => (
+              {filteredMetrics.map((metric) => (
                 <div key={metric.id} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div>
@@ -140,7 +374,7 @@ export default function AdvancedAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {insights.map((insight) => (
+              {filteredInsights.map((insight) => (
                 <div key={insight.id} className="border rounded-lg p-4">
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5">{getInsightIcon(insight.type)}</div>
@@ -182,7 +416,7 @@ export default function AdvancedAnalytics() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={departments}>
+                <BarChart data={filteredDepartments}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="department" />
                   <YAxis />
@@ -202,7 +436,7 @@ export default function AdvancedAnalytics() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <RadarChart data={departments}>
+                <RadarChart data={filteredDepartments}>
                   <PolarGrid />
                   <PolarAngleAxis dataKey="department" />
                   <PolarRadiusAxis angle={90} domain={[0, 10]} />
@@ -237,7 +471,7 @@ export default function AdvancedAnalytics() {
                   </tr>
                 </thead>
                 <tbody>
-                  {departments.map((dept, idx) => (
+                  {filteredDepartments.map((dept, idx) => (
                     <tr key={idx} className="border-b last:border-0">
                       <td className="py-3 px-2 font-medium">{dept.department}</td>
                       <td className="text-right py-3 px-2">{dept.headcount}</td>
@@ -313,7 +547,7 @@ export default function AdvancedAnalytics() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {skillGaps.map((gap) => (
+              {filteredSkillGaps.map((gap) => (
                 <div key={gap.id} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div>
