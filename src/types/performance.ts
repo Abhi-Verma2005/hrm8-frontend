@@ -609,3 +609,208 @@ export interface LeadershipPipeline {
   totalPositions: number;
   coverageRate: number; // Percentage of positions with ready successors
 }
+
+// Learning & Development Types
+export type CourseLevel = 'beginner' | 'intermediate' | 'advanced' | 'expert';
+export type CourseFormat = 'online' | 'in-person' | 'hybrid' | 'self-paced';
+export type CourseStatus = 'draft' | 'published' | 'archived';
+export type EnrollmentStatus = 'not-started' | 'in-progress' | 'completed' | 'failed' | 'expired';
+export type CertificationStatus = 'active' | 'expired' | 'revoked' | 'pending';
+
+export interface Course {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  level: CourseLevel;
+  format: CourseFormat;
+  status: CourseStatus;
+  duration: number; // in hours
+  instructor: string;
+  instructorAvatar?: string;
+  thumbnail?: string;
+  skills: string[];
+  prerequisites: string[];
+  learningObjectives: string[];
+  price: number;
+  currency: string;
+  rating: number;
+  enrollmentCount: number;
+  maxCapacity?: number;
+  startDate?: Date;
+  endDate?: Date;
+  modules: CourseModule[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CourseModule {
+  id: string;
+  title: string;
+  description: string;
+  order: number;
+  duration: number; // in minutes
+  lessons: Lesson[];
+  assessment?: Assessment;
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  order: number;
+  duration: number; // in minutes
+  contentType: 'video' | 'document' | 'quiz' | 'assignment' | 'interactive';
+  contentUrl?: string;
+  isRequired: boolean;
+}
+
+export interface Assessment {
+  id: string;
+  title: string;
+  type: 'quiz' | 'assignment' | 'project' | 'exam';
+  passingScore: number;
+  maxAttempts: number;
+  timeLimit?: number; // in minutes
+  questions: AssessmentQuestion[];
+}
+
+export interface AssessmentQuestion {
+  id: string;
+  question: string;
+  type: 'multiple-choice' | 'true-false' | 'short-answer' | 'essay';
+  options?: string[];
+  correctAnswer?: string | string[];
+  points: number;
+}
+
+export interface TrainingPath {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  targetRole?: string;
+  level: CourseLevel;
+  estimatedDuration: number; // total hours
+  courses: string[]; // course IDs in order
+  skills: string[];
+  prerequisites: string[];
+  completionCertificate?: string;
+  enrollmentCount: number;
+  createdBy: string;
+  isRecommended: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface CourseEnrollment {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  employeeAvatar?: string;
+  courseId: string;
+  courseTitle: string;
+  status: EnrollmentStatus;
+  progress: number; // 0-100
+  enrolledDate: Date;
+  startedDate?: Date;
+  completedDate?: Date;
+  dueDate?: Date;
+  currentModule?: string;
+  completedModules: string[];
+  timeSpent: number; // in minutes
+  lastAccessedDate?: Date;
+  assessmentScores: {
+    moduleId: string;
+    score: number;
+    attempts: number;
+    passedAt?: Date;
+  }[];
+  certificateId?: string;
+  assignedBy?: string;
+  isRequired: boolean;
+  notes?: string;
+}
+
+export interface Certification {
+  id: string;
+  title: string;
+  description: string;
+  issuingOrganization: string;
+  category: string;
+  level: CourseLevel;
+  validityPeriod?: number; // in months, null for lifetime
+  requirements: {
+    courses?: string[];
+    assessments?: string[];
+    experience?: string;
+    prerequisites?: string[];
+  };
+  badgeUrl?: string;
+  verificationUrl?: string;
+  createdAt: Date;
+}
+
+export interface EmployeeCertification {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  employeeAvatar?: string;
+  certificationId: string;
+  certificationTitle: string;
+  status: CertificationStatus;
+  issuedDate: Date;
+  expiryDate?: Date;
+  certificateNumber: string;
+  certificateUrl?: string;
+  verificationUrl?: string;
+  issuingOrganization: string;
+  renewalRequired: boolean;
+  renewalDate?: Date;
+  creditsEarned?: number;
+  notes?: string;
+}
+
+export interface SkillDevelopmentProgram {
+  id: string;
+  title: string;
+  description: string;
+  targetSkills: string[];
+  currentLevel: CourseLevel;
+  targetLevel: CourseLevel;
+  employeeId: string;
+  employeeName: string;
+  managerId: string;
+  managerName: string;
+  status: 'draft' | 'active' | 'completed' | 'cancelled';
+  startDate: Date;
+  targetEndDate: Date;
+  actualEndDate?: Date;
+  trainingPaths: string[];
+  courses: string[];
+  milestones: DevelopmentMilestone[];
+  progress: number; // 0-100
+  budget?: number;
+  spentAmount?: number;
+  notes?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface LearningAnalytics {
+  employeeId: string;
+  totalCoursesEnrolled: number;
+  coursesCompleted: number;
+  coursesInProgress: number;
+  totalLearningHours: number;
+  certificationsEarned: number;
+  averageAssessmentScore: number;
+  skillsAcquired: string[];
+  learningStreak: number; // days
+  lastActivityDate: Date;
+  monthlyProgress: {
+    month: string;
+    hoursSpent: number;
+    coursesCompleted: number;
+  }[];
+}

@@ -1,11 +1,18 @@
-import type { PerformanceGoal, PerformanceReviewTemplate, PerformanceReview, Feedback360, ReviewSchedule, OneOnOneMeeting, MeetingAgendaTemplate, CalibrationSession } from '@/types/performance';
+import type { PerformanceGoal, PerformanceReviewTemplate, PerformanceReview, Feedback360, ReviewSchedule, OneOnOneMeeting, MeetingAgendaTemplate, CalibrationSession, Course, TrainingPath, Certification, CourseEnrollment, EmployeeCertification, SkillDevelopmentProgram, LearningAnalytics } from '@/types/performance';
 import { mockPerformanceGoals, mockReviewTemplates, mockPerformanceReviews, mockFeedback360, mockReviewSchedules, mockCompanyOKRs, mockTeamObjectives } from '@/data/mockPerformanceData';
 import { mockOneOnOneMeetings, mockMeetingTemplates } from '@/data/mockMeetingData';
+import { mockCourses, mockTrainingPaths, mockCertifications, mockCourseEnrollments, mockEmployeeCertifications, mockSkillDevelopmentPrograms, mockLearningAnalytics } from '@/data/mockLearningData';
 
 // Export OKR data
 export { mockCompanyOKRs, mockTeamObjectives };
 
 const GOALS_KEY = 'hrms_performance_goals';
+const COURSES_KEY = 'courses';
+const TRAINING_PATHS_KEY = 'trainingPaths';
+const COURSE_ENROLLMENTS_KEY = 'courseEnrollments';
+const EMPLOYEE_CERTIFICATIONS_KEY = 'employeeCertifications';
+const SKILL_DEVELOPMENT_PROGRAMS_KEY = 'skillDevelopmentPrograms';
+const LEARNING_ANALYTICS_KEY = 'learningAnalytics';
 const TEMPLATES_KEY = 'hrms_review_templates';
 const REVIEWS_KEY = 'hrms_performance_reviews';
 const FEEDBACK_360_KEY = 'hrms_feedback_360';

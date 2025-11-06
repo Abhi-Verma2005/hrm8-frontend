@@ -26,7 +26,9 @@ import { CalibrationSessionManager } from "@/components/performance/CalibrationS
 import { SkillsAssessmentMatrix } from "@/components/performance/SkillsAssessmentMatrix";
 import { PIPManager } from "@/components/performance/PIPManager";
 import { SuccessionPlanning } from "@/components/performance/SuccessionPlanning";
+import { LearningDevelopment } from "@/components/performance/LearningDevelopment";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules, getCalibrationSessions, saveCalibrationSession, updateCalibrationSession, getSkillsAssessments, saveSkillsAssessment, updateSkillsAssessment, getPIPs, updatePIP, getSuccessionPlans } from "@/lib/performanceStorage";
+import { getCourses, getTrainingPaths, getCourseEnrollments, getEmployeeCertifications, getSkillDevelopmentPrograms, getLearningAnalytics } from "@/lib/learningStorage";
 import { getEmployees } from "@/lib/employeeStorage";
 import type { PerformanceGoal, PerformanceReview, OneOnOneMeeting, MeetingAgendaTemplate, ReviewSchedule, Feedback360, CalibrationSession, SkillAssessment, PerformanceImprovementPlan, PIPCheckIn } from "@/types/performance";
 import { mockCalibrationSessions } from "@/data/mockCalibrationData";
