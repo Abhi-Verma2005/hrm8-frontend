@@ -68,7 +68,48 @@ export const mockCourses: Course[] = [
           passingScore: 80,
           maxAttempts: 3,
           timeLimit: 30,
-          questions: [],
+          questions: [
+            {
+              id: 'q1',
+              question: 'What is the primary benefit of using custom hooks in React?',
+              type: 'multiple-choice',
+              options: [
+                'To make components look better',
+                'To reuse stateful logic between components',
+                'To improve CSS styling',
+                'To reduce bundle size'
+              ],
+              correctAnswer: 'To reuse stateful logic between components',
+              points: 25,
+            },
+            {
+              id: 'q2',
+              question: 'Custom hooks must start with the word "use"',
+              type: 'true-false',
+              correctAnswer: 'true',
+              points: 25,
+            },
+            {
+              id: 'q3',
+              question: 'Which hook is commonly used inside custom hooks for managing state?',
+              type: 'multiple-choice',
+              options: [
+                'useState',
+                'useStyle',
+                'useComponent',
+                'useMemo'
+              ],
+              correctAnswer: 'useState',
+              points: 25,
+            },
+            {
+              id: 'q4',
+              question: 'Can custom hooks call other hooks?',
+              type: 'true-false',
+              correctAnswer: 'true',
+              points: 25,
+            },
+          ],
         },
       },
     ],

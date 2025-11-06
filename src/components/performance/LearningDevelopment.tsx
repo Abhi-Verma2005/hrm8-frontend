@@ -34,6 +34,8 @@ import {
   SkillDevelopmentProgram,
   LearningAnalytics,
 } from '@/types/performance';
+import { CourseContentViewer } from './CourseContentViewer';
+import { toast } from 'sonner';
 
 interface LearningDevelopmentProps {
   courses: Course[];
@@ -61,6 +63,8 @@ export function LearningDevelopment({
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [levelFilter, setLevelFilter] = useState<string>('all');
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [viewerOpen, setViewerOpen] = useState(false);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -96,6 +100,29 @@ export function LearningDevelopment({
         {level}
       </Badge>
     );
+  };
+
+  const handleOpenCourse = (course: Course) => {
+    // Find enrollment for this course
+    const enrollment = enrollments.find(e => e.courseId === course.id);
+    if (enrollment) {
+      setSelectedCourse(course);
+      setViewerOpen(true);
+    } else {
+      toast.error('You must enroll in this course first');
+    }
+  };
+
+  const handleProgressUpdate = (lessonId: string, progress: number) => {
+    toast.success('Progress updated');
+  };
+
+  const handleCompleteLesson = (lessonId: string) => {
+    toast.success('Lesson completed!');
+  };
+
+  const handleCompleteAssessment = (assessmentId: string, score: number) => {
+    toast.success(`Assessment completed with ${score.toFixed(0)}%!`);
   };
 
   const filteredCourses = courses.filter(course => {
@@ -240,7 +267,12 @@ export function LearningDevelopment({
                   </div>
 
                   <Button
-                    onClick={() => onStartCourse(enrollment.id)}
+                    onClick={() => {
+                      const course = courses.find(c => c.id === enrollment.courseId);
+                      if (course) {
+                        handleOpenCourse(course);
+                      }
+                    }}
                     disabled={enrollment.status === 'completed'}
                   >
                     {enrollment.status === 'completed' ? 'Completed' : 'Continue'}
@@ -622,6 +654,19 @@ export function LearningDevelopment({
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Course Content Viewer Dialog */}
+      {selectedCourse && (
+        <CourseContentViewer
+          open={viewerOpen}
+          onOpenChange={setViewerOpen}
+          course={selectedCourse}
+          enrollment={enrollments.find(e => e.courseId === selectedCourse.id)!}
+          onProgressUpdate={handleProgressUpdate}
+          onCompleteLesson={handleCompleteLesson}
+          onCompleteAssessment={handleCompleteAssessment}
+        />
+      )}
     </div>
   );
 }
