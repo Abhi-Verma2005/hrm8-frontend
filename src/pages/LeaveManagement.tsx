@@ -2,15 +2,21 @@ import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Calendar as CalendarIcon } from "lucide-react";
+import { Plus, Calendar as CalendarIcon, BarChart3 } from "lucide-react";
 import { LeaveBalanceCard } from "@/components/leave/LeaveBalanceCard";
 import { LeaveRequestCard } from "@/components/leave/LeaveRequestCard";
 import { LeaveRequestDialog } from "@/components/leave/LeaveRequestDialog";
+import { LeaveCalendar } from "@/components/leave/LeaveCalendar";
+import { LeaveBalanceOverview } from "@/components/leave/LeaveBalanceOverview";
+import { LeaveRequestDetailDialog } from "@/components/leave/LeaveRequestDetailDialog";
 import { getLeaveBalances, getLeaveRequests, approveLeaveRequest, rejectLeaveRequest } from "@/lib/leaveStorage";
 import { toast } from "sonner";
+import type { LeaveRequest } from "@/types/leave";
 
 export default function LeaveManagement() {
   const [requestDialogOpen, setRequestDialogOpen] = useState(false);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
 
   // Mock current user (in real app, this would come from auth context)
@@ -24,14 +30,19 @@ export default function LeaveManagement() {
     return getLeaveRequests({ status: 'pending' });
   }, [refreshKey]);
 
-  const handleApprove = (id: string) => {
-    approveLeaveRequest(id, currentEmployeeId, "Approved");
+  const handleViewRequest = (request: LeaveRequest) => {
+    setSelectedRequest(request);
+    setDetailDialogOpen(true);
+  };
+
+  const handleApprove = (id: string, notes: string) => {
+    approveLeaveRequest(id, currentEmployeeId, notes);
     toast.success("Leave request approved");
     setRefreshKey(prev => prev + 1);
   };
 
-  const handleReject = (id: string) => {
-    rejectLeaveRequest(id, currentEmployeeId, "Rejected");
+  const handleReject = (id: string, notes: string) => {
+    rejectLeaveRequest(id, currentEmployeeId, notes);
     toast.success("Leave request rejected");
     setRefreshKey(prev => prev + 1);
   };
@@ -67,6 +78,10 @@ export default function LeaveManagement() {
               <CalendarIcon className="mr-2 h-4 w-4" />
               Team Calendar
             </TabsTrigger>
+            <TabsTrigger value="overview">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              Overview
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="my-leave" className="space-y-6">
@@ -96,7 +111,11 @@ export default function LeaveManagement() {
               ) : (
                 <div className="grid gap-4 md:grid-cols-2">
                   {myRequests.map((request) => (
-                    <LeaveRequestCard key={request.id} request={request} />
+                    <LeaveRequestCard 
+                      key={request.id} 
+                      request={request}
+                      onView={() => handleViewRequest(request)}
+                    />
                   ))}
                 </div>
               )}
@@ -121,8 +140,11 @@ export default function LeaveManagement() {
                       key={request.id} 
                       request={request}
                       showActions
-                      onApprove={handleApprove}
-                      onReject={handleReject}
+                      onApprove={(id) => {
+                        setSelectedRequest(request);
+                        setDetailDialogOpen(true);
+                      }}
+                      onView={() => handleViewRequest(request)}
                     />
                   ))}
                 </div>
@@ -131,12 +153,16 @@ export default function LeaveManagement() {
           </TabsContent>
 
           <TabsContent value="calendar" className="space-y-6">
-            <div className="text-center py-12 border border-dashed rounded-lg">
-              <CalendarIcon className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Team Calendar</h3>
-              <p className="text-sm text-muted-foreground">
-                Visual calendar view coming soon
-              </p>
+            <LeaveCalendar />
+          </TabsContent>
+
+          <TabsContent value="overview" className="space-y-6">
+            <LeaveBalanceOverview balances={balances} year={2025} />
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {balances.map((balance) => (
+                <LeaveBalanceCard key={balance.id} balance={balance} />
+              ))}
             </div>
           </TabsContent>
         </Tabs>
@@ -148,6 +174,17 @@ export default function LeaveManagement() {
           employeeName={currentEmployeeName}
           onSuccess={() => setRefreshKey(prev => prev + 1)}
         />
+
+        {selectedRequest && (
+          <LeaveRequestDetailDialog
+            request={selectedRequest}
+            open={detailDialogOpen}
+            onOpenChange={setDetailDialogOpen}
+            canApprove={selectedRequest.status === 'pending'}
+            onApprove={handleApprove}
+            onReject={handleReject}
+          />
+        )}
       </div>
     </DashboardPageLayout>
   );
