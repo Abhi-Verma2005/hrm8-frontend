@@ -34,10 +34,16 @@ import {
   EmployeeCertification,
   SkillDevelopmentProgram,
   LearningAnalytics,
+  GamificationProfile,
+  Challenge,
+  Certificate as CertificateType,
 } from '@/types/performance';
 import { CourseContentViewer } from './CourseContentViewer';
 import { AILearningRecommendations } from './AILearningRecommendations';
 import { TeamLearningAnalytics } from './TeamLearningAnalytics';
+import { GamificationDashboard } from './GamificationDashboard';
+import { CertificateGallery } from './CertificateGallery';
+import { ChallengeCenter } from './ChallengeCenter';
 import { toast } from 'sonner';
 
 interface LearningDevelopmentProps {
@@ -61,6 +67,10 @@ interface LearningDevelopmentProps {
   goals?: any[];
   performanceGaps?: any[];
   showTeamAnalytics?: boolean;
+  gamificationProfile?: GamificationProfile;
+  challenges?: Challenge[];
+  certificates?: CertificateType[];
+  onJoinChallenge?: (challengeId: string) => void;
 }
 
 export function LearningDevelopment({
@@ -77,6 +87,10 @@ export function LearningDevelopment({
   goals = [],
   performanceGaps = [],
   showTeamAnalytics = false,
+  gamificationProfile,
+  challenges = [],
+  certificates = [],
+  onJoinChallenge,
 }: LearningDevelopmentProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
@@ -225,7 +239,7 @@ export function LearningDevelopment({
       </Card>
 
       {/* Analytics Overview */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Learning Hours</CardTitle>
@@ -254,26 +268,39 @@ export function LearningDevelopment({
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Certifications</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">XP Points</CardTitle>
+            <Trophy className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.certificationsEarned}</div>
+            <div className="text-2xl font-bold">{gamificationProfile?.totalPoints || 0}</div>
             <p className="text-xs text-muted-foreground">
-              Earned certifications
+              Level {gamificationProfile?.level || 1} • {gamificationProfile?.rank || 'Novice'}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Average Score</CardTitle>
+            <CardTitle className="text-sm font-medium">Badges Earned</CardTitle>
+            <Award className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{gamificationProfile?.badges.length || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              {certificates.length} certificates
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Leaderboard Rank</CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{analytics.averageAssessmentScore}%</div>
+            <div className="text-2xl font-bold">#{gamificationProfile?.rank || 'N/A'}</div>
             <p className="text-xs text-muted-foreground">
-              Assessment performance
+              {analytics.averageAssessmentScore}% avg score
             </p>
           </CardContent>
         </Card>
@@ -285,6 +312,18 @@ export function LearningDevelopment({
             <BookOpen className="h-4 w-4 mr-2" />
             My Learning
           </TabsTrigger>
+          <TabsTrigger value="achievements">
+            <Trophy className="h-4 w-4 mr-2" />
+            Achievements
+          </TabsTrigger>
+          <TabsTrigger value="certificates">
+            <Award className="h-4 w-4 mr-2" />
+            Certificates
+          </TabsTrigger>
+          <TabsTrigger value="challenges">
+            <Target className="h-4 w-4 mr-2" />
+            Challenges
+          </TabsTrigger>
           <TabsTrigger value="catalog">
             <Search className="h-4 w-4 mr-2" />
             Course Catalog
@@ -293,15 +332,37 @@ export function LearningDevelopment({
             <Target className="h-4 w-4 mr-2" />
             Training Paths
           </TabsTrigger>
-          <TabsTrigger value="certifications">
-            <Award className="h-4 w-4 mr-2" />
-            Certifications
-          </TabsTrigger>
           <TabsTrigger value="programs">
             <TrendingUp className="h-4 w-4 mr-2" />
             Development Programs
           </TabsTrigger>
         </TabsList>
+
+        {/* Achievements Tab */}
+        <TabsContent value="achievements" className="space-y-4">
+          {gamificationProfile && (
+            <GamificationDashboard
+              profile={gamificationProfile}
+              activeChallenges={challenges.filter(c => c.status === 'active')}
+            />
+          )}
+        </TabsContent>
+
+        {/* Certificates Tab */}
+        <TabsContent value="certificates" className="space-y-4">
+          {employeeData && (
+            <CertificateGallery employeeId={employeeData.id} />
+          )}
+        </TabsContent>
+
+        {/* Challenges Tab */}
+        <TabsContent value="challenges" className="space-y-4">
+          <ChallengeCenter
+            challenges={challenges}
+            currentEmployeeId={employeeData?.id || ''}
+            onJoinChallenge={onJoinChallenge}
+          />
+        </TabsContent>
 
         {/* My Learning Tab */}
         <TabsContent value="my-learning" className="space-y-4">
@@ -565,75 +626,6 @@ export function LearningDevelopment({
           </Card>
         </TabsContent>
 
-        {/* Certifications Tab */}
-        <TabsContent value="certifications" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>My Certifications</CardTitle>
-              <CardDescription>Track your professional certifications</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {certifications.map(cert => (
-                  <div key={cert.id} className="flex items-start gap-4 p-4 border rounded-lg">
-                    <div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                      <Award className="h-8 w-8 text-muted-foreground" />
-                    </div>
-                    
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h4 className="font-semibold">{cert.certificationTitle}</h4>
-                          <p className="text-sm text-muted-foreground">{cert.issuingOrganization}</p>
-                        </div>
-                        {getStatusBadge(cert.status)}
-                      </div>
-
-                      <div className="grid gap-2 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-3 w-3 text-muted-foreground" />
-                          <span>Issued: {new Date(cert.issuedDate).toLocaleDateString()}</span>
-                        </div>
-                        {cert.expiryDate && (
-                          <div className="flex items-center gap-2">
-                            <AlertCircle className="h-3 w-3 text-muted-foreground" />
-                            <span>Expires: {new Date(cert.expiryDate).toLocaleDateString()}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2">
-                          <FileText className="h-3 w-3 text-muted-foreground" />
-                          <span>Certificate #: {cert.certificateNumber}</span>
-                        </div>
-                        {cert.creditsEarned && (
-                          <div className="flex items-center gap-2">
-                            <Trophy className="h-3 w-3 text-muted-foreground" />
-                            <span>{cert.creditsEarned} credits earned</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onViewCertificate(cert.id)}
-                    >
-                      View Certificate
-                    </Button>
-                  </div>
-                ))}
-
-                {certifications.length === 0 && (
-                  <div className="text-center py-12 text-muted-foreground">
-                    <Award className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                    <p>No certifications yet</p>
-                    <p className="text-sm">Complete courses to earn certifications</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {/* Development Programs Tab */}
         <TabsContent value="programs" className="space-y-4">

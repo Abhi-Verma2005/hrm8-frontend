@@ -29,7 +29,11 @@ import { SuccessionPlanning } from "@/components/performance/SuccessionPlanning"
 import { LearningDevelopment } from "@/components/performance/LearningDevelopment";
 import { getPerformanceGoals, getPerformanceReviews, getFeedback360, getReviewTemplates, mockCompanyOKRs, mockTeamObjectives, getOneOnOneMeetings, getMeetingTemplates, saveOneOnOneMeeting, getReviewSchedules, getCalibrationSessions, saveCalibrationSession, updateCalibrationSession, getSkillsAssessments, saveSkillsAssessment, updateSkillsAssessment, getPIPs, updatePIP, getSuccessionPlans } from "@/lib/performanceStorage";
 import { getCourses, getTrainingPaths, getCourseEnrollments, getEmployeeCertifications, getSkillDevelopmentPrograms, getLearningAnalytics } from "@/lib/learningStorage";
+import { getGamificationProfile, saveGamificationProfile } from "@/lib/gamificationStorage";
+import { getCertificates } from "@/lib/certificateStorage";
+import { mockChallenges } from "@/data/mockGamificationData";
 import { getEmployees } from "@/lib/employeeStorage";
+import type { GamificationProfile } from "@/types/performance";
 import type { PerformanceGoal, PerformanceReview, OneOnOneMeeting, MeetingAgendaTemplate, ReviewSchedule, Feedback360, CalibrationSession, SkillAssessment, PerformanceImprovementPlan, PIPCheckIn } from "@/types/performance";
 import { mockCalibrationSessions } from "@/data/mockCalibrationData";
 import { mockSkillCategories, mockSkillAssessments, mockRoleSkillRequirements } from "@/data/mockSkillsData";
@@ -95,6 +99,31 @@ export default function PerformanceManagement() {
   const employeeCertifications = useMemo(() => getEmployeeCertifications(currentEmployeeId), [currentEmployeeId, refreshKey]);
   const skillDevelopmentPrograms = useMemo(() => getSkillDevelopmentPrograms(currentEmployeeId), [currentEmployeeId, refreshKey]);
   const learningAnalytics = useMemo(() => getLearningAnalytics(currentEmployeeId), [currentEmployeeId, refreshKey]);
+
+  // Gamification data
+  const gamificationProfile = useMemo(() => {
+    let profile = getGamificationProfile(currentEmployeeId);
+    if (!profile) {
+      // Create default profile
+      const defaultProfile: GamificationProfile = {
+        employeeId: currentEmployeeId,
+        totalPoints: 0,
+        level: 1,
+        rank: 'Novice',
+        badges: [],
+        streak: 0,
+        longestStreak: 0,
+        completedChallenges: [],
+        achievements: [],
+        lastActivity: new Date()
+      };
+      saveGamificationProfile(defaultProfile);
+      profile = defaultProfile;
+    }
+    return profile;
+  }, [currentEmployeeId, refreshKey]);
+  const challenges = useMemo(() => mockChallenges, [refreshKey]);
+  const myCertificates = useMemo(() => getCertificates(currentEmployeeId), [currentEmployeeId, refreshKey]);
 
   // Apply filters and sorting
   const myGoals = useMemo(() => {
@@ -265,6 +294,11 @@ export default function PerformanceManagement() {
 
   const handleViewCertificate = (certificationId: string) => {
     toast.success("Opening certificate");
+  };
+
+  const handleJoinChallenge = (challengeId: string) => {
+    toast.success("Joined challenge successfully!");
+    setRefreshKey(prev => prev + 1);
   };
 
   return (
@@ -681,6 +715,10 @@ export default function PerformanceManagement() {
               goals={allGoals}
               performanceGaps={[]}
               showTeamAnalytics={currentUserRole === 'hr'}
+              gamificationProfile={gamificationProfile}
+              challenges={challenges}
+              certificates={myCertificates}
+              onJoinChallenge={handleJoinChallenge}
             />
           </TabsContent>
 
