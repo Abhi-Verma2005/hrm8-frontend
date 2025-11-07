@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { OnboardingWorkflowCard } from "@/components/onboarding/OnboardingWorkflowCard";
 import { OnboardingWorkflowDialog } from "@/components/onboarding/OnboardingWorkflowDialog";
@@ -129,6 +130,20 @@ export default function OnboardingManagement() {
     setSelectedWorkflowIds(new Set());
   };
 
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      const allIds = new Set(filteredWorkflows.map(w => w.id));
+      setSelectedWorkflowIds(allIds);
+    } else {
+      setSelectedWorkflowIds(new Set());
+    }
+  };
+
+  const isAllSelected = filteredWorkflows.length > 0 && 
+    filteredWorkflows.every(w => selectedWorkflowIds.has(w.id));
+  
+  const isSomeSelected = filteredWorkflows.some(w => selectedWorkflowIds.has(w.id)) && !isAllSelected;
+
   return (
     <DashboardPageLayout
       breadcrumbActions={
@@ -221,7 +236,17 @@ export default function OnboardingManagement() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+          <div className="flex items-center gap-2 border rounded-md px-3 h-10">
+            <Checkbox
+              checked={isAllSelected ? true : isSomeSelected ? "indeterminate" : false}
+              onCheckedChange={handleSelectAll}
+            />
+            <span className="text-sm font-medium">
+              {isAllSelected ? "Deselect All" : "Select All"}
+            </span>
+          </div>
+
           <Input
             placeholder="Search by name, email, or job title..."
             value={searchQuery}
