@@ -8,6 +8,7 @@ import { HeaderQuickActions } from "./HeaderQuickActions";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { ReactNode } from 'react';
 
 interface DashboardHeaderProps {
@@ -50,7 +51,8 @@ export function DashboardHeader({ breadcrumbActions }: DashboardHeaderProps = {}
 
           <HeaderQuickActions />
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             <NotificationsDropdown />
             <UserNav />
           </div>

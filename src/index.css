@@ -14,11 +14,21 @@ All colors MUST be HSL.
     --primary-hover: 235 87% 60%;
     --primary-light: 235 87% 95%;
     
-    /* Supporting Colors */
+    /* Supporting Colors - Vibrant & Professional */
     --secondary: 220 13% 91%;
     --secondary-foreground: 222 47% 11%;
-    --accent: 280 65% 60%;
+    --accent: 175 60% 50%;
     --accent-foreground: 0 0% 100%;
+    
+    /* Complementary Vibrant Colors */
+    --coral: 15 85% 62%;
+    --coral-foreground: 0 0% 100%;
+    --teal: 180 70% 45%;
+    --teal-foreground: 0 0% 100%;
+    --purple: 270 70% 65%;
+    --purple-foreground: 0 0% 100%;
+    --orange: 25 95% 53%;
+    --orange-foreground: 0 0% 100%;
     
     /* Success/Warning/Error */
     --success: 142 71% 45%;
@@ -56,10 +66,12 @@ All colors MUST be HSL.
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 235 87% 65%;
     
-    /* Gradients */
+    /* Gradients - Modern & Vibrant */
     --gradient-primary: linear-gradient(135deg, hsl(235 87% 65%) 0%, hsl(250 60% 58%) 100%);
-    --gradient-accent: linear-gradient(135deg, hsl(280 65% 60%) 0%, hsl(235 87% 65%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(175 60% 50%) 0%, hsl(180 70% 45%) 100%);
+    --gradient-coral: linear-gradient(135deg, hsl(15 85% 62%) 0%, hsl(25 95% 53%) 100%);
     --gradient-soft: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(235 87% 98%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(235 87% 65%) 0%, hsl(175 60% 50%) 50%, hsl(15 85% 62%) 100%);
     
     /* Shadows */
     --shadow-sm: 0 1px 2px 0 hsl(235 87% 65% / 0.05);
@@ -134,8 +146,18 @@ All colors MUST be HSL.
     --chart-4: 38 92% 55%;
     --chart-5: 250 60% 63%;
     
+    /* Gradients - Dark Mode */
     --gradient-primary: linear-gradient(135deg, hsl(235 87% 65%) 0%, hsl(250 60% 58%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(175 60% 50%) 0%, hsl(180 70% 45%) 100%);
+    --gradient-coral: linear-gradient(135deg, hsl(15 85% 62%) 0%, hsl(25 95% 53%) 100%);
     --gradient-soft: linear-gradient(180deg, hsl(222 47% 11%) 0%, hsl(235 87% 15%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(235 87% 65%) 0%, hsl(175 60% 50%) 50%, hsl(15 85% 62%) 100%);
+    
+    /* Complementary Colors - Dark Mode */
+    --coral: 15 85% 68%;
+    --teal: 180 70% 50%;
+    --purple: 270 70% 70%;
+    --orange: 25 95% 58%;
   }
 }
 
@@ -184,6 +206,14 @@ All colors MUST be HSL.
   
   .gradient-accent {
     background: var(--gradient-accent);
+  }
+  
+  .gradient-coral {
+    background: var(--gradient-coral);
+  }
+  
+  .gradient-hero {
+    background: var(--gradient-hero);
   }
   
   .gradient-soft {
