@@ -50,9 +50,9 @@ export function createERCase(caseData: Omit<ERCase, 'id' | 'caseNumber' | 'creat
   return newCase;
 }
 
-export function updateERCase(id: string, updates: Partial<ERCase>): ERCase | null {
+export function updateERCase(id: string, updates: Partial<ERCase>): boolean {
   const index = cases.findIndex((c) => c.id === id);
-  if (index === -1) return null;
+  if (index === -1) return false;
 
   cases[index] = {
     ...cases[index],
@@ -60,7 +60,7 @@ export function updateERCase(id: string, updates: Partial<ERCase>): ERCase | nul
     updatedAt: new Date().toISOString(),
   };
 
-  return cases[index];
+  return true;
 }
 
 export function addInvestigationNote(caseId: string, note: Omit<InvestigationNote, 'id' | 'caseId' | 'timestamp'>): InvestigationNote {

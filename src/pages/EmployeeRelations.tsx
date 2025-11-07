@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Shield, Plus, FileText, AlertCircle, Clock, CheckCircle2, TrendingUp, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
-import { getERCases, getERCaseStats, deleteERCase } from "@/lib/employeeRelationsStorage";
+import { getERCases, getERCaseStats, deleteERCase, updateERCase } from "@/lib/employeeRelationsStorage";
 import { Badge } from "@/components/ui/badge";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { ERCase } from "@/types/employeeRelations";
@@ -74,16 +74,37 @@ export default function EmployeeRelations() {
     }
   };
 
+  const handleRowUpdate = (id: string, updates: Partial<ERCase>) => {
+    const success = updateERCase(id, updates);
+    if (success) {
+      toast.success("Case updated successfully");
+      setRefreshKey(prev => prev + 1);
+    } else {
+      toast.error("Failed to update case");
+    }
+  };
+
   const caseColumns: Column<ERCase>[] = [
     {
       key: "caseNumber",
       label: "Case #",
       sortable: true,
+      editable: true,
+      editFieldType: "text",
     },
     {
       key: "type",
       label: "Type",
       sortable: true,
+      editable: true,
+      editFieldType: "select",
+      editSelectOptions: [
+        { value: "complaint", label: "Complaint" },
+        { value: "investigation", label: "Investigation" },
+        { value: "disciplinary", label: "Disciplinary" },
+        { value: "dispute", label: "Dispute" },
+        { value: "other", label: "Other" },
+      ],
       render: (erCase) => (
         <Badge variant="outline">{erCase.type}</Badge>
       ),
@@ -92,6 +113,17 @@ export default function EmployeeRelations() {
       key: "category",
       label: "Category",
       sortable: true,
+      editable: true,
+      editFieldType: "select",
+      editSelectOptions: [
+        { value: "harassment", label: "Harassment" },
+        { value: "discrimination", label: "Discrimination" },
+        { value: "policy-violation", label: "Policy Violation" },
+        { value: "performance", label: "Performance" },
+        { value: "misconduct", label: "Misconduct" },
+        { value: "workplace-conflict", label: "Workplace Conflict" },
+        { value: "other", label: "Other" },
+      ],
       render: (erCase) => (
         <Badge variant="secondary">{erCase.category}</Badge>
       ),
@@ -100,6 +132,14 @@ export default function EmployeeRelations() {
       key: "priority",
       label: "Priority",
       sortable: true,
+      editable: true,
+      editFieldType: "select",
+      editSelectOptions: [
+        { value: "low", label: "Low" },
+        { value: "medium", label: "Medium" },
+        { value: "high", label: "High" },
+        { value: "urgent", label: "Urgent" },
+      ],
       render: (erCase) => {
         const priority = erCase.priority;
         const colors = {
@@ -119,6 +159,15 @@ export default function EmployeeRelations() {
       key: "status",
       label: "Status",
       sortable: true,
+      editable: true,
+      editFieldType: "select",
+      editSelectOptions: [
+        { value: "open", label: "Open" },
+        { value: "investigating", label: "Investigating" },
+        { value: "pending-action", label: "Pending Action" },
+        { value: "resolved", label: "Resolved" },
+        { value: "closed", label: "Closed" },
+      ],
       render: (erCase) => {
         const status = erCase.status;
         const colors = {
@@ -372,6 +421,8 @@ export default function EmployeeRelations() {
                     presetStorageKey="er-cases-filter-presets"
                     columnCustomization={true}
                     columnPreferenceKey="er-cases-columns"
+                    inlineEditing={true}
+                    onRowUpdate={handleRowUpdate}
                     renderBulkActions={(selectedIds) => (
                       <Button
                         variant="destructive"

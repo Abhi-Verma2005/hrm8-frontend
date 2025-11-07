@@ -15,6 +15,7 @@ import { TablePagination } from "./TablePagination";
 import { DataTableExport } from "./DataTableExport";
 import { AdvancedFilters, DateRangeFilter, MultiSelectFilter, FilterPreset } from "./AdvancedFilters";
 import { ColumnCustomization } from "./ColumnCustomization";
+import { EditableCell, EditableFieldType, SelectOption } from "./EditableCell";
 
 export interface Column<T> {
   key: string;
@@ -22,6 +23,9 @@ export interface Column<T> {
   sortable?: boolean;
   width?: string;
   render?: (item: T) => React.ReactNode;
+  editable?: boolean;
+  editFieldType?: EditableFieldType;
+  editSelectOptions?: SelectOption[];
 }
 
 interface DataTableProps<T> {
@@ -50,6 +54,9 @@ interface DataTableProps<T> {
   // Column customization
   columnCustomization?: boolean;
   columnPreferenceKey?: string;
+  // Inline editing
+  inlineEditing?: boolean;
+  onRowUpdate?: (id: string, updates: Partial<T>) => void;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -75,7 +82,9 @@ export function DataTable<T extends { id: string }>({
   enableFilterPresets = false,
   presetStorageKey = "table-filter-presets",
   columnCustomization = false,
-  columnPreferenceKey = "table-column-preferences"
+  columnPreferenceKey = "table-column-preferences",
+  inlineEditing = false,
+  onRowUpdate,
 }: DataTableProps<T>) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -84,6 +93,9 @@ export function DataTable<T extends { id: string }>({
   const [typeFilterValue, setTypeFilterValue] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  
+  // Inline editing state
+  const [editingCell, setEditingCell] = useState<{ rowId: string; columnKey: string } | null>(null);
   
   // Advanced filtering state
   const [dateRangeFilters, setDateRangeFilters] = useState<DateRangeFilter[]>(initialDateRangeFilters);
@@ -242,6 +254,24 @@ export function DataTable<T extends { id: string }>({
       localStorage.removeItem(`${columnPreferenceKey}-visible`);
       localStorage.removeItem(`${columnPreferenceKey}-order`);
     }
+  };
+
+  // Inline editing handlers
+  const handleStartEdit = (rowId: string, columnKey: string) => {
+    if (inlineEditing) {
+      setEditingCell({ rowId, columnKey });
+    }
+  };
+
+  const handleSaveEdit = (rowId: string, columnKey: string, value: any) => {
+    if (onRowUpdate) {
+      onRowUpdate(rowId, { [columnKey]: value } as Partial<T>);
+    }
+    setEditingCell(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCell(null);
   };
 
   // Get visible and ordered columns
@@ -503,9 +533,25 @@ export function DataTable<T extends { id: string }>({
                   )}
                   {displayColumns.map((column) => (
                     <TableCell key={column.key} style={{ width: column.width }}>
-                      {column.render
-                        ? column.render(item)
-                        : String(item[column.key as keyof T] ?? '')}
+                      {inlineEditing && column.editable ? (
+                        <EditableCell
+                          value={item[column.key as keyof T]}
+                          onSave={(value) => handleSaveEdit(item.id, column.key, value)}
+                          onCancel={handleCancelEdit}
+                          fieldType={column.editFieldType}
+                          selectOptions={column.editSelectOptions}
+                          isEditing={
+                            editingCell?.rowId === item.id &&
+                            editingCell?.columnKey === column.key
+                          }
+                          onStartEdit={() => handleStartEdit(item.id, column.key)}
+                          renderView={column.render}
+                        />
+                      ) : column.render ? (
+                        column.render(item)
+                      ) : (
+                        String(item[column.key as keyof T] ?? '')
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
