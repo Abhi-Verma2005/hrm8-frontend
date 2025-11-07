@@ -24,9 +24,9 @@ export const getStatusBadgeVariant = (status: string): BadgeProps['variant'] => 
     'rejected': 'destructive',
     'cancelled': 'destructive',
     
-    // Assigned/Busy states (Blue)
-    'Assigned': 'info',
-    'Busy': 'info',
+    // Assigned/Busy states (Primary)
+    'Assigned': 'default',
+    'Busy': 'default',
   };
   
   return statusMap[status] || 'outline';
@@ -35,16 +35,16 @@ export const getStatusBadgeVariant = (status: string): BadgeProps['variant'] => 
 // Industry/Category badge variants (Visual variety)
 export const getIndustryBadgeVariant = (industry: string): BadgeProps['variant'] => {
   const industryMap: Record<string, BadgeProps['variant']> = {
-    'Technology': 'info',
+    'Technology': 'default',
     'Finance': 'teal',
     'Healthcare': 'success',
     'Retail': 'purple',
-    'Education': 'indigo',
+    'Education': 'purple',
     'Manufacturing': 'neutral',
-    'Media': 'pink',
-    'Construction': 'amber',
-    'Consulting': 'info',
-    'Legal': 'indigo',
+    'Media': 'coral',
+    'Construction': 'orange',
+    'Consulting': 'default',
+    'Legal': 'purple',
   };
   
   return industryMap[industry] || 'neutral';
@@ -53,11 +53,11 @@ export const getIndustryBadgeVariant = (industry: string): BadgeProps['variant']
 // Job type badge variants
 export const getJobTypeBadgeVariant = (type: string): BadgeProps['variant'] => {
   const typeMap: Record<string, BadgeProps['variant']> = {
-    'Full-time': 'info',
+    'Full-time': 'default',
     'Part-time': 'purple',
-    'Contract': 'amber',
+    'Contract': 'orange',
     'Temporary': 'teal',
-    'Internship': 'pink',
+    'Internship': 'coral',
   };
   
   return typeMap[type] || 'neutral';
@@ -66,13 +66,13 @@ export const getJobTypeBadgeVariant = (type: string): BadgeProps['variant'] => {
 // Specialization badge variants
 export const getSpecializationBadgeVariant = (spec: string): BadgeProps['variant'] => {
   const specMap: Record<string, BadgeProps['variant']> = {
-    'IT': 'info',
+    'IT': 'default',
     'Finance': 'teal',
     'HR': 'purple',
-    'Operations': 'amber',
-    'Marketing': 'pink',
-    'Legal': 'indigo',
-    'Change Management': 'info',
+    'Operations': 'orange',
+    'Marketing': 'coral',
+    'Legal': 'purple',
+    'Change Management': 'default',
     'Risk': 'destructive',
   };
   
@@ -80,7 +80,7 @@ export const getSpecializationBadgeVariant = (spec: string): BadgeProps['variant
 };
 
 // Skill badge variants (consistent color per skill)
-const skillColors: BadgeProps['variant'][] = ['info', 'purple', 'teal', 'indigo', 'pink', 'amber'];
+const skillColors: BadgeProps['variant'][] = ['default', 'purple', 'teal', 'coral', 'orange'];
 
 export const getSkillBadgeVariant = (skill: string, index: number): BadgeProps['variant'] => {
   // Use skill string hash for consistent color per skill

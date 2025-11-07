@@ -64,7 +64,7 @@ export function getJobStatusVariant(status: Job['status']): BadgeProps['variant'
     'open': 'success',
     'closed': 'outline',
     'on-hold': 'warning',
-    'filled': 'info',
+    'filled': 'default',
   };
   
   return statusMap[status] || 'outline';
@@ -72,9 +72,9 @@ export function getJobStatusVariant(status: Job['status']): BadgeProps['variant'
 
 export function getEmploymentTypeVariant(type: Job['employmentType']): BadgeProps['variant'] {
   const typeMap: Record<Job['employmentType'], BadgeProps['variant']> = {
-    'full-time': 'info',
+    'full-time': 'default',
     'part-time': 'purple',
-    'contract': 'amber',
+    'contract': 'orange',
     'casual': 'teal',
   };
   
@@ -84,10 +84,10 @@ export function getEmploymentTypeVariant(type: Job['employmentType']): BadgeProp
 export function getServiceTypeVariant(type: Job['serviceType']): BadgeProps['variant'] {
   const serviceMap: Record<Job['serviceType'], BadgeProps['variant']> = {
     'self-managed': 'neutral',
-    'shortlisting': 'info',
+    'shortlisting': 'default',
     'full-service': 'success',
     'executive-search': 'purple',
-    'rpo': 'indigo',
+    'rpo': 'purple',
   };
   
   return serviceMap[type] || 'neutral';

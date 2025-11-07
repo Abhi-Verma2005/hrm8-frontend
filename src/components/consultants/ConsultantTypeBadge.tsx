@@ -6,14 +6,14 @@ interface ConsultantTypeBadgeProps {
 }
 
 export function ConsultantTypeBadge({ type }: ConsultantTypeBadgeProps) {
-  const config = {
-    'sales-rep': { label: 'Sales Rep', className: 'bg-blue-100 text-blue-800 hover:bg-blue-100' },
-    'recruiter': { label: 'Recruiter', className: 'bg-green-100 text-green-800 hover:bg-green-100' },
-    '360-consultant': { label: '360 Consultant', className: 'bg-purple-100 text-purple-800 hover:bg-purple-100' },
-    'industry-partner': { label: 'Industry Partner', className: 'bg-orange-100 text-orange-800 hover:bg-orange-100' },
+  const config: Record<ConsultantType, { label: string; variant: "default" | "teal" | "purple" | "coral" }> = {
+    'sales-rep': { label: 'Sales Rep', variant: 'default' },
+    'recruiter': { label: 'Recruiter', variant: 'teal' },
+    '360-consultant': { label: '360 Consultant', variant: 'purple' },
+    'industry-partner': { label: 'Industry Partner', variant: 'coral' },
   };
 
-  const { label, className } = config[type];
+  const { label, variant } = config[type];
 
-  return <Badge variant="secondary" className={className}>{label}</Badge>;
+  return <Badge variant={variant}>{label}</Badge>;
 }

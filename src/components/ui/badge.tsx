@@ -17,13 +17,17 @@ const badgeVariants = cva(
         success: "border-transparent bg-success text-success-foreground hover:bg-success/80",
         warning: "border-transparent bg-warning text-warning-foreground hover:bg-warning/80",
         
-        // Category Variants (Soft/Pastel colors for visual differentiation)
-        info: "border-transparent bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/30 dark:text-blue-300",
-        purple: "border-transparent bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-300",
-        amber: "border-transparent bg-amber-100 text-amber-700 hover:bg-amber-200 dark:bg-amber-900/30 dark:text-amber-300",
-        teal: "border-transparent bg-teal-100 text-teal-700 hover:bg-teal-200 dark:bg-teal-900/30 dark:text-teal-300",
-        indigo: "border-transparent bg-indigo-100 text-indigo-700 hover:bg-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300",
-        pink: "border-transparent bg-pink-100 text-pink-700 hover:bg-pink-200 dark:bg-pink-900/30 dark:text-pink-300",
+        // Vibrant Brand Colors (Design System)
+        coral: "border-transparent bg-coral text-coral-foreground hover:bg-coral/80 shadow-sm",
+        teal: "border-transparent bg-teal text-teal-foreground hover:bg-teal/80 shadow-sm",
+        purple: "border-transparent bg-purple text-purple-foreground hover:bg-purple/80 shadow-sm",
+        orange: "border-transparent bg-orange text-orange-foreground hover:bg-orange/80 shadow-sm",
+        
+        // Soft Variants for subtle distinction
+        "coral-soft": "border-coral/20 bg-coral/10 text-coral hover:bg-coral/20",
+        "teal-soft": "border-teal/20 bg-teal/10 text-teal hover:bg-teal/20",
+        "purple-soft": "border-purple/20 bg-purple/10 text-purple hover:bg-purple/20",
+        "orange-soft": "border-orange/20 bg-orange/10 text-orange hover:bg-orange/20",
         
         // Neutral variant for non-critical info
         neutral: "border-transparent bg-muted text-muted-foreground hover:bg-muted/80",

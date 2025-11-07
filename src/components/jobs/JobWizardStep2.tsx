@@ -28,14 +28,14 @@ interface JobWizardStep2Props {
 }
 
 const STANDARD_TAGS = ["Urgent", "Remote-first", "Hybrid", "Fast-track", "Equity included", "Relocation assistance", "Visa sponsorship", "Entry-level friendly", "Senior role", "Leadership position", "Contract-to-hire", "Flexible hours"];
-const getTagVariant = (tag: string): "destructive" | "info" | "purple" | "amber" | "teal" | "indigo" | "secondary" => {
+const getTagVariant = (tag: string): "destructive" | "default" | "purple" | "orange" | "teal" | "secondary" => {
   const tagLower = tag.toLowerCase();
   if (tagLower === 'urgent' || tagLower === 'fast-track') return 'destructive';
-  if (tagLower === 'remote-first' || tagLower === 'flexible hours') return 'info';
+  if (tagLower === 'remote-first' || tagLower === 'flexible hours') return 'default';
   if (tagLower === 'hybrid') return 'purple';
-  if (tagLower === 'equity included' || tagLower === 'relocation assistance' || tagLower === 'visa sponsorship') return 'amber';
+  if (tagLower === 'equity included' || tagLower === 'relocation assistance' || tagLower === 'visa sponsorship') return 'orange';
   if (tagLower === 'entry-level friendly' || tagLower === 'senior role' || tagLower === 'leadership position') return 'teal';
-  if (tagLower === 'contract-to-hire') return 'indigo';
+  if (tagLower === 'contract-to-hire') return 'purple';
   return 'secondary';
 };
 

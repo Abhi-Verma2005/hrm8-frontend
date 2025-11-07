@@ -6,11 +6,11 @@ interface EmployeeStatusBadgeProps {
 }
 
 export function EmployeeStatusBadge({ status }: EmployeeStatusBadgeProps) {
-  const variants: Record<EmployeeStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-    'active': { label: 'Active', variant: 'default' },
-    'on-leave': { label: 'On Leave', variant: 'secondary' },
-    'notice-period': { label: 'Notice Period', variant: 'outline' },
-    'inactive': { label: 'Inactive', variant: 'secondary' },
+  const variants: Record<EmployeeStatus, { label: string; variant: "success" | "orange" | "coral" | "neutral" | "destructive" }> = {
+    'active': { label: 'Active', variant: 'success' },
+    'on-leave': { label: 'On Leave', variant: 'orange' },
+    'notice-period': { label: 'Notice Period', variant: 'coral' },
+    'inactive': { label: 'Inactive', variant: 'neutral' },
     'terminated': { label: 'Terminated', variant: 'destructive' },
   };
 

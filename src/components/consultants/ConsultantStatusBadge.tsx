@@ -6,14 +6,14 @@ interface ConsultantStatusBadgeProps {
 }
 
 export function ConsultantStatusBadge({ status }: ConsultantStatusBadgeProps) {
-  const config = {
-    'active': { label: 'Active', className: 'bg-green-100 text-green-800 hover:bg-green-100' },
-    'on-leave': { label: 'On Leave', className: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-100' },
-    'inactive': { label: 'Inactive', className: 'bg-gray-100 text-gray-800 hover:bg-gray-100' },
-    'suspended': { label: 'Suspended', className: 'bg-red-100 text-red-800 hover:bg-red-100' },
+  const config: Record<ConsultantStatus, { label: string; variant: "success" | "orange" | "neutral" | "destructive" }> = {
+    'active': { label: 'Active', variant: 'success' },
+    'on-leave': { label: 'On Leave', variant: 'orange' },
+    'inactive': { label: 'Inactive', variant: 'neutral' },
+    'suspended': { label: 'Suspended', variant: 'destructive' },
   };
 
-  const { label, className } = config[status];
+  const { label, variant } = config[status];
 
-  return <Badge variant="secondary" className={className}>{label}</Badge>;
+  return <Badge variant={variant}>{label}</Badge>;
 }

@@ -6,10 +6,10 @@ interface CandidateStatusBadgeProps {
 }
 
 export function CandidateStatusBadge({ status }: CandidateStatusBadgeProps) {
-  const variants: Record<Candidate['status'], { variant: 'default' | 'secondary' | 'success' | 'destructive' | 'outline' | 'info', label: string }> = {
+  const variants: Record<Candidate['status'], { variant: 'success' | 'teal' | 'neutral', label: string }> = {
     active: { variant: 'success', label: 'Active' },
-    placed: { variant: 'info', label: 'Placed' },
-    inactive: { variant: 'secondary', label: 'Inactive' },
+    placed: { variant: 'teal', label: 'Placed' },
+    inactive: { variant: 'neutral', label: 'Inactive' },
   };
 
   const { variant, label } = variants[status];
