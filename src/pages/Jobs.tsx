@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3 } from "lucide-react";
+import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3, Filter, X } from "lucide-react";
 import { StatsCard } from "@/components/ui/stats-card";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { getJobs, deleteJob, getJobById } from "@/lib/mockJobStorage";
@@ -36,6 +36,11 @@ import {
 import { JobsFilterBar } from "@/components/jobs/JobsFilterBar";
 import { getCountryFromLocation, expandRegionsToCountries, REGION_COUNTRY_MAP, getRegionForCountry } from "@/lib/countryRegions";
 import { JobPostingCostDialog } from "@/components/jobs/JobPostingCostDialog";
+import { AdvancedFilterBuilder } from "@/components/jobs/filters/AdvancedFilterBuilder";
+import { SavedFiltersPanel } from "@/components/jobs/filters/SavedFiltersPanel";
+import { BulkActionsToolbar } from "@/components/jobs/bulk/BulkActionsToolbar";
+import { FilterCriteria, SavedFilter } from "@/lib/savedFiltersService";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export default function Jobs() {
   const { toast } = useToast();
@@ -54,6 +59,12 @@ export default function Jobs() {
   const [selectedConsultant, setSelectedConsultant] = useState("all");
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [selectedService, setSelectedService] = useState("all");
+  
+  // Advanced filters
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [showSavedFilters, setShowSavedFilters] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState<FilterCriteria>({});
+  const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
 
   const jobs = useMemo(() => getJobs(), [refreshKey]);
 
@@ -147,8 +158,6 @@ export default function Jobs() {
       // Consultant filter
       if (selectedConsultant !== 'all') {
         if (selectedConsultant === 'my-jobs') {
-          // For demo purposes, we'll filter by createdBy
-          // In a real app, this would check against the current user ID
           if (job.createdBy !== 'admin-1') return false;
         } else {
           const consultantName = job.assignedConsultantName || 'Unassigned';
@@ -167,9 +176,36 @@ export default function Jobs() {
         if (job.serviceType !== selectedService) return false;
       }
 
+      // Advanced filters
+      if (advancedFilters.status && advancedFilters.status.length > 0) {
+        if (!advancedFilters.status.includes(job.status)) return false;
+      }
+
+      if (advancedFilters.department && advancedFilters.department.length > 0) {
+        if (!advancedFilters.department.includes(job.department)) return false;
+      }
+
+      if (advancedFilters.employmentType && advancedFilters.employmentType.length > 0) {
+        if (!advancedFilters.employmentType.includes(job.employmentType)) return false;
+      }
+
+      if (advancedFilters.experienceLevel && advancedFilters.experienceLevel.length > 0) {
+        if (!advancedFilters.experienceLevel.includes(job.experienceLevel)) return false;
+      }
+
+      if (advancedFilters.salaryRange) {
+        if (advancedFilters.salaryRange.min && job.salaryMax && job.salaryMax < advancedFilters.salaryRange.min) return false;
+        if (advancedFilters.salaryRange.max && job.salaryMin && job.salaryMin > advancedFilters.salaryRange.max) return false;
+      }
+
+      if (advancedFilters.applicantRange) {
+        if (advancedFilters.applicantRange.min && job.applicantsCount < advancedFilters.applicantRange.min) return false;
+        if (advancedFilters.applicantRange.max && job.applicantsCount > advancedFilters.applicantRange.max) return false;
+      }
+
       return true;
     });
-  }, [jobs, searchValue, selectedConsultant, selectedLocation, selectedService]);
+  }, [jobs, searchValue, selectedConsultant, selectedLocation, selectedService, advancedFilters]);
 
   const handleDelete = (id: string) => {
     setJobToDelete(id);
@@ -241,6 +277,62 @@ export default function Jobs() {
     setEditingJobId(null);
     setShowServiceDialog(false);
   };
+
+  const handleApplyAdvancedFilters = (filters: FilterCriteria) => {
+    setAdvancedFilters(filters);
+    setShowAdvancedFilters(false);
+  };
+
+  const handleSelectSavedFilter = (filter: SavedFilter) => {
+    setAdvancedFilters(filter.filters);
+    setShowSavedFilters(false);
+    toast({
+      title: "Filter applied",
+      description: `"${filter.name}" filter has been applied.`,
+    });
+  };
+
+  const handleBulkAction = (action: string) => {
+    if (action.startsWith('status:')) {
+      const status = action.split(':')[1];
+      toast({
+        title: "Status updated",
+        description: `${selectedJobs.length} job(s) status changed to ${status}.`,
+      });
+    } else if (action.startsWith('assign:')) {
+      const consultant = action.split(':')[1];
+      toast({
+        title: "Consultant assigned",
+        description: `${selectedJobs.length} job(s) assigned to ${consultant}.`,
+      });
+    } else if (action === 'archive') {
+      toast({
+        title: "Jobs archived",
+        description: `${selectedJobs.length} job(s) have been archived.`,
+      });
+    } else if (action === 'delete') {
+      if (confirm(`Delete ${selectedJobs.length} selected job(s)?`)) {
+        selectedJobs.forEach(id => deleteJob(id));
+        setSelectedJobs([]);
+        setRefreshKey(prev => prev + 1);
+        toast({
+          title: "Jobs deleted",
+          description: `${selectedJobs.length} job(s) have been deleted.`,
+        });
+      }
+    }
+  };
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (advancedFilters.status?.length) count++;
+    if (advancedFilters.department?.length) count++;
+    if (advancedFilters.employmentType?.length) count++;
+    if (advancedFilters.experienceLevel?.length) count++;
+    if (advancedFilters.salaryRange?.min || advancedFilters.salaryRange?.max) count++;
+    if (advancedFilters.applicantRange?.min || advancedFilters.applicantRange?.max) count++;
+    return count;
+  }, [advancedFilters]);
 
   const editingJobData = editingJobId ? (() => {
     const job = getJobById(editingJobId);
@@ -467,6 +559,13 @@ export default function Jobs() {
             <p className="text-muted-foreground">Create and manage job postings</p>
           </div>
           <div className="flex gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => setShowSavedFilters(!showSavedFilters)}
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Saved Filters
+            </Button>
             <Button onClick={handleCreateJob}>
               <Plus className="h-4 w-4 mr-2" />
               Create Job
@@ -507,62 +606,66 @@ export default function Jobs() {
           />
         </div>
 
-        <JobsFilterBar
-          searchValue={searchValue}
-          onSearchChange={setSearchValue}
-          selectedConsultants={selectedConsultant === 'all' ? [] : [selectedConsultant]}
-          onConsultantsChange={(consultants) => setSelectedConsultant(consultants[0] || 'all')}
-          selectedLocations={selectedLocation === 'all' ? [] : [selectedLocation]}
-          onLocationsChange={(locations) => setSelectedLocation(locations[0] || 'all')}
-          selectedService={selectedService}
-          onServiceChange={setSelectedService}
-          consultantOptions={uniqueConsultants}
-          locationOptions={locationOptions}
-          currentUserId="admin-1"
-        />
+        {showSavedFilters && (
+          <SavedFiltersPanel onSelectFilter={handleSelectSavedFilter} />
+        )}
 
-          <DataTable
-            data={filteredJobs}
-            columns={columns}
-            searchable={false}
-            selectable
-            renderBulkActions={(selectedIds) => (
-              <>
-                <Button variant="outline" size="sm" onClick={() => {
-                  toast({
-                    title: "Bulk Edit",
-                    description: `Edit ${selectedIds.length} job${selectedIds.length !== 1 ? 's' : ''}`,
-                  });
-                }}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Edit Selected
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => {
-                  toast({
-                    title: "Jobs Archived",
-                    description: `Archived ${selectedIds.length} job${selectedIds.length !== 1 ? 's' : ''}`,
-                  });
-                }}>
-                  <Archive className="mr-2 h-4 w-4" />
-                  Archive Selected
-                </Button>
-                <Button variant="destructive" size="sm" onClick={() => {
-                  if (confirm(`Delete ${selectedIds.length} selected job${selectedIds.length !== 1 ? 's' : ''}?`)) {
-                    selectedIds.forEach(id => deleteJob(id));
-                    toast({
-                      title: "Jobs Deleted",
-                      description: `Deleted ${selectedIds.length} job${selectedIds.length !== 1 ? 's' : ''}`,
-                    });
-                    window.location.reload();
-                  }
-                }}>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Selected
-                </Button>
-              </>
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <JobsFilterBar
+              searchValue={searchValue}
+              onSearchChange={setSearchValue}
+              selectedConsultants={selectedConsultant === 'all' ? [] : [selectedConsultant]}
+              onConsultantsChange={(consultants) => setSelectedConsultant(consultants[0] || 'all')}
+              selectedLocations={selectedLocation === 'all' ? [] : [selectedLocation]}
+              onLocationsChange={(locations) => setSelectedLocation(locations[0] || 'all')}
+              selectedService={selectedService}
+              onServiceChange={setSelectedService}
+              consultantOptions={uniqueConsultants}
+              locationOptions={locationOptions}
+              currentUserId="admin-1"
+            />
+          </div>
+          <Button
+            variant={showAdvancedFilters ? "default" : "outline"}
+            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+            className="shrink-0"
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Advanced
+            {activeFilterCount > 0 && (
+              <Badge variant="secondary" className="ml-2">
+                {activeFilterCount}
+              </Badge>
             )}
-            emptyMessage="No jobs found"
+          </Button>
+        </div>
+
+        <Collapsible open={showAdvancedFilters} onOpenChange={setShowAdvancedFilters}>
+          <CollapsibleContent>
+            <AdvancedFilterBuilder
+              onApply={handleApplyAdvancedFilters}
+              initialFilters={advancedFilters}
+            />
+          </CollapsibleContent>
+        </Collapsible>
+
+        {selectedJobs.length > 0 && (
+          <BulkActionsToolbar
+            selectedCount={selectedJobs.length}
+            onClearSelection={() => setSelectedJobs([])}
+            onBulkAction={handleBulkAction}
           />
+        )}
+
+        <DataTable
+          data={filteredJobs}
+          columns={columns}
+          searchable={false}
+          selectable
+          onSelectedRowsChange={setSelectedJobs}
+          emptyMessage="No jobs found"
+        />
 
         <FormDrawer
           open={drawerOpen}
