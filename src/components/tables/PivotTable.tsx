@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Settings2, Download, FileSpreadsheet, FileText, Library, BarChart3, Copy, Save, Filter, ArrowUpDown } from "lucide-react";
+import { X, Settings2, Download, FileSpreadsheet, FileText, Library, BarChart3, Copy, Save, Filter, ArrowUpDown, Layers } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -34,6 +34,7 @@ import { PivotSorting, SortConfig } from "./PivotSorting";
 import { PivotFilters, FilterConfig } from "./PivotFilters";
 import { PivotFormatting, NumberFormat, formatNumber } from "./PivotFormatting";
 import { PivotConfigManager } from "./PivotConfigManager";
+import { PivotFieldDragDrop } from "./PivotFieldDragDrop";
 
 export type PivotAggregateFunction = "sum" | "avg" | "count" | "min" | "max";
 
@@ -217,6 +218,7 @@ export function PivotTable<T extends Record<string, any>>({
   const [showTemplates, setShowTemplates] = useState(false);
   const [showConfigManager, setShowConfigManager] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showDragDrop, setShowDragDrop] = useState(false);
 
   const updateConfig = (newConfig: PivotConfig) => {
     setConfig(newConfig);
@@ -781,6 +783,14 @@ export function PivotTable<T extends Record<string, any>>({
                 </>
               )}
               <Button
+                variant={showDragDrop ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => setShowDragDrop(!showDragDrop)}
+              >
+                <Layers className="h-4 w-4 mr-2" />
+                {showDragDrop ? "Hide" : "Show"} Drag & Drop
+              </Button>
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowConfig(!showConfig)}
@@ -1116,6 +1126,22 @@ export function PivotTable<T extends Record<string, any>>({
           )}
         </CardContent>
       </Card>
+
+      {/* Drag & Drop Field Configuration */}
+      {showDragDrop && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Drag & Drop Configuration</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PivotFieldDragDrop
+              availableFields={availableFields}
+              config={config}
+              onConfigChange={updateConfig}
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Pivot Chart */}
       {pivotData && config.showChart && config.values.length > 0 && (
