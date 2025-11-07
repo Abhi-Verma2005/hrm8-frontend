@@ -277,6 +277,8 @@ export default function RoleManagement() {
               searchKeys={["userId", "role"]}
               selectable={true}
               onSelectedRowsChange={setSelectedRoles}
+              exportable={true}
+              exportFilename="role-assignments"
               renderBulkActions={(selectedIds) => (
                 <Button
                   variant="destructive"

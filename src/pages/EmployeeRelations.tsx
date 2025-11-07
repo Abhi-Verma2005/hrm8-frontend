@@ -330,6 +330,8 @@ export default function EmployeeRelations() {
                     searchKeys={["caseNumber", "type", "category"]}
                     selectable={true}
                     onSelectedRowsChange={setSelectedCases}
+                    exportable={true}
+                    exportFilename="employee-relations-cases"
                     renderBulkActions={(selectedIds) => (
                       <Button
                         variant="destructive"

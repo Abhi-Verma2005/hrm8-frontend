@@ -469,6 +469,8 @@ export default function Compliance() {
                   searchKeys={["title", "category"]}
                   selectable={true}
                   onSelectedRowsChange={setSelectedPolicies}
+                  exportable={true}
+                  exportFilename="compliance-policies"
                   renderBulkActions={(selectedIds) => (
                     <Button
                       variant="destructive"

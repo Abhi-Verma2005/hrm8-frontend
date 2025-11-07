@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { TableFilters, FilterOption, ActiveFilter } from "./TableFilters";
 import { TablePagination } from "./TablePagination";
+import { DataTableExport } from "./DataTableExport";
 
 export interface Column<T> {
   key: string;
@@ -36,6 +37,8 @@ interface DataTableProps<T> {
   typeOptions?: FilterOption[];
   typeKey?: keyof T;
   emptyMessage?: string;
+  exportable?: boolean;
+  exportFilename?: string;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -52,7 +55,9 @@ export function DataTable<T extends { id: string }>({
   typeFilter = false,
   typeOptions = [],
   typeKey,
-  emptyMessage = "No data available"
+  emptyMessage = "No data available",
+  exportable = false,
+  exportFilename = "export"
 }: DataTableProps<T>) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -194,22 +199,34 @@ export function DataTable<T extends { id: string }>({
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
-      {(searchable || statusFilter || typeFilter) && (
-        <TableFilters
-          searchValue={searchValue}
-          onSearchChange={setSearchValue}
-          statusFilter={statusFilterValue}
-          onStatusFilterChange={statusFilter ? setStatusFilterValue : undefined}
-          statusOptions={statusFilter ? statusOptions : undefined}
-          typeFilter={typeFilterValue}
-          onTypeFilterChange={typeFilter ? setTypeFilterValue : undefined}
-          typeOptions={typeFilter ? typeOptions : undefined}
-          activeFilters={activeFilters}
-          onClearFilter={handleClearFilter}
-          onClearAll={handleClearAll}
-        />
-      )}
+      {/* Filters and Export */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex-1">
+          {(searchable || statusFilter || typeFilter) && (
+            <TableFilters
+              searchValue={searchValue}
+              onSearchChange={setSearchValue}
+              statusFilter={statusFilterValue}
+              onStatusFilterChange={statusFilter ? setStatusFilterValue : undefined}
+              statusOptions={statusFilter ? statusOptions : undefined}
+              typeFilter={typeFilterValue}
+              onTypeFilterChange={typeFilter ? setTypeFilterValue : undefined}
+              typeOptions={typeFilter ? typeOptions : undefined}
+              activeFilters={activeFilters}
+              onClearFilter={handleClearFilter}
+              onClearAll={handleClearAll}
+            />
+          )}
+        </div>
+        {exportable && (
+          <DataTableExport
+            data={filteredAndSortedData}
+            columns={columns}
+            filename={exportFilename}
+            selectedIds={selectedIds}
+          />
+        )}
+      </div>
 
       {/* Bulk Actions */}
       {selectable && selectedIds.length > 0 && renderBulkActions && (

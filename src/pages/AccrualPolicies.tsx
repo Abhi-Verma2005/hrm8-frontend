@@ -343,6 +343,8 @@ export default function AccrualPolicies() {
                     searchKeys={["name", "leaveTypeName"]}
                     selectable={true}
                     onSelectedRowsChange={setSelectedPolicies}
+                    exportable={true}
+                    exportFilename="accrual-policies"
                     renderBulkActions={(selectedIds) => (
                       <Button
                         variant="destructive"

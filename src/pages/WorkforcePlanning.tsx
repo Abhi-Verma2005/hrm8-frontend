@@ -270,6 +270,8 @@ export default function WorkforcePlanning() {
                     searchKeys={["department", "fiscalYear"]}
                     selectable={true}
                     onSelectedRowsChange={setSelectedPlans}
+                    exportable={true}
+                    exportFilename="headcount-plans"
                     renderBulkActions={(selectedIds) => (
                       <Button
                         variant="destructive"

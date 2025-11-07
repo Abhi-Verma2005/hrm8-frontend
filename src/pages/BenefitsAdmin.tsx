@@ -484,6 +484,8 @@ export default function BenefitsAdmin() {
                   searchKeys={["name", "type"]}
                   selectable={true}
                   onSelectedRowsChange={setSelectedEnrollments}
+                  exportable={true}
+                  exportFilename="enrollment-periods"
                   renderBulkActions={(selectedIds) => (
                     <Button
                       variant="destructive"
@@ -526,6 +528,8 @@ export default function BenefitsAdmin() {
                     searchKeys={["employeeName", "eventType"]}
                     selectable={true}
                     onSelectedRowsChange={setSelectedLifeEvents}
+                    exportable={true}
+                    exportFilename="life-events"
                     renderBulkActions={(selectedIds) => (
                       <Button
                         variant="destructive"
@@ -589,6 +593,8 @@ export default function BenefitsAdmin() {
                     searchKeys={["employeeName", "qualifyingEvent"]}
                     selectable={true}
                     onSelectedRowsChange={setSelectedCOBRA}
+                    exportable={true}
+                    exportFilename="cobra-events"
                     renderBulkActions={(selectedIds) => (
                       <Button
                         variant="destructive"
