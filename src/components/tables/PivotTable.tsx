@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Settings2 } from "lucide-react";
+import { X, Settings2, Download, FileSpreadsheet, FileText } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -18,7 +18,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import * as XLSX from "xlsx";
 
 export type PivotAggregateFunction = "sum" | "avg" | "count" | "min" | "max";
 
@@ -319,6 +326,190 @@ export function PivotTable<T extends Record<string, any>>({
   );
   const availableValueFields = availableFields.filter((f) => f.type === "number");
 
+  const exportToCSV = () => {
+    if (!pivotData) return;
+
+    const rows: string[][] = [];
+    
+    // Header row 1 - Column groups
+    const header1 = [
+      config.rows.map((r) => {
+        const field = availableFields.find((f) => f.key === r);
+        return field?.label || r;
+      }).join(" / "),
+    ];
+    pivotData.colKeys.forEach((colKey) => {
+      if (config.values.length > 1) {
+        header1.push(colKey);
+        for (let i = 1; i < config.values.length; i++) {
+          header1.push("");
+        }
+      } else {
+        header1.push(colKey);
+      }
+    });
+    rows.push(header1);
+
+    // Header row 2 - Value labels (if multiple values)
+    if (config.values.length > 1) {
+      const header2 = [""];
+      pivotData.colKeys.forEach(() => {
+        config.values.forEach((value) => {
+          header2.push(value.label || "");
+        });
+      });
+      rows.push(header2);
+    }
+
+    // Data rows
+    pivotData.rowKeys.forEach((rowKey) => {
+      const row = [rowKey];
+      pivotData.colKeys.forEach((colKey) => {
+        config.values.forEach((value) => {
+          const key = `${value.field}_${value.aggregation}`;
+          const cellValue = Number(pivotData.data[rowKey]?.[colKey]?.[key] || 0);
+          row.push(cellValue.toFixed(2));
+        });
+      });
+      rows.push(row);
+    });
+
+    const csvContent = rows.map((row) => row.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `pivot-table-${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
+  };
+
+  const rgbToHex = (rgb: string): string => {
+    const match = rgb.match(/rgb\((\d+)\s+(\d+)\s+(\d+)\s*\/\s*([\d.]+)\)/);
+    if (!match) return "FFFFFF";
+    
+    const [, r, g, b, a] = match;
+    const opacity = parseFloat(a);
+    
+    // Blend with white background
+    const blendedR = Math.round(parseInt(r) * opacity + 255 * (1 - opacity));
+    const blendedG = Math.round(parseInt(g) * opacity + 255 * (1 - opacity));
+    const blendedB = Math.round(parseInt(b) * opacity + 255 * (1 - opacity));
+    
+    return [blendedR, blendedG, blendedB]
+      .map((x) => x.toString(16).padStart(2, "0"))
+      .join("")
+      .toUpperCase();
+  };
+
+  const exportToExcel = () => {
+    if (!pivotData) return;
+
+    const workbook = XLSX.utils.book_new();
+    const worksheetData: any[][] = [];
+
+    // Header row 1 - Column groups
+    const header1 = [
+      config.rows.map((r) => {
+        const field = availableFields.find((f) => f.key === r);
+        return field?.label || r;
+      }).join(" / "),
+    ];
+    pivotData.colKeys.forEach((colKey) => {
+      header1.push(colKey);
+      for (let i = 1; i < config.values.length; i++) {
+        header1.push("");
+      }
+    });
+    worksheetData.push(header1);
+
+    // Header row 2 - Value labels (if multiple values)
+    if (config.values.length > 1) {
+      const header2 = [""];
+      pivotData.colKeys.forEach(() => {
+        config.values.forEach((value) => {
+          header2.push(value.label || "");
+        });
+      });
+      worksheetData.push(header2);
+    }
+
+    // Data rows
+    pivotData.rowKeys.forEach((rowKey) => {
+      const row: any[] = [rowKey];
+      pivotData.colKeys.forEach((colKey) => {
+        config.values.forEach((value) => {
+          const key = `${value.field}_${value.aggregation}`;
+          const cellValue = Number(pivotData.data[rowKey]?.[colKey]?.[key] || 0);
+          row.push(parseFloat(cellValue.toFixed(2)));
+        });
+      });
+      worksheetData.push(row);
+    });
+
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+
+    // Apply formatting
+    const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
+    
+    // Merge cells for column headers
+    const merges: XLSX.Range[] = [];
+    if (config.values.length > 1) {
+      let colIdx = 1;
+      pivotData.colKeys.forEach(() => {
+        merges.push({
+          s: { r: 0, c: colIdx },
+          e: { r: 0, c: colIdx + config.values.length - 1 },
+        });
+        colIdx += config.values.length;
+      });
+    }
+    worksheet["!merges"] = merges;
+
+    // Apply conditional formatting colors
+    if (config.conditionalFormatting?.enabled) {
+      const dataStartRow = config.values.length > 1 ? 2 : 1;
+      
+      pivotData.rowKeys.forEach((rowKey, rowIdx) => {
+        let colIdx = 1;
+        pivotData.colKeys.forEach((colKey) => {
+          config.values.forEach((value) => {
+            const key = `${value.field}_${value.aggregation}`;
+            const cellValue = Number(pivotData.data[rowKey]?.[colKey]?.[key] || 0);
+            const backgroundColor = getCellBackgroundColor(
+              cellValue,
+              pivotData.minValue,
+              pivotData.maxValue,
+              config.conditionalFormatting
+            );
+
+            const cellRef = XLSX.utils.encode_cell({ r: dataStartRow + rowIdx, c: colIdx });
+            if (!worksheet[cellRef]) worksheet[cellRef] = { t: "n", v: cellValue };
+            
+            if (backgroundColor) {
+              worksheet[cellRef].s = {
+                fill: {
+                  fgColor: { rgb: rgbToHex(backgroundColor) },
+                },
+                alignment: { horizontal: "right" },
+              };
+            }
+            
+            colIdx++;
+          });
+        });
+      });
+    }
+
+    // Set column widths
+    const colWidths = [{ wch: 20 }];
+    for (let i = 0; i < pivotData.colKeys.length * config.values.length; i++) {
+      colWidths.push({ wch: 12 });
+    }
+    worksheet["!cols"] = colWidths;
+
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Pivot Table");
+    XLSX.writeFile(workbook, `pivot-table-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  };
+
   return (
     <div className="space-y-4">
       {/* Configuration Panel */}
@@ -326,14 +517,36 @@ export function PivotTable<T extends Record<string, any>>({
         <CardContent className="pt-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Pivot Configuration</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowConfig(!showConfig)}
-            >
-              <Settings2 className="h-4 w-4 mr-2" />
-              {showConfig ? "Hide" : "Show"} Config
-            </Button>
+            <div className="flex gap-2">
+              {pivotData && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-background">
+                    <DropdownMenuItem onClick={exportToExcel}>
+                      <FileSpreadsheet className="h-4 w-4 mr-2" />
+                      Export as Excel
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={exportToCSV}>
+                      <FileText className="h-4 w-4 mr-2" />
+                      Export as CSV
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowConfig(!showConfig)}
+              >
+                <Settings2 className="h-4 w-4 mr-2" />
+                {showConfig ? "Hide" : "Show"} Config
+              </Button>
+            </div>
           </div>
 
           {showConfig && (
