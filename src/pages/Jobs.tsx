@@ -566,6 +566,12 @@ export default function Jobs() {
               <Filter className="h-4 w-4 mr-2" />
               Saved Filters
             </Button>
+            <Button variant="outline" asChild>
+              <Link to="/jobs/templates">
+                <FileText className="h-4 w-4 mr-2" />
+                Templates
+              </Link>
+            </Button>
             <Button onClick={handleCreateJob}>
               <Plus className="h-4 w-4 mr-2" />
               Create Job

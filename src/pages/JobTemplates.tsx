@@ -1,259 +1,450 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Eye, Pencil, Trash2, Copy } from "lucide-react";
-import { getJobTemplates, deleteJobTemplate } from "@/lib/mockJobStorage";
-import { JobTemplate } from "@/types/job";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { toast } from "@/hooks/use-toast";
+  Plus,
+  Search,
+  Star,
+  TrendingUp,
+  FileText,
+  Edit,
+  Copy,
+  Trash2,
+  MoreVertical,
+  Filter,
+  Users,
+  Building2
+} from "lucide-react";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { 
+  getJobTemplates, 
+  getMostUsedTemplates, 
+  deleteJobTemplate,
+  templateCategories,
+  JobTemplate 
+} from "@/lib/jobTemplateService";
+import { useToast } from "@/hooks/use-toast";
+import { CreateTemplateDialog } from "@/components/jobs/templates/CreateTemplateDialog";
+import { EditTemplateDialog } from "@/components/jobs/templates/EditTemplateDialog";
+import { formatDistanceToNow } from "date-fns";
 
 export default function JobTemplates() {
-  const [previewTemplate, setPreviewTemplate] = useState<JobTemplate | null>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"recent" | "popular" | "name">("recent");
+  const [showMyTemplates, setShowMyTemplates] = useState(false);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<JobTemplate | null>(null);
 
-  const templates = useMemo(() => getJobTemplates(), [refreshKey]);
-  const systemTemplates = templates.filter(t => t.isSystemTemplate);
-  const customTemplates = templates.filter(t => !t.isSystemTemplate);
+  const allTemplates = getJobTemplates();
+  const popularTemplates = getMostUsedTemplates(10);
 
-  const handleDelete = (id: string) => {
-    setTemplateToDelete(id);
-    setDeleteDialogOpen(true);
-  };
+  // Filter templates
+  const filteredTemplates = useMemo(() => {
+    let filtered = allTemplates;
 
-  const confirmDelete = () => {
-    if (templateToDelete) {
-      deleteJobTemplate(templateToDelete);
+    // Search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (t) =>
+          t.name.toLowerCase().includes(query) ||
+          t.description?.toLowerCase().includes(query) ||
+          t.category.toLowerCase().includes(query)
+      );
+    }
+
+    // Category filter
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter((t) => t.category === selectedCategory);
+    }
+
+    // My templates filter
+    if (showMyTemplates) {
+      filtered = filtered.filter((t) => t.createdBy === "Current User");
+    }
+
+    // Sort
+    switch (sortBy) {
+      case "popular":
+        filtered = [...filtered].sort((a, b) => b.usageCount - a.usageCount);
+        break;
+      case "name":
+        filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "recent":
+      default:
+        filtered = [...filtered].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        break;
+    }
+
+    return filtered;
+  }, [allTemplates, searchQuery, selectedCategory, sortBy, showMyTemplates]);
+
+  // Calculate stats
+  const stats = useMemo(() => {
+    return {
+      total: allTemplates.length,
+      myTemplates: allTemplates.filter((t) => t.createdBy === "Current User").length,
+      shared: allTemplates.filter((t) => t.isShared).length,
+      totalUsage: allTemplates.reduce((sum, t) => sum + t.usageCount, 0),
+    };
+  }, [allTemplates]);
+
+  const handleDelete = (template: JobTemplate) => {
+    if (confirm(`Delete template "${template.name}"?`)) {
+      deleteJobTemplate(template.id);
       toast({
-        title: "Template Deleted",
-        description: "The job template has been removed.",
+        title: "Template deleted",
+        description: `"${template.name}" has been removed.`,
       });
-      setRefreshKey(prev => prev + 1);
-      setDeleteDialogOpen(false);
-      setTemplateToDelete(null);
     }
   };
 
-  const TemplateCard = ({ template }: { template: JobTemplate }) => (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
-            <CardTitle className="truncate">{template.title}</CardTitle>
-            <CardDescription className="truncate">{template.templateName}</CardDescription>
-          </div>
-          {template.isSystemTemplate && (
-            <Badge variant="secondary" className="ml-2">System</Badge>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
-          <Badge variant="outline">{template.employmentType}</Badge>
-          <span>•</span>
-          <span>{template.department}</span>
-          <span>•</span>
-          <span>{template.experienceLevel}</span>
-        </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setPreviewTemplate(template)}
-            className="flex-1"
-          >
-            <Eye className="h-4 w-4 mr-2" />
-            Preview
-          </Button>
-          {!template.isSystemTemplate && (
-            <>
-              <Button variant="outline" size="sm">
-                <Pencil className="h-4 w-4" />
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => handleDelete(template.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-          {template.isSystemTemplate && (
-            <Button variant="outline" size="sm">
-              <Copy className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
+  const handleDuplicate = (template: JobTemplate) => {
+    toast({
+      title: "Template duplicated",
+      description: `Created a copy of "${template.name}".`,
+    });
+  };
+
+  const handleEdit = (template: JobTemplate) => {
+    setEditingTemplate(template);
+  };
 
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/jobs">
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold">Job Templates</h1>
-              <p className="text-muted-foreground">Reusable templates for faster job creation</p>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold">Job Templates</h1>
+            <p className="text-muted-foreground">
+              Create and manage reusable job posting templates
+            </p>
           </div>
-          <Button>
+          <Button onClick={() => setCreateDialogOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Create Template
           </Button>
         </div>
 
-        {/* System Templates */}
-        <div className="space-y-4">
-          <div>
-            <h2 className="text-xl font-semibold mb-1">System Templates</h2>
-            <p className="text-sm text-muted-foreground">
-              Pre-built templates for common job roles
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {systemTemplates.map(template => (
-              <TemplateCard key={template.id} template={template} />
-            ))}
-          </div>
+        {/* Stats Cards */}
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Templates</CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.total}</div>
+              <p className="text-xs text-muted-foreground">
+                {stats.myTemplates} created by you
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Shared Templates</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.shared}</div>
+              <p className="text-xs text-muted-foreground">
+                Available to team
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Usage</CardTitle>
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalUsage}</div>
+              <p className="text-xs text-muted-foreground">
+                Times used
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Categories</CardTitle>
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{templateCategories.length}</div>
+              <p className="text-xs text-muted-foreground">
+                Template categories
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
-        <Separator />
-
-        {/* Custom Templates */}
-        <div className="space-y-4">
-          <div>
-            <h2 className="text-xl font-semibold mb-1">My Templates</h2>
-            <p className="text-sm text-muted-foreground">
-              Your custom job templates
-            </p>
+        {/* Filters and Search */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search templates..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
-          {customTemplates.length === 0 ? (
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">No custom templates yet</p>
-                  <p className="text-sm mb-4">Create your first template to speed up job posting</p>
-                  <Button>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Template
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {customTemplates.map(template => (
-                <TemplateCard key={template.id} template={template} />
+
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <Filter className="h-4 w-4 mr-2" />
+              <SelectValue placeholder="All Categories" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Categories</SelectItem>
+              {templateCategories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
               ))}
-            </div>
-          )}
+            </SelectContent>
+          </Select>
+
+          <Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
+            <SelectTrigger className="w-full sm:w-[200px]">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Most Recent</SelectItem>
+              <SelectItem value="popular">Most Popular</SelectItem>
+              <SelectItem value="name">Name (A-Z)</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Button
+            variant={showMyTemplates ? "default" : "outline"}
+            onClick={() => setShowMyTemplates(!showMyTemplates)}
+          >
+            My Templates
+          </Button>
         </div>
 
-        {/* Preview Dialog */}
-        <Dialog open={!!previewTemplate} onOpenChange={() => setPreviewTemplate(null)}>
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{previewTemplate?.title}</DialogTitle>
-              <DialogDescription>{previewTemplate?.templateName}</DialogDescription>
-            </DialogHeader>
-            {previewTemplate && (
-              <div className="space-y-6">
-                <div className="flex gap-2">
-                  <Badge variant="outline">{previewTemplate.employmentType}</Badge>
-                  <Badge variant="outline">{previewTemplate.department}</Badge>
-                  <Badge variant="outline">{previewTemplate.experienceLevel}</Badge>
-                </div>
-                
-                <div>
-                  <h3 className="font-semibold mb-2">Description</h3>
-                  <p className="text-sm text-muted-foreground whitespace-pre-line">
-                    {previewTemplate.description}
-                  </p>
-                </div>
+        {/* Templates Tabs */}
+        <Tabs defaultValue="all" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="all">
+              All Templates ({filteredTemplates.length})
+            </TabsTrigger>
+            <TabsTrigger value="popular">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Popular
+            </TabsTrigger>
+            {templateCategories.slice(0, 3).map((category) => (
+              <TabsTrigger key={category} value={category}>
+                {category}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
-                <div>
-                  <h3 className="font-semibold mb-2">Requirements</h3>
-                  <ul className="space-y-1">
-                    {previewTemplate.requirements.map((req, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
-                        <span className="text-primary mt-1">•</span>
-                        <span>{req}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+          <TabsContent value="all" className="space-y-4">
+            <TemplateGrid
+              templates={filteredTemplates}
+              onEdit={handleEdit}
+              onDuplicate={handleDuplicate}
+              onDelete={handleDelete}
+            />
+          </TabsContent>
 
-                <div>
-                  <h3 className="font-semibold mb-2">Responsibilities</h3>
-                  <ul className="space-y-1">
-                    {previewTemplate.responsibilities.map((resp, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm">
-                        <span className="text-primary mt-1">•</span>
-                        <span>{resp}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+          <TabsContent value="popular" className="space-y-4">
+            <TemplateGrid
+              templates={popularTemplates}
+              onEdit={handleEdit}
+              onDuplicate={handleDuplicate}
+              onDelete={handleDelete}
+            />
+          </TabsContent>
 
-                <div className="flex gap-2">
-                  <Button className="flex-1">
-                    Use This Template
-                  </Button>
-                  <Button variant="outline">
-                    <Copy className="h-4 w-4 mr-2" />
-                    Duplicate
-                  </Button>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+          {templateCategories.slice(0, 3).map((category) => (
+            <TabsContent key={category} value={category} className="space-y-4">
+              <TemplateGrid
+                templates={filteredTemplates.filter((t) => t.category === category)}
+                onEdit={handleEdit}
+                onDuplicate={handleDuplicate}
+                onDelete={handleDelete}
+              />
+            </TabsContent>
+          ))}
+        </Tabs>
 
-        {/* Delete Dialog */}
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the template.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <CreateTemplateDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+        />
+
+        {editingTemplate && (
+          <EditTemplateDialog
+            template={editingTemplate}
+            open={!!editingTemplate}
+            onOpenChange={(open) => !open && setEditingTemplate(null)}
+          />
+        )}
       </div>
     </DashboardPageLayout>
+  );
+}
+
+interface TemplateGridProps {
+  templates: JobTemplate[];
+  onEdit: (template: JobTemplate) => void;
+  onDuplicate: (template: JobTemplate) => void;
+  onDelete: (template: JobTemplate) => void;
+}
+
+function TemplateGrid({ templates, onEdit, onDuplicate, onDelete }: TemplateGridProps) {
+  if (templates.length === 0) {
+    return (
+      <div className="text-center py-12 border rounded-lg">
+        <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <h3 className="text-lg font-semibold mb-2">No templates found</h3>
+        <p className="text-sm text-muted-foreground">
+          Try adjusting your filters or create a new template
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {templates.map((template) => (
+        <Card key={template.id} className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  {template.name}
+                  {template.usageCount > 20 && (
+                    <Badge variant="orange" className="text-xs">
+                      <Star className="h-3 w-3 mr-1" />
+                      Popular
+                    </Badge>
+                  )}
+                </CardTitle>
+                <CardDescription className="mt-1">
+                  {template.description || "No description"}
+                </CardDescription>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-background z-50">
+                  <DropdownMenuItem onClick={() => onEdit(template)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onDuplicate(template)}>
+                    <Copy className="h-4 w-4 mr-2" />
+                    Duplicate
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="text-destructive"
+                    onClick={() => onDelete(template)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between text-sm">
+              <Badge variant="secondary">{template.category}</Badge>
+              {template.isShared && (
+                <Badge variant="teal" className="text-xs">
+                  <Users className="h-3 w-3 mr-1" />
+                  Shared
+                </Badge>
+              )}
+            </div>
+
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-center justify-between">
+                <span>Created by:</span>
+                <span className="font-medium text-foreground">
+                  {template.createdBy}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Usage count:</span>
+                <span className="font-medium text-foreground">
+                  {template.usageCount} times
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span>Created:</span>
+                <span className="font-medium text-foreground">
+                  {formatDistanceToNow(template.createdAt, { addSuffix: true })}
+                </span>
+              </div>
+            </div>
+
+            {template.data.title && (
+              <div className="pt-3 border-t">
+                <p className="text-sm text-muted-foreground">Template includes:</p>
+                <ul className="mt-2 space-y-1 text-sm">
+                  {template.data.title && (
+                    <li className="flex items-center gap-2">
+                      <span className="text-primary">•</span>
+                      <span>Job Title: {template.data.title}</span>
+                    </li>
+                  )}
+                  {template.data.department && (
+                    <li className="flex items-center gap-2">
+                      <span className="text-primary">•</span>
+                      <span>Department: {template.data.department}</span>
+                    </li>
+                  )}
+                  {template.data.employmentType && (
+                    <li className="flex items-center gap-2">
+                      <span className="text-primary">•</span>
+                      <span>Type: {template.data.employmentType}</span>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            )}
+
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => onEdit(template)}
+            >
+              Use Template
+            </Button>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 }

@@ -17,7 +17,15 @@ const coreNavItems = [
 
 // ATS (Applicant Tracking System) Section
 const atsNavItems = [
-  { title: "Jobs", url: "/jobs", icon: Briefcase },
+  { 
+    title: "Jobs", 
+    url: "/jobs", 
+    icon: Briefcase,
+    subItems: [
+      { title: "All Jobs", url: "/jobs" },
+      { title: "Templates", url: "/jobs/templates" },
+    ]
+  },
   { title: "Candidates", url: "/candidates", icon: Users },
   { title: "Applications", url: "/applications", icon: FileText },
   { title: "Requisitions", url: "/requisitions", icon: ClipboardList },
