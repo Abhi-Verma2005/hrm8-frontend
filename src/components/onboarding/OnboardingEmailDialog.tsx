@@ -45,6 +45,7 @@ import { scheduleEmail, markEmailAsSent } from "@/lib/scheduledEmails";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { EmailPreviewDialog } from "./EmailPreviewDialog";
 
 interface OnboardingEmailDialogProps {
   open: boolean;
@@ -84,6 +85,7 @@ export function OnboardingEmailDialog({
   const [scheduleDate, setScheduleDate] = useState<Date>();
   const [scheduleTime, setScheduleTime] = useState<string>("09:00");
   const [isScheduling, setIsScheduling] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const { toast } = useToast();
 
   // Initialize form with editing data
@@ -502,6 +504,14 @@ export function OnboardingEmailDialog({
         </Tabs>
 
         <DialogFooter>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowPreview(true)}
+            disabled={!message.trim() || includedCount === 0}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Preview
+          </Button>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
@@ -584,6 +594,14 @@ export function OnboardingEmailDialog({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <EmailPreviewDialog
+        open={showPreview}
+        onOpenChange={setShowPreview}
+        emailType={emailType}
+        message={message}
+        workflows={includedWorkflows}
+      />
     </Dialog>
   );
 }

@@ -34,6 +34,9 @@ import { RecipientSegmentation } from "@/components/onboarding/RecipientSegmenta
 import { ABTestingManager } from "@/components/onboarding/ABTestingManager";
 import { DripCampaignManager } from "@/components/onboarding/DripCampaignManager";
 import { EmailPreferencesManager } from "@/components/onboarding/EmailPreferencesManager";
+import { EmailPreviewDialog } from "@/components/onboarding/EmailPreviewDialog";
+import { BounceHandlingManager } from "@/components/onboarding/BounceHandlingManager";
+import { EngagementScoringDashboard } from "@/components/onboarding/EngagementScoringDashboard";
 import { getOnboardingWorkflows, getOnboardingStats, deleteOnboardingWorkflow, saveOnboardingWorkflow } from "@/lib/onboardingStorage";
 import { OnboardingStatus, OnboardingWorkflow } from "@/types/onboarding";
 import { exportToCSV } from "@/utils/exportHelpers";
@@ -51,7 +54,8 @@ export default function OnboardingManagement() {
   const [selectedWorkflowIds, setSelectedWorkflowIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
-  const [activeView, setActiveView] = useState<'workflows' | 'scheduled' | 'metrics' | 'delivery' | 'analytics' | 'recommendations' | 'reports' | 'segmentation' | 'abtesting' | 'drip' | 'preferences'>('workflows');
+  const [activeView, setActiveView] = useState<'workflows' | 'scheduled' | 'metrics' | 'delivery' | 'analytics' | 'recommendations' | 'reports' | 'segmentation' | 'abtesting' | 'drip' | 'preferences' | 'bounce' | 'engagement'>('workflows');
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
   const [editingScheduledEmail, setEditingScheduledEmail] = useState<ScheduledEmail | null>(null);
   const [showAutomationDialog, setShowAutomationDialog] = useState(false);
   const { toast } = useToast();
@@ -306,7 +310,7 @@ export default function OnboardingManagement() {
         </div>
 
         <Tabs value={activeView} onValueChange={(value) => setActiveView(value as any)}>
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-11 gap-1">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-13 gap-1">
             <TabsTrigger value="workflows">Workflows</TabsTrigger>
             <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
             <TabsTrigger value="metrics">Metrics</TabsTrigger>
@@ -318,6 +322,8 @@ export default function OnboardingManagement() {
             <TabsTrigger value="abtesting">A/B Test</TabsTrigger>
             <TabsTrigger value="drip">Drip</TabsTrigger>
             <TabsTrigger value="preferences">Preferences</TabsTrigger>
+            <TabsTrigger value="bounce">Bounces</TabsTrigger>
+            <TabsTrigger value="engagement">Scoring</TabsTrigger>
           </TabsList>
 
           <TabsContent value="workflows" className="space-y-6">
@@ -561,6 +567,14 @@ export default function OnboardingManagement() {
 
       <TabsContent value="preferences" className="space-y-6">
         <EmailPreferencesManager />
+      </TabsContent>
+
+      <TabsContent value="bounce" className="space-y-6">
+        <BounceHandlingManager />
+      </TabsContent>
+
+      <TabsContent value="engagement" className="space-y-6">
+        <EngagementScoringDashboard />
       </TabsContent>
       </Tabs>
 
