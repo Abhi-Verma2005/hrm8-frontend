@@ -35,8 +35,13 @@ import { PivotFilters, FilterConfig } from "./PivotFilters";
 import { PivotFormatting, NumberFormat, formatNumber } from "./PivotFormatting";
 import { PivotConfigManager } from "./PivotConfigManager";
 import { PivotFieldDragDrop } from "./PivotFieldDragDrop";
+import { PivotCalculatedFields, CalculatedField, evaluateCalculatedField } from "./PivotCalculatedFields";
+import { PivotGrouping, GroupingConfig, applyGrouping } from "./PivotGrouping";
+import { PivotComparison, ComparisonConfig } from "./PivotComparison";
+import { calculateAdvancedAggregate, AdvancedAggregateFunction, ADVANCED_AGGREGATION_OPTIONS } from "./PivotAdvancedAggregations";
+import { PivotEnhancedFormatting, ConditionalFormattingRule, evaluateFormattingRule } from "./PivotEnhancedFormatting";
 
-export type PivotAggregateFunction = "sum" | "avg" | "count" | "min" | "max";
+export type PivotAggregateFunction = "sum" | "avg" | "count" | "min" | "max" | AdvancedAggregateFunction;
 
 export interface ConditionalFormatting {
   enabled: boolean;
@@ -67,6 +72,10 @@ export interface PivotConfig {
   sortConfig?: SortConfig[];
   filters?: FilterConfig[];
   numberFormat?: NumberFormat;
+  calculatedFields?: CalculatedField[];
+  groupings?: GroupingConfig[];
+  comparison?: ComparisonConfig;
+  enhancedFormatting?: ConditionalFormattingRule[];
 }
 
 interface PivotTableProps<T> {
@@ -89,6 +98,12 @@ function calculateAggregate(
   aggregation: PivotAggregateFunction
 ): number {
   if (values.length === 0) return 0;
+
+  // Check if it's an advanced aggregation
+  const advancedTypes: AdvancedAggregateFunction[] = ["median", "mode", "stddev", "variance", "percentile", "distinct", "first", "last"];
+  if (advancedTypes.includes(aggregation as AdvancedAggregateFunction)) {
+    return calculateAdvancedAggregate(values, aggregation as AdvancedAggregateFunction);
+  }
 
   switch (aggregation) {
     case "sum":
@@ -211,6 +226,15 @@ export function PivotTable<T extends Record<string, any>>({
         decimals: 2,
         thousandsSeparator: false,
       },
+      calculatedFields: [],
+      groupings: [],
+      comparison: {
+        enabled: false,
+        mode: "period",
+        showDifference: true,
+        showPercentage: true,
+      },
+      enhancedFormatting: [],
     }
   );
   const [showConfig, setShowConfig] = useState(!initialConfig);
@@ -641,7 +665,18 @@ export function PivotTable<T extends Record<string, any>>({
   const availableColFields = availableFields.filter(
     (f) => !config.columns.includes(f.key) && !config.rows.includes(f.key)
   );
-  const availableValueFields = availableFields.filter((f) => f.type === "number");
+  
+  // Include calculated fields in available value fields
+  const calculatedFieldsAsFields = (config.calculatedFields || []).map(cf => ({
+    key: cf.id,
+    label: cf.name,
+    type: "number" as const
+  }));
+  
+  const availableValueFields = [
+    ...availableFields.filter((f) => f.type === "number"),
+    ...calculatedFieldsAsFields
+  ];
 
   const exportToCSV = () => {
     if (!pivotData) return;
@@ -1080,6 +1115,11 @@ export function PivotTable<T extends Record<string, any>>({
                           <SelectItem value={`${field.key}:max`}>
                             Max of {field.label}
                           </SelectItem>
+                          {ADVANCED_AGGREGATION_OPTIONS.map((agg) => (
+                            <SelectItem key={`${field.key}:${agg.value}`} value={`${field.key}:${agg.value}`}>
+                              {agg.label} of {field.label}
+                            </SelectItem>
+                          ))}
                         </div>
                       ))}
                     </SelectContent>
@@ -1143,6 +1183,54 @@ export function PivotTable<T extends Record<string, any>>({
                   onFormatChange={(numberFormat) =>
                     updateConfig({ ...config, numberFormat })
                   }
+                />
+              </div>
+
+              {/* Calculated Fields */}
+              <div>
+                <h4 className="text-sm font-medium mb-3">Calculated Fields</h4>
+                <PivotCalculatedFields
+                  calculatedFields={config.calculatedFields || []}
+                  onCalculatedFieldsChange={(calculatedFields) =>
+                    updateConfig({ ...config, calculatedFields })
+                  }
+                  availableFields={availableFields}
+                />
+              </div>
+
+              {/* Grouping/Bucketing */}
+              <div>
+                <h4 className="text-sm font-medium mb-3">Grouping & Bucketing</h4>
+                <PivotGrouping
+                  groupings={config.groupings || []}
+                  onGroupingsChange={(groupings) =>
+                    updateConfig({ ...config, groupings })
+                  }
+                  availableFields={availableFields}
+                />
+              </div>
+
+              {/* Comparison Mode */}
+              <div>
+                <h4 className="text-sm font-medium mb-3">Comparison Mode</h4>
+                <PivotComparison
+                  config={config.comparison || { enabled: false, mode: "period", showDifference: true, showPercentage: true }}
+                  onConfigChange={(comparison) =>
+                    updateConfig({ ...config, comparison })
+                  }
+                  availableFields={availableFields}
+                />
+              </div>
+
+              {/* Enhanced Conditional Formatting */}
+              <div>
+                <h4 className="text-sm font-medium mb-3">Enhanced Formatting Rules</h4>
+                <PivotEnhancedFormatting
+                  rules={config.enhancedFormatting || []}
+                  onRulesChange={(enhancedFormatting) =>
+                    updateConfig({ ...config, enhancedFormatting })
+                  }
+                  availableFields={availableFields}
                 />
               </div>
             </div>

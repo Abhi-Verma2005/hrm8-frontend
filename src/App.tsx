@@ -59,6 +59,7 @@ import VerifyCertificate from "./pages/VerifyCertificate";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import RecruitmentIntegration from "./pages/RecruitmentIntegration";
 import EnhancedLearning from "./pages/EnhancedLearning";
+import PivotDemo from "./pages/PivotDemo";
 
 const queryClient = new QueryClient();
 
@@ -122,6 +123,7 @@ function AppContent() {
             <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
             <Route path="/recruitment-integration" element={<RecruitmentIntegration />} />
             <Route path="/enhanced-learning" element={<EnhancedLearning />} />
+            <Route path="/pivot-demo" element={<PivotDemo />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/admin-settings" element={<AdminSettings />} />
             <Route path="/support-tickets" element={<SupportTickets />} />
