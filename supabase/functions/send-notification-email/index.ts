@@ -1,5 +1,11 @@
+import React from 'npm:react@18.3.1';
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { Resend } from "npm:resend@2.0.0";
+import { Resend } from "npm:resend@4.0.0";
+import { renderAsync } from 'npm:@react-email/components@0.0.22';
+import { ApplicationConfirmationEmail } from './_templates/application-confirmation.tsx';
+import { InterviewScheduledEmail } from './_templates/interview-scheduled.tsx';
+import { OfferLetterEmail } from './_templates/offer-letter.tsx';
+import { BackgroundCheckEmail } from './_templates/background-check.tsx';
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -13,14 +19,17 @@ interface EmailRequest {
   subject: string;
   type: 'application' | 'interview' | 'offer' | 'background-check';
   data: {
-    candidateName?: string;
-    jobTitle?: string;
+    candidateName: string;
+    jobTitle: string;
+    companyName?: string;
     interviewDate?: string;
     interviewTime?: string;
     interviewType?: string;
     meetingLink?: string;
-    offerDetails?: string;
-    [key: string]: any;
+    location?: string;
+    salary?: string;
+    startDate?: string;
+    consentLink?: string;
   };
 }
 
@@ -32,79 +41,65 @@ const handler = async (req: Request): Promise<Response> => {
   try {
     const { to, subject, type, data }: EmailRequest = await req.json();
 
-    let htmlContent = "";
+    let html = "";
 
     switch (type) {
       case 'application':
-        htmlContent = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #333;">Application Received</h1>
-            <p>Dear ${data.candidateName},</p>
-            <p>Thank you for applying for the <strong>${data.jobTitle}</strong> position.</p>
-            <p>We have received your application and our team will review it shortly. We'll be in touch soon.</p>
-            <p>Best regards,<br>The Hiring Team</p>
-          </div>
-        `;
+        html = await renderAsync(
+          React.createElement(ApplicationConfirmationEmail, {
+            candidateName: data.candidateName,
+            jobTitle: data.jobTitle,
+            companyName: data.companyName,
+          })
+        );
         break;
 
       case 'interview':
-        htmlContent = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #333;">Interview Scheduled</h1>
-            <p>Dear ${data.candidateName},</p>
-            <p>Your interview for <strong>${data.jobTitle}</strong> has been scheduled.</p>
-            <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>Date:</strong> ${data.interviewDate}</p>
-              <p><strong>Time:</strong> ${data.interviewTime}</p>
-              <p><strong>Type:</strong> ${data.interviewType}</p>
-              ${data.meetingLink ? `<p><strong>Meeting Link:</strong> <a href="${data.meetingLink}">${data.meetingLink}</a></p>` : ''}
-            </div>
-            <p>Please join the meeting 5 minutes early. Looking forward to speaking with you!</p>
-            <p>Best regards,<br>The Hiring Team</p>
-          </div>
-        `;
+        html = await renderAsync(
+          React.createElement(InterviewScheduledEmail, {
+            candidateName: data.candidateName,
+            jobTitle: data.jobTitle,
+            interviewDate: data.interviewDate || '',
+            interviewTime: data.interviewTime || '',
+            interviewType: data.interviewType || '',
+            meetingLink: data.meetingLink,
+            location: data.location,
+          })
+        );
         break;
 
       case 'offer':
-        htmlContent = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #333;">Congratulations! Job Offer</h1>
-            <p>Dear ${data.candidateName},</p>
-            <p>We are pleased to extend you an offer for the <strong>${data.jobTitle}</strong> position.</p>
-            <p>Please review the attached offer letter carefully and let us know your decision.</p>
-            <p>We're excited about the possibility of you joining our team!</p>
-            <p>Best regards,<br>The Hiring Team</p>
-          </div>
-        `;
+        html = await renderAsync(
+          React.createElement(OfferLetterEmail, {
+            candidateName: data.candidateName,
+            jobTitle: data.jobTitle,
+            salary: data.salary || '',
+            startDate: data.startDate,
+            companyName: data.companyName,
+          })
+        );
         break;
 
       case 'background-check':
-        htmlContent = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #333;">Background Check Required</h1>
-            <p>Dear ${data.candidateName},</p>
-            <p>As part of our hiring process, we need to conduct a background check.</p>
-            <p>Please click the link below to provide your consent and necessary information.</p>
-            <div style="margin: 30px 0; text-align: center;">
-              <a href="${data.consentLink}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
-                Provide Consent
-              </a>
-            </div>
-            <p>This is a standard procedure and helps us ensure a safe workplace for everyone.</p>
-            <p>Best regards,<br>The Hiring Team</p>
-          </div>
-        `;
+        html = await renderAsync(
+          React.createElement(BackgroundCheckEmail, {
+            candidateName: data.candidateName,
+            jobTitle: data.jobTitle,
+            consentLink: data.consentLink || '',
+            companyName: data.companyName,
+          })
+        );
         break;
 
       default:
-        htmlContent = `<p>Notification email</p>`;
+        throw new Error(`Unknown email type: ${type}`);
     }
 
     const emailResponse = await resend.emails.send({
       from: "HRM8 <onboarding@resend.dev>",
       to: [to],
       subject: subject,
-      html: htmlContent,
+      html: html,
     });
 
     console.log("Email sent successfully:", emailResponse);
