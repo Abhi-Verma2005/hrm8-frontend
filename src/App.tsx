@@ -74,6 +74,7 @@ import Offers from "./pages/Offers";
 import BackgroundChecks from "./pages/BackgroundChecks";
 import InternalJobs from "./pages/InternalJobs";
 import Calendar from "./pages/Calendar";
+import CollaborativeFeedback from "./pages/CollaborativeFeedback";
 
 const queryClient = new QueryClient();
 
@@ -136,6 +137,7 @@ function AppContent() {
           <Route path="/background-checks" element={<BackgroundChecks />} />
           <Route path="/internal-jobs" element={<InternalJobs />} />
           <Route path="/calendar" element={<Calendar />} />
+          <Route path="/collaborative-feedback" element={<CollaborativeFeedback />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />
           <Route path="/users" element={<Users />} />
