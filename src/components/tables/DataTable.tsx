@@ -16,6 +16,7 @@ import { DataTableExport } from "./DataTableExport";
 import { AdvancedFilters, DateRangeFilter, MultiSelectFilter, FilterPreset } from "./AdvancedFilters";
 import { ColumnCustomization } from "./ColumnCustomization";
 import { EditableCell, EditableFieldType, SelectOption } from "./EditableCell";
+import { GroupConfig, GroupHeader, groupData, calculateAggregates, GroupedData } from "./TableGrouping";
 
 export interface Column<T> {
   key: string;
@@ -57,6 +58,9 @@ interface DataTableProps<T> {
   // Inline editing
   inlineEditing?: boolean;
   onRowUpdate?: (id: string, updates: Partial<T>) => void;
+  // Grouping and aggregation
+  grouping?: GroupConfig;
+  defaultGroupsExpanded?: boolean;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -85,6 +89,8 @@ export function DataTable<T extends { id: string }>({
   columnPreferenceKey = "table-column-preferences",
   inlineEditing = false,
   onRowUpdate,
+  grouping,
+  defaultGroupsExpanded = true,
 }: DataTableProps<T>) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -96,6 +102,11 @@ export function DataTable<T extends { id: string }>({
   
   // Inline editing state
   const [editingCell, setEditingCell] = useState<{ rowId: string; columnKey: string } | null>(null);
+  
+  // Grouping state
+  const [expandedGroups, setExpandedGroups] = useState<Set<any>>(() => 
+    defaultGroupsExpanded ? new Set(['__all__']) : new Set()
+  );
   
   // Advanced filtering state
   const [dateRangeFilters, setDateRangeFilters] = useState<DateRangeFilter[]>(initialDateRangeFilters);
@@ -274,6 +285,31 @@ export function DataTable<T extends { id: string }>({
     setEditingCell(null);
   };
 
+  // Grouping handlers
+  const toggleGroup = (groupValue: any) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(groupValue)) {
+        next.delete(groupValue);
+      } else {
+        next.add(groupValue);
+      }
+      return next;
+    });
+  };
+
+  const toggleAllGroups = () => {
+    if (expandedGroups.has('__all__')) {
+      setExpandedGroups(new Set());
+    } else {
+      setExpandedGroups(new Set(['__all__']));
+    }
+  };
+
+  const isGroupExpanded = (groupValue: any) => {
+    return expandedGroups.has('__all__') || expandedGroups.has(groupValue);
+  };
+
   // Get visible and ordered columns
   const displayColumns = useMemo(() => {
     if (!columnCustomization) return columns;
@@ -358,12 +394,27 @@ export function DataTable<T extends { id: string }>({
     return result;
   }, [data, searchValue, searchKeys, statusFilterValue, typeFilterValue, sortConfig, searchable, statusFilter, typeFilter, statusKey, typeKey, dateRangeFilters, multiSelectFilters, dateRangeKey]);
 
+  // Group data if grouping is enabled
+  const groupedData = useMemo(() => {
+    if (!grouping) return null;
+
+    const groups = groupData(filteredAndSortedData, grouping.column);
+    
+    // Calculate aggregates for each group
+    return groups.map((group) => ({
+      ...group,
+      aggregates: calculateAggregates(group.items, grouping.aggregates),
+    }));
+  }, [filteredAndSortedData, grouping]);
+
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedData.length / pageSize);
-  const paginatedData = filteredAndSortedData.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  const paginatedData = groupedData
+    ? null // No pagination when grouping is enabled
+    : filteredAndSortedData.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+      );
 
   // Active filters
   const activeFilters: ActiveFilter[] = [];
@@ -470,6 +521,22 @@ export function DataTable<T extends { id: string }>({
         </div>
       )}
 
+      {/* Grouping Control */}
+      {grouping && groupedData && (
+        <div className="flex items-center justify-between p-2 bg-muted/30 rounded-md">
+          <span className="text-sm text-muted-foreground">
+            Grouped by: <span className="font-medium">{grouping.label || grouping.column}</span>
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleAllGroups}
+          >
+            {expandedGroups.has('__all__') ? 'Collapse All' : 'Expand All'}
+          </Button>
+        </div>
+      )}
+
       {/* Table */}
       <div className="rounded-md border">
         <Table>
@@ -479,10 +546,10 @@ export function DataTable<T extends { id: string }>({
                 <TableHead className="w-12">
                   <Checkbox
                     checked={
-                      paginatedData.length > 0 &&
-                      paginatedData.every(item => selectedIds.includes(item.id))
+                      (paginatedData || filteredAndSortedData).length > 0 &&
+                      (paginatedData || filteredAndSortedData).every(item => selectedIds.includes(item.id))
                         ? true
-                        : paginatedData.some(item => selectedIds.includes(item.id))
+                        : (paginatedData || filteredAndSortedData).some(item => selectedIds.includes(item.id))
                         ? "indeterminate"
                         : false
                     }
@@ -510,7 +577,76 @@ export function DataTable<T extends { id: string }>({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedData.length === 0 ? (
+            {groupedData ? (
+              // Render grouped data
+              groupedData.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={displayColumns.length + (selectable ? 1 : 0)}
+                    className="h-24 text-center"
+                  >
+                    <p className="text-muted-foreground">{emptyMessage}</p>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                groupedData.map((group) => {
+                  const isExpanded = isGroupExpanded(group.groupValue);
+                  return (
+                    <>
+                      <GroupHeader
+                        key={`group-${group.groupValue}`}
+                        isExpanded={isExpanded}
+                        onToggle={() => toggleGroup(group.groupValue)}
+                        groupValue={group.groupValue}
+                        count={group.items.length}
+                        aggregates={group.aggregates}
+                        groupConfig={grouping}
+                        colSpan={displayColumns.length + (selectable ? 1 : 0)}
+                      />
+                      {isExpanded &&
+                        group.items.map((item) => (
+                          <TableRow key={item.id}>
+                            {selectable && (
+                              <TableCell>
+                                <Checkbox
+                                  checked={selectedIds.includes(item.id)}
+                                  onCheckedChange={(checked) =>
+                                    handleSelectRow(item.id, checked as boolean)
+                                  }
+                                  aria-label={`Select row ${item.id}`}
+                                />
+                              </TableCell>
+                            )}
+                            {displayColumns.map((column) => (
+                              <TableCell key={column.key} style={{ width: column.width }}>
+                                {inlineEditing && column.editable ? (
+                                  <EditableCell
+                                    value={item[column.key as keyof T]}
+                                    onSave={(value) => handleSaveEdit(item.id, column.key, value)}
+                                    onCancel={handleCancelEdit}
+                                    fieldType={column.editFieldType}
+                                    selectOptions={column.editSelectOptions}
+                                    isEditing={
+                                      editingCell?.rowId === item.id &&
+                                      editingCell?.columnKey === column.key
+                                    }
+                                    onStartEdit={() => handleStartEdit(item.id, column.key)}
+                                    renderView={column.render}
+                                  />
+                                ) : column.render ? (
+                                  column.render(item)
+                                ) : (
+                                  String(item[column.key as keyof T] ?? '')
+                                )}
+                              </TableCell>
+                            ))}
+                          </TableRow>
+                        ))}
+                    </>
+                  );
+                })
+              )
+            ) : paginatedData && paginatedData.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={displayColumns.length + (selectable ? 1 : 0)}
@@ -520,7 +656,7 @@ export function DataTable<T extends { id: string }>({
                 </TableCell>
               </TableRow>
             ) : (
-              paginatedData.map((item) => (
+              paginatedData && paginatedData.map((item) => (
                 <TableRow key={item.id}>
                   {selectable && (
                     <TableCell>
@@ -561,8 +697,8 @@ export function DataTable<T extends { id: string }>({
         </Table>
       </div>
 
-      {/* Pagination */}
-      {filteredAndSortedData.length > 0 && (
+      {/* Pagination - hidden when grouping is enabled */}
+      {!grouping && filteredAndSortedData.length > 0 && (
         <TablePagination
           currentPage={currentPage}
           totalPages={totalPages}

@@ -13,7 +13,9 @@ import { ERCaseDialog } from "@/components/employee-relations/ERCaseDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DeleteConfirmationDialog } from "@/components/shared/DeleteConfirmationDialog";
 import { DateRangeFilter, MultiSelectFilter } from "@/components/tables/AdvancedFilters";
+import { GroupConfig } from "@/components/tables/TableGrouping";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export default function EmployeeRelations() {
   const { isHRAdmin, isSuperAdmin, isManager } = useRBAC();
@@ -26,6 +28,7 @@ export default function EmployeeRelations() {
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
   const [selectedCases, setSelectedCases] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [enableGrouping, setEnableGrouping] = useState(false);
 
   const cases = getERCases({ status: statusFilter });
   const stats = getERCaseStats();
@@ -230,6 +233,36 @@ export default function EmployeeRelations() {
     },
   ];
 
+  // Grouping configuration
+  const groupingConfig: GroupConfig = {
+    column: "priority",
+    label: "Priority Level",
+    aggregates: [
+      {
+        column: "id",
+        function: "count",
+        label: "Cases",
+        format: (value) => value.toString(),
+      },
+    ],
+    renderGroupHeader: (groupValue, count, aggregates) => (
+      <div className="flex items-center gap-4">
+        <span className={cn(
+          "font-semibold capitalize px-2.5 py-0.5 rounded-full text-xs",
+          groupValue === "urgent" && "bg-red-100 text-red-800",
+          groupValue === "high" && "bg-orange-100 text-orange-800",
+          groupValue === "medium" && "bg-yellow-100 text-yellow-800",
+          groupValue === "low" && "bg-blue-100 text-blue-800"
+        )}>
+          {groupValue} Priority
+        </span>
+        <span className="text-sm text-muted-foreground">
+          {count} case{count !== 1 ? 's' : ''}
+        </span>
+      </div>
+    ),
+  };
+
   // Advanced filters configuration
   const dateRangeFilters: DateRangeFilter[] = [
     { key: "opened", label: "Opened Date" },
@@ -296,10 +329,18 @@ export default function EmployeeRelations() {
               Manage grievances, investigations, and disciplinary cases
             </p>
           </div>
-          <Button onClick={() => setCaseDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Case
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant={enableGrouping ? "secondary" : "outline"}
+              onClick={() => setEnableGrouping(!enableGrouping)}
+            >
+              {enableGrouping ? "Disable" : "Enable"} Grouping
+            </Button>
+            <Button onClick={() => setCaseDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Case
+            </Button>
+          </div>
         </div>
 
         {/* Stats Overview */}
@@ -423,6 +464,8 @@ export default function EmployeeRelations() {
                     columnPreferenceKey="er-cases-columns"
                     inlineEditing={true}
                     onRowUpdate={handleRowUpdate}
+                    grouping={enableGrouping ? groupingConfig : undefined}
+                    defaultGroupsExpanded={true}
                     renderBulkActions={(selectedIds) => (
                       <Button
                         variant="destructive"
