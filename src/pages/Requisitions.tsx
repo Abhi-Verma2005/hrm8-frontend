@@ -4,13 +4,17 @@ import { Button } from "@/components/ui/button";
 import { Plus, FileText } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getRequisitions } from "@/lib/mockRequisitionStorage";
+import { getRequisitions, saveRequisition } from "@/lib/mockRequisitionStorage";
 import { JobRequisition } from "@/types/requisition";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { RequisitionForm } from "@/components/requisitions/RequisitionForm";
+import { toast } from "@/hooks/use-toast";
 
 export default function Requisitions() {
   const [requisitions, setRequisitions] = useState<JobRequisition[]>([]);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   useEffect(() => {
     loadRequisitions();
@@ -18,6 +22,58 @@ export default function Requisitions() {
 
   const loadRequisitions = () => {
     setRequisitions(getRequisitions());
+  };
+
+  const handleSubmitRequisition = (data: any) => {
+    const newRequisition: JobRequisition = {
+      id: `req-${Date.now()}`,
+      title: data.title,
+      department: data.department,
+      requestedBy: 'current-user-id',
+      requestedByName: 'Current User',
+      numberOfPositions: data.numberOfPositions,
+      employmentType: data.employmentType,
+      location: data.location,
+      justification: data.justification,
+      budgetCode: data.budgetCode,
+      estimatedSalary: {
+        min: data.salaryMin,
+        max: data.salaryMax,
+        currency: data.currency,
+      },
+      status: 'pending',
+      priority: data.priority,
+      requestDate: new Date().toISOString(),
+      targetStartDate: data.targetStartDate,
+      approvalWorkflow: [
+        {
+          id: 'step-1',
+          approverId: 'hr-manager-001',
+          approverName: 'HR Manager',
+          approverRole: 'HR Manager',
+          status: 'pending',
+          order: 1,
+        },
+        {
+          id: 'step-2',
+          approverId: 'cfo-001',
+          approverName: 'CFO',
+          approverRole: 'CFO',
+          status: 'pending',
+          order: 2,
+        },
+      ],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    saveRequisition(newRequisition);
+    loadRequisitions();
+    setIsFormOpen(false);
+    toast({
+      title: "Requisition Submitted",
+      description: "Your job requisition has been submitted for approval.",
+    });
   };
 
   const getStatusBadge = (status: JobRequisition['status']) => {
@@ -53,7 +109,7 @@ export default function Requisitions() {
               Manage hiring requests and approval workflows
             </p>
           </div>
-          <Button>
+          <Button onClick={() => setIsFormOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             New Requisition
           </Button>
@@ -110,7 +166,7 @@ export default function Requisitions() {
                 <p className="text-sm text-muted-foreground mb-4">
                   Create your first job requisition to start the approval process
                 </p>
-                <Button>
+                <Button onClick={() => setIsFormOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Create Requisition
                 </Button>
@@ -118,6 +174,18 @@ export default function Requisitions() {
             </Card>
           )}
         </div>
+
+        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>New Job Requisition</DialogTitle>
+            </DialogHeader>
+            <RequisitionForm 
+              onSubmit={handleSubmitRequisition}
+              onCancel={() => setIsFormOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardPageLayout>
   );

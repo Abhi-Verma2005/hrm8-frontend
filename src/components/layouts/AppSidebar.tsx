@@ -17,6 +17,15 @@ const coreNavItems = [
   { title: "Candidates", url: "/candidates", icon: Users },
 ];
 
+// ATS (Applicant Tracking System) Section
+const atsNavItems = [
+  { title: "Applications", url: "/applications", icon: FileText },
+  { title: "Requisitions", url: "/requisitions", icon: ClipboardList },
+  { title: "Interviews", url: "/interviews", icon: CalendarClock },
+  { title: "Offers", url: "/offers", icon: Mail },
+  { title: "Background Checks", url: "/background-checks", icon: Shield },
+];
+
 // OPERATIONS Section
 const operationsNavItems = [
   { title: "Employers", url: "/employers", icon: Building },
@@ -132,6 +141,47 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               {coreNavItems.map(item => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={isActive(item.url)}
+                    className={cn(
+                      "relative transition-all duration-200",
+                      "hover:bg-sidebar-accent/50",
+                      isActive(item.url) && [
+                        "bg-primary/10",
+                        "text-primary",
+                        "font-medium",
+                        isExpanded && "border-l-4 border-primary"
+                      ]
+                    )}
+                  >
+                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                      <item.icon className={cn(
+                        "h-5 w-5 transition-all",
+                        !isExpanded && "mx-auto"
+                      )} />
+                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarSeparator />
+
+        {/* ATS Section */}
+        <SidebarGroup>
+          {isExpanded && (
+            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              Recruitment (ATS)
+            </SidebarGroupLabel>
+          )}
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {atsNavItems.map(item => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 

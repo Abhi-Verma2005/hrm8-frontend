@@ -3,13 +3,17 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Plus } from "lucide-react";
-import { getBackgroundChecks } from "@/lib/mockBackgroundCheckStorage";
+import { getBackgroundChecks, saveBackgroundCheck } from "@/lib/mockBackgroundCheckStorage";
 import { BackgroundCheck } from "@/types/backgroundCheck";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BackgroundCheckForm } from "@/components/backgroundChecks/BackgroundCheckForm";
+import { toast } from "@/hooks/use-toast";
 
 export default function BackgroundChecks() {
   const [checks, setChecks] = useState<BackgroundCheck[]>([]);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   useEffect(() => {
     loadChecks();
@@ -17,6 +21,36 @@ export default function BackgroundChecks() {
 
   const loadChecks = () => {
     setChecks(getBackgroundChecks());
+  };
+
+  const handleInitiateCheck = (data: any) => {
+    const newCheck: BackgroundCheck = {
+      id: `bgc-${Date.now()}`,
+      candidateId: 'cand-temp',
+      candidateName: 'Sample Candidate',
+      provider: data.provider,
+      checkTypes: data.checkTypes.map((type: string) => ({
+        type: type as any,
+        required: true,
+      })),
+      status: 'pending-consent',
+      initiatedBy: 'current-user',
+      initiatedByName: 'Current User',
+      initiatedDate: new Date().toISOString(),
+      consentGiven: false,
+      results: [],
+      overallStatus: 'clear',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    saveBackgroundCheck(newCheck);
+    loadChecks();
+    setIsFormOpen(false);
+    toast({
+      title: "Background Check Initiated",
+      description: "Consent request has been sent to the candidate.",
+    });
   };
 
   const getStatusBadge = (status: BackgroundCheck['status']) => {
@@ -41,7 +75,7 @@ export default function BackgroundChecks() {
               Manage candidate screening and verification
             </p>
           </div>
-          <Button>
+          <Button onClick={() => setIsFormOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Initiate Check
           </Button>
@@ -89,6 +123,19 @@ export default function BackgroundChecks() {
             </Card>
           )}
         </div>
+
+        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Initiate Background Check</DialogTitle>
+            </DialogHeader>
+            <BackgroundCheckForm
+              candidateName="Sample Candidate"
+              onSubmit={handleInitiateCheck}
+              onCancel={() => setIsFormOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardPageLayout>
   );

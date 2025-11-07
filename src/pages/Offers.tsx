@@ -3,13 +3,17 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, Plus, Mail } from "lucide-react";
-import { getOffers } from "@/lib/mockOfferStorage";
+import { getOffers, saveOffer } from "@/lib/mockOfferStorage";
 import { OfferLetter } from "@/types/offer";
 import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { OfferForm } from "@/components/offers/OfferForm";
+import { toast } from "@/hooks/use-toast";
 
 export default function Offers() {
   const [offers, setOffers] = useState<OfferLetter[]>([]);
+  const [isFormOpen, setIsFormOpen] = useState(false);
 
   useEffect(() => {
     loadOffers();
@@ -17,6 +21,47 @@ export default function Offers() {
 
   const loadOffers = () => {
     setOffers(getOffers());
+  };
+
+  const handleSubmitOffer = (data: any) => {
+    const newOffer: OfferLetter = {
+      id: `offer-${Date.now()}`,
+      applicationId: 'app-temp',
+      candidateId: 'cand-temp',
+      candidateName: 'Sample Candidate',
+      candidateEmail: 'candidate@example.com',
+      jobId: 'job-temp',
+      jobTitle: 'Sample Position',
+      templateId: data.templateId,
+      offerType: data.offerType,
+      salary: data.salary,
+      salaryCurrency: data.salaryCurrency,
+      salaryPeriod: data.salaryPeriod,
+      startDate: data.startDate,
+      benefits: data.benefits?.split(',').map((b: string) => b.trim()) || [],
+      bonusStructure: data.bonusStructure,
+      equityOptions: data.equityOptions,
+      workLocation: data.workLocation,
+      workArrangement: data.workArrangement,
+      probationPeriod: data.probationPeriod,
+      vacationDays: data.vacationDays,
+      customTerms: [],
+      status: 'draft',
+      approvalWorkflow: [],
+      expiryDate: data.expiryDate,
+      customMessage: data.customMessage,
+      createdBy: 'current-user',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    saveOffer(newOffer);
+    loadOffers();
+    setIsFormOpen(false);
+    toast({
+      title: "Offer Letter Created",
+      description: "The offer letter has been created successfully.",
+    });
   };
 
   const getStatusBadge = (status: OfferLetter['status']) => {
@@ -43,7 +88,7 @@ export default function Offers() {
               Create and manage employment offers
             </p>
           </div>
-          <Button>
+          <Button onClick={() => setIsFormOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Create Offer
           </Button>
@@ -106,6 +151,20 @@ export default function Offers() {
             </Card>
           )}
         </div>
+
+        <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Create Offer Letter</DialogTitle>
+            </DialogHeader>
+            <OfferForm
+              candidateName="Sample Candidate"
+              jobTitle="Sample Position"
+              onSubmit={handleSubmitOffer}
+              onCancel={() => setIsFormOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardPageLayout>
   );

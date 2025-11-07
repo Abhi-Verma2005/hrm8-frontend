@@ -61,6 +61,7 @@ import RecruitmentIntegration from "./pages/RecruitmentIntegration";
 import EnhancedLearning from "./pages/EnhancedLearning";
 import PivotDemo from "./pages/PivotDemo";
 import Requisitions from "./pages/Requisitions";
+import RequisitionDetail from "./pages/RequisitionDetail";
 import Interviews from "./pages/Interviews";
 import Offers from "./pages/Offers";
 import BackgroundChecks from "./pages/BackgroundChecks";
@@ -111,11 +112,12 @@ function AppContent() {
             <Route path="/documents" element={<Documents />} />
             <Route path="/compensation" element={<Compensation />} />
             <Route path="/offboarding" element={<Offboarding />} />
-            <Route path="/applications" element={<Applications />} />
-            <Route path="/requisitions" element={<Requisitions />} />
-            <Route path="/interviews" element={<Interviews />} />
-            <Route path="/offers" element={<Offers />} />
-            <Route path="/background-checks" element={<BackgroundChecks />} />
+          <Route path="/applications" element={<Applications />} />
+          <Route path="/requisitions" element={<Requisitions />} />
+          <Route path="/requisitions/:id" element={<RequisitionDetail />} />
+          <Route path="/interviews" element={<Interviews />} />
+          <Route path="/offers" element={<Offers />} />
+          <Route path="/background-checks" element={<BackgroundChecks />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />
           <Route path="/users" element={<Users />} />
