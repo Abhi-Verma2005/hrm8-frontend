@@ -20,6 +20,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
 import { OfferForm } from "@/components/offers/OfferForm";
+import { getTemplateById } from "@/lib/mockTemplateStorage";
 
 interface ApplicationDetailPanelProps {
   application: Application | null;
@@ -264,9 +265,14 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
               candidateName={application.candidateName}
               jobTitle={application.jobTitle}
               onSubmit={(data) => {
-                console.log("Interview scheduled:", data);
+                const template = data.templateId ? getTemplateById(data.templateId) : null;
+                console.log("Interview scheduled:", { ...data, template });
                 setIsInterviewDialogOpen(false);
-                toast.success("Interview scheduled successfully");
+                toast.success(
+                  template 
+                    ? `Interview scheduled with ${template.name} template`
+                    : "Interview scheduled successfully"
+                );
               }}
               onCancel={() => setIsInterviewDialogOpen(false)}
             />

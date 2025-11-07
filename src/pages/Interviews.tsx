@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
+import { getTemplateById } from "@/lib/mockTemplateStorage";
 import { InterviewKanbanBoard } from "@/components/interviews/InterviewKanbanBoard";
 import { InterviewDetailPanel } from "@/components/interviews/InterviewDetailPanel";
 import { InterviewCalendarView } from "@/components/interviews/InterviewCalendarView";
@@ -33,6 +34,8 @@ export default function Interviews() {
   };
 
   const handleScheduleInterview = (data: any) => {
+    const template = data.templateId ? getTemplateById(data.templateId) : null;
+    
     const newInterview: Interview = {
       id: `int-${Date.now()}`,
       applicationId: 'app-temp',
@@ -40,6 +43,9 @@ export default function Interviews() {
       candidateName: 'Sample Candidate',
       jobId: 'job-temp',
       jobTitle: 'Sample Position',
+      templateId: data.templateId,
+      questions: template?.questions,
+      ratingCriteria: template?.ratingCriteria,
       interviewers: data.interviewers.split(',').map((email: string) => ({
         userId: `user-${Date.now()}`,
         name: email.trim(),
@@ -66,7 +72,9 @@ export default function Interviews() {
     setIsSchedulerOpen(false);
     toast({
       title: "Interview Scheduled",
-      description: "The interview has been scheduled successfully.",
+      description: template 
+        ? `Interview scheduled with ${template.name} template`
+        : "The interview has been scheduled successfully.",
     });
   };
 

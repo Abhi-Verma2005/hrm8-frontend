@@ -28,6 +28,20 @@ export interface Interview {
   candidateName: string;
   jobId: string;
   jobTitle: string;
+  templateId?: string;
+  questions?: Array<{
+    id: string;
+    question: string;
+    category: 'technical' | 'behavioral' | 'cultural' | 'general';
+    isRequired: boolean;
+    expectedDuration: number;
+  }>;
+  ratingCriteria?: Array<{
+    id: string;
+    name: string;
+    description: string;
+    weight: number;
+  }>;
   interviewers: InterviewParticipant[];
   scheduledDate: string;
   scheduledTime: string;
