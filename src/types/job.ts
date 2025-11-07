@@ -73,6 +73,16 @@ export interface Job {
   termsAccepted?: boolean;
   termsAcceptedAt?: Date;
   termsAcceptedBy?: string;
+  
+  // Internal Job Posting Fields
+  isInternal?: boolean;
+  internalOnly?: boolean;
+  eligibleDepartments?: string[];
+  internalApplyDeadline?: string;
+  currentEmployeePriority?: boolean;
+  
+  // Requisition Link
+  requisitionId?: string;
 }
 
 export interface JobTemplate {

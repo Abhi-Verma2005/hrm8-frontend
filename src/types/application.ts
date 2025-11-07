@@ -72,6 +72,16 @@ export interface Application {
   status: ApplicationStatus;
   stage: ApplicationStage;
   
+  // Internal Candidate Fields
+  isInternalCandidate?: boolean;
+  currentEmployeeId?: string;
+  currentDepartment?: string;
+  currentPosition?: string;
+  currentManager?: string;
+  yearsAtCompany?: number;
+  internalReferral?: boolean;
+  referredBy?: string;
+  
   // Documents
   resumeUrl?: string;
   coverLetterUrl?: string;

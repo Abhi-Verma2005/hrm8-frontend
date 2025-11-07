@@ -1,9 +1,66 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { FileText, Upload, Download } from "lucide-react";
+import { useState, useEffect } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
+import { Upload, Download, LayoutGrid, List } from "lucide-react";
+import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
+import { ApplicationDetailPanel } from "@/components/applications/ApplicationDetailPanel";
+import { ApplicationFilters } from "@/components/applications/ApplicationFilters";
+import { getApplications } from "@/lib/mockApplicationStorage";
+import { Application, ApplicationStage, ApplicationStatus } from "@/types/application";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Applications() {
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [detailPanelOpen, setDetailPanelOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStages, setSelectedStages] = useState<ApplicationStage[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<ApplicationStatus[]>([]);
+  const [viewMode, setViewMode] = useState<"pipeline" | "list">("pipeline");
+
+  useEffect(() => {
+    loadApplications();
+  }, []);
+
+  const loadApplications = () => {
+    const allApplications = getApplications();
+    setApplications(allApplications);
+  };
+
+  const handleApplicationClick = (application: Application) => {
+    setSelectedApplication(application);
+    setDetailPanelOpen(true);
+  };
+
+  const handleClearFilters = () => {
+    setSearchQuery("");
+    setSelectedStages([]);
+    setSelectedStatuses([]);
+  };
+
+  const filteredApplications = applications.filter((app) => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      if (
+        !app.candidateName.toLowerCase().includes(query) &&
+        !app.candidateEmail.toLowerCase().includes(query) &&
+        !app.jobTitle.toLowerCase().includes(query)
+      ) {
+        return false;
+      }
+    }
+
+    if (selectedStages.length > 0 && !selectedStages.includes(app.stage)) {
+      return false;
+    }
+
+    if (selectedStatuses.length > 0 && !selectedStatuses.includes(app.status)) {
+      return false;
+    }
+
+    return true;
+  });
+
   return (
     <DashboardPageLayout
       breadcrumbActions={
@@ -20,40 +77,56 @@ export default function Applications() {
       }
     >
       <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Applications</h1>
-          <p className="text-muted-foreground">Review and process applications</p>
-          {/* TODO: Add date filter when implementing application list */}
-          {/* Example:
-            import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
-            
-            <div className="mt-4">
-              <DateRangePicker
-                value={dateRange}
-                onChange={setDateRange}
-                placeholder="Filter by submission date"
-              />
-            </div>
-          */}
-        </div>
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-lg bg-accent/10 flex items-center justify-center">
-                <FileText className="h-6 w-6 text-accent" />
-              </div>
-              <div>
-                <CardTitle>Coming Soon</CardTitle>
-                <CardDescription>Application management features are under development</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              This page will allow you to review, filter, and process all job applications.
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Applications</h1>
+            <p className="text-muted-foreground">
+              Review and process {applications.length} applications
             </p>
-          </CardContent>
-        </Card>
+          </div>
+
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+            <TabsList>
+              <TabsTrigger value="pipeline">
+                <LayoutGrid className="h-4 w-4 mr-2" />
+                Pipeline
+              </TabsTrigger>
+              <TabsTrigger value="list">
+                <List className="h-4 w-4 mr-2" />
+                List
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        <ApplicationFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          selectedStages={selectedStages}
+          onStagesChange={setSelectedStages}
+          selectedStatuses={selectedStatuses}
+          onStatusesChange={setSelectedStatuses}
+          onClearFilters={handleClearFilters}
+        />
+
+        {viewMode === "pipeline" ? (
+          <ApplicationPipeline
+            applications={filteredApplications}
+            onApplicationClick={handleApplicationClick}
+            onRefresh={loadApplications}
+          />
+        ) : (
+          <div className="text-center text-muted-foreground py-12">
+            <p>List view coming soon</p>
+          </div>
+        )}
+
+        <ApplicationDetailPanel
+          application={selectedApplication}
+          open={detailPanelOpen}
+          onOpenChange={setDetailPanelOpen}
+          onRefresh={loadApplications}
+        />
       </div>
     </DashboardPageLayout>
   );
