@@ -25,13 +25,30 @@ const atsNavItems = [
       { title: "All Jobs", url: "/jobs" },
       { title: "Templates", url: "/jobs/templates" },
       { title: "Automation", url: "/jobs/automation" },
+      { title: "Analytics", url: "/jobs/analytics" },
     ]
   },
   { title: "Candidates", url: "/candidates", icon: Users },
   { title: "Applications", url: "/applications", icon: FileText },
   { title: "Requisitions", url: "/requisitions", icon: ClipboardList },
-  { title: "Interviews", url: "/interviews", icon: CalendarClock },
-  { title: "Offers", url: "/offers", icon: Mail },
+  { 
+    title: "Interviews", 
+    url: "/interviews", 
+    icon: CalendarClock,
+    subItems: [
+      { title: "All Interviews", url: "/interviews" },
+      { title: "Schedule", url: "/interviews/schedule" },
+    ]
+  },
+  { 
+    title: "Offers", 
+    url: "/offers", 
+    icon: Mail,
+    subItems: [
+      { title: "All Offers", url: "/offers" },
+      { title: "Management", url: "/offers/manage" },
+    ]
+  },
   { title: "Background Checks", url: "/background-checks", icon: Shield },
 ];
 
