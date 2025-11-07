@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Settings2, Download, FileSpreadsheet, FileText, Library, BarChart3, Copy, Save, Filter, ArrowUpDown, Layers } from "lucide-react";
+import { X, Settings2, Download, FileSpreadsheet, FileText, Library, BarChart3, Copy, Save, Filter, ArrowUpDown, Layers, Undo, Redo } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Table,
@@ -219,11 +219,81 @@ export function PivotTable<T extends Record<string, any>>({
   const [showConfigManager, setShowConfigManager] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [showDragDrop, setShowDragDrop] = useState(false);
+  
+  // Undo/Redo state
+  const [configHistory, setConfigHistory] = useState<PivotConfig[]>([config]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const isUndoRedoAction = useRef(false);
 
   const updateConfig = (newConfig: PivotConfig) => {
+    if (isUndoRedoAction.current) {
+      // If this is an undo/redo action, don't add to history
+      setConfig(newConfig);
+      onConfigChange?.(newConfig);
+      isUndoRedoAction.current = false;
+      return;
+    }
+
+    // Remove any future history if we're not at the end
+    const newHistory = configHistory.slice(0, historyIndex + 1);
+    
+    // Add new config to history
+    const updatedHistory = [...newHistory, newConfig];
+    
+    // Keep history limited to 50 entries
+    const limitedHistory = updatedHistory.slice(-50);
+    
+    setConfigHistory(limitedHistory);
+    setHistoryIndex(limitedHistory.length - 1);
     setConfig(newConfig);
     onConfigChange?.(newConfig);
   };
+
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      isUndoRedoAction.current = true;
+      updateConfig(configHistory[newIndex]);
+      toast({
+        title: "Undo",
+        description: "Configuration change reverted",
+      });
+    }
+  };
+
+  const handleRedo = () => {
+    if (historyIndex < configHistory.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      isUndoRedoAction.current = true;
+      updateConfig(configHistory[newIndex]);
+      toast({
+        title: "Redo",
+        description: "Configuration change reapplied",
+      });
+    }
+  };
+
+  // Keyboard shortcuts for undo/redo
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+        e.preventDefault();
+        handleUndo();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.key === "z" && e.shiftKey))) {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [historyIndex, configHistory]);
+
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < configHistory.length - 1;
 
   const addRow = (field: string) => {
     if (!config.rows.includes(field)) {
@@ -726,6 +796,24 @@ export function PivotTable<T extends Record<string, any>>({
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Pivot Configuration</h3>
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleUndo}
+                disabled={!canUndo}
+                title="Undo (Ctrl+Z)"
+              >
+                <Undo className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRedo}
+                disabled={!canRedo}
+                title="Redo (Ctrl+Y)"
+              >
+                <Redo className="h-4 w-4" />
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
