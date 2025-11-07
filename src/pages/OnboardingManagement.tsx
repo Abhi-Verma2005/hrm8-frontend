@@ -28,6 +28,9 @@ import { AutomationRulesDialog } from "@/components/onboarding/AutomationRulesDi
 import { AutomationMetricsDashboard } from "@/components/onboarding/AutomationMetricsDashboard";
 import { EmailDeliveryHistory } from "@/components/onboarding/EmailDeliveryHistory";
 import { EmailAnalyticsDashboard } from "@/components/onboarding/EmailAnalyticsDashboard";
+import { EmailTemplateRecommendations } from "@/components/onboarding/EmailTemplateRecommendations";
+import { EmailReportsExport } from "@/components/onboarding/EmailReportsExport";
+import { RecipientSegmentation } from "@/components/onboarding/RecipientSegmentation";
 import { getOnboardingWorkflows, getOnboardingStats, deleteOnboardingWorkflow, saveOnboardingWorkflow } from "@/lib/onboardingStorage";
 import { OnboardingStatus, OnboardingWorkflow } from "@/types/onboarding";
 import { exportToCSV } from "@/utils/exportHelpers";
@@ -45,7 +48,7 @@ export default function OnboardingManagement() {
   const [selectedWorkflowIds, setSelectedWorkflowIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
-  const [activeView, setActiveView] = useState<'workflows' | 'scheduled' | 'metrics' | 'delivery' | 'analytics'>('workflows');
+  const [activeView, setActiveView] = useState<'workflows' | 'scheduled' | 'metrics' | 'delivery' | 'analytics' | 'recommendations' | 'reports' | 'segmentation'>('workflows');
   const [editingScheduledEmail, setEditingScheduledEmail] = useState<ScheduledEmail | null>(null);
   const [showAutomationDialog, setShowAutomationDialog] = useState(false);
   const { toast } = useToast();
@@ -299,13 +302,16 @@ export default function OnboardingManagement() {
           </div>
         </div>
 
-        <Tabs value={activeView} onValueChange={(value) => setActiveView(value as 'workflows' | 'scheduled' | 'metrics' | 'delivery' | 'analytics')}>
-          <TabsList>
+        <Tabs value={activeView} onValueChange={(value) => setActiveView(value as any)}>
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
             <TabsTrigger value="workflows">Workflows</TabsTrigger>
-            <TabsTrigger value="scheduled">Scheduled Emails</TabsTrigger>
-            <TabsTrigger value="metrics">Automation Metrics</TabsTrigger>
-            <TabsTrigger value="delivery">Delivery History</TabsTrigger>
+            <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+            <TabsTrigger value="metrics">Metrics</TabsTrigger>
+            <TabsTrigger value="delivery">Delivery</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="recommendations">Tips</TabsTrigger>
+            <TabsTrigger value="reports">Reports</TabsTrigger>
+            <TabsTrigger value="segmentation">Segments</TabsTrigger>
           </TabsList>
 
           <TabsContent value="workflows" className="space-y-6">
@@ -525,6 +531,18 @@ export default function OnboardingManagement() {
 
       <TabsContent value="analytics" className="space-y-6">
         <EmailAnalyticsDashboard />
+      </TabsContent>
+
+      <TabsContent value="recommendations" className="space-y-6">
+        <EmailTemplateRecommendations />
+      </TabsContent>
+
+      <TabsContent value="reports" className="space-y-6">
+        <EmailReportsExport />
+      </TabsContent>
+
+      <TabsContent value="segmentation" className="space-y-6">
+        <RecipientSegmentation />
       </TabsContent>
       </Tabs>
 
