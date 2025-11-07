@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
@@ -78,6 +79,37 @@ export function InterviewFeedbackForm({
       recommendation: "maybe",
     },
   });
+
+  // Calculate weighted score automatically
+  const calculateWeightedScore = (): number => {
+    if (!hasCustomCriteria) return form.getValues("overallRating");
+    
+    const customRatings = form.getValues("customRatings") || {};
+    let totalScore = 0;
+    let totalWeight = 0;
+
+    ratingCriteria.forEach((criteria) => {
+      const rating = customRatings[criteria.id] || 3;
+      totalScore += rating * (criteria.weight / 100);
+      totalWeight += criteria.weight;
+    });
+
+    // Normalize if weights don't add up to 100
+    return totalWeight > 0 ? (totalScore * 100) / totalWeight : 3;
+  };
+
+  // Watch all custom ratings and update overall rating
+  const customRatings = form.watch("customRatings");
+  
+  useEffect(() => {
+    if (hasCustomCriteria && customRatings) {
+      const weightedScore = calculateWeightedScore();
+      form.setValue("overallRating", Number(weightedScore.toFixed(2)), { 
+        shouldValidate: false,
+        shouldDirty: false 
+      });
+    }
+  }, [customRatings, hasCustomCriteria]);
 
   const renderStars = (rating: number) => {
     return (
@@ -157,24 +189,60 @@ export function InterviewFeedbackForm({
               <FormField
                 control={form.control}
                 name="overallRating"
-                render={({ field }) => (
-                  <FormItem className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
-                    <FormLabel className="flex items-center justify-between">
-                      <span className="text-base font-bold">Overall Rating</span>
-                      {renderStars(field.value)}
-                    </FormLabel>
-                    <FormControl>
-                      <Slider
-                        min={1}
-                        max={5}
-                        step={1}
-                        value={[field.value]}
-                        onValueChange={(vals) => field.onChange(vals[0])}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const weightedScore = calculateWeightedScore();
+                  const breakdown = ratingCriteria.map((criteria) => {
+                    const rating = form.getValues(`customRatings.${criteria.id}`) || 3;
+                    const contribution = (rating * criteria.weight) / 100;
+                    return { ...criteria, rating, contribution };
+                  });
+
+                  return (
+                    <FormItem className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                      <FormLabel>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-base font-bold">Weighted Overall Rating</span>
+                          <div className="flex items-center gap-2">
+                            {renderStars(Math.round(weightedScore))}
+                            <span className="text-2xl font-bold text-primary">
+                              {weightedScore.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </FormLabel>
+                      
+                      <div className="mt-3 p-3 bg-background/50 rounded border space-y-2">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                          Score Breakdown
+                        </p>
+                        {breakdown.map((item) => (
+                          <div key={item.id} className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">
+                              {item.name} ({item.weight}%)
+                            </span>
+                            <span className="font-mono">
+                              {item.rating} × {item.weight}% = {item.contribution.toFixed(2)}
+                            </span>
+                          </div>
+                        ))}
+                        <div className="pt-2 border-t mt-2">
+                          <div className="flex items-center justify-between text-sm font-semibold">
+                            <span>Total Weighted Score</span>
+                            <span className="text-primary">{weightedScore.toFixed(2)} / 5.0</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <FormDescription className="mt-3 text-xs">
+                        Overall rating is automatically calculated based on weighted criteria scores
+                      </FormDescription>
+                      <FormControl>
+                        <input type="hidden" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
             </div>
           ) : (
