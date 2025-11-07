@@ -1,16 +1,19 @@
 import { useState, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DataTable } from "@/components/tables/DataTable";
 import { candidateTableColumns } from "@/components/candidates/CandidateTableColumns";
 import { CandidatesFilterBar } from "@/components/candidates/CandidatesFilterBar";
+import { CandidateDetailView } from "@/components/candidates/CandidateDetailView";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Button } from "@/components/ui/button";
 import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getCandidates } from "@/lib/mockCandidateStorage";
+import { getCandidates, getCandidateById } from "@/lib/mockCandidateStorage";
 import type { Candidate } from "@/types/entities";
 
 export default function Candidates() {
+  const { candidateId } = useParams<{ candidateId: string }>();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<Candidate['status'] | 'all'>('all');
   const [experienceLevelFilter, setExperienceLevelFilter] = useState<Candidate['experienceLevel'] | 'all'>('all');
@@ -19,6 +22,38 @@ export default function Candidates() {
   
   const candidates = getCandidates();
 
+  // If candidateId is present, show detail view
+  if (candidateId) {
+    const candidate = getCandidateById(candidateId);
+    
+    if (!candidate) {
+      return (
+        <DashboardPageLayout>
+          <div className="p-6">
+            <div className="text-center py-12">
+              <h2 className="text-2xl font-bold mb-2">Candidate Not Found</h2>
+              <p className="text-muted-foreground mb-4">
+                The candidate you're looking for doesn't exist or has been removed.
+              </p>
+              <Button asChild>
+                <Link to="/candidates">Back to Candidates</Link>
+              </Button>
+            </div>
+          </div>
+        </DashboardPageLayout>
+      );
+    }
+
+    return (
+      <DashboardPageLayout>
+        <div className="p-6">
+          <CandidateDetailView candidate={candidate} />
+        </div>
+      </DashboardPageLayout>
+    );
+  }
+  
+  // List view - show all candidates with filters
   const filteredCandidates = useMemo(() => {
     return candidates.filter(candidate => {
       // Search filter
