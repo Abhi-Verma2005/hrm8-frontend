@@ -465,6 +465,7 @@ export default function OnboardingManagement() {
           open={showEmailDialog}
           onOpenChange={setShowEmailDialog}
           selectedCount={selectedWorkflowIds.size}
+          selectedWorkflows={selectedWorkflows}
           onSend={handleSendEmail}
         />
       </div>
