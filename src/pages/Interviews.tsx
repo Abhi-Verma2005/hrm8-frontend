@@ -2,18 +2,21 @@ import { useState, useEffect } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar as CalendarIcon, Video, Phone, Users, Plus } from "lucide-react";
+import { Calendar as CalendarIcon, Video, Phone, Users, Plus, LayoutGrid, List } from "lucide-react";
 import { getInterviews, saveInterview } from "@/lib/mockInterviewStorage";
 import { Interview } from "@/types/interview";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
+import { InterviewKanbanBoard } from "@/components/interviews/InterviewKanbanBoard";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 
 export default function Interviews() {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
 
   useEffect(() => {
     loadInterviews();
@@ -88,59 +91,77 @@ export default function Interviews() {
           <div>
             <h1 className="text-3xl font-bold">Interviews</h1>
             <p className="text-muted-foreground">
-              Schedule and manage candidate interviews
+              Schedule and manage {interviews.length} candidate interviews
             </p>
           </div>
-          <Button onClick={() => setIsSchedulerOpen(true)}>
-            <CalendarIcon className="h-4 w-4 mr-2" />
-            Schedule Interview
-          </Button>
+          <div className="flex items-center gap-3">
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+              <TabsList>
+                <TabsTrigger value="kanban">
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  Board
+                </TabsTrigger>
+                <TabsTrigger value="list">
+                  <List className="h-4 w-4 mr-2" />
+                  List
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <Button onClick={() => setIsSchedulerOpen(true)}>
+              <CalendarIcon className="h-4 w-4 mr-2" />
+              Schedule Interview
+            </Button>
+          </div>
         </div>
 
-        <div className="grid gap-4">
-          {interviews.map((interview) => (
-            <Card key={interview.id}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle>{interview.candidateName}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{interview.jobTitle}</p>
+        {viewMode === "kanban" ? (
+          <InterviewKanbanBoard onRefresh={loadInterviews} />
+        ) : (
+          <div className="grid gap-4">
+            {interviews.map((interview) => (
+              <Card key={interview.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle>{interview.candidateName}</CardTitle>
+                      <p className="text-sm text-muted-foreground">{interview.jobTitle}</p>
+                    </div>
+                    {getStatusBadge(interview.status)}
                   </div>
-                  {getStatusBadge(interview.status)}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-6 text-sm">
-                  <div className="flex items-center gap-2">
-                    {getTypeIcon(interview.type)}
-                    <span className="capitalize">{interview.type}</span>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-6 text-sm">
+                    <div className="flex items-center gap-2">
+                      {getTypeIcon(interview.type)}
+                      <span className="capitalize">{interview.type}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4" />
+                      <span>
+                        {format(new Date(interview.scheduledDate), "PPP")} at {interview.scheduledTime}
+                      </span>
+                    </div>
+                    <div className="text-muted-foreground">
+                      {interview.duration} minutes
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <CalendarIcon className="h-4 w-4" />
-                    <span>
-                      {format(new Date(interview.scheduledDate), "PPP")} at {interview.scheduledTime}
-                    </span>
-                  </div>
-                  <div className="text-muted-foreground">
-                    {interview.duration} minutes
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))}
 
-          {interviews.length === 0 && (
-            <Card>
-              <CardContent className="py-12 text-center">
-                <CalendarIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-lg font-medium mb-2">No Scheduled Interviews</p>
-                <p className="text-sm text-muted-foreground">
-                  Schedule interviews from candidate applications
-                </p>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+            {interviews.length === 0 && (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <CalendarIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-lg font-medium mb-2">No Scheduled Interviews</p>
+                  <p className="text-sm text-muted-foreground">
+                    Schedule interviews from candidate applications
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
 
         <Dialog open={isSchedulerOpen} onOpenChange={setIsSchedulerOpen}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
