@@ -14,6 +14,7 @@ import { TableFilters, FilterOption, ActiveFilter } from "./TableFilters";
 import { TablePagination } from "./TablePagination";
 import { DataTableExport } from "./DataTableExport";
 import { AdvancedFilters, DateRangeFilter, MultiSelectFilter, FilterPreset } from "./AdvancedFilters";
+import { ColumnCustomization } from "./ColumnCustomization";
 
 export interface Column<T> {
   key: string;
@@ -46,6 +47,9 @@ interface DataTableProps<T> {
   multiSelectFilters?: MultiSelectFilter[];
   enableFilterPresets?: boolean;
   presetStorageKey?: string;
+  // Column customization
+  columnCustomization?: boolean;
+  columnPreferenceKey?: string;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -69,7 +73,9 @@ export function DataTable<T extends { id: string }>({
   dateRangeKey,
   multiSelectFilters: initialMultiSelectFilters = [],
   enableFilterPresets = false,
-  presetStorageKey = "table-filter-presets"
+  presetStorageKey = "table-filter-presets",
+  columnCustomization = false,
+  columnPreferenceKey = "table-column-preferences"
 }: DataTableProps<T>) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -89,6 +95,35 @@ export function DataTable<T extends { id: string }>({
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
+    }
+  });
+
+  // Column customization state
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(() => {
+    if (!columnCustomization) return columns.map(col => col.key);
+    try {
+      const stored = localStorage.getItem(`${columnPreferenceKey}-visible`);
+      return stored ? JSON.parse(stored) : columns.map(col => col.key);
+    } catch {
+      return columns.map(col => col.key);
+    }
+  });
+
+  const [columnOrder, setColumnOrder] = useState<string[]>(() => {
+    if (!columnCustomization) return columns.map(col => col.key);
+    try {
+      const stored = localStorage.getItem(`${columnPreferenceKey}-order`);
+      const savedOrder = stored ? JSON.parse(stored) : null;
+      if (savedOrder) {
+        // Ensure all current columns are included
+        const allKeys = columns.map(col => col.key);
+        const validOrder = savedOrder.filter((key: string) => allKeys.includes(key));
+        const missingKeys = allKeys.filter(key => !validOrder.includes(key));
+        return [...validOrder, ...missingKeys];
+      }
+      return columns.map(col => col.key);
+    } catch {
+      return columns.map(col => col.key);
     }
   });
 
@@ -180,6 +215,45 @@ export function DataTable<T extends { id: string }>({
       localStorage.setItem(presetStorageKey, JSON.stringify(newPresets));
     }
   };
+
+  // Column customization handlers
+  const handleColumnVisibilityChange = (columnKey: string, visible: boolean) => {
+    const newVisibleColumns = visible
+      ? [...visibleColumns, columnKey]
+      : visibleColumns.filter(key => key !== columnKey);
+    setVisibleColumns(newVisibleColumns);
+    if (columnCustomization) {
+      localStorage.setItem(`${columnPreferenceKey}-visible`, JSON.stringify(newVisibleColumns));
+    }
+  };
+
+  const handleColumnOrderChange = (newOrder: string[]) => {
+    setColumnOrder(newOrder);
+    if (columnCustomization) {
+      localStorage.setItem(`${columnPreferenceKey}-order`, JSON.stringify(newOrder));
+    }
+  };
+
+  const handleResetColumns = () => {
+    const defaultColumns = columns.map(col => col.key);
+    setVisibleColumns(defaultColumns);
+    setColumnOrder(defaultColumns);
+    if (columnCustomization) {
+      localStorage.removeItem(`${columnPreferenceKey}-visible`);
+      localStorage.removeItem(`${columnPreferenceKey}-order`);
+    }
+  };
+
+  // Get visible and ordered columns
+  const displayColumns = useMemo(() => {
+    if (!columnCustomization) return columns;
+    
+    const ordered = columnOrder
+      .map(key => columns.find(col => col.key === key))
+      .filter(Boolean) as Column<T>[];
+    
+    return ordered.filter(col => visibleColumns.includes(col.key));
+  }, [columns, columnOrder, visibleColumns, columnCustomization]);
 
   // Filter and sort data
   const filteredAndSortedData = useMemo(() => {
@@ -319,14 +393,26 @@ export function DataTable<T extends { id: string }>({
             />
           )}
         </div>
-        {exportable && (
-          <DataTableExport
-            data={filteredAndSortedData}
-            columns={columns}
-            filename={exportFilename}
-            selectedIds={selectedIds}
-          />
-        )}
+        <div className="flex items-center gap-2">
+          {columnCustomization && (
+            <ColumnCustomization
+              columns={columns}
+              visibleColumns={visibleColumns}
+              columnOrder={columnOrder}
+              onVisibilityChange={handleColumnVisibilityChange}
+              onOrderChange={handleColumnOrderChange}
+              onReset={handleResetColumns}
+            />
+          )}
+          {exportable && (
+            <DataTableExport
+              data={filteredAndSortedData}
+              columns={columns}
+              filename={exportFilename}
+              selectedIds={selectedIds}
+            />
+          )}
+        </div>
       </div>
 
       {/* Advanced Filters */}
@@ -375,7 +461,7 @@ export function DataTable<T extends { id: string }>({
                   />
                 </TableHead>
               )}
-              {columns.map((column) => (
+              {displayColumns.map((column) => (
                 <TableHead key={column.key} style={{ width: column.width }}>
                   {column.sortable ? (
                     <Button
@@ -397,7 +483,7 @@ export function DataTable<T extends { id: string }>({
             {paginatedData.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + (selectable ? 1 : 0)}
+                  colSpan={displayColumns.length + (selectable ? 1 : 0)}
                   className="h-24 text-center"
                 >
                   <p className="text-muted-foreground">{emptyMessage}</p>
@@ -415,7 +501,7 @@ export function DataTable<T extends { id: string }>({
                       />
                     </TableCell>
                   )}
-                  {columns.map((column) => (
+                  {displayColumns.map((column) => (
                     <TableCell key={column.key} style={{ width: column.width }}>
                       {column.render
                         ? column.render(item)

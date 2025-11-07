@@ -370,6 +370,8 @@ export default function EmployeeRelations() {
                     multiSelectFilters={multiSelectFilters}
                     enableFilterPresets={true}
                     presetStorageKey="er-cases-filter-presets"
+                    columnCustomization={true}
+                    columnPreferenceKey="er-cases-columns"
                     renderBulkActions={(selectedIds) => (
                       <Button
                         variant="destructive"
