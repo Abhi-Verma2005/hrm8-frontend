@@ -1,0 +1,72 @@
+export interface ScheduledEmail {
+  id: string;
+  emailType: string;
+  message: string;
+  recipientIds: string[];
+  recipientCount: number;
+  scheduledFor: Date;
+  createdAt: Date;
+  status: 'pending' | 'sent' | 'cancelled';
+}
+
+const STORAGE_KEY = "scheduled_emails";
+
+export function getScheduledEmails(): ScheduledEmail[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return [];
+    const emails = JSON.parse(saved);
+    // Convert date strings back to Date objects
+    return emails.map((email: any) => ({
+      ...email,
+      scheduledFor: new Date(email.scheduledFor),
+      createdAt: new Date(email.createdAt),
+    }));
+  } catch (error) {
+    console.error("Error loading scheduled emails:", error);
+    return [];
+  }
+}
+
+export function scheduleEmail(
+  emailType: string,
+  message: string,
+  recipientIds: string[],
+  scheduledFor: Date
+): ScheduledEmail {
+  const scheduledEmails = getScheduledEmails();
+  
+  const newEmail: ScheduledEmail = {
+    id: `scheduled-${Date.now()}`,
+    emailType,
+    message,
+    recipientIds,
+    recipientCount: recipientIds.length,
+    scheduledFor,
+    createdAt: new Date(),
+    status: 'pending',
+  };
+  
+  const updatedEmails = [...scheduledEmails, newEmail];
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEmails));
+  
+  return newEmail;
+}
+
+export function cancelScheduledEmail(id: string): void {
+  const scheduledEmails = getScheduledEmails();
+  const updatedEmails = scheduledEmails.map(email =>
+    email.id === id ? { ...email, status: 'cancelled' as const } : email
+  );
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEmails));
+}
+
+export function deleteScheduledEmail(id: string): void {
+  const scheduledEmails = getScheduledEmails();
+  const updatedEmails = scheduledEmails.filter(email => email.id !== id);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEmails));
+}
+
+export function getPendingScheduledEmails(): ScheduledEmail[] {
+  return getScheduledEmails().filter(email => email.status === 'pending');
+}

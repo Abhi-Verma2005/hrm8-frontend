@@ -27,6 +27,7 @@ import { getOnboardingWorkflows, getOnboardingStats, deleteOnboardingWorkflow, s
 import { OnboardingStatus } from "@/types/onboarding";
 import { exportToCSV } from "@/utils/exportHelpers";
 import { useToast } from "@/hooks/use-toast";
+import { scheduleEmail } from "@/lib/scheduledEmails";
 
 export default function OnboardingManagement() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -154,6 +155,19 @@ export default function OnboardingManagement() {
     toast({
       title: "Emails Sent",
       description: `Sent ${emailType} email to ${workflowIds.length} employee(s).`,
+    });
+    
+    setSelectedWorkflowIds(new Set());
+  };
+
+  const handleScheduleEmail = (emailType: string, message: string, workflowIds: string[], scheduledFor: Date) => {
+    if (workflowIds.length === 0) return;
+    
+    scheduleEmail(emailType, message, workflowIds, scheduledFor);
+    
+    toast({
+      title: "Email Scheduled",
+      description: `Email scheduled for ${scheduledFor.toLocaleString()} to ${workflowIds.length} employee(s).`,
     });
     
     setSelectedWorkflowIds(new Set());
@@ -467,6 +481,7 @@ export default function OnboardingManagement() {
           selectedCount={selectedWorkflowIds.size}
           selectedWorkflows={selectedWorkflows}
           onSend={handleSendEmail}
+          onSchedule={handleScheduleEmail}
         />
       </div>
     </DashboardPageLayout>

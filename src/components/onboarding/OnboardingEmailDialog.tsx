@@ -30,16 +30,21 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Mail, Eye, Plus, Save, Trash2 } from "lucide-react";
+import { Mail, Eye, Plus, Save, Trash2, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { OnboardingWorkflow } from "@/types/onboarding";
 import { getAllTemplates, saveTemplate, deleteTemplate, EmailTemplate } from "@/lib/emailTemplates";
+import { scheduleEmail } from "@/lib/scheduledEmails";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface OnboardingEmailDialogProps {
   open: boolean;
@@ -47,6 +52,7 @@ interface OnboardingEmailDialogProps {
   selectedCount: number;
   selectedWorkflows: OnboardingWorkflow[];
   onSend: (emailType: string, message: string, workflowIds: string[]) => void;
+  onSchedule: (emailType: string, message: string, workflowIds: string[], scheduledFor: Date) => void;
 }
 
 export function OnboardingEmailDialog({
@@ -55,6 +61,7 @@ export function OnboardingEmailDialog({
   selectedCount,
   selectedWorkflows,
   onSend,
+  onSchedule,
 }: OnboardingEmailDialogProps) {
   const [emailType, setEmailType] = useState<string>("welcome");
   const [message, setMessage] = useState("");
@@ -65,16 +72,43 @@ export function OnboardingEmailDialog({
   const [templateName, setTemplateName] = useState("");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
+  const [scheduleDate, setScheduleDate] = useState<Date>();
+  const [scheduleTime, setScheduleTime] = useState<string>("09:00");
+  const [isScheduling, setIsScheduling] = useState(false);
   const { toast } = useToast();
 
   const handleSend = () => {
     if (!message.trim() || includedWorkflows.length === 0) return;
     const workflowIds = includedWorkflows.map(w => w.id);
-    onSend(emailType, message, workflowIds);
+    
+    if (isScheduling && scheduleDate) {
+      // Parse time and combine with date
+      const [hours, minutes] = scheduleTime.split(':').map(Number);
+      const scheduledDateTime = new Date(scheduleDate);
+      scheduledDateTime.setHours(hours, minutes, 0, 0);
+      
+      // Check if scheduled time is in the past
+      if (scheduledDateTime <= new Date()) {
+        toast({
+          title: "Invalid schedule time",
+          description: "Please select a future date and time.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      onSchedule(emailType, message, workflowIds, scheduledDateTime);
+    } else {
+      onSend(emailType, message, workflowIds);
+    }
+    
     setMessage("");
     setEmailType("welcome");
     setActiveTab("compose");
     setExcludedWorkflowIds(new Set());
+    setScheduleDate(undefined);
+    setScheduleTime("09:00");
+    setIsScheduling(false);
     onOpenChange(false);
   };
 
@@ -281,6 +315,69 @@ export function OnboardingEmailDialog({
                 Available tokens: {tokens.map(t => t.value).join(", ")}
               </div>
             </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Send Options</Label>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="schedule-email"
+                    checked={isScheduling}
+                    onCheckedChange={(checked) => setIsScheduling(checked as boolean)}
+                  />
+                  <label htmlFor="schedule-email" className="text-sm cursor-pointer">
+                    Schedule for later
+                  </label>
+                </div>
+              </div>
+
+              {isScheduling && (
+                <div className="grid grid-cols-2 gap-3 p-3 border rounded-md">
+                  <div className="space-y-2">
+                    <Label htmlFor="schedule-date" className="text-xs">Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          id="schedule-date"
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !scheduleDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="h-4 w-4 mr-2" />
+                          {scheduleDate ? format(scheduleDate, "PPP") : "Pick a date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-popover z-50" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={scheduleDate}
+                          onSelect={setScheduleDate}
+                          disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="schedule-time" className="text-xs">Time</Label>
+                    <div className="relative">
+                      <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="schedule-time"
+                        type="time"
+                        value={scheduleTime}
+                        onChange={(e) => setScheduleTime(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="preview" className="py-4">
@@ -371,9 +468,22 @@ export function OnboardingEmailDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSend} disabled={!message.trim() || includedCount === 0}>
-            <Mail className="h-4 w-4 mr-2" />
-            Send Email to {includedCount}
+          <Button 
+            onClick={handleSend} 
+            disabled={!message.trim() || includedCount === 0 || (isScheduling && !scheduleDate)}
+          >
+            {isScheduling ? (
+              <>
+                <CalendarIcon className="h-4 w-4 mr-2" />
+                Schedule Email
+              </>
+            ) : (
+              <>
+                <Mail className="h-4 w-4 mr-2" />
+                Send Now
+              </>
+            )}
+            {" "}to {includedCount}
             {excludedWorkflowIds.size > 0 && (
               <span className="ml-1 text-xs opacity-70">({excludedWorkflowIds.size} excluded)</span>
             )}
