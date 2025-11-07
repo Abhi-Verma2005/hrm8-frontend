@@ -26,6 +26,10 @@ export default function Compliance() {
   const [deleteType, setDeleteType] = useState<"policy" | "dsr" | null>(null);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [bulkDeleteType, setBulkDeleteType] = useState<"policy" | "dsr" | null>(null);
+  const [selectedPolicies, setSelectedPolicies] = useState<string[]>([]);
+  const [selectedDSRs, setSelectedDSRs] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const auditLogs = getAuditLogs();
@@ -223,6 +227,39 @@ export default function Compliance() {
       }
     } catch (error) {
       toast.error("Failed to delete item");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (!bulkDeleteType) return;
+    
+    setIsDeleting(true);
+    try {
+      let successCount = 0;
+      let selectedIds: string[] = [];
+      
+      if (bulkDeleteType === "policy") {
+        selectedIds = selectedPolicies;
+        selectedIds.forEach((id) => {
+          if (deletePolicy(id)) successCount++;
+        });
+      } else if (bulkDeleteType === "dsr") {
+        selectedIds = selectedDSRs;
+        selectedIds.forEach((id) => {
+          if (deleteDataSubjectRequest(id)) successCount++;
+        });
+      }
+      
+      toast.success(`Successfully deleted ${successCount} item${successCount > 1 ? 's' : ''}`);
+      setBulkDeleteDialogOpen(false);
+      setSelectedPolicies([]);
+      setSelectedDSRs([]);
+      setBulkDeleteType(null);
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      toast.error("Failed to delete items");
     } finally {
       setIsDeleting(false);
     }
@@ -430,6 +467,21 @@ export default function Compliance() {
                   columns={policyColumns}
                   data={policies}
                   searchKeys={["title", "category"]}
+                  selectable={true}
+                  onSelectedRowsChange={setSelectedPolicies}
+                  renderBulkActions={(selectedIds) => (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        setBulkDeleteType("policy");
+                        setBulkDeleteDialogOpen(true);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Selected
+                    </Button>
+                  )}
                 />
               </CardContent>
             </Card>
@@ -514,6 +566,19 @@ export default function Compliance() {
           title={`Delete ${deleteType === "policy" ? "Policy" : "Data Subject Request"}`}
           description={`Are you sure you want to delete this ${deleteType === "policy" ? "policy" : "data subject request"}? This action cannot be undone.`}
           onConfirm={handleDelete}
+          isDeleting={isDeleting}
+        />
+        
+        <DeleteConfirmationDialog
+          open={bulkDeleteDialogOpen}
+          onOpenChange={setBulkDeleteDialogOpen}
+          title="Delete Multiple Items"
+          description={`Are you sure you want to delete ${
+            bulkDeleteType === 'policy' ? selectedPolicies.length : selectedDSRs.length
+          } item${
+            (bulkDeleteType === 'policy' ? selectedPolicies.length : selectedDSRs.length) > 1 ? 's' : ''
+          }? This action cannot be undone.`}
+          onConfirm={handleBulkDelete}
           isDeleting={isDeleting}
         />
       </div>

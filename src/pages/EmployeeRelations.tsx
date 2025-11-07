@@ -22,6 +22,8 @@ export default function EmployeeRelations() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [caseToDelete, setCaseToDelete] = useState<ERCase | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [selectedCases, setSelectedCases] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const cases = getERCases({ status: statusFilter });
@@ -45,6 +47,27 @@ export default function EmployeeRelations() {
       }
     } catch (error) {
       toast.error("Failed to delete case");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    setIsDeleting(true);
+    try {
+      let successCount = 0;
+      selectedCases.forEach((id) => {
+        if (deleteERCase(id)) {
+          successCount++;
+        }
+      });
+      
+      toast.success(`Successfully deleted ${successCount} case${successCount > 1 ? 's' : ''}`);
+      setBulkDeleteDialogOpen(false);
+      setSelectedCases([]);
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      toast.error("Failed to delete cases");
     } finally {
       setIsDeleting(false);
     }
@@ -305,6 +328,18 @@ export default function EmployeeRelations() {
                     columns={caseColumns}
                     data={cases}
                     searchKeys={["caseNumber", "type", "category"]}
+                    selectable={true}
+                    onSelectedRowsChange={setSelectedCases}
+                    renderBulkActions={(selectedIds) => (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setBulkDeleteDialogOpen(true)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Selected
+                      </Button>
+                    )}
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -391,6 +426,15 @@ export default function EmployeeRelations() {
           title="Delete ER Case"
           description={`Are you sure you want to delete case ${caseToDelete?.caseNumber}? This action cannot be undone.`}
           onConfirm={handleDeleteCase}
+          isDeleting={isDeleting}
+        />
+        
+        <DeleteConfirmationDialog
+          open={bulkDeleteDialogOpen}
+          onOpenChange={setBulkDeleteDialogOpen}
+          title="Delete Multiple Cases"
+          description={`Are you sure you want to delete ${selectedCases.length} case${selectedCases.length > 1 ? 's' : ''}? This action cannot be undone.`}
+          onConfirm={handleBulkDelete}
           isDeleting={isDeleting}
         />
       </div>

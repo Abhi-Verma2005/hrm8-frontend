@@ -23,6 +23,8 @@ export default function AccrualPolicies() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [policyToDelete, setPolicyToDelete] = useState<AccrualPolicy | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [selectedPolicies, setSelectedPolicies] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const policies = getAccrualPolicies();
@@ -196,6 +198,27 @@ export default function AccrualPolicies() {
     }
   };
 
+  const handleBulkDelete = () => {
+    setIsDeleting(true);
+    try {
+      let successCount = 0;
+      selectedPolicies.forEach((id) => {
+        if (deleteAccrualPolicy(id)) {
+          successCount++;
+        }
+      });
+      
+      toast.success(`Successfully deleted ${successCount} polic${successCount > 1 ? 'ies' : 'y'}`);
+      setBulkDeleteDialogOpen(false);
+      setSelectedPolicies([]);
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      toast.error("Failed to delete policies");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (!hasAccess) {
     return (
       <DashboardPageLayout>
@@ -318,6 +341,18 @@ export default function AccrualPolicies() {
                     columns={policyColumns}
                     data={policies}
                     searchKeys={["name", "leaveTypeName"]}
+                    selectable={true}
+                    onSelectedRowsChange={setSelectedPolicies}
+                    renderBulkActions={(selectedIds) => (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setBulkDeleteDialogOpen(true)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Selected
+                      </Button>
+                    )}
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -420,6 +455,15 @@ export default function AccrualPolicies() {
           title="Delete Accrual Policy"
           description={`Are you sure you want to delete "${policyToDelete?.name}"? This action cannot be undone.`}
           onConfirm={handleDeletePolicy}
+          isDeleting={isDeleting}
+        />
+        
+        <DeleteConfirmationDialog
+          open={bulkDeleteDialogOpen}
+          onOpenChange={setBulkDeleteDialogOpen}
+          title="Delete Multiple Policies"
+          description={`Are you sure you want to delete ${selectedPolicies.length} polic${selectedPolicies.length > 1 ? 'ies' : 'y'}? This action cannot be undone.`}
+          onConfirm={handleBulkDelete}
           isDeleting={isDeleting}
         />
       </div>

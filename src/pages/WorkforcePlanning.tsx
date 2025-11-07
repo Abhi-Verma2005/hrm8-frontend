@@ -22,6 +22,8 @@ export default function WorkforcePlanning() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [planToDelete, setPlanToDelete] = useState<HeadcountPlan | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [selectedPlans, setSelectedPlans] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const plans = getHeadcountPlans();
@@ -45,6 +47,27 @@ export default function WorkforcePlanning() {
       }
     } catch (error) {
       toast.error("Failed to delete plan");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    setIsDeleting(true);
+    try {
+      let successCount = 0;
+      selectedPlans.forEach((id) => {
+        if (deleteHeadcountPlan(id)) {
+          successCount++;
+        }
+      });
+      
+      toast.success(`Successfully deleted ${successCount} plan${successCount > 1 ? 's' : ''}`);
+      setBulkDeleteDialogOpen(false);
+      setSelectedPlans([]);
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      toast.error("Failed to delete plans");
     } finally {
       setIsDeleting(false);
     }
@@ -245,6 +268,18 @@ export default function WorkforcePlanning() {
                     columns={planColumns}
                     data={plans}
                     searchKeys={["department", "fiscalYear"]}
+                    selectable={true}
+                    onSelectedRowsChange={setSelectedPlans}
+                    renderBulkActions={(selectedIds) => (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setBulkDeleteDialogOpen(true)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Selected
+                      </Button>
+                    )}
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -398,6 +433,15 @@ export default function WorkforcePlanning() {
           title="Delete Headcount Plan"
           description={`Are you sure you want to delete the plan for ${planToDelete?.department} - FY${planToDelete?.fiscalYear}? This action cannot be undone.`}
           onConfirm={handleDeletePlan}
+          isDeleting={isDeleting}
+        />
+        
+        <DeleteConfirmationDialog
+          open={bulkDeleteDialogOpen}
+          onOpenChange={setBulkDeleteDialogOpen}
+          title="Delete Multiple Plans"
+          description={`Are you sure you want to delete ${selectedPlans.length} plan${selectedPlans.length > 1 ? 's' : ''}? This action cannot be undone.`}
+          onConfirm={handleBulkDelete}
           isDeleting={isDeleting}
         />
       </div>

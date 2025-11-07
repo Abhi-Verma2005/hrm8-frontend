@@ -29,6 +29,11 @@ export default function BenefitsAdmin() {
   const [deleteType, setDeleteType] = useState<"enrollment" | "life-event" | "cobra" | null>(null);
   const [itemToDelete, setItemToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [bulkDeleteType, setBulkDeleteType] = useState<"enrollment" | "life-event" | "cobra" | null>(null);
+  const [selectedEnrollments, setSelectedEnrollments] = useState<string[]>([]);
+  const [selectedLifeEvents, setSelectedLifeEvents] = useState<string[]>([]);
+  const [selectedCOBRA, setSelectedCOBRA] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
 
   const enrollmentPeriods = getEnrollmentPeriods();
@@ -67,6 +72,45 @@ export default function BenefitsAdmin() {
       }
     } catch (error) {
       toast.error("Failed to delete item");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (!bulkDeleteType) return;
+    
+    setIsDeleting(true);
+    try {
+      let successCount = 0;
+      let selectedIds: string[] = [];
+      
+      if (bulkDeleteType === "enrollment") {
+        selectedIds = selectedEnrollments;
+        selectedIds.forEach((id) => {
+          if (deleteEnrollmentPeriod(id)) successCount++;
+        });
+      } else if (bulkDeleteType === "life-event") {
+        selectedIds = selectedLifeEvents;
+        selectedIds.forEach((id) => {
+          if (deleteLifeEvent(id)) successCount++;
+        });
+      } else if (bulkDeleteType === "cobra") {
+        selectedIds = selectedCOBRA;
+        selectedIds.forEach((id) => {
+          if (deleteCOBRAEvent(id)) successCount++;
+        });
+      }
+      
+      toast.success(`Successfully deleted ${successCount} item${successCount > 1 ? 's' : ''}`);
+      setBulkDeleteDialogOpen(false);
+      setSelectedEnrollments([]);
+      setSelectedLifeEvents([]);
+      setSelectedCOBRA([]);
+      setBulkDeleteType(null);
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      toast.error("Failed to delete items");
     } finally {
       setIsDeleting(false);
     }
@@ -438,6 +482,21 @@ export default function BenefitsAdmin() {
                   columns={enrollmentColumns}
                   data={enrollmentPeriods}
                   searchKeys={["name", "type"]}
+                  selectable={true}
+                  onSelectedRowsChange={setSelectedEnrollments}
+                  renderBulkActions={(selectedIds) => (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        setBulkDeleteType("enrollment");
+                        setBulkDeleteDialogOpen(true);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Selected
+                    </Button>
+                  )}
                 />
               </CardContent>
             </Card>
@@ -465,6 +524,21 @@ export default function BenefitsAdmin() {
                     columns={lifeEventColumns}
                     data={lifeEvents}
                     searchKeys={["employeeName", "eventType"]}
+                    selectable={true}
+                    onSelectedRowsChange={setSelectedLifeEvents}
+                    renderBulkActions={(selectedIds) => (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          setBulkDeleteType("life-event");
+                          setBulkDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Selected
+                      </Button>
+                    )}
                   />
                 ) : (
                   <p className="text-sm text-muted-foreground text-center py-8">
@@ -513,6 +587,21 @@ export default function BenefitsAdmin() {
                     columns={cobraColumns}
                     data={cobraEvents}
                     searchKeys={["employeeName", "qualifyingEvent"]}
+                    selectable={true}
+                    onSelectedRowsChange={setSelectedCOBRA}
+                    renderBulkActions={(selectedIds) => (
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => {
+                          setBulkDeleteType("cobra");
+                          setBulkDeleteDialogOpen(true);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Selected
+                      </Button>
+                    )}
                   />
                 ) : (
                   <p className="text-sm text-muted-foreground text-center py-8">
@@ -583,6 +672,23 @@ export default function BenefitsAdmin() {
           title={`Delete ${deleteType === "enrollment" ? "Enrollment Period" : deleteType === "life-event" ? "Life Event" : "COBRA Event"}`}
           description={`Are you sure you want to delete this ${deleteType === "enrollment" ? "enrollment period" : deleteType === "life-event" ? "life event" : "COBRA event"}? This action cannot be undone.`}
           onConfirm={handleDelete}
+          isDeleting={isDeleting}
+        />
+        
+        <DeleteConfirmationDialog
+          open={bulkDeleteDialogOpen}
+          onOpenChange={setBulkDeleteDialogOpen}
+          title="Delete Multiple Items"
+          description={`Are you sure you want to delete ${
+            bulkDeleteType === 'enrollment' ? selectedEnrollments.length :
+            bulkDeleteType === 'life-event' ? selectedLifeEvents.length :
+            selectedCOBRA.length
+          } item${
+            (bulkDeleteType === 'enrollment' ? selectedEnrollments.length :
+            bulkDeleteType === 'life-event' ? selectedLifeEvents.length :
+            selectedCOBRA.length) > 1 ? 's' : ''
+          }? This action cannot be undone.`}
+          onConfirm={handleBulkDelete}
           isDeleting={isDeleting}
         />
       </div>

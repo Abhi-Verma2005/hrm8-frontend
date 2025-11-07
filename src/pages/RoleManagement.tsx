@@ -21,6 +21,8 @@ export default function RoleManagement() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [roleToDelete, setRoleToDelete] = useState<UserRole | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = useState(false);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const userRoles = getAllUserRoles();
 
@@ -116,6 +118,27 @@ export default function RoleManagement() {
       }
     } catch (error) {
       toast.error("Failed to revoke role");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    setIsDeleting(true);
+    try {
+      let successCount = 0;
+      selectedRoles.forEach((id) => {
+        if (deleteRoleAssignment(id)) {
+          successCount++;
+        }
+      });
+      
+      toast.success(`Successfully revoked ${successCount} role${successCount > 1 ? 's' : ''}`);
+      setBulkDeleteDialogOpen(false);
+      setSelectedRoles([]);
+      setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      toast.error("Failed to revoke roles");
     } finally {
       setIsDeleting(false);
     }
@@ -252,6 +275,18 @@ export default function RoleManagement() {
               columns={roleColumns}
               data={userRoles}
               searchKeys={["userId", "role"]}
+              selectable={true}
+              onSelectedRowsChange={setSelectedRoles}
+              renderBulkActions={(selectedIds) => (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setBulkDeleteDialogOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Revoke Selected
+                </Button>
+              )}
             />
           </CardContent>
         </Card>
@@ -275,6 +310,15 @@ export default function RoleManagement() {
           title="Revoke Role Assignment"
           description={`Are you sure you want to revoke ${roleToDelete?.role} role from user ${roleToDelete?.userId}? This action cannot be undone.`}
           onConfirm={handleDeleteRole}
+          isDeleting={isDeleting}
+        />
+        
+        <DeleteConfirmationDialog
+          open={bulkDeleteDialogOpen}
+          onOpenChange={setBulkDeleteDialogOpen}
+          title="Revoke Multiple Roles"
+          description={`Are you sure you want to revoke ${selectedRoles.length} role assignment${selectedRoles.length > 1 ? 's' : ''}? This action cannot be undone.`}
+          onConfirm={handleBulkDelete}
           isDeleting={isDeleting}
         />
       </div>
