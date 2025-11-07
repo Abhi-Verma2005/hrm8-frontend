@@ -41,6 +41,7 @@ export interface Interview {
   rating?: number;
   recommendation?: 'strong-yes' | 'yes' | 'maybe' | 'no' | 'strong-no';
   recordingUrl?: string;
+  notes?: string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;

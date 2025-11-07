@@ -26,6 +26,7 @@ import type { Interview, InterviewFeedback } from "@/types/interview";
 import { format } from "date-fns";
 import { useState } from "react";
 import { InterviewFeedbackForm } from "./InterviewFeedbackForm";
+import { InterviewNotesSection } from "./InterviewNotesSection";
 
 interface InterviewDetailPanelProps {
   interview: Interview | null;
@@ -478,6 +479,15 @@ export function InterviewDetailPanel({
             )}
           </CardContent>
         </Card>
+
+        {/* Interview Notes Section */}
+        <InterviewNotesSection 
+          interview={interview}
+          onSave={(notes) => {
+            const updatedInterview = { ...interview, notes };
+            onUpdateInterview?.(updatedInterview);
+          }}
+        />
 
         {/* Actions */}
         <div className="flex justify-end gap-2 pt-4">
