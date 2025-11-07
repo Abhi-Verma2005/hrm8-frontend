@@ -224,6 +224,65 @@ export function PivotTable<T extends Record<string, any>>({
   const [configHistory, setConfigHistory] = useState<PivotConfig[]>([config]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const isUndoRedoAction = useRef(false);
+  
+  // Auto-save state
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const AUTO_SAVE_KEY = "pivot-table-autosave";
+
+  // Load saved configuration on mount
+  useEffect(() => {
+    const savedConfig = localStorage.getItem(AUTO_SAVE_KEY);
+    if (savedConfig && autoSaveEnabled) {
+      try {
+        const parsed = JSON.parse(savedConfig);
+        setConfig(parsed);
+        onConfigChange?.(parsed);
+        setLastSaved(new Date(parsed.savedAt || Date.now()));
+        toast({
+          title: "Configuration Restored",
+          description: "Auto-saved configuration loaded successfully",
+        });
+      } catch (error) {
+        console.error("Failed to load saved configuration:", error);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-save configuration with debouncing
+  useEffect(() => {
+    if (!autoSaveEnabled) return;
+
+    if (autoSaveTimerRef.current) {
+      clearTimeout(autoSaveTimerRef.current);
+    }
+
+    autoSaveTimerRef.current = setTimeout(() => {
+      const configToSave = {
+        ...config,
+        savedAt: Date.now(),
+      };
+      localStorage.setItem(AUTO_SAVE_KEY, JSON.stringify(configToSave));
+      setLastSaved(new Date());
+    }, 2000); // Save after 2 seconds of inactivity
+
+    return () => {
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [config, autoSaveEnabled]);
+
+  const clearAutoSave = () => {
+    localStorage.removeItem(AUTO_SAVE_KEY);
+    setLastSaved(null);
+    toast({
+      title: "Auto-save Cleared",
+      description: "Saved configuration has been removed",
+    });
+  };
 
   const updateConfig = (newConfig: PivotConfig) => {
     if (isUndoRedoAction.current) {
@@ -794,7 +853,14 @@ export function PivotTable<T extends Record<string, any>>({
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Pivot Configuration</h3>
+            <div>
+              <h3 className="text-lg font-semibold">Pivot Configuration</h3>
+              {lastSaved && autoSaveEnabled && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Last saved: {lastSaved.toLocaleTimeString()}
+                </p>
+              )}
+            </div>
             <div className="flex gap-2">
               <Button
                 variant="outline"
@@ -814,6 +880,26 @@ export function PivotTable<T extends Record<string, any>>({
               >
                 <Redo className="h-4 w-4" />
               </Button>
+              <Button
+                variant={autoSaveEnabled ? "default" : "outline"}
+                size="sm"
+                onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}
+                title={`Auto-save is ${autoSaveEnabled ? "enabled" : "disabled"}`}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Auto-save {autoSaveEnabled ? "On" : "Off"}
+              </Button>
+              {lastSaved && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearAutoSave}
+                  title="Clear saved configuration"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Clear
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
