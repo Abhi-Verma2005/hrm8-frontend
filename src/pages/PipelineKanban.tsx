@@ -25,6 +25,7 @@ import {
 } from "@dnd-kit/core";
 import { PipelineColumn } from "@/components/pipeline/PipelineColumn";
 import { CandidateCard } from "@/components/pipeline/CandidateCard";
+import { AICandidateScoring } from "@/components/candidates/AICandidateScoring";
 import {
   getPipelineStages,
   getPipelineCandidates,
@@ -54,6 +55,8 @@ export default function PipelineKanban() {
   const [selectedJob, setSelectedJob] = useState<string>("all");
   const [selectedPriority, setSelectedPriority] = useState<string>("all");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [scoringDialogOpen, setScoringDialogOpen] = useState(false);
+  const [selectedForScoring, setSelectedForScoring] = useState<PipelineCandidate | null>(null);
 
   const jobs = getJobs();
   const stages = getPipelineStages();
@@ -136,6 +139,11 @@ export default function PipelineKanban() {
       title: "Candidate Details",
       description: `Viewing details for ${candidate.name}`,
     });
+  };
+
+  const handleAIScore = (candidate: PipelineCandidate) => {
+    setSelectedForScoring(candidate);
+    setScoringDialogOpen(true);
   };
 
   const chartData = stages
@@ -290,6 +298,7 @@ export default function PipelineKanban() {
                       candidates={stageCandidates}
                       onPriorityChange={handlePriorityChange}
                       onViewDetails={handleViewDetails}
+                      onAIScore={handleAIScore}
                     />
                   );
                 })}
@@ -367,6 +376,25 @@ export default function PipelineKanban() {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {selectedForScoring && (
+          <AICandidateScoring
+            open={scoringDialogOpen}
+            onOpenChange={setScoringDialogOpen}
+            candidateName={selectedForScoring.name}
+            candidateData={{
+              resume: `Professional with ${selectedForScoring.tags.join(', ')} skills`,
+              experience: `${selectedForScoring.matchScore}% match based on profile analysis`,
+              skills: selectedForScoring.tags,
+              education: 'Bachelor\'s degree or equivalent',
+            }}
+            jobData={{
+              title: selectedForScoring.jobTitle,
+              requirements: `Looking for candidates with ${selectedForScoring.tags.join(', ')} expertise`,
+              description: `Position requires strong skills in ${selectedForScoring.tags.slice(0, 3).join(', ')} and related technologies`,
+            }}
+          />
+        )}
       </div>
     </DashboardPageLayout>
   );

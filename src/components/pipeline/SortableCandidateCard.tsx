@@ -7,12 +7,14 @@ interface SortableCandidateCardProps {
   candidate: PipelineCandidate;
   onPriorityChange: (priority: 'high' | 'medium' | 'low') => void;
   onViewDetails: () => void;
+  onAIScore: () => void;
 }
 
 export function SortableCandidateCard({
   candidate,
   onPriorityChange,
   onViewDetails,
+  onAIScore,
 }: SortableCandidateCardProps) {
   const {
     attributes,
@@ -40,6 +42,7 @@ export function SortableCandidateCard({
         candidate={candidate}
         onPriorityChange={onPriorityChange}
         onViewDetails={onViewDetails}
+        onAIScore={onAIScore}
         isDragging={isDragging}
       />
     </div>

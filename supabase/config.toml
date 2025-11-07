@@ -9,3 +9,6 @@ max_rows = 1000
 
 [functions.learning-recommendations]
 verify_jwt = false
+
+[functions.score-candidate]
+verify_jwt = false

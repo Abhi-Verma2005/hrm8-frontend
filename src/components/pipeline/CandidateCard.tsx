@@ -18,6 +18,7 @@ import {
   FileText,
   Trash2,
   Flag,
+  Sparkles,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,7 @@ interface CandidateCardProps {
   candidate: PipelineCandidate;
   onPriorityChange?: (priority: 'high' | 'medium' | 'low') => void;
   onViewDetails?: () => void;
+  onAIScore?: () => void;
   isDragging?: boolean;
 }
 
@@ -33,6 +35,7 @@ export function CandidateCard({
   candidate,
   onPriorityChange,
   onViewDetails,
+  onAIScore,
   isDragging,
 }: CandidateCardProps) {
   const initials = candidate.name
@@ -83,6 +86,10 @@ export function CandidateCard({
             <DropdownMenuItem onClick={onViewDetails}>
               <FileText className="h-4 w-4 mr-2" />
               View Details
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={onAIScore}>
+              <Sparkles className="h-4 w-4 mr-2 text-primary" />
+              AI Score
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onPriorityChange?.('high')}>

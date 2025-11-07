@@ -10,6 +10,7 @@ interface PipelineColumnProps {
   candidates: PipelineCandidate[];
   onPriorityChange: (candidateId: string, priority: 'high' | 'medium' | 'low') => void;
   onViewDetails: (candidate: PipelineCandidate) => void;
+  onAIScore: (candidate: PipelineCandidate) => void;
 }
 
 export function PipelineColumn({
@@ -17,6 +18,7 @@ export function PipelineColumn({
   candidates,
   onPriorityChange,
   onViewDetails,
+  onAIScore,
 }: PipelineColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: stage.id,
@@ -62,6 +64,7 @@ export function PipelineColumn({
               candidate={candidate}
               onPriorityChange={(priority) => onPriorityChange(candidate.id, priority)}
               onViewDetails={() => onViewDetails(candidate)}
+              onAIScore={() => onAIScore(candidate)}
             />
           ))}
         </SortableContext>
