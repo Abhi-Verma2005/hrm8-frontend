@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
-import { Plus, Users, Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { Plus, Users, Clock, CheckCircle2, AlertCircle, Upload, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -50,18 +50,43 @@ export default function OnboardingManagement() {
   };
 
   return (
-    <DashboardPageLayout>
+    <DashboardPageLayout
+      breadcrumbActions={
+        <>
+          <Button variant="outline" size="sm">
+            <Upload className="mr-2 h-4 w-4" />
+            Import
+          </Button>
+          <Button variant="outline" size="sm">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+        </>
+      }
+    >
       <Helmet>
         <title>Employee Onboarding - HRMS</title>
       </Helmet>
 
-      <div className="container mx-auto p-6 space-y-6">
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Employee Onboarding</h1>
-          <p className="text-muted-foreground">Manage employee onboarding workflows, tasks, and documents</p>
+      <div className="p-6 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Employee Onboarding</h1>
+            <p className="text-muted-foreground">Manage employee onboarding workflows, tasks, and documents</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowTemplateDialog(true)}>
+              Manage Templates
+            </Button>
+            <Button onClick={() => setShowWorkflowDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Workflow
+            </Button>
+          </div>
         </div>
+        
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Workflows</CardTitle>
@@ -115,51 +140,39 @@ export default function OnboardingManagement() {
           </Card>
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 justify-between">
-          <div className="flex flex-col sm:flex-row gap-3 flex-1">
-            <Input
-              placeholder="Search by name, email, or job title..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="max-w-xs"
-            />
-            
-            <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="not-started">Not Started</SelectItem>
-                <SelectItem value="in-progress">In Progress</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="overdue">Overdue</SelectItem>
-              </SelectContent>
-            </Select>
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Input
+            placeholder="Search by name, email, or job title..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="max-w-xs"
+          />
+          
+          <Select value={statusFilter} onValueChange={(value: any) => setStatusFilter(value)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="not-started">Not Started</SelectItem>
+              <SelectItem value="in-progress">In Progress</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="overdue">Overdue</SelectItem>
+            </SelectContent>
+          </Select>
 
-            <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                {departments.map(dept => (
-                  <SelectItem key={dept} value={dept}>{dept}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setShowTemplateDialog(true)}>
-              Manage Templates
-            </Button>
-            <Button onClick={() => setShowWorkflowDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              New Workflow
-            </Button>
-          </div>
+          <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by department" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Departments</SelectItem>
+              {departments.map(dept => (
+                <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Workflows List */}
