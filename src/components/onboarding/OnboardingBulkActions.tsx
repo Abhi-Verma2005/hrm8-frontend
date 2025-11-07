@@ -5,7 +5,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CheckSquare, Trash2, Download, RefreshCw } from "lucide-react";
+import { CheckSquare, Trash2, Download, RefreshCw, Mail } from "lucide-react";
 import { OnboardingStatus } from "@/types/onboarding";
 
 interface OnboardingBulkActionsProps {
@@ -13,6 +13,7 @@ interface OnboardingBulkActionsProps {
   onUpdateStatus: (status: OnboardingStatus) => void;
   onDelete: () => void;
   onExport: () => void;
+  onSendEmail: () => void;
   onClearSelection: () => void;
 }
 
@@ -21,6 +22,7 @@ export function OnboardingBulkActions({
   onUpdateStatus,
   onDelete,
   onExport,
+  onSendEmail,
   onClearSelection,
 }: OnboardingBulkActionsProps) {
   if (selectedCount === 0) return null;
@@ -57,6 +59,11 @@ export function OnboardingBulkActions({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <Button size="sm" variant="outline" onClick={onSendEmail}>
+          <Mail className="h-4 w-4 mr-2" />
+          Send Email
+        </Button>
 
         <Button size="sm" variant="outline" onClick={onExport}>
           <Download className="h-4 w-4 mr-2" />

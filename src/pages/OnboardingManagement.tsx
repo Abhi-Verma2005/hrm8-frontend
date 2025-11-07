@@ -22,6 +22,7 @@ import { OnboardingWorkflowCard } from "@/components/onboarding/OnboardingWorkfl
 import { OnboardingWorkflowDialog } from "@/components/onboarding/OnboardingWorkflowDialog";
 import { OnboardingTemplateDialog } from "@/components/onboarding/OnboardingTemplateDialog";
 import { OnboardingBulkActions } from "@/components/onboarding/OnboardingBulkActions";
+import { OnboardingEmailDialog } from "@/components/onboarding/OnboardingEmailDialog";
 import { getOnboardingWorkflows, getOnboardingStats, deleteOnboardingWorkflow, saveOnboardingWorkflow } from "@/lib/onboardingStorage";
 import { OnboardingStatus } from "@/types/onboarding";
 import { exportToCSV } from "@/utils/exportHelpers";
@@ -36,6 +37,7 @@ export default function OnboardingManagement() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedWorkflowIds, setSelectedWorkflowIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
   const { toast } = useToast();
 
   const workflows = useMemo(() => getOnboardingWorkflows(), [refreshKey]);
@@ -144,6 +146,17 @@ export default function OnboardingManagement() {
       title: "Export successful",
       description: `${selectedWorkflowIds.size} workflow(s) exported to CSV.`,
     });
+  };
+
+  const handleSendEmail = (emailType: string, message: string) => {
+    if (selectedWorkflowIds.size === 0) return;
+    
+    toast({
+      title: "Emails Sent",
+      description: `Sent ${emailType} email to ${selectedWorkflowIds.size} employee(s).`,
+    });
+    
+    setSelectedWorkflowIds(new Set());
   };
 
   const handleClearSelection = () => {
@@ -414,6 +427,7 @@ export default function OnboardingManagement() {
           onUpdateStatus={handleBulkStatusUpdate}
           onDelete={handleBulkDelete}
           onExport={handleBulkExport}
+          onSendEmail={() => setShowEmailDialog(true)}
           onClearSelection={handleClearSelection}
         />
 
@@ -446,6 +460,13 @@ export default function OnboardingManagement() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <OnboardingEmailDialog
+          open={showEmailDialog}
+          onOpenChange={setShowEmailDialog}
+          selectedCount={selectedWorkflowIds.size}
+          onSend={handleSendEmail}
+        />
       </div>
     </DashboardPageLayout>
   );
