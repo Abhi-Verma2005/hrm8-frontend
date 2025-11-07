@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Plus, Users, Clock, CheckCircle2, AlertCircle, Upload, Download, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ import { OnboardingStatus, OnboardingWorkflow } from "@/types/onboarding";
 import { exportToCSV } from "@/utils/exportHelpers";
 import { useToast } from "@/hooks/use-toast";
 import { scheduleEmail, updateScheduledEmail, ScheduledEmail } from "@/lib/scheduledEmails";
+import { processAutomations } from "@/lib/automatedReminders";
 
 export default function OnboardingManagement() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -48,6 +49,24 @@ export default function OnboardingManagement() {
 
   const workflows = useMemo(() => getOnboardingWorkflows(), [refreshKey]);
   const stats = useMemo(() => getOnboardingStats(), [refreshKey]);
+
+  // Automatically process automations on page load and when workflows change
+  useEffect(() => {
+    if (workflows.length > 0) {
+      const result = processAutomations(workflows);
+      
+      if (result.created > 0) {
+        toast({
+          title: "Automation Rules Processed",
+          description: `${result.created} email(s) scheduled automatically.`,
+        });
+      }
+      
+      if (result.errors.length > 0) {
+        console.error("Automation errors:", result.errors);
+      }
+    }
+  }, [workflows.length, toast]);
 
   const filteredWorkflows = useMemo(() => {
     return workflows.filter(workflow => {
@@ -72,6 +91,19 @@ export default function OnboardingManagement() {
     setRefreshKey(prev => prev + 1);
     setShowWorkflowDialog(false);
     setShowTemplateDialog(false);
+    
+    // Process automations after workflow creation/update
+    setTimeout(() => {
+      const updatedWorkflows = getOnboardingWorkflows();
+      const result = processAutomations(updatedWorkflows);
+      
+      if (result.created > 0) {
+        toast({
+          title: "Automation Applied",
+          description: `${result.created} email(s) scheduled automatically based on your rules.`,
+        });
+      }
+    }, 100);
   };
 
   const handleSelectWorkflow = (id: string, selected: boolean) => {
