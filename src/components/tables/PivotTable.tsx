@@ -9,7 +9,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Settings2, Download, FileSpreadsheet, FileText, Library, BarChart3 } from "lucide-react";
+import { X, Settings2, Download, FileSpreadsheet, FileText, Library, BarChart3, Copy, Save, Filter, ArrowUpDown } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -29,6 +30,10 @@ import * as XLSX from "xlsx";
 import { PivotDrillDown } from "./PivotDrillDown";
 import { PivotTemplates } from "./PivotTemplates";
 import { PivotChart } from "./PivotChart";
+import { PivotSorting, SortConfig } from "./PivotSorting";
+import { PivotFilters, FilterConfig } from "./PivotFilters";
+import { PivotFormatting, NumberFormat, formatNumber } from "./PivotFormatting";
+import { PivotConfigManager } from "./PivotConfigManager";
 
 export type PivotAggregateFunction = "sum" | "avg" | "count" | "min" | "max";
 
@@ -58,6 +63,9 @@ export interface PivotConfig {
   conditionalFormatting?: ConditionalFormatting;
   showTotals?: boolean;
   showChart?: boolean;
+  sortConfig?: SortConfig[];
+  filters?: FilterConfig[];
+  numberFormat?: NumberFormat;
 }
 
 interface PivotTableProps<T> {
@@ -181,6 +189,7 @@ export function PivotTable<T extends Record<string, any>>({
   initialConfig,
   onConfigChange,
 }: PivotTableProps<T>) {
+  const { toast } = useToast();
   const [config, setConfig] = useState<PivotConfig>(
     initialConfig || {
       rows: [],
@@ -194,11 +203,20 @@ export function PivotTable<T extends Record<string, any>>({
       },
       showTotals: false,
       showChart: false,
+      sortConfig: [],
+      filters: [],
+      numberFormat: {
+        type: "number",
+        decimals: 2,
+        thousandsSeparator: false,
+      },
     }
   );
   const [showConfig, setShowConfig] = useState(!initialConfig);
   const [drillDownData, setDrillDownData] = useState<any>(null);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showConfigManager, setShowConfigManager] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const updateConfig = (newConfig: PivotConfig) => {
     setConfig(newConfig);
@@ -247,6 +265,37 @@ export function PivotTable<T extends Record<string, any>>({
     });
   };
 
+  // Apply filters to data
+  const filteredData = useMemo(() => {
+    if (!config.filters || config.filters.length === 0) return data;
+
+    return data.filter((item) => {
+      return config.filters!.every((filter) => {
+        const value = item[filter.field];
+        const filterValue = filter.value;
+
+        switch (filter.operator) {
+          case "equals":
+            return String(value) === String(filterValue);
+          case "contains":
+            return String(value).toLowerCase().includes(String(filterValue).toLowerCase());
+          case "gt":
+            return Number(value) > Number(filterValue);
+          case "lt":
+            return Number(value) < Number(filterValue);
+          case "gte":
+            return Number(value) >= Number(filterValue);
+          case "lte":
+            return Number(value) <= Number(filterValue);
+          case "between":
+            return Number(value) >= Number(filterValue) && Number(value) <= Number(filter.value2 || filterValue);
+          default:
+            return true;
+        }
+      });
+    });
+  }, [data, config.filters]);
+
   // Calculate pivot data
   const pivotData = useMemo(() => {
     if (config.rows.length === 0 || config.values.length === 0) {
@@ -259,7 +308,7 @@ export function PivotTable<T extends Record<string, any>>({
     const colKeys = new Set<string>();
 
     // Group data
-    data.forEach((item) => {
+    filteredData.forEach((item) => {
       const rowKey = config.rows.map((r) => String(item[r] || "")).join(" | ");
       const colKey =
         config.columns.length > 0
@@ -307,8 +356,30 @@ export function PivotTable<T extends Record<string, any>>({
     let minValue = Infinity;
     let maxValue = -Infinity;
 
-    const sortedRowKeys = Array.from(rowKeys).sort();
-    const sortedColKeys = Array.from(colKeys).sort();
+    let sortedRowKeys = Array.from(rowKeys).sort();
+    let sortedColKeys = Array.from(colKeys).sort();
+
+    // Apply sorting
+    if (config.sortConfig && config.sortConfig.length > 0) {
+      config.sortConfig.forEach((sortConfig) => {
+        const isValueField = sortConfig.field.includes("_");
+        
+        if (isValueField) {
+          // Sort by value column
+          sortedRowKeys.sort((a, b) => {
+            const aVal = Number(result[a]?.[sortedColKeys[0]]?.[sortConfig.field]?.[0] || 0);
+            const bVal = Number(result[b]?.[sortedColKeys[0]]?.[sortConfig.field]?.[0] || 0);
+            return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
+          });
+        } else {
+          // Sort by dimension
+          sortedRowKeys.sort((a, b) => {
+            const compare = a.localeCompare(b);
+            return sortConfig.direction === "asc" ? compare : -compare;
+          });
+        }
+      });
+    }
 
     sortedRowKeys.forEach((rowKey) => {
       aggregated[rowKey] = {};
@@ -392,7 +463,46 @@ export function PivotTable<T extends Record<string, any>>({
       colTotals,
       grandTotal,
     };
-  }, [data, config]);
+  }, [filteredData, config]);
+
+  const copyToClipboard = () => {
+    if (!pivotData) return;
+
+    const rows: string[] = [];
+    
+    // Header
+    const header1 = [
+      config.rows.map((r) => {
+        const field = availableFields.find((f) => f.key === r);
+        return field?.label || r;
+      }).join(" / "),
+      ...pivotData.colKeys.flatMap((colKey) =>
+        config.values.map((v) => `${colKey} - ${v.label}`)
+      ),
+    ];
+    rows.push(header1.join("\t"));
+
+    // Data
+    pivotData.rowKeys.forEach((rowKey) => {
+      const row = [
+        rowKey,
+        ...pivotData.colKeys.flatMap((colKey) =>
+          config.values.map((value) => {
+            const key = `${value.field}_${value.aggregation}`;
+            const cellValue = Number(pivotData.data[rowKey]?.[colKey]?.[key] || 0);
+            return formatNumber(cellValue, config.numberFormat!);
+          })
+        ),
+      ];
+      rows.push(row.join("\t"));
+    });
+
+    navigator.clipboard.writeText(rows.join("\n"));
+    toast({
+      title: "Copied to clipboard",
+      description: "Pivot table data has been copied",
+    });
+  };
 
   const availableRowFields = availableFields.filter(
     (f) => !config.rows.includes(f.key) && !config.columns.includes(f.key)
@@ -444,7 +554,7 @@ export function PivotTable<T extends Record<string, any>>({
         config.values.forEach((value) => {
           const key = `${value.field}_${value.aggregation}`;
           const cellValue = Number(pivotData.data[rowKey]?.[colKey]?.[key] || 0);
-          row.push(cellValue.toFixed(2));
+          row.push(formatNumber(cellValue, config.numberFormat!));
         });
       });
       rows.push(row);
@@ -513,9 +623,9 @@ export function PivotTable<T extends Record<string, any>>({
       const row: any[] = [rowKey];
       pivotData.colKeys.forEach((colKey) => {
         config.values.forEach((value) => {
-          const key = `${value.field}_${value.aggregation}`;
-          const cellValue = Number(pivotData.data[rowKey]?.[colKey]?.[key] || 0);
-          row.push(parseFloat(cellValue.toFixed(2)));
+            const key = `${value.field}_${value.aggregation}`;
+            const cellValue = Number(pivotData.data[rowKey]?.[colKey]?.[key] || 0);
+            row.push(cellValue);
         });
       });
       worksheetData.push(row);
@@ -622,6 +732,14 @@ export function PivotTable<T extends Record<string, any>>({
                 <Library className="h-4 w-4 mr-2" />
                 Templates
               </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowConfigManager(true)}
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save/Load
+              </Button>
               {pivotData && (
                 <>
                   <DropdownMenu>
@@ -642,6 +760,14 @@ export function PivotTable<T extends Record<string, any>>({
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={copyToClipboard}
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy
+                  </Button>
                   <Button
                     variant="outline"
                     size="sm"
@@ -788,6 +914,52 @@ export function PivotTable<T extends Record<string, any>>({
                     </Badge>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Advanced Options Toggle */}
+          {showConfig && config.values.length > 0 && (
+            <div className="mt-4 pt-4 border-t">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAdvanced(!showAdvanced)}
+                className="w-full"
+              >
+                <Settings2 className="h-4 w-4 mr-2" />
+                {showAdvanced ? "Hide" : "Show"} Advanced Options
+              </Button>
+            </div>
+          )}
+
+          {/* Advanced Options */}
+          {showConfig && showAdvanced && config.values.length > 0 && (
+            <div className="mt-4 pt-4 border-t space-y-6">
+              {/* Filters */}
+              <PivotFilters
+                filters={config.filters || []}
+                onFiltersChange={(filters) => updateConfig({ ...config, filters })}
+                availableFields={availableFields}
+              />
+
+              {/* Sorting */}
+              <PivotSorting
+                sortConfig={config.sortConfig || []}
+                onSortChange={(sortConfig) => updateConfig({ ...config, sortConfig })}
+                availableFields={availableFields}
+                valueFields={config.values}
+              />
+
+              {/* Number Formatting */}
+              <div>
+                <h4 className="text-sm font-medium mb-3">Number Formatting</h4>
+                <PivotFormatting
+                  format={config.numberFormat!}
+                  onFormatChange={(numberFormat) =>
+                    updateConfig({ ...config, numberFormat })
+                  }
+                />
               </div>
             </div>
           )}
@@ -1033,7 +1205,7 @@ export function PivotTable<T extends Record<string, any>>({
                           onClick={() => handleCellClick(rowKey, colKey, value)}
                           title="Click to drill down"
                         >
-                          {cellValue.toFixed(2)}
+                          {formatNumber(cellValue, config.numberFormat!)}
                         </TableCell>
                       );
                     })
@@ -1049,7 +1221,7 @@ export function PivotTable<T extends Record<string, any>>({
                           key={`total-${idx}`}
                           className="text-right font-semibold bg-muted/30"
                         >
-                          {cellValue.toFixed(2)}
+                          {formatNumber(cellValue, config.numberFormat!)}
                         </TableCell>
                       );
                     })}
@@ -1067,12 +1239,12 @@ export function PivotTable<T extends Record<string, any>>({
                         pivotData.colTotals?.[colKey]?.[key] || 0
                       );
                       return (
-                        <TableCell
-                          key={`col-total-${colKey}-${idx}`}
-                          className="text-right"
-                        >
-                          {cellValue.toFixed(2)}
-                        </TableCell>
+                      <TableCell
+                        key={`col-total-${colKey}-${idx}`}
+                        className="text-right"
+                      >
+                        {formatNumber(cellValue, config.numberFormat!)}
+                      </TableCell>
                       );
                     })
                   )}
@@ -1082,12 +1254,12 @@ export function PivotTable<T extends Record<string, any>>({
                       pivotData.grandTotal?.[key] || 0
                     );
                     return (
-                      <TableCell
-                        key={`grand-total-${idx}`}
-                        className="text-right"
-                      >
-                        {cellValue.toFixed(2)}
-                      </TableCell>
+                    <TableCell
+                      key={`grand-total-${idx}`}
+                      className="text-right"
+                    >
+                      {formatNumber(cellValue, config.numberFormat!)}
+                    </TableCell>
                     );
                   })}
                 </TableRow>
@@ -1123,6 +1295,14 @@ export function PivotTable<T extends Record<string, any>>({
         onClose={() => setShowTemplates(false)}
         onApplyTemplate={applyTemplate}
         availableFields={availableFields}
+      />
+
+      {/* Config Manager Modal */}
+      <PivotConfigManager
+        isOpen={showConfigManager}
+        onClose={() => setShowConfigManager(false)}
+        currentConfig={config}
+        onLoadConfig={(loadedConfig) => updateConfig(loadedConfig)}
       />
     </div>
   );
