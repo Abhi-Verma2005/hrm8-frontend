@@ -31,6 +31,9 @@ import { EmailAnalyticsDashboard } from "@/components/onboarding/EmailAnalyticsD
 import { EmailTemplateRecommendations } from "@/components/onboarding/EmailTemplateRecommendations";
 import { EmailReportsExport } from "@/components/onboarding/EmailReportsExport";
 import { RecipientSegmentation } from "@/components/onboarding/RecipientSegmentation";
+import { ABTestingManager } from "@/components/onboarding/ABTestingManager";
+import { DripCampaignManager } from "@/components/onboarding/DripCampaignManager";
+import { EmailPreferencesManager } from "@/components/onboarding/EmailPreferencesManager";
 import { getOnboardingWorkflows, getOnboardingStats, deleteOnboardingWorkflow, saveOnboardingWorkflow } from "@/lib/onboardingStorage";
 import { OnboardingStatus, OnboardingWorkflow } from "@/types/onboarding";
 import { exportToCSV } from "@/utils/exportHelpers";
@@ -48,7 +51,7 @@ export default function OnboardingManagement() {
   const [selectedWorkflowIds, setSelectedWorkflowIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
-  const [activeView, setActiveView] = useState<'workflows' | 'scheduled' | 'metrics' | 'delivery' | 'analytics' | 'recommendations' | 'reports' | 'segmentation'>('workflows');
+  const [activeView, setActiveView] = useState<'workflows' | 'scheduled' | 'metrics' | 'delivery' | 'analytics' | 'recommendations' | 'reports' | 'segmentation' | 'abtesting' | 'drip' | 'preferences'>('workflows');
   const [editingScheduledEmail, setEditingScheduledEmail] = useState<ScheduledEmail | null>(null);
   const [showAutomationDialog, setShowAutomationDialog] = useState(false);
   const { toast } = useToast();
@@ -303,7 +306,7 @@ export default function OnboardingManagement() {
         </div>
 
         <Tabs value={activeView} onValueChange={(value) => setActiveView(value as any)}>
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-11 gap-1">
             <TabsTrigger value="workflows">Workflows</TabsTrigger>
             <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
             <TabsTrigger value="metrics">Metrics</TabsTrigger>
@@ -312,6 +315,9 @@ export default function OnboardingManagement() {
             <TabsTrigger value="recommendations">Tips</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
             <TabsTrigger value="segmentation">Segments</TabsTrigger>
+            <TabsTrigger value="abtesting">A/B Test</TabsTrigger>
+            <TabsTrigger value="drip">Drip</TabsTrigger>
+            <TabsTrigger value="preferences">Preferences</TabsTrigger>
           </TabsList>
 
           <TabsContent value="workflows" className="space-y-6">
@@ -543,6 +549,18 @@ export default function OnboardingManagement() {
 
       <TabsContent value="segmentation" className="space-y-6">
         <RecipientSegmentation />
+      </TabsContent>
+
+      <TabsContent value="abtesting" className="space-y-6">
+        <ABTestingManager />
+      </TabsContent>
+
+      <TabsContent value="drip" className="space-y-6">
+        <DripCampaignManager />
+      </TabsContent>
+
+      <TabsContent value="preferences" className="space-y-6">
+        <EmailPreferencesManager />
       </TabsContent>
       </Tabs>
 
