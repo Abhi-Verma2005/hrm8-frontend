@@ -21,6 +21,8 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
+  FileText,
+  Target,
 } from "lucide-react";
 import type { Interview, InterviewFeedback } from "@/types/interview";
 import { format } from "date-fns";
@@ -318,6 +320,101 @@ export function InterviewDetailPanel({
             </div>
           </CardContent>
         </Card>
+
+        {/* Template Questions */}
+        {interview.questions && interview.questions.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Interview Questions</CardTitle>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Questions from the selected interview template
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {interview.questions.map((question, idx) => (
+                  <div key={question.id} className="space-y-2">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
+                        {idx + 1}
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-medium text-sm leading-relaxed">
+                            {question.question}
+                          </p>
+                          {question.isRequired && (
+                            <Badge variant="destructive" className="text-xs shrink-0">
+                              Required
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <Badge variant="outline" className="capitalize">
+                            {question.category}
+                          </Badge>
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {question.expectedDuration} min
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {idx < interview.questions.length - 1 && <Separator className="mt-4" />}
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Rating Criteria */}
+        {interview.ratingCriteria && interview.ratingCriteria.length > 0 && (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-2">
+                <Target className="h-5 w-5 text-primary" />
+                <CardTitle className="text-lg">Rating Criteria</CardTitle>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Use these criteria when evaluating the candidate
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {interview.ratingCriteria.map((criteria) => (
+                  <div key={criteria.id} className="space-y-2">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-semibold text-sm">{criteria.name}</h4>
+                          <Badge variant="secondary" className="text-xs">
+                            {criteria.weight}%
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {criteria.description}
+                        </p>
+                      </div>
+                    </div>
+                    <Progress value={criteria.weight} className="h-2" />
+                  </div>
+                ))}
+                <div className="mt-4 pt-4 border-t">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">Total Weight:</span>
+                    <span className="font-semibold">
+                      {interview.ratingCriteria.reduce((sum, c) => sum + c.weight, 0)}%
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Overall Rating */}
         {interview.rating && (
