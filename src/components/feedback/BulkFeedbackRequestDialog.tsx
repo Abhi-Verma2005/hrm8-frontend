@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -18,9 +18,18 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { CalendarIcon, Send, Users } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { format, addDays } from 'date-fns';
+import { CalendarIcon, Send, Users, FileText } from 'lucide-react';
 import { getTeamMembers, createBulkFeedbackRequests } from '@/lib/feedbackRequestService';
+import { getTemplates } from '@/lib/feedbackRequestTemplateService';
+import { TeamMember } from '@/types/feedbackRequest';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
@@ -46,13 +55,37 @@ export function BulkFeedbackRequestDialog({
 }: BulkFeedbackRequestDialogProps) {
   const [open, setOpen] = useState(false);
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [dueDate, setDueDate] = useState<Date>();
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { toast } = useToast();
 
   const teamMembers = getTeamMembers();
+  const templates = getTemplates();
   const currentUser = { id: 'current-user', name: 'Current User' };
+
+  useEffect(() => {
+    if (selectedTemplate && selectedTemplate !== '_none_') {
+      const template = templates.find(t => t.id === selectedTemplate);
+      if (template) {
+        setMessage(template.message);
+        setDueDate(addDays(new Date(), template.dueDaysFromNow));
+        
+        // Auto-select team members based on template roles
+        if (template.autoSelectRoles && template.autoSelectRoles.length > 0) {
+          const matchingMembers = teamMembers
+            .filter(m => template.autoSelectRoles?.includes(m.role))
+            .map(m => m.id);
+          setSelectedMembers(matchingMembers);
+        }
+      }
+    } else if (selectedTemplate === '_none_') {
+      setMessage('');
+      setDueDate(undefined);
+      setSelectedMembers([]);
+    }
+  }, [selectedTemplate, templates, teamMembers]);
 
   const toggleMember = (memberId: string) => {
     setSelectedMembers(prev =>
@@ -114,6 +147,7 @@ export function BulkFeedbackRequestDialog({
 
     // Reset form
     setSelectedMembers([]);
+    setSelectedTemplate('');
     setDueDate(undefined);
     setMessage('');
     setErrors({});
@@ -139,6 +173,41 @@ export function BulkFeedbackRequestDialog({
         </DialogHeader>
         
         <div className="space-y-4 py-4">
+          {templates.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="bulk-template">Use Template (Optional)</Label>
+              <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                <SelectTrigger id="bulk-template">
+                  <SelectValue placeholder="Select a template" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none_">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      <span>No template (custom message)</span>
+                    </div>
+                  </SelectItem>
+                  {templates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      <div className="flex flex-col">
+                        <span>{template.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {template.dueDaysFromNow} day{template.dueDaysFromNow > 1 ? 's' : ''} 
+                          {template.autoSelectRoles && template.autoSelectRoles.length > 0 && 
+                            ` • Auto-selects: ${template.autoSelectRoles.join(', ')}`
+                          }
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Templates can auto-fill message, due date, and pre-select team members by role
+              </p>
+            </div>
+          )}
+
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label>Team Members *</Label>

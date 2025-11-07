@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -24,9 +24,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { format } from 'date-fns';
-import { CalendarIcon, Send, UserPlus } from 'lucide-react';
+import { format, addDays } from 'date-fns';
+import { CalendarIcon, Send, UserPlus, FileText } from 'lucide-react';
 import { getTeamMembers, createFeedbackRequest } from '@/lib/feedbackRequestService';
+import { getTemplates } from '@/lib/feedbackRequestTemplateService';
+import { FeedbackRequestTemplate } from '@/types/feedbackRequestTemplate';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -43,12 +45,27 @@ export function FeedbackRequestDialog({
 }: FeedbackRequestDialogProps) {
   const [open, setOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
   const [dueDate, setDueDate] = useState<Date>();
   const [message, setMessage] = useState('');
   const { toast } = useToast();
 
   const teamMembers = getTeamMembers();
+  const templates = getTemplates();
   const currentUser = { id: 'current-user', name: 'Current User' }; // Mock current user
+
+  useEffect(() => {
+    if (selectedTemplate && selectedTemplate !== '_none_') {
+      const template = templates.find(t => t.id === selectedTemplate);
+      if (template) {
+        setMessage(template.message);
+        setDueDate(addDays(new Date(), template.dueDaysFromNow));
+      }
+    } else if (selectedTemplate === '_none_') {
+      setMessage('');
+      setDueDate(undefined);
+    }
+  }, [selectedTemplate, templates]);
 
   const handleSubmit = () => {
     if (!selectedMember || !dueDate) {
@@ -82,6 +99,7 @@ export function FeedbackRequestDialog({
 
     // Reset form
     setSelectedMember('');
+    setSelectedTemplate('');
     setDueDate(undefined);
     setMessage('');
     setOpen(false);
@@ -106,6 +124,35 @@ export function FeedbackRequestDialog({
         </DialogHeader>
         
         <div className="space-y-4 py-4">
+          {templates.length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="template">Use Template (Optional)</Label>
+              <Select value={selectedTemplate} onValueChange={setSelectedTemplate}>
+                <SelectTrigger id="template">
+                  <SelectValue placeholder="Select a template" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="_none_">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      <span>No template (custom message)</span>
+                    </div>
+                  </SelectItem>
+                  {templates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      <div className="flex flex-col">
+                        <span>{template.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {template.dueDaysFromNow} day{template.dueDaysFromNow > 1 ? 's' : ''} • {template.message.substring(0, 50)}...
+                        </span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="team-member">Team Member</Label>
             <Select value={selectedMember} onValueChange={setSelectedMember}>
