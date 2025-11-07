@@ -69,6 +69,7 @@ const operationsNavItems = [
   { title: "Calendar", url: "/calendar", icon: Calendar },
   { title: "Internal Jobs", url: "/internal-jobs", icon: Building },
   { title: "Email Templates", url: "/email-templates", icon: Mail },
+  { title: "Import/Export", url: "/import-export", icon: FileBarChart },
   { title: "Inbox", url: "/inbox", icon: Mail },
 ];
 

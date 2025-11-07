@@ -20,6 +20,7 @@ import InterviewScheduling from "./pages/InterviewScheduling";
 import OfferManagement from "./pages/OfferManagement";
 import PipelineKanban from "./pages/PipelineKanban";
 import EmailTemplates from "./pages/EmailTemplates";
+import ImportExport from "./pages/ImportExport";
 import Applications from "./pages/Applications";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
@@ -102,6 +103,7 @@ function AppContent() {
             <Route path="/jobs/:jobId" element={<JobDetail />} />
             <Route path="/jobs/:jobId/edit" element={<JobEdit />} />
             <Route path="/email-templates" element={<EmailTemplates />} />
+            <Route path="/import-export" element={<ImportExport />} />
             <Route path="/interviews/schedule" element={<InterviewScheduling />} />
             <Route path="/offers/manage" element={<OfferManagement />} />
             <Route path="/employers" element={<Employers />} />
