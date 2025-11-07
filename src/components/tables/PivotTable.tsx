@@ -22,6 +22,21 @@ import { cn } from "@/lib/utils";
 
 export type PivotAggregateFunction = "sum" | "avg" | "count" | "min" | "max";
 
+export interface ConditionalFormatting {
+  enabled: boolean;
+  colorScale: "red-green" | "blue-red" | "yellow-green" | "custom";
+  customColors?: {
+    low: string;
+    mid: string;
+    high: string;
+  };
+  thresholds: {
+    low: number;
+    high: number;
+  };
+  autoThresholds: boolean;
+}
+
 export interface PivotConfig {
   rows: string[];
   columns: string[];
@@ -30,6 +45,7 @@ export interface PivotConfig {
     aggregation: PivotAggregateFunction;
     label?: string;
   }[];
+  conditionalFormatting?: ConditionalFormatting;
 }
 
 interface PivotTableProps<T> {
@@ -69,6 +85,84 @@ function calculateAggregate(
   }
 }
 
+function getColorScale(
+  scale: ConditionalFormatting["colorScale"]
+): { low: string; mid: string; high: string } {
+  const scales = {
+    "red-green": {
+      low: "239 68 68", // red-500
+      mid: "251 191 36", // amber-400
+      high: "34 197 94", // green-500
+    },
+    "blue-red": {
+      low: "59 130 246", // blue-500
+      mid: "168 85 247", // purple-500
+      high: "239 68 68", // red-500
+    },
+    "yellow-green": {
+      low: "250 204 21", // yellow-400
+      mid: "132 204 22", // lime-500
+      high: "22 163 74", // green-600
+    },
+    custom: {
+      low: "148 163 184", // slate-400
+      mid: "100 116 139", // slate-500
+      high: "51 65 85", // slate-700
+    },
+  };
+  return scales[scale];
+}
+
+function getCellBackgroundColor(
+  value: number,
+  min: number,
+  max: number,
+  formatting?: ConditionalFormatting
+): string | undefined {
+  if (!formatting?.enabled) return undefined;
+
+  const { low: lowThreshold, high: highThreshold } = formatting.thresholds;
+  const range = max - min;
+  const normalizedValue = range === 0 ? 0.5 : (value - min) / range;
+
+  const colors =
+    formatting.colorScale === "custom" && formatting.customColors
+      ? formatting.customColors
+      : getColorScale(formatting.colorScale);
+
+  let opacity: number;
+  let baseColor: string;
+
+  if (formatting.autoThresholds) {
+    // Use normalized value for auto thresholds
+    if (normalizedValue <= 0.33) {
+      opacity = normalizedValue / 0.33;
+      baseColor = colors.low;
+    } else if (normalizedValue <= 0.66) {
+      opacity = (normalizedValue - 0.33) / 0.33;
+      baseColor = colors.mid;
+    } else {
+      opacity = (normalizedValue - 0.66) / 0.34;
+      baseColor = colors.high;
+    }
+  } else {
+    // Use custom thresholds
+    if (value <= lowThreshold) {
+      opacity = lowThreshold === min ? 1 : (value - min) / (lowThreshold - min);
+      baseColor = colors.low;
+    } else if (value <= highThreshold) {
+      opacity = (value - lowThreshold) / (highThreshold - lowThreshold);
+      baseColor = colors.mid;
+    } else {
+      opacity = highThreshold === max ? 1 : (value - highThreshold) / (max - highThreshold);
+      baseColor = colors.high;
+    }
+  }
+
+  opacity = Math.max(0.15, Math.min(0.85, opacity));
+  return `rgb(${baseColor} / ${opacity})`;
+}
+
 export function PivotTable<T extends Record<string, any>>({
   data,
   availableFields,
@@ -80,6 +174,12 @@ export function PivotTable<T extends Record<string, any>>({
       rows: [],
       columns: [],
       values: [],
+      conditionalFormatting: {
+        enabled: false,
+        colorScale: "red-green",
+        thresholds: { low: 0, high: 100 },
+        autoThresholds: true,
+      },
     }
   );
   const [showConfig, setShowConfig] = useState(!initialConfig);
@@ -182,6 +282,9 @@ export function PivotTable<T extends Record<string, any>>({
 
     // Calculate aggregates
     const aggregated: PivotData = {};
+    let minValue = Infinity;
+    let maxValue = -Infinity;
+
     Array.from(rowKeys).forEach((rowKey) => {
       aggregated[rowKey] = {};
       Array.from(colKeys).forEach((colKey) => {
@@ -189,10 +292,12 @@ export function PivotTable<T extends Record<string, any>>({
         config.values.forEach((valueConfig) => {
           const key = `${valueConfig.field}_${valueConfig.aggregation}`;
           const values = (result[rowKey]?.[colKey]?.[key] || []) as number[];
-          aggregated[rowKey][colKey][key] = calculateAggregate(
-            values,
-            valueConfig.aggregation
-          );
+          const aggregateValue = calculateAggregate(values, valueConfig.aggregation);
+          aggregated[rowKey][colKey][key] = aggregateValue;
+
+          // Track min/max for conditional formatting
+          if (aggregateValue < minValue) minValue = aggregateValue;
+          if (aggregateValue > maxValue) maxValue = aggregateValue;
         });
       });
     });
@@ -201,6 +306,8 @@ export function PivotTable<T extends Record<string, any>>({
       data: aggregated,
       rowKeys: Array.from(rowKeys).sort(),
       colKeys: Array.from(colKeys).sort(),
+      minValue: minValue === Infinity ? 0 : minValue,
+      maxValue: maxValue === -Infinity ? 0 : maxValue,
     };
   }, [data, config]);
 
@@ -355,6 +462,136 @@ export function PivotTable<T extends Record<string, any>>({
               </div>
             </div>
           )}
+
+          {/* Conditional Formatting Section */}
+          {showConfig && config.values.length > 0 && (
+            <div className="mt-4 pt-4 border-t space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Conditional Formatting</label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    updateConfig({
+                      ...config,
+                      conditionalFormatting: {
+                        ...config.conditionalFormatting!,
+                        enabled: !config.conditionalFormatting?.enabled,
+                      },
+                    })
+                  }
+                >
+                  {config.conditionalFormatting?.enabled ? "Disable" : "Enable"}
+                </Button>
+              </div>
+
+              {config.conditionalFormatting?.enabled && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Color Scale
+                    </label>
+                    <Select
+                      value={config.conditionalFormatting.colorScale}
+                      onValueChange={(value) =>
+                        updateConfig({
+                          ...config,
+                          conditionalFormatting: {
+                            ...config.conditionalFormatting!,
+                            colorScale: value as ConditionalFormatting["colorScale"],
+                          },
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="red-green">Red → Yellow → Green</SelectItem>
+                        <SelectItem value="blue-red">Blue → Purple → Red</SelectItem>
+                        <SelectItem value="yellow-green">Yellow → Lime → Green</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">
+                      Threshold Mode
+                    </label>
+                    <Select
+                      value={config.conditionalFormatting.autoThresholds ? "auto" : "manual"}
+                      onValueChange={(value) =>
+                        updateConfig({
+                          ...config,
+                          conditionalFormatting: {
+                            ...config.conditionalFormatting!,
+                            autoThresholds: value === "auto",
+                          },
+                        })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="auto">Auto (Based on range)</SelectItem>
+                        <SelectItem value="manual">Manual Thresholds</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {!config.conditionalFormatting.autoThresholds && (
+                    <>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">
+                          Low Threshold
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border rounded-md"
+                          value={config.conditionalFormatting.thresholds.low}
+                          onChange={(e) =>
+                            updateConfig({
+                              ...config,
+                              conditionalFormatting: {
+                                ...config.conditionalFormatting!,
+                                thresholds: {
+                                  ...config.conditionalFormatting!.thresholds,
+                                  low: parseFloat(e.target.value) || 0,
+                                },
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">
+                          High Threshold
+                        </label>
+                        <input
+                          type="number"
+                          className="w-full px-3 py-2 border rounded-md"
+                          value={config.conditionalFormatting.thresholds.high}
+                          onChange={(e) =>
+                            updateConfig({
+                              ...config,
+                              conditionalFormatting: {
+                                ...config.conditionalFormatting!,
+                                thresholds: {
+                                  ...config.conditionalFormatting!.thresholds,
+                                  high: parseFloat(e.target.value) || 0,
+                                },
+                              },
+                            })
+                          }
+                        />
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -408,10 +645,19 @@ export function PivotTable<T extends Record<string, any>>({
                       const cellValue = Number(
                         pivotData.data[rowKey]?.[colKey]?.[key] || 0
                       );
+                      const backgroundColor = getCellBackgroundColor(
+                        cellValue,
+                        pivotData.minValue,
+                        pivotData.maxValue,
+                        config.conditionalFormatting
+                      );
                       return (
                         <TableCell
                           key={`${colKey}-${idx}`}
                           className="text-right"
+                          style={{
+                            backgroundColor,
+                          }}
                         >
                           {cellValue.toFixed(2)}
                         </TableCell>
