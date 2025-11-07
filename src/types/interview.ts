@@ -22,6 +22,38 @@ export interface InterviewFeedback {
   submittedAt: string;
 }
 
+export interface CalibrationSession {
+  id: string;
+  name: string;
+  description: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  duration: number;
+  status: 'scheduled' | 'in-progress' | 'completed';
+  facilitatorId: string;
+  facilitatorName: string;
+  participants: Array<{
+    userId: string;
+    name: string;
+    role: 'facilitator' | 'participant';
+  }>;
+  focusInterviews: string[]; // Interview IDs to review
+  exercises: Array<{
+    id: string;
+    type: 'rating-alignment' | 'scenario-review' | 'rubric-discussion' | 'bias-awareness';
+    title: string;
+    description: string;
+    completed: boolean;
+  }>;
+  alignmentScores?: {
+    beforeSession: number;
+    afterSession: number;
+  };
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface Interview {
   id: string;
   applicationId: string;

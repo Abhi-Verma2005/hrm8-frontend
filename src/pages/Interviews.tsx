@@ -16,13 +16,14 @@ import { InterviewCalendarView } from "@/components/interviews/InterviewCalendar
 import { InterviewAnalyticsDashboard } from "@/components/interviews/InterviewAnalyticsDashboard";
 import { InterviewTemplateManager } from "@/components/interviews/InterviewTemplateManager";
 import { InterviewCalibrationReport } from "@/components/interviews/InterviewCalibrationReport";
+import { CalibrationSessionManager } from "@/components/interviews/CalibrationSessionManager";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 
 export default function Interviews() {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"kanban" | "list" | "calendar" | "analytics" | "templates" | "calibration">("kanban");
+  const [viewMode, setViewMode] = useState<"kanban" | "list" | "calendar" | "analytics" | "templates" | "calibration" | "sessions">("kanban");
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
   const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
 
@@ -159,8 +160,12 @@ export default function Interviews() {
                   Templates
                 </TabsTrigger>
                 <TabsTrigger value="calibration">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Reports
+                </TabsTrigger>
+                <TabsTrigger value="sessions">
                   <Users className="h-4 w-4 mr-2" />
-                  Calibration
+                  Sessions
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -185,6 +190,8 @@ export default function Interviews() {
           <InterviewTemplateManager />
         ) : viewMode === "calibration" ? (
           <InterviewCalibrationReport interviews={interviews} />
+        ) : viewMode === "sessions" ? (
+          <CalibrationSessionManager interviews={interviews} />
         ) : (
           <div className="grid gap-4">
             {interviews.map((interview) => (
