@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar as CalendarIcon, Video, Phone, Users, Plus, LayoutGrid, List, CalendarDays } from "lucide-react";
+import { Calendar as CalendarIcon, Video, Phone, Users, Plus, LayoutGrid, List, CalendarDays, BarChart3 } from "lucide-react";
 import { getInterviews, saveInterview, updateInterview } from "@/lib/mockInterviewStorage";
 import { Interview } from "@/types/interview";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +12,14 @@ import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
 import { InterviewKanbanBoard } from "@/components/interviews/InterviewKanbanBoard";
 import { InterviewDetailPanel } from "@/components/interviews/InterviewDetailPanel";
 import { InterviewCalendarView } from "@/components/interviews/InterviewCalendarView";
+import { InterviewAnalyticsDashboard } from "@/components/interviews/InterviewAnalyticsDashboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 
 export default function Interviews() {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"kanban" | "list" | "calendar">("kanban");
+  const [viewMode, setViewMode] = useState<"kanban" | "list" | "calendar" | "analytics">("kanban");
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
   const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
 
@@ -139,6 +140,10 @@ export default function Interviews() {
                   <List className="h-4 w-4 mr-2" />
                   List
                 </TabsTrigger>
+                <TabsTrigger value="analytics">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Analytics
+                </TabsTrigger>
               </TabsList>
             </Tabs>
             <Button onClick={() => setIsSchedulerOpen(true)}>
@@ -156,6 +161,8 @@ export default function Interviews() {
             onViewDetails={handleViewDetails}
             onReschedule={handleReschedule}
           />
+        ) : viewMode === "analytics" ? (
+          <InterviewAnalyticsDashboard interviews={interviews} />
         ) : (
           <div className="grid gap-4">
             {interviews.map((interview) => (
