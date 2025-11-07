@@ -13,6 +13,7 @@ import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { TableFilters, FilterOption, ActiveFilter } from "./TableFilters";
 import { TablePagination } from "./TablePagination";
 import { DataTableExport } from "./DataTableExport";
+import { AdvancedFilters, DateRangeFilter, MultiSelectFilter, FilterPreset } from "./AdvancedFilters";
 
 export interface Column<T> {
   key: string;
@@ -39,6 +40,12 @@ interface DataTableProps<T> {
   emptyMessage?: string;
   exportable?: boolean;
   exportFilename?: string;
+  // Advanced filtering
+  dateRangeFilters?: DateRangeFilter[];
+  dateRangeKey?: keyof T;
+  multiSelectFilters?: MultiSelectFilter[];
+  enableFilterPresets?: boolean;
+  presetStorageKey?: string;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -57,7 +64,12 @@ export function DataTable<T extends { id: string }>({
   typeKey,
   emptyMessage = "No data available",
   exportable = false,
-  exportFilename = "export"
+  exportFilename = "export",
+  dateRangeFilters: initialDateRangeFilters = [],
+  dateRangeKey,
+  multiSelectFilters: initialMultiSelectFilters = [],
+  enableFilterPresets = false,
+  presetStorageKey = "table-filter-presets"
 }: DataTableProps<T>) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -66,6 +78,19 @@ export function DataTable<T extends { id: string }>({
   const [typeFilterValue, setTypeFilterValue] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  
+  // Advanced filtering state
+  const [dateRangeFilters, setDateRangeFilters] = useState<DateRangeFilter[]>(initialDateRangeFilters);
+  const [multiSelectFilters, setMultiSelectFilters] = useState<MultiSelectFilter[]>(initialMultiSelectFilters);
+  const [filterPresets, setFilterPresets] = useState<FilterPreset[]>(() => {
+    if (!enableFilterPresets) return [];
+    try {
+      const stored = localStorage.getItem(presetStorageKey);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Handle sorting
   const handleSort = (key: string) => {
@@ -104,6 +129,58 @@ export function DataTable<T extends { id: string }>({
     onSelectedRowsChange?.(newSelectedIds);
   };
 
+  // Advanced filter handlers
+  const handleDateRangeChange = (key: string, from: Date | undefined, to: Date | undefined) => {
+    setDateRangeFilters(prev =>
+      prev.map(df => df.key === key ? { ...df, from, to } : df)
+    );
+    setCurrentPage(1);
+  };
+
+  const handleMultiSelectChange = (key: string, selected: string[]) => {
+    setMultiSelectFilters(prev =>
+      prev.map(mf => mf.key === key ? { ...mf, selected } : mf)
+    );
+    setCurrentPage(1);
+  };
+
+  const handleResetAdvancedFilters = () => {
+    setDateRangeFilters(initialDateRangeFilters);
+    setMultiSelectFilters(initialMultiSelectFilters);
+    setCurrentPage(1);
+  };
+
+  const handleSavePreset = (preset: Omit<FilterPreset, 'id' | 'savedAt'>) => {
+    const newPreset: FilterPreset = {
+      ...preset,
+      id: `preset-${Date.now()}`,
+      savedAt: new Date().toISOString(),
+    };
+    const newPresets = [...filterPresets, newPreset];
+    setFilterPresets(newPresets);
+    if (enableFilterPresets) {
+      localStorage.setItem(presetStorageKey, JSON.stringify(newPresets));
+    }
+  };
+
+  const handleLoadPreset = (preset: FilterPreset) => {
+    setDateRangeFilters(preset.dateRanges);
+    const loadedMultiSelects = multiSelectFilters.map(mf => ({
+      ...mf,
+      selected: preset.multiSelects[mf.key] || [],
+    }));
+    setMultiSelectFilters(loadedMultiSelects);
+    setCurrentPage(1);
+  };
+
+  const handleDeletePreset = (presetId: string) => {
+    const newPresets = filterPresets.filter(p => p.id !== presetId);
+    setFilterPresets(newPresets);
+    if (enableFilterPresets) {
+      localStorage.setItem(presetStorageKey, JSON.stringify(newPresets));
+    }
+  };
+
   // Filter and sort data
   const filteredAndSortedData = useMemo(() => {
     let result = [...data];
@@ -131,6 +208,30 @@ export function DataTable<T extends { id: string }>({
       result = result.filter(item => item[typeKey] === typeFilterValue);
     }
 
+    // Apply date range filters
+    if (dateRangeKey && dateRangeFilters.length > 0) {
+      dateRangeFilters.forEach(df => {
+        if (df.from || df.to) {
+          result = result.filter(item => {
+            const itemDate = new Date(item[dateRangeKey] as any);
+            if (df.from && itemDate < df.from) return false;
+            if (df.to && itemDate > df.to) return false;
+            return true;
+          });
+        }
+      });
+    }
+
+    // Apply multi-select filters
+    multiSelectFilters.forEach(mf => {
+      if (mf.selected.length > 0) {
+        result = result.filter(item => {
+          const itemValue = item[mf.key as keyof T];
+          return mf.selected.includes(String(itemValue));
+        });
+      }
+    });
+
     // Apply sorting
     if (sortConfig) {
       result.sort((a, b) => {
@@ -151,7 +252,7 @@ export function DataTable<T extends { id: string }>({
     }
 
     return result;
-  }, [data, searchValue, searchKeys, statusFilterValue, typeFilterValue, sortConfig, searchable, statusFilter, typeFilter, statusKey, typeKey]);
+  }, [data, searchValue, searchKeys, statusFilterValue, typeFilterValue, sortConfig, searchable, statusFilter, typeFilter, statusKey, typeKey, dateRangeFilters, multiSelectFilters, dateRangeKey]);
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedData.length / pageSize);
@@ -200,8 +301,8 @@ export function DataTable<T extends { id: string }>({
   return (
     <div className="space-y-4">
       {/* Filters and Export */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex-1">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex-1 min-w-[300px]">
           {(searchable || statusFilter || typeFilter) && (
             <TableFilters
               searchValue={searchValue}
@@ -227,6 +328,21 @@ export function DataTable<T extends { id: string }>({
           />
         )}
       </div>
+
+      {/* Advanced Filters */}
+      {(dateRangeFilters.length > 0 || multiSelectFilters.length > 0) && (
+        <AdvancedFilters
+          dateRangeFilters={dateRangeFilters}
+          onDateRangeChange={handleDateRangeChange}
+          multiSelectFilters={multiSelectFilters}
+          onMultiSelectChange={handleMultiSelectChange}
+          onResetFilters={handleResetAdvancedFilters}
+          presets={enableFilterPresets ? filterPresets : undefined}
+          onSavePreset={enableFilterPresets ? handleSavePreset : undefined}
+          onLoadPreset={enableFilterPresets ? handleLoadPreset : undefined}
+          onDeletePreset={enableFilterPresets ? handleDeletePreset : undefined}
+        />
+      )}
 
       {/* Bulk Actions */}
       {selectable && selectedIds.length > 0 && renderBulkActions && (

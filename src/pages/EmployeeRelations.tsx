@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ERCaseDialog } from "@/components/employee-relations/ERCaseDialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DeleteConfirmationDialog } from "@/components/shared/DeleteConfirmationDialog";
+import { DateRangeFilter, MultiSelectFilter } from "@/components/tables/AdvancedFilters";
 import { toast } from "sonner";
 
 export default function EmployeeRelations() {
@@ -156,7 +157,7 @@ export default function EmployeeRelations() {
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-background">
+          <DropdownMenuContent align="end" className="bg-background z-50">
             <DropdownMenuItem onClick={() => {
               setEditingCase(erCase);
               setCaseDialogOpen(true);
@@ -177,6 +178,38 @@ export default function EmployeeRelations() {
           </DropdownMenuContent>
         </DropdownMenu>
       ),
+    },
+  ];
+
+  // Advanced filters configuration
+  const dateRangeFilters: DateRangeFilter[] = [
+    { key: "opened", label: "Opened Date" },
+    { key: "resolved", label: "Resolved Date" },
+  ];
+
+  const multiSelectFilters: MultiSelectFilter[] = [
+    {
+      key: "type",
+      label: "Type",
+      options: [
+        { label: "Complaint", value: "complaint" },
+        { label: "Investigation", value: "investigation" },
+        { label: "Disciplinary", value: "disciplinary" },
+        { label: "Dispute", value: "dispute" },
+        { label: "Other", value: "other" },
+      ],
+      selected: [],
+    },
+    {
+      key: "priority",
+      label: "Priority",
+      options: [
+        { label: "Low", value: "low" },
+        { label: "Medium", value: "medium" },
+        { label: "High", value: "high" },
+        { label: "Urgent", value: "urgent" },
+      ],
+      selected: [],
     },
   ];
 
@@ -332,6 +365,11 @@ export default function EmployeeRelations() {
                     onSelectedRowsChange={setSelectedCases}
                     exportable={true}
                     exportFilename="employee-relations-cases"
+                    dateRangeFilters={dateRangeFilters}
+                    dateRangeKey="openedDate"
+                    multiSelectFilters={multiSelectFilters}
+                    enableFilterPresets={true}
+                    presetStorageKey="er-cases-filter-presets"
                     renderBulkActions={(selectedIds) => (
                       <Button
                         variant="destructive"
