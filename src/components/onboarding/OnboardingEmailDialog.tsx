@@ -41,7 +41,7 @@ import {
 import { Mail, Eye, Plus, Save, Trash2, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { OnboardingWorkflow } from "@/types/onboarding";
 import { getAllTemplates, saveTemplate, deleteTemplate, EmailTemplate } from "@/lib/emailTemplates";
-import { scheduleEmail } from "@/lib/scheduledEmails";
+import { scheduleEmail, markEmailAsSent } from "@/lib/scheduledEmails";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -130,6 +130,9 @@ export function OnboardingEmailDialog({
       
       onSchedule(emailType, message, workflowIds, scheduledDateTime);
     } else {
+      // For immediately sent emails, create a sent record
+      const scheduledEmail = scheduleEmail(emailType, message, workflowIds, new Date());
+      markEmailAsSent(scheduledEmail.id, 'delivered');
       onSend(emailType, message, workflowIds);
     }
     

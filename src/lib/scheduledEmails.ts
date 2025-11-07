@@ -7,6 +7,10 @@ export interface ScheduledEmail {
   scheduledFor: Date;
   createdAt: Date;
   status: 'pending' | 'sent' | 'cancelled';
+  sentAt?: Date;
+  deliveryStatus?: 'delivered' | 'failed' | 'bounced';
+  openedAt?: Date;
+  clickedAt?: Date;
 }
 
 const STORAGE_KEY = "scheduled_emails";
@@ -21,6 +25,9 @@ export function getScheduledEmails(): ScheduledEmail[] {
       ...email,
       scheduledFor: new Date(email.scheduledFor),
       createdAt: new Date(email.createdAt),
+      sentAt: email.sentAt ? new Date(email.sentAt) : undefined,
+      openedAt: email.openedAt ? new Date(email.openedAt) : undefined,
+      clickedAt: email.clickedAt ? new Date(email.clickedAt) : undefined,
     }));
   } catch (error) {
     console.error("Error loading scheduled emails:", error);
@@ -95,4 +102,43 @@ export function deleteScheduledEmail(id: string): void {
 
 export function getPendingScheduledEmails(): ScheduledEmail[] {
   return getScheduledEmails().filter(email => email.status === 'pending');
+}
+
+export function markEmailAsSent(id: string, deliveryStatus: 'delivered' | 'failed' | 'bounced' = 'delivered'): void {
+  const scheduledEmails = getScheduledEmails();
+  const updatedEmails = scheduledEmails.map(email =>
+    email.id === id ? { 
+      ...email, 
+      status: 'sent' as const,
+      sentAt: new Date(),
+      deliveryStatus 
+    } : email
+  );
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEmails));
+}
+
+export function markEmailAsOpened(id: string): void {
+  const scheduledEmails = getScheduledEmails();
+  const updatedEmails = scheduledEmails.map(email =>
+    email.id === id && !email.openedAt ? { 
+      ...email, 
+      openedAt: new Date()
+    } : email
+  );
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEmails));
+}
+
+export function markEmailAsClicked(id: string): void {
+  const scheduledEmails = getScheduledEmails();
+  const updatedEmails = scheduledEmails.map(email =>
+    email.id === id && !email.clickedAt ? { 
+      ...email, 
+      clickedAt: new Date()
+    } : email
+  );
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEmails));
+}
+
+export function getSentEmails(): ScheduledEmail[] {
+  return getScheduledEmails().filter(email => email.status === 'sent');
 }

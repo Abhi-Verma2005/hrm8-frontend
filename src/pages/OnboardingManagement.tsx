@@ -26,6 +26,7 @@ import { OnboardingEmailDialog } from "@/components/onboarding/OnboardingEmailDi
 import { ScheduledEmailsView } from "@/components/onboarding/ScheduledEmailsView";
 import { AutomationRulesDialog } from "@/components/onboarding/AutomationRulesDialog";
 import { AutomationMetricsDashboard } from "@/components/onboarding/AutomationMetricsDashboard";
+import { EmailDeliveryHistory } from "@/components/onboarding/EmailDeliveryHistory";
 import { getOnboardingWorkflows, getOnboardingStats, deleteOnboardingWorkflow, saveOnboardingWorkflow } from "@/lib/onboardingStorage";
 import { OnboardingStatus, OnboardingWorkflow } from "@/types/onboarding";
 import { exportToCSV } from "@/utils/exportHelpers";
@@ -43,7 +44,7 @@ export default function OnboardingManagement() {
   const [selectedWorkflowIds, setSelectedWorkflowIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
-  const [activeView, setActiveView] = useState<'workflows' | 'scheduled' | 'metrics'>('workflows');
+  const [activeView, setActiveView] = useState<'workflows' | 'scheduled' | 'metrics' | 'delivery'>('workflows');
   const [editingScheduledEmail, setEditingScheduledEmail] = useState<ScheduledEmail | null>(null);
   const [showAutomationDialog, setShowAutomationDialog] = useState(false);
   const { toast } = useToast();
@@ -297,11 +298,12 @@ export default function OnboardingManagement() {
           </div>
         </div>
 
-        <Tabs value={activeView} onValueChange={(value) => setActiveView(value as 'workflows' | 'scheduled' | 'metrics')}>
+        <Tabs value={activeView} onValueChange={(value) => setActiveView(value as 'workflows' | 'scheduled' | 'metrics' | 'delivery')}>
           <TabsList>
             <TabsTrigger value="workflows">Workflows</TabsTrigger>
             <TabsTrigger value="scheduled">Scheduled Emails</TabsTrigger>
             <TabsTrigger value="metrics">Automation Metrics</TabsTrigger>
+            <TabsTrigger value="delivery">Delivery History</TabsTrigger>
           </TabsList>
 
           <TabsContent value="workflows" className="space-y-6">
@@ -513,6 +515,10 @@ export default function OnboardingManagement() {
 
       <TabsContent value="metrics" className="space-y-6">
         <AutomationMetricsDashboard />
+      </TabsContent>
+
+      <TabsContent value="delivery" className="space-y-6">
+        <EmailDeliveryHistory />
       </TabsContent>
       </Tabs>
 
