@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CollaborativeFeedbackPanel } from '@/components/feedback/CollaborativeFeedbackPanel';
 import { CandidateComparisonReport } from '@/components/feedback/CandidateComparisonReport';
+import { RatingCriteriaManager } from '@/components/feedback/RatingCriteriaManager';
+import { FeedbackAnalyticsChart } from '@/components/feedback/FeedbackAnalyticsChart';
 import { Users, BarChart3, Settings, TrendingUp } from 'lucide-react';
 
 export default function CollaborativeFeedback() {
@@ -87,9 +89,10 @@ export default function CollaborativeFeedback() {
         </div>
 
         <Tabs defaultValue="feedback" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="feedback">Candidate Feedback</TabsTrigger>
             <TabsTrigger value="comparison">Comparison Report</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="settings">Rating Criteria</TabsTrigger>
           </TabsList>
 
@@ -170,61 +173,14 @@ export default function CollaborativeFeedback() {
             )}
           </TabsContent>
 
+          {/* Analytics Tab */}
+          <TabsContent value="analytics" className="space-y-4">
+            <FeedbackAnalyticsChart />
+          </TabsContent>
+
           {/* Rating Criteria Tab */}
           <TabsContent value="settings" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Rating Criteria Settings
-                </CardTitle>
-                <CardDescription>
-                  Configure custom rating criteria for candidate evaluation
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="p-4 bg-muted rounded-lg">
-                    <h4 className="font-semibold mb-2">Default Criteria</h4>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex justify-between">
-                        <span>• Technical Skills</span>
-                        <span className="text-muted-foreground">Weight: 0.25</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>• Problem Solving</span>
-                        <span className="text-muted-foreground">Weight: 0.20</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>• Communication</span>
-                        <span className="text-muted-foreground">Weight: 0.15</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>• Cultural Fit</span>
-                        <span className="text-muted-foreground">Weight: 0.15</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>• Leadership Potential</span>
-                        <span className="text-muted-foreground">Weight: 0.15</span>
-                      </li>
-                      <li className="flex justify-between">
-                        <span>• Growth Mindset</span>
-                        <span className="text-muted-foreground">Weight: 0.10</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="p-4 border rounded-lg">
-                    <p className="text-sm text-muted-foreground">
-                      Custom criteria management will allow you to add, edit, and remove rating
-                      criteria with custom weights and scales. This feature enables complete
-                      customization of your evaluation framework to match your organization's
-                      specific hiring needs.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <RatingCriteriaManager />
           </TabsContent>
         </Tabs>
       </div>

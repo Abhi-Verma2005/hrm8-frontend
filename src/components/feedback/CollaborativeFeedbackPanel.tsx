@@ -17,6 +17,7 @@ import {
 import { TeamMemberFeedback, ConsensusMetrics } from '@/types/collaborativeFeedback';
 import { CollaborativeFeedbackForm } from './CollaborativeFeedbackForm';
 import { TeamVoting } from './TeamVoting';
+import { DecisionRecorder } from './DecisionRecorder';
 import { formatDistanceToNow } from 'date-fns';
 import { ThumbsUp, ThumbsDown, AlertCircle, MessageSquare, TrendingUp, Users } from 'lucide-react';
 
@@ -149,9 +150,10 @@ export function CollaborativeFeedbackPanel({
       )}
 
       <Tabs defaultValue="feedback" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="feedback">Team Feedback ({feedback.length})</TabsTrigger>
           <TabsTrigger value="voting">Voting</TabsTrigger>
+          <TabsTrigger value="decision">Decision</TabsTrigger>
           <TabsTrigger value="provide">Provide Feedback</TabsTrigger>
         </TabsList>
 
@@ -238,6 +240,15 @@ export function CollaborativeFeedbackPanel({
         {/* Voting Tab */}
         <TabsContent value="voting">
           <TeamVoting candidateId={candidateId} candidateName={candidateName} />
+        </TabsContent>
+
+        {/* Decision Tab */}
+        <TabsContent value="decision">
+          <DecisionRecorder
+            candidateId={candidateId}
+            candidateName={candidateName}
+            onDecisionRecorded={loadData}
+          />
         </TabsContent>
 
         {/* Provide Feedback Tab */}

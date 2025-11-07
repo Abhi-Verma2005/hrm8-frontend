@@ -11,8 +11,9 @@ import {
   getRatingCriteria,
 } from '@/lib/collaborativeFeedbackService';
 import { CandidateComparison } from '@/types/collaborativeFeedback';
-import { TrendingUp, Users, BarChart3, Download } from 'lucide-react';
+import { TrendingUp, Users, BarChart3 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { ExportReportButton } from './ExportReportButton';
 
 interface CandidateComparisonReportProps {
   candidateIds: string[];
@@ -27,16 +28,6 @@ export function CandidateComparisonReport({ candidateIds }: CandidateComparisonR
     setComparisons(data);
   }, [candidateIds]);
 
-  const exportReport = () => {
-    const reportData = JSON.stringify(comparisons, null, 2);
-    const blob = new Blob([reportData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `candidate-comparison-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
 
   if (comparisons.length === 0) {
     return (
@@ -61,10 +52,7 @@ export function CandidateComparisonReport({ candidateIds }: CandidateComparisonR
               </CardTitle>
               <CardDescription>Comparing {comparisons.length} candidates</CardDescription>
             </div>
-            <Button onClick={exportReport} variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Export Report
-            </Button>
+            <ExportReportButton data={comparisons} filename={`candidate-comparison-${Date.now()}`} />
           </div>
         </CardHeader>
       </Card>

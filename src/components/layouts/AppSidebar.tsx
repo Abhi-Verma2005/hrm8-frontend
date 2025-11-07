@@ -2,13 +2,14 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
-import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2 } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 
 import { cn } from "@/lib/utils";
 import { SidebarFooterContent } from "./SidebarFooterContent";
 import { useRecentRecords } from "@/hooks/useRecentRecords";
+import { FeedbackNotificationBadge } from "@/components/feedback/FeedbackNotificationBadge";
 import { formatDistanceToNow } from "date-fns";
 // CORE Section
 const coreNavItems = [
@@ -43,6 +44,7 @@ const atsNavItems = [
     title: "Interviews", 
     url: "/interviews", 
     icon: CalendarClock,
+    badge: FeedbackNotificationBadge,
     subItems: [
       { title: "All Interviews", url: "/interviews" },
       { title: "Schedule", url: "/interviews/schedule" },

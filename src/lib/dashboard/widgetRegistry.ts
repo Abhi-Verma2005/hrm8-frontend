@@ -67,6 +67,8 @@ export type WidgetType =
   | 'chart-candidate-placement-trends'
   | 'chart-top-skills-demand'
   | 'chart-salary-expectations'
+  // Feedback widgets
+  | 'feedback-dashboard'
   // Shared
   | 'activity-feed';
 
@@ -932,6 +934,19 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 4 },
     allowedDashboards: ['candidates']
+  },
+  
+  // ===== FEEDBACK WIDGETS =====
+  'feedback-dashboard': {
+    id: 'feedback-dashboard',
+    name: 'Collaborative Feedback',
+    description: 'Recent team feedback and activity overview',
+    category: 'activity',
+    component: 'FeedbackDashboardWidget',
+    icon: Users,
+    defaultSize: { w: 6, h: 3 },
+    minSize: { w: 4, h: 2 },
+    allowedDashboards: ['overview', 'jobs', 'candidates'],
   },
 
   // ===== SHARED WIDGETS =====

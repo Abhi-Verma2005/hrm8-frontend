@@ -42,15 +42,6 @@ export const feedbackSchema = z.object({
 
 // Initialize storage
 function initializeStorage() {
-  if (!localStorage.getItem(FEEDBACK_KEY)) {
-    localStorage.setItem(FEEDBACK_KEY, JSON.stringify([]));
-  }
-  if (!localStorage.getItem(VOTES_KEY)) {
-    localStorage.setItem(VOTES_KEY, JSON.stringify([]));
-  }
-  if (!localStorage.getItem(DECISIONS_KEY)) {
-    localStorage.setItem(DECISIONS_KEY, JSON.stringify([]));
-  }
   if (!localStorage.getItem(CRITERIA_KEY)) {
     const defaultCriteria: RatingCriterion[] = [
       { id: '1', name: 'Technical Skills', description: 'Proficiency in required technologies', scale: '1-10', weight: 0.25, category: 'technical' },
@@ -64,7 +55,11 @@ function initializeStorage() {
   }
 }
 
+// Import and initialize mock data
+import { initializeMockFeedbackData } from './mockFeedbackData';
+
 initializeStorage();
+initializeMockFeedbackData();
 
 // Rating Criteria Management
 export function getRatingCriteria(): RatingCriterion[] {
