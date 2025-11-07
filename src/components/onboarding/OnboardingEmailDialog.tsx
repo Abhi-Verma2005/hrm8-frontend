@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -17,6 +18,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -25,8 +36,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Mail, Eye, Plus } from "lucide-react";
+import { Mail, Eye, Plus, Save, Trash2 } from "lucide-react";
 import { OnboardingWorkflow } from "@/types/onboarding";
+import { getAllTemplates, saveTemplate, deleteTemplate, EmailTemplate } from "@/lib/emailTemplates";
+import { useToast } from "@/hooks/use-toast";
 
 interface OnboardingEmailDialogProps {
   open: boolean;
@@ -47,6 +60,12 @@ export function OnboardingEmailDialog({
   const [message, setMessage] = useState("");
   const [activeTab, setActiveTab] = useState<string>("compose");
   const [excludedWorkflowIds, setExcludedWorkflowIds] = useState<Set<string>>(new Set());
+  const [templates, setTemplates] = useState<EmailTemplate[]>(getAllTemplates());
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleSend = () => {
     if (!message.trim() || includedWorkflows.length === 0) return;
@@ -59,22 +78,64 @@ export function OnboardingEmailDialog({
     onOpenChange(false);
   };
 
-  const emailTemplates = {
-    welcome: "Welcome to the team! We're excited to have you onboard. Your onboarding process has been prepared and we look forward to working with you.",
-    reminder: "This is a friendly reminder about your pending onboarding tasks. Please complete them at your earliest convenience to ensure a smooth start.",
-    checkin: "We hope your onboarding is going well! Please let us know if you have any questions or need any assistance.",
+  const emailTemplates: Record<string, string> = {};
+  templates.forEach(template => {
+    emailTemplates[template.id] = template.message;
+  });
+
+  const handleTypeChange = (templateId: string) => {
+    setEmailType(templateId);
+    setMessage(emailTemplates[templateId] || "");
   };
 
-  const handleTypeChange = (type: string) => {
-    setEmailType(type);
-    setMessage(emailTemplates[type as keyof typeof emailTemplates]);
+  const handleSaveTemplate = () => {
+    if (!templateName.trim() || !message.trim()) return;
+    
+    const newTemplate = saveTemplate({
+      name: templateName,
+      type: "custom",
+      message: message,
+    });
+    
+    setTemplates(getAllTemplates());
+    setTemplateName("");
+    setShowSaveDialog(false);
+    
+    toast({
+      title: "Template saved",
+      description: `"${newTemplate.name}" has been saved successfully.`,
+    });
   };
 
-  const emailTypeLabels = {
-    welcome: "Welcome Email",
-    reminder: "Onboarding Reminder",
-    checkin: "Check-in Email",
+  const confirmDeleteTemplate = () => {
+    if (!templateToDelete) return;
+    
+    deleteTemplate(templateToDelete);
+    setTemplates(getAllTemplates());
+    
+    if (emailType === templateToDelete) {
+      setEmailType("welcome");
+      setMessage(emailTemplates["welcome"]);
+    }
+    
+    setShowDeleteDialog(false);
+    setTemplateToDelete(null);
+    
+    toast({
+      title: "Template deleted",
+      description: "The template has been removed.",
+    });
   };
+
+  const handleDeleteTemplate = (templateId: string) => {
+    setTemplateToDelete(templateId);
+    setShowDeleteDialog(true);
+  };
+
+  const emailTypeLabels: Record<string, string> = {};
+  templates.forEach(template => {
+    emailTypeLabels[template.id] = template.name;
+  });
 
   const includedWorkflows = selectedWorkflows.filter(w => !excludedWorkflowIds.has(w.id));
   const includedCount = includedWorkflows.length;
@@ -142,15 +203,44 @@ export function OnboardingEmailDialog({
 
           <TabsContent value="compose" className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="email-type">Email Type</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="email-type">Email Template</Label>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  type="button"
+                  onClick={() => setShowSaveDialog(true)}
+                  disabled={!message.trim()}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save as Template
+                </Button>
+              </div>
               <Select value={emailType} onValueChange={handleTypeChange}>
                 <SelectTrigger id="email-type">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="welcome">Welcome Email</SelectItem>
-                  <SelectItem value="reminder">Onboarding Reminder</SelectItem>
-                  <SelectItem value="checkin">Check-in Email</SelectItem>
+                <SelectContent className="bg-popover z-50">
+                  {templates.map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      <div className="flex items-center justify-between w-full">
+                        <span>{template.name}</span>
+                        {template.isCustom && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 ml-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteTemplate(template.id);
+                            }}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -290,6 +380,63 @@ export function OnboardingEmailDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save Email Template</DialogTitle>
+            <DialogDescription>
+              Give your template a name to save it for future use.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="template-name">Template Name</Label>
+              <Input
+                id="template-name"
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+                placeholder="e.g., Welcome Email with Tasks"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Message Preview</Label>
+              <div className="text-sm text-muted-foreground border rounded-md p-3 max-h-32 overflow-y-auto">
+                {message || "No message"}
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveTemplate} disabled={!templateName.trim()}>
+              <Save className="h-4 w-4 mr-2" />
+              Save Template
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Template</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this template? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setTemplateToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteTemplate} className="bg-destructive hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }
