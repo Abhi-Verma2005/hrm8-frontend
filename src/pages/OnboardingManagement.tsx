@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
-import { Plus, Users, Clock, CheckCircle2, AlertCircle, Upload, Download } from "lucide-react";
+import { Plus, Users, Clock, CheckCircle2, AlertCircle, Upload, Download, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +24,7 @@ import { OnboardingTemplateDialog } from "@/components/onboarding/OnboardingTemp
 import { OnboardingBulkActions } from "@/components/onboarding/OnboardingBulkActions";
 import { OnboardingEmailDialog } from "@/components/onboarding/OnboardingEmailDialog";
 import { ScheduledEmailsView } from "@/components/onboarding/ScheduledEmailsView";
+import { AutomationRulesDialog } from "@/components/onboarding/AutomationRulesDialog";
 import { getOnboardingWorkflows, getOnboardingStats, deleteOnboardingWorkflow, saveOnboardingWorkflow } from "@/lib/onboardingStorage";
 import { OnboardingStatus, OnboardingWorkflow } from "@/types/onboarding";
 import { exportToCSV } from "@/utils/exportHelpers";
@@ -42,6 +43,7 @@ export default function OnboardingManagement() {
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [activeView, setActiveView] = useState<'workflows' | 'scheduled'>('workflows');
   const [editingScheduledEmail, setEditingScheduledEmail] = useState<ScheduledEmail | null>(null);
+  const [showAutomationDialog, setShowAutomationDialog] = useState(false);
   const { toast } = useToast();
 
   const workflows = useMemo(() => getOnboardingWorkflows(), [refreshKey]);
@@ -248,6 +250,10 @@ export default function OnboardingManagement() {
             <p className="text-muted-foreground">Manage employee onboarding workflows, tasks, and documents</p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setShowAutomationDialog(true)}>
+              <Settings className="h-4 w-4 mr-2" />
+              Automation Rules
+            </Button>
             <Button variant="outline" onClick={() => setShowTemplateDialog(true)}>
               Manage Templates
             </Button>
@@ -540,6 +546,12 @@ export default function OnboardingManagement() {
             recipientIds: editingScheduledEmail.recipientIds,
             scheduledFor: editingScheduledEmail.scheduledFor,
           } : undefined}
+        />
+
+        <AutomationRulesDialog
+          open={showAutomationDialog}
+          onOpenChange={setShowAutomationDialog}
+          workflows={workflows}
         />
       </div>
     </DashboardPageLayout>
