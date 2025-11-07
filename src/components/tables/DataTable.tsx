@@ -17,6 +17,7 @@ import { AdvancedFilters, DateRangeFilter, MultiSelectFilter, FilterPreset } fro
 import { ColumnCustomization } from "./ColumnCustomization";
 import { EditableCell, EditableFieldType, SelectOption } from "./EditableCell";
 import { GroupConfig, GroupHeader, groupData, calculateAggregates, GroupedData } from "./TableGrouping";
+import { PivotTable, PivotConfig } from "./PivotTable";
 
 export interface Column<T> {
   key: string;
@@ -61,6 +62,10 @@ interface DataTableProps<T> {
   // Grouping and aggregation
   grouping?: GroupConfig;
   defaultGroupsExpanded?: boolean;
+  // Pivot table
+  pivotMode?: boolean;
+  pivotConfig?: PivotConfig;
+  onPivotConfigChange?: (config: PivotConfig) => void;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -91,6 +96,9 @@ export function DataTable<T extends { id: string }>({
   onRowUpdate,
   grouping,
   defaultGroupsExpanded = true,
+  pivotMode = false,
+  pivotConfig,
+  onPivotConfigChange,
 }: DataTableProps<T>) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -452,6 +460,26 @@ export function DataTable<T extends { id: string }>({
       <ArrowDown className="ml-2 h-4 w-4" />
     );
   };
+
+  // If pivot mode is enabled, render pivot table instead
+  if (pivotMode) {
+    const pivotFields = columns.map((col) => ({
+      key: col.key,
+      label: col.label,
+      type: typeof data[0]?.[col.key as keyof T] === "number" ? "number" as const : "string" as const,
+    }));
+
+    return (
+      <div className="space-y-4">
+        <PivotTable
+          data={filteredAndSortedData}
+          availableFields={pivotFields}
+          initialConfig={pivotConfig}
+          onConfigChange={onPivotConfigChange}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

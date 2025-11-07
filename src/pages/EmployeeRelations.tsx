@@ -14,6 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { DeleteConfirmationDialog } from "@/components/shared/DeleteConfirmationDialog";
 import { DateRangeFilter, MultiSelectFilter } from "@/components/tables/AdvancedFilters";
 import { GroupConfig } from "@/components/tables/TableGrouping";
+import { PivotConfig } from "@/components/tables/PivotTable";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +30,8 @@ export default function EmployeeRelations() {
   const [selectedCases, setSelectedCases] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [enableGrouping, setEnableGrouping] = useState(false);
+  const [enablePivot, setEnablePivot] = useState(false);
+  const [pivotConfig, setPivotConfig] = useState<PivotConfig | undefined>();
 
   const cases = getERCases({ status: statusFilter });
   const stats = getERCaseStats();
@@ -332,9 +335,23 @@ export default function EmployeeRelations() {
           <div className="flex items-center gap-2">
             <Button
               variant={enableGrouping ? "secondary" : "outline"}
-              onClick={() => setEnableGrouping(!enableGrouping)}
+              onClick={() => {
+                setEnableGrouping(!enableGrouping);
+                if (!enableGrouping) setEnablePivot(false);
+              }}
+              disabled={enablePivot}
             >
               {enableGrouping ? "Disable" : "Enable"} Grouping
+            </Button>
+            <Button
+              variant={enablePivot ? "secondary" : "outline"}
+              onClick={() => {
+                setEnablePivot(!enablePivot);
+                if (!enablePivot) setEnableGrouping(false);
+              }}
+              disabled={enableGrouping}
+            >
+              {enablePivot ? "Disable" : "Enable"} Pivot
             </Button>
             <Button onClick={() => setCaseDialogOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
@@ -466,6 +483,9 @@ export default function EmployeeRelations() {
                     onRowUpdate={handleRowUpdate}
                     grouping={enableGrouping ? groupingConfig : undefined}
                     defaultGroupsExpanded={true}
+                    pivotMode={enablePivot}
+                    pivotConfig={pivotConfig}
+                    onPivotConfigChange={setPivotConfig}
                     renderBulkActions={(selectedIds) => (
                       <Button
                         variant="destructive"
