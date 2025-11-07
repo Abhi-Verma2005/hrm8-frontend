@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Eye } from "lucide-react";
 import { OnboardingWorkflow } from "@/types/onboarding";
 
@@ -26,7 +27,7 @@ interface OnboardingEmailDialogProps {
   onOpenChange: (open: boolean) => void;
   selectedCount: number;
   selectedWorkflows: OnboardingWorkflow[];
-  onSend: (emailType: string, message: string) => void;
+  onSend: (emailType: string, message: string, workflowIds: string[]) => void;
 }
 
 export function OnboardingEmailDialog({
@@ -39,13 +40,16 @@ export function OnboardingEmailDialog({
   const [emailType, setEmailType] = useState<string>("welcome");
   const [message, setMessage] = useState("");
   const [activeTab, setActiveTab] = useState<string>("compose");
+  const [excludedWorkflowIds, setExcludedWorkflowIds] = useState<Set<string>>(new Set());
 
   const handleSend = () => {
-    if (!message.trim()) return;
-    onSend(emailType, message);
+    if (!message.trim() || includedWorkflows.length === 0) return;
+    const workflowIds = includedWorkflows.map(w => w.id);
+    onSend(emailType, message, workflowIds);
     setMessage("");
     setEmailType("welcome");
     setActiveTab("compose");
+    setExcludedWorkflowIds(new Set());
     onOpenChange(false);
   };
 
@@ -64,6 +68,27 @@ export function OnboardingEmailDialog({
     welcome: "Welcome Email",
     reminder: "Onboarding Reminder",
     checkin: "Check-in Email",
+  };
+
+  const includedWorkflows = selectedWorkflows.filter(w => !excludedWorkflowIds.has(w.id));
+  const includedCount = includedWorkflows.length;
+
+  const handleToggleWorkflow = (workflowId: string, checked: boolean) => {
+    const newExcluded = new Set(excludedWorkflowIds);
+    if (checked) {
+      newExcluded.delete(workflowId);
+    } else {
+      newExcluded.add(workflowId);
+    }
+    setExcludedWorkflowIds(newExcluded);
+  };
+
+  const handleToggleAll = (checked: boolean) => {
+    if (checked) {
+      setExcludedWorkflowIds(new Set());
+    } else {
+      setExcludedWorkflowIds(new Set(selectedWorkflows.map(w => w.id)));
+    }
   };
 
   return (
@@ -123,7 +148,12 @@ export function OnboardingEmailDialog({
                   <div className="font-semibold">{emailTypeLabels[emailType as keyof typeof emailTypeLabels]}</div>
                 </div>
                 
-                <div className="text-sm text-muted-foreground mb-2">To: {selectedCount} recipient{selectedCount > 1 ? "s" : ""}</div>
+                <div className="text-sm text-muted-foreground mb-2">
+                  To: {includedCount} of {selectedCount} recipient{selectedCount > 1 ? "s" : ""}
+                  {excludedWorkflowIds.size > 0 && (
+                    <span className="text-destructive ml-2">({excludedWorkflowIds.size} excluded)</span>
+                  )}
+                </div>
                 
                 <div className="prose prose-sm max-w-none mt-4">
                   <p className="whitespace-pre-wrap">{message || "No message yet..."}</p>
@@ -131,19 +161,44 @@ export function OnboardingEmailDialog({
               </div>
 
               <div className="rounded-lg border p-4">
-                <div className="text-sm font-medium mb-3">Recipients ({selectedCount}):</div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="text-sm font-medium">Recipients ({selectedCount}):</div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="select-all-recipients"
+                      checked={excludedWorkflowIds.size === 0}
+                      onCheckedChange={handleToggleAll}
+                    />
+                    <label htmlFor="select-all-recipients" className="text-sm cursor-pointer">
+                      Select All
+                    </label>
+                  </div>
+                </div>
                 <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                  {selectedWorkflows.map((workflow) => (
-                    <div key={workflow.id} className="flex items-center justify-between text-sm p-2 bg-muted rounded-md">
-                      <div>
-                        <div className="font-medium">{workflow.employeeName}</div>
-                        <div className="text-xs text-muted-foreground">{workflow.employeeEmail}</div>
+                  {selectedWorkflows.map((workflow) => {
+                    const isIncluded = !excludedWorkflowIds.has(workflow.id);
+                    return (
+                      <div 
+                        key={workflow.id} 
+                        className={`flex items-center gap-3 text-sm p-2 rounded-md transition-colors ${
+                          isIncluded ? 'bg-muted' : 'bg-muted/40 opacity-60'
+                        }`}
+                      >
+                        <Checkbox
+                          id={`recipient-${workflow.id}`}
+                          checked={isIncluded}
+                          onCheckedChange={(checked) => handleToggleWorkflow(workflow.id, checked as boolean)}
+                        />
+                        <div className="flex-1">
+                          <div className="font-medium">{workflow.employeeName}</div>
+                          <div className="text-xs text-muted-foreground">{workflow.employeeEmail}</div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {workflow.department}
+                        </div>
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        {workflow.department}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -154,9 +209,12 @@ export function OnboardingEmailDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSend} disabled={!message.trim()}>
+          <Button onClick={handleSend} disabled={!message.trim() || includedCount === 0}>
             <Mail className="h-4 w-4 mr-2" />
-            Send Email to {selectedCount}
+            Send Email to {includedCount}
+            {excludedWorkflowIds.size > 0 && (
+              <span className="ml-1 text-xs opacity-70">({excludedWorkflowIds.size} excluded)</span>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

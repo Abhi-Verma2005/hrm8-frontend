@@ -148,12 +148,12 @@ export default function OnboardingManagement() {
     });
   };
 
-  const handleSendEmail = (emailType: string, message: string) => {
-    if (selectedWorkflowIds.size === 0) return;
+  const handleSendEmail = (emailType: string, message: string, workflowIds: string[]) => {
+    if (workflowIds.length === 0) return;
     
     toast({
       title: "Emails Sent",
-      description: `Sent ${emailType} email to ${selectedWorkflowIds.size} employee(s).`,
+      description: `Sent ${emailType} email to ${workflowIds.length} employee(s).`,
     });
     
     setSelectedWorkflowIds(new Set());
