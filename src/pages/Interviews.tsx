@@ -3,13 +3,14 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar as CalendarIcon, Video, Phone, Users, Plus, LayoutGrid, List } from "lucide-react";
-import { getInterviews, saveInterview } from "@/lib/mockInterviewStorage";
+import { getInterviews, saveInterview, updateInterview } from "@/lib/mockInterviewStorage";
 import { Interview } from "@/types/interview";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
 import { InterviewKanbanBoard } from "@/components/interviews/InterviewKanbanBoard";
+import { InterviewDetailPanel } from "@/components/interviews/InterviewDetailPanel";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 
@@ -17,6 +18,8 @@ export default function Interviews() {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
+  const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
+  const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
 
   useEffect(() => {
     loadInterviews();
@@ -84,6 +87,20 @@ export default function Interviews() {
     return <Badge variant={variants[status]}>{status}</Badge>;
   };
 
+  const handleViewDetails = (interview: Interview) => {
+    setSelectedInterview(interview);
+    setIsDetailPanelOpen(true);
+  };
+
+  const handleUpdateInterview = (updatedInterview: Interview) => {
+    updateInterview(updatedInterview.id, updatedInterview);
+    loadInterviews();
+    toast({
+      title: "Interview Updated",
+      description: "The interview has been updated successfully.",
+    });
+  };
+
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
@@ -115,11 +132,15 @@ export default function Interviews() {
         </div>
 
         {viewMode === "kanban" ? (
-          <InterviewKanbanBoard onRefresh={loadInterviews} />
+          <InterviewKanbanBoard onRefresh={loadInterviews} onViewDetails={handleViewDetails} />
         ) : (
           <div className="grid gap-4">
             {interviews.map((interview) => (
-              <Card key={interview.id}>
+              <Card 
+                key={interview.id} 
+                className="cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => handleViewDetails(interview)}
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
@@ -176,6 +197,13 @@ export default function Interviews() {
             />
           </DialogContent>
         </Dialog>
+
+        <InterviewDetailPanel
+          interview={selectedInterview}
+          open={isDetailPanelOpen}
+          onOpenChange={setIsDetailPanelOpen}
+          onUpdateInterview={handleUpdateInterview}
+        />
       </div>
     </DashboardPageLayout>
   );

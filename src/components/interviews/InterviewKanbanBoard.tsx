@@ -17,6 +17,7 @@ import { toast } from "@/hooks/use-toast";
 
 interface InterviewKanbanBoardProps {
   onRefresh?: () => void;
+  onViewDetails?: (interview: Interview) => void;
 }
 
 interface Column {
@@ -48,7 +49,7 @@ const columns: Column[] = [
   },
 ];
 
-export function InterviewKanbanBoard({ onRefresh }: InterviewKanbanBoardProps) {
+export function InterviewKanbanBoard({ onRefresh, onViewDetails }: InterviewKanbanBoardProps) {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [activeInterview, setActiveInterview] = useState<Interview | null>(null);
 
@@ -100,11 +101,8 @@ export function InterviewKanbanBoard({ onRefresh }: InterviewKanbanBoardProps) {
     return interviews.filter((interview) => interview.status === status);
   };
 
-  const handleViewDetails = (interview: Interview) => {
-    toast({
-      title: "View Details",
-      description: `Opening details for ${interview.candidateName}`,
-    });
+  const handleViewDetailsInternal = (interview: Interview) => {
+    onViewDetails?.(interview);
   };
 
   const handleSendEmail = (interview: Interview) => {
@@ -156,7 +154,7 @@ export function InterviewKanbanBoard({ onRefresh }: InterviewKanbanBoardProps) {
               title={column.title}
               interviews={getInterviewsByStatus(column.id)}
               color={column.color}
-              onViewDetails={handleViewDetails}
+              onViewDetails={handleViewDetailsInternal}
               onSendEmail={handleSendEmail}
               onReschedule={handleReschedule}
               onComplete={handleComplete}
