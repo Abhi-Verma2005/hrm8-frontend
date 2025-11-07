@@ -28,7 +28,15 @@ const atsNavItems = [
       { title: "Analytics", url: "/jobs/analytics" },
     ]
   },
-  { title: "Candidates", url: "/candidates", icon: Users },
+  { 
+    title: "Candidates", 
+    url: "/candidates", 
+    icon: Users,
+    subItems: [
+      { title: "All Candidates", url: "/candidates" },
+      { title: "Pipeline Board", url: "/candidates/pipeline" },
+    ]
+  },
   { title: "Applications", url: "/applications", icon: FileText },
   { title: "Requisitions", url: "/requisitions", icon: ClipboardList },
   { 

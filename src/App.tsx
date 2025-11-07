@@ -18,6 +18,7 @@ import JobAutomationSettings from "./pages/JobAutomationSettings";
 import JobAnalytics from "./pages/JobAnalytics";
 import InterviewScheduling from "./pages/InterviewScheduling";
 import OfferManagement from "./pages/OfferManagement";
+import PipelineKanban from "./pages/PipelineKanban";
 import Applications from "./pages/Applications";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
@@ -91,6 +92,7 @@ function AppContent() {
             <Route path="/candidates/new" element={<Candidates />} />
             <Route path="/candidates/:candidateId" element={<Candidates />} />
             <Route path="/candidates/:candidateId/edit" element={<Candidates />} />
+            <Route path="/candidates/pipeline" element={<PipelineKanban />} />
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/jobs/new" element={<JobCreate />} />
             <Route path="/jobs/templates" element={<JobTemplates />} />
