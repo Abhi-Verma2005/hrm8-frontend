@@ -46,6 +46,7 @@ const atsNavItems = [
     subItems: [
       { title: "All Interviews", url: "/interviews" },
       { title: "Schedule", url: "/interviews/schedule" },
+      { title: "Collaborative Feedback", url: "/collaborative-feedback" },
     ]
   },
   { 
