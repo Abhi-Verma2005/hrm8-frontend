@@ -13,12 +13,12 @@ import { formatDistanceToNow } from "date-fns";
 // CORE Section
 const coreNavItems = [
   { title: "Dashboard", url: "/dashboard/overview", icon: LayoutDashboard },
-  { title: "Jobs", url: "/jobs", icon: Briefcase },
-  { title: "Candidates", url: "/candidates", icon: Users },
 ];
 
 // ATS (Applicant Tracking System) Section
 const atsNavItems = [
+  { title: "Jobs", url: "/jobs", icon: Briefcase },
+  { title: "Candidates", url: "/candidates", icon: Users },
   { title: "Applications", url: "/applications", icon: FileText },
   { title: "Requisitions", url: "/requisitions", icon: ClipboardList },
   { title: "Interviews", url: "/interviews", icon: CalendarClock },
