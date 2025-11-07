@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calendar,
   Clock,
@@ -23,12 +24,16 @@ import {
   AlertCircle,
   FileText,
   Target,
+  Info,
+  UsersRound,
+  StickyNote,
 } from "lucide-react";
 import type { Interview, InterviewFeedback } from "@/types/interview";
 import { format } from "date-fns";
 import { useState } from "react";
 import { InterviewFeedbackForm } from "./InterviewFeedbackForm";
 import { InterviewNotesSection } from "./InterviewNotesSection";
+import { InterviewFeedbackTab } from "./InterviewFeedbackTab";
 
 interface InterviewDetailPanelProps {
   interview: Interview | null;
@@ -45,6 +50,7 @@ export function InterviewDetailPanel({
 }: InterviewDetailPanelProps) {
   const [showFeedbackForm, setShowFeedbackForm] = useState(false);
   const [editingFeedback, setEditingFeedback] = useState<InterviewFeedback | null>(null);
+  const [activeTab, setActiveTab] = useState("overview");
 
   if (!interview) return null;
 
@@ -204,6 +210,30 @@ export function InterviewDetailPanel({
             </div>
           </CardContent>
         </Card>
+
+        {/* Tabbed Content */}
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">
+              <Info className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="team-feedback">
+              <UsersRound className="h-4 w-4 mr-2" />
+              Team Feedback
+            </TabsTrigger>
+            <TabsTrigger value="interviewer-feedback">
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Feedback ({interview.feedback.length})
+            </TabsTrigger>
+            <TabsTrigger value="notes">
+              <StickyNote className="h-4 w-4 mr-2" />
+              Notes
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-6 mt-6">
 
         {/* Interview Information */}
         <Card>
@@ -417,41 +447,50 @@ export function InterviewDetailPanel({
           </Card>
         )}
 
-        {/* Overall Rating */}
-        {interview.rating && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Overall Rating</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-4">
-                <div className="text-5xl font-bold text-primary">{interview.rating.toFixed(1)}</div>
-                <div className="flex-1">
-                  {renderStars(Math.round(interview.rating))}
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Based on {interview.feedback.length} feedback{interview.feedback.length !== 1 ? 's' : ''}
-                  </p>
-                </div>
-                {interview.recommendation && (
-                  <Badge className={getRecommendationColor(interview.recommendation)}>
-                    {interview.recommendation.replace("-", " ").toUpperCase()}
-                  </Badge>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            {/* Overall Rating */}
+            {interview.rating && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Overall Rating</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-4">
+                    <div className="text-5xl font-bold text-primary">{interview.rating.toFixed(1)}</div>
+                    <div className="flex-1">
+                      {renderStars(Math.round(interview.rating))}
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Based on {interview.feedback.length} feedback{interview.feedback.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                    {interview.recommendation && (
+                      <Badge className={getRecommendationColor(interview.recommendation)}>
+                        {interview.recommendation.replace("-", " ").toUpperCase()}
+                      </Badge>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
-        {/* Feedback Section */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-lg">Interviewer Feedback</CardTitle>
-            <Button size="sm" onClick={() => setShowFeedbackForm(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Feedback
-            </Button>
-          </CardHeader>
-          <CardContent>
+          {/* Team Feedback Tab */}
+          <TabsContent value="team-feedback" className="mt-6">
+            <InterviewFeedbackTab interview={interview} />
+          </TabsContent>
+
+          {/* Interviewer Feedback Tab */}
+          <TabsContent value="interviewer-feedback" className="space-y-6 mt-6">
+
+            {/* Feedback Section */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-lg">Interviewer Feedback</CardTitle>
+                <Button size="sm" onClick={() => setShowFeedbackForm(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Feedback
+                </Button>
+              </CardHeader>
+              <CardContent>
             {interview.feedback.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <MessageSquare className="h-12 w-12 mx-auto mb-3 opacity-50" />
@@ -601,18 +640,22 @@ export function InterviewDetailPanel({
                   </div>
                 ))}
               </div>
-            )}
-          </CardContent>
-        </Card>
+              )}
+            </CardContent>
+          </Card>
+          </TabsContent>
 
-        {/* Interview Notes Section */}
-        <InterviewNotesSection 
-          interview={interview}
-          onSave={(notes) => {
-            const updatedInterview = { ...interview, notes };
-            onUpdateInterview?.(updatedInterview);
-          }}
-        />
+          {/* Notes Tab */}
+          <TabsContent value="notes" className="mt-6">
+            <InterviewNotesSection 
+              interview={interview}
+              onSave={(notes) => {
+                const updatedInterview = { ...interview, notes };
+                onUpdateInterview?.(updatedInterview);
+              }}
+            />
+          </TabsContent>
+        </Tabs>
 
         {/* Actions */}
         <div className="flex justify-end gap-2 pt-4">
