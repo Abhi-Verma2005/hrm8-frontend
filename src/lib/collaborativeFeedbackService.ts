@@ -139,6 +139,14 @@ export function deleteFeedback(id: string): void {
   localStorage.setItem(FEEDBACK_KEY, JSON.stringify(allFeedback));
 }
 
+export function getFeedbackByCandidateId(candidateId: string): TeamMemberFeedback[] {
+  return getCandidateFeedback(candidateId);
+}
+
+export function getVotesByCandidateId(candidateId: string): HiringVote[] {
+  return getCandidateVotes(candidateId);
+}
+
 // Voting Management
 export function getCandidateVotes(candidateId: string): HiringVote[] {
   const data = localStorage.getItem(VOTES_KEY);

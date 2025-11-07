@@ -18,6 +18,9 @@ import { TeamMemberFeedback, ConsensusMetrics } from '@/types/collaborativeFeedb
 import { CollaborativeFeedbackForm } from './CollaborativeFeedbackForm';
 import { TeamVoting } from './TeamVoting';
 import { DecisionRecorder } from './DecisionRecorder';
+import { VotingPanel } from './VotingPanel';
+import { TeamConsensusView } from './TeamConsensusView';
+import { FeedbackFilterBar } from './FeedbackFilterBar';
 import { formatDistanceToNow } from 'date-fns';
 import { ThumbsUp, ThumbsDown, AlertCircle, MessageSquare, TrendingUp, Users } from 'lucide-react';
 
@@ -33,6 +36,7 @@ export function CollaborativeFeedbackPanel({
   applicationId,
 }: CollaborativeFeedbackPanelProps) {
   const [feedback, setFeedback] = useState<TeamMemberFeedback[]>([]);
+  const [filteredFeedback, setFilteredFeedback] = useState<TeamMemberFeedback[]>([]);
   const [consensus, setConsensus] = useState<ConsensusMetrics | null>(null);
   const [showForm, setShowForm] = useState(false);
   const criteria = getRatingCriteria();
@@ -41,6 +45,7 @@ export function CollaborativeFeedbackPanel({
     const feedbackData = getCandidateFeedback(candidateId);
     const consensusData = calculateConsensusMetrics(candidateId);
     setFeedback(feedbackData);
+    setFilteredFeedback(feedbackData);
     setConsensus(consensusData);
   };
 
@@ -150,8 +155,9 @@ export function CollaborativeFeedbackPanel({
       )}
 
       <Tabs defaultValue="feedback" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="feedback">Team Feedback ({feedback.length})</TabsTrigger>
+          <TabsTrigger value="consensus">Consensus</TabsTrigger>
           <TabsTrigger value="voting">Voting</TabsTrigger>
           <TabsTrigger value="decision">Decision</TabsTrigger>
           <TabsTrigger value="provide">Provide Feedback</TabsTrigger>
@@ -159,14 +165,20 @@ export function CollaborativeFeedbackPanel({
 
         {/* Individual Feedback Tab */}
         <TabsContent value="feedback" className="space-y-4">
-          {feedback.length === 0 ? (
+          {feedback.length > 0 && (
+            <FeedbackFilterBar
+              feedback={feedback}
+              onFilteredChange={setFilteredFeedback}
+            />
+          )}
+          {filteredFeedback.length === 0 ? (
             <Card>
               <CardContent className="py-8 text-center text-muted-foreground">
                 No feedback yet. Be the first to provide feedback!
               </CardContent>
             </Card>
           ) : (
-            feedback.map((fb) => (
+            filteredFeedback.map((fb) => (
               <Card key={fb.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -237,9 +249,26 @@ export function CollaborativeFeedbackPanel({
           )}
         </TabsContent>
 
+        {/* Consensus Tab */}
+        <TabsContent value="consensus" className="space-y-4">
+          {consensus ? (
+            <TeamConsensusView metrics={consensus} />
+          ) : (
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                No consensus data available yet. At least one feedback is required.
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
         {/* Voting Tab */}
         <TabsContent value="voting">
-          <TeamVoting candidateId={candidateId} candidateName={candidateName} />
+          <VotingPanel
+            candidateId={candidateId}
+            candidateName={candidateName}
+            onVoteCast={loadData}
+          />
         </TabsContent>
 
         {/* Decision Tab */}

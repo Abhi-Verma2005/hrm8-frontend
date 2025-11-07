@@ -9,6 +9,8 @@ import { CollaborativeFeedbackPanel } from '@/components/feedback/CollaborativeF
 import { CandidateComparisonReport } from '@/components/feedback/CandidateComparisonReport';
 import { RatingCriteriaManager } from '@/components/feedback/RatingCriteriaManager';
 import { FeedbackAnalyticsChart } from '@/components/feedback/FeedbackAnalyticsChart';
+import { FeedbackTemplateManager } from '@/components/feedback/FeedbackTemplateManager';
+import { DecisionRecorder } from '@/components/feedback/DecisionRecorder';
 import { Users, BarChart3, Settings, TrendingUp } from 'lucide-react';
 
 export default function CollaborativeFeedback() {
@@ -89,11 +91,13 @@ export default function CollaborativeFeedback() {
         </div>
 
         <Tabs defaultValue="feedback" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="feedback">Candidate Feedback</TabsTrigger>
             <TabsTrigger value="comparison">Comparison Report</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="settings">Rating Criteria</TabsTrigger>
+            <TabsTrigger value="decisions">Decisions</TabsTrigger>
           </TabsList>
 
           {/* Candidate Feedback Tab */}
@@ -178,9 +182,49 @@ export default function CollaborativeFeedback() {
             <FeedbackAnalyticsChart />
           </TabsContent>
 
+          {/* Templates Tab */}
+          <TabsContent value="templates" className="space-y-4">
+            <FeedbackTemplateManager />
+          </TabsContent>
+
           {/* Rating Criteria Tab */}
           <TabsContent value="settings" className="space-y-4">
             <RatingCriteriaManager />
+          </TabsContent>
+
+          {/* Decisions Tab */}
+          <TabsContent value="decisions" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Record Hiring Decision</CardTitle>
+                <CardDescription>
+                  Make final hiring decisions based on team feedback and consensus
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex gap-3">
+                    <Input
+                      placeholder="Enter candidate ID to record decision"
+                      value={candidateIdInput}
+                      onChange={(e) => setCandidateIdInput(e.target.value)}
+                    />
+                  </div>
+                  {candidateIdInput ? (
+                    <DecisionRecorder
+                      candidateId={candidateIdInput}
+                      candidateName={`Candidate ${candidateIdInput}`}
+                      onDecisionRecorded={() => {}}
+                    />
+                  ) : (
+                    <div className="py-8 text-center text-muted-foreground">
+                      <Settings className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p>Enter a candidate ID above to record a hiring decision</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
