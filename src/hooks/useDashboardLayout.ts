@@ -1,11 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { DEFAULT_LAYOUTS } from '@/lib/dashboard/defaultLayouts';
 import { findEmptySpace } from '@/lib/dashboard/layoutUtils';
 import type { DashboardLayout, DashboardWidget } from '@/lib/dashboard/types';
 import type { DashboardType } from '@/lib/dashboard/dashboardTypes';
 
 export function useDashboardLayout(dashboardType: DashboardType = 'jobs') {
-  const storageKey = `dashboard_layout_${dashboardType}_v1`;
+  const storageKey = useMemo(() => `dashboard_layout_${dashboardType}_v1`, [dashboardType]);
   
   const [layout, setLayout] = useState<DashboardLayout>(() => {
     const saved = localStorage.getItem(storageKey);
@@ -27,6 +27,33 @@ export function useDashboardLayout(dashboardType: DashboardType = 'jobs') {
   const [isEditMode, setIsEditMode] = useState(false);
   const [layoutHistory, setLayoutHistory] = useState<DashboardLayout[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
+
+  // Handle dashboard type changes
+  useEffect(() => {
+    const saved = localStorage.getItem(storageKey);
+    let newLayout: DashboardLayout;
+    
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        newLayout = {
+          ...parsed,
+          createdAt: new Date(parsed.createdAt),
+          updatedAt: new Date(parsed.updatedAt)
+        };
+      } catch (e) {
+        console.error('Failed to parse saved layout:', e);
+        newLayout = DEFAULT_LAYOUTS[dashboardType];
+      }
+    } else {
+      newLayout = DEFAULT_LAYOUTS[dashboardType];
+    }
+    
+    setLayout(newLayout);
+    setLayoutHistory([]);
+    setHistoryIndex(-1);
+    setIsEditMode(false);
+  }, [dashboardType, storageKey]);
   
   const saveToHistory = useCallback((currentLayout: DashboardLayout) => {
     setLayoutHistory(h => [...h.slice(0, historyIndex + 1), currentLayout]);
