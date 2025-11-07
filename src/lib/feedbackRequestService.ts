@@ -48,6 +48,31 @@ export function createFeedbackRequest(request: Omit<FeedbackRequest, 'id' | 'req
   return newRequest;
 }
 
+export function createBulkFeedbackRequests(
+  requestsData: Omit<FeedbackRequest, 'id' | 'requestedAt' | 'status'>[]
+): FeedbackRequest[] {
+  const existingRequests = getFeedbackRequests();
+  const baseTimestamp = Date.now();
+  
+  const newRequests: FeedbackRequest[] = requestsData.map((request, index) => ({
+    ...request,
+    id: `req-${baseTimestamp}-${index}`,
+    requestedAt: new Date().toISOString(),
+    status: 'pending',
+  }));
+  
+  existingRequests.push(...newRequests);
+  localStorage.setItem(REQUESTS_KEY, JSON.stringify(existingRequests));
+  
+  // Simulate bulk email notifications
+  console.log(`📧 Bulk emails sent to ${newRequests.length} team members for ${requestsData[0]?.candidateName || 'candidate'}`);
+  newRequests.forEach(req => {
+    console.log(`   → ${req.requestedToEmail}`);
+  });
+  
+  return newRequests;
+}
+
 export function completeRequest(requestId: string): void {
   const requests = getFeedbackRequests();
   const updated = requests.map(req => 

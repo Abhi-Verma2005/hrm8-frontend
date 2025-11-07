@@ -22,6 +22,7 @@ import { VotingPanel } from './VotingPanel';
 import { TeamConsensusView } from './TeamConsensusView';
 import { FeedbackFilterBar } from './FeedbackFilterBar';
 import { FeedbackRequestDialog } from './FeedbackRequestDialog';
+import { BulkFeedbackRequestDialog } from './BulkFeedbackRequestDialog';
 import { PendingFeedbackRequests } from './PendingFeedbackRequests';
 import { formatDistanceToNow } from 'date-fns';
 import { ThumbsUp, ThumbsDown, AlertCircle, MessageSquare, TrendingUp, Users } from 'lucide-react';
@@ -168,8 +169,12 @@ export function CollaborativeFeedbackPanel({
 
         {/* Individual Feedback Tab */}
         <TabsContent value="feedback" className="space-y-4">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
             <FeedbackRequestDialog 
+              candidateId={candidateId}
+              candidateName={candidateName}
+            />
+            <BulkFeedbackRequestDialog 
               candidateId={candidateId}
               candidateName={candidateName}
             />
