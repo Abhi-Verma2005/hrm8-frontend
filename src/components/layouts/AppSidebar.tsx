@@ -24,6 +24,7 @@ const atsNavItems = [
     subItems: [
       { title: "All Jobs", url: "/jobs" },
       { title: "Templates", url: "/jobs/templates" },
+      { title: "Automation", url: "/jobs/automation" },
     ]
   },
   { title: "Candidates", url: "/candidates", icon: Users },

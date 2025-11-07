@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3, Filter, X } from "lucide-react";
+import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3, Filter, X, Zap } from "lucide-react";
 import { StatsCard } from "@/components/ui/stats-card";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { getJobs, deleteJob, getJobById } from "@/lib/mockJobStorage";
@@ -570,6 +570,12 @@ export default function Jobs() {
               <Link to="/jobs/templates">
                 <FileText className="h-4 w-4 mr-2" />
                 Templates
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/jobs/automation">
+                <Zap className="h-4 w-4 mr-2" />
+                Automation
               </Link>
             </Button>
             <Button onClick={handleCreateJob}>

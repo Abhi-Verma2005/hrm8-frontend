@@ -19,7 +19,8 @@ import {
   Eye,
   Globe,
   MoreVertical,
-  Megaphone
+  Megaphone,
+  Sparkles
 } from "lucide-react";
 import { getJobById } from "@/lib/mockJobStorage";
 import { mockJobActivities } from "@/data/mockJobsData";
@@ -42,6 +43,8 @@ import { ExternalPromotionDialog } from "@/components/jobs/ExternalPromotionDial
 import { JobAnalyticsDashboard } from "@/components/jobs/analytics/JobAnalyticsDashboard";
 import { JobCollaborationPanel } from "@/components/jobs/collaboration/JobCollaborationPanel";
 import { JobVersionHistory } from "@/components/jobs/history/JobVersionHistory";
+import { JobBudgetTracker } from "@/components/jobs/budget/JobBudgetTracker";
+import { CandidateMatchingPanel } from "@/components/jobs/matching/CandidateMatchingPanel";
 import { useToast } from "@/hooks/use-toast";
 
 export default function JobDetail() {
@@ -216,6 +219,10 @@ export default function JobDetail() {
                 <Badge variant="secondary" className="ml-2">{job.applicantsCount}</Badge>
               )}
             </TabsTrigger>
+            <TabsTrigger value="matching">
+              <Sparkles className="h-4 w-4 mr-2" />
+              Matching
+            </TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="collaboration">Collaboration</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
@@ -381,6 +388,11 @@ export default function JobDetail() {
             <ApplicationPipeline jobId={job.id} />
           </TabsContent>
 
+          {/* Matching Tab */}
+          <TabsContent value="matching">
+            <CandidateMatchingPanel job={job} />
+          </TabsContent>
+
           {/* Analytics Tab */}
           <TabsContent value="analytics">
             <JobAnalyticsDashboard jobId={job.id} />
@@ -398,6 +410,8 @@ export default function JobDetail() {
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
+            <JobBudgetTracker jobId={job.id} />
+            
             {!job.hasJobTargetPromotion && (job.serviceType === 'self-managed' || job.serviceType === 'rpo') && (
               <Card className="border-primary/20 bg-primary/5">
                 <CardHeader>

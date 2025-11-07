@@ -14,6 +14,7 @@ import JobDetail from "./pages/JobDetail";
 import JobCreate from "./pages/JobCreate";
 import JobEdit from "./pages/JobEdit";
 import JobTemplates from "./pages/JobTemplates";
+import JobAutomationSettings from "./pages/JobAutomationSettings";
 import Applications from "./pages/Applications";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
@@ -90,6 +91,7 @@ function AppContent() {
             <Route path="/jobs" element={<Jobs />} />
             <Route path="/jobs/new" element={<JobCreate />} />
             <Route path="/jobs/templates" element={<JobTemplates />} />
+            <Route path="/jobs/automation" element={<JobAutomationSettings />} />
             <Route path="/jobs/:jobId" element={<JobDetail />} />
             <Route path="/jobs/:jobId/edit" element={<JobEdit />} />
             <Route path="/employers" element={<Employers />} />
