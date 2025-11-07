@@ -19,7 +19,13 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Mail, Eye } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Mail, Eye, Plus } from "lucide-react";
 import { OnboardingWorkflow } from "@/types/onboarding";
 
 interface OnboardingEmailDialogProps {
@@ -91,6 +97,27 @@ export function OnboardingEmailDialog({
     }
   };
 
+  const tokens = [
+    { label: "Employee Name", value: "{{employee_name}}" },
+    { label: "Job Title", value: "{{job_title}}" },
+    { label: "Department", value: "{{department}}" },
+    { label: "Start Date", value: "{{start_date}}" },
+    { label: "Manager Name", value: "{{manager_name}}" },
+  ];
+
+  const insertToken = (token: string) => {
+    setMessage(prev => prev + token);
+  };
+
+  const replaceTokens = (text: string, workflow: OnboardingWorkflow): string => {
+    return text
+      .replace(/\{\{employee_name\}\}/g, workflow.employeeName)
+      .replace(/\{\{job_title\}\}/g, workflow.jobTitle)
+      .replace(/\{\{department\}\}/g, workflow.department)
+      .replace(/\{\{start_date\}\}/g, workflow.startDate)
+      .replace(/\{\{manager_name\}\}/g, workflow.assignedToName);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px]">
@@ -129,14 +156,40 @@ export function OnboardingEmailDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="message">Message</Label>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" type="button">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Insert Token
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {tokens.map((token) => (
+                      <DropdownMenuItem
+                        key={token.value}
+                        onClick={() => insertToken(token.value)}
+                      >
+                        {token.label}
+                        <span className="ml-auto text-xs text-muted-foreground">
+                          {token.value}
+                        </span>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
               <Textarea
                 id="message"
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Enter your message here..."
+                placeholder="Enter your message here... Use tokens like {{employee_name}} to personalize."
                 className="min-h-[200px]"
               />
+              <div className="text-xs text-muted-foreground">
+                Available tokens: {tokens.map(t => t.value).join(", ")}
+              </div>
             </div>
           </TabsContent>
 
@@ -155,9 +208,28 @@ export function OnboardingEmailDialog({
                   )}
                 </div>
                 
-                <div className="prose prose-sm max-w-none mt-4">
-                  <p className="whitespace-pre-wrap">{message || "No message yet..."}</p>
-                </div>
+                {includedWorkflows.length > 0 && (
+                  <>
+                    <div className="text-sm font-medium text-muted-foreground mb-2">
+                      Preview for: {includedWorkflows[0].employeeName}
+                    </div>
+                    <div className="prose prose-sm max-w-none mt-2">
+                      <p className="whitespace-pre-wrap">
+                        {message ? replaceTokens(message, includedWorkflows[0]) : "No message yet..."}
+                      </p>
+                    </div>
+                    {includedCount > 1 && (
+                      <div className="mt-3 p-2 bg-muted/50 rounded text-xs text-muted-foreground">
+                        Note: Personalization tokens will be replaced with each recipient's information when sent.
+                      </div>
+                    )}
+                  </>
+                )}
+                {includedWorkflows.length === 0 && (
+                  <div className="prose prose-sm max-w-none mt-4">
+                    <p className="whitespace-pre-wrap text-muted-foreground">No recipients selected</p>
+                  </div>
+                )}
               </div>
 
               <div className="rounded-lg border p-4">
