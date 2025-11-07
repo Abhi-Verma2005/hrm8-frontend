@@ -27,6 +27,10 @@ import type { CalibrationSession, Interview } from "@/types/interview";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
 import { CalibrationSessionAnalytics } from "./CalibrationSessionAnalytics";
+import LiveCollaboration from "./LiveCollaboration";
+import SessionReports from "./SessionReports";
+import SessionFeedback from "./SessionFeedback";
+import SmartRecommendations from "./SmartRecommendations";
 
 interface CalibrationSessionManagerProps {
   interviews: Interview[];
@@ -38,6 +42,7 @@ export function CalibrationSessionManager({ interviews }: CalibrationSessionMana
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState<CalibrationSession | null>(null);
   const [viewMode, setViewMode] = useState<"sessions" | "analytics">("sessions");
+  const [detailTab, setDetailTab] = useState("overview");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -457,7 +462,7 @@ export function CalibrationSessionManager({ interviews }: CalibrationSessionMana
 
       {/* Session Detail Dialog */}
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <DialogTitle>{selectedSession?.name}</DialogTitle>
@@ -466,14 +471,16 @@ export function CalibrationSessionManager({ interviews }: CalibrationSessionMana
           </DialogHeader>
 
           {selectedSession && (
-            <Tabs defaultValue="exercises" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="exercises">Exercises</TabsTrigger>
-                <TabsTrigger value="interviews">Focus Interviews</TabsTrigger>
-                <TabsTrigger value="participants">Participants</TabsTrigger>
+            <Tabs value={detailTab} onValueChange={setDetailTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="collaboration">Live</TabsTrigger>
+                <TabsTrigger value="reports">Reports</TabsTrigger>
+                <TabsTrigger value="feedback">Feedback</TabsTrigger>
+                <TabsTrigger value="insights">Insights</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="exercises" className="space-y-4 mt-4">
+              <TabsContent value="overview" className="space-y-4 mt-4">
                 {selectedSession.exercises.map((exercise) => (
                   <Card key={exercise.id}>
                     <CardHeader>
@@ -507,56 +514,31 @@ export function CalibrationSessionManager({ interviews }: CalibrationSessionMana
                 ))}
               </TabsContent>
 
-              <TabsContent value="interviews" className="space-y-4 mt-4">
-                {selectedSession.focusInterviews.length === 0 ? (
-                  <Card>
-                    <CardContent className="py-8 text-center text-muted-foreground">
-                      No specific interviews selected for this session
-                    </CardContent>
-                  </Card>
-                ) : (
-                  selectedSession.focusInterviews.map((interviewId) => {
-                    const interview = interviews.find(i => i.id === interviewId);
-                    if (!interview) return null;
-
-                    return (
-                      <Card key={interviewId}>
-                        <CardHeader>
-                          <CardTitle className="text-base">
-                            {interview.candidateName} - {interview.jobTitle}
-                          </CardTitle>
-                          <CardDescription>
-                            {interview.feedback.length} feedback submissions
-                          </CardDescription>
-                        </CardHeader>
-                      </Card>
-                    );
-                  })
-                )}
+              <TabsContent value="collaboration" className="mt-4">
+                <LiveCollaboration 
+                  sessionId={selectedSession.id} 
+                  currentUserId="current-user" 
+                />
               </TabsContent>
 
-              <TabsContent value="participants" className="space-y-4 mt-4">
-                <Card>
-                  <CardContent className="pt-6">
-                    <div className="space-y-3">
-                      {selectedSession.participants.map((participant) => (
-                        <div key={participant.userId} className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Users className="h-5 w-5 text-primary" />
-                            </div>
-                            <div>
-                              <p className="font-medium">{participant.name}</p>
-                              <p className="text-sm text-muted-foreground capitalize">
-                                {participant.role}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+              <TabsContent value="reports" className="mt-4">
+                <SessionReports session={selectedSession} />
+              </TabsContent>
+
+              <TabsContent value="feedback" className="mt-4">
+                <SessionFeedback 
+                  sessionId={selectedSession.id}
+                  onSubmit={(feedback) => {
+                    console.log('Feedback submitted:', feedback);
+                  }}
+                />
+              </TabsContent>
+
+              <TabsContent value="insights" className="mt-4">
+                <SmartRecommendations 
+                  sessions={sessions}
+                  currentSession={selectedSession}
+                />
               </TabsContent>
             </Tabs>
           )}
