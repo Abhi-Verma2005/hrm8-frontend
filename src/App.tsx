@@ -75,12 +75,21 @@ import BackgroundChecks from "./pages/BackgroundChecks";
 import InternalJobs from "./pages/InternalJobs";
 import Calendar from "./pages/Calendar";
 import CollaborativeFeedback from "./pages/CollaborativeFeedback";
+import NotificationCenter from "./pages/NotificationCenter";
+import { initializeMockFeedbackData } from './lib/mockFeedbackData';
+import { initializeMockTeamData } from './lib/mockTeamData';
+import { useEffect } from 'react';
 
 const queryClient = new QueryClient();
 
 function AppContent() {
   const globalShortcuts = useGlobalKeyboardShortcuts();
   useKeyboardShortcuts(globalShortcuts);
+
+  useEffect(() => {
+    initializeMockFeedbackData();
+    initializeMockTeamData();
+  }, []);
 
   return (
     <Routes>
@@ -138,6 +147,7 @@ function AppContent() {
           <Route path="/internal-jobs" element={<InternalJobs />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/collaborative-feedback" element={<CollaborativeFeedback />} />
+          <Route path="/notifications" element={<NotificationCenter />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />
           <Route path="/users" element={<Users />} />

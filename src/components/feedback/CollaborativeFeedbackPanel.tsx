@@ -21,6 +21,8 @@ import { DecisionRecorder } from './DecisionRecorder';
 import { VotingPanel } from './VotingPanel';
 import { TeamConsensusView } from './TeamConsensusView';
 import { FeedbackFilterBar } from './FeedbackFilterBar';
+import { FeedbackRequestDialog } from './FeedbackRequestDialog';
+import { PendingFeedbackRequests } from './PendingFeedbackRequests';
 import { formatDistanceToNow } from 'date-fns';
 import { ThumbsUp, ThumbsDown, AlertCircle, MessageSquare, TrendingUp, Users } from 'lucide-react';
 
@@ -155,16 +157,23 @@ export function CollaborativeFeedbackPanel({
       )}
 
       <Tabs defaultValue="feedback" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="feedback">Team Feedback ({feedback.length})</TabsTrigger>
           <TabsTrigger value="consensus">Consensus</TabsTrigger>
           <TabsTrigger value="voting">Voting</TabsTrigger>
+          <TabsTrigger value="requests">Requests</TabsTrigger>
           <TabsTrigger value="decision">Decision</TabsTrigger>
           <TabsTrigger value="provide">Provide Feedback</TabsTrigger>
         </TabsList>
 
         {/* Individual Feedback Tab */}
         <TabsContent value="feedback" className="space-y-4">
+          <div className="flex justify-end">
+            <FeedbackRequestDialog 
+              candidateId={candidateId}
+              candidateName={candidateName}
+            />
+          </div>
           {feedback.length > 0 && (
             <FeedbackFilterBar
               feedback={feedback}
@@ -269,6 +278,11 @@ export function CollaborativeFeedbackPanel({
             candidateName={candidateName}
             onVoteCast={loadData}
           />
+        </TabsContent>
+
+        {/* Requests Tab */}
+        <TabsContent value="requests">
+          <PendingFeedbackRequests />
         </TabsContent>
 
         {/* Decision Tab */}
