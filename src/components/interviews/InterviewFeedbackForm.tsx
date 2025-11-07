@@ -6,13 +6,11 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDes
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Star } from "lucide-react";
+import { Star, Target } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
-const feedbackSchema = z.object({
-  technicalSkills: z.number().min(1).max(5),
-  communication: z.number().min(1).max(5),
-  cultureFit: z.number().min(1).max(5),
-  problemSolving: z.number().min(1).max(5),
+const baseFeedbackSchema = z.object({
   overallRating: z.number().min(1).max(5),
   strengths: z.string().min(10, "Please provide detailed strengths"),
   concerns: z.string().min(10, "Please provide detailed concerns"),
@@ -20,23 +18,62 @@ const feedbackSchema = z.object({
   notes: z.string().optional(),
 });
 
-type FeedbackFormData = z.infer<typeof feedbackSchema>;
+const defaultFeedbackSchema = baseFeedbackSchema.extend({
+  technicalSkills: z.number().min(1).max(5),
+  communication: z.number().min(1).max(5),
+  cultureFit: z.number().min(1).max(5),
+  problemSolving: z.number().min(1).max(5),
+});
+
+type FeedbackFormData = z.infer<typeof defaultFeedbackSchema> & {
+  customRatings?: Record<string, number>;
+};
+
+interface RatingCriteria {
+  id: string;
+  name: string;
+  description: string;
+  weight: number;
+}
 
 interface InterviewFeedbackFormProps {
   candidateName: string;
   jobTitle: string;
-  onSubmit: (data: FeedbackFormData) => void;
+  ratingCriteria?: RatingCriteria[];
+  onSubmit: (data: any) => void;
   onCancel: () => void;
 }
 
-export function InterviewFeedbackForm({ candidateName, jobTitle, onSubmit, onCancel }: InterviewFeedbackFormProps) {
-  const form = useForm<FeedbackFormData>({
+export function InterviewFeedbackForm({ 
+  candidateName, 
+  jobTitle, 
+  ratingCriteria,
+  onSubmit, 
+  onCancel 
+}: InterviewFeedbackFormProps) {
+  const hasCustomCriteria = ratingCriteria && ratingCriteria.length > 0;
+  
+  // Create dynamic schema based on rating criteria
+  const feedbackSchema = hasCustomCriteria 
+    ? baseFeedbackSchema.extend({
+        customRatings: z.record(z.number().min(1).max(5))
+      })
+    : defaultFeedbackSchema;
+
+  const form = useForm<any>({
     resolver: zodResolver(feedbackSchema),
     defaultValues: {
-      technicalSkills: 3,
-      communication: 3,
-      cultureFit: 3,
-      problemSolving: 3,
+      ...(hasCustomCriteria 
+        ? { customRatings: Object.fromEntries(
+            ratingCriteria.map(c => [c.id, 3])
+          )}
+        : {
+            technicalSkills: 3,
+            communication: 3,
+            cultureFit: 3,
+            problemSolving: 3,
+          }
+      ),
       overallRating: 3,
       recommendation: "maybe",
     },
@@ -65,124 +102,201 @@ export function InterviewFeedbackForm({ candidateName, jobTitle, onSubmit, onCan
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Rating Criteria */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Rating Criteria</h3>
-            
-            <FormField
-              control={form.control}
-              name="technicalSkills"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center justify-between">
-                    <span>Technical Skills</span>
-                    {renderStars(field.value)}
-                  </FormLabel>
-                  <FormControl>
-                    <Slider
-                      min={1}
-                      max={5}
-                      step={1}
-                      value={[field.value]}
-                      onValueChange={(vals) => field.onChange(vals[0])}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          {hasCustomCriteria ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Target className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold">Interview Scorecard</h3>
+              </div>
+              <Card className="p-4 bg-muted/50 border-primary/20">
+                <p className="text-sm text-muted-foreground">
+                  Rate the candidate based on the following criteria from the interview template
+                </p>
+              </Card>
 
-            <FormField
-              control={form.control}
-              name="communication"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center justify-between">
-                    <span>Communication</span>
-                    {renderStars(field.value)}
-                  </FormLabel>
-                  <FormControl>
-                    <Slider
-                      min={1}
-                      max={5}
-                      step={1}
-                      value={[field.value]}
-                      onValueChange={(vals) => field.onChange(vals[0])}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {ratingCriteria.map((criteria) => {
+                const rating = form.watch(`customRatings.${criteria.id}`) || 3;
+                return (
+                  <FormField
+                    key={criteria.id}
+                    control={form.control}
+                    name={`customRatings.${criteria.id}`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold">{criteria.name}</span>
+                              <Badge variant="secondary" className="text-xs">
+                                Weight: {criteria.weight}%
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground font-normal">
+                              {criteria.description}
+                            </p>
+                          </div>
+                          {renderStars(rating)}
+                        </FormLabel>
+                        <FormControl>
+                          <Slider
+                            min={1}
+                            max={5}
+                            step={1}
+                            value={[field.value || 3]}
+                            onValueChange={(vals) => field.onChange(vals[0])}
+                            className="mt-2"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                );
+              })}
 
-            <FormField
-              control={form.control}
-              name="cultureFit"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center justify-between">
-                    <span>Culture Fit</span>
-                    {renderStars(field.value)}
-                  </FormLabel>
-                  <FormControl>
-                    <Slider
-                      min={1}
-                      max={5}
-                      step={1}
-                      value={[field.value]}
-                      onValueChange={(vals) => field.onChange(vals[0])}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="overallRating"
+                render={({ field }) => (
+                  <FormItem className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                    <FormLabel className="flex items-center justify-between">
+                      <span className="text-base font-bold">Overall Rating</span>
+                      {renderStars(field.value)}
+                    </FormLabel>
+                    <FormControl>
+                      <Slider
+                        min={1}
+                        max={5}
+                        step={1}
+                        value={[field.value]}
+                        onValueChange={(vals) => field.onChange(vals[0])}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Rating Criteria</h3>
+              
+              <FormField
+                control={form.control}
+                name="technicalSkills"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center justify-between">
+                      <span>Technical Skills</span>
+                      {renderStars(field.value)}
+                    </FormLabel>
+                    <FormControl>
+                      <Slider
+                        min={1}
+                        max={5}
+                        step={1}
+                        value={[field.value]}
+                        onValueChange={(vals) => field.onChange(vals[0])}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="problemSolving"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center justify-between">
-                    <span>Problem Solving</span>
-                    {renderStars(field.value)}
-                  </FormLabel>
-                  <FormControl>
-                    <Slider
-                      min={1}
-                      max={5}
-                      step={1}
-                      value={[field.value]}
-                      onValueChange={(vals) => field.onChange(vals[0])}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="communication"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center justify-between">
+                      <span>Communication</span>
+                      {renderStars(field.value)}
+                    </FormLabel>
+                    <FormControl>
+                      <Slider
+                        min={1}
+                        max={5}
+                        step={1}
+                        value={[field.value]}
+                        onValueChange={(vals) => field.onChange(vals[0])}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="overallRating"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center justify-between">
-                    <span>Overall Rating</span>
-                    {renderStars(field.value)}
-                  </FormLabel>
-                  <FormControl>
-                    <Slider
-                      min={1}
-                      max={5}
-                      step={1}
-                      value={[field.value]}
-                      onValueChange={(vals) => field.onChange(vals[0])}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+              <FormField
+                control={form.control}
+                name="cultureFit"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center justify-between">
+                      <span>Culture Fit</span>
+                      {renderStars(field.value)}
+                    </FormLabel>
+                    <FormControl>
+                      <Slider
+                        min={1}
+                        max={5}
+                        step={1}
+                        value={[field.value]}
+                        onValueChange={(vals) => field.onChange(vals[0])}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="problemSolving"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center justify-between">
+                      <span>Problem Solving</span>
+                      {renderStars(field.value)}
+                    </FormLabel>
+                    <FormControl>
+                      <Slider
+                        min={1}
+                        max={5}
+                        step={1}
+                        value={[field.value]}
+                        onValueChange={(vals) => field.onChange(vals[0])}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="overallRating"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center justify-between">
+                      <span>Overall Rating</span>
+                      {renderStars(field.value)}
+                    </FormLabel>
+                    <FormControl>
+                      <Slider
+                        min={1}
+                        max={5}
+                        step={1}
+                        value={[field.value]}
+                        onValueChange={(vals) => field.onChange(vals[0])}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          )}
 
           {/* Written Feedback */}
           <div className="space-y-4">

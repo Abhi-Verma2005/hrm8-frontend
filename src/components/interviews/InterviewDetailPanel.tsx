@@ -165,6 +165,7 @@ export function InterviewDetailPanel({
         <InterviewFeedbackForm
           candidateName={interview.candidateName}
           jobTitle={interview.jobTitle}
+          ratingCriteria={interview.ratingCriteria}
           onSubmit={handleFeedbackSubmit}
           onCancel={() => {
             setShowFeedbackForm(false);
@@ -492,44 +493,71 @@ export function InterviewDetailPanel({
                       </div>
 
                       {/* Rating Breakdown */}
-                      <div className="grid grid-cols-2 gap-4">
-                        {feedback.technicalSkills && (
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground">Technical Skills</span>
-                              <span className="font-medium">{feedback.technicalSkills}/5</span>
-                            </div>
-                            <Progress value={feedback.technicalSkills * 20} />
+                      {feedback.customRatings && interview.ratingCriteria ? (
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Target className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-semibold">Scorecard Results</span>
                           </div>
-                        )}
-                        {feedback.communication && (
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground">Communication</span>
-                              <span className="font-medium">{feedback.communication}/5</span>
+                          {interview.ratingCriteria.map((criteria) => {
+                            const rating = feedback.customRatings?.[criteria.id];
+                            if (!rating) return null;
+                            return (
+                              <div key={criteria.id} className="space-y-1">
+                                <div className="flex items-center justify-between text-sm">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-muted-foreground">{criteria.name}</span>
+                                    <Badge variant="secondary" className="text-xs">
+                                      {criteria.weight}%
+                                    </Badge>
+                                  </div>
+                                  <span className="font-medium">{rating}/5</span>
+                                </div>
+                                <Progress value={rating * 20} />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-2 gap-4">
+                          {feedback.technicalSkills && (
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Technical Skills</span>
+                                <span className="font-medium">{feedback.technicalSkills}/5</span>
+                              </div>
+                              <Progress value={feedback.technicalSkills * 20} />
                             </div>
-                            <Progress value={feedback.communication * 20} />
-                          </div>
-                        )}
-                        {feedback.cultureFit && (
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground">Culture Fit</span>
-                              <span className="font-medium">{feedback.cultureFit}/5</span>
+                          )}
+                          {feedback.communication && (
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Communication</span>
+                                <span className="font-medium">{feedback.communication}/5</span>
+                              </div>
+                              <Progress value={feedback.communication * 20} />
                             </div>
-                            <Progress value={feedback.cultureFit * 20} />
-                          </div>
-                        )}
-                        {feedback.problemSolving && (
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground">Problem Solving</span>
-                              <span className="font-medium">{feedback.problemSolving}/5</span>
+                          )}
+                          {feedback.cultureFit && (
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Culture Fit</span>
+                                <span className="font-medium">{feedback.cultureFit}/5</span>
+                              </div>
+                              <Progress value={feedback.cultureFit * 20} />
                             </div>
-                            <Progress value={feedback.problemSolving * 20} />
-                          </div>
-                        )}
-                      </div>
+                          )}
+                          {feedback.problemSolving && (
+                            <div className="space-y-1">
+                              <div className="flex items-center justify-between text-sm">
+                                <span className="text-muted-foreground">Problem Solving</span>
+                                <span className="font-medium">{feedback.problemSolving}/5</span>
+                              </div>
+                              <Progress value={feedback.problemSolving * 20} />
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       {/* Overall Rating */}
                       <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">

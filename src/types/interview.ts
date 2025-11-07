@@ -13,6 +13,7 @@ export interface InterviewFeedback {
   communication?: number;
   cultureFit?: number;
   problemSolving?: number;
+  customRatings?: Record<string, number>; // For template-based criteria
   overallRating: number;
   strengths: string;
   concerns: string;
