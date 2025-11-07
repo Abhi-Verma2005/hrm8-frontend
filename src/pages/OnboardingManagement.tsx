@@ -7,6 +7,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { OnboardingWorkflowCard } from "@/components/onboarding/OnboardingWorkflowCard";
 import { OnboardingWorkflowDialog } from "@/components/onboarding/OnboardingWorkflowDialog";
@@ -25,6 +35,7 @@ export default function OnboardingManagement() {
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [selectedWorkflowIds, setSelectedWorkflowIds] = useState<Set<string>>(new Set());
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const { toast } = useToast();
 
   const workflows = useMemo(() => getOnboardingWorkflows(), [refreshKey]);
@@ -68,6 +79,10 @@ export default function OnboardingManagement() {
   };
 
   const handleBulkDelete = () => {
+    setShowDeleteDialog(true);
+  };
+
+  const confirmBulkDelete = () => {
     if (selectedWorkflowIds.size === 0) return;
     
     selectedWorkflowIds.forEach(id => {
@@ -80,8 +95,13 @@ export default function OnboardingManagement() {
     });
     
     setSelectedWorkflowIds(new Set());
+    setShowDeleteDialog(false);
     setRefreshKey(prev => prev + 1);
   };
+
+  const selectedWorkflows = useMemo(() => {
+    return workflows.filter(w => selectedWorkflowIds.has(w.id));
+  }, [workflows, selectedWorkflowIds]);
 
   const handleBulkStatusUpdate = (status: OnboardingStatus) => {
     if (selectedWorkflowIds.size === 0) return;
@@ -396,6 +416,36 @@ export default function OnboardingManagement() {
           onExport={handleBulkExport}
           onClearSelection={handleClearSelection}
         />
+
+        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Workflows</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete {selectedWorkflowIds.size} workflow(s)? This action cannot be undone and will also delete all associated tasks and documents.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            
+            <div className="max-h-[300px] overflow-y-auto border rounded-md p-4 space-y-2">
+              <p className="text-sm font-medium mb-2">Workflows to be deleted:</p>
+              {selectedWorkflows.map(workflow => (
+                <div key={workflow.id} className="text-sm p-2 bg-muted rounded-md">
+                  <div className="font-medium">{workflow.employeeName}</div>
+                  <div className="text-muted-foreground text-xs">
+                    {workflow.jobTitle} • {workflow.department}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmBulkDelete} className="bg-destructive hover:bg-destructive/90">
+                Delete {selectedWorkflowIds.size} Workflow{selectedWorkflowIds.size > 1 ? 's' : ''}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardPageLayout>
   );
