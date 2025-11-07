@@ -18,7 +18,8 @@ import {
   Calendar,
   Eye,
   Globe,
-  MoreVertical
+  MoreVertical,
+  Megaphone
 } from "lucide-react";
 import { getJobById } from "@/lib/mockJobStorage";
 import { mockJobActivities } from "@/data/mockJobsData";
@@ -38,7 +39,10 @@ import {
 import { FormDrawer } from "@/components/ui/form-drawer";
 import { JobWizard } from "@/components/jobs/JobWizard";
 import { ExternalPromotionDialog } from "@/components/jobs/ExternalPromotionDialog";
-import { Megaphone } from "lucide-react";
+import { JobAnalyticsDashboard } from "@/components/jobs/analytics/JobAnalyticsDashboard";
+import { JobCollaborationPanel } from "@/components/jobs/collaboration/JobCollaborationPanel";
+import { JobVersionHistory } from "@/components/jobs/history/JobVersionHistory";
+import { useToast } from "@/hooks/use-toast";
 
 export default function JobDetail() {
   const { jobId } = useParams();
@@ -46,6 +50,7 @@ export default function JobDetail() {
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
   const [promotionDialogOpen, setPromotionDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const { toast } = useToast();
 
   if (!job) {
     return <Navigate to="/jobs" replace />;
@@ -65,6 +70,14 @@ export default function JobDetail() {
 
   const handleDrawerClose = () => {
     setEditDrawerOpen(false);
+  };
+
+  const handleRevertVersion = (version: number) => {
+    toast({
+      title: "Version reverted",
+      description: `Job reverted to version ${version}. Changes will be applied.`,
+    });
+    setRefreshKey(prev => prev + 1);
   };
 
   const editingJobData = {
@@ -204,6 +217,8 @@ export default function JobDetail() {
               )}
             </TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="collaboration">Collaboration</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -368,14 +383,17 @@ export default function JobDetail() {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics">
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">Job Analytics</p>
-                  <p className="text-sm">Advanced analytics will be available in Phase 4</p>
-                </div>
-              </CardContent>
-            </Card>
+            <JobAnalyticsDashboard jobId={job.id} />
+          </TabsContent>
+
+          {/* Collaboration Tab */}
+          <TabsContent value="collaboration">
+            <JobCollaborationPanel jobId={job.id} />
+          </TabsContent>
+
+          {/* History Tab */}
+          <TabsContent value="history">
+            <JobVersionHistory jobId={job.id} onRevert={handleRevertVersion} />
           </TabsContent>
 
           {/* Settings Tab */}
