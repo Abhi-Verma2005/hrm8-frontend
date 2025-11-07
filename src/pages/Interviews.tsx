@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar as CalendarIcon, Video, Phone, Users, Plus, LayoutGrid, List } from "lucide-react";
+import { Calendar as CalendarIcon, Video, Phone, Users, Plus, LayoutGrid, List, CalendarDays } from "lucide-react";
 import { getInterviews, saveInterview, updateInterview } from "@/lib/mockInterviewStorage";
 import { Interview } from "@/types/interview";
 import { Badge } from "@/components/ui/badge";
@@ -11,13 +11,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
 import { InterviewKanbanBoard } from "@/components/interviews/InterviewKanbanBoard";
 import { InterviewDetailPanel } from "@/components/interviews/InterviewDetailPanel";
+import { InterviewCalendarView } from "@/components/interviews/InterviewCalendarView";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 
 export default function Interviews() {
   const [interviews, setInterviews] = useState<Interview[]>([]);
   const [isSchedulerOpen, setIsSchedulerOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
+  const [viewMode, setViewMode] = useState<"kanban" | "list" | "calendar">("kanban");
   const [selectedInterview, setSelectedInterview] = useState<Interview | null>(null);
   const [isDetailPanelOpen, setIsDetailPanelOpen] = useState(false);
 
@@ -101,6 +102,18 @@ export default function Interviews() {
     });
   };
 
+  const handleReschedule = (interview: Interview, newDate: Date, newTime: string) => {
+    updateInterview(interview.id, {
+      scheduledDate: newDate.toISOString().split('T')[0],
+      scheduledTime: newTime,
+    });
+    loadInterviews();
+    toast({
+      title: "Interview Rescheduled",
+      description: `Interview with ${interview.candidateName} has been rescheduled`,
+    });
+  };
+
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
@@ -118,6 +131,10 @@ export default function Interviews() {
                   <LayoutGrid className="h-4 w-4 mr-2" />
                   Board
                 </TabsTrigger>
+                <TabsTrigger value="calendar">
+                  <CalendarDays className="h-4 w-4 mr-2" />
+                  Calendar
+                </TabsTrigger>
                 <TabsTrigger value="list">
                   <List className="h-4 w-4 mr-2" />
                   List
@@ -133,6 +150,12 @@ export default function Interviews() {
 
         {viewMode === "kanban" ? (
           <InterviewKanbanBoard onRefresh={loadInterviews} onViewDetails={handleViewDetails} />
+        ) : viewMode === "calendar" ? (
+          <InterviewCalendarView
+            interviews={interviews}
+            onViewDetails={handleViewDetails}
+            onReschedule={handleReschedule}
+          />
         ) : (
           <div className="grid gap-4">
             {interviews.map((interview) => (
