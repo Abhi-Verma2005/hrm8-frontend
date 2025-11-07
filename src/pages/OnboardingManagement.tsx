@@ -10,8 +10,11 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { OnboardingWorkflowCard } from "@/components/onboarding/OnboardingWorkflowCard";
 import { OnboardingWorkflowDialog } from "@/components/onboarding/OnboardingWorkflowDialog";
 import { OnboardingTemplateDialog } from "@/components/onboarding/OnboardingTemplateDialog";
-import { getOnboardingWorkflows, getOnboardingStats } from "@/lib/onboardingStorage";
+import { OnboardingBulkActions } from "@/components/onboarding/OnboardingBulkActions";
+import { getOnboardingWorkflows, getOnboardingStats, deleteOnboardingWorkflow, saveOnboardingWorkflow } from "@/lib/onboardingStorage";
 import { OnboardingStatus } from "@/types/onboarding";
+import { exportToCSV } from "@/utils/exportHelpers";
+import { useToast } from "@/hooks/use-toast";
 
 export default function OnboardingManagement() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -20,6 +23,8 @@ export default function OnboardingManagement() {
   const [showWorkflowDialog, setShowWorkflowDialog] = useState(false);
   const [showTemplateDialog, setShowTemplateDialog] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedWorkflowIds, setSelectedWorkflowIds] = useState<Set<string>>(new Set());
+  const { toast } = useToast();
 
   const workflows = useMemo(() => getOnboardingWorkflows(), [refreshKey]);
   const stats = useMemo(() => getOnboardingStats(), [refreshKey]);
@@ -47,6 +52,81 @@ export default function OnboardingManagement() {
     setRefreshKey(prev => prev + 1);
     setShowWorkflowDialog(false);
     setShowTemplateDialog(false);
+  };
+
+  const handleSelectWorkflow = (id: string, selected: boolean) => {
+    setSelectedWorkflowIds(prev => {
+      const newSet = new Set(prev);
+      if (selected) {
+        newSet.add(id);
+      } else {
+        newSet.delete(id);
+      }
+      return newSet;
+    });
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedWorkflowIds.size === 0) return;
+    
+    selectedWorkflowIds.forEach(id => {
+      deleteOnboardingWorkflow(id);
+    });
+    
+    toast({
+      title: "Workflows deleted",
+      description: `${selectedWorkflowIds.size} workflow(s) deleted successfully.`,
+    });
+    
+    setSelectedWorkflowIds(new Set());
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleBulkStatusUpdate = (status: OnboardingStatus) => {
+    if (selectedWorkflowIds.size === 0) return;
+    
+    selectedWorkflowIds.forEach(id => {
+      const workflow = workflows.find(w => w.id === id);
+      if (workflow) {
+        saveOnboardingWorkflow({ ...workflow, status });
+      }
+    });
+    
+    toast({
+      title: "Status updated",
+      description: `${selectedWorkflowIds.size} workflow(s) updated to ${status}.`,
+    });
+    
+    setSelectedWorkflowIds(new Set());
+    setRefreshKey(prev => prev + 1);
+  };
+
+  const handleBulkExport = () => {
+    if (selectedWorkflowIds.size === 0) return;
+    
+    const selectedWorkflows = workflows.filter(w => selectedWorkflowIds.has(w.id));
+    const exportData = selectedWorkflows.map(w => ({
+      'Employee Name': w.employeeName,
+      'Email': w.employeeEmail,
+      'Job Title': w.jobTitle,
+      'Department': w.department,
+      'Status': w.status,
+      'Progress': `${w.progress}%`,
+      'Start Date': w.startDate,
+      'Due Date': w.dueDate,
+      'Assigned To': w.assignedToName,
+    }));
+    
+    exportToCSV(exportData, 'onboarding-workflows');
+    
+    toast({
+      title: "Export successful",
+      description: `${selectedWorkflowIds.size} workflow(s) exported to CSV.`,
+    });
+  };
+
+  const handleClearSelection = () => {
+    setSelectedWorkflowIds(new Set());
   };
 
   return (
@@ -207,6 +287,8 @@ export default function OnboardingManagement() {
                     key={workflow.id}
                     workflow={workflow}
                     onUpdate={handleSuccess}
+                    isSelected={selectedWorkflowIds.has(workflow.id)}
+                    onSelect={handleSelectWorkflow}
                   />
                 ))}
               </div>
@@ -220,6 +302,8 @@ export default function OnboardingManagement() {
                   key={workflow.id}
                   workflow={workflow}
                   onUpdate={handleSuccess}
+                  isSelected={selectedWorkflowIds.has(workflow.id)}
+                  onSelect={handleSelectWorkflow}
                 />
               ))}
             </div>
@@ -232,6 +316,8 @@ export default function OnboardingManagement() {
                   key={workflow.id}
                   workflow={workflow}
                   onUpdate={handleSuccess}
+                  isSelected={selectedWorkflowIds.has(workflow.id)}
+                  onSelect={handleSelectWorkflow}
                 />
               ))}
             </div>
@@ -244,6 +330,8 @@ export default function OnboardingManagement() {
                   key={workflow.id}
                   workflow={workflow}
                   onUpdate={handleSuccess}
+                  isSelected={selectedWorkflowIds.has(workflow.id)}
+                  onSelect={handleSelectWorkflow}
                 />
               ))}
             </div>
@@ -256,6 +344,8 @@ export default function OnboardingManagement() {
                   key={workflow.id}
                   workflow={workflow}
                   onUpdate={handleSuccess}
+                  isSelected={selectedWorkflowIds.has(workflow.id)}
+                  onSelect={handleSelectWorkflow}
                 />
               ))}
             </div>
@@ -272,6 +362,14 @@ export default function OnboardingManagement() {
           open={showTemplateDialog}
           onOpenChange={setShowTemplateDialog}
           onSuccess={handleSuccess}
+        />
+
+        <OnboardingBulkActions
+          selectedCount={selectedWorkflowIds.size}
+          onUpdateStatus={handleBulkStatusUpdate}
+          onDelete={handleBulkDelete}
+          onExport={handleBulkExport}
+          onClearSelection={handleClearSelection}
         />
       </div>
     </DashboardPageLayout>

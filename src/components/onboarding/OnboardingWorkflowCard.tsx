@@ -3,17 +3,27 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, User, Building2, ArrowRight, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface OnboardingWorkflowCardProps {
   workflow: OnboardingWorkflow;
   onUpdate: () => void;
+  isSelected?: boolean;
+  onSelect?: (id: string, selected: boolean) => void;
 }
 
-export function OnboardingWorkflowCard({ workflow, onUpdate }: OnboardingWorkflowCardProps) {
+export function OnboardingWorkflowCard({ workflow, onUpdate, isSelected, onSelect }: OnboardingWorkflowCardProps) {
   const navigate = useNavigate();
+
+  const handleCheckboxChange = (checked: boolean) => {
+    if (onSelect) {
+      onSelect(workflow.id, checked);
+    }
+  };
 
   const getStatusBadge = (status: OnboardingWorkflow['status']) => {
     const variants: Record<OnboardingWorkflow['status'], { variant: any; label: string }> = {
@@ -30,10 +40,20 @@ export function OnboardingWorkflowCard({ workflow, onUpdate }: OnboardingWorkflo
   const daysUntilDue = Math.ceil((new Date(workflow.dueDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className={cn(
+      "hover:shadow-lg transition-shadow relative",
+      isSelected && "ring-2 ring-primary"
+    )}>
       <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="space-y-1">
+        <div className="flex items-start justify-between gap-3">
+          {onSelect && (
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={handleCheckboxChange}
+              className="mt-1"
+            />
+          )}
+          <div className="space-y-1 flex-1">
             <h3 className="font-semibold">{workflow.employeeName}</h3>
             <p className="text-sm text-muted-foreground">{workflow.jobTitle}</p>
           </div>
