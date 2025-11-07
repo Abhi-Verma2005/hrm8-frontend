@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Mail, Phone, MapPin, Briefcase, FileText, Calendar, 
-  Star, MessageSquare, Clock, ArrowRight, Download 
+  Star, MessageSquare, Clock, ArrowRight, Download, Video, Send 
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -17,6 +17,9 @@ import { updateApplicationStatus } from "@/lib/mockApplicationStorage";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
+import { OfferForm } from "@/components/offers/OfferForm";
 
 interface ApplicationDetailPanelProps {
   application: Application | null;
@@ -27,6 +30,8 @@ interface ApplicationDetailPanelProps {
 
 export function ApplicationDetailPanel({ application, open, onOpenChange, onRefresh }: ApplicationDetailPanelProps) {
   const [newNote, setNewNote] = useState("");
+  const [isInterviewDialogOpen, setIsInterviewDialogOpen] = useState(false);
+  const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
 
   if (!application) return null;
 
@@ -107,13 +112,13 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
               <Mail className="h-4 w-4 mr-2" />
               Email
             </Button>
-            <Button variant="outline" size="sm" className="flex-1">
-              <Calendar className="h-4 w-4 mr-2" />
-              Schedule
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => setIsInterviewDialogOpen(true)}>
+              <Video className="h-4 w-4 mr-2" />
+              Schedule Interview
             </Button>
-            <Button variant="outline" size="sm" className="flex-1">
-              <FileText className="h-4 w-4 mr-2" />
-              Offer
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => setIsOfferDialogOpen(true)}>
+              <Send className="h-4 w-4 mr-2" />
+              Send Offer
             </Button>
           </div>
 
@@ -248,6 +253,44 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
             </TabsContent>
           </Tabs>
         </div>
+
+        {/* Interview Dialog */}
+        <Dialog open={isInterviewDialogOpen} onOpenChange={setIsInterviewDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Schedule Interview</DialogTitle>
+            </DialogHeader>
+            <InterviewScheduler
+              candidateName={application.candidateName}
+              jobTitle={application.jobTitle}
+              onSubmit={(data) => {
+                console.log("Interview scheduled:", data);
+                setIsInterviewDialogOpen(false);
+                toast.success("Interview scheduled successfully");
+              }}
+              onCancel={() => setIsInterviewDialogOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {/* Offer Dialog */}
+        <Dialog open={isOfferDialogOpen} onOpenChange={setIsOfferDialogOpen}>
+          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Generate Offer Letter</DialogTitle>
+            </DialogHeader>
+            <OfferForm
+              candidateName={application.candidateName}
+              jobTitle={application.jobTitle}
+              onSubmit={(data) => {
+                console.log("Offer created:", data);
+                setIsOfferDialogOpen(false);
+                toast.success("Offer letter generated successfully");
+              }}
+              onCancel={() => setIsOfferDialogOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
       </SheetContent>
     </Sheet>
   );

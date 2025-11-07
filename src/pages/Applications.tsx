@@ -110,11 +110,7 @@ export default function Applications() {
         />
 
         {viewMode === "pipeline" ? (
-          <ApplicationPipeline
-            applications={filteredApplications}
-            onApplicationClick={handleApplicationClick}
-            onRefresh={loadApplications}
-          />
+          <ApplicationPipeline />
         ) : (
           <div className="text-center text-muted-foreground py-12">
             <p>List view coming soon</p>

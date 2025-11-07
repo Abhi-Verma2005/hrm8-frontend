@@ -28,6 +28,7 @@ import { ServiceTypeBadge } from "@/components/jobs/ServiceTypeBadge";
 import { JobQuickStats } from "@/components/jobs/JobQuickStats";
 import { JobActivityFeed } from "@/components/jobs/JobActivityFeed";
 import { formatSalaryRange, formatExperienceLevel, formatRelativeDate } from "@/lib/jobUtils";
+import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -362,14 +363,7 @@ export default function JobDetail() {
 
           {/* Applicants Tab */}
           <TabsContent value="applicants">
-            <Card>
-              <CardContent className="py-12">
-                <div className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">Applicant Pipeline</p>
-                  <p className="text-sm">Applicant management will be available in Phase 2</p>
-                </div>
-              </CardContent>
-            </Card>
+            <ApplicationPipeline jobId={job.id} />
           </TabsContent>
 
           {/* Analytics Tab */}

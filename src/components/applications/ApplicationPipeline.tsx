@@ -1,17 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Application, ApplicationStage } from "@/types/application";
 import { ApplicationCard } from "./ApplicationCard";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { updateApplicationStatus } from "@/lib/mockApplicationStorage";
+import { updateApplicationStatus, getApplications } from "@/lib/mockApplicationStorage";
 import { toast } from "sonner";
+import { ApplicationDetailPanel } from "./ApplicationDetailPanel";
 
 interface ApplicationPipelineProps {
-  applications: Application[];
-  onApplicationClick: (application: Application) => void;
-  onRefresh: () => void;
+  jobId?: string;
 }
 
 const pipelineStages: { stage: ApplicationStage; label: string; color: string }[] = [
@@ -24,9 +23,22 @@ const pipelineStages: { stage: ApplicationStage; label: string; color: string }[
   { stage: "Rejected", label: "Rejected", color: "bg-red-50 dark:bg-red-950/30" },
 ];
 
-export function ApplicationPipeline({ applications, onApplicationClick, onRefresh }: ApplicationPipelineProps) {
+export function ApplicationPipeline({ jobId }: ApplicationPipelineProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [detailPanelOpen, setDetailPanelOpen] = useState(false);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 10 } }));
+
+  useEffect(() => {
+    loadApplications();
+  }, [jobId]);
+
+  const loadApplications = () => {
+    const allApps = getApplications();
+    const filtered = jobId ? allApps.filter(app => app.jobId === jobId) : allApps;
+    setApplications(filtered);
+  };
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
@@ -55,60 +67,64 @@ export function ApplicationPipeline({ applications, onApplicationClick, onRefres
         };
 
         updateApplicationStatus(application.id, statusMap[targetStage], targetStage);
-        toast.success(`Moved ${application.candidateName} to ${targetStage}`);
-        onRefresh();
+        loadApplications();
+        toast.success(`Moved to ${targetStage}`);
       }
     }
 
     setActiveId(null);
   };
 
-  const getApplicationsByStage = (stage: ApplicationStage) => {
-    return applications.filter((app) => app.stage === stage);
+  const handleApplicationClick = (application: Application) => {
+    setSelectedApplication(application);
+    setDetailPanelOpen(true);
   };
 
   const activeApplication = activeId ? applications.find((app) => app.id === activeId) : null;
 
   return (
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 overflow-x-auto pb-4">
-        {pipelineStages.map((column) => {
-          const stageApplications = getApplicationsByStage(column.stage);
-          return (
-            <div key={column.stage} className="flex-shrink-0 w-80">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="font-semibold text-sm">{column.label}</h3>
-                <Badge variant="secondary">{stageApplications.length}</Badge>
+    <>
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <div className="flex gap-4 overflow-x-auto pb-4">
+          {pipelineStages.map((stageConfig) => {
+            const stageApplications = applications.filter((app) => app.stage === stageConfig.stage);
+            return (
+              <div key={stageConfig.stage} className="flex-shrink-0 w-80">
+                <Card className={`${stageConfig.color} border-2`}>
+                  <div className="p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="font-semibold">{stageConfig.label}</h3>
+                      <Badge variant="secondary">{stageApplications.length}</Badge>
+                    </div>
+                    <SortableContext items={stageApplications.map((app) => app.id)} strategy={verticalListSortingStrategy}>
+                      <div className="space-y-2 min-h-[200px]">
+                        {stageApplications.map((application) => (
+                          <ApplicationCard
+                            key={application.id}
+                            application={application}
+                            onClick={() => handleApplicationClick(application)}
+                          />
+                        ))}
+                      </div>
+                    </SortableContext>
+                  </div>
+                </Card>
               </div>
+            );
+          })}
+        </div>
 
-              <SortableContext
-                id={column.stage}
-                items={stageApplications.map((app) => app.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className={`min-h-[600px] p-3 rounded-lg space-y-3 ${column.color}`}>
-                  {stageApplications.map((application) => (
-                    <ApplicationCard
-                      key={application.id}
-                      application={application}
-                      onClick={() => onApplicationClick(application)}
-                    />
-                  ))}
-                  {stageApplications.length === 0 && (
-                    <p className="text-sm text-muted-foreground text-center py-8">
-                      No applications
-                    </p>
-                  )}
-                </div>
-              </SortableContext>
-            </div>
-          );
-        })}
-      </div>
+        <DragOverlay>
+          {activeApplication && <ApplicationCard application={activeApplication} onClick={() => {}} />}
+        </DragOverlay>
+      </DndContext>
 
-      <DragOverlay>
-        {activeApplication ? <ApplicationCard application={activeApplication} /> : null}
-      </DragOverlay>
-    </DndContext>
+      <ApplicationDetailPanel
+        application={selectedApplication}
+        open={detailPanelOpen}
+        onOpenChange={setDetailPanelOpen}
+        onRefresh={loadApplications}
+      />
+    </>
   );
 }

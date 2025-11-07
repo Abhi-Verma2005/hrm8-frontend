@@ -65,6 +65,8 @@ import RequisitionDetail from "./pages/RequisitionDetail";
 import Interviews from "./pages/Interviews";
 import Offers from "./pages/Offers";
 import BackgroundChecks from "./pages/BackgroundChecks";
+import InternalJobs from "./pages/InternalJobs";
+import Calendar from "./pages/Calendar";
 
 const queryClient = new QueryClient();
 
@@ -118,6 +120,8 @@ function AppContent() {
           <Route path="/interviews" element={<Interviews />} />
           <Route path="/offers" element={<Offers />} />
           <Route path="/background-checks" element={<BackgroundChecks />} />
+          <Route path="/internal-jobs" element={<InternalJobs />} />
+          <Route path="/calendar" element={<Calendar />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />
           <Route path="/users" element={<Users />} />

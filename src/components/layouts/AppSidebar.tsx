@@ -33,6 +33,7 @@ const operationsNavItems = [
   { title: "Recruitment Services", url: "/recruitment-services", icon: Target },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Calendar", url: "/calendar", icon: Calendar },
+  { title: "Internal Jobs", url: "/internal-jobs", icon: Building },
   { title: "Inbox", url: "/inbox", icon: Mail },
 ];
 
