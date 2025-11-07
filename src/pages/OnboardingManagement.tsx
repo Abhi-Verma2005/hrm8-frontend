@@ -23,6 +23,7 @@ import { OnboardingWorkflowDialog } from "@/components/onboarding/OnboardingWork
 import { OnboardingTemplateDialog } from "@/components/onboarding/OnboardingTemplateDialog";
 import { OnboardingBulkActions } from "@/components/onboarding/OnboardingBulkActions";
 import { OnboardingEmailDialog } from "@/components/onboarding/OnboardingEmailDialog";
+import { ScheduledEmailsView } from "@/components/onboarding/ScheduledEmailsView";
 import { getOnboardingWorkflows, getOnboardingStats, deleteOnboardingWorkflow, saveOnboardingWorkflow } from "@/lib/onboardingStorage";
 import { OnboardingStatus } from "@/types/onboarding";
 import { exportToCSV } from "@/utils/exportHelpers";
@@ -39,6 +40,7 @@ export default function OnboardingManagement() {
   const [selectedWorkflowIds, setSelectedWorkflowIds] = useState<Set<string>>(new Set());
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [activeView, setActiveView] = useState<'workflows' | 'scheduled'>('workflows');
   const { toast } = useToast();
 
   const workflows = useMemo(() => getOnboardingWorkflows(), [refreshKey]);
@@ -226,6 +228,14 @@ export default function OnboardingManagement() {
             </Button>
           </div>
         </div>
+
+        <Tabs value={activeView} onValueChange={(value) => setActiveView(value as 'workflows' | 'scheduled')}>
+          <TabsList>
+            <TabsTrigger value="workflows">Workflows</TabsTrigger>
+            <TabsTrigger value="scheduled">Scheduled Emails</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="workflows" className="space-y-6">
         
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -422,7 +432,13 @@ export default function OnboardingManagement() {
               ))}
             </div>
           </TabsContent>
-        </Tabs>
+          </Tabs>
+        </TabsContent>
+
+        <TabsContent value="scheduled" className="space-y-6">
+          <ScheduledEmailsView />
+        </TabsContent>
+      </Tabs>
 
         <OnboardingWorkflowDialog
         open={showWorkflowDialog}
