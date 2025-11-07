@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Settings2, Download, FileSpreadsheet, FileText } from "lucide-react";
+import { X, Settings2, Download, FileSpreadsheet, FileText, Library, BarChart3 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -26,6 +26,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import * as XLSX from "xlsx";
+import { PivotDrillDown } from "./PivotDrillDown";
+import { PivotTemplates } from "./PivotTemplates";
+import { PivotChart } from "./PivotChart";
 
 export type PivotAggregateFunction = "sum" | "avg" | "count" | "min" | "max";
 
@@ -53,6 +56,8 @@ export interface PivotConfig {
     label?: string;
   }[];
   conditionalFormatting?: ConditionalFormatting;
+  showTotals?: boolean;
+  showChart?: boolean;
 }
 
 interface PivotTableProps<T> {
@@ -187,9 +192,13 @@ export function PivotTable<T extends Record<string, any>>({
         thresholds: { low: 0, high: 100 },
         autoThresholds: true,
       },
+      showTotals: false,
+      showChart: false,
     }
   );
   const [showConfig, setShowConfig] = useState(!initialConfig);
+  const [drillDownData, setDrillDownData] = useState<any>(null);
+  const [showTemplates, setShowTemplates] = useState(false);
 
   const updateConfig = (newConfig: PivotConfig) => {
     setConfig(newConfig);
@@ -245,6 +254,7 @@ export function PivotTable<T extends Record<string, any>>({
     }
 
     const result: PivotData = {};
+    const rawData: any = {}; // Store raw records for drill-down
     const rowKeys = new Set<string>();
     const colKeys = new Set<string>();
 
@@ -261,10 +271,15 @@ export function PivotTable<T extends Record<string, any>>({
 
       if (!result[rowKey]) {
         result[rowKey] = {};
+        rawData[rowKey] = {};
       }
       if (!result[rowKey][colKey]) {
         result[rowKey][colKey] = {};
+        rawData[rowKey][colKey] = [];
       }
+
+      // Store raw record for drill-down
+      rawData[rowKey][colKey].push(item);
 
       config.values.forEach((valueConfig) => {
         const key = `${valueConfig.field}_${valueConfig.aggregation}`;
@@ -292,9 +307,12 @@ export function PivotTable<T extends Record<string, any>>({
     let minValue = Infinity;
     let maxValue = -Infinity;
 
-    Array.from(rowKeys).forEach((rowKey) => {
+    const sortedRowKeys = Array.from(rowKeys).sort();
+    const sortedColKeys = Array.from(colKeys).sort();
+
+    sortedRowKeys.forEach((rowKey) => {
       aggregated[rowKey] = {};
-      Array.from(colKeys).forEach((colKey) => {
+      sortedColKeys.forEach((colKey) => {
         aggregated[rowKey][colKey] = {};
         config.values.forEach((valueConfig) => {
           const key = `${valueConfig.field}_${valueConfig.aggregation}`;
@@ -309,12 +327,70 @@ export function PivotTable<T extends Record<string, any>>({
       });
     });
 
+    // Calculate totals if enabled
+    const rowTotals: any = {};
+    const colTotals: any = {};
+    let grandTotal: any = {};
+
+    if (config.showTotals) {
+      // Calculate row totals
+      sortedRowKeys.forEach((rowKey) => {
+        rowTotals[rowKey] = {};
+        config.values.forEach((valueConfig) => {
+          const key = `${valueConfig.field}_${valueConfig.aggregation}`;
+          const allValues: number[] = [];
+          sortedColKeys.forEach((colKey) => {
+            const cellValue = aggregated[rowKey][colKey][key];
+            if (typeof cellValue === "number") {
+              allValues.push(cellValue);
+            }
+          });
+          rowTotals[rowKey][key] = calculateAggregate(allValues, valueConfig.aggregation);
+        });
+      });
+
+      // Calculate column totals
+      sortedColKeys.forEach((colKey) => {
+        colTotals[colKey] = {};
+        config.values.forEach((valueConfig) => {
+          const key = `${valueConfig.field}_${valueConfig.aggregation}`;
+          const allValues: number[] = [];
+          sortedRowKeys.forEach((rowKey) => {
+            const cellValue = aggregated[rowKey][colKey][key];
+            if (typeof cellValue === "number") {
+              allValues.push(cellValue);
+            }
+          });
+          colTotals[colKey][key] = calculateAggregate(allValues, valueConfig.aggregation);
+        });
+      });
+
+      // Calculate grand total
+      config.values.forEach((valueConfig) => {
+        const key = `${valueConfig.field}_${valueConfig.aggregation}`;
+        const allValues: number[] = [];
+        sortedRowKeys.forEach((rowKey) => {
+          sortedColKeys.forEach((colKey) => {
+            const cellValue = aggregated[rowKey][colKey][key];
+            if (typeof cellValue === "number") {
+              allValues.push(cellValue);
+            }
+          });
+        });
+        grandTotal[key] = calculateAggregate(allValues, valueConfig.aggregation);
+      });
+    }
+
     return {
       data: aggregated,
-      rowKeys: Array.from(rowKeys).sort(),
-      colKeys: Array.from(colKeys).sort(),
+      rowKeys: sortedRowKeys,
+      colKeys: sortedColKeys,
       minValue: minValue === Infinity ? 0 : minValue,
       maxValue: maxValue === -Infinity ? 0 : maxValue,
+      rawData,
+      rowTotals,
+      colTotals,
+      grandTotal,
     };
   }, [data, config]);
 
@@ -510,6 +586,26 @@ export function PivotTable<T extends Record<string, any>>({
     XLSX.writeFile(workbook, `pivot-table-${new Date().toISOString().slice(0, 10)}.xlsx`);
   };
 
+  const handleCellClick = (rowKey: string, colKey: string, valueConfig: any) => {
+    if (!pivotData?.rawData) return;
+
+    const records = pivotData.rawData[rowKey]?.[colKey] || [];
+    setDrillDownData({
+      rowKey,
+      colKey,
+      fieldName: valueConfig.field,
+      aggregation: valueConfig.aggregation,
+      records,
+    });
+  };
+
+  const applyTemplate = (templateConfig: Partial<PivotConfig>) => {
+    updateConfig({
+      ...config,
+      ...templateConfig,
+    });
+  };
+
   return (
     <div className="space-y-4">
       {/* Configuration Panel */}
@@ -518,25 +614,45 @@ export function PivotTable<T extends Record<string, any>>({
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold">Pivot Configuration</h3>
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTemplates(true)}
+              >
+                <Library className="h-4 w-4 mr-2" />
+                Templates
+              </Button>
               {pivotData && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <Download className="h-4 w-4 mr-2" />
-                      Export
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-background">
-                    <DropdownMenuItem onClick={exportToExcel}>
-                      <FileSpreadsheet className="h-4 w-4 mr-2" />
-                      Export as Excel
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={exportToCSV}>
-                      <FileText className="h-4 w-4 mr-2" />
-                      Export as CSV
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Download className="h-4 w-4 mr-2" />
+                        Export
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-background">
+                      <DropdownMenuItem onClick={exportToExcel}>
+                        <FileSpreadsheet className="h-4 w-4 mr-2" />
+                        Export as Excel
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={exportToCSV}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        Export as CSV
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      updateConfig({ ...config, showChart: !config.showChart })
+                    }
+                  >
+                    <BarChart3 className="h-4 w-4 mr-2" />
+                    {config.showChart ? "Hide" : "Show"} Chart
+                  </Button>
+                </>
               )}
               <Button
                 variant="ghost"
@@ -676,6 +792,27 @@ export function PivotTable<T extends Record<string, any>>({
             </div>
           )}
 
+          {/* Display Options Section */}
+          {showConfig && config.values.length > 0 && (
+            <div className="mt-4 pt-4 border-t space-y-4">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Show Totals</label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    updateConfig({
+                      ...config,
+                      showTotals: !config.showTotals,
+                    })
+                  }
+                >
+                  {config.showTotals ? "Hide" : "Show"} Totals
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Conditional Formatting Section */}
           {showConfig && config.values.length > 0 && (
             <div className="mt-4 pt-4 border-t space-y-4">
@@ -808,6 +945,11 @@ export function PivotTable<T extends Record<string, any>>({
         </CardContent>
       </Card>
 
+      {/* Pivot Chart */}
+      {pivotData && config.showChart && config.values.length > 0 && (
+        <PivotChart data={pivotData} valueConfig={config.values[0]} />
+      )}
+
       {/* Pivot Table */}
       {pivotData && pivotData.rowKeys.length > 0 ? (
         <div className="rounded-md border overflow-auto">
@@ -829,6 +971,14 @@ export function PivotTable<T extends Record<string, any>>({
                     {colKey}
                   </TableHead>
                 ))}
+                {config.showTotals && (
+                  <TableHead
+                    colSpan={config.values.length}
+                    className="text-center font-bold bg-muted"
+                  >
+                    Total
+                  </TableHead>
+                )}
               </TableRow>
               {config.values.length > 1 && (
                 <TableRow>
@@ -843,6 +993,15 @@ export function PivotTable<T extends Record<string, any>>({
                       </TableHead>
                     ))
                   )}
+                  {config.showTotals &&
+                    config.values.map((value, idx) => (
+                      <TableHead
+                        key={`total-${idx}`}
+                        className="text-center bg-muted/50 text-xs"
+                      >
+                        {value.label}
+                      </TableHead>
+                    ))}
                 </TableRow>
               )}
             </TableHeader>
@@ -867,18 +1026,72 @@ export function PivotTable<T extends Record<string, any>>({
                       return (
                         <TableCell
                           key={`${colKey}-${idx}`}
-                          className="text-right"
+                          className="text-right cursor-pointer hover:opacity-80"
                           style={{
                             backgroundColor,
                           }}
+                          onClick={() => handleCellClick(rowKey, colKey, value)}
+                          title="Click to drill down"
                         >
                           {cellValue.toFixed(2)}
                         </TableCell>
                       );
                     })
                   )}
+                  {config.showTotals &&
+                    config.values.map((value, idx) => {
+                      const key = `${value.field}_${value.aggregation}`;
+                      const cellValue = Number(
+                        pivotData.rowTotals?.[rowKey]?.[key] || 0
+                      );
+                      return (
+                        <TableCell
+                          key={`total-${idx}`}
+                          className="text-right font-semibold bg-muted/30"
+                        >
+                          {cellValue.toFixed(2)}
+                        </TableCell>
+                      );
+                    })}
                 </TableRow>
               ))}
+              {config.showTotals && (
+                <TableRow className="font-bold bg-muted/50">
+                  <TableCell className="sticky left-0 bg-muted/50">
+                    Grand Total
+                  </TableCell>
+                  {pivotData.colKeys.map((colKey) =>
+                    config.values.map((value, idx) => {
+                      const key = `${value.field}_${value.aggregation}`;
+                      const cellValue = Number(
+                        pivotData.colTotals?.[colKey]?.[key] || 0
+                      );
+                      return (
+                        <TableCell
+                          key={`col-total-${colKey}-${idx}`}
+                          className="text-right"
+                        >
+                          {cellValue.toFixed(2)}
+                        </TableCell>
+                      );
+                    })
+                  )}
+                  {config.values.map((value, idx) => {
+                    const key = `${value.field}_${value.aggregation}`;
+                    const cellValue = Number(
+                      pivotData.grandTotal?.[key] || 0
+                    );
+                    return (
+                      <TableCell
+                        key={`grand-total-${idx}`}
+                        className="text-right"
+                      >
+                        {cellValue.toFixed(2)}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
@@ -895,6 +1108,22 @@ export function PivotTable<T extends Record<string, any>>({
           </CardContent>
         </Card>
       )}
+
+      {/* Drill-Down Modal */}
+      <PivotDrillDown
+        isOpen={!!drillDownData}
+        onClose={() => setDrillDownData(null)}
+        drillDownData={drillDownData}
+        availableFields={availableFields}
+      />
+
+      {/* Templates Modal */}
+      <PivotTemplates
+        isOpen={showTemplates}
+        onClose={() => setShowTemplates(false)}
+        onApplyTemplate={applyTemplate}
+        availableFields={availableFields}
+      />
     </div>
   );
 }
