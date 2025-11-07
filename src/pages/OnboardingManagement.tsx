@@ -25,10 +25,10 @@ import { OnboardingBulkActions } from "@/components/onboarding/OnboardingBulkAct
 import { OnboardingEmailDialog } from "@/components/onboarding/OnboardingEmailDialog";
 import { ScheduledEmailsView } from "@/components/onboarding/ScheduledEmailsView";
 import { getOnboardingWorkflows, getOnboardingStats, deleteOnboardingWorkflow, saveOnboardingWorkflow } from "@/lib/onboardingStorage";
-import { OnboardingStatus } from "@/types/onboarding";
+import { OnboardingStatus, OnboardingWorkflow } from "@/types/onboarding";
 import { exportToCSV } from "@/utils/exportHelpers";
 import { useToast } from "@/hooks/use-toast";
-import { scheduleEmail } from "@/lib/scheduledEmails";
+import { scheduleEmail, updateScheduledEmail, ScheduledEmail } from "@/lib/scheduledEmails";
 
 export default function OnboardingManagement() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,6 +41,7 @@ export default function OnboardingManagement() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [activeView, setActiveView] = useState<'workflows' | 'scheduled'>('workflows');
+  const [editingScheduledEmail, setEditingScheduledEmail] = useState<ScheduledEmail | null>(null);
   const { toast } = useToast();
 
   const workflows = useMemo(() => getOnboardingWorkflows(), [refreshKey]);
@@ -165,14 +166,42 @@ export default function OnboardingManagement() {
   const handleScheduleEmail = (emailType: string, message: string, workflowIds: string[], scheduledFor: Date) => {
     if (workflowIds.length === 0) return;
     
-    scheduleEmail(emailType, message, workflowIds, scheduledFor);
-    
-    toast({
-      title: "Email Scheduled",
-      description: `Email scheduled for ${scheduledFor.toLocaleString()} to ${workflowIds.length} employee(s).`,
-    });
+    if (editingScheduledEmail) {
+      // Update existing scheduled email
+      updateScheduledEmail(editingScheduledEmail.id, {
+        emailType,
+        message,
+        recipientIds: workflowIds,
+        scheduledFor,
+      });
+      
+      toast({
+        title: "Scheduled Email Updated",
+        description: `Email has been updated and will be sent on ${scheduledFor.toLocaleString()}.`,
+      });
+      
+      setEditingScheduledEmail(null);
+    } else {
+      // Create new scheduled email
+      scheduleEmail(emailType, message, workflowIds, scheduledFor);
+      
+      toast({
+        title: "Email Scheduled",
+        description: `Email scheduled for ${scheduledFor.toLocaleString()} to ${workflowIds.length} employee(s).`,
+      });
+    }
     
     setSelectedWorkflowIds(new Set());
+  };
+
+  const handleEditScheduledEmail = (email: ScheduledEmail) => {
+    setEditingScheduledEmail(email);
+    
+    // Find workflows that match the recipient IDs
+    const recipientWorkflows = workflows.filter(w => email.recipientIds.includes(w.id));
+    setSelectedWorkflowIds(new Set(email.recipientIds));
+    
+    setShowEmailDialog(true);
   };
 
   const handleClearSelection = () => {
@@ -435,9 +464,12 @@ export default function OnboardingManagement() {
           </Tabs>
         </TabsContent>
 
-        <TabsContent value="scheduled" className="space-y-6">
-          <ScheduledEmailsView />
-        </TabsContent>
+      <TabsContent value="scheduled" className="space-y-6">
+        <ScheduledEmailsView 
+          onEdit={handleEditScheduledEmail}
+          allWorkflows={workflows}
+        />
+      </TabsContent>
       </Tabs>
 
         <OnboardingWorkflowDialog
@@ -493,11 +525,21 @@ export default function OnboardingManagement() {
 
         <OnboardingEmailDialog
           open={showEmailDialog}
-          onOpenChange={setShowEmailDialog}
+          onOpenChange={(open) => {
+            setShowEmailDialog(open);
+            if (!open) setEditingScheduledEmail(null);
+          }}
           selectedCount={selectedWorkflowIds.size}
           selectedWorkflows={selectedWorkflows}
           onSend={handleSendEmail}
           onSchedule={handleScheduleEmail}
+          editingScheduledId={editingScheduledEmail?.id}
+          initialData={editingScheduledEmail ? {
+            emailType: editingScheduledEmail.emailType,
+            message: editingScheduledEmail.message,
+            recipientIds: editingScheduledEmail.recipientIds,
+            scheduledFor: editingScheduledEmail.scheduledFor,
+          } : undefined}
         />
       </div>
     </DashboardPageLayout>

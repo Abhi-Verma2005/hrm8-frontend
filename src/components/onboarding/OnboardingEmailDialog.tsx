@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -53,6 +53,13 @@ interface OnboardingEmailDialogProps {
   selectedWorkflows: OnboardingWorkflow[];
   onSend: (emailType: string, message: string, workflowIds: string[]) => void;
   onSchedule: (emailType: string, message: string, workflowIds: string[], scheduledFor: Date) => void;
+  editingScheduledId?: string | null;
+  initialData?: {
+    emailType: string;
+    message: string;
+    recipientIds: string[];
+    scheduledFor?: Date;
+  };
 }
 
 export function OnboardingEmailDialog({
@@ -62,6 +69,8 @@ export function OnboardingEmailDialog({
   selectedWorkflows,
   onSend,
   onSchedule,
+  editingScheduledId,
+  initialData,
 }: OnboardingEmailDialogProps) {
   const [emailType, setEmailType] = useState<string>("welcome");
   const [message, setMessage] = useState("");
@@ -76,6 +85,28 @@ export function OnboardingEmailDialog({
   const [scheduleTime, setScheduleTime] = useState<string>("09:00");
   const [isScheduling, setIsScheduling] = useState(false);
   const { toast } = useToast();
+
+  // Initialize form with editing data
+  useEffect(() => {
+    if (open && initialData) {
+      setEmailType(initialData.emailType);
+      setMessage(initialData.message);
+      setIsScheduling(!!initialData.scheduledFor);
+      
+      if (initialData.scheduledFor) {
+        setScheduleDate(initialData.scheduledFor);
+        setScheduleTime(format(initialData.scheduledFor, "HH:mm"));
+      }
+      
+      // Set excluded workflows (all workflows not in recipientIds)
+      const excludedIds = new Set(
+        selectedWorkflows
+          .filter(w => !initialData.recipientIds.includes(w.id))
+          .map(w => w.id)
+      );
+      setExcludedWorkflowIds(excludedIds);
+    }
+  }, [open, initialData, selectedWorkflows]);
 
   const handleSend = () => {
     if (!message.trim() || includedWorkflows.length === 0) return;
@@ -219,10 +250,13 @@ export function OnboardingEmailDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Mail className="h-5 w-5" />
-            Send Email to {selectedCount} Workflow{selectedCount > 1 ? "s" : ""}
+            {editingScheduledId ? "Edit Scheduled Email" : `Send Email to ${selectedCount} Workflow${selectedCount > 1 ? "s" : ""}`}
           </DialogTitle>
           <DialogDescription>
-            Compose an email to send to selected employees. Choose a template or write your own message.
+            {editingScheduledId 
+              ? "Update the email details before it's sent."
+              : "Compose an email to send to selected employees. Choose a template or write your own message."
+            }
           </DialogDescription>
         </DialogHeader>
 

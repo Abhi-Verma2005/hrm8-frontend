@@ -61,6 +61,32 @@ export function cancelScheduledEmail(id: string): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedEmails));
 }
 
+export function updateScheduledEmail(
+  id: string,
+  updates: {
+    emailType?: string;
+    message?: string;
+    recipientIds?: string[];
+    scheduledFor?: Date;
+  }
+): ScheduledEmail | null {
+  const scheduledEmails = getScheduledEmails();
+  const emailIndex = scheduledEmails.findIndex(email => email.id === id);
+  
+  if (emailIndex === -1) return null;
+  
+  const updatedEmail = {
+    ...scheduledEmails[emailIndex],
+    ...updates,
+    recipientCount: updates.recipientIds?.length ?? scheduledEmails[emailIndex].recipientCount,
+  };
+  
+  scheduledEmails[emailIndex] = updatedEmail;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(scheduledEmails));
+  
+  return updatedEmail;
+}
+
 export function deleteScheduledEmail(id: string): void {
   const scheduledEmails = getScheduledEmails();
   const updatedEmails = scheduledEmails.filter(email => email.id !== id);

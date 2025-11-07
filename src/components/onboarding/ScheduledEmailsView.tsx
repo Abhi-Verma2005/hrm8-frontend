@@ -19,7 +19,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Calendar, Clock, Mail, Trash2, Eye, X } from "lucide-react";
+import { Calendar, Clock, Mail, Trash2, Eye, X, Edit } from "lucide-react";
 import { 
   getScheduledEmails, 
   cancelScheduledEmail, 
@@ -28,8 +28,14 @@ import {
 } from "@/lib/scheduledEmails";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { OnboardingWorkflow } from "@/types/onboarding";
 
-export function ScheduledEmailsView() {
+interface ScheduledEmailsViewProps {
+  onEdit: (email: ScheduledEmail) => void;
+  allWorkflows: OnboardingWorkflow[];
+}
+
+export function ScheduledEmailsView({ onEdit, allWorkflows }: ScheduledEmailsViewProps) {
   const [scheduledEmails, setScheduledEmails] = useState<ScheduledEmail[]>([]);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
@@ -144,6 +150,13 @@ export function ScheduledEmailsView() {
                       </div>
                       
                       <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEdit(email)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
                         <Button
                           variant="ghost"
                           size="sm"
