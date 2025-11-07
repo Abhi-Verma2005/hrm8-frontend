@@ -20,11 +20,13 @@ import {
   Trophy,
   Target,
   AlertTriangle,
-  BookOpen
+  BookOpen,
+  BarChart3
 } from "lucide-react";
 import type { CalibrationSession, Interview } from "@/types/interview";
 import { format } from "date-fns";
 import { toast } from "@/hooks/use-toast";
+import { CalibrationSessionAnalytics } from "./CalibrationSessionAnalytics";
 
 interface CalibrationSessionManagerProps {
   interviews: Interview[];
@@ -35,6 +37,7 @@ export function CalibrationSessionManager({ interviews }: CalibrationSessionMana
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [selectedSession, setSelectedSession] = useState<CalibrationSession | null>(null);
+  const [viewMode, setViewMode] = useState<"sessions" | "analytics">("sessions");
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -200,13 +203,29 @@ export function CalibrationSessionManager({ interviews }: CalibrationSessionMana
             Collaborate with your team to align on rating standards
           </p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Session
-        </Button>
+        <div className="flex items-center gap-3">
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+            <TabsList>
+              <TabsTrigger value="sessions">
+                <Users className="h-4 w-4 mr-2" />
+                Sessions
+              </TabsTrigger>
+              <TabsTrigger value="analytics">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Session
+          </Button>
+        </div>
       </div>
 
-      {sessions.length === 0 ? (
+      {viewMode === "analytics" ? (
+        <CalibrationSessionAnalytics sessions={sessions} />
+      ) : sessions.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">
             <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
