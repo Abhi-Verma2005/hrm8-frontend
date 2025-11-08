@@ -1,146 +1,283 @@
-import { Job } from "@/types/job";
+/**
+ * Analytics Service
+ * Calculates recruitment metrics and analytics data
+ */
 
-export interface JobAnalytics {
-  totalJobs: number;
-  openJobs: number;
-  closedJobs: number;
-  totalApplicants: number;
-  averageApplicantsPerJob: number;
-  totalViews: number;
-  averageViewsPerJob: number;
-  conversionRate: number;
-  jobsByStatus: Record<string, number>;
-  jobsByDepartment: Record<string, number>;
-  jobsByLocation: Record<string, number>;
-  jobsByEmploymentType: Record<string, number>;
-  applicantsTrend: { date: string; count: number }[];
-  viewsTrend: { date: string; count: number }[];
-  timeToFill: { jobId: string; jobTitle: string; days: number }[];
-  avgTimeToFill: number;
-  topPerformingJobs: { jobId: string; jobTitle: string; applicants: number; views: number }[];
-}
+import { Candidate } from "@/types/entities";
+import { differenceInDays, startOfMonth, endOfMonth, subMonths, format } from "date-fns";
 
 export interface RecruitmentMetrics {
-  sourceEffectiveness: { source: string; applicants: number; hires: number; cost: number }[];
-  timeToHireByStage: { stage: string; avgDays: number }[];
-  offerAcceptanceRate: number;
-  candidateDropoffRate: Record<string, number>;
-  recruiterPerformance: { recruiterId: string; name: string; jobsFilled: number; avgTimeToFill: number }[];
+  totalCandidates: number;
+  activeCandidates: number;
+  hiredCandidates: number;
+  rejectedCandidates: number;
+  averageTimeToHire: number;
+  conversionRate: number;
+  candidatesThisMonth: number;
+  candidatesLastMonth: number;
+  monthOverMonthGrowth: number;
 }
 
-export function getJobAnalytics(jobs: Job[]): JobAnalytics {
-  const totalJobs = jobs.length;
-  const openJobs = jobs.filter((j) => j.status === "open").length;
-  const closedJobs = jobs.filter((j) => j.status === "closed" || j.status === "filled").length;
-  const totalApplicants = jobs.reduce((sum, j) => sum + j.applicantsCount, 0);
-  const totalViews = jobs.reduce((sum, j) => sum + j.viewsCount, 0);
+export interface PipelineStageMetrics {
+  stage: string;
+  count: number;
+  percentage: number;
+  averageTimeInStage: number;
+}
 
-  const jobsByStatus = jobs.reduce((acc, job) => {
-    acc[job.status] = (acc[job.status] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+export interface SourceEffectivenessMetrics {
+  source: string;
+  candidates: number;
+  hired: number;
+  conversionRate: number;
+  averageTimeToHire: number;
+  averageRating: number;
+}
 
-  const jobsByDepartment = jobs.reduce((acc, job) => {
-    acc[job.department] = (acc[job.department] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+export interface TimeToHireData {
+  period: string;
+  averageDays: number;
+  candidates: number;
+}
 
-  const jobsByLocation = jobs.reduce((acc, job) => {
-    acc[job.location] = (acc[job.location] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+export interface TrendData {
+  date: string;
+  candidates: number;
+  hired: number;
+  rejected: number;
+}
 
-  const jobsByEmploymentType = jobs.reduce((acc, job) => {
-    acc[job.employmentType] = (acc[job.employmentType] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+/**
+ * Calculate overall recruitment metrics
+ */
+export function calculateRecruitmentMetrics(candidates: Candidate[]): RecruitmentMetrics {
+  const now = new Date();
+  const thisMonthStart = startOfMonth(now);
+  const thisMonthEnd = endOfMonth(now);
+  const lastMonthStart = startOfMonth(subMonths(now, 1));
+  const lastMonthEnd = endOfMonth(subMonths(now, 1));
 
-  // Mock trend data (last 30 days)
-  const applicantsTrend = Array.from({ length: 30 }, (_, i) => ({
-    date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    count: Math.floor(Math.random() * 50) + 10,
-  }));
+  const totalCandidates = candidates.length;
+  const activeCandidates = candidates.filter(c => c.status === 'active').length;
+  const hiredCandidates = candidates.filter(c => c.status === 'hired').length;
+  const rejectedCandidates = candidates.filter(c => c.status === 'rejected').length;
 
-  const viewsTrend = Array.from({ length: 30 }, (_, i) => ({
-    date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    count: Math.floor(Math.random() * 200) + 50,
-  }));
+  // Calculate average time to hire (for hired candidates)
+  const hiredWithDates = candidates.filter(c => c.status === 'hired' && c.appliedDate);
+  const totalDaysToHire = hiredWithDates.reduce((sum, c) => {
+    if (!c.appliedDate) return sum;
+    const hireDate = c.updatedAt || new Date();
+    return sum + differenceInDays(hireDate, c.appliedDate);
+  }, 0);
+  const averageTimeToHire = hiredWithDates.length > 0 ? Math.round(totalDaysToHire / hiredWithDates.length) : 0;
 
-  // Mock time to fill data
-  const timeToFill = jobs
-    .filter((j) => j.status === "filled")
-    .slice(0, 10)
-    .map((job) => ({
-      jobId: job.id,
-      jobTitle: job.title,
-      days: Math.floor(Math.random() * 60) + 15,
-    }));
+  // Calculate conversion rate (hired / total applied)
+  const conversionRate = totalCandidates > 0 ? (hiredCandidates / totalCandidates) * 100 : 0;
 
-  const avgTimeToFill = timeToFill.length > 0
-    ? Math.round(timeToFill.reduce((sum, t) => sum + t.days, 0) / timeToFill.length)
+  // Month-over-month comparison
+  const candidatesThisMonth = candidates.filter(c => {
+    if (!c.appliedDate) return false;
+    return c.appliedDate >= thisMonthStart && c.appliedDate <= thisMonthEnd;
+  }).length;
+
+  const candidatesLastMonth = candidates.filter(c => {
+    if (!c.appliedDate) return false;
+    return c.appliedDate >= lastMonthStart && c.appliedDate <= lastMonthEnd;
+  }).length;
+
+  const monthOverMonthGrowth = candidatesLastMonth > 0
+    ? ((candidatesThisMonth - candidatesLastMonth) / candidatesLastMonth) * 100
     : 0;
 
-  const topPerformingJobs = jobs
-    .sort((a, b) => b.applicantsCount - a.applicantsCount)
-    .slice(0, 10)
-    .map((job) => ({
-      jobId: job.id,
-      jobTitle: job.title,
-      applicants: job.applicantsCount,
-      views: job.viewsCount,
-    }));
-
   return {
-    totalJobs,
-    openJobs,
-    closedJobs,
-    totalApplicants,
-    averageApplicantsPerJob: totalJobs > 0 ? Math.round(totalApplicants / totalJobs) : 0,
-    totalViews,
-    averageViewsPerJob: totalJobs > 0 ? Math.round(totalViews / totalJobs) : 0,
-    conversionRate: totalViews > 0 ? Math.round((totalApplicants / totalViews) * 100) : 0,
-    jobsByStatus,
-    jobsByDepartment,
-    jobsByLocation,
-    jobsByEmploymentType,
-    applicantsTrend,
-    viewsTrend,
-    timeToFill,
-    avgTimeToFill,
-    topPerformingJobs,
+    totalCandidates,
+    activeCandidates,
+    hiredCandidates,
+    rejectedCandidates,
+    averageTimeToHire,
+    conversionRate,
+    candidatesThisMonth,
+    candidatesLastMonth,
+    monthOverMonthGrowth,
   };
 }
 
-export function getRecruitmentMetrics(): RecruitmentMetrics {
-  return {
-    sourceEffectiveness: [
-      { source: "LinkedIn", applicants: 145, hires: 12, cost: 2400 },
-      { source: "Indeed", applicants: 98, hires: 8, cost: 1500 },
-      { source: "Company Website", applicants: 67, hires: 9, cost: 0 },
-      { source: "Referrals", applicants: 43, hires: 11, cost: 1100 },
-      { source: "Job Boards", applicants: 89, hires: 6, cost: 1800 },
-    ],
-    timeToHireByStage: [
-      { stage: "Application Review", avgDays: 3 },
-      { stage: "Phone Screen", avgDays: 5 },
-      { stage: "Technical Interview", avgDays: 7 },
-      { stage: "Final Interview", avgDays: 4 },
-      { stage: "Offer Process", avgDays: 6 },
-    ],
-    offerAcceptanceRate: 78,
-    candidateDropoffRate: {
-      "Application Submitted": 100,
-      "Phone Screen": 65,
-      "Technical Interview": 45,
-      "Final Interview": 30,
-      "Offer Sent": 20,
-      "Offer Accepted": 15,
-    },
-    recruiterPerformance: [
-      { recruiterId: "r1", name: "John Doe", jobsFilled: 12, avgTimeToFill: 32 },
-      { recruiterId: "r2", name: "Jane Smith", jobsFilled: 15, avgTimeToFill: 28 },
-      { recruiterId: "r3", name: "Bob Johnson", jobsFilled: 9, avgTimeToFill: 35 },
-      { recruiterId: "r4", name: "Alice Williams", jobsFilled: 11, avgTimeToFill: 30 },
-    ],
-  };
+/**
+ * Calculate pipeline stage metrics
+ */
+export function calculatePipelineMetrics(candidates: Candidate[]): PipelineStageMetrics[] {
+  const stageGroups: Record<string, Candidate[]> = {};
+  
+  candidates.forEach(candidate => {
+    const stage = candidate.stage || 'Applied';
+    if (!stageGroups[stage]) {
+      stageGroups[stage] = [];
+    }
+    stageGroups[stage].push(candidate);
+  });
+
+  const totalCandidates = candidates.length;
+  const stages = Object.keys(stageGroups);
+
+  return stages.map(stage => {
+    const stageCandidates = stageGroups[stage];
+    const count = stageCandidates.length;
+    const percentage = totalCandidates > 0 ? (count / totalCandidates) * 100 : 0;
+
+    // Calculate average time in this stage
+    const totalTime = stageCandidates.reduce((sum, c) => {
+      if (!c.appliedDate) return sum;
+      const currentDate = c.updatedAt || new Date();
+      return sum + differenceInDays(currentDate, c.appliedDate);
+    }, 0);
+    const averageTimeInStage = count > 0 ? Math.round(totalTime / count) : 0;
+
+    return {
+      stage,
+      count,
+      percentage: Math.round(percentage * 10) / 10,
+      averageTimeInStage,
+    };
+  }).sort((a, b) => b.count - a.count);
+}
+
+/**
+ * Calculate source effectiveness metrics
+ */
+export function calculateSourceEffectiveness(candidates: Candidate[]): SourceEffectivenessMetrics[] {
+  const sourceGroups: Record<string, Candidate[]> = {};
+  
+  candidates.forEach(candidate => {
+    const source = candidate.source || 'Unknown';
+    if (!sourceGroups[source]) {
+      sourceGroups[source] = [];
+    }
+    sourceGroups[source].push(candidate);
+  });
+
+  return Object.keys(sourceGroups).map(source => {
+    const sourceCandidates = sourceGroups[source];
+    const total = sourceCandidates.length;
+    const hired = sourceCandidates.filter(c => c.status === 'hired').length;
+    const conversionRate = total > 0 ? (hired / total) * 100 : 0;
+
+    // Calculate average time to hire for this source
+    const hiredFromSource = sourceCandidates.filter(c => c.status === 'hired' && c.appliedDate);
+    const totalDays = hiredFromSource.reduce((sum, c) => {
+      if (!c.appliedDate) return sum;
+      const hireDate = c.updatedAt || new Date();
+      return sum + differenceInDays(hireDate, c.appliedDate);
+    }, 0);
+    const averageTimeToHire = hiredFromSource.length > 0 ? Math.round(totalDays / hiredFromSource.length) : 0;
+
+    // Calculate average rating
+    const ratedCandidates = sourceCandidates.filter(c => c.rating && c.rating > 0);
+    const totalRating = ratedCandidates.reduce((sum, c) => sum + (c.rating || 0), 0);
+    const averageRating = ratedCandidates.length > 0 ? totalRating / ratedCandidates.length : 0;
+
+    return {
+      source,
+      candidates: total,
+      hired,
+      conversionRate: Math.round(conversionRate * 10) / 10,
+      averageTimeToHire,
+      averageRating: Math.round(averageRating * 10) / 10,
+    };
+  }).sort((a, b) => b.candidates - a.candidates);
+}
+
+/**
+ * Calculate time-to-hire trends over time
+ */
+export function calculateTimeToHireTrend(candidates: Candidate[], months: number = 6): TimeToHireData[] {
+  const now = new Date();
+  const data: TimeToHireData[] = [];
+
+  for (let i = months - 1; i >= 0; i--) {
+    const monthDate = subMonths(now, i);
+    const monthStart = startOfMonth(monthDate);
+    const monthEnd = endOfMonth(monthDate);
+
+    const monthCandidates = candidates.filter(c => {
+      if (!c.appliedDate || c.status !== 'hired') return false;
+      return c.appliedDate >= monthStart && c.appliedDate <= monthEnd;
+    });
+
+    const totalDays = monthCandidates.reduce((sum, c) => {
+      if (!c.appliedDate) return sum;
+      const hireDate = c.updatedAt || new Date();
+      return sum + differenceInDays(hireDate, c.appliedDate);
+    }, 0);
+
+    const averageDays = monthCandidates.length > 0 ? Math.round(totalDays / monthCandidates.length) : 0;
+
+    data.push({
+      period: format(monthDate, 'MMM yyyy'),
+      averageDays,
+      candidates: monthCandidates.length,
+    });
+  }
+
+  return data;
+}
+
+/**
+ * Calculate candidate trends over time
+ */
+export function calculateCandidateTrends(candidates: Candidate[], months: number = 6): TrendData[] {
+  const now = new Date();
+  const data: TrendData[] = [];
+
+  for (let i = months - 1; i >= 0; i--) {
+    const monthDate = subMonths(now, i);
+    const monthStart = startOfMonth(monthDate);
+    const monthEnd = endOfMonth(monthDate);
+
+    const monthCandidates = candidates.filter(c => {
+      if (!c.appliedDate) return false;
+      return c.appliedDate >= monthStart && c.appliedDate <= monthEnd;
+    });
+
+    const hired = monthCandidates.filter(c => c.status === 'hired').length;
+    const rejected = monthCandidates.filter(c => c.status === 'rejected').length;
+
+    data.push({
+      date: format(monthDate, 'MMM yyyy'),
+      candidates: monthCandidates.length,
+      hired,
+      rejected,
+    });
+  }
+
+  return data;
+}
+
+/**
+ * Calculate stage conversion funnel
+ */
+export function calculateConversionFunnel(candidates: Candidate[]): Array<{ stage: string; candidates: number; conversionRate: number }> {
+  const stageOrder = ['Applied', 'Screening', 'Interview', 'Assessment', 'Offer', 'Hired'];
+  const stageCounts = new Map<string, number>();
+
+  // Count candidates in each stage
+  candidates.forEach(candidate => {
+    const stage = candidate.stage || 'Applied';
+    stageCounts.set(stage, (stageCounts.get(stage) || 0) + 1);
+  });
+
+  const total = candidates.length;
+  const funnel: Array<{ stage: string; candidates: number; conversionRate: number }> = [];
+
+  stageOrder.forEach(stage => {
+    const count = stageCounts.get(stage) || 0;
+    const conversionRate = total > 0 ? (count / total) * 100 : 0;
+    
+    funnel.push({
+      stage,
+      candidates: count,
+      conversionRate: Math.round(conversionRate * 10) / 10,
+    });
+  });
+
+  return funnel.filter(f => f.candidates > 0);
 }
