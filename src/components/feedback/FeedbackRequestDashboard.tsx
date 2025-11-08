@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -31,12 +32,14 @@ import {
 } from 'lucide-react';
 import { getFeedbackRequests, sendReminder, completeRequest } from '@/lib/feedbackRequestService';
 import { FeedbackRequest } from '@/types/feedbackRequest';
+import { BulkActionsToolbar } from './BulkActionsToolbar';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 
 export function FeedbackRequestDashboard() {
   const [requests, setRequests] = useState<FeedbackRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<FeedbackRequest[]>([]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('dueDate');
@@ -109,6 +112,56 @@ export function FeedbackRequestDashboard() {
       description: 'Feedback request marked as completed',
     });
     loadRequests();
+  };
+
+  // Bulk actions handlers
+  const handleSelectAll = () => {
+    setSelectedIds(filteredRequests.map(r => r.id));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedIds([]);
+  };
+
+  const handleToggleSelect = (id: string) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkExport = (ids: string[]) => {
+    const selected = requests.filter(r => ids.includes(r.id));
+    const data = JSON.stringify(selected, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `feedback-requests-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleBulkDelete = (ids: string[]) => {
+    setRequests(prev => prev.filter(r => !ids.includes(r.id)));
+    setSelectedIds([]);
+  };
+
+  const handleBulkApprove = (ids: string[]) => {
+    ids.forEach(id => completeRequest(id));
+    loadRequests();
+    setSelectedIds([]);
+  };
+
+  const handleBulkSendReminder = (ids: string[]) => {
+    ids.forEach(id => sendReminder(id));
+    toast({
+      title: 'Reminders Sent',
+      description: `Sent ${ids.length} reminder emails`,
+    });
+    loadRequests();
+    setSelectedIds([]);
   };
 
   const getStatusBadge = (status: FeedbackRequest['status']) => {
@@ -232,6 +285,18 @@ export function FeedbackRequestDashboard() {
               </SelectContent>
             </Select>
           </div>
+
+          {/* Bulk Actions */}
+          <BulkActionsToolbar
+            selectedIds={selectedIds}
+            totalCount={filteredRequests.length}
+            onSelectAll={handleSelectAll}
+            onDeselectAll={handleDeselectAll}
+            onExport={handleBulkExport}
+            onDelete={handleBulkDelete}
+            onApprove={handleBulkApprove}
+            onSendReminder={handleBulkSendReminder}
+          />
         </CardContent>
       </Card>
 
@@ -250,6 +315,18 @@ export function FeedbackRequestDashboard() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={selectedIds.length === filteredRequests.length && filteredRequests.length > 0}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            handleSelectAll();
+                          } else {
+                            handleDeselectAll();
+                          }
+                        }}
+                      />
+                    </TableHead>
                     <TableHead>Candidate</TableHead>
                     <TableHead>Team Member</TableHead>
                     <TableHead>Requested By</TableHead>
@@ -261,6 +338,12 @@ export function FeedbackRequestDashboard() {
                 <TableBody>
                   {filteredRequests.map((request) => (
                     <TableRow key={request.id} className="animate-fade-in">
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedIds.includes(request.id)}
+                          onCheckedChange={() => handleToggleSelect(request.id)}
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">{request.candidateName}</TableCell>
                       <TableCell>
                         <div className="flex flex-col">

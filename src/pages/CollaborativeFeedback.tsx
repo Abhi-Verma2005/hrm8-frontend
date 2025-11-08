@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CollaborativeFeedbackPanel } from '@/components/feedback/CollaborativeFeedbackPanel';
 import { CandidateComparisonReport } from '@/components/feedback/CandidateComparisonReport';
-import { RatingCriteriaManager } from '@/components/feedback/RatingCriteriaManager';
+import { DraggableRatingCriteria } from '@/components/feedback/DraggableRatingCriteria';
+import { FormLayoutCustomizer } from '@/components/feedback/FormLayoutCustomizer';
 import { FeedbackAnalyticsChart } from '@/components/feedback/FeedbackAnalyticsChart';
 import { FeedbackTemplateManager } from '@/components/feedback/FeedbackTemplateManager';
 import { FeedbackSystemOverview } from '@/components/feedback/FeedbackSystemOverview';
@@ -234,7 +235,8 @@ export default function CollaborativeFeedback() {
 
           {/* Rating Criteria Tab */}
           <TabsContent value="settings" className="space-y-4">
-            <RatingCriteriaManager />
+            <DraggableRatingCriteria />
+            <FormLayoutCustomizer />
           </TabsContent>
 
           {/* Decisions Tab */}

@@ -91,6 +91,10 @@ export function deleteRatingCriterion(id: string): void {
   localStorage.setItem(CRITERIA_KEY, JSON.stringify(criteria));
 }
 
+export function reorderRatingCriteria(reorderedCriteria: RatingCriterion[]): void {
+  localStorage.setItem(CRITERIA_KEY, JSON.stringify(reorderedCriteria));
+}
+
 // Feedback Management
 export function getCandidateFeedback(candidateId: string): TeamMemberFeedback[] {
   const data = localStorage.getItem(FEEDBACK_KEY);
