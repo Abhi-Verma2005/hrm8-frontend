@@ -27,7 +27,12 @@ export const createEmployeeColumns = (options?: EmployeeColumnsOptions): Column<
           size="md"
         />
         <div className="min-w-0 flex-1">
-          <div className="font-medium truncate">{employee.firstName} {employee.lastName}</div>
+          <Link
+            to={`/hrms/employees/${employee.id}`}
+            className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+          >
+            {employee.firstName} {employee.lastName}
+          </Link>
           <div className="text-sm text-muted-foreground truncate">{employee.email}</div>
         </div>
       </div>
