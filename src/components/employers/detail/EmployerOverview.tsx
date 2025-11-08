@@ -3,6 +3,8 @@ import { EmployerCompanyProfile } from "./EmployerCompanyProfile";
 import { EmployerEngagementPanel } from "./EmployerEngagementPanel";
 import { ContactsSection } from "./contacts/ContactsSection";
 import { calculateEmployerMetrics } from "@/lib/employerService";
+import { ModuleStatusCard } from "@/components/employers/cards/ModuleStatusCard";
+import { ModuleAccessDetailsCard } from "@/components/employers/cards/ModuleAccessDetailsCard";
 
 interface EmployerOverviewProps {
   employer: Employer;
@@ -24,6 +26,12 @@ export function EmployerOverview({ employer }: EmployerOverviewProps) {
         <div className="lg:col-span-1">
           <EmployerEngagementPanel employer={employer} />
         </div>
+      </div>
+
+      {/* Module Status Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ModuleStatusCard employer={employer} />
+        <ModuleAccessDetailsCard employer={employer} />
       </div>
       
       {/* Contacts Section */}
