@@ -48,6 +48,7 @@ import Expenses from "./pages/Expenses";
 import Documents from "./pages/Documents";
 import Compensation from "./pages/Compensation";
 import Offboarding from "./pages/Offboarding";
+import OffboardingDetail from "./pages/OffboardingDetail";
 import Inbox from "./pages/Inbox";
 import Users from "./pages/Users";
 import EmployeeSelfService from "./pages/EmployeeSelfService";
@@ -144,6 +145,7 @@ function AppContent() {
             <Route path="/documents" element={<Documents />} />
             <Route path="/compensation" element={<Compensation />} />
             <Route path="/offboarding" element={<Offboarding />} />
+            <Route path="/offboarding/:id" element={<OffboardingDetail />} />
           <Route path="/applications" element={<Applications />} />
           <Route path="/requisitions" element={<Requisitions />} />
           <Route path="/requisitions/:id" element={<RequisitionDetail />} />

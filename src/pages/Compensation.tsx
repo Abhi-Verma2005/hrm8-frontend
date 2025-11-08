@@ -1,214 +1,134 @@
 import { useState, useMemo } from "react";
-import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { Helmet } from "react-helmet-async";
+import { DollarSign, TrendingUp, Award, BarChart3 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { DollarSign, TrendingUp, Users, Award, Plus, Download } from "lucide-react";
-import { getSalaryBands, getCompensationReviews, calculateCompensationStats } from "@/lib/compensationStorage";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { CompensationAdjustmentDialog } from "@/components/compensation/CompensationAdjustmentDialog";
-import { CompensationApprovalActions } from "@/components/compensation/CompensationApprovalActions";
+import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { SalaryReviews } from "@/components/compensation/SalaryReviews";
+import { SalaryBandsView } from "@/components/compensation/SalaryBandsView";
+import { BonusPlans } from "@/components/compensation/BonusPlans";
+import { EquityGrants } from "@/components/compensation/EquityGrants";
+import { getCompensationReviews, getSalaryBands, calculateCompensationStats } from "@/lib/compensationStorage";
 
 export default function Compensation() {
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [compensationDialogOpen, setCompensationDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("reviews");
 
-  const salaryBands = useMemo(() => getSalaryBands(), [refreshKey]);
-  const reviews = useMemo(() => getCompensationReviews(), [refreshKey]);
-  const stats = useMemo(() => calculateCompensationStats(), [refreshKey]);
-
-  const handleRefresh = () => setRefreshKey(prev => prev + 1);
+  const reviews = useMemo(() => getCompensationReviews(), []);
+  const bands = useMemo(() => getSalaryBands(), []);
+  const stats = useMemo(() => calculateCompensationStats(), []);
 
   return (
     <DashboardPageLayout>
-      <div className="space-y-6 p-8">
-        {/* Page Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Compensation Management</h1>
-          <p className="text-muted-foreground">Manage salary structures, reviews, and equity compensation</p>
+      <Helmet>
+        <title>Compensation & Benefits</title>
+      </Helmet>
+
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Compensation & Benefits</h1>
+            <p className="text-muted-foreground">Manage salaries, bonuses, and equity compensation</p>
+          </div>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Budget</CardTitle>
-              <DollarSign className="h-4 w-4 text-primary" />
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                Total Budget
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.totalCompensationBudget.toLocaleString()}</div>
+              <div className="text-2xl font-bold">
+                ${(stats.totalCompensationBudget / 1000).toFixed(0)}K
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {stats.budgetUtilization.toFixed(1)}% utilized
+              </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg Increase</CardTitle>
-              <TrendingUp className="h-4 w-4 text-success" />
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                Avg Increase
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.averageIncrease.toFixed(1)}%</div>
+              <p className="text-xs text-muted-foreground mt-1">This year</p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
-              <Users className="h-4 w-4 text-warning" />
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                Pending Reviews
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.pendingReviews}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {stats.completedReviews} completed
+              </p>
             </CardContent>
           </Card>
 
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Completed</CardTitle>
-              <Award className="h-4 w-4 text-accent" />
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Award className="h-4 w-4 text-muted-foreground" />
+                Salary Bands
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.completedReviews}</div>
+              <div className="text-2xl font-bold">{bands.length}</div>
+              <p className="text-xs text-muted-foreground mt-1">Defined levels</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Main Content */}
-        <Tabs defaultValue="reviews" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <TabsList>
-              <TabsTrigger value="reviews">Compensation Reviews</TabsTrigger>
-              <TabsTrigger value="bands">Salary Bands</TabsTrigger>
-              <TabsTrigger value="bonuses">Bonuses</TabsTrigger>
-              <TabsTrigger value="equity">Equity</TabsTrigger>
-            </TabsList>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="reviews">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Salary Reviews
+            </TabsTrigger>
+            <TabsTrigger value="bands">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Salary Bands
+            </TabsTrigger>
+            <TabsTrigger value="bonuses">
+              <Award className="h-4 w-4 mr-2" />
+              Bonus Plans
+            </TabsTrigger>
+            <TabsTrigger value="equity">
+              <DollarSign className="h-4 w-4 mr-2" />
+              Equity Grants
+            </TabsTrigger>
+          </TabsList>
 
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button size="sm" onClick={() => setCompensationDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Request Change
-              </Button>
-            </div>
-          </div>
-
-          <TabsContent value="reviews" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Compensation Reviews</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {reviews.map(review => (
-                    <div key={review.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-medium">{review.employeeName}</p>
-                        <p className="text-sm text-muted-foreground">{review.justification}</p>
-                      </div>
-                      <div className="flex items-center gap-6">
-                        <div className="text-sm text-right">
-                          <p className="text-muted-foreground">Current</p>
-                          <p className="font-medium">${review.currentSalary.toLocaleString()}</p>
-                        </div>
-                        <div className="text-sm text-right">
-                          <p className="text-muted-foreground">Proposed</p>
-                          <p className="font-bold text-primary">${review.proposedSalary.toLocaleString()}</p>
-                        </div>
-                        <div className="text-sm text-right">
-                          <p className="text-muted-foreground">Increase</p>
-                          <p className="font-bold text-success">{review.increasePercentage.toFixed(1)}%</p>
-                        </div>
-                        <Badge
-                          variant={
-                            review.status === 'approved' ? 'default' :
-                            review.status === 'rejected' ? 'destructive' :
-                            review.status === 'implemented' ? 'secondary' : 'outline'
-                          }
-                        >
-                          {review.status}
-                        </Badge>
-                        {review.status === 'pending' && (
-                          <CompensationApprovalActions reviewId={review.id} onUpdate={handleRefresh} />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="reviews">
+            <SalaryReviews />
           </TabsContent>
 
-          <TabsContent value="bands" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Salary Bands</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {salaryBands.map(band => (
-                    <div key={band.id} className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-medium">{band.jobTitle}</p>
-                        <p className="text-sm text-muted-foreground">{band.jobLevel}</p>
-                      </div>
-                      <div className="flex items-center gap-6 text-sm">
-                        <div className="text-right">
-                          <p className="text-muted-foreground">Min</p>
-                          <p className="font-medium">${band.minSalary.toLocaleString()}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-muted-foreground">Mid</p>
-                          <p className="font-medium">${band.midSalary.toLocaleString()}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-muted-foreground">Max</p>
-                          <p className="font-medium">${band.maxSalary.toLocaleString()}</p>
-                        </div>
-                        <Badge variant="outline">{band.currency}</Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="bands">
+            <SalaryBandsView />
           </TabsContent>
 
-          <TabsContent value="bonuses" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Bonus Plans</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <Award className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Manage bonus plans and payouts</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="bonuses">
+            <BonusPlans />
           </TabsContent>
 
-          <TabsContent value="equity" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Equity Grants</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Stock options and equity compensation</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="equity">
+            <EquityGrants />
           </TabsContent>
         </Tabs>
-
-        <CompensationAdjustmentDialog 
-          open={compensationDialogOpen} 
-          onOpenChange={setCompensationDialogOpen}
-          onSuccess={handleRefresh}
-        />
       </div>
     </DashboardPageLayout>
   );
