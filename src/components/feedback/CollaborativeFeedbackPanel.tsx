@@ -25,6 +25,8 @@ import { FeedbackRequestDialog } from './FeedbackRequestDialog';
 import { BulkFeedbackRequestDialog } from './BulkFeedbackRequestDialog';
 import { PendingFeedbackRequests } from './PendingFeedbackRequests';
 import { FeedbackResponseTracker } from './FeedbackResponseTracker';
+import FeedbackLiveCollaboration from './FeedbackLiveCollaboration';
+import { useFeedbackPresence } from '@/hooks/useFeedbackPresence';
 import { formatDistanceToNow } from 'date-fns';
 import { ThumbsUp, ThumbsDown, AlertCircle, MessageSquare, TrendingUp, Users } from 'lucide-react';
 
@@ -44,6 +46,14 @@ export function CollaborativeFeedbackPanel({
   const [consensus, setConsensus] = useState<ConsensusMetrics | null>(null);
   const [showForm, setShowForm] = useState(false);
   const criteria = getRatingCriteria();
+  
+  // Real-time presence tracking
+  const { activeUsers, updatePresence } = useFeedbackPresence({
+    candidateId,
+    currentUserId: 'current-user',
+    currentUserName: 'John Doe',
+    currentUserRole: 'Hiring Manager',
+  });
 
   const loadData = () => {
     const feedbackData = getCandidateFeedback(candidateId);
@@ -59,6 +69,12 @@ export function CollaborativeFeedbackPanel({
 
   return (
     <div className="space-y-6">
+      {/* Live Collaboration */}
+      <FeedbackLiveCollaboration 
+        activeUsers={activeUsers}
+        currentUserId="current-user"
+      />
+
       {/* Consensus Overview */}
       {consensus && consensus.totalFeedbacks > 0 && (
         <Card>
@@ -311,15 +327,20 @@ export function CollaborativeFeedbackPanel({
 
         {/* Provide Feedback Tab */}
         <TabsContent value="provide">
-          <CollaborativeFeedbackForm
-            candidateId={candidateId}
-            candidateName={candidateName}
-            applicationId={applicationId}
-            onSubmitSuccess={() => {
-              loadData();
-              setShowForm(false);
-            }}
-          />
+          <div 
+            onFocus={() => updatePresence('editing', 'ratings')}
+            onBlur={() => updatePresence('viewing')}
+          >
+            <CollaborativeFeedbackForm
+              candidateId={candidateId}
+              candidateName={candidateName}
+              applicationId={applicationId}
+              onSubmitSuccess={() => {
+                loadData();
+                setShowForm(false);
+              }}
+            />
+          </div>
         </TabsContent>
       </Tabs>
     </div>
