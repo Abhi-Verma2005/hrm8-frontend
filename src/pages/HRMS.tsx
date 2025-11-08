@@ -367,18 +367,22 @@ export default function HRMS() {
           />
         )}
 
-        {viewMode === 'list' ? (
-          <DataTable
-            columns={employeeColumns}
-            data={filteredEmployees}
-            selectable
-            onSelectedRowsChange={(ids) => {
-              const selected = filteredEmployees.filter(emp => ids.includes(emp.id));
-              setSelectedEmployees(selected);
-              setSelectedEmployeeIds(ids);
-            }}
-          />
-        ) : (
+        {viewMode === 'list' && (
+          <>
+            <DataTable
+              columns={employeeColumns}
+              data={filteredEmployees}
+              selectable
+              onSelectedRowsChange={(ids) => {
+                const selected = filteredEmployees.filter(emp => ids.includes(emp.id));
+                setSelectedEmployees(selected);
+                setSelectedEmployeeIds(ids);
+              }}
+            />
+          </>
+        )}
+
+        {viewMode === 'kanban' && (
           <EmployeesKanbanBoard />
         )}
 

@@ -122,9 +122,11 @@ export default function Employers() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Employer
+            <Button asChild>
+              <Link to="/employers/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Employer
+              </Link>
             </Button>
             <Button variant="outline" asChild>
               <Link to="/dashboard/employers">
