@@ -1,298 +1,172 @@
 import { useState, useMemo } from "react";
-import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { Helmet } from "react-helmet-async";
+import { Clock, Calendar, Users, TrendingUp, ClipboardList } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Clock, Calendar, UserCheck, TrendingUp, Download, Plus, Eye } from "lucide-react";
+import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { ClockInOut } from "@/components/attendance/ClockInOut";
+import { TimesheetView } from "@/components/attendance/TimesheetView";
+import { ShiftManagement } from "@/components/attendance/ShiftManagement";
+import { OvertimeManagement } from "@/components/attendance/OvertimeManagement";
+import { AttendanceReports } from "@/components/attendance/AttendanceReports";
 import { getAttendanceRecords, getOvertimeRequests } from "@/lib/attendanceStorage";
-import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { ClockInOutDialog } from "@/components/attendance/ClockInOutDialog";
-import { ManualAttendanceDialog } from "@/components/attendance/ManualAttendanceDialog";
-import { OvertimeRequestDialog } from "@/components/attendance/OvertimeRequestDialog";
-import { OvertimeApprovalActions } from "@/components/attendance/OvertimeApprovalActions";
-import { AttendanceDetailDialog } from "@/components/attendance/AttendanceDetailDialog";
-import { ExportButton } from "@/components/common/ExportButton";
-import { SearchInput } from "@/components/common/SearchInput";
-import { FilterDropdown } from "@/components/common/FilterDropdown";
-import type { AttendanceRecord } from "@/types/attendance";
+import { startOfMonth, endOfMonth, format } from "date-fns";
 
 export default function TimeAttendance() {
-  const [refreshKey, setRefreshKey] = useState(0);
-  const [clockDialogOpen, setClockDialogOpen] = useState(false);
-  const [manualDialogOpen, setManualDialogOpen] = useState(false);
-  const [overtimeDialogOpen, setOvertimeDialogOpen] = useState(false);
-  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState<AttendanceRecord | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState("clock");
 
-  const attendanceRecords = useMemo(() => getAttendanceRecords(), [refreshKey]);
-  const overtimeRequests = useMemo(() => getOvertimeRequests(), [refreshKey]);
+  const currentMonth = useMemo(() => ({
+    start: format(startOfMonth(new Date()), 'yyyy-MM-dd'),
+    end: format(endOfMonth(new Date()), 'yyyy-MM-dd'),
+  }), []);
 
-  const filteredRecords = useMemo(() => {
-    return attendanceRecords.filter(record => {
-      const matchesSearch = record.employeeName.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === 'all' || record.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [attendanceRecords, searchQuery, statusFilter]);
-
-  const handleRefresh = () => setRefreshKey(prev => prev + 1);
-
-  const handleViewDetails = (record: AttendanceRecord) => {
-    setSelectedRecord(record);
-    setDetailDialogOpen(true);
-  };
+  const records = useMemo(() => getAttendanceRecords(), []);
+  const overtimeRequests = useMemo(() => getOvertimeRequests(), []);
 
   const stats = useMemo(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const todayRecords = attendanceRecords.filter(r => r.date === today);
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const todayRecords = records.filter(r => r.date === today);
+    const clockedIn = todayRecords.filter(r => r.checkIn && !r.checkOut).length;
     
+    const monthRecords = records.filter(r => r.date >= currentMonth.start && r.date <= currentMonth.end);
+    const presentDays = monthRecords.filter(r => ['present', 'late', 'half-day'].includes(r.status)).length;
+    const absentDays = monthRecords.filter(r => r.status === 'absent').length;
+    const lateDays = monthRecords.filter(r => r.status === 'late').length;
+    
+    const totalWorkHours = monthRecords.reduce((sum, r) => sum + r.workHours, 0);
+    const totalOvertimeHours = monthRecords.reduce((sum, r) => sum + r.overtimeHours, 0);
+    
+    const pendingOvertime = overtimeRequests.filter(r => r.status === 'pending').length;
+
     return {
-      totalPresent: todayRecords.filter(r => ['present', 'late'].includes(r.status)).length,
-      totalAbsent: todayRecords.filter(r => r.status === 'absent').length,
-      totalLate: todayRecords.filter(r => r.status === 'late').length,
-      pendingOT: overtimeRequests.filter(r => r.status === 'pending').length,
+      clockedIn,
+      presentDays,
+      absentDays,
+      lateDays,
+      totalWorkHours: totalWorkHours.toFixed(1),
+      totalOvertimeHours: totalOvertimeHours.toFixed(1),
+      pendingOvertime,
     };
-  }, [attendanceRecords, overtimeRequests]);
+  }, [records, overtimeRequests, currentMonth]);
 
   return (
     <DashboardPageLayout>
-      <div className="space-y-6 p-8">
-        {/* Page Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Time & Attendance</h1>
-          <p className="text-muted-foreground">Track employee attendance, shifts, and overtime</p>
-        </div>
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Present Today</CardTitle>
-              <UserCheck className="h-4 w-4 text-success" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-success">{stats.totalPresent}</div>
-            </CardContent>
-          </Card>
+      <Helmet>
+        <title>Time & Attendance</title>
+      </Helmet>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Absent Today</CardTitle>
-              <UserCheck className="h-4 w-4 text-destructive" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-destructive">{stats.totalAbsent}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Late Arrivals</CardTitle>
-              <Clock className="h-4 w-4 text-warning" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-warning">{stats.totalLate}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending OT</CardTitle>
-              <TrendingUp className="h-4 w-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-primary">{stats.pendingOT}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content */}
-        <Tabs defaultValue="attendance" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <TabsList>
-              <TabsTrigger value="attendance">Attendance</TabsTrigger>
-              <TabsTrigger value="overtime">Overtime Requests</TabsTrigger>
-              <TabsTrigger value="shifts">Shifts</TabsTrigger>
-              <TabsTrigger value="reports">Reports</TabsTrigger>
-            </TabsList>
-
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => setClockDialogOpen(true)}>
-                <Clock className="h-4 w-4 mr-2" />
-                Clock In/Out
-              </Button>
-              <ExportButton 
-                data={filteredRecords} 
-                filename="attendance_records"
-                fields={['employeeName', 'date', 'shiftName', 'status', 'workHours']}
-              />
-              <Button size="sm" onClick={() => setManualDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Mark Attendance
-              </Button>
-            </div>
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Time & Attendance</h1>
+            <p className="text-muted-foreground">Track time, manage shifts, and monitor attendance</p>
           </div>
+        </div>
 
-          <TabsContent value="attendance" className="space-y-4">
-            <div className="flex gap-4 mb-4">
-              <SearchInput 
-                value={searchQuery}
-                onChange={setSearchQuery}
-                placeholder="Search by employee name..."
-                className="flex-1 max-w-md"
-              />
-              <FilterDropdown 
-                label="Filter by Status"
-                value={statusFilter}
-                onChange={setStatusFilter}
-                options={[
-                  { label: 'Present', value: 'present' },
-                  { label: 'Absent', value: 'absent' },
-                  { label: 'Late', value: 'late' },
-                  { label: 'On Leave', value: 'on-leave' },
-                ]}
-              />
-            </div>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Today's Attendance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {filteredRecords
-                    .filter(r => r.date === new Date().toISOString().split('T')[0])
-                    .map(record => (
-                      <div key={record.id} className="flex items-center justify-between p-3 border rounded-lg">
-                        <div className="flex-1">
-                          <p className="font-medium">{record.employeeName}</p>
-                          <p className="text-sm text-muted-foreground">{record.shiftName}</p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          {record.checkIn && (
-                            <div className="text-sm">
-                              <p className="text-muted-foreground">Check In</p>
-                              <p className="font-medium">{format(new Date(record.checkIn), 'HH:mm')}</p>
-                            </div>
-                          )}
-                          {record.checkOut && (
-                            <div className="text-sm">
-                              <p className="text-muted-foreground">Check Out</p>
-                              <p className="font-medium">{format(new Date(record.checkOut), 'HH:mm')}</p>
-                            </div>
-                          )}
-                          <Badge
-                            variant={
-                              record.status === 'present' ? 'default' :
-                              record.status === 'late' ? 'secondary' :
-                              record.status === 'absent' ? 'destructive' : 'outline'
-                            }
-                          >
-                            {record.status}
-                          </Badge>
-                          <Button size="sm" variant="ghost" onClick={() => handleViewDetails(record)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </CardContent>
-            </Card>
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                Clocked In Today
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.clockedIn}</div>
+              <p className="text-xs text-muted-foreground mt-1">Employees currently working</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+                This Month
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.presentDays}</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Present days • {stats.lateDays} late
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                Work Hours
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalWorkHours}h</div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {stats.totalOvertimeHours}h overtime
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                Pending OT
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.pendingOvertime}</div>
+              <p className="text-xs text-muted-foreground mt-1">Awaiting approval</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="clock">
+              <Clock className="h-4 w-4 mr-2" />
+              Clock In/Out
+            </TabsTrigger>
+            <TabsTrigger value="timesheet">
+              <Calendar className="h-4 w-4 mr-2" />
+              Timesheet
+            </TabsTrigger>
+            <TabsTrigger value="shifts">
+              <Users className="h-4 w-4 mr-2" />
+              Shifts
+            </TabsTrigger>
+            <TabsTrigger value="overtime">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Overtime
+            </TabsTrigger>
+            <TabsTrigger value="reports">
+              <ClipboardList className="h-4 w-4 mr-2" />
+              Reports
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="clock">
+            <ClockInOut />
           </TabsContent>
 
-          <TabsContent value="overtime" className="space-y-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                <CardTitle>Overtime Requests</CardTitle>
-                <Button size="sm" onClick={() => setOvertimeDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Request Overtime
-                </Button>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {overtimeRequests.map(request => (
-                    <div key={request.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-medium">{request.employeeName}</p>
-                        <p className="text-sm text-muted-foreground">{request.reason}</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <div className="text-sm text-right">
-                          <p className="text-muted-foreground">{format(new Date(request.date), 'MMM dd, yyyy')}</p>
-                          <p className="font-medium">{request.hours} hours</p>
-                        </div>
-                        <Badge
-                          variant={
-                            request.status === 'approved' ? 'default' :
-                            request.status === 'rejected' ? 'destructive' : 'secondary'
-                          }
-                        >
-                          {request.status}
-                        </Badge>
-                        {request.status === 'pending' && (
-                          <OvertimeApprovalActions requestId={request.id} onUpdate={handleRefresh} />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="timesheet">
+            <TimesheetView />
           </TabsContent>
 
-          <TabsContent value="shifts" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Shift Management</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <Calendar className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Shift management interface</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="shifts">
+            <ShiftManagement />
           </TabsContent>
 
-          <TabsContent value="reports" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Attendance Reports</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12 text-muted-foreground">
-                  <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Attendance analytics and reports</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="overtime">
+            <OvertimeManagement />
+          </TabsContent>
+
+          <TabsContent value="reports">
+            <AttendanceReports />
           </TabsContent>
         </Tabs>
-
-        <ClockInOutDialog 
-          open={clockDialogOpen} 
-          onOpenChange={setClockDialogOpen}
-          onSuccess={handleRefresh}
-        />
-        <ManualAttendanceDialog 
-          open={manualDialogOpen} 
-          onOpenChange={setManualDialogOpen}
-          onSuccess={handleRefresh}
-        />
-        <OvertimeRequestDialog 
-          open={overtimeDialogOpen} 
-          onOpenChange={setOvertimeDialogOpen}
-          onSuccess={handleRefresh}
-        />
-        <AttendanceDetailDialog 
-          open={detailDialogOpen} 
-          onOpenChange={setDetailDialogOpen}
-          record={selectedRecord}
-        />
       </div>
     </DashboardPageLayout>
   );
