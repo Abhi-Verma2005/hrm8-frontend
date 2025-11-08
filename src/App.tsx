@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { useGlobalKeyboardShortcuts, useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { DashboardLayout } from "./components/layouts/DashboardLayout";
+import { GlobalSearch } from "./components/common/GlobalSearch";
 import Dashboard from "./pages/Dashboard";
 import Candidates from "./pages/Candidates";
 import Jobs from "./pages/Jobs";
@@ -63,6 +64,7 @@ import Offboarding from "./pages/Offboarding";
 import OffboardingDetail from "./pages/OffboardingDetail";
 import Inbox from "./pages/Inbox";
 import Users from "./pages/Users";
+import UserProfile from "./pages/UserProfile";
 import EmployeeSelfService from "./pages/EmployeeSelfService";
 import Compliance from "./pages/Compliance";
 import EmployeeRelations from "./pages/EmployeeRelations";
@@ -111,7 +113,9 @@ function AppContent() {
   }, []);
 
   return (
-    <Routes>
+    <>
+      <GlobalSearch />
+      <Routes>
           {/* Redirect root to home page */}
           <Route path="/" element={<Navigate to="/home" replace />} />
           
@@ -185,6 +189,7 @@ function AppContent() {
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />
           <Route path="/users" element={<Users />} />
+          <Route path="/profile" element={<UserProfile />} />
           <Route path="/ess" element={<EmployeeSelfService />} />
           <Route path="/compliance" element={<Compliance />} />
           <Route path="/employee-relations" element={<EmployeeRelations />} />
