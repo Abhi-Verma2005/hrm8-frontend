@@ -34,6 +34,12 @@ import { CommentThreads } from './CommentThreads';
 import { FeedbackVersionHistory } from './FeedbackVersionHistory';
 import { FeedbackExporter } from './FeedbackExporter';
 import { AIFeedbackInsights } from './AIFeedbackInsights';
+import { FeedbackQualityIndicator } from './FeedbackQualityIndicator';
+import { InterviewQuestionGenerator } from './InterviewQuestionGenerator';
+import { AIInsightsComparison } from './AIInsightsComparison';
+import { TeamAIAnalyticsDashboard } from './TeamAIAnalyticsDashboard';
+import { calculateFeedbackQuality } from '@/lib/mockFeedbackQuality';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatDistanceToNow } from 'date-fns';
 import { ThumbsUp, ThumbsDown, AlertCircle, MessageSquare, TrendingUp, Users } from 'lucide-react';
 
@@ -52,6 +58,8 @@ export function CollaborativeFeedbackPanel({
   const [filteredFeedback, setFilteredFeedback] = useState<TeamMemberFeedback[]>([]);
   const [consensus, setConsensus] = useState<ConsensusMetrics | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [selectedFeedbackId, setSelectedFeedbackId] = useState<string>('');
+  const [currentAIAnalysis, setCurrentAIAnalysis] = useState<any>(null);
   const criteria = getRatingCriteria();
   
   // Real-time presence tracking
@@ -245,11 +253,20 @@ export function CollaborativeFeedbackPanel({
                         </CardDescription>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-2xl font-bold">{fb.overallScore}</div>
-                      <Badge className={getRecommendationColor(fb.recommendation)}>
-                        {getRecommendationLabel(fb.recommendation)}
-                      </Badge>
+                    <div className="text-right space-y-2">
+                      <div>
+                        <div className="text-2xl font-bold">{fb.overallScore}</div>
+                        <Badge className={getRecommendationColor(fb.recommendation)}>
+                          {getRecommendationLabel(fb.recommendation)}
+                        </Badge>
+                      </div>
+                      <FeedbackQualityIndicator 
+                        quality={calculateFeedbackQuality(
+                          fb.comments.map(c => c.content).join(' '),
+                          fb.comments.length
+                        )}
+                        compact
+                      />
                     </div>
                   </div>
                 </CardHeader>
@@ -323,14 +340,86 @@ export function CollaborativeFeedbackPanel({
               </CardContent>
             </Card>
           ) : (
-            <>
-              <div className="text-sm text-muted-foreground mb-4">
-                Analyzing the most recent feedback submission
-              </div>
-              <AIFeedbackInsights 
-                feedbackText={feedback[0].comments.map(c => `[${c.type.toUpperCase()}] ${c.content}`).join('\n\n')}
-              />
-            </>
+            <Tabs defaultValue="individual" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="individual">Individual Analysis</TabsTrigger>
+                <TabsTrigger value="comparison">Team Comparison</TabsTrigger>
+                <TabsTrigger value="questions">Interview Questions</TabsTrigger>
+                <TabsTrigger value="analytics">Team Analytics</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="individual" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Select Feedback to Analyze</CardTitle>
+                    <CardDescription>Choose which team member's feedback to analyze</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Select
+                      value={selectedFeedbackId || feedback[0]?.id}
+                      onValueChange={setSelectedFeedbackId}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select feedback" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {feedback.map(fb => (
+                          <SelectItem key={fb.id} value={fb.id}>
+                            {fb.reviewerName} - {fb.reviewerRole}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardContent>
+                </Card>
+
+                {(() => {
+                  const selectedFeedback = feedback.find(
+                    fb => fb.id === (selectedFeedbackId || feedback[0]?.id)
+                  ) || feedback[0];
+                  const feedbackText = selectedFeedback.comments
+                    .map(c => `[${c.type.toUpperCase()}] ${c.content}`)
+                    .join('\n\n');
+                  const quality = calculateFeedbackQuality(
+                    selectedFeedback.comments.map(c => c.content).join(' '),
+                    selectedFeedback.comments.length
+                  );
+
+                  return (
+                    <>
+                      <FeedbackQualityIndicator quality={quality} />
+                      <AIFeedbackInsights 
+                        feedbackText={feedbackText}
+                        onAnalysisComplete={setCurrentAIAnalysis}
+                      />
+                    </>
+                  );
+                })()}
+              </TabsContent>
+
+              <TabsContent value="comparison" className="space-y-4">
+                <AIInsightsComparison feedbacks={feedback} />
+              </TabsContent>
+
+              <TabsContent value="questions" className="space-y-4">
+                {currentAIAnalysis ? (
+                  <InterviewQuestionGenerator 
+                    analysis={currentAIAnalysis}
+                    candidateName={candidateName}
+                  />
+                ) : (
+                  <Card>
+                    <CardContent className="py-8 text-center text-muted-foreground">
+                      Analyze feedback first to generate interview questions
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="analytics" className="space-y-4">
+                <TeamAIAnalyticsDashboard allFeedback={feedback} />
+              </TabsContent>
+            </Tabs>
           )}
         </TabsContent>
 
