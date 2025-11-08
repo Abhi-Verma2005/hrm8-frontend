@@ -39,7 +39,7 @@ import OrgChart from "./pages/OrgChart";
 import LeaveManagement from "./pages/LeaveManagement";
 import PerformanceManagement from "./pages/PerformanceManagement";
 import TalentDevelopment from "./pages/TalentDevelopment";
-import OnboardingManagement from "./pages/OnboardingManagement";
+import Onboarding from "./pages/Onboarding";
 import OnboardingWorkflowDetail from "./pages/OnboardingWorkflowDetail";
 import TimeAttendance from "./pages/TimeAttendance";
 import Payroll from "./pages/Payroll";
@@ -135,7 +135,7 @@ function AppContent() {
             <Route path="/leave" element={<LeaveManagement />} />
             <Route path="/performance" element={<PerformanceManagement />} />
             <Route path="/talent-development" element={<TalentDevelopment />} />
-            <Route path="/onboarding" element={<OnboardingManagement />} />
+            <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/onboarding/:id" element={<OnboardingWorkflowDetail />} />
             <Route path="/attendance" element={<TimeAttendance />} />
             <Route path="/payroll" element={<Payroll />} />
