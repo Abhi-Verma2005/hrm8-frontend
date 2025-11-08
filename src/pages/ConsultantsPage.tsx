@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useMemo, useEffect } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Plus, Users, TrendingUp, DollarSign, Award, Upload, Download, BarChart3 } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
@@ -13,11 +13,14 @@ import { exportConsultantsToCSV, downloadJSON } from '@/lib/exportUtils';
 import { ConsultantBulkActions } from '@/components/consultants/ConsultantBulkActions';
 import { DeleteConfirmationDialog } from '@/components/ui/delete-confirmation-dialog';
 import { ImportDialog } from '@/components/ui/import-dialog';
+import { FormDrawer } from '@/components/ui/form-drawer';
+import { ConsultantFormWizard } from '@/components/consultants/ConsultantFormWizard';
 import type { Consultant } from '@/types/consultant';
 import { toast } from 'sonner';
 
 export default function ConsultantsPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -25,9 +28,27 @@ export default function ConsultantsPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingConsultantId, setEditingConsultantId] = useState<string | null>(null);
 
   const consultants = getAllConsultants();
   const stats = getConsultantStats();
+
+  // Handle query parameter for editing consultant
+  useEffect(() => {
+    const action = searchParams.get('action');
+    const editId = searchParams.get('id');
+    
+    if (action === 'create') {
+      setEditingConsultantId(null);
+      setDrawerOpen(true);
+      setSearchParams({}, { replace: true });
+    } else if (action === 'edit' && editId) {
+      setEditingConsultantId(editId);
+      setDrawerOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const filteredData = useMemo(() => {
     return consultants.filter(consultant => {
@@ -92,6 +113,26 @@ export default function ConsultantsPage() {
     toast.info('Email functionality coming soon');
   };
 
+  const handleSaveConsultant = async (data: Partial<Consultant>) => {
+    if (!editingConsultantId) {
+      // Create new consultant using the storage function
+      const { createConsultant } = await import('@/lib/consultantStorage');
+      createConsultant(data as Omit<Consultant, 'id' | 'createdAt' | 'updatedAt'>);
+      
+      toast.success('Consultant added successfully');
+      setDrawerOpen(false);
+      window.location.reload();
+    } else {
+      // Update existing consultant
+      const { updateConsultant } = await import('@/lib/consultantStorage');
+      updateConsultant(editingConsultantId, data);
+      
+      toast.success('Consultant updated successfully');
+      setDrawerOpen(false);
+      window.location.reload();
+    }
+  };
+
   return (
     <DashboardPageLayout
       breadcrumbActions={
@@ -114,7 +155,10 @@ export default function ConsultantsPage() {
             <p className="text-muted-foreground">Manage your consultant team</p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => navigate('/consultants/new')}>
+            <Button onClick={() => {
+              setEditingConsultantId(null);
+              setDrawerOpen(true);
+            }}>
               <Plus className="mr-2 h-4 w-4" />
               Add Consultant
             </Button>
@@ -200,6 +244,20 @@ export default function ConsultantsPage() {
           description="Upload a CSV file to import consultant data"
           sampleHeaders={['firstName', 'lastName', 'email', 'phone', 'type', 'status']}
         />
+
+        <FormDrawer
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          title={editingConsultantId ? "Edit Consultant" : "Add New Consultant"}
+          description={editingConsultantId ? "Update consultant information" : "Complete the form below to add a new consultant"}
+          width="xl"
+        >
+          <ConsultantFormWizard
+            consultant={editingConsultantId ? consultants.find(c => c.id === editingConsultantId) : undefined}
+            onSave={handleSaveConsultant}
+            onCancel={() => setDrawerOpen(false)}
+          />
+        </FormDrawer>
       </div>
     </DashboardPageLayout>
   );
