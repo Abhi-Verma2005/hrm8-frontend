@@ -33,6 +33,7 @@ import { ActivityFeed } from './ActivityFeed';
 import { CommentThreads } from './CommentThreads';
 import { FeedbackVersionHistory } from './FeedbackVersionHistory';
 import { FeedbackExporter } from './FeedbackExporter';
+import { AIFeedbackInsights } from './AIFeedbackInsights';
 import { formatDistanceToNow } from 'date-fns';
 import { ThumbsUp, ThumbsDown, AlertCircle, MessageSquare, TrendingUp, Users } from 'lucide-react';
 
@@ -187,8 +188,9 @@ export function CollaborativeFeedbackPanel({
       )}
 
       <Tabs defaultValue="feedback" className="w-full">
-        <TabsList className="grid w-full grid-cols-9">
+        <TabsList className="grid w-full grid-cols-10">
           <TabsTrigger value="feedback">Team Feedback ({feedback.length})</TabsTrigger>
+          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
           <TabsTrigger value="tracking">Response Tracking</TabsTrigger>
           <TabsTrigger value="consensus">Consensus</TabsTrigger>
           <TabsTrigger value="voting">Voting</TabsTrigger>
@@ -309,6 +311,26 @@ export function CollaborativeFeedbackPanel({
                 No consensus data available yet. At least one feedback is required.
               </CardContent>
             </Card>
+          )}
+        </TabsContent>
+
+        {/* AI Insights Tab */}
+        <TabsContent value="ai-insights" className="space-y-4">
+          {feedback.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                No feedback available to analyze. Submit feedback first to see AI insights.
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <div className="text-sm text-muted-foreground mb-4">
+                Analyzing the most recent feedback submission
+              </div>
+              <AIFeedbackInsights 
+                feedbackText={feedback[0].comments.map(c => `[${c.type.toUpperCase()}] ${c.content}`).join('\n\n')}
+              />
+            </>
           )}
         </TabsContent>
 
