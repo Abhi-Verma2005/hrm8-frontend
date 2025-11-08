@@ -10,21 +10,27 @@ import { AdvancedSearchBuilder } from "@/components/candidates/AdvancedSearchBui
 import { SavedSearchesPanel } from "@/components/candidates/SavedSearchesPanel";
 import { DuplicateDetectionPanel } from "@/components/candidates/DuplicateDetectionPanel";
 import { SearchHistoryPanel } from "@/components/candidates/SearchHistoryPanel";
+import { CandidateBulkActionsToolbar } from "@/components/candidates/bulk/CandidateBulkActionsToolbar";
+import { CandidatePipelineBoard } from "@/components/candidates/pipeline/CandidatePipelineBoard";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3, Search, Filter } from "lucide-react";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3, Search, Filter, List, Kanban } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getCandidates, getCandidateById, saveCandidate, updateCandidate } from "@/lib/mockCandidateStorage";
 import { uploadDocument } from "@/lib/mockDocumentStorage";
 import { addHistoryEvent } from "@/lib/mockCandidateHistory";
 import { executeAdvancedSearch } from "@/lib/advancedSearchExecutor";
 import { addSearchHistory, type SavedSearch, type SearchHistory, type SearchGroup } from "@/lib/savedSearchService";
+import { updateCandidatePriority } from "@/lib/pipelineService";
 import type { Candidate } from "@/types/entities";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Candidates() {
   const { candidateId } = useParams<{ candidateId: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<Candidate['status'] | 'all'>('all');
   const [experienceLevelFilter, setExperienceLevelFilter] = useState<Candidate['experienceLevel'] | 'all'>('all');
@@ -34,6 +40,8 @@ export default function Candidates() {
   const [advancedSearchGroups, setAdvancedSearchGroups] = useState<SearchGroup[]>([]);
   const [advancedSearchOperator, setAdvancedSearchOperator] = useState<'AND' | 'OR'>('AND');
   const [showSearchPanel, setShowSearchPanel] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
+  const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
   
   const candidates = getCandidates();
 
@@ -264,6 +272,65 @@ export default function Candidates() {
     setAdvancedSearchGroups([]);
   };
 
+  // Bulk action handlers
+  const handleBulkStageUpdate = (stageId: string) => {
+    toast({
+      title: "Stage updated",
+      description: `${selectedCandidates.length} candidate(s) moved to new stage.`,
+    });
+    setSelectedCandidates([]);
+  };
+
+  const handleBulkTagAdd = (tags: string[]) => {
+    toast({
+      title: "Tags added",
+      description: `Tags added to ${selectedCandidates.length} candidate(s).`,
+    });
+    setSelectedCandidates([]);
+  };
+
+  const handleBulkPriorityUpdate = (priority: 'high' | 'medium' | 'low') => {
+    selectedCandidates.forEach(id => {
+      updateCandidatePriority(id, priority);
+    });
+    toast({
+      title: "Priority updated",
+      description: `${selectedCandidates.length} candidate(s) priority updated.`,
+    });
+    setSelectedCandidates([]);
+  };
+
+  const handleBulkArchive = () => {
+    toast({
+      title: "Candidates archived",
+      description: `${selectedCandidates.length} candidate(s) archived.`,
+    });
+    setSelectedCandidates([]);
+  };
+
+  const handleBulkDelete = () => {
+    toast({
+      title: "Candidates deleted",
+      description: `${selectedCandidates.length} candidate(s) deleted.`,
+      variant: "destructive",
+    });
+    setSelectedCandidates([]);
+  };
+
+  const handleBulkEmail = () => {
+    toast({
+      title: "Email composer",
+      description: `Opening email composer for ${selectedCandidates.length} candidate(s).`,
+    });
+  };
+
+  const handleBulkScheduleInterview = () => {
+    toast({
+      title: "Interview scheduler",
+      description: `Opening scheduler for ${selectedCandidates.length} candidate(s).`,
+    });
+  };
+
   const stats = useMemo(() => ({
     total: candidates.length,
     active: candidates.filter(c => c.status === 'active').length,
@@ -296,6 +363,14 @@ export default function Candidates() {
             </p>
           </div>
           <div className="flex gap-2">
+            <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v as 'list' | 'kanban')}>
+              <ToggleGroupItem value="list" aria-label="List view">
+                <List className="h-4 w-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="kanban" aria-label="Kanban view">
+                <Kanban className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
             <Button asChild>
               <Link to="/candidates/new">
                 <Plus className="mr-2 h-4 w-4" />
@@ -338,22 +413,39 @@ export default function Candidates() {
           />
         </div>
 
-        <div className="flex gap-2">
-          <Button 
-            variant={showAdvancedSearch ? "default" : "outline"}
-            onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
-          >
-            <Search className="mr-2 h-4 w-4" />
-            Advanced Search
-          </Button>
-          <Button 
-            variant={showSearchPanel ? "default" : "outline"}
-            onClick={() => setShowSearchPanel(!showSearchPanel)}
-          >
-            <Filter className="mr-2 h-4 w-4" />
-            Saved & History
-          </Button>
-        </div>
+        {/* Bulk Actions Toolbar */}
+        {viewMode === 'list' && (
+          <CandidateBulkActionsToolbar
+            selectedCount={selectedCandidates.length}
+            onClearSelection={() => setSelectedCandidates([])}
+            onBulkStageUpdate={handleBulkStageUpdate}
+            onBulkTagAdd={handleBulkTagAdd}
+            onBulkPriorityUpdate={handleBulkPriorityUpdate}
+            onBulkArchive={handleBulkArchive}
+            onBulkDelete={handleBulkDelete}
+            onBulkEmail={handleBulkEmail}
+            onBulkScheduleInterview={handleBulkScheduleInterview}
+          />
+        )}
+
+        {viewMode === 'list' && (
+          <div className="flex gap-2">
+            <Button 
+              variant={showAdvancedSearch ? "default" : "outline"}
+              onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+            >
+              <Search className="mr-2 h-4 w-4" />
+              Advanced Search
+            </Button>
+            <Button 
+              variant={showSearchPanel ? "default" : "outline"}
+              onClick={() => setShowSearchPanel(!showSearchPanel)}
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Saved & History
+            </Button>
+          </div>
+        )}
 
         {showAdvancedSearch && (
           <AdvancedSearchBuilder 
@@ -381,27 +473,41 @@ export default function Candidates() {
           </Tabs>
         )}
 
-        <CandidatesFilterBar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          statusFilter={statusFilter}
-          onStatusChange={setStatusFilter}
-          experienceLevelFilter={experienceLevelFilter}
-          onExperienceLevelChange={setExperienceLevelFilter}
-          workArrangementFilter={workArrangementFilter}
-          onWorkArrangementChange={setWorkArrangementFilter}
-          sourceFilter={sourceFilter}
-          onSourceChange={setSourceFilter}
-          onClearFilters={handleClearFilters}
-          activeFilterCount={activeFilterCount}
-        />
+        {viewMode === 'list' && (
+          <>
+            <CandidatesFilterBar
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              statusFilter={statusFilter}
+              onStatusChange={setStatusFilter}
+              experienceLevelFilter={experienceLevelFilter}
+              onExperienceLevelChange={setExperienceLevelFilter}
+              workArrangementFilter={workArrangementFilter}
+              onWorkArrangementChange={setWorkArrangementFilter}
+              sourceFilter={sourceFilter}
+              onSourceChange={setSourceFilter}
+              onClearFilters={handleClearFilters}
+              activeFilterCount={activeFilterCount}
+            />
 
-        <DataTable
-          data={filteredCandidates}
-          columns={candidateTableColumns}
-          selectable
-          emptyMessage="No candidates found"
-        />
+            <DataTable
+              data={filteredCandidates}
+              columns={candidateTableColumns}
+              selectable
+              onSelectedRowsChange={setSelectedCandidates}
+              emptyMessage="No candidates found"
+            />
+          </>
+        )}
+
+        {viewMode === 'kanban' && (
+          <CandidatePipelineBoard
+            filters={{
+              search: searchTerm,
+            }}
+            onViewDetails={(candidate) => navigate(`/candidates/${candidate.id}`)}
+          />
+        )}
       </div>
     </DashboardPageLayout>
   );
