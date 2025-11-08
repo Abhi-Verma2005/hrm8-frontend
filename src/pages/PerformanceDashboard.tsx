@@ -24,11 +24,11 @@ export default function PerformanceDashboard() {
   const metrics = useMemo(() => {
     const totalGoals = goals.length;
     const completedGoals = goals.filter(g => g.status === 'completed').length;
-    const onTrackGoals = goals.filter(g => g.status === 'not-started').length;
-    const atRiskGoals = goals.filter(g => g.status === 'overdue').length;
+    const onTrackGoals = goals.filter(g => g.status === 'in-progress').length;
+    const atRiskGoals = goals.filter(g => g.status === 'on-hold').length;
     
     const completedReviews = reviews.filter(r => r.status === 'completed').length;
-    const pendingReviews = reviews.filter(r => r.status === 'in-progress' || r.status === 'draft').length;
+    const pendingReviews = reviews.filter(r => r.status === 'in-progress' || r.status === 'not-started').length;
     
     // Calculate average ratings
     const completedReviewsWithRatings = reviews.filter(r => r.status === 'completed' && r.overallRating);
