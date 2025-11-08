@@ -44,7 +44,7 @@ export type ConsultantWizardFormData = z.infer<typeof consultantWizardSchema>;
  * Consultant step field mappings
  */
 export const consultantStepFields = {
-  basicInfo: ['firstName', 'lastName', 'email', 'phone', 'location', 'city', 'state', 'country'] as const,
-  professional: ['type', 'status', 'employmentType', 'specialization', 'yearsOfExperience'] as const,
-  capacity: ['maxEmployers', 'maxJobs', 'commissionStructure'] as const,
+  basicInfo: ['firstName', 'lastName', 'email', 'phone', 'location', 'city', 'state', 'country'] as (keyof ConsultantWizardFormData)[],
+  professional: ['type', 'status', 'employmentType', 'specialization', 'yearsOfExperience'] as (keyof ConsultantWizardFormData)[],
+  capacity: ['maxEmployers', 'maxJobs', 'commissionStructure'] as (keyof ConsultantWizardFormData)[],
 };

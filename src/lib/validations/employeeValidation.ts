@@ -47,8 +47,8 @@ export type EmployeeWizardFormData = z.infer<typeof employeeWizardSchema>;
  * Employee step field mappings
  */
 export const employeeStepFields = {
-  personalInfo: ['firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender'] as const,
-  jobDetails: ['jobTitle', 'department', 'location', 'employmentType', 'status', 'hireDate', 'startDate'] as const,
-  contactInfo: ['address', 'city', 'state', 'postalCode', 'country', 'emergencyContactName', 'emergencyContactPhone', 'emergencyContactRelationship'] as const,
-  compensation: ['salary', 'currency'] as const,
+  personalInfo: ['firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender'] as (keyof EmployeeWizardFormData)[],
+  jobDetails: ['jobTitle', 'department', 'location', 'employmentType', 'status', 'hireDate', 'startDate'] as (keyof EmployeeWizardFormData)[],
+  contactInfo: ['address', 'city', 'state', 'postalCode', 'country', 'emergencyContactName', 'emergencyContactPhone', 'emergencyContactRelationship'] as (keyof EmployeeWizardFormData)[],
+  compensation: ['salary', 'currency'] as (keyof EmployeeWizardFormData)[],
 };

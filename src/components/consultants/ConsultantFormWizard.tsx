@@ -1,24 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form } from '@/components/ui/form';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 import { toast } from 'sonner';
 import { ConsultantBasicInfoStep } from './forms/ConsultantBasicInfoStep';
 import { ConsultantProfessionalStep } from './forms/ConsultantProfessionalStep';
 import { ConsultantCapacityStep } from './forms/ConsultantCapacityStep';
 import { consultantWizardSchema, consultantStepFields, type ConsultantWizardFormData } from '@/lib/validations';
+import { FormWizard, WizardStep } from '@/components/common/FormWizard';
 
-type ConsultantFormData = ConsultantWizardFormData;
-
-const STEPS = [
-  { title: 'Basic Info', component: ConsultantBasicInfoStep },
-  { title: 'Professional', component: ConsultantProfessionalStep },
-  { title: 'Capacity', component: ConsultantCapacityStep },
+const STEPS: WizardStep<ConsultantWizardFormData>[] = [
+  { title: 'Basic Info', component: ConsultantBasicInfoStep, fields: consultantStepFields.basicInfo },
+  { title: 'Professional', component: ConsultantProfessionalStep, fields: consultantStepFields.professional },
+  { title: 'Capacity', component: ConsultantCapacityStep, fields: consultantStepFields.capacity },
 ];
 
 interface ConsultantFormWizardProps {
@@ -28,10 +22,7 @@ interface ConsultantFormWizardProps {
 }
 
 export function ConsultantFormWizard({ consultant, onSave, onCancel }: ConsultantFormWizardProps) {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [isSaving, setIsSaving] = useState(false);
-
-  const form = useForm<ConsultantFormData>({
+  const form = useForm<ConsultantWizardFormData>({
     resolver: zodResolver(consultantWizardSchema),
     defaultValues: {
       firstName: consultant?.firstName || '',
@@ -59,152 +50,58 @@ export function ConsultantFormWizard({ consultant, onSave, onCancel }: Consultan
     },
   });
 
-  const CurrentStepComponent = STEPS[currentStep].component;
-  const isLastStep = currentStep === STEPS.length - 1;
-
-  const handleNext = async () => {
-    const currentFields = getCurrentStepFields();
-    const isValid = await form.trigger(currentFields);
+  const handleSave = async () => {
+    const values = form.getValues();
     
-    if (isValid) {
-      if (isLastStep) {
-        await handleSubmit();
-      } else {
-        setCurrentStep(prev => prev + 1);
-      }
-    }
+    const consultantData: Partial<Consultant> = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      phone: values.phone,
+      photo: values.photo,
+      type: values.type,
+      status: values.status,
+      employmentType: values.employmentType,
+      title: values.title,
+      specialization: values.specialization,
+      yearsOfExperience: values.yearsOfExperience,
+      bio: values.bio,
+      location: values.location,
+      city: values.city,
+      state: values.state,
+      country: values.country,
+      maxEmployers: values.maxEmployers,
+      maxJobs: values.maxJobs,
+      commissionStructure: values.commissionStructure,
+      defaultCommissionRate: values.defaultCommissionRate,
+      linkedInUrl: values.linkedInUrl,
+      portfolioUrl: values.portfolioUrl,
+      currentEmployers: consultant?.currentEmployers || 0,
+      currentJobs: consultant?.currentJobs || 0,
+      totalPlacements: consultant?.totalPlacements || 0,
+      totalRevenue: consultant?.totalRevenue || 0,
+      successRate: consultant?.successRate || 0,
+      averageDaysToFill: consultant?.averageDaysToFill || 0,
+      totalCommissionsPaid: consultant?.totalCommissionsPaid || 0,
+      pendingCommissions: consultant?.pendingCommissions || 0,
+      assignedEmployers: consultant?.assignedEmployers || [],
+      assignedJobs: consultant?.assignedJobs || [],
+      tags: consultant?.tags || [],
+      emailNotifications: consultant?.emailNotifications ?? true,
+      smsNotifications: consultant?.smsNotifications ?? false,
+    };
+
+    await onSave(consultantData);
+    toast.success(consultant ? 'Consultant updated successfully' : 'Consultant created successfully');
   };
-
-  const getCurrentStepFields = (): (keyof ConsultantFormData)[] => {
-    switch (currentStep) {
-      case 0:
-        return [...consultantStepFields.basicInfo];
-      case 1:
-        return [...consultantStepFields.professional];
-      case 2:
-        return [...consultantStepFields.capacity];
-      default:
-        return [];
-    }
-  };
-
-  const handleSubmit = async () => {
-    try {
-      setIsSaving(true);
-      const values = form.getValues();
-      
-      const consultantData: Partial<Consultant> = {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        phone: values.phone,
-        photo: values.photo,
-        type: values.type,
-        status: values.status,
-        employmentType: values.employmentType,
-        title: values.title,
-        specialization: values.specialization,
-        yearsOfExperience: values.yearsOfExperience,
-        bio: values.bio,
-        location: values.location,
-        city: values.city,
-        state: values.state,
-        country: values.country,
-        maxEmployers: values.maxEmployers,
-        maxJobs: values.maxJobs,
-        commissionStructure: values.commissionStructure,
-        defaultCommissionRate: values.defaultCommissionRate,
-        linkedInUrl: values.linkedInUrl,
-        portfolioUrl: values.portfolioUrl,
-        // Initialize defaults for new consultants
-        currentEmployers: consultant?.currentEmployers || 0,
-        currentJobs: consultant?.currentJobs || 0,
-        totalPlacements: consultant?.totalPlacements || 0,
-        totalRevenue: consultant?.totalRevenue || 0,
-        successRate: consultant?.successRate || 0,
-        averageDaysToFill: consultant?.averageDaysToFill || 0,
-        totalCommissionsPaid: consultant?.totalCommissionsPaid || 0,
-        pendingCommissions: consultant?.pendingCommissions || 0,
-        assignedEmployers: consultant?.assignedEmployers || [],
-        assignedJobs: consultant?.assignedJobs || [],
-        tags: consultant?.tags || [],
-        emailNotifications: consultant?.emailNotifications ?? true,
-        smsNotifications: consultant?.smsNotifications ?? false,
-      };
-
-      await onSave(consultantData);
-      toast.success(consultant ? 'Consultant updated successfully' : 'Consultant created successfully');
-    } catch (error) {
-      toast.error('Failed to save consultant');
-      console.error(error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
-    }
-  };
-
-  const progress = ((currentStep + 1) / STEPS.length) * 100;
 
   return (
-    <div className="space-y-6">
-      {/* Progress Header */}
-      <Card className="p-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold">
-              Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep].title}
-            </h3>
-            <span className="text-sm text-muted-foreground">{Math.round(progress)}% Complete</span>
-          </div>
-          <Progress value={progress} className="h-2" />
-        </div>
-      </Card>
-
-      {/* Form Content */}
-      <Card className="p-6">
-        <Form {...form}>
-          <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
-            <CurrentStepComponent form={form} />
-            
-            {/* Navigation Buttons */}
-            <div className="flex items-center justify-between pt-6 border-t">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={currentStep === 0 ? onCancel : handleBack}
-              >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                {currentStep === 0 ? 'Cancel' : 'Back'}
-              </Button>
-
-              <Button
-                type="button"
-                onClick={handleNext}
-                disabled={isSaving}
-              >
-                {isSaving ? (
-                  'Saving...'
-                ) : isLastStep ? (
-                  <>
-                    <Check className="mr-2 h-4 w-4" />
-                    Save Consultant
-                  </>
-                ) : (
-                  <>
-                    Next
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </>
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </Card>
-    </div>
+    <FormWizard
+      steps={STEPS}
+      form={form}
+      onSave={handleSave}
+      onCancel={onCancel}
+      entityName="Consultant"
+    />
   );
 }

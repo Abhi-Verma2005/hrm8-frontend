@@ -37,9 +37,9 @@ export type EmployerWizardFormData = z.infer<typeof employerWizardSchema>;
  * Employer step field mappings
  */
 export const employerStepFields = {
-  companyInfo: ['name', 'email', 'website', 'industry', 'location'] as const,
-  accountSetup: ['accountType', 'status'] as const,
-  subscription: ['subscriptionTier', 'maxOpenJobs', 'maxUsers'] as const,
+  companyInfo: ['name', 'email', 'website', 'industry', 'location'] as (keyof EmployerWizardFormData)[],
+  accountSetup: ['accountType', 'status'] as (keyof EmployerWizardFormData)[],
+  subscription: ['subscriptionTier', 'maxOpenJobs', 'maxUsers'] as (keyof EmployerWizardFormData)[],
 };
 
 // Employer validation
