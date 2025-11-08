@@ -28,7 +28,11 @@ import { FeedbackResponseTracker } from './FeedbackResponseTracker';
 import FeedbackLiveCollaboration from './FeedbackLiveCollaboration';
 import { useFeedbackPresence } from '@/hooks/useFeedbackPresence';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
+import { useRealtimeFeedback } from '@/hooks/useRealtimeFeedback';
 import { TypingIndicator } from './TypingIndicator';
+import { RealtimeUpdateNotification } from './RealtimeUpdateNotification';
+import { RealtimeConnectionStatus } from './RealtimeConnectionStatus';
+import { toast } from '@/hooks/use-toast';
 import { ActivityFeed } from './ActivityFeed';
 import { CommentThreads } from './CommentThreads';
 import { FeedbackVersionHistory } from './FeedbackVersionHistory';
@@ -76,6 +80,28 @@ export function CollaborativeFeedbackPanel({
     currentUserId: 'current-user',
   });
 
+  // Real-time feedback updates
+  const { recentUpdates, isConnected, broadcastFeedback, clearUpdates } = useRealtimeFeedback({
+    candidateId,
+    onUpdate: (update) => {
+      if (update.feedback.reviewerId !== 'current-user') {
+        toast({
+          title: update.type === 'new' ? '🎉 New Feedback' : '🔄 Feedback Updated',
+          description: `${update.feedback.reviewerName} ${update.type === 'new' ? 'submitted' : 'updated'} their feedback`,
+        });
+      }
+    },
+  });
+
+  const handleRefreshFeedback = () => {
+    loadData();
+    clearUpdates();
+    toast({
+      title: '✅ Feedback Refreshed',
+      description: 'You are viewing the latest feedback from all team members',
+    });
+  };
+
   const loadData = () => {
     const feedbackData = getCandidateFeedback(candidateId);
     const consensusData = calculateConsensusMetrics(candidateId);
@@ -90,6 +116,13 @@ export function CollaborativeFeedbackPanel({
 
   return (
     <div className="space-y-6">
+      {/* Real-time Update Notifications */}
+      <RealtimeUpdateNotification
+        updates={recentUpdates}
+        onRefresh={handleRefreshFeedback}
+        onDismiss={clearUpdates}
+      />
+
       {/* Live Collaboration */}
       <FeedbackLiveCollaboration 
         activeUsers={activeUsers}
@@ -197,7 +230,14 @@ export function CollaborativeFeedbackPanel({
 
       <Tabs defaultValue="feedback" className="w-full">
         <TabsList className="grid w-full grid-cols-10">
-          <TabsTrigger value="feedback">Team Feedback ({feedback.length})</TabsTrigger>
+          <TabsTrigger value="feedback" className="relative">
+            Team Feedback ({feedback.length})
+            {recentUpdates.length > 0 && (
+              <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center animate-pulse">
+                {recentUpdates.length}
+              </span>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
           <TabsTrigger value="tracking">Response Tracking</TabsTrigger>
           <TabsTrigger value="consensus">Consensus</TabsTrigger>
@@ -212,7 +252,10 @@ export function CollaborativeFeedbackPanel({
         {/* Individual Feedback Tab */}
         <TabsContent value="feedback" className="space-y-4">
           <div className="flex justify-between items-center">
-            <TypingIndicator typingUsers={typingUsers} />
+            <div className="flex items-center gap-2">
+              <TypingIndicator typingUsers={typingUsers} />
+              <RealtimeConnectionStatus isConnected={isConnected} />
+            </div>
             <div className="flex gap-2">
               <FeedbackExporter candidateId={candidateId} candidateName={candidateName} />
               <FeedbackRequestDialog 
@@ -474,8 +517,17 @@ export function CollaborativeFeedbackPanel({
               candidateName={candidateName}
               applicationId={applicationId}
               onSubmitSuccess={() => {
+                const updatedFeedback = getCandidateFeedback(candidateId);
+                const newFeedback = updatedFeedback[updatedFeedback.length - 1];
+                if (newFeedback) {
+                  broadcastFeedback(newFeedback, 'new');
+                }
                 loadData();
                 setShowForm(false);
+                toast({
+                  title: '✅ Feedback Submitted',
+                  description: 'Your feedback has been shared with the team in real-time',
+                });
               }}
             />
           </div>
