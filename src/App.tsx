@@ -97,6 +97,12 @@ import CollaborativeFeedback from "./pages/CollaborativeFeedback";
 import NotificationCenter from "./pages/NotificationCenter";
 import FeedbackTemplates from "./pages/FeedbackTemplates";
 import FeedbackDashboard from "./pages/FeedbackDashboard";
+import SkillsManagement from "./pages/SkillsManagement";
+import NotificationsCenter from "./pages/NotificationsCenter";
+import SavedSearches from "./pages/SavedSearches";
+import CompensationManagement from "./pages/CompensationManagement";
+import TrainingDevelopment from "./pages/TrainingDevelopment";
+import OnboardingOffboardingDashboard from "./pages/OnboardingOffboardingDashboard";
 import { initializeMockFeedbackData } from './lib/mockFeedbackData';
 import { initializeMockTeamData } from './lib/mockTeamData';
 import { initializeMockTemplates } from './lib/mockTemplateData';
@@ -194,6 +200,12 @@ function AppContent() {
           <Route path="/notifications" element={<NotificationCenter />} />
           <Route path="/feedback-templates" element={<FeedbackTemplates />} />
           <Route path="/feedback-dashboard" element={<FeedbackDashboard />} />
+          <Route path="/skills-management" element={<SkillsManagement />} />
+          <Route path="/notifications-center" element={<NotificationsCenter />} />
+          <Route path="/saved-searches" element={<SavedSearches />} />
+          <Route path="/compensation-management" element={<CompensationManagement />} />
+          <Route path="/training-development" element={<TrainingDevelopment />} />
+          <Route path="/onboarding-offboarding-dashboard" element={<OnboardingOffboardingDashboard />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />
           <Route path="/users" element={<Users />} />
