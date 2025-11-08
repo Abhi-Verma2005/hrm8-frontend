@@ -19,14 +19,20 @@ import {
   Line,
   Legend
 } from 'recharts';
-import { TrendingUp, AlertTriangle, Target, Users } from 'lucide-react';
+import { TrendingUp, AlertTriangle, Target, Users, Download } from 'lucide-react';
 import { useMemo } from 'react';
+import { Button } from '@/components/ui/button';
+import { exportAIAnalyticsReport } from '@/lib/aiAnalyticsReportExport';
+import { useToast } from '@/hooks/use-toast';
 
 interface TeamAIAnalyticsDashboardProps {
   allFeedback: TeamMemberFeedback[];
+  candidateName?: string;
 }
 
-export const TeamAIAnalyticsDashboard = ({ allFeedback }: TeamAIAnalyticsDashboardProps) => {
+export const TeamAIAnalyticsDashboard = ({ allFeedback, candidateName = 'Candidate' }: TeamAIAnalyticsDashboardProps) => {
+  const { toast } = useToast();
+  
   const analytics = useMemo(() => {
     const analyses = allFeedback.map(fb => ({
       name: fb.reviewerName,
@@ -105,8 +111,31 @@ export const TeamAIAnalyticsDashboard = ({ allFeedback }: TeamAIAnalyticsDashboa
     count: value,
   }));
 
+  const handleExport = () => {
+    try {
+      exportAIAnalyticsReport(analytics, candidateName);
+      toast({
+        title: "Report Exported",
+        description: "AI analytics report has been downloaded successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Failed to generate the report. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Export Button */}
+      <div className="flex justify-end">
+        <Button onClick={handleExport} className="gap-2">
+          <Download className="h-4 w-4" />
+          Export Report
+        </Button>
+      </div>
       {/* Key Metrics */}
       <div className="grid grid-cols-4 gap-4">
         <Card>
