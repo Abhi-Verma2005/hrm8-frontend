@@ -6,13 +6,20 @@ import { candidateTableColumns } from "@/components/candidates/CandidateTableCol
 import { CandidatesFilterBar } from "@/components/candidates/CandidatesFilterBar";
 import { CandidateDetailView } from "@/components/candidates/CandidateDetailView";
 import { CandidateFormWizard } from "@/components/candidates/CandidateFormWizard";
+import { AdvancedSearchBuilder } from "@/components/candidates/AdvancedSearchBuilder";
+import { SavedSearchesPanel } from "@/components/candidates/SavedSearchesPanel";
+import { DuplicateDetectionPanel } from "@/components/candidates/DuplicateDetectionPanel";
+import { SearchHistoryPanel } from "@/components/candidates/SearchHistoryPanel";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Button } from "@/components/ui/button";
-import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3, Search, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getCandidates, getCandidateById, saveCandidate, updateCandidate } from "@/lib/mockCandidateStorage";
 import { uploadDocument } from "@/lib/mockDocumentStorage";
 import { addHistoryEvent } from "@/lib/mockCandidateHistory";
+import { executeAdvancedSearch } from "@/lib/advancedSearchExecutor";
+import { addSearchHistory, type SavedSearch, type SearchHistory, type SearchGroup } from "@/lib/savedSearchService";
 import type { Candidate } from "@/types/entities";
 
 export default function Candidates() {
@@ -23,6 +30,10 @@ export default function Candidates() {
   const [experienceLevelFilter, setExperienceLevelFilter] = useState<Candidate['experienceLevel'] | 'all'>('all');
   const [workArrangementFilter, setWorkArrangementFilter] = useState<Candidate['workArrangement'] | 'all'>('all');
   const [sourceFilter, setSourceFilter] = useState<Candidate['source'] | 'all'>('all');
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [advancedSearchGroups, setAdvancedSearchGroups] = useState<SearchGroup[]>([]);
+  const [advancedSearchOperator, setAdvancedSearchOperator] = useState<'AND' | 'OR'>('AND');
+  const [showSearchPanel, setShowSearchPanel] = useState(false);
   
   const candidates = getCandidates();
 
@@ -157,44 +168,81 @@ export default function Candidates() {
     );
   }
   
+  const handleAdvancedSearch = (groups: SearchGroup[], globalOperator: 'AND' | 'OR') => {
+    setAdvancedSearchGroups(groups);
+    setAdvancedSearchOperator(globalOperator);
+    setShowAdvancedSearch(false);
+  };
+
+  const handleSelectSavedSearch = (search: SavedSearch) => {
+    setAdvancedSearchGroups(search.groups);
+    setAdvancedSearchOperator(search.globalOperator);
+    setShowSearchPanel(false);
+  };
+
+  const handleSelectSearchHistory = (history: SearchHistory) => {
+    setSearchTerm(history.searchQuery);
+    // Could restore other filters from history.filters if needed
+    setShowSearchPanel(false);
+  };
+
   // List view - show all candidates with filters
   const filteredCandidates = useMemo(() => {
-    return candidates.filter(candidate => {
-      // Search filter
-      if (searchTerm) {
-        const searchLower = searchTerm.toLowerCase();
-        const matchesSearch = 
-          candidate.name.toLowerCase().includes(searchLower) ||
-          candidate.email.toLowerCase().includes(searchLower) ||
-          candidate.position.toLowerCase().includes(searchLower) ||
-          candidate.skills.some(skill => skill.toLowerCase().includes(searchLower));
-        
-        if (!matchesSearch) return false;
-      }
+    let results = candidates;
 
-      // Status filter
-      if (statusFilter !== 'all' && candidate.status !== statusFilter) {
-        return false;
-      }
+    // Apply advanced search if active
+    if (advancedSearchGroups.length > 0) {
+      results = executeAdvancedSearch(results, advancedSearchGroups, advancedSearchOperator);
+    } else {
+      // Apply basic filters
+      results = results.filter(candidate => {
+        // Search filter
+        if (searchTerm) {
+          const searchLower = searchTerm.toLowerCase();
+          const matchesSearch = 
+            candidate.name.toLowerCase().includes(searchLower) ||
+            candidate.email.toLowerCase().includes(searchLower) ||
+            candidate.position.toLowerCase().includes(searchLower) ||
+            candidate.skills.some(skill => skill.toLowerCase().includes(searchLower));
+          
+          if (!matchesSearch) return false;
+        }
 
-      // Experience level filter
-      if (experienceLevelFilter !== 'all' && candidate.experienceLevel !== experienceLevelFilter) {
-        return false;
-      }
+        // Status filter
+        if (statusFilter !== 'all' && candidate.status !== statusFilter) {
+          return false;
+        }
 
-      // Work arrangement filter
-      if (workArrangementFilter !== 'all' && candidate.workArrangement !== workArrangementFilter) {
-        return false;
-      }
+        // Experience level filter
+        if (experienceLevelFilter !== 'all' && candidate.experienceLevel !== experienceLevelFilter) {
+          return false;
+        }
 
-      // Source filter
-      if (sourceFilter !== 'all' && candidate.source !== sourceFilter) {
-        return false;
-      }
+        // Work arrangement filter
+        if (workArrangementFilter !== 'all' && candidate.workArrangement !== workArrangementFilter) {
+          return false;
+        }
 
-      return true;
-    });
-  }, [candidates, searchTerm, statusFilter, experienceLevelFilter, workArrangementFilter, sourceFilter]);
+        // Source filter
+        if (sourceFilter !== 'all' && candidate.source !== sourceFilter) {
+          return false;
+        }
+
+        return true;
+      });
+    }
+
+    // Track search in history
+    if (searchTerm || advancedSearchGroups.length > 0) {
+      addSearchHistory(searchTerm, { 
+        status: statusFilter, 
+        experienceLevel: experienceLevelFilter,
+        advancedSearch: advancedSearchGroups.length > 0
+      }, results.length);
+    }
+
+    return results;
+  }, [candidates, searchTerm, statusFilter, experienceLevelFilter, workArrangementFilter, sourceFilter, advancedSearchGroups, advancedSearchOperator]);
 
   const activeFilterCount = useMemo(() => {
     let count = 0;
@@ -203,8 +251,9 @@ export default function Candidates() {
     if (experienceLevelFilter !== 'all') count++;
     if (workArrangementFilter !== 'all') count++;
     if (sourceFilter !== 'all') count++;
+    if (advancedSearchGroups.length > 0) count++;
     return count;
-  }, [searchTerm, statusFilter, experienceLevelFilter, workArrangementFilter, sourceFilter]);
+  }, [searchTerm, statusFilter, experienceLevelFilter, workArrangementFilter, sourceFilter, advancedSearchGroups]);
 
   const handleClearFilters = () => {
     setSearchTerm("");
@@ -212,6 +261,7 @@ export default function Candidates() {
     setExperienceLevelFilter('all');
     setWorkArrangementFilter('all');
     setSourceFilter('all');
+    setAdvancedSearchGroups([]);
   };
 
   const stats = useMemo(() => ({
@@ -287,6 +337,49 @@ export default function Candidates() {
             description="Not currently seeking"
           />
         </div>
+
+        <div className="flex gap-2">
+          <Button 
+            variant={showAdvancedSearch ? "default" : "outline"}
+            onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+          >
+            <Search className="mr-2 h-4 w-4" />
+            Advanced Search
+          </Button>
+          <Button 
+            variant={showSearchPanel ? "default" : "outline"}
+            onClick={() => setShowSearchPanel(!showSearchPanel)}
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Saved & History
+          </Button>
+        </div>
+
+        {showAdvancedSearch && (
+          <AdvancedSearchBuilder 
+            onSearch={handleAdvancedSearch}
+            onClose={() => setShowAdvancedSearch(false)}
+          />
+        )}
+
+        {showSearchPanel && (
+          <Tabs defaultValue="saved" className="w-full">
+            <TabsList className="grid w-full max-w-md grid-cols-3">
+              <TabsTrigger value="saved">Saved</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+              <TabsTrigger value="duplicates">Duplicates</TabsTrigger>
+            </TabsList>
+            <TabsContent value="saved">
+              <SavedSearchesPanel onSelectSearch={handleSelectSavedSearch} />
+            </TabsContent>
+            <TabsContent value="history">
+              <SearchHistoryPanel onSelectHistory={handleSelectSearchHistory} />
+            </TabsContent>
+            <TabsContent value="duplicates">
+              <DuplicateDetectionPanel />
+            </TabsContent>
+          </Tabs>
+        )}
 
         <CandidatesFilterBar
           searchTerm={searchTerm}
