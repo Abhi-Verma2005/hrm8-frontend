@@ -46,17 +46,17 @@ export function calculateJobPostingCost(employerId: string): number {
   const employer = getEmployerById(employerId);
   if (!employer) return 0;
 
-  // Subscription users (except free) - included in plan
-  if (employer.subscriptionTier && employer.subscriptionTier !== 'free') {
+  // Subscription users (except ATS Lite and PAYG) - included in plan
+  if (employer.subscriptionTier && employer.subscriptionTier !== 'ats-lite' && employer.subscriptionTier !== 'payg') {
     return 0;
   }
 
-  // FREE tier - first job free
-  if (employer.subscriptionTier === 'free' && !employer.hasUsedFreeTier) {
+  // ATS Lite tier - first job free
+  if (employer.subscriptionTier === 'ats-lite' && !employer.hasUsedFreeTier) {
     return 0;
   }
 
-  // PAYG users or free tier after first job
+  // PAYG users or ATS Lite after first job
   return PAYG_JOB_POSTING_COST;
 }
 

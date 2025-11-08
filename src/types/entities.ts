@@ -51,7 +51,7 @@ export interface Employer {
   stripeCustomerId?: string;
 
   // Subscription Management
-  subscriptionTier: 'free' | 'small' | 'medium' | 'large' | 'enterprise';
+  subscriptionTier: 'ats-lite' | 'payg' | 'small' | 'medium' | 'large' | 'enterprise';
   subscriptionStartDate?: Date;
   subscriptionEndDate?: Date;
   subscriptionStatus?: 'active' | 'trial' | 'expired' | 'cancelled';

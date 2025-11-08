@@ -27,7 +27,7 @@ const employerFormSchema = z.object({
   creditLimit: z.number().optional(),
   paymentTerms: z.string().optional(),
   
-  subscriptionTier: z.enum(['free', 'small', 'medium', 'large', 'enterprise']),
+  subscriptionTier: z.enum(['ats-lite', 'payg', 'small', 'medium', 'large', 'enterprise']),
   maxOpenJobs: z.number().min(1),
   maxUsers: z.number().min(1),
   monthlySubscriptionFee: z.number().min(0).optional(),
@@ -65,7 +65,7 @@ export function EmployerFormWizard({ employer, onSave, onCancel }: EmployerFormW
       status: employer?.status || 'pending',
       creditLimit: employer?.creditLimit || 0,
       paymentTerms: employer?.paymentTerms || 'Net 30',
-      subscriptionTier: employer?.subscriptionTier || 'free',
+      subscriptionTier: employer?.subscriptionTier || 'ats-lite',
       maxOpenJobs: employer?.maxOpenJobs || 3,
       maxUsers: employer?.maxUsers || 1,
       monthlySubscriptionFee: employer?.monthlySubscriptionFee || 0,

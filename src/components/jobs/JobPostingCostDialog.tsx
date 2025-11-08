@@ -31,14 +31,14 @@ export function JobPostingCostDialog({
 
   const subscriptionTier = employer.subscriptionTier;
   const isPayg = employer.accountType === 'payg' || (!subscriptionTier && employer.accountType === 'approved');
-  const isFree = subscriptionTier === 'free';
-  const isSubscription = subscriptionTier && subscriptionTier !== 'free';
+  const isLite = subscriptionTier === 'ats-lite';
+  const isSubscription = subscriptionTier && subscriptionTier !== 'ats-lite' && subscriptionTier !== 'payg';
   const hasUsedFreeTier = employer.hasUsedFreeTier || false;
   const currentOpenJobs = employer.currentOpenJobs || 0;
   const maxOpenJobs = employer.maxOpenJobs || 0;
 
   // Check if at limit
-  const atLimit = isFree && hasUsedFreeTier;
+  const atLimit = isLite && hasUsedFreeTier;
   const subscriptionAtLimit = isSubscription && currentOpenJobs >= maxOpenJobs;
 
   // Calculate usage percentage

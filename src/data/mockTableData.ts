@@ -71,7 +71,7 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   const locationNames = [baseLocation, `${baseLocation} - Downtown`, `${baseLocation} - Tech Hub`];
   
   // Assign subscription tiers to different employers
-  let subscriptionTier: 'free' | 'small' | 'medium' | 'large' | 'enterprise' = 'free';
+  let subscriptionTier: 'ats-lite' | 'payg' | 'small' | 'medium' | 'large' | 'enterprise' = 'ats-lite';
   let accountType: 'approved' | 'payg' = 'payg';
   let maxOpenJobs = 0;
   let currentOpenJobs = 0;
@@ -81,12 +81,12 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   let hasUsedFreeTier = false;
   
   if (i % 5 === 0) {
-    // Free tier
-    subscriptionTier = 'free';
+    // ATS Lite tier
+    subscriptionTier = 'ats-lite';
     accountType = 'approved';
-    maxOpenJobs = 1;
-    currentOpenJobs = i % 10 === 0 ? 0 : 1;
-    maxUsers = 1;
+    maxOpenJobs = Infinity;
+    currentOpenJobs = Math.floor(Math.random() * 3);
+    maxUsers = Infinity;
     hasUsedFreeTier = i % 10 !== 0;
   } else if (i % 5 === 1) {
     // Small subscription
@@ -118,7 +118,7 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   } else {
     // PAYG
     accountType = 'payg';
-    subscriptionTier = 'free';
+    subscriptionTier = 'payg';
     maxOpenJobs = Infinity;
     currentOpenJobs = Math.floor(Math.random() * 15);
     maxUsers = Infinity;

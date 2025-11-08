@@ -1,42 +1,171 @@
 export const SUBSCRIPTION_TIERS = {
-  free: { 
-    maxOpenJobs: 1, 
-    maxUsers: 1, 
+  'ats-lite': { 
+    maxOpenJobs: Infinity, 
+    maxUsers: Infinity, 
     monthlyFee: 0,
     jobPostingCost: 0,
-    name: 'Free'
+    name: 'ATS Lite',
+    description: 'Basic ATS features',
+    features: {
+      ats: true,
+      aiScreening: false,
+      customForms: false,
+      teamCollaboration: false,
+      talentPool: false,
+      brandedCareersPage: false,
+      jobBoardIntegration: false,
+      locationManager: false,
+      departmentManager: false,
+      divisionManager: false,
+      reportsAnalytics: 'basic'
+    }
+  },
+  'payg': { 
+    maxOpenJobs: Infinity, 
+    maxUsers: Infinity, 
+    monthlyFee: 0,
+    jobPostingCost: 195,
+    name: 'Pay As You Go',
+    description: 'Pay per job posting',
+    features: {
+      ats: true,
+      aiScreening: true,
+      customForms: true,
+      teamCollaboration: true,
+      talentPool: true,
+      brandedCareersPage: true,
+      jobBoardIntegration: true,
+      locationManager: true,
+      departmentManager: true,
+      divisionManager: false,
+      reportsAnalytics: 'standard'
+    }
   },
   small: { 
     maxOpenJobs: 5, 
     maxUsers: Infinity, 
     monthlyFee: 295,
     jobPostingCost: 0,
-    name: 'Small'
+    name: 'Small',
+    description: 'For small teams',
+    features: {
+      ats: true,
+      aiScreening: true,
+      customForms: true,
+      teamCollaboration: true,
+      talentPool: true,
+      brandedCareersPage: true,
+      jobBoardIntegration: true,
+      locationManager: true,
+      departmentManager: true,
+      divisionManager: false,
+      reportsAnalytics: 'advanced'
+    }
   },
   medium: { 
     maxOpenJobs: 25, 
     maxUsers: Infinity, 
     monthlyFee: 495,
     jobPostingCost: 0,
-    name: 'Medium'
+    name: 'Medium',
+    description: 'For growing companies',
+    features: {
+      ats: true,
+      aiScreening: true,
+      customForms: true,
+      teamCollaboration: true,
+      talentPool: true,
+      brandedCareersPage: true,
+      jobBoardIntegration: true,
+      locationManager: true,
+      departmentManager: true,
+      divisionManager: false,
+      reportsAnalytics: 'advanced'
+    }
   },
   large: { 
     maxOpenJobs: 50, 
     maxUsers: Infinity, 
     monthlyFee: 695,
     jobPostingCost: 0,
-    name: 'Large'
+    name: 'Large',
+    description: 'For large organizations',
+    features: {
+      ats: true,
+      aiScreening: true,
+      customForms: true,
+      teamCollaboration: true,
+      talentPool: true,
+      brandedCareersPage: true,
+      jobBoardIntegration: true,
+      locationManager: true,
+      departmentManager: true,
+      divisionManager: true,
+      reportsAnalytics: 'advanced'
+    }
   },
   enterprise: { 
     maxOpenJobs: Infinity, 
     maxUsers: Infinity, 
     monthlyFee: 995,
     jobPostingCost: 0,
-    name: 'Enterprise'
+    name: 'Enterprise',
+    description: 'Unlimited everything',
+    features: {
+      ats: true,
+      aiScreening: true,
+      customForms: true,
+      teamCollaboration: true,
+      talentPool: true,
+      brandedCareersPage: true,
+      jobBoardIntegration: true,
+      locationManager: true,
+      departmentManager: true,
+      divisionManager: true,
+      reportsAnalytics: 'enterprise'
+    }
   }
 } as const;
 
 export const PAYG_JOB_POSTING_COST = 195;
+
+// HRMS Add-on Configuration
+export const HRMS_ADDON = {
+  pricePerEmployee: 6,
+  minimumEmployees: 50,
+  name: 'HRMS Module',
+  description: 'Full HR Management System',
+  features: [
+    'Employee Records Management',
+    'Leave & Attendance Tracking',
+    'Performance Management',
+    'Payroll Integration',
+    'Benefits Administration',
+    'Document Management',
+    'Organizational Charts',
+    'Employee Self-Service Portal'
+  ]
+} as const;
+
+// Additional Add-on Services
+export const ADDON_SERVICES = {
+  assessments: {
+    name: 'Skills Assessments',
+    monthlyCost: 99,
+    perUseCost: 5,
+    description: 'Pre-employment skills testing'
+  },
+  referenceChecking: {
+    name: 'Reference Checking',
+    perCheckCost: 25,
+    description: 'Automated reference verification'
+  },
+  videoInterviewing: {
+    name: 'Video Interviewing',
+    monthlyCost: 149,
+    description: 'One-way and live video interviews'
+  }
+} as const;
 
 export const RECRUITMENT_SERVICES = {
   'self-managed': {

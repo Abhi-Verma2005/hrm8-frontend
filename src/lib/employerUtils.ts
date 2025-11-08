@@ -37,13 +37,14 @@ export function getStatusColor(status: Employer['status']): string {
  */
 export function getSubscriptionTierColor(tier: SubscriptionTier): string {
   const colors: Record<SubscriptionTier, string> = {
-    free: 'bg-muted text-muted-foreground border-border',
+    'ats-lite': 'bg-muted text-muted-foreground border-border',
+    'payg': 'bg-green-500/10 text-green-600 border-green-500/20',
     small: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
     medium: 'bg-purple-500/10 text-purple-600 border-purple-500/20',
     large: 'bg-orange-500/10 text-orange-600 border-orange-500/20',
     enterprise: 'bg-gradient-to-r from-primary to-accent text-primary-foreground border-primary',
   };
-  return colors[tier] || colors.free;
+  return colors[tier] || colors['ats-lite'];
 }
 
 /**
