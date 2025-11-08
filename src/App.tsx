@@ -153,7 +153,6 @@ function AppContent() {
             {/* ATS Module Routes */}
             <Route element={<ProtectedRoutes requiredModule="ats" moduleName="ATS (Applicant Tracking System)" />}>
               <Route path="/candidates" element={<Candidates />} />
-              <Route path="/candidates/new" element={<Candidates />} />
               <Route path="/candidates/:candidateId" element={<Candidates />} />
               <Route path="/candidates/:candidateId/edit" element={<Candidates />} />
               <Route path="/candidates/pipeline" element={<PipelineKanban />} />

@@ -1,11 +1,12 @@
-import { useState, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState, useMemo, useEffect } from "react";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DataTable } from "@/components/tables/DataTable";
 import { candidateTableColumns } from "@/components/candidates/CandidateTableColumns";
 import { CandidatesFilterBar } from "@/components/candidates/CandidatesFilterBar";
 import { CandidateDetailView } from "@/components/candidates/CandidateDetailView";
 import { CandidateFormWizard } from "@/components/candidates/CandidateFormWizard";
+import { FormDrawer } from "@/components/ui/form-drawer";
 import { AdvancedSearchBuilder } from "@/components/candidates/AdvancedSearchBuilder";
 import { SavedSearchesPanel } from "@/components/candidates/SavedSearchesPanel";
 import { DuplicateDetectionPanel } from "@/components/candidates/DuplicateDetectionPanel";
@@ -32,6 +33,7 @@ import { useToast } from "@/hooks/use-toast";
 export default function Candidates() {
   const { candidateId } = useParams<{ candidateId: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<Candidate['status'] | 'all'>('all');
@@ -46,16 +48,22 @@ export default function Candidates() {
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingCandidateId, setEditingCandidateId] = useState<string | null>(null);
   
   const candidates = getCandidates();
 
-  // Handle form routes (/candidates/new or /candidates/:id/edit)
-  const isNewForm = candidateId === 'new';
-  const isEditForm = candidateId?.includes('edit');
-  const actualCandidateId = isEditForm ? candidateId.replace('/edit', '') : candidateId;
+  // Handle query parameter for creating new candidate
+  useEffect(() => {
+    if (searchParams.get('action') === 'create') {
+      setEditingCandidateId(null);
+      setDrawerOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleSaveCandidate = async (data: Partial<Candidate>) => {
-    if (isNewForm) {
+    if (!editingCandidateId) {
       // Create new candidate
       const newId = `candidate-${Date.now()}`;
       const newCandidate: Candidate = {
@@ -111,16 +119,19 @@ export default function Candidates() {
         userName: 'Current User',
       });
 
-      // Handle document uploads if any
-      // This would be done after the form completes
-      
+      toast({
+        title: "Candidate added",
+        description: "New candidate has been added successfully.",
+      });
+
+      setDrawerOpen(false);
       navigate(`/candidates/${newId}`);
-    } else if (actualCandidateId) {
+    } else {
       // Update existing candidate
-      updateCandidate(actualCandidateId, data);
+      updateCandidate(editingCandidateId, data);
 
       addHistoryEvent({
-        candidateId: actualCandidateId,
+        candidateId: editingCandidateId,
         eventType: 'profile_updated',
         title: 'Candidate Profile Updated',
         description: 'Candidate information was modified',
@@ -128,26 +139,15 @@ export default function Candidates() {
         userName: 'Current User',
       });
 
-      navigate(`/candidates/${actualCandidateId}`);
+      toast({
+        title: "Candidate updated",
+        description: "Candidate has been updated successfully.",
+      });
+
+      setDrawerOpen(false);
+      navigate(`/candidates/${editingCandidateId}`);
     }
   };
-
-  // Show form wizard for new or edit
-  if (isNewForm || isEditForm) {
-    const candidateToEdit = isEditForm && actualCandidateId ? getCandidateById(actualCandidateId) : undefined;
-    
-    return (
-      <DashboardPageLayout>
-        <div className="p-6">
-          <CandidateFormWizard
-            candidate={candidateToEdit}
-            onSave={handleSaveCandidate}
-            onCancel={() => navigate('/candidates')}
-          />
-        </div>
-      </DashboardPageLayout>
-    );
-  }
 
   // If candidateId is present, show detail view
   if (candidateId) {
@@ -387,11 +387,12 @@ export default function Candidates() {
                 <Kanban className="h-4 w-4" />
               </ToggleGroupItem>
             </ToggleGroup>
-            <Button asChild>
-              <Link to="/candidates/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Candidate
-              </Link>
+            <Button onClick={() => {
+              setEditingCandidateId(null);
+              setDrawerOpen(true);
+            }}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Candidate
             </Button>
             <Button variant="outline" asChild>
               <Link to="/dashboard/candidates">
@@ -541,6 +542,20 @@ export default function Candidates() {
           filteredCandidates.find(c => c.id === id)!
         ).filter(Boolean)}
       />
+
+      <FormDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        title={editingCandidateId ? "Edit Candidate" : "Add New Candidate"}
+        description={editingCandidateId ? "Update candidate information" : "Fill in the candidate details"}
+        width="xl"
+      >
+        <CandidateFormWizard
+          candidate={editingCandidateId ? getCandidateById(editingCandidateId) : undefined}
+          onSave={handleSaveCandidate}
+          onCancel={() => setDrawerOpen(false)}
+        />
+      </FormDrawer>
     </DashboardPageLayout>
   );
 }

@@ -48,7 +48,7 @@ export function HeaderQuickActions() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate('/candidates/new')}
+              onClick={() => navigate('/candidates?action=create')}
             >
               <UserPlus className="h-4 w-4" />
             </Button>
