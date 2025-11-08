@@ -37,7 +37,7 @@ import EmployeeDetail from "./pages/EmployeeDetail";
 import HRAnalytics from "./pages/HRAnalytics";
 import OrgChart from "./pages/OrgChart";
 import LeaveManagement from "./pages/LeaveManagement";
-import PerformanceManagement from "./pages/PerformanceManagement";
+import Performance from "./pages/Performance";
 import TalentDevelopment from "./pages/TalentDevelopment";
 import Onboarding from "./pages/Onboarding";
 import OnboardingWorkflowDetail from "./pages/OnboardingWorkflowDetail";
@@ -133,7 +133,7 @@ function AppContent() {
             <Route path="/hrms/analytics" element={<HRAnalytics />} />
             <Route path="/hrms/org-chart" element={<OrgChart />} />
             <Route path="/leave" element={<LeaveManagement />} />
-            <Route path="/performance" element={<PerformanceManagement />} />
+            <Route path="/performance" element={<Performance />} />
             <Route path="/talent-development" element={<TalentDevelopment />} />
             <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/onboarding/:id" element={<OnboardingWorkflowDetail />} />
