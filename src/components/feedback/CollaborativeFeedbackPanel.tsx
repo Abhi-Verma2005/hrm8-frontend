@@ -42,6 +42,7 @@ import { FeedbackQualityIndicator } from './FeedbackQualityIndicator';
 import { InterviewQuestionGenerator } from './InterviewQuestionGenerator';
 import { AIInsightsComparison } from './AIInsightsComparison';
 import { TeamAIAnalyticsDashboard } from './TeamAIAnalyticsDashboard';
+import { EditFeedbackDialog } from './EditFeedbackDialog';
 import { calculateFeedbackQuality } from '@/lib/mockFeedbackQuality';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { formatDistanceToNow } from 'date-fns';
@@ -64,6 +65,7 @@ export function CollaborativeFeedbackPanel({
   const [showForm, setShowForm] = useState(false);
   const [selectedFeedbackId, setSelectedFeedbackId] = useState<string>('');
   const [currentAIAnalysis, setCurrentAIAnalysis] = useState<any>(null);
+  const [editingFeedback, setEditingFeedback] = useState<TeamMemberFeedback | null>(null);
   const criteria = getRatingCriteria();
   
   // Real-time presence tracking
@@ -296,20 +298,29 @@ export function CollaborativeFeedbackPanel({
                         </CardDescription>
                       </div>
                     </div>
-                    <div className="text-right space-y-2">
-                      <div>
-                        <div className="text-2xl font-bold">{fb.overallScore}</div>
-                        <Badge className={getRecommendationColor(fb.recommendation)}>
-                          {getRecommendationLabel(fb.recommendation)}
-                        </Badge>
+                    <div className="flex items-start gap-3">
+                      <div className="text-right space-y-2">
+                        <div>
+                          <div className="text-2xl font-bold">{fb.overallScore}</div>
+                          <Badge className={getRecommendationColor(fb.recommendation)}>
+                            {getRecommendationLabel(fb.recommendation)}
+                          </Badge>
+                        </div>
+                        <FeedbackQualityIndicator 
+                          quality={calculateFeedbackQuality(
+                            fb.comments.map(c => c.content).join(' '),
+                            fb.comments.length
+                          )}
+                          compact
+                        />
                       </div>
-                      <FeedbackQualityIndicator 
-                        quality={calculateFeedbackQuality(
-                          fb.comments.map(c => c.content).join(' '),
-                          fb.comments.length
-                        )}
-                        compact
-                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingFeedback(fb)}
+                      >
+                        Edit
+                      </Button>
                     </div>
                   </div>
                 </CardHeader>
@@ -543,6 +554,19 @@ export function CollaborativeFeedbackPanel({
           <ActivityFeed candidateId={candidateId} />
         </TabsContent>
       </Tabs>
+
+      {/* Edit Feedback Dialog with Conflict Detection */}
+      {editingFeedback && (
+        <EditFeedbackDialog
+          open={!!editingFeedback}
+          onOpenChange={(open) => !open && setEditingFeedback(null)}
+          feedback={editingFeedback}
+          onSaved={() => {
+            loadData();
+            setEditingFeedback(null);
+          }}
+        />
+      )}
     </div>
   );
 }
