@@ -9,6 +9,10 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { DashboardLayout } from "./components/layouts/DashboardLayout";
 import { GlobalSearch } from "./components/common/GlobalSearch";
 import Dashboard from "./pages/Dashboard";
+import CandidatesDashboard from "./pages/CandidatesDashboard";
+import HRMSDashboard from "./pages/HRMSDashboard";
+import JobsDashboard from "./pages/JobsDashboard";
+import PerformanceDashboard from "./pages/PerformanceDashboard";
 import Candidates from "./pages/Candidates";
 import Jobs from "./pages/Jobs";
 import JobDetail from "./pages/JobDetail";
@@ -124,6 +128,10 @@ function AppContent() {
             <Route path="/home" element={<HomePage />} />
             <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
             <Route path="/dashboard/:type" element={<Dashboard />} />
+            <Route path="/dashboard/candidates" element={<CandidatesDashboard />} />
+            <Route path="/dashboard/hrms" element={<HRMSDashboard />} />
+            <Route path="/dashboard/jobs" element={<JobsDashboard />} />
+            <Route path="/dashboard/performance" element={<PerformanceDashboard />} />
             <Route path="/notifications" element={<NotificationCenterPage />} />
             <Route path="/candidates" element={<Candidates />} />
             <Route path="/candidates/new" element={<Candidates />} />

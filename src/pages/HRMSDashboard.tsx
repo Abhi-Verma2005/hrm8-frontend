@@ -1,0 +1,504 @@
+import { useState, useMemo } from "react";
+import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell 
+} from "recharts";
+import { 
+  Users, TrendingUp, TrendingDown, UserPlus, UserMinus, 
+  Clock, DollarSign, Award, Download, Building2
+} from "lucide-react";
+import { getEmployees } from "@/lib/employeeStorage";
+import { Badge } from "@/components/ui/badge";
+
+export default function HRMSDashboard() {
+  const [timeRange, setTimeRange] = useState("12m");
+  const employees = getEmployees();
+
+  // Calculate metrics
+  const metrics = useMemo(() => {
+    const total = employees.length;
+    const active = employees.filter(e => e.status === 'active').length;
+    const onLeave = employees.filter(e => e.status === 'on-leave').length;
+    const avgSalary = employees.reduce((sum, e) => sum + e.salary, 0) / total;
+    
+    return {
+      total,
+      active,
+      onLeave,
+      avgSalary: Math.round(avgSalary),
+      activeRate: total > 0 ? ((active / total) * 100).toFixed(1) : 0,
+    };
+  }, [employees]);
+
+  // Headcount trends
+  const headcountTrends = [
+    { month: 'Jan', headcount: 485, hires: 12, departures: 8 },
+    { month: 'Feb', headcount: 489, hires: 15, departures: 11 },
+    { month: 'Mar', headcount: 493, hires: 18, departures: 14 },
+    { month: 'Apr', headcount: 497, hires: 21, departures: 17 },
+    { month: 'May', headcount: 501, hires: 19, departures: 15 },
+    { month: 'Jun', headcount: 505, hires: 23, departures: 19 },
+  ];
+
+  // Department distribution
+  const departmentData = [
+    { name: 'Engineering', count: 187, color: '#3b82f6' },
+    { name: 'Sales', count: 98, color: '#10b981' },
+    { name: 'Marketing', count: 67, color: '#f59e0b' },
+    { name: 'HR', count: 45, color: '#8b5cf6' },
+    { name: 'Finance', count: 54, color: '#ec4899' },
+    { name: 'Operations', count: 54, color: '#06b6d4' },
+  ];
+
+  // Tenure distribution
+  const tenureData = [
+    { range: '0-1 years', count: 123 },
+    { range: '1-3 years', count: 198 },
+    { range: '3-5 years', count: 134 },
+    { range: '5-10 years', count: 87 },
+    { range: '10+ years', count: 43 },
+  ];
+
+  // Turnover rate by department
+  const turnoverData = [
+    { department: 'Engineering', rate: 8.5, benchmark: 12.0 },
+    { department: 'Sales', rate: 15.2, benchmark: 18.0 },
+    { department: 'Marketing', rate: 11.3, benchmark: 14.0 },
+    { department: 'HR', rate: 6.8, benchmark: 10.0 },
+    { department: 'Finance', rate: 7.2, benchmark: 9.0 },
+    { department: 'Operations', rate: 12.1, benchmark: 15.0 },
+  ];
+
+  // Compensation analysis
+  const compensationData = [
+    { level: 'Entry', min: 45000, avg: 55000, max: 65000 },
+    { level: 'Mid', min: 65000, avg: 85000, max: 105000 },
+    { level: 'Senior', min: 95000, avg: 125000, max: 155000 },
+    { level: 'Lead', min: 125000, avg: 165000, max: 205000 },
+    { level: 'Executive', min: 180000, avg: 250000, max: 320000 },
+  ];
+
+  // Diversity metrics
+  const diversityData = [
+    { category: 'Gender', male: 62, female: 35, nonBinary: 3 },
+    { category: 'Age Group', '18-25': 18, '26-35': 42, '36-45': 28, '46-55': 9, '56+': 3 },
+  ];
+
+  // Location breakdown
+  const locationData = [
+    { location: 'New York', count: 156 },
+    { location: 'San Francisco', count: 142 },
+    { location: 'London', count: 89 },
+    { location: 'Remote', count: 78 },
+    { location: 'Austin', count: 40 },
+  ];
+
+  return (
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6 animate-fade-in">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">HR Analytics</h1>
+            <p className="text-muted-foreground">
+              Workforce insights, headcount trends, and organizational metrics
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="90d">Last 90 days</SelectItem>
+                <SelectItem value="12m">Last 12 months</SelectItem>
+                <SelectItem value="ytd">Year to date</SelectItem>
+                <SelectItem value="all">All time</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export Report
+            </Button>
+          </div>
+        </div>
+
+        {/* Key Metrics */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Total Headcount</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{metrics.total}</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <TrendingUp className="h-3 w-3 text-green-500" />
+                <span className="text-green-500">+4.2%</span>
+                <span>vs last year</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Active Employees</CardTitle>
+              <UserPlus className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{metrics.active}</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span>{metrics.activeRate}% of workforce</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Turnover Rate</CardTitle>
+              <UserMinus className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">9.8%</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <TrendingDown className="h-3 w-3 text-green-500" />
+                <span className="text-green-500">-1.3%</span>
+                <span>vs last year</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Avg. Salary</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">${(metrics.avgSalary / 1000).toFixed(0)}K</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <TrendingUp className="h-3 w-3 text-green-500" />
+                <span className="text-green-500">+3.5%</span>
+                <span>vs last year</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts */}
+        <Tabs defaultValue="headcount" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="headcount">Headcount</TabsTrigger>
+            <TabsTrigger value="departments">Departments</TabsTrigger>
+            <TabsTrigger value="turnover">Turnover</TabsTrigger>
+            <TabsTrigger value="compensation">Compensation</TabsTrigger>
+            <TabsTrigger value="diversity">Diversity</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="headcount" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Headcount Trend</CardTitle>
+                  <CardDescription>Employee growth over time</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <AreaChart data={headcountTrends}>
+                      <defs>
+                        <linearGradient id="colorHeadcount" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Area 
+                        type="monotone" 
+                        dataKey="headcount" 
+                        stroke="#3b82f6" 
+                        fillOpacity={1}
+                        fill="url(#colorHeadcount)" 
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Hires vs Departures</CardTitle>
+                  <CardDescription>Monthly workforce changes</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={headcountTrends}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="hires" fill="#10b981" name="Hires" />
+                      <Bar dataKey="departures" fill="#ef4444" name="Departures" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Employee Tenure</CardTitle>
+                  <CardDescription>Distribution by years of service</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={tenureData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="range" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Location Breakdown</CardTitle>
+                  <CardDescription>Employees by office location</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={locationData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" />
+                      <YAxis dataKey="location" type="category" />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="#06b6d4" radius={[0, 8, 8, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="departments" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Department Distribution</CardTitle>
+                  <CardDescription>Headcount by department</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={350}>
+                    <PieChart>
+                      <Pie
+                        data={departmentData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={120}
+                        fill="#8884d8"
+                        dataKey="count"
+                      >
+                        {departmentData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Department Sizes</CardTitle>
+                  <CardDescription>Employee count per department</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {departmentData.map((dept, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div 
+                            className="w-3 h-3 rounded-full" 
+                            style={{ backgroundColor: dept.color }}
+                          />
+                          <span className="text-sm font-medium">{dept.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-bold">{dept.count}</span>
+                          <Badge variant="secondary" className="text-xs">
+                            {((dept.count / metrics.total) * 100).toFixed(1)}%
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div 
+                          className="h-2 rounded-full transition-all"
+                          style={{ 
+                            width: `${(dept.count / metrics.total) * 100}%`,
+                            backgroundColor: dept.color 
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="turnover" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Turnover Rate by Department</CardTitle>
+                <CardDescription>Actual vs industry benchmark</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={turnoverData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="department" />
+                    <YAxis label={{ value: 'Turnover Rate (%)', angle: -90, position: 'insideLeft' }} />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="rate" fill="#3b82f6" name="Actual Rate" />
+                    <Bar dataKey="benchmark" fill="#94a3b8" name="Industry Benchmark" />
+                  </BarChart>
+                </ResponsiveContainer>
+
+                <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div>
+                      <div className="text-2xl font-bold text-green-500">9.8%</div>
+                      <div className="text-xs text-muted-foreground">Company Avg</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-blue-500">13.2%</div>
+                      <div className="text-xs text-muted-foreground">Industry Avg</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-purple-500">92</div>
+                      <div className="text-xs text-muted-foreground">Days Avg Tenure</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-orange-500">87%</div>
+                      <div className="text-xs text-muted-foreground">Retention Rate</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="compensation" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Compensation Ranges by Level</CardTitle>
+                <CardDescription>Salary distribution across career levels</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={compensationData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" />
+                    <YAxis dataKey="level" type="category" width={80} />
+                    <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                    <Legend />
+                    <Bar dataKey="min" fill="#94a3b8" name="Min" />
+                    <Bar dataKey="avg" fill="#3b82f6" name="Average" />
+                    <Bar dataKey="max" fill="#10b981" name="Max" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="diversity" className="space-y-4">
+            <div className="grid gap-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Diversity & Inclusion Metrics</CardTitle>
+                  <CardDescription>Workforce demographic breakdown</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <div className="space-y-4">
+                      <h4 className="font-semibold">Gender Distribution</h4>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Male</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-48 bg-muted rounded-full h-2">
+                              <div className="h-2 bg-blue-500 rounded-full" style={{ width: '62%' }} />
+                            </div>
+                            <span className="text-sm font-medium w-12 text-right">62%</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Female</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-48 bg-muted rounded-full h-2">
+                              <div className="h-2 bg-pink-500 rounded-full" style={{ width: '35%' }} />
+                            </div>
+                            <span className="text-sm font-medium w-12 text-right">35%</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm">Non-Binary</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-48 bg-muted rounded-full h-2">
+                              <div className="h-2 bg-purple-500 rounded-full" style={{ width: '3%' }} />
+                            </div>
+                            <span className="text-sm font-medium w-12 text-right">3%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h4 className="font-semibold">Age Distribution</h4>
+                      <div className="space-y-3">
+                        {[
+                          { range: '18-25', percent: 18, color: '#3b82f6' },
+                          { range: '26-35', percent: 42, color: '#10b981' },
+                          { range: '36-45', percent: 28, color: '#f59e0b' },
+                          { range: '46-55', percent: 9, color: '#8b5cf6' },
+                          { range: '56+', percent: 3, color: '#ec4899' },
+                        ].map((item, index) => (
+                          <div key={index} className="flex items-center justify-between">
+                            <span className="text-sm">{item.range}</span>
+                            <div className="flex items-center gap-2">
+                              <div className="w-48 bg-muted rounded-full h-2">
+                                <div 
+                                  className="h-2 rounded-full" 
+                                  style={{ width: `${item.percent}%`, backgroundColor: item.color }} 
+                                />
+                              </div>
+                              <span className="text-sm font-medium w-12 text-right">{item.percent}%</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DashboardPageLayout>
+  );
+}

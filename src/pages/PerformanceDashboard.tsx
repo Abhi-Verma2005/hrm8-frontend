@@ -1,0 +1,503 @@
+import { useState, useMemo } from "react";
+import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie
+} from "recharts";
+import { 
+  Target, TrendingUp, TrendingDown, Award, Users,
+  CheckCircle, Clock, AlertCircle, Download, Star
+} from "lucide-react";
+import { getPerformanceGoals, getPerformanceReviews } from "@/lib/performanceStorage";
+import { Badge } from "@/components/ui/badge";
+
+export default function PerformanceDashboard() {
+  const [timeRange, setTimeRange] = useState("6m");
+  const goals = getPerformanceGoals();
+  const reviews = getPerformanceReviews();
+
+  // Calculate metrics
+  const metrics = useMemo(() => {
+    const totalGoals = goals.length;
+    const completedGoals = goals.filter(g => g.status === 'completed').length;
+    const onTrackGoals = goals.filter(g => g.status === 'not-started').length;
+    const atRiskGoals = goals.filter(g => g.status === 'overdue').length;
+    
+    const completedReviews = reviews.filter(r => r.status === 'completed').length;
+    const pendingReviews = reviews.filter(r => r.status === 'in-progress' || r.status === 'draft').length;
+    
+    // Calculate average ratings
+    const completedReviewsWithRatings = reviews.filter(r => r.status === 'completed' && r.overallRating);
+    const avgRating = completedReviewsWithRatings.length > 0
+      ? (completedReviewsWithRatings.reduce((sum, r) => sum + (r.overallRating || 0), 0) / completedReviewsWithRatings.length).toFixed(1)
+      : 0;
+    
+    return {
+      totalGoals,
+      completedGoals,
+      onTrackGoals,
+      atRiskGoals,
+      completionRate: totalGoals > 0 ? ((completedGoals / totalGoals) * 100).toFixed(1) : 0,
+      completedReviews,
+      pendingReviews,
+      avgRating,
+    };
+  }, [goals, reviews]);
+
+  // Goal completion trends
+  const goalTrends = [
+    { month: 'Jan', completed: 23, onTrack: 45, atRisk: 12 },
+    { month: 'Feb', completed: 28, onTrack: 48, atRisk: 10 },
+    { month: 'Mar', completed: 31, onTrack: 52, atRisk: 9 },
+    { month: 'Apr', completed: 35, onTrack: 54, atRisk: 8 },
+    { month: 'May', completed: 38, onTrack: 58, atRisk: 7 },
+    { month: 'Jun', completed: 42, onTrack: 61, atRisk: 6 },
+  ];
+
+  // Performance ratings distribution
+  const ratingsData = [
+    { rating: '5 - Exceptional', count: 34, color: '#10b981' },
+    { rating: '4 - Exceeds', count: 89, color: '#3b82f6' },
+    { rating: '3 - Meets', count: 156, color: '#f59e0b' },
+    { rating: '2 - Needs Improvement', count: 45, color: '#ec4899' },
+    { rating: '1 - Unsatisfactory', count: 12, color: '#ef4444' },
+  ];
+
+  // Department performance
+  const departmentPerformance = [
+    { department: 'Engineering', avgRating: 4.2, goalCompletion: 87 },
+    { department: 'Sales', avgRating: 4.5, goalCompletion: 92 },
+    { department: 'Marketing', avgRating: 4.1, goalCompletion: 85 },
+    { department: 'Product', avgRating: 4.3, goalCompletion: 89 },
+    { department: 'Operations', avgRating: 3.9, goalCompletion: 78 },
+    { department: 'HR', avgRating: 4.4, goalCompletion: 91 },
+  ];
+
+  // Competency scores
+  const competencyData = [
+    { competency: 'Leadership', score: 4.2, fullMark: 5 },
+    { competency: 'Communication', score: 4.5, fullMark: 5 },
+    { competency: 'Collaboration', score: 4.3, fullMark: 5 },
+    { competency: 'Innovation', score: 3.9, fullMark: 5 },
+    { competency: 'Technical Skills', score: 4.4, fullMark: 5 },
+    { competency: 'Problem Solving', score: 4.1, fullMark: 5 },
+  ];
+
+  // Goal categories
+  const goalCategories = [
+    { category: 'Individual', count: 178, color: '#3b82f6' },
+    { category: 'Team', count: 89, color: '#10b981' },
+    { category: 'Company', count: 45, color: '#8b5cf6' },
+    { category: 'Development', count: 67, color: '#f59e0b' },
+  ];
+
+  // Review completion timeline
+  const reviewTimeline = [
+    { week: 'W1', scheduled: 45, completed: 42 },
+    { week: 'W2', scheduled: 38, completed: 36 },
+    { week: 'W3', scheduled: 52, completed: 48 },
+    { week: 'W4', scheduled: 41, completed: 39 },
+    { week: 'W5', scheduled: 48, completed: 45 },
+    { week: 'W6', scheduled: 39, completed: 37 },
+  ];
+
+  // Performance improvement trends
+  const improvementData = [
+    { quarter: 'Q1', improved: 67, maintained: 23, declined: 10 },
+    { quarter: 'Q2', improved: 72, maintained: 21, declined: 7 },
+    { quarter: 'Q3', improved: 78, maintained: 18, declined: 4 },
+    { quarter: 'Q4', improved: 81, maintained: 16, declined: 3 },
+  ];
+
+  return (
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6 animate-fade-in">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Performance Analytics</h1>
+            <p className="text-muted-foreground">
+              Goals, reviews, ratings, and employee development insights
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="90d">Last 90 days</SelectItem>
+                <SelectItem value="6m">Last 6 months</SelectItem>
+                <SelectItem value="12m">Last 12 months</SelectItem>
+                <SelectItem value="ytd">Year to date</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline">
+              <Download className="mr-2 h-4 w-4" />
+              Export Report
+            </Button>
+          </div>
+        </div>
+
+        {/* Key Metrics */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Total Goals</CardTitle>
+              <Target className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{metrics.totalGoals}</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span>{metrics.completionRate}% completed</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">On Track Goals</CardTitle>
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{metrics.onTrackGoals}</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <TrendingUp className="h-3 w-3 text-green-500" />
+                <span className="text-green-500">+12.5%</span>
+                <span>vs last period</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Avg. Performance</CardTitle>
+              <Star className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{metrics.avgRating}/5.0</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <TrendingUp className="h-3 w-3 text-green-500" />
+                <span className="text-green-500">+0.2</span>
+                <span>vs last period</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{metrics.pendingReviews}</div>
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span>{metrics.completedReviews} completed</span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts */}
+        <Tabs defaultValue="goals" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="goals">Goals</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            <TabsTrigger value="competencies">Competencies</TabsTrigger>
+            <TabsTrigger value="departments">Departments</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="goals" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Goal Progress Trends</CardTitle>
+                  <CardDescription>Monthly goal status distribution</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={goalTrends}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="completed" stackId="a" fill="#10b981" name="Completed" />
+                      <Bar dataKey="onTrack" stackId="a" fill="#3b82f6" name="On Track" />
+                      <Bar dataKey="atRisk" stackId="a" fill="#ef4444" name="At Risk" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Goal Categories</CardTitle>
+                  <CardDescription>Distribution by goal type</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <PieChart>
+                      <Pie
+                        data={goalCategories}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ category, percent }) => `${category}: ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="count"
+                      >
+                        {goalCategories.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle>Goal Status Overview</CardTitle>
+                  <CardDescription>Current state of all goals</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full bg-green-500" />
+                        <div>
+                          <div className="font-semibold">Completed Goals</div>
+                          <div className="text-sm text-muted-foreground">Successfully achieved</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold">{metrics.completedGoals}</div>
+                        <div className="text-sm text-muted-foreground">{metrics.completionRate}%</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full bg-blue-500" />
+                        <div>
+                          <div className="font-semibold">On Track Goals</div>
+                          <div className="text-sm text-muted-foreground">Progressing well</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold">{metrics.onTrackGoals}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {((metrics.onTrackGoals / metrics.totalGoals) * 100).toFixed(1)}%
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 rounded-full bg-red-500" />
+                        <div>
+                          <div className="font-semibold">At Risk Goals</div>
+                          <div className="text-sm text-muted-foreground">Needs attention</div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold">{metrics.atRiskGoals}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {((metrics.atRiskGoals / metrics.totalGoals) * 100).toFixed(1)}%
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="reviews" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Performance Ratings Distribution</CardTitle>
+                  <CardDescription>Employee rating breakdown</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={ratingsData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" />
+                      <YAxis dataKey="rating" type="category" width={150} />
+                      <Tooltip />
+                      <Bar dataKey="count" radius={[0, 8, 8, 0]}>
+                        {ratingsData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Review Completion</CardTitle>
+                  <CardDescription>Weekly review schedule vs completion</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={reviewTimeline}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="week" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="scheduled" 
+                        stroke="#94a3b8" 
+                        strokeWidth={2}
+                        name="Scheduled"
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="completed" 
+                        stroke="#10b981" 
+                        strokeWidth={2}
+                        name="Completed"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="md:col-span-2">
+                <CardHeader>
+                  <CardTitle>Performance Improvement Trends</CardTitle>
+                  <CardDescription>Quarterly employee performance changes</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={improvementData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="quarter" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Bar dataKey="improved" fill="#10b981" name="Improved" />
+                      <Bar dataKey="maintained" fill="#3b82f6" name="Maintained" />
+                      <Bar dataKey="declined" fill="#ef4444" name="Declined" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="competencies" className="space-y-4">
+            <div className="grid gap-4 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Competency Radar</CardTitle>
+                  <CardDescription>Average scores across key competencies</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={350}>
+                    <RadarChart data={competencyData}>
+                      <PolarGrid />
+                      <PolarAngleAxis dataKey="competency" />
+                      <PolarRadiusAxis angle={90} domain={[0, 5]} />
+                      <Radar 
+                        name="Average Score" 
+                        dataKey="score" 
+                        stroke="#3b82f6" 
+                        fill="#3b82f6" 
+                        fillOpacity={0.6} 
+                      />
+                      <Tooltip />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Competency Scores</CardTitle>
+                  <CardDescription>Detailed breakdown by competency area</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {competencyData.map((comp, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">{comp.competency}</span>
+                        <Badge variant="secondary">
+                          {comp.score.toFixed(1)}/5.0
+                        </Badge>
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-2">
+                        <div 
+                          className="h-2 rounded-full bg-blue-500 transition-all"
+                          style={{ width: `${(comp.score / comp.fullMark) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="departments" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Department Performance Comparison</CardTitle>
+                <CardDescription>Average ratings and goal completion by department</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={400}>
+                  <BarChart data={departmentPerformance}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="department" />
+                    <YAxis yAxisId="left" orientation="left" stroke="#3b82f6" />
+                    <YAxis yAxisId="right" orientation="right" stroke="#10b981" />
+                    <Tooltip />
+                    <Legend />
+                    <Bar yAxisId="left" dataKey="avgRating" fill="#3b82f6" name="Avg Rating (out of 5)" />
+                    <Bar yAxisId="right" dataKey="goalCompletion" fill="#10b981" name="Goal Completion %" />
+                  </BarChart>
+                </ResponsiveContainer>
+
+                <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div>
+                      <div className="text-2xl font-bold text-green-500">86%</div>
+                      <div className="text-xs text-muted-foreground">Avg Goal Completion</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-blue-500">4.2</div>
+                      <div className="text-xs text-muted-foreground">Avg Performance Rating</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-purple-500">92%</div>
+                      <div className="text-xs text-muted-foreground">Review Completion</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-orange-500">78%</div>
+                      <div className="text-xs text-muted-foreground">Employee Engagement</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DashboardPageLayout>
+  );
+}
