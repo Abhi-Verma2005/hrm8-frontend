@@ -5,6 +5,8 @@ import { ContactsSection } from "./contacts/ContactsSection";
 import { calculateEmployerMetrics } from "@/lib/employerService";
 import { ModuleStatusCard } from "@/components/employers/cards/ModuleStatusCard";
 import { ModuleAccessDetailsCard } from "@/components/employers/cards/ModuleAccessDetailsCard";
+import { ModuleRecommendationsCard } from "@/components/recommendations/ModuleRecommendationsCard";
+import { ModuleTrialCard } from "@/components/trials/ModuleTrialCard";
 
 interface EmployerOverviewProps {
   employer: Employer;
@@ -32,6 +34,12 @@ export function EmployerOverview({ employer }: EmployerOverviewProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ModuleStatusCard employer={employer} />
         <ModuleAccessDetailsCard employer={employer} />
+      </div>
+
+      {/* Smart Features Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <ModuleRecommendationsCard employerId={employer.id} />
+        <ModuleTrialCard employerId={employer.id} />
       </div>
       
       {/* Contacts Section */}
