@@ -1,30 +1,11 @@
 import { UseFormReturn } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
-import { FormInput, FormSelect, FormTextarea } from '@/components/common/form-fields';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { X } from 'lucide-react';
-import { useState } from 'react';
+import { FormInput, FormSelect, FormTextarea, FormMultiSelect } from '@/components/common/form-fields';
 
 interface ConsultantProfessionalStepProps {
   form: UseFormReturn<any>;
 }
 
 export function ConsultantProfessionalStep({ form }: ConsultantProfessionalStepProps) {
-  const [specializationInput, setSpecializationInput] = useState('');
-  const specializations = form.watch('specialization') || [];
-
-  const addSpecialization = (spec: string) => {
-    if (spec && !specializations.includes(spec)) {
-      form.setValue('specialization', [...specializations, spec]);
-      setSpecializationInput('');
-    }
-  };
-
-  const removeSpecialization = (spec: string) => {
-    form.setValue('specialization', specializations.filter((s: string) => s !== spec));
-  };
-
   return (
     <div className="space-y-6">
       <div>
@@ -89,49 +70,25 @@ export function ConsultantProfessionalStep({ form }: ConsultantProfessionalStepP
             className="md:col-span-2"
           />
 
-          {/* Specializations field - custom implementation needed for tags */}
-          <FormField
-            control={form.control}
+          <FormMultiSelect
+            form={form}
             name="specialization"
-            render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormLabel>
-                  Specializations
-                  <span className="text-destructive ml-1">*</span>
-                </FormLabel>
-                <FormControl>
-                  <div className="space-y-2">
-                    <Input
-                      placeholder="Add specialization and press Enter"
-                      value={specializationInput}
-                      onChange={(e) => setSpecializationInput(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          addSpecialization(specializationInput);
-                        }
-                      }}
-                    />
-                    <div className="flex flex-wrap gap-2">
-                      {specializations.map((spec: string) => (
-                        <Badge key={spec} variant="secondary">
-                          {spec}
-                          <button
-                            type="button"
-                            onClick={() => removeSpecialization(spec)}
-                            className="ml-2 hover:text-destructive"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </FormControl>
-                <FormDescription>Press Enter to add each specialization</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Specializations"
+            placeholder="Type and press Enter to add"
+            description="Press Enter to add each specialization"
+            required
+            className="md:col-span-2"
+            suggestions={[
+              'Recruitment',
+              'Sales',
+              'Business Development',
+              'Account Management',
+              'Talent Acquisition',
+              'Executive Search',
+              'Technical Recruiting',
+              'Healthcare Recruiting',
+              'Finance Recruiting',
+            ]}
           />
 
           <FormTextarea

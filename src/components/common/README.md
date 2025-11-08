@@ -6,7 +6,18 @@ This directory contains reusable components and utilities used across the applic
 
 Reusable form field components with consistent styling and validation error display.
 
-### Usage Example
+### Available Components
+
+- **FormInput** - Text, email, password, number, tel, url, date inputs
+- **FormSelect** - Single-select dropdown
+- **FormTextarea** - Multi-line text input
+- **FormCheckbox** - Checkbox with label
+- **FormMultiSelect** - Multi-value selection with tags and suggestions
+- **FormDatePicker** - Single date picker with calendar
+- **FormDateRangePicker** - Date range picker
+- **FormFileUpload** - File upload with drag & drop
+
+### Basic Usage Example
 
 ```tsx
 import { useForm } from 'react-hook-form';
@@ -81,8 +92,198 @@ function MyForm() {
           label="Active"
           description="Enable or disable the account"
         />
-      </form>
+}
+```
+
+### FormMultiSelect
+
+Multi-value selection with tag display and autocomplete suggestions.
+
+```tsx
+<FormMultiSelect
+  form={form}
+  name="skills"
+  label="Skills"
+  placeholder="Type and press Enter"
+  required
+  suggestions={['JavaScript', 'TypeScript', 'React', 'Node.js']}
+  maxItems={10}
+/>
+```
+
+### FormDatePicker
+
+Date picker with calendar UI (uses shadcn Calendar component).
+
+```tsx
+<FormDatePicker
+  form={form}
+  name="startDate"
+  label="Start Date"
+  placeholder="Pick a date"
+  required
+  disablePast={true}
+/>
+```
+
+### FormDateRangePicker
+
+Date range picker for selecting from/to dates.
+
+```tsx
+<FormDateRangePicker
+  form={form}
+  fromName="startDate"
+  toName="endDate"
+  label="Employment Period"
+  required
+/>
+```
+
+### FormFileUpload
+
+File upload with validation and preview.
+
+```tsx
+<FormFileUpload
+  form={form}
+  name="resume"
+  label="Resume"
+  accept=".pdf,.doc,.docx"
+  maxSize={5}
+  multiple={false}
+  onUpload={async (files) => {
+    // Upload files and return URLs
+    const urls = await uploadToStorage(files);
+    return urls;
+  }}
+/>
+```
+
+## Form Auto-Save
+
+Hook that automatically saves form state to localStorage and restores on mount.
+
+```tsx
+import { useFormAutosave } from '@/hooks/use-form-autosave';
+
+function MyForm() {
+  const form = useForm({ ... });
+
+  const { clearSavedData, hasSavedData } = useFormAutosave({
+    form,
+    storageKey: 'employee-form-draft',
+    enabled: true,
+    debounceMs: 1000,
+    excludeFields: ['password'], // Don't save sensitive fields
+    onRestore: (data) => {
+      console.log('Restored form data:', data);
+    },
+  });
+
+  return (
+    <Form {...form}>
+      {/* Your form fields */}
     </Form>
+  );
+}
+```
+
+## Form Analytics
+
+Track form interactions and identify problematic fields.
+
+```tsx
+import { useFormAnalytics } from '@/hooks/use-form-analytics';
+
+function MyForm() {
+  const form = useForm({ ... });
+
+  const { trackFieldFocus, trackSubmission, getAnalyticsSummary } = useFormAnalytics({
+    form,
+    formId: 'employee-creation',
+    enabled: true,
+    onSubmitSuccess: () => {
+      const summary = getAnalyticsSummary();
+      console.log('Form analytics:', summary);
+      
+      // Identify problematic fields
+      if (summary.problematicFields.length > 0) {
+        console.warn('Users struggled with:', summary.problematicFields);
+      }
+    },
+  });
+
+  return (
+    <Form {...form}>
+      <input 
+        onFocus={() => trackFieldFocus('email')}
+        {...form.register('email')}
+      />
+      
+      <Button onClick={() => trackSubmission(true)}>
+        Submit
+      </Button>
+    </Form>
+  );
+}
+```
+
+## Dynamic Form Builder
+
+Generate forms dynamically from JSON schemas - perfect for CMS-driven forms.
+
+```tsx
+import { FormBuilder, FormSchema } from '@/components/common/form-fields';
+
+const formSchema: FormSchema = {
+  id: 'employee-form',
+  title: 'Add New Employee',
+  description: 'Fill in the employee details',
+  layout: 'two-column',
+  submitLabel: 'Create Employee',
+  fields: [
+    {
+      name: 'firstName',
+      type: 'text',
+      label: 'First Name',
+      required: true,
+      gridSpan: 1,
+    },
+    {
+      name: 'email',
+      type: 'email',
+      label: 'Email',
+      required: true,
+      gridSpan: 1,
+    },
+    {
+      name: 'department',
+      type: 'select',
+      label: 'Department',
+      required: true,
+      options: [
+        { value: 'eng', label: 'Engineering' },
+        { value: 'sales', label: 'Sales' },
+      ],
+    },
+    {
+      name: 'skills',
+      type: 'multiselect',
+      label: 'Skills',
+      suggestions: ['JavaScript', 'Python', 'React'],
+      gridSpan: 2,
+    },
+  ],
+};
+
+function MyPage() {
+  return (
+    <FormBuilder
+      schema={formSchema}
+      onSubmit={(data) => console.log(data)}
+      onCancel={() => router.back()}
+    />
   );
 }
 ```
