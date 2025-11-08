@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -13,37 +12,9 @@ import { EmployeePersonalInfoStep } from './forms/EmployeePersonalInfoStep';
 import { EmployeeJobDetailsStep } from './forms/EmployeeJobDetailsStep';
 import { EmployeeContactInfoStep } from './forms/EmployeeContactInfoStep';
 import { EmployeeCompensationStep } from './forms/EmployeeCompensationStep';
+import { employeeWizardSchema, employeeStepFields, type EmployeeWizardFormData } from '@/lib/validations';
 
-const employeeFormSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().optional(),
-  dateOfBirth: z.string().optional(),
-  gender: z.enum(['male', 'female', 'non-binary', 'prefer-not-to-say']),
-  
-  jobTitle: z.string().min(1, 'Job title is required'),
-  department: z.string().optional(),
-  location: z.string().optional(),
-  employmentType: z.enum(['full-time', 'part-time', 'contract', 'intern', 'casual']),
-  status: z.enum(['active', 'on-leave', 'notice-period', 'inactive', 'terminated']),
-  hireDate: z.string().min(1, 'Hire date is required'),
-  startDate: z.string().optional(),
-  
-  address: z.string().optional(),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  postalCode: z.string().optional(),
-  country: z.string().optional(),
-  emergencyContactName: z.string().optional(),
-  emergencyContactPhone: z.string().optional(),
-  emergencyContactRelationship: z.string().optional(),
-  
-  salary: z.number().min(0),
-  currency: z.string(),
-});
-
-type EmployeeFormData = z.infer<typeof employeeFormSchema>;
+type EmployeeFormData = EmployeeWizardFormData;
 
 const STEPS = [
   { title: 'Personal Info', component: EmployeePersonalInfoStep },
@@ -63,7 +34,7 @@ export function EmployeeFormWizard({ employee, onSave, onCancel }: EmployeeFormW
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<EmployeeFormData>({
-    resolver: zodResolver(employeeFormSchema),
+    resolver: zodResolver(employeeWizardSchema),
     defaultValues: {
       firstName: employee?.firstName || '',
       lastName: employee?.lastName || '',
@@ -110,13 +81,13 @@ export function EmployeeFormWizard({ employee, onSave, onCancel }: EmployeeFormW
   const getCurrentStepFields = (): (keyof EmployeeFormData)[] => {
     switch (currentStep) {
       case 0:
-        return ['firstName', 'lastName', 'email', 'phone', 'dateOfBirth', 'gender'];
+        return [...employeeStepFields.personalInfo];
       case 1:
-        return ['jobTitle', 'department', 'location', 'employmentType', 'status', 'hireDate', 'startDate'];
+        return [...employeeStepFields.jobDetails];
       case 2:
-        return ['address', 'city', 'state', 'postalCode', 'country', 'emergencyContactName', 'emergencyContactPhone', 'emergencyContactRelationship'];
+        return [...employeeStepFields.contactInfo];
       case 3:
-        return ['salary', 'currency'];
+        return [...employeeStepFields.compensation];
       default:
         return [];
     }

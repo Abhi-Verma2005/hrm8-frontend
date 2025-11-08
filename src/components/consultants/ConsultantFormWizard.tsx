@@ -1,50 +1,19 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ArrowRight, Save, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
 import { Consultant } from '@/types/consultant';
 import { toast } from 'sonner';
 import { ConsultantBasicInfoStep } from './forms/ConsultantBasicInfoStep';
 import { ConsultantProfessionalStep } from './forms/ConsultantProfessionalStep';
 import { ConsultantCapacityStep } from './forms/ConsultantCapacityStep';
+import { consultantWizardSchema, consultantStepFields, type ConsultantWizardFormData } from '@/lib/validations';
 
-const consultantFormSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  phone: z.string().min(1, 'Phone is required'),
-  photo: z.string().optional(),
-  
-  type: z.enum(['sales-rep', 'recruiter', '360-consultant', 'industry-partner']),
-  status: z.enum(['active', 'on-leave', 'inactive', 'suspended']),
-  employmentType: z.enum(['full-time', 'part-time', 'contract', 'freelance']),
-  
-  title: z.string().optional(),
-  specialization: z.array(z.string()).min(1, 'At least one specialization is required'),
-  yearsOfExperience: z.number().min(0),
-  bio: z.string().optional(),
-  
-  location: z.string().min(1, 'Location is required'),
-  city: z.string().optional(),
-  state: z.string().optional(),
-  country: z.string().min(1, 'Country is required'),
-  
-  maxEmployers: z.number().min(1),
-  maxJobs: z.number().min(1),
-  
-  commissionStructure: z.enum(['percentage', 'flat', 'tiered', 'custom']),
-  defaultCommissionRate: z.number().min(0).max(100).optional(),
-  
-  linkedInUrl: z.string().optional(),
-  portfolioUrl: z.string().optional(),
-});
-
-type ConsultantFormData = z.infer<typeof consultantFormSchema>;
+type ConsultantFormData = ConsultantWizardFormData;
 
 const STEPS = [
   { title: 'Basic Info', component: ConsultantBasicInfoStep },
@@ -63,7 +32,7 @@ export function ConsultantFormWizard({ consultant, onSave, onCancel }: Consultan
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<ConsultantFormData>({
-    resolver: zodResolver(consultantFormSchema),
+    resolver: zodResolver(consultantWizardSchema),
     defaultValues: {
       firstName: consultant?.firstName || '',
       lastName: consultant?.lastName || '',
@@ -109,11 +78,11 @@ export function ConsultantFormWizard({ consultant, onSave, onCancel }: Consultan
   const getCurrentStepFields = (): (keyof ConsultantFormData)[] => {
     switch (currentStep) {
       case 0:
-        return ['firstName', 'lastName', 'email', 'phone', 'location', 'city', 'state', 'country'];
+        return [...consultantStepFields.basicInfo];
       case 1:
-        return ['type', 'status', 'employmentType', 'specialization', 'yearsOfExperience'];
+        return [...consultantStepFields.professional];
       case 2:
-        return ['maxEmployers', 'maxJobs', 'commissionStructure'];
+        return [...consultantStepFields.capacity];
       default:
         return [];
     }

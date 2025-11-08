@@ -3,6 +3,44 @@
  */
 
 import { z } from "zod";
+import { commonValidators } from "./common";
+
+/**
+ * Employer wizard form schema
+ */
+export const employerWizardSchema = z.object({
+  // Company Information
+  name: z.string().min(1, "Company name is required").max(100),
+  email: commonValidators.email(false),
+  website: commonValidators.websiteUrl(),
+  industry: z.string().min(1, "Industry is required").max(100),
+  location: commonValidators.location(),
+  companySize: z.string().optional(),
+  description: commonValidators.longText("Description"),
+  
+  // Account Setup
+  accountType: z.enum(['approved', 'payg']),
+  status: z.enum(['active', 'inactive', 'pending', 'trial', 'expired']),
+  creditLimit: commonValidators.currency("Credit limit").optional(),
+  paymentTerms: z.string().optional(),
+  
+  // Subscription
+  subscriptionTier: z.enum(['ats-lite', 'payg', 'small', 'medium', 'large', 'enterprise']),
+  maxOpenJobs: commonValidators.positiveNumber("Maximum open jobs", 1),
+  maxUsers: commonValidators.positiveNumber("Maximum users", 1),
+  monthlySubscriptionFee: commonValidators.currency("Monthly subscription fee").optional(),
+});
+
+export type EmployerWizardFormData = z.infer<typeof employerWizardSchema>;
+
+/**
+ * Employer step field mappings
+ */
+export const employerStepFields = {
+  companyInfo: ['name', 'email', 'website', 'industry', 'location'] as const,
+  accountSetup: ['accountType', 'status'] as const,
+  subscription: ['subscriptionTier', 'maxOpenJobs', 'maxUsers'] as const,
+};
 
 // Employer validation
 export const employerSchema = z.object({

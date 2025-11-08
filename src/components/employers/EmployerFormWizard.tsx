@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
 import { Form } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -12,28 +11,9 @@ import { toast } from 'sonner';
 import { EmployerBasicInfoStep } from './forms/EmployerBasicInfoStep';
 import { EmployerAccountStep } from './forms/EmployerAccountStep';
 import { EmployerSubscriptionStep } from './forms/EmployerSubscriptionStep';
+import { employerWizardSchema, employerStepFields, type EmployerWizardFormData } from '@/lib/validations';
 
-const employerFormSchema = z.object({
-  name: z.string().min(1, 'Company name is required'),
-  email: z.string().email('Invalid email address').optional().or(z.literal('')),
-  website: z.string().optional(),
-  industry: z.string().min(1, 'Industry is required'),
-  location: z.string().min(1, 'Location is required'),
-  companySize: z.string().optional(),
-  description: z.string().optional(),
-  
-  accountType: z.enum(['approved', 'payg']),
-  status: z.enum(['active', 'inactive', 'pending', 'trial', 'expired']),
-  creditLimit: z.number().optional(),
-  paymentTerms: z.string().optional(),
-  
-  subscriptionTier: z.enum(['ats-lite', 'payg', 'small', 'medium', 'large', 'enterprise']),
-  maxOpenJobs: z.number().min(1),
-  maxUsers: z.number().min(1),
-  monthlySubscriptionFee: z.number().min(0).optional(),
-});
-
-type EmployerFormData = z.infer<typeof employerFormSchema>;
+type EmployerFormData = EmployerWizardFormData;
 
 const STEPS = [
   { title: 'Company Info', component: EmployerBasicInfoStep },
@@ -52,7 +32,7 @@ export function EmployerFormWizard({ employer, onSave, onCancel }: EmployerFormW
   const [isSaving, setIsSaving] = useState(false);
 
   const form = useForm<EmployerFormData>({
-    resolver: zodResolver(employerFormSchema),
+    resolver: zodResolver(employerWizardSchema),
     defaultValues: {
       name: employer?.name || '',
       email: employer?.email || '',
@@ -91,11 +71,11 @@ export function EmployerFormWizard({ employer, onSave, onCancel }: EmployerFormW
   const getCurrentStepFields = (): (keyof EmployerFormData)[] => {
     switch (currentStep) {
       case 0:
-        return ['name', 'email', 'website', 'industry', 'location'];
+        return [...employerStepFields.companyInfo];
       case 1:
-        return ['accountType', 'status'];
+        return [...employerStepFields.accountSetup];
       case 2:
-        return ['subscriptionTier', 'maxOpenJobs', 'maxUsers'];
+        return [...employerStepFields.subscription];
       default:
         return [];
     }
