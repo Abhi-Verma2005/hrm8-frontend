@@ -37,6 +37,8 @@ import EmployerCreate from "./pages/EmployerCreate";
 import Consultants from "./pages/Consultants";
 import ConsultantDetail from "./pages/ConsultantDetail";
 import ConsultantCreate from "./pages/ConsultantCreate";
+import ConsultantEdit from "./pages/ConsultantEdit";
+import EmployerEdit from "./pages/EmployerEdit";
 import RecruitmentServices from "./pages/RecruitmentServices";
 import ServiceProjectDetail from "./pages/ServiceProjectDetail";
 import HRMS from "./pages/HRMS";
@@ -159,9 +161,11 @@ function AppContent() {
             <Route path="/offers/manage" element={<OfferManagement />} />
             <Route path="/employers" element={<Employers />} />
             <Route path="/employers/new" element={<EmployerCreate />} />
+            <Route path="/employers/:employerId/edit" element={<EmployerEdit />} />
             <Route path="/employers/:employerId" element={<EmployerDetail />} />
             <Route path="/consultants" element={<Consultants />} />
             <Route path="/consultants/new" element={<ConsultantCreate />} />
+            <Route path="/consultants/:id/edit" element={<ConsultantEdit />} />
             <Route path="/consultants/:id" element={<ConsultantDetail />} />
             <Route path="/recruitment-services" element={<RecruitmentServices />} />
             <Route path="/recruitment-services/:id" element={<ServiceProjectDetail />} />

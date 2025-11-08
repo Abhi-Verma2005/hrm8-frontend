@@ -82,3 +82,54 @@ export function exportEmployersToCSV(employers: any[]) {
   
   downloadCSV(employers, 'employers_export', headers);
 }
+
+export function exportCandidatesToCSV(candidates: any[]) {
+  const headers = [
+    'firstName',
+    'lastName',
+    'email',
+    'phone',
+    'status',
+    'location',
+    'experienceYears',
+    'currentJobTitle',
+    'desiredSalary',
+    'availabilityDate',
+  ];
+  
+  downloadCSV(candidates, 'candidates_export', headers);
+}
+
+export function exportJobsToCSV(jobs: any[]) {
+  const headers = [
+    'title',
+    'company',
+    'location',
+    'employmentType',
+    'status',
+    'salaryMin',
+    'salaryMax',
+    'postedDate',
+    'department',
+    'experienceLevel',
+  ];
+  
+  downloadCSV(jobs, 'jobs_export', headers);
+}
+
+export function exportEmployeesToCSV(employees: any[]) {
+  const headers = [
+    'firstName',
+    'lastName',
+    'email',
+    'department',
+    'position',
+    'status',
+    'hireDate',
+    'salary',
+    'employmentType',
+    'manager',
+  ];
+  
+  downloadCSV(employees, 'employees_export', headers);
+}

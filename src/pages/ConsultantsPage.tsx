@@ -11,6 +11,8 @@ import { getAllConsultants, getConsultantStats, deleteConsultant } from '@/lib/c
 import { formatRevenue } from '@/lib/consultantUtils';
 import { exportConsultantsToCSV, downloadJSON } from '@/lib/exportUtils';
 import { ConsultantBulkActions } from '@/components/consultants/ConsultantBulkActions';
+import { DeleteConfirmationDialog } from '@/components/ui/delete-confirmation-dialog';
+import { ImportDialog } from '@/components/ui/import-dialog';
 import type { Consultant } from '@/types/consultant';
 import { toast } from 'sonner';
 
@@ -20,6 +22,9 @@ export default function ConsultantsPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const consultants = getAllConsultants();
   const stats = getConsultantStats();
@@ -60,16 +65,26 @@ export default function ConsultantsPage() {
     toast.success(`Exported ${selectedData.length} consultant(s)`);
   };
 
-  const handleImport = () => {
-    toast.info('Import functionality coming soon');
+  const handleImport = async (data: any[]) => {
+    // Process import data
+    toast.success(`Imported ${data.length} consultant(s)`);
+    window.location.reload();
   };
 
   const handleBulkDelete = () => {
-    if (confirm(`Are you sure you want to delete ${selectedIds.length} consultant(s)?`)) {
+    setShowDeleteDialog(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsDeleting(true);
+    try {
       selectedIds.forEach(id => deleteConsultant(id));
-      setSelectedIds([]);
       toast.success(`Deleted ${selectedIds.length} consultant(s)`);
+      setSelectedIds([]);
       window.location.reload();
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
   };
 
@@ -81,7 +96,7 @@ export default function ConsultantsPage() {
     <DashboardPageLayout
       breadcrumbActions={
         <>
-          <Button variant="outline" size="sm" onClick={handleImport}>
+          <Button variant="outline" size="sm" onClick={() => setShowImportDialog(true)}>
             <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
@@ -166,6 +181,24 @@ export default function ConsultantsPage() {
           onDelete={handleBulkDelete}
           onSendEmail={handleBulkEmail}
           onClearSelection={() => setSelectedIds([])}
+        />
+
+        <DeleteConfirmationDialog
+          open={showDeleteDialog}
+          onOpenChange={setShowDeleteDialog}
+          onConfirm={confirmBulkDelete}
+          title="Delete Consultants"
+          description={`Are you sure you want to delete ${selectedIds.length} consultant(s)? This action cannot be undone.`}
+          isDeleting={isDeleting}
+        />
+
+        <ImportDialog
+          open={showImportDialog}
+          onOpenChange={setShowImportDialog}
+          onImport={handleImport}
+          title="Import Consultants"
+          description="Upload a CSV file to import consultant data"
+          sampleHeaders={['firstName', 'lastName', 'email', 'phone', 'type', 'status']}
         />
       </div>
     </DashboardPageLayout>

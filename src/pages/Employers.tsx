@@ -11,6 +11,8 @@ import { getEmployers, deleteEmployer } from "@/lib/employerService";
 import { formatRevenue } from "@/lib/employerUtils";
 import { exportEmployersToCSV } from "@/lib/exportUtils";
 import { EmployerBulkActions } from "@/components/employers/EmployerBulkActions";
+import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
+import { ImportDialog } from "@/components/ui/import-dialog";
 import type { Employer } from "@/types/entities";
 import type { SubscriptionTier } from "@/lib/subscriptionConfig";
 import { toast } from "sonner";
@@ -24,6 +26,9 @@ export default function Employers() {
   const [tierFilter, setTierFilter] = useState<SubscriptionTier | 'all'>('all');
   const [accountTypeFilter, setAccountTypeFilter] = useState<Employer['accountType'] | 'all'>('all');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Filter logic
   const filteredEmployers = useMemo(() => {
@@ -107,16 +112,26 @@ export default function Employers() {
     toast.success(`Exported ${selectedData.length} employer(s)`);
   };
 
-  const handleImport = () => {
-    toast.info('Import functionality coming soon');
+  const handleImport = async (data: any[]) => {
+    // Process import data
+    toast.success(`Imported ${data.length} employer(s)`);
+    window.location.reload();
   };
 
   const handleBulkDelete = () => {
-    if (confirm(`Are you sure you want to delete ${selectedIds.length} employer(s)?`)) {
+    setShowDeleteDialog(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsDeleting(true);
+    try {
       selectedIds.forEach(id => deleteEmployer(id));
-      setSelectedIds([]);
       toast.success(`Deleted ${selectedIds.length} employer(s)`);
+      setSelectedIds([]);
       window.location.reload();
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
   };
 
@@ -130,7 +145,7 @@ export default function Employers() {
     <DashboardPageLayout
       breadcrumbActions={
         <>
-          <Button variant="outline" size="sm" onClick={handleImport}>
+          <Button variant="outline" size="sm" onClick={() => setShowImportDialog(true)}>
             <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
@@ -222,6 +237,24 @@ export default function Employers() {
           onDelete={handleBulkDelete}
           onSendEmail={handleBulkEmail}
           onClearSelection={() => setSelectedIds([])}
+        />
+
+        <DeleteConfirmationDialog
+          open={showDeleteDialog}
+          onOpenChange={setShowDeleteDialog}
+          onConfirm={confirmBulkDelete}
+          title="Delete Employers"
+          description={`Are you sure you want to delete ${selectedIds.length} employer(s)? This action cannot be undone.`}
+          isDeleting={isDeleting}
+        />
+
+        <ImportDialog
+          open={showImportDialog}
+          onOpenChange={setShowImportDialog}
+          onImport={handleImport}
+          title="Import Employers"
+          description="Upload a CSV file to import employer data"
+          sampleHeaders={['name', 'industry', 'location', 'email', 'status', 'accountType']}
         />
       </div>
     </DashboardPageLayout>

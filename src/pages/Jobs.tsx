@@ -33,6 +33,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { JobsFilterBar } from "@/components/jobs/JobsFilterBar";
 import { getCountryFromLocation, expandRegionsToCountries, REGION_COUNTRY_MAP, getRegionForCountry } from "@/lib/countryRegions";
 import { JobPostingCostDialog } from "@/components/jobs/JobPostingCostDialog";
@@ -65,6 +66,8 @@ export default function Jobs() {
   const [showSavedFilters, setShowSavedFilters] = useState(false);
   const [advancedFilters, setAdvancedFilters] = useState<FilterCriteria>({});
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
+  const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
+  const [isDeletingBulk, setIsDeletingBulk] = useState(false);
 
   const jobs = useMemo(() => getJobs(), [refreshKey]);
 
@@ -311,15 +314,23 @@ export default function Jobs() {
         description: `${selectedJobs.length} job(s) have been archived.`,
       });
     } else if (action === 'delete') {
-      if (confirm(`Delete ${selectedJobs.length} selected job(s)?`)) {
-        selectedJobs.forEach(id => deleteJob(id));
-        setSelectedJobs([]);
-        setRefreshKey(prev => prev + 1);
-        toast({
-          title: "Jobs deleted",
-          description: `${selectedJobs.length} job(s) have been deleted.`,
-        });
-      }
+      setShowBulkDeleteDialog(true);
+    }
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsDeletingBulk(true);
+    try {
+      selectedJobs.forEach(id => deleteJob(id));
+      toast({
+        title: "Jobs deleted",
+        description: `${selectedJobs.length} job(s) have been deleted.`,
+      });
+      setSelectedJobs([]);
+      setRefreshKey(prev => prev + 1);
+    } finally {
+      setIsDeletingBulk(false);
+      setShowBulkDeleteDialog(false);
     }
   };
 
@@ -725,6 +736,15 @@ export default function Jobs() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <DeleteConfirmationDialog
+          open={showBulkDeleteDialog}
+          onOpenChange={setShowBulkDeleteDialog}
+          onConfirm={confirmBulkDelete}
+          title="Delete Jobs"
+          description={`Are you sure you want to delete ${selectedJobs.length} job(s)? This action cannot be undone.`}
+          isDeleting={isDeletingBulk}
+        />
       </div>
     </DashboardPageLayout>
   );

@@ -52,7 +52,7 @@ export default function ConsultantDetail() {
   const metrics = calculateConsultantMetrics(consultant);
 
   const handleEdit = () => {
-    // TODO: Open edit drawer/dialog
+    navigate(`/consultants/${consultant.id}/edit`);
   };
 
   const handleConsultantUpdate = (updates: Partial<Consultant>) => {
