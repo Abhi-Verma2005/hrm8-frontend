@@ -11,6 +11,7 @@ import { SidebarFooterContent } from "./SidebarFooterContent";
 import { useRecentRecords } from "@/hooks/useRecentRecords";
 import { FeedbackNotificationBadge } from "@/components/feedback/FeedbackNotificationBadge";
 import { formatDistanceToNow } from "date-fns";
+import { usePermissions } from "@/hooks/usePermissions";
 // CORE Section
 const coreNavItems = [
   { title: "Dashboard", url: "/dashboard/overview", icon: LayoutDashboard },
@@ -133,7 +134,12 @@ export function AppSidebar() {
   const location = useLocation();
   const { open } = useSidebar();
   const { records: recentRecords, clearRecentRecords } = useRecentRecords();
+  const { user } = usePermissions();
   const [isHovering, setIsHovering] = useState(false);
+  
+  // Check module access
+  const hasATS = user.modules.atsEnabled;
+  const hasHRMS = user.modules.hrmsEnabled;
   
   // Compute visual state: show expanded when permanently open OR temporarily hovering
   const isExpanded = open || (!open && isHovering);
@@ -212,46 +218,49 @@ export function AppSidebar() {
 
         <SidebarSeparator />
 
-        {/* ATS Section */}
-        <SidebarGroup>
-          {isExpanded && (
-            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Recruitment (ATS)
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {atsNavItems.map(item => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={isActive(item.url)}
-                    className={cn(
-                      "relative transition-all duration-200",
-                      "hover:bg-sidebar-accent/50",
-                      isActive(item.url) && [
-                        "bg-primary/10",
-                        "text-primary",
-                        "font-medium",
-                        isExpanded && "border-l-4 border-primary"
-                      ]
-                    )}
-                  >
-                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
-                      <item.icon className={cn(
-                        "h-5 w-5 transition-all",
-                        !isExpanded && "mx-auto"
-                      )} />
-                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
+        {/* ATS Section - Only show if ATS module is enabled */}
+        {hasATS && (
+          <>
+            <SidebarGroup>
+              {isExpanded && (
+                <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  Recruitment (ATS)
+                </SidebarGroupLabel>
+              )}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {atsNavItems.map(item => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive(item.url)}
+                        className={cn(
+                          "relative transition-all duration-200",
+                          "hover:bg-sidebar-accent/50",
+                          isActive(item.url) && [
+                            "bg-primary/10",
+                            "text-primary",
+                            "font-medium",
+                            isExpanded && "border-l-4 border-primary"
+                          ]
+                        )}
+                      >
+                        <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                          <item.icon className={cn(
+                            "h-5 w-5 transition-all",
+                            !isExpanded && "mx-auto"
+                          )} />
+                          {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+            <SidebarSeparator />
+          </>
+        )}
 
         {/* OPERATIONS Section */}
         <SidebarGroup>
@@ -294,46 +303,49 @@ export function AppSidebar() {
 
         <SidebarSeparator />
 
-        {/* HR MANAGEMENT Section */}
-        <SidebarGroup>
-          {isExpanded && (
-            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              HR Management
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {hrManagementNavItems.map(item => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={isActive(item.url)}
-                    className={cn(
-                      "relative transition-all duration-200",
-                      "hover:bg-sidebar-accent/50",
-                      isActive(item.url) && [
-                        "bg-primary/10",
-                        "text-primary",
-                        "font-medium",
-                        isExpanded && "border-l-4 border-primary"
-                      ]
-                    )}
-                  >
-                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
-                      <item.icon className={cn(
-                        "h-5 w-5 transition-all",
-                        !isExpanded && "mx-auto"
-                      )} />
-                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarSeparator />
+        {/* HR MANAGEMENT Section - Only show if HRMS module is enabled */}
+        {hasHRMS && (
+          <>
+            <SidebarGroup>
+              {isExpanded && (
+                <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  HR Management
+                </SidebarGroupLabel>
+              )}
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {hrManagementNavItems.map(item => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive(item.url)}
+                        className={cn(
+                          "relative transition-all duration-200",
+                          "hover:bg-sidebar-accent/50",
+                          isActive(item.url) && [
+                            "bg-primary/10",
+                            "text-primary",
+                            "font-medium",
+                            isExpanded && "border-l-4 border-primary"
+                          ]
+                        )}
+                      >
+                        <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                          <item.icon className={cn(
+                            "h-5 w-5 transition-all",
+                            !isExpanded && "mx-auto"
+                          )} />
+                          {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+            <SidebarSeparator />
+          </>
+        )}
 
         {/* MANAGEMENT Section */}
         <SidebarGroup>

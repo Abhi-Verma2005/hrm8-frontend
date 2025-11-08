@@ -112,6 +112,7 @@ import { initializeMockTeamData } from './lib/mockTeamData';
 import { initializeMockTemplates } from './lib/mockTemplateData';
 import { initializeMockAutomationRules } from './lib/mockAutomationData';
 import { useEffect } from 'react';
+import { ProtectedRoutes } from './components/common/ProtectedRoutes';
 
 const queryClient = new QueryClient();
 
@@ -139,26 +140,41 @@ function AppContent() {
             <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
             <Route path="/dashboard/:type" element={<Dashboard />} />
             <Route path="/dashboard/candidates" element={<CandidatesDashboard />} />
-            <Route path="/dashboard/hrms" element={<HRMSDashboard />} />
+            
+            {/* HRMS Dashboard - Protected */}
+            <Route element={<ProtectedRoutes requiredModule="hrms" moduleName="HRMS Dashboard" />}>
+              <Route path="/dashboard/hrms" element={<HRMSDashboard />} />
+            </Route>
+            
             <Route path="/dashboard/jobs" element={<JobsDashboard />} />
             <Route path="/dashboard/performance" element={<PerformanceDashboard />} />
             <Route path="/notifications" element={<NotificationCenterPage />} />
-            <Route path="/candidates" element={<Candidates />} />
-            <Route path="/candidates/new" element={<Candidates />} />
-            <Route path="/candidates/:candidateId" element={<Candidates />} />
-            <Route path="/candidates/:candidateId/edit" element={<Candidates />} />
-            <Route path="/candidates/pipeline" element={<PipelineKanban />} />
-            <Route path="/jobs" element={<Jobs />} />
-            <Route path="/jobs/new" element={<JobCreate />} />
-            <Route path="/jobs/templates" element={<JobTemplates />} />
-            <Route path="/jobs/automation" element={<JobAutomationSettings />} />
-            <Route path="/jobs/analytics" element={<JobAnalytics />} />
-            <Route path="/jobs/:jobId" element={<JobDetail />} />
-            <Route path="/jobs/:jobId/edit" element={<JobEdit />} />
-            <Route path="/email-templates" element={<EmailTemplates />} />
-            <Route path="/import-export" element={<ImportExport />} />
-            <Route path="/interviews/schedule" element={<InterviewScheduling />} />
-            <Route path="/offers/manage" element={<OfferManagement />} />
+            {/* ATS Module Routes */}
+            <Route element={<ProtectedRoutes requiredModule="ats" moduleName="ATS (Applicant Tracking System)" />}>
+              <Route path="/candidates" element={<Candidates />} />
+              <Route path="/candidates/new" element={<Candidates />} />
+              <Route path="/candidates/:candidateId" element={<Candidates />} />
+              <Route path="/candidates/:candidateId/edit" element={<Candidates />} />
+              <Route path="/candidates/pipeline" element={<PipelineKanban />} />
+              <Route path="/jobs" element={<Jobs />} />
+              <Route path="/jobs/new" element={<JobCreate />} />
+              <Route path="/jobs/templates" element={<JobTemplates />} />
+              <Route path="/jobs/automation" element={<JobAutomationSettings />} />
+              <Route path="/jobs/analytics" element={<JobAnalytics />} />
+              <Route path="/jobs/:jobId" element={<JobDetail />} />
+              <Route path="/jobs/:jobId/edit" element={<JobEdit />} />
+              <Route path="/email-templates" element={<EmailTemplates />} />
+              <Route path="/import-export" element={<ImportExport />} />
+              <Route path="/interviews/schedule" element={<InterviewScheduling />} />
+              <Route path="/offers/manage" element={<OfferManagement />} />
+              <Route path="/applications" element={<Applications />} />
+              <Route path="/requisitions" element={<Requisitions />} />
+              <Route path="/requisitions/:id" element={<RequisitionDetail />} />
+              <Route path="/interviews" element={<Interviews />} />
+              <Route path="/offers" element={<Offers />} />
+              <Route path="/background-checks" element={<BackgroundChecks />} />
+              <Route path="/internal-jobs" element={<InternalJobs />} />
+            </Route>
             <Route path="/employers" element={<Employers />} />
             <Route path="/employers/new" element={<EmployerCreate />} />
             <Route path="/employers/:employerId/edit" element={<EmployerEdit />} />
@@ -169,61 +185,59 @@ function AppContent() {
             <Route path="/consultants/:id" element={<ConsultantDetail />} />
             <Route path="/recruitment-services" element={<RecruitmentServices />} />
             <Route path="/recruitment-services/:id" element={<ServiceProjectDetail />} />
-            <Route path="/hrms" element={<HRMS />} />
-            <Route path="/hrms/employees/new" element={<EmployeeCreate />} />
-            <Route path="/hrms/employees/:id" element={<EmployeeDetail />} />
-            <Route path="/hrms/analytics" element={<HRAnalytics />} />
-            <Route path="/hrms/org-chart" element={<OrgChart />} />
-            <Route path="/leave" element={<LeaveManagement />} />
-            <Route path="/leave/new" element={<LeaveRequestCreate />} />
-            <Route path="/performance" element={<Performance />} />
-            <Route path="/performance/goals/new" element={<GoalCreate />} />
-            <Route path="/performance/goals/:id" element={<GoalDetail />} />
-            <Route path="/performance/reviews/new" element={<ReviewCreate />} />
-            <Route path="/performance/reviews/:id" element={<ReviewDetail />} />
-            <Route path="/performance/feedback/new" element={<FeedbackRequestCreate />} />
-            <Route path="/performance/feedback/:id" element={<FeedbackDetail />} />
-            <Route path="/talent-development" element={<TalentDevelopment />} />
-            <Route path="/talent-development/learning-paths/:id" element={<LearningPathDetail />} />
-            <Route path="/talent-development/courses/:id" element={<CourseDetail />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/onboarding/:id" element={<OnboardingWorkflowDetail />} />
-            <Route path="/attendance" element={<TimeAttendance />} />
-            <Route path="/payroll" element={<Payroll />} />
-            <Route path="/benefits" element={<Benefits />} />
-            <Route path="/expenses" element={<Expenses />} />
-            <Route path="/documents" element={<Documents />} />
-            <Route path="/compensation" element={<Compensation />} />
-            <Route path="/offboarding" element={<Offboarding />} />
-            <Route path="/offboarding/:id" element={<OffboardingDetail />} />
-          <Route path="/applications" element={<Applications />} />
-          <Route path="/requisitions" element={<Requisitions />} />
-          <Route path="/requisitions/:id" element={<RequisitionDetail />} />
-          <Route path="/interviews" element={<Interviews />} />
-          <Route path="/offers" element={<Offers />} />
-          <Route path="/background-checks" element={<BackgroundChecks />} />
-          <Route path="/internal-jobs" element={<InternalJobs />} />
-          <Route path="/calendar" element={<Calendar />} />
-          <Route path="/collaborative-feedback" element={<CollaborativeFeedback />} />
-          <Route path="/notifications" element={<NotificationCenter />} />
-          <Route path="/feedback-templates" element={<FeedbackTemplates />} />
-          <Route path="/feedback-dashboard" element={<FeedbackDashboard />} />
-          <Route path="/skills-management" element={<SkillsManagement />} />
-          <Route path="/notifications-center" element={<NotificationsCenter />} />
-          <Route path="/saved-searches" element={<SavedSearches />} />
-          <Route path="/compensation-management" element={<CompensationManagement />} />
-          <Route path="/training-development" element={<TrainingDevelopment />} />
-          <Route path="/onboarding-offboarding-dashboard" element={<OnboardingOffboardingDashboard />} />
+            
+            {/* HRMS Module Routes */}
+            <Route element={<ProtectedRoutes requiredModule="hrms" moduleName="HRMS (Human Resource Management System)" />}>
+              <Route path="/hrms" element={<HRMS />} />
+              <Route path="/hrms/employees/new" element={<EmployeeCreate />} />
+              <Route path="/hrms/employees/:id" element={<EmployeeDetail />} />
+              <Route path="/hrms/analytics" element={<HRAnalytics />} />
+              <Route path="/hrms/org-chart" element={<OrgChart />} />
+              <Route path="/leave" element={<LeaveManagement />} />
+              <Route path="/leave/new" element={<LeaveRequestCreate />} />
+              <Route path="/performance" element={<Performance />} />
+              <Route path="/performance/goals/new" element={<GoalCreate />} />
+              <Route path="/performance/goals/:id" element={<GoalDetail />} />
+              <Route path="/performance/reviews/new" element={<ReviewCreate />} />
+              <Route path="/performance/reviews/:id" element={<ReviewDetail />} />
+              <Route path="/performance/feedback/new" element={<FeedbackRequestCreate />} />
+              <Route path="/performance/feedback/:id" element={<FeedbackDetail />} />
+              <Route path="/talent-development" element={<TalentDevelopment />} />
+              <Route path="/talent-development/learning-paths/:id" element={<LearningPathDetail />} />
+              <Route path="/talent-development/courses/:id" element={<CourseDetail />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/onboarding/:id" element={<OnboardingWorkflowDetail />} />
+              <Route path="/attendance" element={<TimeAttendance />} />
+              <Route path="/payroll" element={<Payroll />} />
+              <Route path="/benefits" element={<Benefits />} />
+              <Route path="/expenses" element={<Expenses />} />
+              <Route path="/documents" element={<Documents />} />
+              <Route path="/compensation" element={<Compensation />} />
+              <Route path="/offboarding" element={<Offboarding />} />
+              <Route path="/offboarding/:id" element={<OffboardingDetail />} />
+              <Route path="/ess" element={<EmployeeSelfService />} />
+              <Route path="/compliance" element={<Compliance />} />
+              <Route path="/employee-relations" element={<EmployeeRelations />} />
+              <Route path="/accrual-policies" element={<AccrualPolicies />} />
+              <Route path="/workforce-planning" element={<WorkforcePlanning />} />
+            </Route>
+            {/* Shared/General Routes */}
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/collaborative-feedback" element={<CollaborativeFeedback />} />
+            <Route path="/notifications" element={<NotificationCenter />} />
+            <Route path="/feedback-templates" element={<FeedbackTemplates />} />
+            <Route path="/feedback-dashboard" element={<FeedbackDashboard />} />
+            <Route path="/skills-management" element={<SkillsManagement />} />
+            <Route path="/notifications-center" element={<NotificationsCenter />} />
+            <Route path="/saved-searches" element={<SavedSearches />} />
+            <Route path="/compensation-management" element={<CompensationManagement />} />
+            <Route path="/training-development" element={<TrainingDevelopment />} />
+            <Route path="/onboarding-offboarding-dashboard" element={<OnboardingOffboardingDashboard />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />
-          <Route path="/users" element={<Users />} />
-          <Route path="/profile" element={<UserProfile />} />
-          <Route path="/ess" element={<EmployeeSelfService />} />
-          <Route path="/compliance" element={<Compliance />} />
-          <Route path="/employee-relations" element={<EmployeeRelations />} />
-          <Route path="/role-management" element={<RoleManagement />} />
-          <Route path="/accrual-policies" element={<AccrualPolicies />} />
-          <Route path="/workforce-planning" element={<WorkforcePlanning />} />
+            <Route path="/users" element={<Users />} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/role-management" element={<RoleManagement />} />
             <Route path="/benefits-admin" element={<BenefitsAdmin />} />
             <Route path="/finance" element={<Finance />} />
             <Route path="/integrations" element={<Integrations />} />
