@@ -24,6 +24,7 @@ import { FeedbackFilterBar } from './FeedbackFilterBar';
 import { FeedbackRequestDialog } from './FeedbackRequestDialog';
 import { BulkFeedbackRequestDialog } from './BulkFeedbackRequestDialog';
 import { PendingFeedbackRequests } from './PendingFeedbackRequests';
+import { FeedbackResponseTracker } from './FeedbackResponseTracker';
 import { formatDistanceToNow } from 'date-fns';
 import { ThumbsUp, ThumbsDown, AlertCircle, MessageSquare, TrendingUp, Users } from 'lucide-react';
 
@@ -158,8 +159,9 @@ export function CollaborativeFeedbackPanel({
       )}
 
       <Tabs defaultValue="feedback" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="feedback">Team Feedback ({feedback.length})</TabsTrigger>
+          <TabsTrigger value="tracking">Response Tracking</TabsTrigger>
           <TabsTrigger value="consensus">Consensus</TabsTrigger>
           <TabsTrigger value="voting">Voting</TabsTrigger>
           <TabsTrigger value="requests">Requests</TabsTrigger>
@@ -274,6 +276,14 @@ export function CollaborativeFeedbackPanel({
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        {/* Response Tracking Tab */}
+        <TabsContent value="tracking">
+          <FeedbackResponseTracker 
+            candidateId={candidateId}
+            candidateName={candidateName}
+          />
         </TabsContent>
 
         {/* Voting Tab */}

@@ -10,8 +10,10 @@ import { CandidateComparisonReport } from '@/components/feedback/CandidateCompar
 import { RatingCriteriaManager } from '@/components/feedback/RatingCriteriaManager';
 import { FeedbackAnalyticsChart } from '@/components/feedback/FeedbackAnalyticsChart';
 import { FeedbackTemplateManager } from '@/components/feedback/FeedbackTemplateManager';
+import { FeedbackSystemOverview } from '@/components/feedback/FeedbackSystemOverview';
 import { DecisionRecorder } from '@/components/feedback/DecisionRecorder';
-import { Users, BarChart3, Settings, TrendingUp } from 'lucide-react';
+import { Users, BarChart3, Settings, TrendingUp, Bell, FileText, LayoutDashboard, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function CollaborativeFeedback() {
   const [selectedCandidateId, setSelectedCandidateId] = useState<string>('');
@@ -38,9 +40,31 @@ export default function CollaborativeFeedback() {
         <title>Collaborative Feedback - ATS</title>
       </Helmet>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Collaborative Feedback</h1>
-          <p className="text-muted-foreground">Multi-criteria candidate evaluation with team voting and consensus tracking</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Collaborative Feedback</h1>
+            <p className="text-muted-foreground">Multi-criteria candidate evaluation with team voting and consensus tracking</p>
+          </div>
+          <div className="flex gap-2">
+            <Link to="/feedback-dashboard">
+              <Button variant="outline" size="sm">
+                <LayoutDashboard className="h-4 w-4 mr-2" />
+                Dashboard
+              </Button>
+            </Link>
+            <Link to="/feedback-templates">
+              <Button variant="outline" size="sm">
+                <FileText className="h-4 w-4 mr-2" />
+                Templates
+              </Button>
+            </Link>
+            <Link to="/notifications">
+              <Button variant="outline" size="sm">
+                <Bell className="h-4 w-4 mr-2" />
+                Notifications
+              </Button>
+            </Link>
+          </div>
         </div>
         {/* Overview Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -90,8 +114,9 @@ export default function CollaborativeFeedback() {
           </Card>
         </div>
 
-        <Tabs defaultValue="feedback" className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-7">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="feedback">Candidate Feedback</TabsTrigger>
             <TabsTrigger value="comparison">Comparison Report</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -99,6 +124,11 @@ export default function CollaborativeFeedback() {
             <TabsTrigger value="settings">Rating Criteria</TabsTrigger>
             <TabsTrigger value="decisions">Decisions</TabsTrigger>
           </TabsList>
+
+          {/* Overview Tab */}
+          <TabsContent value="overview" className="space-y-4">
+            <FeedbackSystemOverview />
+          </TabsContent>
 
           {/* Candidate Feedback Tab */}
           <TabsContent value="feedback" className="space-y-4">

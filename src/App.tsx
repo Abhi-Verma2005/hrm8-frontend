@@ -77,9 +77,11 @@ import Calendar from "./pages/Calendar";
 import CollaborativeFeedback from "./pages/CollaborativeFeedback";
 import NotificationCenter from "./pages/NotificationCenter";
 import FeedbackTemplates from "./pages/FeedbackTemplates";
+import FeedbackDashboard from "./pages/FeedbackDashboard";
 import { initializeMockFeedbackData } from './lib/mockFeedbackData';
 import { initializeMockTeamData } from './lib/mockTeamData';
 import { initializeMockTemplates } from './lib/mockTemplateData';
+import { initializeMockAutomationRules } from './lib/mockAutomationData';
 import { useEffect } from 'react';
 
 const queryClient = new QueryClient();
@@ -92,6 +94,7 @@ function AppContent() {
     initializeMockFeedbackData();
     initializeMockTeamData();
     initializeMockTemplates();
+    initializeMockAutomationRules();
   }, []);
 
   return (
@@ -152,6 +155,7 @@ function AppContent() {
           <Route path="/collaborative-feedback" element={<CollaborativeFeedback />} />
           <Route path="/notifications" element={<NotificationCenter />} />
           <Route path="/feedback-templates" element={<FeedbackTemplates />} />
+          <Route path="/feedback-dashboard" element={<FeedbackDashboard />} />
             <Route path="/analytics" element={<Analytics />} />
             <Route path="/inbox" element={<Inbox />} />
           <Route path="/users" element={<Users />} />

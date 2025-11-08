@@ -1,7 +1,7 @@
 import { NotificationSettings } from '@/components/feedback/NotificationSettings';
 import { PendingFeedbackRequests } from '@/components/feedback/PendingFeedbackRequests';
 import { Button } from '@/components/ui/button';
-import { FileText } from 'lucide-react';
+import { FileText, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function NotificationCenter() {
@@ -14,12 +14,20 @@ export default function NotificationCenter() {
             Manage feedback requests and email notification preferences
           </p>
         </div>
-        <Link to="/feedback-templates">
-          <Button variant="outline">
-            <FileText className="h-4 w-4 mr-2" />
-            Manage Templates
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link to="/feedback-templates">
+            <Button variant="outline">
+              <FileText className="h-4 w-4 mr-2" />
+              Templates
+            </Button>
+          </Link>
+          <Link to="/feedback-dashboard">
+            <Button variant="outline">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Dashboard
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <PendingFeedbackRequests />
