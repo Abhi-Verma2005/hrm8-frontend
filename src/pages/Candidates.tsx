@@ -1,19 +1,23 @@
 import { useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DataTable } from "@/components/tables/DataTable";
 import { candidateTableColumns } from "@/components/candidates/CandidateTableColumns";
 import { CandidatesFilterBar } from "@/components/candidates/CandidatesFilterBar";
 import { CandidateDetailView } from "@/components/candidates/CandidateDetailView";
+import { CandidateFormWizard } from "@/components/candidates/CandidateFormWizard";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Button } from "@/components/ui/button";
 import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getCandidates, getCandidateById } from "@/lib/mockCandidateStorage";
+import { getCandidates, getCandidateById, saveCandidate, updateCandidate } from "@/lib/mockCandidateStorage";
+import { uploadDocument } from "@/lib/mockDocumentStorage";
+import { addHistoryEvent } from "@/lib/mockCandidateHistory";
 import type { Candidate } from "@/types/entities";
 
 export default function Candidates() {
   const { candidateId } = useParams<{ candidateId: string }>();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<Candidate['status'] | 'all'>('all');
   const [experienceLevelFilter, setExperienceLevelFilter] = useState<Candidate['experienceLevel'] | 'all'>('all');
@@ -21,6 +25,106 @@ export default function Candidates() {
   const [sourceFilter, setSourceFilter] = useState<Candidate['source'] | 'all'>('all');
   
   const candidates = getCandidates();
+
+  // Handle form routes (/candidates/new or /candidates/:id/edit)
+  const isNewForm = candidateId === 'new';
+  const isEditForm = candidateId?.includes('edit');
+  const actualCandidateId = isEditForm ? candidateId.replace('/edit', '') : candidateId;
+
+  const handleSaveCandidate = async (data: Partial<Candidate>) => {
+    if (isNewForm) {
+      // Create new candidate
+      const newId = `candidate-${Date.now()}`;
+      const newCandidate: Candidate = {
+        id: newId,
+        firstName: data.firstName!,
+        lastName: data.lastName!,
+        name: data.name!,
+        email: data.email!,
+        phone: data.phone!,
+        photo: data.photo,
+        city: data.city!,
+        state: data.state,
+        country: data.country!,
+        location: data.location!,
+        currentPosition: data.currentPosition,
+        desiredPosition: data.desiredPosition,
+        position: data.position!,
+        experienceYears: data.experienceYears!,
+        experience: data.experience!,
+        experienceLevel: data.experienceLevel!,
+        skills: data.skills!,
+        education: data.education,
+        certifications: data.certifications,
+        salaryCurrency: data.salaryCurrency!,
+        salaryMin: data.salaryMin,
+        salaryMax: data.salaryMax,
+        workArrangement: data.workArrangement!,
+        employmentTypePreferences: data.employmentTypePreferences!,
+        noticePeriod: data.noticePeriod,
+        availabilityDate: data.availabilityDate,
+        linkedInUrl: data.linkedInUrl,
+        githubUrl: data.githubUrl,
+        portfolioUrl: data.portfolioUrl,
+        source: data.source!,
+        sourceDetails: data.sourceDetails,
+        tags: data.tags || [],
+        status: 'active',
+        rating: 0,
+        appliedDate: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      saveCandidate(newCandidate);
+
+      // Add history event
+      addHistoryEvent({
+        candidateId: newId,
+        eventType: 'profile_updated',
+        title: 'Candidate Profile Created',
+        description: 'New candidate added to the system',
+        timestamp: new Date(),
+        userName: 'Current User',
+      });
+
+      // Handle document uploads if any
+      // This would be done after the form completes
+      
+      navigate(`/candidates/${newId}`);
+    } else if (actualCandidateId) {
+      // Update existing candidate
+      updateCandidate(actualCandidateId, data);
+
+      addHistoryEvent({
+        candidateId: actualCandidateId,
+        eventType: 'profile_updated',
+        title: 'Candidate Profile Updated',
+        description: 'Candidate information was modified',
+        timestamp: new Date(),
+        userName: 'Current User',
+      });
+
+      navigate(`/candidates/${actualCandidateId}`);
+    }
+  };
+
+  // Show form wizard for new or edit
+  if (isNewForm || isEditForm) {
+    const candidateToEdit = isEditForm && actualCandidateId ? getCandidateById(actualCandidateId) : undefined;
+    
+    return (
+      <DashboardPageLayout>
+        <div className="p-6">
+          <CandidateFormWizard
+            candidate={candidateToEdit}
+            onSave={handleSaveCandidate}
+            onCancel={() => navigate('/candidates')}
+          />
+        </div>
+      </DashboardPageLayout>
+    );
+  }
 
   // If candidateId is present, show detail view
   if (candidateId) {

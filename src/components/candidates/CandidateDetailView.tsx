@@ -7,6 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CandidateAvatar } from './CandidateAvatar';
 import { CandidateStatusBadge } from './CandidateStatusBadge';
 import { CandidateFeedbackTab } from './CandidateFeedbackTab';
+import { ApplicationsTab } from './ApplicationsTab';
+import { NotesTab } from './NotesTab';
+import { HistoryTab } from './HistoryTab';
+import { DocumentManager } from './DocumentManager';
 import { Candidate } from '@/types/entities';
 import { 
   ArrowLeft, 
@@ -19,7 +23,8 @@ import {
   MessageSquare,
   User,
   History,
-  Star
+  Star,
+  FolderOpen
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -114,7 +119,11 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-2">
-              <Button>
+              <Button onClick={() => navigate(`/candidates/${candidate.id}/edit`)}>
+                <User className="h-4 w-4 mr-2" />
+                Edit Profile
+              </Button>
+              <Button variant="outline">
                 <Mail className="h-4 w-4 mr-2" />
                 Send Email
               </Button>
@@ -124,7 +133,7 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
               </Button>
               <Button variant="outline">
                 <FileText className="h-4 w-4 mr-2" />
-                View Resume
+                Download Resume
               </Button>
             </div>
           </div>
@@ -133,7 +142,7 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
 
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">
             <User className="h-4 w-4 mr-2" />
             Overview
@@ -145,6 +154,10 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
           <TabsTrigger value="applications">
             <Briefcase className="h-4 w-4 mr-2" />
             Applications
+          </TabsTrigger>
+          <TabsTrigger value="documents">
+            <FolderOpen className="h-4 w-4 mr-2" />
+            Documents
           </TabsTrigger>
           <TabsTrigger value="notes">
             <FileText className="h-4 w-4 mr-2" />
@@ -215,44 +228,22 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
 
         {/* Applications Tab */}
         <TabsContent value="applications">
-          <Card>
-            <CardHeader>
-              <CardTitle>Application History</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Application history will be displayed here.
-              </p>
-            </CardContent>
-          </Card>
+          <ApplicationsTab candidateId={candidate.id} />
+        </TabsContent>
+
+        {/* Documents Tab */}
+        <TabsContent value="documents">
+          <DocumentManager candidateId={candidate.id} />
         </TabsContent>
 
         {/* Notes Tab */}
         <TabsContent value="notes">
-          <Card>
-            <CardHeader>
-              <CardTitle>Candidate Notes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Notes and comments about the candidate will be displayed here.
-              </p>
-            </CardContent>
-          </Card>
+          <NotesTab candidateId={candidate.id} />
         </TabsContent>
 
         {/* History Tab */}
         <TabsContent value="history">
-          <Card>
-            <CardHeader>
-              <CardTitle>Activity History</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Timeline of all interactions and changes will be displayed here.
-              </p>
-            </CardContent>
-          </Card>
+          <HistoryTab candidateId={candidate.id} />
         </TabsContent>
       </Tabs>
     </div>
