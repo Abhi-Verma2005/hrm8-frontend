@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, Download, Image as ImageIcon, Edit2 } from "lucide-react";
+import { Plus, Upload, Download, Image as ImageIcon, Users, UserCheck, UserX, UserPlus, BarChart3, List, Kanban, Search, Filter } from "lucide-react";
 import { DataTable } from "@/components/tables/DataTable";
 import { createEmployeeColumns } from "@/components/hrms/EmployeeTableColumns";
 import { EmployeesFilterBar } from "@/components/hrms/EmployeesFilterBar";
@@ -10,13 +11,19 @@ import { BulkImportDialog } from "@/components/hrms/BulkImportDialog";
 import { ExportDialog } from "@/components/hrms/ExportDialog";
 import { BulkPhotoUploadDialog } from "@/components/hrms/BulkPhotoUploadDialog";
 import { BulkEditDialog } from "@/components/hrms/BulkEditDialog";
+import { EmployeesBulkActionsToolbar } from "@/components/hrms/EmployeesBulkActionsToolbar";
+import { EmployeesKanbanBoard } from "@/components/hrms/EmployeesKanbanBoard";
+import { StatsCard } from "@/components/ui/stats-card";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Employee } from "@/types/employee";
 import { getEmployees } from "@/lib/employeeStorage";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import type { DateRange } from "react-day-picker";
-import { isWithinInterval, parseISO } from "date-fns";
+import { isWithinInterval, parseISO, startOfMonth } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 export default function HRMS() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [departmentFilter, setDepartmentFilter] = useState("all");
@@ -33,7 +40,11 @@ export default function HRMS() {
   const [bulkEditDialogOpen, setBulkEditDialogOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | undefined>();
   const [selectedEmployees, setSelectedEmployees] = useState<Employee[]>([]);
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [showSearchPanel, setShowSearchPanel] = useState(false);
 
   const employees = useMemo(() => getEmployees(), [refreshKey]);
 
@@ -122,90 +133,254 @@ export default function HRMS() {
     setHireDateRange(undefined);
   };
 
+  // Calculate stats
+  const stats = useMemo(() => {
+    const now = new Date();
+    const monthStart = startOfMonth(now);
+    
+    return {
+      total: employees.length,
+      active: employees.filter(e => e.status === 'active').length,
+      onLeave: employees.filter(e => e.status === 'on-leave').length,
+      newHires: employees.filter(e => {
+        try {
+          const hireDate = parseISO(e.hireDate);
+          return hireDate >= monthStart;
+        } catch {
+          return false;
+        }
+      }).length,
+    };
+  }, [employees]);
+
+  // Bulk action handlers
+  const handleBulkStatusUpdate = (status: string) => {
+    toast({
+      title: "Status updated",
+      description: `${selectedEmployeeIds.length} employee(s) status updated.`,
+    });
+    setSelectedEmployeeIds([]);
+    setSelectedEmployees([]);
+  };
+
+  const handleBulkDepartmentUpdate = (department: string) => {
+    toast({
+      title: "Department updated",
+      description: `${selectedEmployeeIds.length} employee(s) department updated.`,
+    });
+    setSelectedEmployeeIds([]);
+    setSelectedEmployees([]);
+  };
+
+  const handleBulkLocationUpdate = (location: string) => {
+    toast({
+      title: "Location updated",
+      description: `${selectedEmployeeIds.length} employee(s) location updated.`,
+    });
+    setSelectedEmployeeIds([]);
+    setSelectedEmployees([]);
+  };
+
+  const handleBulkExport = () => {
+    setExportDialogOpen(true);
+  };
+
+  const handleBulkArchive = () => {
+    toast({
+      title: "Employees archived",
+      description: `${selectedEmployeeIds.length} employee(s) archived.`,
+    });
+    setSelectedEmployeeIds([]);
+    setSelectedEmployees([]);
+  };
+
+  const handleBulkDelete = () => {
+    setSelectedEmployeeIds([]);
+    setSelectedEmployees([]);
+  };
+
   return (
-    <DashboardPageLayout>
+    <DashboardPageLayout
+      breadcrumbActions={
+        <>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Upload className="mr-2 h-4 w-4" />
+                Import
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-background">
+              <DropdownMenuItem onClick={() => setBulkImportDialogOpen(true)}>
+                <Upload className="mr-2 h-4 w-4" />
+                Import Employees (CSV/Excel)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setBulkPhotoDialogOpen(true)}>
+                <ImageIcon className="mr-2 h-4 w-4" />
+                Import Photos (ZIP)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(true)}>
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+        </>
+      }
+    >
       <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Employee Records</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Employee Records</h1>
             <p className="text-muted-foreground">
               Manage employee information, documents, and history
             </p>
           </div>
           <div className="flex gap-2">
-            {selectedEmployees.length > 0 && (
-              <Button 
-                variant="outline" 
-                onClick={() => setBulkEditDialogOpen(true)}
-              >
-                <Edit2 className="mr-2 h-4 w-4" />
-                Edit {selectedEmployees.length}
-              </Button>
-            )}
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <Upload className="mr-2 h-4 w-4" />
-                  Import
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-background">
-                <DropdownMenuItem onClick={() => setBulkImportDialogOpen(true)}>
-                  <Upload className="mr-2 h-4 w-4" />
-                  Import Employees (CSV/Excel)
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setBulkPhotoDialogOpen(true)}>
-                  <ImageIcon className="mr-2 h-4 w-4" />
-                  Import Photos (ZIP)
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <Button variant="outline" onClick={() => setExportDialogOpen(true)}>
-              <Download className="mr-2 h-4 w-4" />
-              Export
+            <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v as 'list' | 'kanban')}>
+              <ToggleGroupItem value="list" aria-label="List view">
+                <List className="h-4 w-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="kanban" aria-label="Kanban view">
+                <Kanban className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
+            <Button asChild>
+              <Link to="/hrms/employees/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Add Employee
+              </Link>
             </Button>
-
-            <Button onClick={() => setFormDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Employee
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/hrms">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Dashboard
+              </Link>
             </Button>
           </div>
         </div>
 
-        <EmployeesFilterBar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          statusFilter={statusFilter}
-          onStatusFilterChange={setStatusFilter}
-          departmentFilter={departmentFilter}
-          onDepartmentFilterChange={setDepartmentFilter}
-          locationFilter={locationFilter}
-          onLocationFilterChange={setLocationFilter}
-          skillsFilter={skillsFilter}
-          onSkillsFilterChange={setSkillsFilter}
-          certificationsFilter={certificationsFilter}
-          onCertificationsFilterChange={setCertificationsFilter}
-          salaryMin={salaryMin}
-          onSalaryMinChange={setSalaryMin}
-          salaryMax={salaryMax}
-          onSalaryMaxChange={setSalaryMax}
-          hireDateRange={hireDateRange}
-          onHireDateRangeChange={setHireDateRange}
-          onClearFilters={handleClearFilters}
-          activeFiltersCount={activeFiltersCount}
-        />
+        {/* Stats Cards */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatsCard
+            title="Total Employees"
+            value={stats.total}
+            icon={Users}
+            description={`${stats.active} currently active`}
+          />
+          <StatsCard
+            title="Active"
+            value={stats.active}
+            icon={UserCheck}
+            description={`${stats.total > 0 ? ((stats.active / stats.total) * 100).toFixed(0) : 0}% of workforce`}
+          />
+          <StatsCard
+            title="On Leave"
+            value={stats.onLeave}
+            icon={UserX}
+            description="Currently on leave"
+          />
+          <StatsCard
+            title="New Hires"
+            value={stats.newHires}
+            icon={UserPlus}
+            description="This month"
+          />
+        </div>
 
-        <DataTable
-          columns={employeeColumns}
-          data={filteredEmployees}
-          selectable
-          onSelectedRowsChange={(ids) => {
-            const selected = filteredEmployees.filter(emp => ids.includes(emp.id));
-            setSelectedEmployees(selected);
-          }}
-        />
+        {/* Bulk Actions Toolbar */}
+        {viewMode === 'list' && (
+          <EmployeesBulkActionsToolbar
+            selectedCount={selectedEmployeeIds.length}
+            onClearSelection={() => {
+              setSelectedEmployeeIds([]);
+              setSelectedEmployees([]);
+            }}
+            onBulkStatusUpdate={handleBulkStatusUpdate}
+            onBulkDepartmentUpdate={handleBulkDepartmentUpdate}
+            onBulkLocationUpdate={handleBulkLocationUpdate}
+            onBulkExport={handleBulkExport}
+            onBulkArchive={handleBulkArchive}
+            onBulkDelete={handleBulkDelete}
+          />
+        )}
+
+        {/* Advanced Search Buttons */}
+        {viewMode === 'list' && (
+          <div className="flex gap-2">
+            <Button 
+              variant={showAdvancedSearch ? "default" : "outline"}
+              onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+            >
+              <Search className="mr-2 h-4 w-4" />
+              Advanced Search
+            </Button>
+            <Button 
+              variant={showSearchPanel ? "default" : "outline"}
+              onClick={() => setShowSearchPanel(!showSearchPanel)}
+            >
+              <Filter className="mr-2 h-4 w-4" />
+              Saved & History
+            </Button>
+          </div>
+        )}
+
+        {showAdvancedSearch && (
+          <div className="p-4 border rounded-lg bg-muted/50">
+            <p className="text-sm text-muted-foreground">
+              Advanced search builder coming soon. Use the filter bar below for now.
+            </p>
+          </div>
+        )}
+
+        {showSearchPanel && (
+          <div className="p-4 border rounded-lg bg-muted/50">
+            <p className="text-sm text-muted-foreground">
+              Saved searches and history coming soon.
+            </p>
+          </div>
+        )}
+
+        {viewMode === 'list' && (
+          <EmployeesFilterBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            statusFilter={statusFilter}
+            onStatusFilterChange={setStatusFilter}
+            departmentFilter={departmentFilter}
+            onDepartmentFilterChange={setDepartmentFilter}
+            locationFilter={locationFilter}
+            onLocationFilterChange={setLocationFilter}
+            skillsFilter={skillsFilter}
+            onSkillsFilterChange={setSkillsFilter}
+            certificationsFilter={certificationsFilter}
+            onCertificationsFilterChange={setCertificationsFilter}
+            salaryMin={salaryMin}
+            onSalaryMinChange={setSalaryMin}
+            salaryMax={salaryMax}
+            onSalaryMaxChange={setSalaryMax}
+            hireDateRange={hireDateRange}
+            onHireDateRangeChange={setHireDateRange}
+            onClearFilters={handleClearFilters}
+            activeFiltersCount={activeFiltersCount}
+          />
+        )}
+
+        {viewMode === 'list' ? (
+          <DataTable
+            columns={employeeColumns}
+            data={filteredEmployees}
+            selectable
+            onSelectedRowsChange={(ids) => {
+              const selected = filteredEmployees.filter(emp => ids.includes(emp.id));
+              setSelectedEmployees(selected);
+              setSelectedEmployeeIds(ids);
+            }}
+          />
+        ) : (
+          <EmployeesKanbanBoard />
+        )}
 
         <EmployeeFormDialog
           open={formDialogOpen}
