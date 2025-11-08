@@ -48,6 +48,9 @@ import TalentDevelopment from "./pages/TalentDevelopment";
 import LearningPathDetail from "./pages/LearningPathDetail";
 import CourseDetail from "./pages/CourseDetail";
 import HomePage from "./pages/HomePage";
+import NotificationCenterPage from "./pages/NotificationCenterPage";
+import EmployeeCreate from "./pages/EmployeeCreate";
+import LeaveRequestCreate from "./pages/LeaveRequestCreate";
 import Onboarding from "./pages/Onboarding";
 import OnboardingWorkflowDetail from "./pages/OnboardingWorkflowDetail";
 import TimeAttendance from "./pages/TimeAttendance";
@@ -117,6 +120,7 @@ function AppContent() {
             <Route path="/home" element={<HomePage />} />
             <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
             <Route path="/dashboard/:type" element={<Dashboard />} />
+            <Route path="/notifications" element={<NotificationCenterPage />} />
             <Route path="/candidates" element={<Candidates />} />
             <Route path="/candidates/new" element={<Candidates />} />
             <Route path="/candidates/:candidateId" element={<Candidates />} />
@@ -140,10 +144,12 @@ function AppContent() {
             <Route path="/recruitment-services" element={<RecruitmentServices />} />
             <Route path="/recruitment-services/:id" element={<ServiceProjectDetail />} />
             <Route path="/hrms" element={<HRMS />} />
+            <Route path="/hrms/employees/new" element={<EmployeeCreate />} />
             <Route path="/hrms/employees/:id" element={<EmployeeDetail />} />
             <Route path="/hrms/analytics" element={<HRAnalytics />} />
             <Route path="/hrms/org-chart" element={<OrgChart />} />
             <Route path="/leave" element={<LeaveManagement />} />
+            <Route path="/leave/new" element={<LeaveRequestCreate />} />
             <Route path="/performance" element={<Performance />} />
             <Route path="/performance/goals/new" element={<GoalCreate />} />
             <Route path="/performance/goals/:id" element={<GoalDetail />} />
