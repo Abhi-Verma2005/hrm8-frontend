@@ -7,15 +7,19 @@ import { DataTable } from '@/components/tables/DataTable';
 import { createConsultantColumns } from '@/components/consultants/ConsultantTableColumns';
 import { StatsCard } from '@/components/ui/stats-card';
 import { ConsultantsFilterBar } from '@/components/consultants/ConsultantsFilterBar';
-import { getAllConsultants, getConsultantStats } from '@/lib/consultantStorage';
+import { getAllConsultants, getConsultantStats, deleteConsultant } from '@/lib/consultantStorage';
 import { formatRevenue } from '@/lib/consultantUtils';
+import { exportConsultantsToCSV, downloadJSON } from '@/lib/exportUtils';
+import { ConsultantBulkActions } from '@/components/consultants/ConsultantBulkActions';
 import type { Consultant } from '@/types/consultant';
+import { toast } from 'sonner';
 
 export default function ConsultantsPage() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const consultants = getAllConsultants();
   const stats = getConsultantStats();
@@ -48,15 +52,40 @@ export default function ConsultantsPage() {
     setSearchTerm('');
   };
 
+  const handleExport = () => {
+    const selectedData = selectedIds.length > 0
+      ? consultants.filter(c => selectedIds.includes(c.id))
+      : filteredData;
+    exportConsultantsToCSV(selectedData);
+    toast.success(`Exported ${selectedData.length} consultant(s)`);
+  };
+
+  const handleImport = () => {
+    toast.info('Import functionality coming soon');
+  };
+
+  const handleBulkDelete = () => {
+    if (confirm(`Are you sure you want to delete ${selectedIds.length} consultant(s)?`)) {
+      selectedIds.forEach(id => deleteConsultant(id));
+      setSelectedIds([]);
+      toast.success(`Deleted ${selectedIds.length} consultant(s)`);
+      window.location.reload();
+    }
+  };
+
+  const handleBulkEmail = () => {
+    toast.info('Email functionality coming soon');
+  };
+
   return (
     <DashboardPageLayout
       breadcrumbActions={
         <>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleImport}>
             <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -128,6 +157,15 @@ export default function ConsultantsPage() {
           columns={createConsultantColumns()}
           data={filteredData}
           selectable
+          onSelectedRowsChange={setSelectedIds}
+        />
+
+        <ConsultantBulkActions
+          selectedCount={selectedIds.length}
+          onExport={handleExport}
+          onDelete={handleBulkDelete}
+          onSendEmail={handleBulkEmail}
+          onClearSelection={() => setSelectedIds([])}
         />
       </div>
     </DashboardPageLayout>

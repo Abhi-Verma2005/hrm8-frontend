@@ -33,8 +33,10 @@ import Help from "./pages/Help";
 import NotFound from "./pages/NotFound";
 import Employers from "./pages/Employers";
 import EmployerDetail from "./pages/EmployerDetail";
+import EmployerCreate from "./pages/EmployerCreate";
 import Consultants from "./pages/Consultants";
 import ConsultantDetail from "./pages/ConsultantDetail";
+import ConsultantCreate from "./pages/ConsultantCreate";
 import RecruitmentServices from "./pages/RecruitmentServices";
 import ServiceProjectDetail from "./pages/ServiceProjectDetail";
 import HRMS from "./pages/HRMS";
@@ -156,8 +158,10 @@ function AppContent() {
             <Route path="/interviews/schedule" element={<InterviewScheduling />} />
             <Route path="/offers/manage" element={<OfferManagement />} />
             <Route path="/employers" element={<Employers />} />
+            <Route path="/employers/new" element={<EmployerCreate />} />
             <Route path="/employers/:employerId" element={<EmployerDetail />} />
             <Route path="/consultants" element={<Consultants />} />
+            <Route path="/consultants/new" element={<ConsultantCreate />} />
             <Route path="/consultants/:id" element={<ConsultantDetail />} />
             <Route path="/recruitment-services" element={<RecruitmentServices />} />
             <Route path="/recruitment-services/:id" element={<ServiceProjectDetail />} />

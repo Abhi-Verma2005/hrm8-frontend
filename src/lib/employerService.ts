@@ -16,6 +16,20 @@ export function getEmployerById(id: string): Employer | undefined {
 }
 
 /**
+ * Create new employer
+ */
+export function createEmployer(employer: Omit<Employer, 'id' | 'createdAt' | 'updatedAt'>): Employer {
+  const newEmployer: Employer = {
+    ...employer,
+    id: `employer_${Date.now()}`,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  mockEmployers.push(newEmployer);
+  return newEmployer;
+}
+
+/**
  * Update employer
  */
 export function updateEmployer(id: string, updates: Partial<Employer>): Employer | undefined {
@@ -25,6 +39,18 @@ export function updateEmployer(id: string, updates: Partial<Employer>): Employer
     return mockEmployers[index];
   }
   return undefined;
+}
+
+/**
+ * Delete employer
+ */
+export function deleteEmployer(id: string): boolean {
+  const index = mockEmployers.findIndex(emp => emp.id === id);
+  if (index !== -1) {
+    mockEmployers.splice(index, 1);
+    return true;
+  }
+  return false;
 }
 
 /**

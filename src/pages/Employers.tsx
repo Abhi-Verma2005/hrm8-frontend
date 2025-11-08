@@ -7,10 +7,13 @@ import { DataTable } from "@/components/tables/DataTable";
 import { StatsCard } from "@/components/ui/stats-card";
 import { EmployersFilterBar } from "@/components/employers/EmployersFilterBar";
 import { createEmployerColumns } from "@/components/employers/EmployerTableColumns";
-import { getEmployers } from "@/lib/employerService";
+import { getEmployers, deleteEmployer } from "@/lib/employerService";
 import { formatRevenue } from "@/lib/employerUtils";
+import { exportEmployersToCSV } from "@/lib/exportUtils";
+import { EmployerBulkActions } from "@/components/employers/EmployerBulkActions";
 import type { Employer } from "@/types/entities";
 import type { SubscriptionTier } from "@/lib/subscriptionConfig";
+import { toast } from "sonner";
 
 export default function Employers() {
   const allEmployers = getEmployers();
@@ -20,6 +23,7 @@ export default function Employers() {
   const [countryFilter, setCountryFilter] = useState<string>('all');
   const [tierFilter, setTierFilter] = useState<SubscriptionTier | 'all'>('all');
   const [accountTypeFilter, setAccountTypeFilter] = useState<Employer['accountType'] | 'all'>('all');
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   // Filter logic
   const filteredEmployers = useMemo(() => {
@@ -95,17 +99,42 @@ export default function Employers() {
     setAccountTypeFilter('all');
   };
 
+  const handleExport = () => {
+    const selectedData = selectedIds.length > 0
+      ? allEmployers.filter(e => selectedIds.includes(e.id))
+      : filteredEmployers;
+    exportEmployersToCSV(selectedData);
+    toast.success(`Exported ${selectedData.length} employer(s)`);
+  };
+
+  const handleImport = () => {
+    toast.info('Import functionality coming soon');
+  };
+
+  const handleBulkDelete = () => {
+    if (confirm(`Are you sure you want to delete ${selectedIds.length} employer(s)?`)) {
+      selectedIds.forEach(id => deleteEmployer(id));
+      setSelectedIds([]);
+      toast.success(`Deleted ${selectedIds.length} employer(s)`);
+      window.location.reload();
+    }
+  };
+
+  const handleBulkEmail = () => {
+    toast.info('Email functionality coming soon');
+  };
+
   const columns = createEmployerColumns();
 
   return (
     <DashboardPageLayout
       breadcrumbActions={
         <>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleImport}>
             <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -184,6 +213,15 @@ export default function Employers() {
           columns={columns}
           data={filteredEmployers}
           selectable
+          onSelectedRowsChange={setSelectedIds}
+        />
+
+        <EmployerBulkActions
+          selectedCount={selectedIds.length}
+          onExport={handleExport}
+          onDelete={handleBulkDelete}
+          onSendEmail={handleBulkEmail}
+          onClearSelection={() => setSelectedIds([])}
         />
       </div>
     </DashboardPageLayout>
