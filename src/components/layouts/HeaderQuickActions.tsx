@@ -48,7 +48,7 @@ export function HeaderQuickActions() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => console.log("Add Candidate")}
+              onClick={() => navigate('/candidates/new')}
             >
               <UserPlus className="h-4 w-4" />
             </Button>
@@ -63,7 +63,7 @@ export function HeaderQuickActions() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => console.log("Schedule Interview")}
+              onClick={() => navigate('/calendar')}
             >
               <Calendar className="h-4 w-4" />
             </Button>

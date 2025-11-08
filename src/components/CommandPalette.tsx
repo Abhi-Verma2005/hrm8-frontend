@@ -182,7 +182,7 @@ export function CommandPalette() {
       description: 'Add a new candidate',
       icon: UserPlus,
       action: () => {
-        navigate('/candidates');
+        navigate('/candidates/new');
         setOpen(false);
       },
       category: 'actions',
