@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,7 +11,7 @@ import { BasicInfoStep } from './forms/BasicInfoStep';
 import { ProfessionalDetailsStep } from './forms/ProfessionalDetailsStep';
 import { PreferencesStep } from './forms/PreferencesStep';
 import { DocumentsStep} from './forms/DocumentsStep';
-import { useCandidateFormDraft } from '@/hooks/useCandidateFormDraft';
+import { DraftRestoreAlert } from '@/components/common/DraftRestoreAlert';
 import { Candidate } from '@/types/entities';
 import { toast } from 'sonner';
 
@@ -69,6 +69,11 @@ interface CandidateFormWizardProps {
 export function CandidateFormWizard({ candidate, onSave, onCancel }: CandidateFormWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [showDraftAlert, setShowDraftAlert] = useState(false);
+  const [draftTimestamp, setDraftTimestamp] = useState<string | null>(null);
+  const [autosaveTimeout, setAutosaveTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  const draftKey = `candidate_form_draft_${candidate?.id || 'new'}`;
 
   const form = useForm<CandidateFormData>({
     resolver: zodResolver(candidateFormSchema),
@@ -103,7 +108,119 @@ export function CandidateFormWizard({ candidate, onSave, onCancel }: CandidateFo
     },
   });
 
-  const { clearDraft, saveDraft } = useCandidateFormDraft(candidate?.id, form);
+  // Check for existing draft on mount
+  useEffect(() => {
+    if (candidate?.id) return; // Don't restore for edit mode
+    
+    try {
+      const stored = localStorage.getItem(draftKey);
+      if (stored) {
+        const { data, timestamp } = JSON.parse(stored);
+        
+        // Check if draft is not too old (24 hours)
+        const age = Date.now() - new Date(timestamp).getTime();
+        const maxAge = 24 * 60 * 60 * 1000;
+        
+        if (age < maxAge) {
+          setDraftTimestamp(timestamp);
+          setShowDraftAlert(true);
+        } else {
+          localStorage.removeItem(draftKey);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load draft:', error);
+    }
+  }, [draftKey, candidate?.id]);
+
+  // Auto-save form data
+  useEffect(() => {
+    if (candidate?.id || showDraftAlert) return;
+
+    const subscription = form.watch((data) => {
+      if (autosaveTimeout) {
+        clearTimeout(autosaveTimeout);
+      }
+
+      const timeout = setTimeout(() => {
+        try {
+          localStorage.setItem(
+            draftKey,
+            JSON.stringify({
+              data,
+              timestamp: new Date().toISOString(),
+              step: currentStep,
+            })
+          );
+        } catch (error) {
+          console.error('Failed to save draft:', error);
+        }
+      }, 2000);
+
+      setAutosaveTimeout(timeout);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+      if (autosaveTimeout) {
+        clearTimeout(autosaveTimeout);
+      }
+    };
+  }, [form, draftKey, candidate?.id, currentStep, showDraftAlert, autosaveTimeout]);
+
+  const handleRestoreDraft = () => {
+    try {
+      const stored = localStorage.getItem(draftKey);
+      if (stored) {
+        const { data, step } = JSON.parse(stored);
+        form.reset(data);
+        setCurrentStep(step || 0);
+        setShowDraftAlert(false);
+        toast.success('Draft restored successfully');
+      }
+    } catch (error) {
+      console.error('Failed to restore draft:', error);
+      toast.error('Failed to restore draft');
+    }
+  };
+
+  const handleDiscardDraft = () => {
+    try {
+      localStorage.removeItem(draftKey);
+      setShowDraftAlert(false);
+      toast.info('Draft discarded');
+    } catch (error) {
+      console.error('Failed to discard draft:', error);
+    }
+  };
+
+  const clearDraft = () => {
+    try {
+      localStorage.removeItem(draftKey);
+    } catch (error) {
+      console.error('Failed to clear draft:', error);
+    }
+  };
+
+  const handleSaveDraft = () => {
+    try {
+      const data = form.getValues();
+      localStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          data,
+          timestamp: new Date().toISOString(),
+          step: currentStep,
+        })
+      );
+      toast.success('Draft saved successfully');
+    } catch (error) {
+      console.error('Failed to save draft:', error);
+      toast.error('Failed to save draft');
+    }
+  };
+
+  const { clearDraft: _unusedClearDraft, saveDraft: _unusedSaveDraft } = { clearDraft: () => {}, saveDraft: () => {} };
 
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
@@ -124,7 +241,6 @@ export function CandidateFormWizard({ candidate, onSave, onCancel }: CandidateFo
     const isValid = await validateCurrentStep();
     if (isValid && currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
-      saveDraft();
     }
   };
 
@@ -132,11 +248,6 @@ export function CandidateFormWizard({ candidate, onSave, onCancel }: CandidateFo
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
-  };
-
-  const handleSaveDraft = () => {
-    saveDraft();
-    toast.success('Draft saved successfully');
   };
 
   const onSubmit = async (data: CandidateFormData) => {
@@ -195,6 +306,15 @@ export function CandidateFormWizard({ candidate, onSave, onCancel }: CandidateFo
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      {/* Draft Restore Alert */}
+      {showDraftAlert && draftTimestamp && (
+        <DraftRestoreAlert
+          timestamp={draftTimestamp}
+          onRestore={handleRestoreDraft}
+          onDiscard={handleDiscardDraft}
+        />
+      )}
+
       {/* Progress Header */}
       <Card className="p-6">
         <div className="space-y-4">

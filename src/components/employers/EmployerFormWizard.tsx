@@ -82,6 +82,8 @@ export function EmployerFormWizard({ employer, onSave, onCancel }: EmployerFormW
       onSave={handleSave}
       onCancel={onCancel}
       entityName="Employer"
+      entityId={employer?.id}
+      enableAutosave={true}
     />
   );
 }

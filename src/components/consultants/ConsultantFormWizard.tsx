@@ -102,6 +102,8 @@ export function ConsultantFormWizard({ consultant, onSave, onCancel }: Consultan
       onSave={handleSave}
       onCancel={onCancel}
       entityName="Consultant"
+      entityId={consultant?.id}
+      enableAutosave={true}
     />
   );
 }
