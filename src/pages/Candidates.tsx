@@ -42,6 +42,8 @@ export default function Candidates() {
   const [advancedSearchGroups, setAdvancedSearchGroups] = useState<SearchGroup[]>([]);
   const [advancedSearchOperator, setAdvancedSearchOperator] = useState<'AND' | 'OR'>('AND');
   const [showSearchPanel, setShowSearchPanel] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
   
@@ -333,6 +335,18 @@ export default function Candidates() {
     });
   };
 
+  const handleImportCandidates = async (
+    candidatesData: Partial<Candidate>[],
+    duplicateAction: 'skip' | 'update' | 'create'
+  ) => {
+    console.log("Importing candidates:", candidatesData, "Action:", duplicateAction);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    toast({
+      title: "Import successful",
+      description: `${candidatesData.length} candidates imported`,
+    });
+  };
+
   const stats = useMemo(() => ({
     total: candidates.length,
     active: candidates.filter(c => c.status === 'active').length,
@@ -344,10 +358,6 @@ export default function Candidates() {
     <DashboardPageLayout
       breadcrumbActions={
         <>
-          <Button variant="outline" size="sm">
-            <Upload className="mr-2 h-4 w-4" />
-            Import
-          </Button>
           <Button variant="outline" size="sm" onClick={() => setShowImportDialog(true)}>
             <Upload className="mr-2 h-4 w-4" />
             Import
@@ -519,7 +529,7 @@ export default function Candidates() {
       <CandidateImportDialog
         open={showImportDialog}
         onOpenChange={setShowImportDialog}
-        existingCandidates={mockCandidates}
+        existingCandidates={candidates}
         onImport={handleImportCandidates}
       />
 
