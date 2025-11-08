@@ -1,29 +1,30 @@
-import { Permission } from "@/types/employerUser";
+import { Permission, UserRole } from "@/types/employerUser";
+import { getEffectivePermissions } from "@/lib/employerUserPermissions";
+import { useMemo } from "react";
 
 // Mock current user - in production, this would come from auth context
 const mockCurrentUser = {
   id: 'user-1',
-  role: 'admin' as const,
-  permissions: [
-    'employees.view', 'employees.create', 'employees.edit', 'employees.delete',
-    'payroll.view', 'payroll.process', 'payroll.approve',
-    'attendance.view', 'attendance.manage', 'attendance.approve',
-    'leave.view', 'leave.apply', 'leave.approve',
-    'documents.view', 'documents.upload', 'documents.delete',
-    'benefits.view', 'benefits.manage', 'benefits.enroll',
-    'expenses.view', 'expenses.submit', 'expenses.approve',
-    'compensation.view', 'compensation.manage', 'compensation.approve',
-    'onboarding.view', 'onboarding.manage',
-    'offboarding.view', 'offboarding.manage',
-    'recruitment.view', 'recruitment.manage',
-    'settings.view', 'settings.manage',
-    'reports.view', 'reports.export',
-  ] as Permission[],
+  role: 'admin' as UserRole,
+  // Mock employer context - in production, would come from context/auth
+  employerId: 'employer-1',
+  modules: {
+    atsEnabled: true,
+    hrmsEnabled: true,
+  },
 };
 
 export function usePermissions() {
+  // Calculate effective permissions based on enabled modules
+  const effectivePermissions = useMemo(() => {
+    return getEffectivePermissions(mockCurrentUser.role, {
+      atsEnabled: mockCurrentUser.modules.atsEnabled,
+      hrmsEnabled: mockCurrentUser.modules.hrmsEnabled,
+    });
+  }, [mockCurrentUser.role, mockCurrentUser.modules.atsEnabled, mockCurrentUser.modules.hrmsEnabled]);
+
   const hasPermission = (permission: Permission): boolean => {
-    return mockCurrentUser.permissions.includes(permission);
+    return effectivePermissions.includes(permission);
   };
 
   const hasAnyPermission = (permissions: Permission[]): boolean => {
@@ -36,6 +37,7 @@ export function usePermissions() {
 
   return {
     user: mockCurrentUser,
+    permissions: effectivePermissions,
     hasPermission,
     hasAnyPermission,
     hasAllPermissions,
