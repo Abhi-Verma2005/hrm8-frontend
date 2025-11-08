@@ -27,6 +27,12 @@ import { PendingFeedbackRequests } from './PendingFeedbackRequests';
 import { FeedbackResponseTracker } from './FeedbackResponseTracker';
 import FeedbackLiveCollaboration from './FeedbackLiveCollaboration';
 import { useFeedbackPresence } from '@/hooks/useFeedbackPresence';
+import { useTypingIndicator } from '@/hooks/useTypingIndicator';
+import { TypingIndicator } from './TypingIndicator';
+import { ActivityFeed } from './ActivityFeed';
+import { CommentThreads } from './CommentThreads';
+import { FeedbackVersionHistory } from './FeedbackVersionHistory';
+import { FeedbackExporter } from './FeedbackExporter';
 import { formatDistanceToNow } from 'date-fns';
 import { ThumbsUp, ThumbsDown, AlertCircle, MessageSquare, TrendingUp, Users } from 'lucide-react';
 
@@ -53,6 +59,12 @@ export function CollaborativeFeedbackPanel({
     currentUserId: 'current-user',
     currentUserName: 'John Doe',
     currentUserRole: 'Hiring Manager',
+  });
+
+  // Typing indicators
+  const { typingUsers, startTyping, stopTyping } = useTypingIndicator({
+    candidateId,
+    currentUserId: 'current-user',
   });
 
   const loadData = () => {
@@ -175,7 +187,7 @@ export function CollaborativeFeedbackPanel({
       )}
 
       <Tabs defaultValue="feedback" className="w-full">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-9">
           <TabsTrigger value="feedback">Team Feedback ({feedback.length})</TabsTrigger>
           <TabsTrigger value="tracking">Response Tracking</TabsTrigger>
           <TabsTrigger value="consensus">Consensus</TabsTrigger>
@@ -183,19 +195,25 @@ export function CollaborativeFeedbackPanel({
           <TabsTrigger value="requests">Requests</TabsTrigger>
           <TabsTrigger value="decision">Decision</TabsTrigger>
           <TabsTrigger value="provide">Provide Feedback</TabsTrigger>
+          <TabsTrigger value="discussion">Discussion</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
 
         {/* Individual Feedback Tab */}
         <TabsContent value="feedback" className="space-y-4">
-          <div className="flex justify-end gap-2">
-            <FeedbackRequestDialog 
-              candidateId={candidateId}
-              candidateName={candidateName}
-            />
-            <BulkFeedbackRequestDialog 
-              candidateId={candidateId}
-              candidateName={candidateName}
-            />
+          <div className="flex justify-between items-center">
+            <TypingIndicator typingUsers={typingUsers} />
+            <div className="flex gap-2">
+              <FeedbackExporter candidateId={candidateId} candidateName={candidateName} />
+              <FeedbackRequestDialog 
+                candidateId={candidateId}
+                candidateName={candidateName}
+              />
+              <BulkFeedbackRequestDialog 
+                candidateId={candidateId}
+                candidateName={candidateName}
+              />
+            </div>
           </div>
           {feedback.length > 0 && (
             <FeedbackFilterBar
@@ -328,9 +346,18 @@ export function CollaborativeFeedbackPanel({
         {/* Provide Feedback Tab */}
         <TabsContent value="provide">
           <div 
-            onFocus={() => updatePresence('editing', 'ratings')}
-            onBlur={() => updatePresence('viewing')}
+            onFocus={() => {
+              updatePresence('editing', 'ratings');
+              startTyping('ratings');
+            }}
+            onBlur={() => {
+              updatePresence('viewing');
+              stopTyping();
+            }}
           >
+            <div className="mb-4">
+              <TypingIndicator typingUsers={typingUsers} section="ratings" />
+            </div>
             <CollaborativeFeedbackForm
               candidateId={candidateId}
               candidateName={candidateName}
@@ -341,6 +368,16 @@ export function CollaborativeFeedbackPanel({
               }}
             />
           </div>
+        </TabsContent>
+
+        {/* Discussion Tab */}
+        <TabsContent value="discussion">
+          <CommentThreads candidateId={candidateId} feedbackId={feedback[0]?.id} />
+        </TabsContent>
+
+        {/* Activity Tab */}
+        <TabsContent value="activity">
+          <ActivityFeed candidateId={candidateId} />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,6 +1,7 @@
 import { CollaborativeFeedbackPanel } from '@/components/feedback/CollaborativeFeedbackPanel';
 import { FeedbackRequestDialog } from '@/components/feedback/FeedbackRequestDialog';
 import { BulkFeedbackRequestDialog } from '@/components/feedback/BulkFeedbackRequestDialog';
+import { FeedbackExporter } from '@/components/feedback/FeedbackExporter';
 import { Card, CardContent } from '@/components/ui/card';
 import { MessageSquare } from 'lucide-react';
 
@@ -18,6 +19,10 @@ export function CandidateFeedbackTab({ candidateId, candidateName }: CandidateFe
           <h3 className="text-lg font-semibold">Team Feedback & Evaluation</h3>
         </div>
         <div className="flex gap-2">
+          <FeedbackExporter 
+            candidateId={candidateId}
+            candidateName={candidateName}
+          />
           <FeedbackRequestDialog 
             candidateId={candidateId}
             candidateName={candidateName}

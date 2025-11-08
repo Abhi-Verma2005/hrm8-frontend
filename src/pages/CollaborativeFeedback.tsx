@@ -12,6 +12,9 @@ import { FeedbackAnalyticsChart } from '@/components/feedback/FeedbackAnalyticsC
 import { FeedbackTemplateManager } from '@/components/feedback/FeedbackTemplateManager';
 import { FeedbackSystemOverview } from '@/components/feedback/FeedbackSystemOverview';
 import { DecisionRecorder } from '@/components/feedback/DecisionRecorder';
+import { ActivityFeed } from '@/components/feedback/ActivityFeed';
+import { NotificationCenter } from '@/components/feedback/NotificationCenter';
+import { TeamPerformanceAnalytics } from '@/components/feedback/TeamPerformanceAnalytics';
 import { Users, BarChart3, Settings, TrendingUp, Bell, FileText, LayoutDashboard, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -115,11 +118,13 @@ export default function CollaborativeFeedback() {
         </div>
 
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="feedback">Candidate Feedback</TabsTrigger>
             <TabsTrigger value="comparison">Comparison Report</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="performance">Team Performance</TabsTrigger>
+            <TabsTrigger value="activity">Activity Feed</TabsTrigger>
             <TabsTrigger value="templates">Templates</TabsTrigger>
             <TabsTrigger value="settings">Rating Criteria</TabsTrigger>
             <TabsTrigger value="decisions">Decisions</TabsTrigger>
@@ -210,6 +215,16 @@ export default function CollaborativeFeedback() {
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-4">
             <FeedbackAnalyticsChart />
+          </TabsContent>
+
+          {/* Team Performance Tab */}
+          <TabsContent value="performance" className="space-y-4">
+            <TeamPerformanceAnalytics />
+          </TabsContent>
+
+          {/* Activity Feed Tab */}
+          <TabsContent value="activity" className="space-y-4">
+            <ActivityFeed />
           </TabsContent>
 
           {/* Templates Tab */}
