@@ -1,7 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormInput, FormSelect } from '@/components/common/form-fields';
 
 interface EmployeeJobDetailsStepProps {
   form: UseFormReturn<any>;
@@ -13,136 +11,75 @@ export function EmployeeJobDetailsStep({ form }: EmployeeJobDetailsStepProps) {
       <div>
         <h3 className="text-lg font-semibold mb-4">Job Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="jobTitle"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Job Title *</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Software Engineer" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Job Title"
+            placeholder="Software Engineer"
+            required
           />
           
-          <FormField
-            control={form.control}
+          <FormSelect
+            form={form}
             name="department"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Department</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select department" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="Engineering">Engineering</SelectItem>
-                    <SelectItem value="Sales">Sales</SelectItem>
-                    <SelectItem value="Marketing">Marketing</SelectItem>
-                    <SelectItem value="HR">HR</SelectItem>
-                    <SelectItem value="Finance">Finance</SelectItem>
-                    <SelectItem value="Operations">Operations</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Department"
+            placeholder="Select department"
+            options={[
+              { value: 'Engineering', label: 'Engineering' },
+              { value: 'Sales', label: 'Sales' },
+              { value: 'Marketing', label: 'Marketing' },
+              { value: 'HR', label: 'HR' },
+              { value: 'Finance', label: 'Finance' },
+              { value: 'Operations', label: 'Operations' },
+            ]}
           />
           
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Location</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="San Francisco, CA" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Location"
+            placeholder="San Francisco, CA"
           />
           
-          <FormField
-            control={form.control}
+          <FormSelect
+            form={form}
             name="employmentType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Employment Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="full-time">Full-time</SelectItem>
-                    <SelectItem value="part-time">Part-time</SelectItem>
-                    <SelectItem value="contract">Contract</SelectItem>
-                    <SelectItem value="intern">Intern</SelectItem>
-                    <SelectItem value="casual">Casual</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Employment Type"
+            options={[
+              { value: 'full-time', label: 'Full-time' },
+              { value: 'part-time', label: 'Part-time' },
+              { value: 'contract', label: 'Contract' },
+              { value: 'intern', label: 'Intern' },
+              { value: 'casual', label: 'Casual' },
+            ]}
           />
           
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="hireDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Hire Date *</FormLabel>
-                <FormControl>
-                  <Input {...field} type="date" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Hire Date"
+            type="date"
+            required
           />
           
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="startDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Start Date</FormLabel>
-                <FormControl>
-                  <Input {...field} type="date" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Start Date"
+            type="date"
           />
           
-          <FormField
-            control={form.control}
+          <FormSelect
+            form={form}
             name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Employment Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="on-leave">On Leave</SelectItem>
-                    <SelectItem value="notice-period">Notice Period</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="terminated">Terminated</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Employment Status"
+            options={[
+              { value: 'active', label: 'Active' },
+              { value: 'on-leave', label: 'On Leave' },
+              { value: 'notice-period', label: 'Notice Period' },
+              { value: 'inactive', label: 'Inactive' },
+              { value: 'terminated', label: 'Terminated' },
+            ]}
           />
         </div>
       </div>

@@ -1,8 +1,7 @@
 import { UseFormReturn } from 'react-hook-form';
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
+import { FormInput, FormSelect, FormTextarea } from '@/components/common/form-fields';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
 import { useState } from 'react';
@@ -31,118 +30,75 @@ export function ConsultantProfessionalStep({ form }: ConsultantProfessionalStepP
       <div>
         <h3 className="text-lg font-semibold mb-4">Professional Details</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
+          <FormSelect
+            form={form}
             name="type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Consultant Type *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="sales-rep">Sales Representative</SelectItem>
-                    <SelectItem value="recruiter">Recruiter</SelectItem>
-                    <SelectItem value="360-consultant">360 Consultant</SelectItem>
-                    <SelectItem value="industry-partner">Industry Partner</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Consultant Type"
+            placeholder="Select type"
+            required
+            options={[
+              { value: 'sales-rep', label: 'Sales Representative' },
+              { value: 'recruiter', label: 'Recruiter' },
+              { value: '360-consultant', label: '360 Consultant' },
+              { value: 'industry-partner', label: 'Industry Partner' },
+            ]}
           />
 
-          <FormField
-            control={form.control}
+          <FormSelect
+            form={form}
             name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="on-leave">On Leave</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="suspended">Suspended</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Status"
+            placeholder="Select status"
+            required
+            options={[
+              { value: 'active', label: 'Active' },
+              { value: 'on-leave', label: 'On Leave' },
+              { value: 'inactive', label: 'Inactive' },
+              { value: 'suspended', label: 'Suspended' },
+            ]}
           />
 
-          <FormField
-            control={form.control}
+          <FormSelect
+            form={form}
             name="employmentType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Employment Type *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="full-time">Full-time</SelectItem>
-                    <SelectItem value="part-time">Part-time</SelectItem>
-                    <SelectItem value="contract">Contract</SelectItem>
-                    <SelectItem value="freelance">Freelance</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Employment Type"
+            placeholder="Select type"
+            required
+            options={[
+              { value: 'full-time', label: 'Full-time' },
+              { value: 'part-time', label: 'Part-time' },
+              { value: 'contract', label: 'Contract' },
+              { value: 'freelance', label: 'Freelance' },
+            ]}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="yearsOfExperience"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Years of Experience *</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    placeholder="5"
-                    {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Years of Experience"
+            type="number"
+            placeholder="5"
+            required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="title"
-            render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormLabel>Job Title</FormLabel>
-                <FormControl>
-                  <Input placeholder="Senior Recruiter" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Job Title"
+            placeholder="Senior Recruiter"
+            className="md:col-span-2"
           />
 
+          {/* Specializations field - custom implementation needed for tags */}
           <FormField
             control={form.control}
             name="specialization"
             render={({ field }) => (
               <FormItem className="md:col-span-2">
-                <FormLabel>Specializations *</FormLabel>
+                <FormLabel>
+                  Specializations
+                  <span className="text-destructive ml-1">*</span>
+                </FormLabel>
                 <FormControl>
                   <div className="space-y-2">
                     <Input
@@ -178,22 +134,13 @@ export function ConsultantProfessionalStep({ form }: ConsultantProfessionalStepP
             )}
           />
 
-          <FormField
-            control={form.control}
+          <FormTextarea
+            form={form}
             name="bio"
-            render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormLabel>Bio</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Brief professional biography..."
-                    className="min-h-[100px]"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Bio"
+            placeholder="Brief professional biography..."
+            rows={4}
+            className="md:col-span-2"
           />
         </div>
       </div>

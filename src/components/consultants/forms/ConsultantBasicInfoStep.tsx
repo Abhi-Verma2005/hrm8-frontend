@@ -1,6 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { FormInput } from '@/components/common/form-fields';
 
 interface ConsultantBasicInfoStepProps {
   form: UseFormReturn<any>;
@@ -12,103 +11,64 @@ export function ConsultantBasicInfoStep({ form }: ConsultantBasicInfoStepProps) 
       <div>
         <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="firstName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>First Name *</FormLabel>
-                <FormControl>
-                  <Input placeholder="John" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="First Name"
+            placeholder="John"
+            required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="lastName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Last Name *</FormLabel>
-                <FormControl>
-                  <Input placeholder="Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Last Name"
+            placeholder="Doe"
+            required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email *</FormLabel>
-                <FormControl>
-                  <Input type="email" placeholder="john.doe@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Email"
+            type="email"
+            placeholder="john.doe@example.com"
+            required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone *</FormLabel>
-                <FormControl>
-                  <Input placeholder="+1 (555) 123-4567" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Phone"
+            type="tel"
+            placeholder="+1 (555) 123-4567"
+            required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Location *</FormLabel>
-                <FormControl>
-                  <Input placeholder="San Francisco, CA" {...field} />
-                </FormControl>
-                <FormDescription>City, State format</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Location"
+            placeholder="San Francisco, CA"
+            description="City, State format"
+            required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="country"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Country *</FormLabel>
-                <FormControl>
-                  <Input placeholder="United States" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Country"
+            placeholder="United States"
+            required
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="linkedInUrl"
-            render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormLabel>LinkedIn URL</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://linkedin.com/in/johndoe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="LinkedIn URL"
+            type="url"
+            placeholder="https://linkedin.com/in/johndoe"
+            className="md:col-span-2"
           />
         </div>
       </div>

@@ -1,7 +1,5 @@
 import { UseFormReturn } from 'react-hook-form';
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, FormDescription } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FormInput, FormSelect } from '@/components/common/form-fields';
 
 interface EmployerAccountStepProps {
   form: UseFormReturn<any>;
@@ -13,88 +11,48 @@ export function EmployerAccountStep({ form }: EmployerAccountStepProps) {
       <div>
         <h3 className="text-lg font-semibold mb-4">Account Setup</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
+          <FormSelect
+            form={form}
             name="accountType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Account Type *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="payg">Pay-as-you-go</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormDescription>Approved accounts have credit terms</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Account Type"
+            placeholder="Select type"
+            description="Approved accounts have credit terms"
+            required
+            options={[
+              { value: 'approved', label: 'Approved' },
+              { value: 'payg', label: 'Pay-as-you-go' },
+            ]}
           />
 
-          <FormField
-            control={form.control}
+          <FormSelect
+            form={form}
             name="status"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Status *</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="trial">Trial</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="expired">Expired</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Status"
+            placeholder="Select status"
+            required
+            options={[
+              { value: 'active', label: 'Active' },
+              { value: 'pending', label: 'Pending' },
+              { value: 'trial', label: 'Trial' },
+              { value: 'inactive', label: 'Inactive' },
+              { value: 'expired', label: 'Expired' },
+            ]}
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="creditLimit"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Credit Limit</FormLabel>
-                <FormControl>
-                  <Input
-                    type="number"
-                    min="0"
-                    step="1000"
-                    placeholder="10000"
-                    {...field}
-                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                  />
-                </FormControl>
-                <FormDescription>For approved accounts</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Credit Limit"
+            type="number"
+            placeholder="10000"
+            description="For approved accounts"
           />
 
-          <FormField
-            control={form.control}
+          <FormInput
+            form={form}
             name="paymentTerms"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Payment Terms</FormLabel>
-                <FormControl>
-                  <Input placeholder="Net 30, Net 60, etc." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            label="Payment Terms"
+            placeholder="Net 30, Net 60, etc."
           />
         </div>
       </div>
