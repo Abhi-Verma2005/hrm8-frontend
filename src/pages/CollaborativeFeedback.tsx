@@ -8,7 +8,10 @@ import { Input } from '@/components/ui/input';
 import { CollaborativeFeedbackPanel } from '@/components/feedback/CollaborativeFeedbackPanel';
 import { CandidateComparisonReport } from '@/components/feedback/CandidateComparisonReport';
 import { DraggableRatingCriteria } from '@/components/feedback/DraggableRatingCriteria';
+import { MobileDraggableRatingCriteria } from '@/components/feedback/MobileDraggableRatingCriteria';
 import { FormLayoutCustomizer } from '@/components/feedback/FormLayoutCustomizer';
+import { MobileFormLayoutCustomizer } from '@/components/feedback/MobileFormLayoutCustomizer';
+import { useIsMobile } from '@/hooks/useMediaQuery';
 import { FeedbackAnalyticsChart } from '@/components/feedback/FeedbackAnalyticsChart';
 import { FeedbackTemplateManager } from '@/components/feedback/FeedbackTemplateManager';
 import { FeedbackSystemOverview } from '@/components/feedback/FeedbackSystemOverview';
@@ -20,6 +23,7 @@ import { Users, BarChart3, Settings, TrendingUp, Bell, FileText, LayoutDashboard
 import { Link } from 'react-router-dom';
 
 export default function CollaborativeFeedback() {
+  const isMobile = useIsMobile();
   const [selectedCandidateId, setSelectedCandidateId] = useState<string>('');
   const [comparisonCandidateIds, setComparisonCandidateIds] = useState<string[]>([]);
   const [candidateIdInput, setCandidateIdInput] = useState('');
@@ -235,8 +239,17 @@ export default function CollaborativeFeedback() {
 
           {/* Rating Criteria Tab */}
           <TabsContent value="settings" className="space-y-4">
-            <DraggableRatingCriteria />
-            <FormLayoutCustomizer />
+            {isMobile ? (
+              <>
+                <MobileDraggableRatingCriteria />
+                <MobileFormLayoutCustomizer />
+              </>
+            ) : (
+              <>
+                <DraggableRatingCriteria />
+                <FormLayoutCustomizer />
+              </>
+            )}
           </TabsContent>
 
           {/* Decisions Tab */}

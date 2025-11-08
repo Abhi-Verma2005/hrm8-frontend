@@ -33,10 +33,13 @@ import {
 import { getFeedbackRequests, sendReminder, completeRequest } from '@/lib/feedbackRequestService';
 import { FeedbackRequest } from '@/types/feedbackRequest';
 import { BulkActionsToolbar } from './BulkActionsToolbar';
+import { MobileFeedbackRequestList } from './MobileFeedbackRequestList';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
+import { useIsMobile } from '@/hooks/useMediaQuery';
 
 export function FeedbackRequestDashboard() {
+  const isMobile = useIsMobile();
   const [requests, setRequests] = useState<FeedbackRequest[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<FeedbackRequest[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -306,7 +309,15 @@ export function FeedbackRequestDashboard() {
           <CardTitle>All Requests ({filteredRequests.length})</CardTitle>
         </CardHeader>
         <CardContent>
-          {filteredRequests.length === 0 ? (
+          {isMobile ? (
+            <MobileFeedbackRequestList
+              requests={filteredRequests}
+              selectedIds={selectedIds}
+              onToggleSelect={handleToggleSelect}
+              onSendReminder={handleSendReminder}
+              onMarkComplete={handleMarkComplete}
+            />
+          ) : filteredRequests.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               No feedback requests found
             </div>
