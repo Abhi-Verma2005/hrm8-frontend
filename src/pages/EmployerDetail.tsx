@@ -28,6 +28,9 @@ import { initializeMockContacts } from "@/data/mockContactsData";
 import { initializeMockDocuments } from "@/data/mockDocumentsData";
 import { DocumentsTab } from "@/components/employers/detail/documents/DocumentsTab";
 import { SettingsTab } from "@/components/employers/detail/settings/SettingsTab";
+import { EmployerModulesCard } from "@/components/employers/cards/EmployerModulesCard";
+import { EmployerUsageMetricsCard } from "@/components/employers/cards/EmployerUsageMetricsCard";
+import { EmployerCRMCard } from "@/components/employers/cards/EmployerCRMCard";
 import { Employer } from "@/types/entities";
 import {
   DropdownMenu,
@@ -111,6 +114,7 @@ export default function EmployerDetail() {
             {/* Tabs Menu Items - Left side */}
             <TabsList className="flex-shrink-0">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="modules">Modules & Usage</TabsTrigger>
               <TabsTrigger value="users">Users</TabsTrigger>
               <TabsTrigger value="jobs">Jobs</TabsTrigger>
               <TabsTrigger value="locations">Locations & Departments</TabsTrigger>
@@ -163,6 +167,19 @@ export default function EmployerDetail() {
           {/* Overview Tab */}
           <TabsContent value="overview">
             <EmployerOverview employer={employer} />
+          </TabsContent>
+
+          {/* Modules & Usage Tab */}
+          <TabsContent value="modules">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <EmployerModulesCard employer={employer} />
+                <EmployerCRMCard employer={employer} />
+              </div>
+              <div>
+                <EmployerUsageMetricsCard employer={employer} />
+              </div>
+            </div>
           </TabsContent>
 
           {/* Users Tab */}

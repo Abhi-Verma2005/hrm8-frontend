@@ -54,7 +54,19 @@ export interface Employer {
   subscriptionTier: 'ats-lite' | 'payg' | 'small' | 'medium' | 'large' | 'enterprise';
   subscriptionStartDate?: Date;
   subscriptionEndDate?: Date;
-  subscriptionStatus?: 'active' | 'trial' | 'expired' | 'cancelled';
+  subscriptionRenewalDate?: Date;
+  subscriptionStatus?: 'active' | 'trial' | 'past_due' | 'expired' | 'cancelled';
+  billingCycle?: 'monthly' | 'annual';
+  paymentStatus?: 'current' | 'past_due' | 'failed';
+  trialEndsAt?: Date;
+
+  // Module Configuration
+  modules: {
+    atsEnabled: boolean;
+    hrmsEnabled: boolean;
+    hrmsEmployeeCount?: number;
+    enabledAddons: string[];
+  };
 
   // Job & User Limits
   maxOpenJobs: number;
@@ -62,7 +74,39 @@ export interface Employer {
   maxUsers: number;
   currentUsers: number;
   
+  // Usage Metrics
+  usage: {
+    activeJobs: number;
+    totalJobs: number;
+    activeCandidates: number;
+    totalCandidates: number;
+    activeEmployees: number;
+    totalEmployees: number;
+    activeUsers: number;
+    storageUsedMB: number;
+    apiCallsThisMonth: number;
+    lastLoginAt?: Date;
+  };
+  
   // CRM Fields
+  crm: {
+    salesStage: 'lead' | 'prospect' | 'trial' | 'customer' | 'at-risk' | 'churned';
+    leadSource?: 'website' | 'referral' | 'cold-outreach' | 'event' | 'partner' | 'other';
+    assignedToId?: string;
+    assignedToName?: string;
+    accountManagerId?: string;
+    accountManagerName?: string;
+    primaryContactName?: string;
+    primaryContactEmail?: string;
+    primaryContactPhone?: string;
+    tags: string[];
+    priority?: 'low' | 'medium' | 'high' | 'critical';
+    healthScore?: number; // 0-100
+    lifetimeValue?: number;
+    notes?: string;
+  };
+  
+  // Legacy Fields (for backward compatibility)
   activeJobCount: number; // Alias for activeJobs
   userCount: number; // Alias for currentUsers
   totalJobsPosted: number;

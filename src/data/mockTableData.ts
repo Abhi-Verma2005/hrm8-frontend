@@ -79,6 +79,11 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   let currentUsers = 1;
   let monthlySubscriptionFee: number | undefined = undefined;
   let hasUsedFreeTier = false;
+  let atsEnabled = true;
+  let hrmsEnabled = false;
+  let hrmsEmployeeCount = 0;
+  let enabledAddons: string[] = [];
+  let salesStage: 'lead' | 'prospect' | 'trial' | 'customer' | 'at-risk' | 'churned' = 'customer';
   
   if (i % 5 === 0) {
     // ATS Lite tier
@@ -88,6 +93,7 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
     currentOpenJobs = Math.floor(Math.random() * 3);
     maxUsers = Infinity;
     hasUsedFreeTier = i % 10 !== 0;
+    salesStage = i % 2 === 0 ? 'trial' : 'customer';
   } else if (i % 5 === 1) {
     // Small subscription
     subscriptionTier = 'small';
@@ -97,8 +103,9 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
     maxUsers = Infinity;
     currentUsers = Math.floor(Math.random() * 5) + 1;
     monthlySubscriptionFee = 295;
+    salesStage = 'customer';
   } else if (i % 5 === 2) {
-    // Medium subscription
+    // Medium subscription with HRMS
     subscriptionTier = 'medium';
     accountType = 'approved';
     maxOpenJobs = 25;
@@ -106,8 +113,12 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
     maxUsers = Infinity;
     currentUsers = Math.floor(Math.random() * 10) + 1;
     monthlySubscriptionFee = 495;
+    hrmsEnabled = i % 2 === 0;
+    hrmsEmployeeCount = hrmsEnabled ? 50 + Math.floor(Math.random() * 100) : 0;
+    enabledAddons = i % 3 === 0 ? ['assessments'] : [];
+    salesStage = 'customer';
   } else if (i % 5 === 3) {
-    // Large subscription
+    // Large subscription with HRMS
     subscriptionTier = 'large';
     accountType = 'approved';
     maxOpenJobs = 50;
@@ -115,6 +126,10 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
     maxUsers = Infinity;
     currentUsers = Math.floor(Math.random() * 20) + 1;
     monthlySubscriptionFee = 695;
+    hrmsEnabled = true;
+    hrmsEmployeeCount = 100 + Math.floor(Math.random() * 200);
+    enabledAddons = ['assessments', 'video-interviewing'];
+    salesStage = i % 10 === 3 ? 'at-risk' : 'customer';
   } else {
     // PAYG
     accountType = 'payg';
@@ -123,10 +138,16 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
     currentOpenJobs = Math.floor(Math.random() * 15);
     maxUsers = Infinity;
     currentUsers = Math.floor(Math.random() * 8) + 1;
+    salesStage = i % 3 === 0 ? 'prospect' : 'customer';
   }
   
   const totalJobsPosted = currentOpenJobs + Math.floor(Math.random() * 50);
   const createdDate = new Date(2023, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
+  const totalCandidates = Math.floor(Math.random() * 500) + 50;
+  const totalEmployees = hrmsEnabled ? hrmsEmployeeCount : 0;
+  const tags = ['tech', 'healthcare', 'finance', 'retail', 'manufacturing'].filter(() => Math.random() > 0.7);
+  const leadSources: Array<'website' | 'referral' | 'cold-outreach' | 'event' | 'partner' | 'other'> = 
+    ['website', 'referral', 'cold-outreach', 'event', 'partner', 'other'];
   
   return {
     id: `${i + 1}`,
@@ -145,10 +166,56 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
     subscriptionStatus: 'active',
     subscriptionStartDate: new Date(2024, 0, 1),
     subscriptionEndDate: new Date(2025, 0, 1),
+    subscriptionRenewalDate: new Date(2025, 0, 15),
+    billingCycle: i % 3 === 0 ? 'annual' : 'monthly',
+    paymentStatus: i % 15 === 0 ? 'past_due' : 'current',
+    trialEndsAt: salesStage === 'trial' ? new Date(2024, 11, 31) : undefined,
+    
+    // Module Configuration
+    modules: {
+      atsEnabled,
+      hrmsEnabled,
+      hrmsEmployeeCount: hrmsEnabled ? hrmsEmployeeCount : undefined,
+      enabledAddons
+    },
+    
     maxOpenJobs,
     currentOpenJobs,
     maxUsers,
     currentUsers,
+    
+    // Usage Metrics
+    usage: {
+      activeJobs: currentOpenJobs,
+      totalJobs: totalJobsPosted,
+      activeCandidates: Math.floor(totalCandidates * 0.3),
+      totalCandidates,
+      activeEmployees: totalEmployees,
+      totalEmployees,
+      activeUsers: currentUsers,
+      storageUsedMB: Math.floor(Math.random() * 5000) + 100,
+      apiCallsThisMonth: Math.floor(Math.random() * 10000) + 500,
+      lastLoginAt: new Date(2024, 11, Math.floor(Math.random() * 5) + 20)
+    },
+    
+    // CRM Fields
+    crm: {
+      salesStage,
+      leadSource: leadSources[i % leadSources.length],
+      assignedToId: `user-${(i % 5) + 1}`,
+      assignedToName: `${firstNames[i % 5]} ${lastNames[i % 5]}`,
+      accountManagerId: `user-${(i % 5) + 1}`,
+      accountManagerName: `${firstNames[i % 5]} ${lastNames[i % 5]}`,
+      primaryContactName: `${firstNames[(i + 2) % firstNames.length]} ${lastNames[(i + 3) % lastNames.length]}`,
+      primaryContactEmail: `contact${i}@${companyNames[i].toLowerCase().replace(/\s+/g, '')}.com`,
+      primaryContactPhone: `+1-${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
+      tags,
+      priority: i % 4 === 0 ? 'high' : i % 4 === 1 ? 'medium' : 'low',
+      healthScore: Math.floor(Math.random() * 40) + 60,
+      lifetimeValue: monthlySubscriptionFee ? monthlySubscriptionFee * Math.floor(Math.random() * 24) + monthlySubscriptionFee * 6 : Math.floor(Math.random() * 15000) + 5000,
+      notes: i % 3 === 0 ? 'Great client, very responsive. Interested in HRMS upgrade.' : undefined
+    },
+    
     activeJobCount: currentOpenJobs,
     userCount: currentUsers,
     totalJobsPosted,
