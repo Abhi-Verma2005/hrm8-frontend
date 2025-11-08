@@ -2,8 +2,9 @@ import { z } from "zod";
 import * as XLSX from "xlsx";
 
 export interface ImportField {
-  sourceColumn: string;
+  sourceColumn?: string;
   targetField: string;
+  label: string;
   required: boolean;
   dataType: 'text' | 'number' | 'date' | 'email' | 'phone' | 'array';
   transform?: (value: any) => any;
@@ -53,31 +54,31 @@ export interface ImportResult {
 
 // Available fields for candidates
 export const CANDIDATE_FIELDS: ImportField[] = [
-  { sourceColumn: '', targetField: 'name', required: true, dataType: 'text' },
-  { sourceColumn: '', targetField: 'email', required: true, dataType: 'email' },
-  { sourceColumn: '', targetField: 'phone', required: false, dataType: 'phone' },
-  { sourceColumn: '', targetField: 'location', required: false, dataType: 'text' },
-  { sourceColumn: '', targetField: 'currentRole', required: false, dataType: 'text' },
-  { sourceColumn: '', targetField: 'experience', required: false, dataType: 'number' },
-  { sourceColumn: '', targetField: 'skills', required: false, dataType: 'array', transform: (v) => v.split(',').map((s: string) => s.trim()) },
-  { sourceColumn: '', targetField: 'education', required: false, dataType: 'text' },
-  { sourceColumn: '', targetField: 'salary', required: false, dataType: 'number' },
-  { sourceColumn: '', targetField: 'availability', required: false, dataType: 'text' },
+  { sourceColumn: '', targetField: 'name', label: 'Name', required: true, dataType: 'text' },
+  { sourceColumn: '', targetField: 'email', label: 'Email', required: true, dataType: 'email' },
+  { sourceColumn: '', targetField: 'phone', label: 'Phone', required: false, dataType: 'phone' },
+  { sourceColumn: '', targetField: 'location', label: 'Location', required: false, dataType: 'text' },
+  { sourceColumn: '', targetField: 'currentRole', label: 'Current Role', required: false, dataType: 'text' },
+  { sourceColumn: '', targetField: 'experience', label: 'Experience (years)', required: false, dataType: 'number' },
+  { sourceColumn: '', targetField: 'skills', label: 'Skills', required: false, dataType: 'array', transform: (v) => v.split(',').map((s: string) => s.trim()) },
+  { sourceColumn: '', targetField: 'education', label: 'Education', required: false, dataType: 'text' },
+  { sourceColumn: '', targetField: 'salary', label: 'Salary', required: false, dataType: 'number' },
+  { sourceColumn: '', targetField: 'availability', label: 'Availability', required: false, dataType: 'text' },
 ];
 
 // Available fields for jobs
 export const JOB_FIELDS: ImportField[] = [
-  { sourceColumn: '', targetField: 'title', required: true, dataType: 'text' },
-  { sourceColumn: '', targetField: 'department', required: true, dataType: 'text' },
-  { sourceColumn: '', targetField: 'location', required: true, dataType: 'text' },
-  { sourceColumn: '', targetField: 'employmentType', required: true, dataType: 'text' },
-  { sourceColumn: '', targetField: 'experienceLevel', required: true, dataType: 'text' },
-  { sourceColumn: '', targetField: 'description', required: true, dataType: 'text' },
-  { sourceColumn: '', targetField: 'requirements', required: false, dataType: 'array', transform: (v) => v.split('\n').filter(Boolean) },
-  { sourceColumn: '', targetField: 'responsibilities', required: false, dataType: 'array', transform: (v) => v.split('\n').filter(Boolean) },
-  { sourceColumn: '', targetField: 'salaryMin', required: false, dataType: 'number' },
-  { sourceColumn: '', targetField: 'salaryMax', required: false, dataType: 'number' },
-  { sourceColumn: '', targetField: 'workArrangement', required: false, dataType: 'text' },
+  { sourceColumn: '', targetField: 'title', label: 'Title', required: true, dataType: 'text' },
+  { sourceColumn: '', targetField: 'department', label: 'Department', required: true, dataType: 'text' },
+  { sourceColumn: '', targetField: 'location', label: 'Location', required: true, dataType: 'text' },
+  { sourceColumn: '', targetField: 'employmentType', label: 'Employment Type', required: true, dataType: 'text' },
+  { sourceColumn: '', targetField: 'experienceLevel', label: 'Experience Level', required: true, dataType: 'text' },
+  { sourceColumn: '', targetField: 'description', label: 'Description', required: true, dataType: 'text' },
+  { sourceColumn: '', targetField: 'requirements', label: 'Requirements', required: false, dataType: 'array', transform: (v) => v.split('\n').filter(Boolean) },
+  { sourceColumn: '', targetField: 'responsibilities', label: 'Responsibilities', required: false, dataType: 'array', transform: (v) => v.split('\n').filter(Boolean) },
+  { sourceColumn: '', targetField: 'salaryMin', label: 'Minimum Salary', required: false, dataType: 'number' },
+  { sourceColumn: '', targetField: 'salaryMax', label: 'Maximum Salary', required: false, dataType: 'number' },
+  { sourceColumn: '', targetField: 'workArrangement', label: 'Work Arrangement', required: false, dataType: 'text' },
 ];
 
 // Validation schemas

@@ -1,6 +1,10 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Plug } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Mail, Calendar, Link2 } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { EmailIntegrationCard } from "@/components/integrations/EmailIntegrationCard";
+import { CalendarIntegrationCard } from "@/components/integrations/CalendarIntegrationCard";
+import { ATSIntegrationCard } from "@/components/integrations/ATSIntegrationCard";
 
 export default function Integrations() {
   return (
@@ -15,39 +19,81 @@ export default function Integrations() {
           </div>
         </div>
         
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
-                <Plug className="h-6 w-6 text-foreground" />
-              </div>
-              <div>
-                <CardTitle>System Integrations</CardTitle>
-                <CardDescription>
-                  Connect your HRM8 platform with external services
-                </CardDescription>
-              </div>
+        <Tabs defaultValue="email" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="email">
+              <Mail className="h-4 w-4 mr-2" />
+              Email
+            </TabsTrigger>
+            <TabsTrigger value="calendar">
+              <Calendar className="h-4 w-4 mr-2" />
+              Calendar
+            </TabsTrigger>
+            <TabsTrigger value="ats">
+              <Link2 className="h-4 w-4 mr-2" />
+              ATS Systems
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="email" className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Email Integrations</h2>
+              <p className="text-muted-foreground mb-4">
+                Connect your email accounts to send and receive emails directly from the platform
+              </p>
             </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              Configure integrations with third-party services, APIs, and platforms to enhance your recruitment workflow.
-            </p>
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Available integrations will include:</p>
-              <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1 ml-2">
-                <li>Email service providers (SMTP, SendGrid, etc.)</li>
-                <li>Calendar integrations (Google Calendar, Outlook)</li>
-                <li>Job board connectors (Indeed, LinkedIn, etc.)</li>
-                <li>Background check services</li>
-                <li>Video interview platforms</li>
-                <li>Payment gateways</li>
-                <li>Applicant tracking systems</li>
-                <li>HR software integrations</li>
-              </ul>
+            <div className="grid gap-4 md:grid-cols-2">
+              <EmailIntegrationCard
+                provider="gmail"
+                name="Gmail"
+                description="Connect your Gmail account for email communications"
+              />
+              <EmailIntegrationCard
+                provider="outlook"
+                name="Outlook"
+                description="Connect your Outlook account for email communications"
+              />
             </div>
-          </CardContent>
-        </Card>
+          </TabsContent>
+
+          <TabsContent value="calendar" className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">Calendar Integrations</h2>
+              <p className="text-muted-foreground mb-4">
+                Sync your calendar to schedule interviews and manage availability
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <CalendarIntegrationCard
+                provider="google"
+                name="Google Calendar"
+                description="Sync with Google Calendar for scheduling"
+              />
+              <CalendarIntegrationCard
+                provider="outlook"
+                name="Outlook Calendar"
+                description="Sync with Outlook Calendar for scheduling"
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="ats" className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold mb-2">ATS System Integrations</h2>
+              <p className="text-muted-foreground mb-4">
+                Connect to external ATS systems to sync candidates and job postings
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <ATSIntegrationCard provider="greenhouse" />
+              <ATSIntegrationCard provider="lever" />
+              <ATSIntegrationCard provider="workday" />
+              <ATSIntegrationCard provider="icims" />
+              <ATSIntegrationCard provider="taleo" />
+              <ATSIntegrationCard provider="jobvite" />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardPageLayout>
   );

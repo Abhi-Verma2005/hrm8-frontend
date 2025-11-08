@@ -12,6 +12,8 @@ import { DuplicateDetectionPanel } from "@/components/candidates/DuplicateDetect
 import { SearchHistoryPanel } from "@/components/candidates/SearchHistoryPanel";
 import { CandidateBulkActionsToolbar } from "@/components/candidates/bulk/CandidateBulkActionsToolbar";
 import { CandidatePipelineBoard } from "@/components/candidates/pipeline/CandidatePipelineBoard";
+import { CandidateImportDialog } from "@/components/candidates/import-export/CandidateImportDialog";
+import { CandidateExportDialog } from "@/components/candidates/import-export/CandidateExportDialog";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -346,7 +348,11 @@ export default function Candidates() {
             <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setShowImportDialog(true)}>
+            <Upload className="mr-2 h-4 w-4" />
+            Import
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -509,6 +515,22 @@ export default function Candidates() {
           />
         )}
       </div>
+
+      <CandidateImportDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        existingCandidates={mockCandidates}
+        onImport={handleImportCandidates}
+      />
+
+      <CandidateExportDialog
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        candidates={filteredCandidates}
+        selectedCandidates={selectedCandidates.map(id => 
+          filteredCandidates.find(c => c.id === id)!
+        ).filter(Boolean)}
+      />
     </DashboardPageLayout>
   );
 }
