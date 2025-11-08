@@ -1,7 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Plus, Download, Upload, Building, DollarSign, Briefcase, Clock, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DataTable } from "@/components/tables/DataTable";
 import { StatsCard } from "@/components/ui/stats-card";
@@ -13,11 +13,14 @@ import { exportEmployersToCSV } from "@/lib/exportUtils";
 import { EmployerBulkActions } from "@/components/employers/EmployerBulkActions";
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { ImportDialog } from "@/components/ui/import-dialog";
+import { FormDrawer } from "@/components/ui/form-drawer";
+import { EmployerFormWizard } from "@/components/employers/EmployerFormWizard";
 import type { Employer } from "@/types/entities";
 import type { SubscriptionTier } from "@/lib/subscriptionConfig";
 import { toast } from "sonner";
 
 export default function Employers() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const allEmployers = getEmployers();
   
   // Filter states
@@ -29,6 +32,24 @@ export default function Employers() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingEmployerId, setEditingEmployerId] = useState<string | null>(null);
+
+  // Handle query parameter for creating/editing employer
+  useEffect(() => {
+    const action = searchParams.get('action');
+    const editId = searchParams.get('id');
+    
+    if (action === 'create') {
+      setEditingEmployerId(null);
+      setDrawerOpen(true);
+      setSearchParams({}, { replace: true });
+    } else if (action === 'edit' && editId) {
+      setEditingEmployerId(editId);
+      setDrawerOpen(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   // Filter logic
   const filteredEmployers = useMemo(() => {
@@ -139,6 +160,26 @@ export default function Employers() {
     toast.info('Email functionality coming soon');
   };
 
+  const handleSaveEmployer = async (data: Partial<Employer>) => {
+    if (!editingEmployerId) {
+      // Create new employer using the service function
+      const { createEmployer } = await import('@/lib/employerService');
+      createEmployer(data as Omit<Employer, 'id' | 'createdAt' | 'updatedAt'>);
+      
+      toast.success('Employer added successfully');
+      setDrawerOpen(false);
+      window.location.reload();
+    } else {
+      // Update existing employer
+      const { updateEmployer } = await import('@/lib/employerService');
+      updateEmployer(editingEmployerId, data);
+      
+      toast.success('Employer updated successfully');
+      setDrawerOpen(false);
+      window.location.reload();
+    }
+  };
+
   const columns = createEmployerColumns();
 
   return (
@@ -166,11 +207,12 @@ export default function Employers() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button asChild>
-              <Link to="/employers/new">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Employer
-              </Link>
+            <Button onClick={() => {
+              setEditingEmployerId(null);
+              setDrawerOpen(true);
+            }}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Employer
             </Button>
             <Button variant="outline" asChild>
               <Link to="/dashboard/employers">
@@ -256,6 +298,20 @@ export default function Employers() {
           description="Upload a CSV file to import employer data"
           sampleHeaders={['name', 'industry', 'location', 'email', 'status', 'accountType']}
         />
+
+        <FormDrawer
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          title={editingEmployerId ? "Edit Employer" : "Add New Employer"}
+          description={editingEmployerId ? "Update employer information" : "Complete the form below to add a new employer account"}
+          width="xl"
+        >
+          <EmployerFormWizard
+            employer={editingEmployerId ? allEmployers.find(e => e.id === editingEmployerId) : undefined}
+            onSave={handleSaveEmployer}
+            onCancel={() => setDrawerOpen(false)}
+          />
+        </FormDrawer>
       </div>
     </DashboardPageLayout>
   );

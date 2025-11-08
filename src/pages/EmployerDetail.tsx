@@ -62,7 +62,7 @@ export default function EmployerDetail() {
   const metrics = calculateEmployerMetrics(employer);
 
   const handleEdit = () => {
-    navigate(`/employers/${employer.id}/edit`);
+    navigate(`/employers?action=edit&id=${employer.id}`);
   };
 
   const handleEmployerUpdate = (updates: Partial<Employer>) => {
