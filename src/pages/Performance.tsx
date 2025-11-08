@@ -134,7 +134,7 @@ export default function Performance() {
             <FileText className="h-4 w-4 mr-2" />
             Start Review
           </Button>
-          <Button onClick={() => navigate('/performance/feedback')} variant="outline" className="w-full">
+          <Button onClick={() => navigate('/performance/feedback/new')} variant="outline" className="w-full">
             <Users className="h-4 w-4 mr-2" />
             Request Feedback
           </Button>

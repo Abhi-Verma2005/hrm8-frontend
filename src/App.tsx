@@ -41,10 +41,13 @@ import Performance from "./pages/Performance";
 import GoalDetail from "./pages/GoalDetail";
 import GoalCreate from "./pages/GoalCreate";
 import ReviewDetail from "./pages/ReviewDetail";
+import ReviewCreate from "./pages/ReviewCreate";
 import FeedbackDetail from "./pages/FeedbackDetail";
+import FeedbackRequestCreate from "./pages/FeedbackRequestCreate";
 import TalentDevelopment from "./pages/TalentDevelopment";
 import LearningPathDetail from "./pages/LearningPathDetail";
 import CourseDetail from "./pages/CourseDetail";
+import HomePage from "./pages/HomePage";
 import Onboarding from "./pages/Onboarding";
 import OnboardingWorkflowDetail from "./pages/OnboardingWorkflowDetail";
 import TimeAttendance from "./pages/TimeAttendance";
@@ -106,11 +109,12 @@ function AppContent() {
 
   return (
     <Routes>
-          {/* Redirect root to dashboard */}
-          <Route path="/" element={<Navigate to="/dashboard/overview" replace />} />
+          {/* Redirect root to home page */}
+          <Route path="/" element={<Navigate to="/home" replace />} />
           
           {/* Dashboard routes (with sidebar) */}
           <Route element={<DashboardLayout />}>
+            <Route path="/home" element={<HomePage />} />
             <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
             <Route path="/dashboard/:type" element={<Dashboard />} />
             <Route path="/candidates" element={<Candidates />} />
@@ -143,7 +147,9 @@ function AppContent() {
             <Route path="/performance" element={<Performance />} />
             <Route path="/performance/goals/new" element={<GoalCreate />} />
             <Route path="/performance/goals/:id" element={<GoalDetail />} />
+            <Route path="/performance/reviews/new" element={<ReviewCreate />} />
             <Route path="/performance/reviews/:id" element={<ReviewDetail />} />
+            <Route path="/performance/feedback/new" element={<FeedbackRequestCreate />} />
             <Route path="/performance/feedback/:id" element={<FeedbackDetail />} />
             <Route path="/talent-development" element={<TalentDevelopment />} />
             <Route path="/talent-development/learning-paths/:id" element={<LearningPathDetail />} />
