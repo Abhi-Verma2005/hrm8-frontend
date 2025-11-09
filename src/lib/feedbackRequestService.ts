@@ -1,5 +1,4 @@
 import { FeedbackRequest, TeamMember, NotificationPreference } from '@/types/feedbackRequest';
-import { log } from './logger';
 
 const TEAM_KEY = 'team_members';
 const REQUESTS_KEY = 'feedback_requests';
@@ -44,11 +43,7 @@ export function createFeedbackRequest(request: Omit<FeedbackRequest, 'id' | 'req
   localStorage.setItem(REQUESTS_KEY, JSON.stringify(requests));
   
   // Simulate email notification
-  log.info('Feedback request sent', {
-    to: newRequest.requestedToEmail,
-    candidateName: newRequest.candidateName,
-    requestId: newRequest.id,
-  });
+  console.log(`📧 Email sent to ${newRequest.requestedToEmail}: Feedback requested for ${newRequest.candidateName}`);
   
   return newRequest;
 }
@@ -70,10 +65,9 @@ export function createBulkFeedbackRequests(
   localStorage.setItem(REQUESTS_KEY, JSON.stringify(existingRequests));
   
   // Simulate bulk email notifications
-  log.info('Bulk feedback requests sent', {
-    count: newRequests.length,
-    candidateName: requestsData[0]?.candidateName,
-    recipients: newRequests.map(r => r.requestedToEmail),
+  console.log(`📧 Bulk emails sent to ${newRequests.length} team members for ${requestsData[0]?.candidateName || 'candidate'}`);
+  newRequests.forEach(req => {
+    console.log(`   → ${req.requestedToEmail}`);
   });
   
   return newRequests;
@@ -100,11 +94,7 @@ export function sendReminder(requestId: string): void {
   
   const request = updated.find(r => r.id === requestId);
   if (request) {
-    log.info('Feedback reminder sent', {
-      to: request.requestedToEmail,
-      candidateName: request.candidateName,
-      requestId: request.id,
-    });
+    console.log(`📧 Reminder sent to ${request.requestedToEmail}: Feedback still needed for ${request.candidateName}`);
   }
 }
 
