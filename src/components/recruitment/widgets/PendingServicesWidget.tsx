@@ -1,10 +1,26 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, MapPin, CheckCircle } from "lucide-react";
-import { getAllServiceProjects } from "@/lib/recruitmentServiceStorage";
+import { Button } from "@/components/ui/button";
+import { Briefcase, MapPin, CheckCircle, UserPlus } from "lucide-react";
+import { getAllServiceProjects, updateServiceProject } from "@/lib/recruitmentServiceStorage";
 import { useNavigate } from "react-router-dom";
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
+import { useToast } from "@/hooks/use-toast";
 import type { ServiceProject } from "@/types/recruitmentService";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const SERVICE_TYPE_STYLES = {
   'shortlisting': {
@@ -29,12 +45,26 @@ const SERVICE_TYPE_STYLES = {
   }
 };
 
+// Mock consultant data - in a real app, this would come from a consultants API/storage
+const AVAILABLE_CONSULTANTS = [
+  { id: 'cons_001', name: 'Sarah Mitchell', role: 'lead' as const },
+  { id: 'cons_002', name: 'James Wilson', role: 'lead' as const },
+  { id: 'cons_003', name: 'Emily Chen', role: 'support' as const },
+  { id: 'cons_004', name: 'Michael Brown', role: 'support' as const },
+  { id: 'cons_005', name: 'Lisa Anderson', role: 'lead' as const },
+];
+
 interface PendingServicesWidgetProps {
   maxItems?: number;
 }
 
 export function PendingServicesWidget({ maxItems = 5 }: PendingServicesWidgetProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<ServiceProject | null>(null);
+  const [selectedConsultantId, setSelectedConsultantId] = useState<string>('');
+  const [refreshKey, setRefreshKey] = useState(0);
   
   const pendingServices = useMemo(() => {
     const all = getAllServiceProjects();
@@ -43,10 +73,51 @@ export function PendingServicesWidget({ maxItems = 5 }: PendingServicesWidgetPro
       s.stage === 'initiated' &&
       s.consultants.length === 0
     ).slice(0, maxItems);
-  }, [maxItems]);
+  }, [maxItems, refreshKey]);
 
   const handleServiceClick = (service: ServiceProject) => {
     navigate(`/recruitment-services?id=${service.id}`);
+  };
+
+  const handleAssignClick = (e: React.MouseEvent, service: ServiceProject) => {
+    e.stopPropagation(); // Prevent navigating to detail view
+    setSelectedService(service);
+    setSelectedConsultantId('');
+    setIsAssignDialogOpen(true);
+  };
+
+  const handleAssignConsultant = () => {
+    if (!selectedService || !selectedConsultantId) return;
+
+    const consultant = AVAILABLE_CONSULTANTS.find(c => c.id === selectedConsultantId);
+    if (!consultant) return;
+
+    const updated = updateServiceProject(selectedService.id, {
+      consultants: [
+        {
+          id: consultant.id,
+          name: consultant.name,
+          role: consultant.role,
+        }
+      ],
+      stage: 'in-progress', // Move from 'initiated' to 'in-progress'
+    });
+
+    if (updated) {
+      toast({
+        title: "Consultant Assigned",
+        description: `${consultant.name} has been assigned to ${selectedService.name}`,
+      });
+      setRefreshKey(prev => prev + 1); // Trigger refresh
+      setIsAssignDialogOpen(false);
+      setSelectedService(null);
+    } else {
+      toast({
+        title: "Assignment Failed",
+        description: "Could not assign consultant. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -79,15 +150,26 @@ export function PendingServicesWidget({ maxItems = 5 }: PendingServicesWidgetPro
                 <div
                   key={service.id}
                   onClick={() => handleServiceClick(service)}
-                  className={`p-3 rounded-lg border-l-3 ${typeStyle.borderColor} bg-card hover:bg-muted/50 cursor-pointer transition-colors`}
+                  className={`p-3 rounded-lg border-l-3 ${typeStyle.borderColor} bg-card hover:bg-muted/50 cursor-pointer transition-colors group`}
                 >
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <Badge variant="outline" className={`${typeStyle.className} text-xs`}>
-                      {typeStyle.label}
-                    </Badge>
-                    {service.priority === 'high' && (
-                      <div className="h-2 w-2 rounded-full bg-orange-500 mt-1" />
-                    )}
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className={`${typeStyle.className} text-xs`}>
+                        {typeStyle.label}
+                      </Badge>
+                      {service.priority === 'high' && (
+                        <div className="h-2 w-2 rounded-full bg-orange-500" />
+                      )}
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => handleAssignClick(e, service)}
+                      title="Quick Assign Consultant"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                    </Button>
                   </div>
                   <p className="font-semibold text-foreground text-sm mb-1">
                     {service.clientName}
@@ -105,6 +187,46 @@ export function PendingServicesWidget({ maxItems = 5 }: PendingServicesWidgetPro
           </div>
         )}
       </CardContent>
+
+      {/* Quick Assign Dialog */}
+      <Dialog open={isAssignDialogOpen} onOpenChange={setIsAssignDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Assign Consultant</DialogTitle>
+            <DialogDescription>
+              Select a consultant to assign to {selectedService?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Consultant</label>
+              <Select value={selectedConsultantId} onValueChange={setSelectedConsultantId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a consultant" />
+                </SelectTrigger>
+                <SelectContent>
+                  {AVAILABLE_CONSULTANTS.map((consultant) => (
+                    <SelectItem key={consultant.id} value={consultant.id}>
+                      {consultant.name} ({consultant.role})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setIsAssignDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleAssignConsultant}
+                disabled={!selectedConsultantId}
+              >
+                Assign
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
