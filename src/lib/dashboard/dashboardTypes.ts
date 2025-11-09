@@ -87,7 +87,7 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
   },
   consulting: {
     id: 'consulting',
-    name: 'Consulting',
+    name: 'Consultants',
     description: 'Project pipeline and consulting operations',
     icon: Handshake,
     defaultRoute: '/dashboard/consulting',
@@ -147,7 +147,7 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
     id: 'candidates',
     name: 'Candidates',
     description: 'Track candidate pipeline and talent pool analytics',
-    icon: UserCheck,
+    icon: Users,
     defaultRoute: '/dashboard/candidates',
     availableWidgets: [
       'stat-total-candidates',
