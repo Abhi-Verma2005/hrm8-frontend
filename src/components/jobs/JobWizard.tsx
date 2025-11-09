@@ -30,7 +30,7 @@ import { calculateServicePricing, processAccountPayment, processCreditCardPaymen
 
 
 interface JobWizardProps {
-  serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
+  serviceType?: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
   defaultValues?: Partial<JobFormData>;
   jobId?: string;
   onSuccess?: (jobData: Job) => void;
@@ -76,7 +76,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   const form = useForm<JobFormData>({
     resolver: zodResolver(jobFormSchema),
     defaultValues: {
-      serviceType,
+      serviceType: serviceType || 'self-managed',
       postAsHRM8: false,
       employerId: "",
       title: "",
@@ -113,7 +113,8 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
     },
   });
 
-  const isHRM8Service = serviceType !== 'self-managed';
+  const currentServiceType = form.watch('serviceType');
+  const isHRM8Service = currentServiceType !== 'self-managed';
   const totalSteps = isHRM8Service ? 1 : 6;
   const progress = (step / totalSteps) * 100;
 

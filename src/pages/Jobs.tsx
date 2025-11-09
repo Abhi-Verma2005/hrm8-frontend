@@ -9,7 +9,6 @@ import { getJobs, deleteJob, getJobById } from "@/lib/mockJobStorage";
 import { Job } from "@/types/job";
 import { FormDrawer } from "@/components/ui/form-drawer";
 import { JobWizard } from "@/components/jobs/JobWizard";
-import { ServiceTypeSelectionDialog } from "@/components/jobs/ServiceTypeSelectionDialog";
 import { JobStatusBadge } from "@/components/jobs/JobStatusBadge";
 import { EmploymentTypeBadge } from "@/components/jobs/EmploymentTypeBadge";
 import { ServiceTypeBadge } from "@/components/jobs/ServiceTypeBadge";
@@ -52,9 +51,6 @@ export default function Jobs() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingJobId, setEditingJobId] = useState<string | null>(null);
   
-  const [showServiceDialog, setShowServiceDialog] = useState(false);
-  const [selectedServiceType, setSelectedServiceType] = useState<'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo'>('self-managed');
-  
   // Filter states
   const [searchValue, setSearchValue] = useState("");
   const [selectedConsultant, setSelectedConsultant] = useState("all");
@@ -87,11 +83,11 @@ export default function Jobs() {
     };
   }, [jobs]);
   
-  // Auto-open service selection dialog when navigating with action=create
+  // Auto-open job wizard when navigating with action=create
   useEffect(() => {
     if (searchParams.get('action') === 'create') {
       setEditingJobId(null);
-      setShowServiceDialog(true);
+      setDrawerOpen(true);
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -230,24 +226,10 @@ export default function Jobs() {
 
   const handleCreateJob = () => {
     setEditingJobId(null);
-    setShowServiceDialog(true);
-  };
-
-  const handleServiceTypeSelect = (serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search') => {
-    setSelectedServiceType(serviceType);
-    setShowServiceDialog(false);
     setDrawerOpen(true);
   };
 
-  const handleServiceDialogCancel = () => {
-    setShowServiceDialog(false);
-  };
-
   const handleEditJob = (jobId: string) => {
-    const job = getJobById(jobId);
-    if (job) {
-      setSelectedServiceType(job.serviceType as 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo');
-    }
     setEditingJobId(jobId);
     setDrawerOpen(true);
   };
@@ -261,7 +243,6 @@ export default function Jobs() {
   const handleDrawerClose = () => {
     setDrawerOpen(false);
     setEditingJobId(null);
-    setShowServiceDialog(false);
   };
 
   const handleApplyAdvancedFilters = (filters: FilterCriteria) => {
@@ -682,7 +663,6 @@ export default function Jobs() {
         >
           <JobWizard
             key={editingJobId || 'new'}
-            serviceType={selectedServiceType}
             jobId={editingJobId || undefined}
             defaultValues={editingJobData || undefined}
             onSuccess={handleJobSuccess}
@@ -690,12 +670,6 @@ export default function Jobs() {
             embedded
           />
         </FormDrawer>
-
-      <ServiceTypeSelectionDialog
-        open={showServiceDialog}
-        onServiceTypeSelect={handleServiceTypeSelect}
-        onCancel={handleServiceDialogCancel}
-      />
 
         <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
