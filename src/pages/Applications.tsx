@@ -1,14 +1,25 @@
 import { useState, useEffect } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Upload, Download, LayoutGrid, List } from "lucide-react";
+import { Upload, Download, LayoutGrid, List, Filter, FileDown } from "lucide-react";
 import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
 import { ApplicationListView } from "@/components/applications/ApplicationListView";
 import { ApplicationDetailPanel } from "@/components/applications/ApplicationDetailPanel";
 import { ApplicationFilters } from "@/components/applications/ApplicationFilters";
 import { ApplicationBulkActionsToolbar } from "@/components/applications/ApplicationBulkActionsToolbar";
-import { getApplications, updateApplication } from "@/lib/mockApplicationStorage";
+import { AdvancedFiltersDialog } from "@/components/applications/AdvancedFiltersDialog";
+import { SmartFiltersBar } from "@/components/applications/SmartFiltersBar";
+import { AdvancedExportDialog } from "@/components/applications/AdvancedExportDialog";
+import { ImportDialog } from "@/components/applications/ImportDialog";
+import { BulkScheduleInterviewDialog } from "@/components/applications/BulkScheduleInterviewDialog";
+import { getApplications, updateApplication, saveApplication } from "@/lib/mockApplicationStorage";
 import { Application, ApplicationStage, ApplicationStatus } from "@/types/application";
+import { ApplicationFilters as FilterType } from "@/types/filterPreset";
+import { exportToCSV } from "@/utils/exportHelpers";
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { performFuzzySearch } from "@/lib/advancedSearchService";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,6 +33,11 @@ export default function Applications() {
   const [selectedStatuses, setSelectedStatuses] = useState<ApplicationStatus[]>([]);
   const [viewMode, setViewMode] = useState<"pipeline" | "list">("pipeline");
   const [selectedApplicationIds, setSelectedApplicationIds] = useState<string[]>([]);
+  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [bulkScheduleOpen, setBulkScheduleOpen] = useState(false);
+  const [appliedFilters, setAppliedFilters] = useState<FilterType>({});
 
   useEffect(() => {
     loadApplications();
@@ -87,10 +103,7 @@ export default function Applications() {
   };
 
   const handleBulkScheduleInterview = () => {
-    toast({
-      title: "Interview scheduler",
-      description: `Opening scheduler for ${selectedApplicationIds.length} application(s).`,
-    });
+    setBulkScheduleOpen(true);
   };
 
   const handleBulkReject = () => {
@@ -98,11 +111,110 @@ export default function Applications() {
       updateApplication(id, { 
         status: 'rejected',
         stage: 'Rejected',
-        rejectionDate: new Date()
       });
     });
     loadApplications();
     setSelectedApplicationIds([]);
+    toast({
+      title: "Applications rejected",
+      description: `${selectedApplicationIds.length} application(s) rejected.`,
+    });
+  };
+
+  // Advanced filter handlers
+  const handleApplyFilters = (filters: FilterType) => {
+    setAppliedFilters(filters);
+    
+    // Apply filters to applications
+    if (filters.status) {
+      setSelectedStatuses(filters.status as ApplicationStatus[]);
+    }
+    if (filters.search) {
+      setSearchQuery(filters.search);
+    }
+  };
+
+  const handleSmartFilterSelect = (filters: FilterType) => {
+    handleApplyFilters(filters);
+    toast({
+      title: "Filter applied",
+      description: "Smart filter has been applied to your applications.",
+    });
+  };
+
+  // Export handlers
+  const handleExport = (format: string, selectedFields: string[]) => {
+    const dataToExport = filteredApplications.map(app => ({
+      name: app.candidateName,
+      email: app.candidateEmail,
+      jobTitle: app.jobTitle,
+      status: app.status,
+      stage: app.stage,
+      score: app.score,
+      appliedDate: app.appliedDate,
+      assignedToName: app.assignedToName || '',
+    }));
+
+    const filename = `applications_export_${new Date().toISOString().split('T')[0]}`;
+
+    switch (format) {
+      case 'csv':
+        exportToCSV(dataToExport, filename);
+        break;
+      case 'excel':
+        const ws = XLSX.utils.json_to_sheet(dataToExport);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Applications');
+        XLSX.writeFile(wb, `${filename}.xlsx`);
+        break;
+      case 'pdf':
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text('Applications Export', 14, 15);
+        autoTable(doc, {
+          head: [['Name', 'Email', 'Job', 'Status', 'Score']],
+          body: dataToExport.map(d => [d.name, d.email, d.jobTitle, d.status, d.score.toString()]),
+        });
+        doc.save(`${filename}.pdf`);
+        break;
+      case 'json':
+        const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${filename}.json`;
+        link.click();
+        break;
+    }
+  };
+
+  // Import handler
+  const handleImport = async (data: any[]) => {
+    data.forEach(row => {
+      const application: Partial<Application> = {
+        candidateName: row.name,
+        candidateEmail: row.email,
+        jobTitle: row.jobTitle || row.position || 'Not Specified',
+        status: (row.status as ApplicationStatus) || 'applied',
+        stage: (row.stage as ApplicationStage) || 'New Application',
+        appliedDate: row.appliedDate || row.date || new Date().toISOString(),
+        score: row.score ? Number(row.score) : 0,
+      };
+      
+      saveApplication(application as Application);
+    });
+    
+    loadApplications();
+  };
+
+  // Bulk interview scheduling handler
+  const handleBulkSchedule = (data: any) => {
+    toast({
+      title: "Interviews scheduled",
+      description: `${selectedApplicationIds.length} interviews scheduled successfully.`,
+    });
+    setSelectedApplicationIds([]);
+    setBulkScheduleOpen(false);
   };
 
   const filteredApplications = applications.filter((app) => {
@@ -132,11 +244,11 @@ export default function Applications() {
     <DashboardPageLayout
       breadcrumbActions={
         <>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setImportDialogOpen(true)}>
             <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(true)}>
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -152,19 +264,28 @@ export default function Applications() {
             </p>
           </div>
 
-          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
-            <TabsList>
-              <TabsTrigger value="pipeline">
-                <LayoutGrid className="h-4 w-4 mr-2" />
-                Pipeline
-              </TabsTrigger>
-              <TabsTrigger value="list">
-                <List className="h-4 w-4 mr-2" />
-                List
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => setAdvancedFiltersOpen(true)}>
+              <Filter className="mr-2 h-4 w-4" />
+              Advanced Filters
+            </Button>
+            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
+              <TabsList>
+                <TabsTrigger value="pipeline">
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  Pipeline
+                </TabsTrigger>
+                <TabsTrigger value="list">
+                  <List className="h-4 w-4 mr-2" />
+                  List
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
         </div>
+
+        {/* Smart Filters */}
+        <SmartFiltersBar onFilterSelect={handleSmartFilterSelect} />
 
         <ApplicationFilters
           searchQuery={searchQuery}
@@ -204,6 +325,36 @@ export default function Applications() {
           open={detailPanelOpen}
           onOpenChange={setDetailPanelOpen}
           onRefresh={loadApplications}
+        />
+
+        {/* Dialogs */}
+        <AdvancedFiltersDialog
+          open={advancedFiltersOpen}
+          onOpenChange={setAdvancedFiltersOpen}
+          onApplyFilters={handleApplyFilters}
+          currentFilters={appliedFilters}
+        />
+
+        <AdvancedExportDialog
+          open={exportDialogOpen}
+          onOpenChange={setExportDialogOpen}
+          onExport={handleExport}
+          availableFields={['name', 'email', 'jobTitle', 'status', 'stage', 'score', 'appliedDate', 'assignedToName']}
+          totalRecords={filteredApplications.length}
+        />
+
+        <ImportDialog
+          open={importDialogOpen}
+          onOpenChange={setImportDialogOpen}
+          onImport={handleImport}
+          requiredFields={['name', 'email', 'jobTitle', 'status', 'stage', 'appliedDate']}
+        />
+
+        <BulkScheduleInterviewDialog
+          open={bulkScheduleOpen}
+          onOpenChange={setBulkScheduleOpen}
+          selectedCount={selectedApplicationIds.length}
+          onSchedule={handleBulkSchedule}
         />
       </div>
     </DashboardPageLayout>

@@ -5,10 +5,15 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RichTextEditor } from '@/components/ui/rich-text-editor';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Save, Send, Eye, Copy } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Save, Send, Eye, Copy, CalendarIcon, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import { getApplicationEmailTemplates, saveApplicationEmailTemplate, deleteApplicationEmailTemplate } from '@/lib/applicationEmailTemplates';
 
 interface BulkEmailComposerDialogProps {
@@ -39,6 +44,9 @@ export function BulkEmailComposerDialog({
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [showPreview, setShowPreview] = useState(false);
   const [templates, setTemplates] = useState(getApplicationEmailTemplates());
+  const [scheduleMode, setScheduleMode] = useState<'now' | 'later'>('now');
+  const [scheduleDate, setScheduleDate] = useState<Date>();
+  const [scheduleTime, setScheduleTime] = useState('09:00');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -215,6 +223,54 @@ export function BulkEmailComposerDialog({
                 </Button>
               </div>
             </div>
+
+            {/* Scheduling */}
+            <div className="space-y-4 pt-4 border-t">
+              <Label>Send Options</Label>
+              <Tabs value={scheduleMode} onValueChange={(v: any) => setScheduleMode(v)}>
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="now">Send Now</TabsTrigger>
+                  <TabsTrigger value="later">Schedule for Later</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="later" className="space-y-4 mt-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Date</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" className="w-full justify-start">
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {scheduleDate ? format(scheduleDate, 'PPP') : 'Pick a date'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                          <Calendar
+                            mode="single"
+                            selected={scheduleDate}
+                            onSelect={setScheduleDate}
+                            disabled={(date) => date < new Date()}
+                            className={cn("pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Time</Label>
+                      <div className="relative">
+                        <Clock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="time"
+                          value={scheduleTime}
+                          onChange={(e) => setScheduleTime(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </div>
           </div>
 
           {/* Dynamic Fields Sidebar */}
@@ -259,9 +315,9 @@ export function BulkEmailComposerDialog({
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSendEmails}>
+          <Button onClick={handleSendEmails} disabled={!subject.trim() || !body.trim()}>
             <Send className="h-4 w-4 mr-2" />
-            Send to {selectedCount} Recipient{selectedCount > 1 ? 's' : ''}
+            {scheduleMode === 'later' ? 'Schedule Email' : `Send to ${selectedCount} Recipient${selectedCount > 1 ? 's' : ''}`}
           </Button>
         </DialogFooter>
       </DialogContent>
