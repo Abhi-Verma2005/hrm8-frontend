@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useState } from "react";
 import { ApplicationStage, ApplicationStatus } from "@/types/application";
+import { BulkEmailComposerDialog } from "./BulkEmailComposerDialog";
 
 interface ApplicationBulkActionsToolbarProps {
   selectedCount: number;
@@ -43,6 +44,7 @@ export function ApplicationBulkActionsToolbar({
 }: ApplicationBulkActionsToolbarProps) {
   const { toast } = useToast();
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
 
   if (selectedCount === 0) return null;
 
@@ -137,7 +139,7 @@ export function ApplicationBulkActionsToolbar({
             <Button
               variant="outline"
               size="sm"
-              onClick={onBulkEmail}
+              onClick={() => setShowEmailDialog(true)}
             >
               <Mail className="h-4 w-4 mr-2" />
               Send Email
@@ -185,6 +187,17 @@ export function ApplicationBulkActionsToolbar({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <BulkEmailComposerDialog
+        open={showEmailDialog}
+        onOpenChange={setShowEmailDialog}
+        selectedCount={selectedCount}
+        onSend={(subject, body) => {
+          onBulkEmail();
+          // In the future, this will pass subject and body to the backend
+          console.log('Email to send:', { subject, body });
+        }}
+      />
     </>
   );
 }
