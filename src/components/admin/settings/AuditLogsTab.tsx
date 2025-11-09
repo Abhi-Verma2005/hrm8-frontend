@@ -13,6 +13,7 @@ import { FileText, Download, Search, Filter, CalendarIcon, RefreshCw } from "luc
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { TablePagination } from "@/components/tables/TablePagination";
+import { AuditLogDetailsModal } from "./AuditLogDetailsModal";
 
 interface AuditLog {
   id: string;
@@ -155,6 +156,8 @@ export function AuditLogsTab() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const { toast } = useToast();
 
   const categories = [
@@ -293,6 +296,21 @@ export function AuditLogsTab() {
   const handlePageSizeChange = (size: number) => {
     setPageSize(size);
     setCurrentPage(1); // Reset to first page when page size changes
+  };
+
+  const handleRowClick = (log: AuditLog) => {
+    setSelectedLog(log);
+    setIsDetailsOpen(true);
+  };
+
+  const getRelatedLogs = (log: AuditLog) => {
+    return logs.filter(
+      (l) =>
+        l.id !== log.id &&
+        (l.userId === log.userId || 
+         l.category === log.category ||
+         l.entityId === log.entityId)
+    );
   };
 
   return (
@@ -470,7 +488,11 @@ export function AuditLogsTab() {
                   </TableRow>
                 ) : (
                   paginatedLogs.map((log) => (
-                    <TableRow key={log.id}>
+                    <TableRow 
+                      key={log.id} 
+                      className="cursor-pointer hover:bg-muted/70 transition-colors"
+                      onClick={() => handleRowClick(log)}
+                    >
                       <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
                       <TableCell>
                         <div>
@@ -513,6 +535,14 @@ export function AuditLogsTab() {
           )}
         </CardContent>
       </Card>
+
+      {/* Audit Log Details Modal */}
+      <AuditLogDetailsModal
+        log={selectedLog}
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        relatedLogs={selectedLog ? getRelatedLogs(selectedLog) : []}
+      />
     </div>
   );
 }
