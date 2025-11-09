@@ -5,7 +5,7 @@ import { useRBAC } from "@/hooks/useRBAC";
 import { AlertCircle } from "lucide-react";
 import { AdminSettingsDashboard } from "@/components/admin/settings/AdminSettingsDashboard";
 import { PricingManagementTab } from "@/components/admin/settings/PricingManagementTab";
-import { CommissionSettingsTab } from "@/components/admin/settings/CommissionSettingsTab";
+import { CommissionsManagementTab } from "@/components/admin/settings/CommissionsManagementTab";
 import { TerritoryRegionsTab } from "@/components/admin/settings/TerritoryRegionsTab";
 import { CurrencyManagementTab } from "@/components/admin/settings/CurrencyManagementTab";
 import { UserManagementTab } from "@/components/admin/settings/UserManagementTab";
@@ -63,7 +63,7 @@ export default function AdminSettings() {
           </TabsContent>
 
           <TabsContent value="commission">
-            <CommissionSettingsTab />
+            <CommissionsManagementTab />
           </TabsContent>
 
           <TabsContent value="territory">
