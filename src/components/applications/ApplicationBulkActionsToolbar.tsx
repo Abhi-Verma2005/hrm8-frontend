@@ -22,6 +22,7 @@ import {
 import { useState } from "react";
 import { ApplicationStage, ApplicationStatus } from "@/types/application";
 import { BulkEmailComposerDialog } from "./BulkEmailComposerDialog";
+import { InterviewSchedulerDialog } from "./InterviewSchedulerDialog";
 
 interface ApplicationBulkActionsToolbarProps {
   selectedCount: number;
@@ -45,6 +46,7 @@ export function ApplicationBulkActionsToolbar({
   const { toast } = useToast();
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
 
   if (selectedCount === 0) return null;
 
@@ -148,7 +150,7 @@ export function ApplicationBulkActionsToolbar({
             <Button
               variant="outline"
               size="sm"
-              onClick={onBulkScheduleInterview}
+              onClick={() => setShowScheduleDialog(true)}
             >
               <Calendar className="h-4 w-4 mr-2" />
               Schedule Interview
@@ -196,6 +198,17 @@ export function ApplicationBulkActionsToolbar({
           onBulkEmail();
           // In the future, this will pass subject and body to the backend
           console.log('Email to send:', { subject, body });
+        }}
+      />
+
+      <InterviewSchedulerDialog
+        open={showScheduleDialog}
+        onOpenChange={setShowScheduleDialog}
+        selectedCount={selectedCount}
+        onSchedule={(scheduleData) => {
+          onBulkScheduleInterview();
+          // In the future, this will pass schedule data to the backend
+          console.log('Interview schedule:', scheduleData);
         }}
       />
     </>
