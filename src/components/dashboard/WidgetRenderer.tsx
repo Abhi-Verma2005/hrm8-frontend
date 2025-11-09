@@ -29,7 +29,7 @@ import { SalaryExpectationsChart } from './charts/SalaryExpectationsChart';
 import { RecentActivityCard } from './RecentActivityCard';
 import { 
   Users, Briefcase, FileText, UserCheck, Eye, Plus, Filter, Download, XCircle, CheckCircle,
-  UserCircle, Calendar, Building2, DollarSign, FolderKanban, Building
+  UserCircle, Calendar, Building2, DollarSign, FolderKanban
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { DashboardWidget } from '@/lib/dashboard/types';
@@ -104,7 +104,7 @@ export function WidgetRenderer({ widget }: WidgetRendererProps) {
       'Payroll Cost': <DollarSign className="h-6 w-6" />,
       // Consulting
       'Active Projects': <FolderKanban className="h-6 w-6" />,
-      'Total Clients': <Building className="h-6 w-6" />,
+      'Total Clients': <Building2 className="h-6 w-6" />,
       'Utilization Rate': <Users className="h-6 w-6" />,
       'Billable Hours': <Calendar className="h-6 w-6" />,
     };

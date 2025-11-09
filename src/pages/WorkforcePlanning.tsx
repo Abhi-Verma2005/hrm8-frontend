@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Users, Plus, TrendingUp, DollarSign, Building, MapPin, BarChart3, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Users, Plus, TrendingUp, DollarSign, Building2, MapPin, BarChart3, MoreHorizontal, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
 import { getHeadcountPlans, getWorkforceDemographics, deleteHeadcountPlan } from "@/lib/workforcePlanningStorage";
 import { Badge } from "@/components/ui/badge";
@@ -305,7 +305,7 @@ export default function WorkforcePlanning() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Building className="h-5 w-5" />
+                    <Building2 className="h-5 w-5" />
                     By Department
                   </CardTitle>
                 </CardHeader>

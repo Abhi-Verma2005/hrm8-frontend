@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
-import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building2, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare, Handshake } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 
@@ -66,12 +66,12 @@ const atsNavItems = [
 
 // OPERATIONS Section
 const operationsNavItems = [
-  { title: "Employers", url: "/employers", icon: Building },
-  { title: "Consultants", url: "/consultants", icon: UserCog },
+  { title: "Employers", url: "/employers", icon: Building2 },
+  { title: "Consultants", url: "/consultants", icon: Handshake },
   { title: "Recruitment Services", url: "/recruitment-services", icon: Target },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Calendar", url: "/calendar", icon: Calendar },
-  { title: "Internal Jobs", url: "/internal-jobs", icon: Building },
+  { title: "Internal Jobs", url: "/internal-jobs", icon: Building2 },
   { title: "Email Templates", url: "/email-templates", icon: Mail },
   { title: "Import/Export", url: "/import-export", icon: FileBarChart },
   { title: "Inbox", url: "/inbox", icon: Mail },
@@ -89,7 +89,7 @@ const hrManagementNavItems = [
       { title: "Org Chart", url: "/hrms/org-chart" },
     ]
   },
-  { title: "Onboarding", url: "/onboarding", icon: UserCheck },
+  { title: "Onboarding", url: "/onboarding", icon: UserCog },
   { title: "Performance", url: "/performance", icon: TrendingUp },
   { title: "Talent Development", url: "/talent-development", icon: GraduationCap },
   { title: "Leave Management", url: "/leave", icon: CalendarDays },
@@ -491,7 +491,7 @@ export function AppSidebar() {
                   const Icon = 
                     record.type === 'candidate' ? Users :
                     record.type === 'job' ? Briefcase :
-                    Building;
+                    Building2;
                   
                   const typeLabel = 
                     record.type === 'candidate' ? 'Candidate' :

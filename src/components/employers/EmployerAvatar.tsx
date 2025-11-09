@@ -1,4 +1,4 @@
-import { Building } from "lucide-react";
+import { Building2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getCompanyInitials } from "@/lib/employerUtils";
 
@@ -23,7 +23,7 @@ export function EmployerAvatar({ name, logoUrl, size = "md", className }: Employ
     <Avatar className={`${sizeClasses[size]} ${className || ""}`}>
       <AvatarImage src={logoUrl} alt={name} />
       <AvatarFallback className="bg-primary/10 text-primary">
-        {logoUrl ? <Building className="h-1/2 w-1/2" /> : initials}
+        {logoUrl ? <Building2 className="h-1/2 w-1/2" /> : initials}
       </AvatarFallback>
     </Avatar>
   );
