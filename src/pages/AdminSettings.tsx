@@ -2,6 +2,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useRBAC } from "@/hooks/useRBAC";
+import { isDevelopmentMode } from "@/lib/rbacService";
 import { AlertCircle } from "lucide-react";
 import { AdminSettingsDashboard } from "@/components/admin/settings/AdminSettingsDashboard";
 import { PricingManagementTab } from "@/components/admin/settings/PricingManagementTab";
@@ -17,7 +18,10 @@ import { AuditLogsTab } from "@/components/admin/settings/AuditLogsTab";
 export default function AdminSettings() {
   const { isSuperAdmin } = useRBAC();
 
-  if (!isSuperAdmin) {
+  // In dev mode, bypass permission check - only enforce in production
+  const hasAccess = isDevelopmentMode() || isSuperAdmin;
+
+  if (!hasAccess) {
     return (
       <DashboardPageLayout>
         <div className="p-6">
