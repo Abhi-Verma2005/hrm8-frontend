@@ -32,7 +32,6 @@ export default function InternalJobs() {
   };
 
   const handleSubmitApplication = (data: any) => {
-    console.log("Internal application submitted:", data);
     setIsApplicationOpen(false);
     toast({
       title: "Application Submitted",

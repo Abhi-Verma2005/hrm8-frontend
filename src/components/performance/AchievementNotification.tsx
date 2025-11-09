@@ -99,7 +99,6 @@ export function showConfetti() {
   const randomColor = confettiColors[Math.floor(Math.random() * confettiColors.length)];
   
   // In a real implementation, you would use canvas-confetti or similar
-  console.log('🎉 Confetti!', randomColor);
 }
 
 // Point gain animation

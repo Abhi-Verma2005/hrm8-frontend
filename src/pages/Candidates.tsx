@@ -339,7 +339,6 @@ export default function Candidates() {
     candidatesData: Partial<Candidate>[],
     duplicateAction: 'skip' | 'update' | 'create'
   ) => {
-    console.log("Importing candidates:", candidatesData, "Action:", duplicateAction);
     await new Promise((resolve) => setTimeout(resolve, 1000));
     toast({
       title: "Import successful",

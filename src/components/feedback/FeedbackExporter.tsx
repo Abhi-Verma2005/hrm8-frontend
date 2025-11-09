@@ -47,8 +47,6 @@ export const FeedbackExporter: React.FC<FeedbackExporterProps> = ({ candidateId,
     };
 
     // In real implementation, this would generate and download the file
-    console.log('Exporting:', exportData);
-
     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');

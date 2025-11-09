@@ -36,7 +36,6 @@ export function exportToCSV(data: any[], filename: string) {
 export function exportToPDF(data: any[], title: string) {
   // This is a placeholder for PDF export functionality
   // In a real implementation, you would use a library like jspdf
-  console.log('PDF export requested for:', title, data);
   alert('PDF export functionality requires jspdf library. CSV export is available.');
 }
 

@@ -48,8 +48,6 @@ export default function ImportExport() {
     });
 
     // In a real app, this would save to database
-    console.log('Importing:', transformedData, 'Action:', duplicateAction);
-    
     // Simulate import delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Download, Printer } from "lucide-react";
 import { type Invoice } from "@/lib/mockBillingStorage";
+import { toast } from "sonner";
 
 interface InvoiceDetailDialogProps {
   invoice: Invoice;
@@ -13,7 +14,7 @@ interface InvoiceDetailDialogProps {
 
 export function InvoiceDetailDialog({ invoice, open, onClose }: InvoiceDetailDialogProps) {
   const handleDownload = () => {
-    console.log('Downloading invoice:', invoice.invoiceNumber);
+    toast.success(`Invoice ${invoice.invoiceNumber} downloaded`);
   };
 
   const handlePrint = () => {

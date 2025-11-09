@@ -26,7 +26,10 @@ export function ModuleRecommendationsCard({ employerId, onUpgrade }: ModuleRecom
   };
 
   const handleLearnMore = (module: string) => {
-    console.log('Learn more about:', module);
+    toast({
+      title: "Learn More",
+      description: `Discover how ${module} module can help your business`,
+    });
     // In production, this would navigate to module details
   };
 

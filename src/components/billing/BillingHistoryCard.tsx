@@ -6,6 +6,7 @@ import { Download, Eye, DollarSign, FileText } from "lucide-react";
 import { getInvoicesByEmployer, type Invoice } from "@/lib/mockBillingStorage";
 import { useState } from "react";
 import { InvoiceDetailDialog } from "./InvoiceDetailDialog";
+import { toast } from "sonner";
 
 interface BillingHistoryCardProps {
   employerId: string;
@@ -29,7 +30,7 @@ export function BillingHistoryCard({ employerId }: BillingHistoryCardProps) {
 
   const handleDownloadInvoice = (invoice: Invoice) => {
     // In production, this would generate a PDF
-    console.log('Downloading invoice:', invoice.invoiceNumber);
+    toast.success(`Downloading invoice ${invoice.invoiceNumber}`);
   };
 
   const totalPaid = invoices

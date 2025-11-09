@@ -22,10 +22,10 @@ import {
   AlertTriangle,
   BookOpen,
   BarChart3
-} from "lucide-react";
+  } from "lucide-react";
 import type { CalibrationSession, Interview } from "@/types/interview";
 import { format } from "date-fns";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { CalibrationSessionAnalytics } from "./CalibrationSessionAnalytics";
 import LiveCollaboration from "./LiveCollaboration";
 import SessionReports from "./SessionReports";
@@ -37,6 +37,7 @@ interface CalibrationSessionManagerProps {
 }
 
 export function CalibrationSessionManager({ interviews }: CalibrationSessionManagerProps) {
+  const { toast } = useToast();
   const [sessions, setSessions] = useState<CalibrationSession[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
@@ -529,7 +530,10 @@ export function CalibrationSessionManager({ interviews }: CalibrationSessionMana
                 <SessionFeedback 
                   sessionId={selectedSession.id}
                   onSubmit={(feedback) => {
-                    console.log('Feedback submitted:', feedback);
+                    toast({
+                      title: "Feedback submitted",
+                      description: "Your feedback has been recorded successfully",
+                    });
                   }}
                 />
               </TabsContent>

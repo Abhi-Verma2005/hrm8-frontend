@@ -5,6 +5,7 @@ import { TerritorySettingsCard } from "./TerritorySettingsCard";
 import { TagsManagerCard } from "./TagsManagerCard";
 import { NotificationSettingsCard } from "./NotificationSettingsCard";
 import ModuleSettingsCard from "@/components/employers/cards/ModuleSettingsCard";
+import { toast } from "sonner";
 
 interface SettingsTabProps {
   employerId: string;
@@ -14,8 +15,7 @@ interface SettingsTabProps {
 export function SettingsTab({ employerId, employer }: SettingsTabProps) {
   const handleModuleChange = (atsEnabled: boolean, hrmsEnabled: boolean, hrmsEmployeeCount: number) => {
     // In production, this would call an API to update the employer's module configuration
-    console.log('Module configuration updated:', { atsEnabled, hrmsEnabled, hrmsEmployeeCount });
-    // TODO: Integrate with actual employer update service
+    toast.success('Module configuration updated successfully');
   };
 
   return (

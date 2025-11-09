@@ -266,7 +266,6 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
               jobTitle={application.jobTitle}
               onSubmit={(data) => {
                 const template = data.templateId ? getTemplateById(data.templateId) : null;
-                console.log("Interview scheduled:", { ...data, template });
                 setIsInterviewDialogOpen(false);
                 toast.success(
                   template 
@@ -289,7 +288,6 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
               candidateName={application.candidateName}
               jobTitle={application.jobTitle}
               onSubmit={(data) => {
-                console.log("Offer created:", data);
                 setIsOfferDialogOpen(false);
                 toast.success("Offer letter generated successfully");
               }}
