@@ -155,6 +155,12 @@ export default function ConsultantsPage() {
             <p className="text-muted-foreground">Manage your consultant team</p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link to="/consultants/workload">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Workload
+              </Link>
+            </Button>
             <Button onClick={() => {
               setEditingConsultantId(null);
               setDrawerOpen(true);
