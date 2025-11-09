@@ -51,6 +51,7 @@ import ReviewDetail from "./pages/ReviewDetail";
 import ReviewCreate from "./pages/ReviewCreate";
 import FeedbackDetail from "./pages/FeedbackDetail";
 import FeedbackRequestCreate from "./pages/FeedbackRequestCreate";
+import PublicFeedbackForm from "./pages/PublicFeedbackForm";
 import TalentDevelopment from "./pages/TalentDevelopment";
 import LearningPathDetail from "./pages/LearningPathDetail";
 import CourseDetail from "./pages/CourseDetail";
@@ -257,6 +258,9 @@ function AppContent() {
           {/* Public routes (no sidebar) */}
           <Route path="/verify/:code?" element={<VerifyCertificate />} />
           
+      {/* Public 360 Feedback Form - No authentication required */}
+      <Route path="/feedback/:feedbackId/:providerId" element={<PublicFeedbackForm />} />
+      
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
       </Routes>

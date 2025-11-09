@@ -1,16 +1,16 @@
 import { useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ArrowLeft, MessageSquare, Send, CheckCircle, Clock, Users, TrendingUp } from "lucide-react";
+import { ArrowLeft, MessageSquare, Send, CheckCircle, Clock, Users, TrendingUp, Link2, Copy } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Feedback360Results } from "@/components/performance/Feedback360Results";
 import { getFeedback360, saveFeedback360 } from "@/lib/performanceStorage";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -62,6 +62,12 @@ export default function FeedbackDetail() {
       toast.success("Reminder sent successfully");
       setSendingReminder(false);
     }, 1000);
+  };
+
+  const copyFeedbackLink = (providerId: string) => {
+    const link = `${window.location.origin}/feedback/${feedback.id}/${providerId}`;
+    navigator.clipboard.writeText(link);
+    toast.success("Feedback link copied to clipboard!");
   };
 
   const completedProviders = feedback.providers.filter(p => p.status === 'submitted').length;
@@ -251,54 +257,7 @@ export default function FeedbackDetail() {
               </TabsContent>
 
               <TabsContent value="summary" className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Average Ratings by Question</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {feedback.questions.map((question) => {
-                      const avgRating = calculateAverageRating(question.id);
-                      const responses = groupedResponses[question.id] || [];
-                      return (
-                        <div key={question.id} className="space-y-2">
-                          <div className="flex items-start justify-between gap-4">
-                            <p className="text-sm font-medium flex-1">{question.question}</p>
-                            <Badge variant="outline">{avgRating}/5</Badge>
-                          </div>
-                          <Progress value={parseFloat(avgRating) * 20} />
-                          <p className="text-xs text-muted-foreground">
-                            Based on {responses.length} {responses.length === 1 ? 'response' : 'responses'}
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Response Distribution by Relationship</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {Array.from(new Set(feedback.providers.map(p => p.relationship))).map((relationship: string) => {
-                        const providersInGroup = feedback.providers.filter(p => p.relationship === relationship);
-                        const completedInGroup = providersInGroup.filter(p => p.status === 'submitted').length;
-                        return (
-                          <div key={relationship} className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm font-medium">{relationship}</span>
-                              <span className="text-sm text-muted-foreground">
-                                {completedInGroup}/{providersInGroup.length}
-                              </span>
-                            </div>
-                            <Progress value={(completedInGroup / providersInGroup.length) * 100} />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </CardContent>
-                </Card>
+                <Feedback360Results feedback={feedback} />
               </TabsContent>
             </Tabs>
           </div>
@@ -347,19 +306,30 @@ export default function FeedbackDetail() {
                 {feedback.providers.map((provider) => {
                   const providerBadge = getProviderStatusBadge(provider.status);
                   return (
-                    <div key={provider.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{provider.providerName}</p>
-                        <p className="text-xs text-muted-foreground">{provider.relationship}</p>
-                        {provider.submittedAt && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Submitted {format(new Date(provider.submittedAt), 'MMM d')}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
+                    <div key={provider.id} className="p-3 border rounded-lg space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{provider.providerName}</p>
+                          <p className="text-xs text-muted-foreground">{provider.relationship}</p>
+                          {provider.submittedAt && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Submitted {format(new Date(provider.submittedAt), 'MMM d')}
+                            </p>
+                          )}
+                        </div>
                         <Badge variant={providerBadge.variant}>{providerBadge.label}</Badge>
-                        {provider.status === 'pending' && (
+                      </div>
+                      {provider.status === 'pending' && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => copyFeedbackLink(provider.id)}
+                            className="flex-1"
+                          >
+                            <Link2 className="h-3 w-3 mr-1" />
+                            Copy Link
+                          </Button>
                           <Button
                             size="sm"
                             variant="ghost"
@@ -369,8 +339,8 @@ export default function FeedbackDetail() {
                             <Send className="h-3 w-3 mr-1" />
                             Remind
                           </Button>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
