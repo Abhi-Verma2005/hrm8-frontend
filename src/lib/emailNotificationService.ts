@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { log } from './logger';
 
 export interface EmailNotification {
   id: string;
@@ -53,7 +54,11 @@ export function sendStageChangeEmail(
   mockNotifications.unshift(notification);
   
   // Simulate sending (in real app, would call email service API)
-  console.log(`📧 Email notification sent to ${candidateEmail}:`, notification.subject);
+  log.info('Email notification sent', {
+    to: candidateEmail,
+    subject: notification.subject,
+    type: notification.type,
+  });
   
   return notification;
 }
@@ -88,7 +93,12 @@ export function sendInterviewScheduledEmail(
   };
 
   mockNotifications.unshift(notification);
-  console.log(`📧 Interview email sent to ${candidateEmail}`);
+  log.info('Interview invitation sent', {
+    to: candidateEmail,
+    candidateName,
+    interviewDate,
+    interviewType,
+  });
   
   return notification;
 }
@@ -121,7 +131,12 @@ export function sendOfferEmail(
   };
 
   mockNotifications.unshift(notification);
-  console.log(`📧 Offer email sent to ${candidateEmail}`);
+  log.info('Offer email sent', {
+    to: candidateEmail,
+    candidateName,
+    position: jobTitle,
+    offerDetails,
+  });
   
   return notification;
 }
@@ -152,7 +167,11 @@ export function sendRejectionEmail(
   };
 
   mockNotifications.unshift(notification);
-  console.log(`📧 Rejection email sent to ${candidateEmail}`);
+  log.info('Rejection email sent', {
+    to: candidateEmail,
+    candidateName,
+    position: jobTitle,
+  });
   
   return notification;
 }

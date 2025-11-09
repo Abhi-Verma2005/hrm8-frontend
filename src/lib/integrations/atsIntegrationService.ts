@@ -3,6 +3,8 @@
  * Handles integrations with external ATS systems (Greenhouse, Lever, Workday, etc.)
  */
 
+import { log } from '../logger';
+
 export type ATSProvider = 'greenhouse' | 'lever' | 'workday' | 'icims' | 'taleo' | 'jobvite';
 
 export interface ATSIntegration {
@@ -161,7 +163,10 @@ export async function importCandidatesFromATS(
   }
 
   // Mock import - in production this would fetch from the actual ATS
-  console.log('Importing candidates from', integration.provider, filters);
+  log.api('POST', `/integrations/${integration.provider}/import`, {
+    integrationId: integration.id,
+    filters,
+  });
 
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -184,7 +189,10 @@ export async function exportCandidatesToATS(
   }
 
   // Mock export - in production this would push to the actual ATS
-  console.log('Exporting candidates to', integration.provider, candidateIds);
+  log.api('POST', `/integrations/${integration.provider}/export`, {
+    integrationId: integration.id,
+    candidateCount: candidateIds.length,
+  });
 
   return new Promise((resolve) => {
     setTimeout(resolve, 2000);

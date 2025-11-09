@@ -1,9 +1,13 @@
-import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { useRBAC } from "@/hooks/useRBAC";
 import { isDevelopmentMode } from "@/lib/rbacService";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, FileText } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { LogViewerDialog } from "@/components/admin/LogViewerDialog";
 import { AdminSettingsDashboard } from "@/components/admin/settings/AdminSettingsDashboard";
 import { PricingManagementTab } from "@/components/admin/settings/PricingManagementTab";
 import { CommissionsManagementTab } from "@/components/admin/settings/CommissionsManagementTab";
@@ -17,6 +21,7 @@ import { AuditLogsTab } from "@/components/admin/settings/AuditLogsTab";
 
 export default function AdminSettings() {
   const { isSuperAdmin, loading } = useRBAC();
+  const [logViewerOpen, setLogViewerOpen] = useState(false);
 
   // In dev mode, bypass permission check - only enforce in production
   const hasAccess = isDevelopmentMode() || isSuperAdmin;
@@ -48,9 +53,17 @@ export default function AdminSettings() {
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Admin Settings</h1>
-          <p className="text-muted-foreground">System-wide configuration and administration</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Admin Settings</h1>
+            <p className="text-muted-foreground">System-wide configuration and administration</p>
+          </div>
+          {isDevelopmentMode() && (
+            <Button variant="outline" onClick={() => setLogViewerOpen(true)}>
+              <FileText className="h-4 w-4 mr-2" />
+              View Logs
+            </Button>
+          )}
         </div>
 
         <Tabs defaultValue="dashboard" className="space-y-4">
@@ -108,6 +121,8 @@ export default function AdminSettings() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <LogViewerDialog open={logViewerOpen} onOpenChange={setLogViewerOpen} />
     </DashboardPageLayout>
   );
 }
