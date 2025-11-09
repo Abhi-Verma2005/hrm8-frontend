@@ -331,20 +331,36 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
           <Progress value={progress} className="h-2" />
           
           {/* Service Type Indicator */}
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border transition-all duration-300">
             <div className="flex items-center gap-3">
-              <div className={cn("p-2 rounded-md bg-background", currentService.color)}>
+              <div 
+                key={currentServiceType}
+                className={cn(
+                  "p-2 rounded-md bg-background transition-all duration-300 animate-scale-in",
+                  currentService.color
+                )}
+              >
                 <ServiceIcon className="h-4 w-4" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xs text-muted-foreground">Selected Service</span>
-                <span className="text-sm font-semibold">{currentService.name}</span>
+                <span 
+                  key={`name-${currentServiceType}`}
+                  className="text-sm font-semibold animate-fade-in"
+                >
+                  {currentService.name}
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <div className="text-right">
                 <div className="text-xs text-muted-foreground">Service Fee</div>
-                <div className="text-lg font-bold text-primary">{currentService.price}</div>
+                <div 
+                  key={`price-${currentServiceType}`}
+                  className="text-lg font-bold text-primary animate-fade-in"
+                >
+                  {currentService.price}
+                </div>
               </div>
               {step > 1 && (
                 <Button
@@ -352,7 +368,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
                   variant="ghost"
                   size="sm"
                   onClick={scrollToTop}
-                  className="text-xs"
+                  className="text-xs transition-all duration-200 hover:scale-105"
                 >
                   <ArrowUp className="h-3 w-3 mr-1" />
                   Change

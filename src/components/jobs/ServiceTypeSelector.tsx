@@ -74,16 +74,16 @@ export function ServiceTypeSelector({ value, onChange }: ServiceTypeSelectorProp
           <Card
             key={service.id}
             className={cn(
-              "relative cursor-pointer transition-all duration-200 p-4 hover:shadow-md",
+              "relative cursor-pointer transition-all duration-300 p-4 hover:shadow-md hover:scale-[1.02]",
               isSelected 
-                ? "border-2 border-primary bg-primary/5 shadow-md" 
+                ? "border-2 border-primary bg-primary/5 shadow-md scale-[1.02]" 
                 : "border hover:border-primary/50"
             )}
             onClick={() => onChange(service.id)}
           >
             {service.recommended && (
               <Badge 
-                className="absolute -top-2 -right-2 z-10 bg-primary text-primary-foreground text-[10px] px-2 py-0.5"
+                className="absolute -top-2 -right-2 z-10 bg-primary text-primary-foreground text-[10px] px-2 py-0.5 animate-fade-in"
               >
                 <Star className="h-2.5 w-2.5 mr-1" />
                 POPULAR
@@ -94,13 +94,13 @@ export function ServiceTypeSelector({ value, onChange }: ServiceTypeSelectorProp
               {/* Icon & Selection Indicator */}
               <div className="flex items-center justify-between">
                 <div className={cn(
-                  "p-2 rounded-lg",
+                  "p-2 rounded-lg transition-all duration-300",
                   isSelected ? "bg-primary text-primary-foreground" : "bg-muted"
                 )}>
                   <Icon className="h-5 w-5" />
                 </div>
                 {isSelected && (
-                  <div className="bg-primary rounded-full p-1">
+                  <div className="bg-primary rounded-full p-1 animate-scale-in">
                     <Check className="h-3 w-3 text-primary-foreground" />
                   </div>
                 )}
