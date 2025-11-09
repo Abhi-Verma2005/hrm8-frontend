@@ -25,6 +25,14 @@ export function ATSSubscriptionManager() {
   const handleSave = () => {
     setTiers(getATSSubscriptionTiers());
     setDialogOpen(false);
+    setSelectedTier(undefined);
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) {
+      setSelectedTier(undefined);
+    }
   };
 
   return (
@@ -45,7 +53,7 @@ export function ATSSubscriptionManager() {
         <ATSSubscriptionList tiers={tiers} onEdit={handleEdit} />
         <ATSSubscriptionDialog
           open={dialogOpen}
-          onOpenChange={setDialogOpen}
+          onOpenChange={handleDialogChange}
           tier={selectedTier}
           onSave={handleSave}
         />
