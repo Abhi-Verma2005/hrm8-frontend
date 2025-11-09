@@ -87,14 +87,14 @@ export function ChangePlanDialog({ open, onOpenChange, employer, onPlanChanged }
                     <div className="flex items-center gap-2">
                       <Briefcase className="h-4 w-4 text-primary" />
                       <span>
-                        {config.maxOpenJobs === Infinity ? 'Unlimited' : config.maxOpenJobs} open job{config.maxOpenJobs !== 1 ? 's' : ''}
+                        {config.maxOpenJobs >= 9999 ? 'Unlimited' : `${config.maxOpenJobs} open job${config.maxOpenJobs > 1 ? 's' : ''}`}
                       </span>
                     </div>
                     
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4 text-primary" />
                       <span>
-                        {config.maxUsers === Infinity ? 'Unlimited' : config.maxUsers} user{config.maxUsers !== 1 ? 's' : ''}
+                        {config.maxUsers >= 9999 ? 'Unlimited' : `${config.maxUsers} user${config.maxUsers > 1 ? 's' : ''}`}
                       </span>
                     </div>
                     

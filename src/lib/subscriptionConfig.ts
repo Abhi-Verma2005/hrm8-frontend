@@ -1,130 +1,214 @@
 export const SUBSCRIPTION_TIERS = {
-  'ats-lite': { 
-    maxOpenJobs: Infinity, 
-    maxUsers: Infinity, 
-    monthlyFee: 0,
-    jobPostingCost: 0,
+  'ats-lite': {
+    id: 'ats-lite',
     name: 'ATS Lite',
-    description: 'Basic ATS features',
+    monthlyPrice: 0,
+    annualPrice: 0,
+    monthlyFee: 0, // Backward compatibility
+    jobPostingCost: 0, // Backward compatibility
+    maxOpenJobs: 9999,
+    maxUsers: 9999,
     features: {
-      ats: true,
+      ats: true, // Backward compatibility
+      coreATS: true,
       aiScreening: false,
       customForms: false,
       teamCollaboration: false,
-      talentPool: false,
+      dedicatedTalentPool: false,
+      talentPool: false, // Backward compatibility
       brandedCareersPage: false,
-      jobBoardIntegration: false,
+      multiPostJobBoard: true, // Charges apply
+      postToHRM8JobBoard: false,
+      directJobBoardIntegration: false,
+      jobBoardIntegration: false, // Backward compatibility
+      postToCompanyJobBoard: false,
       locationManager: false,
       departmentManager: false,
       divisionManager: false,
-      reportsAnalytics: 'basic'
-    }
+      analyticsLevel: 'basic' as const,
+      reportsAnalytics: 'basic' as const, // Backward compatibility
+      hrmsIntegration: false,
+    },
+    billingCycle: 'free' as const,
+    isPopular: false,
+    description: 'Free tier with core ATS features',
+    isAnnualBilling: false,
   },
-  'payg': { 
-    maxOpenJobs: Infinity, 
-    maxUsers: Infinity, 
-    monthlyFee: 0,
-    jobPostingCost: 195,
+  'payg': {
+    id: 'payg',
     name: 'Pay As You Go',
-    description: 'Pay per job posting',
+    monthlyPrice: 195,
+    annualPrice: 195 * 12,
+    monthlyFee: 195, // Backward compatibility
+    jobPostingCost: 195, // Backward compatibility
+    maxOpenJobs: 9999, // Unlimited
+    maxUsers: 9999, // Unlimited
     features: {
-      ats: true,
+      ats: true, // Backward compatibility
+      coreATS: true,
       aiScreening: true,
       customForms: true,
       teamCollaboration: true,
-      talentPool: true,
+      dedicatedTalentPool: true,
+      talentPool: true, // Backward compatibility
       brandedCareersPage: true,
-      jobBoardIntegration: true,
+      multiPostJobBoard: true,
+      postToHRM8JobBoard: true, // Charges apply
+      directJobBoardIntegration: true, // Charges apply
+      jobBoardIntegration: true, // Backward compatibility
+      postToCompanyJobBoard: false,
       locationManager: true,
       departmentManager: true,
       divisionManager: false,
-      reportsAnalytics: 'standard'
-    }
+      analyticsLevel: 'standard' as const,
+      reportsAnalytics: 'standard' as const, // Backward compatibility
+      hrmsIntegration: true, // Optional $6/employee/month
+    },
+    billingCycle: 'monthly' as const,
+    isPopular: false,
+    description: 'Unlimited users, pay per job posting',
+    isAnnualBilling: true,
   },
-  small: { 
-    maxOpenJobs: 5, 
-    maxUsers: Infinity, 
-    monthlyFee: 295,
-    jobPostingCost: 0,
+  'small': {
+    id: 'small',
     name: 'Small',
-    description: 'For small teams',
+    monthlyPrice: 295,
+    annualPrice: 295 * 12,
+    monthlyFee: 295, // Backward compatibility
+    jobPostingCost: 0, // Backward compatibility
+    maxOpenJobs: 5,
+    maxUsers: 9999, // Unlimited
     features: {
-      ats: true,
+      ats: true, // Backward compatibility
+      coreATS: true,
       aiScreening: true,
       customForms: true,
       teamCollaboration: true,
-      talentPool: true,
+      dedicatedTalentPool: true,
+      talentPool: true, // Backward compatibility
       brandedCareersPage: true,
-      jobBoardIntegration: true,
+      multiPostJobBoard: true, // Charges apply
+      postToHRM8JobBoard: true, // Charges apply
+      directJobBoardIntegration: true, // Charges apply
+      jobBoardIntegration: true, // Backward compatibility
+      postToCompanyJobBoard: false,
       locationManager: true,
       departmentManager: true,
       divisionManager: false,
-      reportsAnalytics: 'advanced'
-    }
+      analyticsLevel: 'advanced' as const,
+      reportsAnalytics: 'advanced' as const, // Backward compatibility
+      hrmsIntegration: true, // Optional $6/employee/month
+    },
+    billingCycle: 'monthly' as const,
+    isPopular: false,
+    description: 'For small businesses with up to 5 open positions',
+    isAnnualBilling: true,
   },
-  medium: { 
-    maxOpenJobs: 25, 
-    maxUsers: Infinity, 
-    monthlyFee: 495,
-    jobPostingCost: 0,
+  'medium': {
+    id: 'medium',
     name: 'Medium',
-    description: 'For growing companies',
+    monthlyPrice: 495,
+    annualPrice: 495 * 12,
+    monthlyFee: 495, // Backward compatibility
+    jobPostingCost: 0, // Backward compatibility
+    maxOpenJobs: 25,
+    maxUsers: 9999, // Unlimited
     features: {
-      ats: true,
+      ats: true, // Backward compatibility
+      coreATS: true,
       aiScreening: true,
       customForms: true,
       teamCollaboration: true,
-      talentPool: true,
+      dedicatedTalentPool: true,
+      talentPool: true, // Backward compatibility
       brandedCareersPage: true,
-      jobBoardIntegration: true,
+      multiPostJobBoard: true, // Charges apply
+      postToHRM8JobBoard: true, // Charges apply
+      directJobBoardIntegration: true, // Charges apply
+      jobBoardIntegration: true, // Backward compatibility
+      postToCompanyJobBoard: false,
       locationManager: true,
       departmentManager: true,
       divisionManager: false,
-      reportsAnalytics: 'advanced'
-    }
+      analyticsLevel: 'advanced' as const,
+      reportsAnalytics: 'advanced' as const, // Backward compatibility
+      hrmsIntegration: true, // Optional $6/employee/month
+    },
+    billingCycle: 'monthly' as const,
+    isPopular: true,
+    description: 'Most popular for growing companies with up to 25 open positions',
+    isAnnualBilling: true,
   },
-  large: { 
-    maxOpenJobs: 50, 
-    maxUsers: Infinity, 
-    monthlyFee: 695,
-    jobPostingCost: 0,
+  'large': {
+    id: 'large',
     name: 'Large',
-    description: 'For large organizations',
+    monthlyPrice: 695,
+    annualPrice: 695 * 12,
+    monthlyFee: 695, // Backward compatibility
+    jobPostingCost: 0, // Backward compatibility
+    maxOpenJobs: 50,
+    maxUsers: 9999, // Unlimited
     features: {
-      ats: true,
+      ats: true, // Backward compatibility
+      coreATS: true,
       aiScreening: true,
       customForms: true,
       teamCollaboration: true,
-      talentPool: true,
+      dedicatedTalentPool: true,
+      talentPool: true, // Backward compatibility
       brandedCareersPage: true,
-      jobBoardIntegration: true,
+      multiPostJobBoard: true, // Charges apply
+      postToHRM8JobBoard: true, // Charges apply
+      directJobBoardIntegration: true, // Charges apply
+      jobBoardIntegration: true, // Backward compatibility
+      postToCompanyJobBoard: false,
       locationManager: true,
       departmentManager: true,
-      divisionManager: true,
-      reportsAnalytics: 'advanced'
-    }
+      divisionManager: false,
+      analyticsLevel: 'advanced' as const,
+      reportsAnalytics: 'advanced' as const, // Backward compatibility
+      hrmsIntegration: true, // Optional $6/employee/month
+    },
+    billingCycle: 'monthly' as const,
+    isPopular: false,
+    description: 'For larger organizations with up to 50 open positions',
+    isAnnualBilling: true,
   },
-  enterprise: { 
-    maxOpenJobs: Infinity, 
-    maxUsers: Infinity, 
-    monthlyFee: 995,
-    jobPostingCost: 0,
+  'enterprise': {
+    id: 'enterprise',
     name: 'Enterprise',
-    description: 'Unlimited everything',
+    monthlyPrice: 995,
+    annualPrice: 995 * 12,
+    monthlyFee: 995, // Backward compatibility
+    jobPostingCost: 0, // Backward compatibility
+    maxOpenJobs: 9999, // Unlimited
+    maxUsers: 9999, // Unlimited
     features: {
-      ats: true,
+      ats: true, // Backward compatibility
+      coreATS: true,
       aiScreening: true,
       customForms: true,
       teamCollaboration: true,
-      talentPool: true,
+      dedicatedTalentPool: true,
+      talentPool: true, // Backward compatibility
       brandedCareersPage: true,
-      jobBoardIntegration: true,
+      multiPostJobBoard: true, // Charges apply
+      postToHRM8JobBoard: true, // Charges apply
+      directJobBoardIntegration: true, // Charges apply
+      jobBoardIntegration: true, // Backward compatibility
+      postToCompanyJobBoard: false,
       locationManager: true,
       departmentManager: true,
-      divisionManager: true,
-      reportsAnalytics: 'enterprise'
-    }
-  }
+      divisionManager: true, // Only Enterprise has Division Manager
+      analyticsLevel: 'advanced' as const,
+      reportsAnalytics: 'advanced' as const, // Backward compatibility
+      hrmsIntegration: true, // Optional $6/employee/month
+    },
+    billingCycle: 'monthly' as const,
+    isPopular: false,
+    description: 'Enterprise solution with unlimited positions and division management',
+    isAnnualBilling: true,
+  },
 } as const;
 
 export const PAYG_JOB_POSTING_COST = 195;
