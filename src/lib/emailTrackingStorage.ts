@@ -95,3 +95,40 @@ export function getRecentEmails(limit: number = 10): EmailLog[] {
     .sort((a, b) => new Date(b.sentAt || b.createdAt).getTime() - new Date(a.sentAt || a.createdAt).getTime())
     .slice(0, limit);
 }
+
+export function getDraftEmails(): EmailLog[] {
+  const logs = getEmailLogs();
+  return logs.filter(log => log.status === 'draft');
+}
+
+export function getFilteredEmails(filters: {
+  status?: EmailLog['status'];
+  dateFrom?: Date;
+  dateTo?: Date;
+}): EmailLog[] {
+  let logs = getEmailLogs();
+
+  if (filters.status) {
+    logs = logs.filter(log => log.status === filters.status);
+  }
+
+  if (filters.dateFrom) {
+    logs = logs.filter(log => {
+      const logDate = new Date(log.sentAt || log.scheduledFor || log.createdAt);
+      return logDate >= filters.dateFrom!;
+    });
+  }
+
+  if (filters.dateTo) {
+    logs = logs.filter(log => {
+      const logDate = new Date(log.sentAt || log.scheduledFor || log.createdAt);
+      return logDate <= filters.dateTo!;
+    });
+  }
+
+  return logs.sort((a, b) => {
+    const dateA = new Date(a.sentAt || a.scheduledFor || a.createdAt);
+    const dateB = new Date(b.sentAt || b.scheduledFor || b.createdAt);
+    return dateB.getTime() - dateA.getTime();
+  });
+}

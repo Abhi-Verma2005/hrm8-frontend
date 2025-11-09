@@ -3,34 +3,95 @@ import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { EmailStatsCard } from '@/components/emails/EmailStatsCard';
 import { EmailLogsList } from '@/components/emails/EmailLogsList';
 import { ScheduledEmailsList } from '@/components/emails/ScheduledEmailsList';
+import { DraftEmailsList } from '@/components/emails/DraftEmailsList';
 import { EmailAnalytics } from '@/components/emails/EmailAnalytics';
 import { ScheduleEmailDialog } from '@/components/emails/ScheduleEmailDialog';
+import { EmailDetailDialog } from '@/components/emails/EmailDetailDialog';
+import { EmailFilters, EmailFilterState } from '@/components/emails/EmailFilters';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Clock, Eye, MousePointerClick, Plus } from 'lucide-react';
-import { getEmailStats, getRecentEmails, getScheduledEmails, saveEmailLog } from '@/lib/emailTrackingStorage';
+import { Mail, Clock, Eye, MousePointerClick, Plus, FileText } from 'lucide-react';
+import { getEmailStats, getRecentEmails, getScheduledEmails, getDraftEmails, saveEmailLog, deleteEmailLog, getFilteredEmails } from '@/lib/emailTrackingStorage';
 import { EmailLog } from '@/types/emailTracking';
+import { toast } from 'sonner';
 
 export default function EmailCenter() {
   const [stats, setStats] = useState(getEmailStats());
   const [recentEmails, setRecentEmails] = useState(getRecentEmails());
   const [scheduledEmails, setScheduledEmails] = useState(getScheduledEmails());
+  const [draftEmails, setDraftEmails] = useState(getDraftEmails());
+  const [filteredEmails, setFilteredEmails] = useState<EmailLog[]>([]);
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [editingEmail, setEditingEmail] = useState<EmailLog | null>(null);
+  const [detailEmail, setDetailEmail] = useState<EmailLog | null>(null);
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<EmailFilterState>({});
 
   const refreshData = () => {
     setStats(getEmailStats());
     setRecentEmails(getRecentEmails());
     setScheduledEmails(getScheduledEmails());
+    setDraftEmails(getDraftEmails());
+    if (Object.keys(activeFilters).length > 0) {
+      setFilteredEmails(getFilteredEmails(activeFilters));
+    }
   };
 
   const handleScheduleEmail = (emailData: Omit<EmailLog, 'id' | 'createdAt'>) => {
     const newEmail: EmailLog = {
       ...emailData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
+      id: editingEmail?.id || Date.now().toString(),
+      createdAt: editingEmail?.createdAt || new Date().toISOString(),
     };
     saveEmailLog(newEmail);
+    toast.success(editingEmail ? 'Email updated successfully' : 'Email scheduled successfully');
+    setEditingEmail(null);
     refreshData();
+  };
+
+  const handleEditEmail = (email: EmailLog) => {
+    setEditingEmail(email);
+    setScheduleDialogOpen(true);
+  };
+
+  const handleCancelEmail = (email: EmailLog) => {
+    deleteEmailLog(email.id);
+    toast.success('Email cancelled successfully');
+    refreshData();
+  };
+
+  const handleDeleteDraft = (email: EmailLog) => {
+    deleteEmailLog(email.id);
+    toast.success('Draft deleted successfully');
+    refreshData();
+  };
+
+  const handleSendDraft = (email: EmailLog) => {
+    const updatedEmail: EmailLog = {
+      ...email,
+      status: 'scheduled',
+      scheduledFor: new Date().toISOString(),
+    };
+    saveEmailLog(updatedEmail);
+    toast.success('Draft scheduled for sending');
+    refreshData();
+  };
+
+  const handleViewDetails = (email: EmailLog) => {
+    setDetailEmail(email);
+    setDetailDialogOpen(true);
+  };
+
+  const handleFilterChange = (filters: EmailFilterState) => {
+    setActiveFilters(filters);
+    setFilteredEmails(getFilteredEmails(filters));
+  };
+
+  const handleCloseScheduleDialog = (open: boolean) => {
+    setScheduleDialogOpen(open);
+    if (!open) {
+      setEditingEmail(null);
+    }
   };
 
   return (
@@ -47,7 +108,7 @@ export default function EmailCenter() {
       </div>
       <div className="space-y-6">
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-5">
           <EmailStatsCard
             title="Total Sent"
             value={stats.totalSent}
@@ -68,6 +129,11 @@ export default function EmailCenter() {
             value={scheduledEmails.length}
             icon={Clock}
           />
+          <EmailStatsCard
+            title="Drafts"
+            value={draftEmails.length}
+            icon={FileText}
+          />
         </div>
 
         {/* Analytics Charts */}
@@ -78,26 +144,49 @@ export default function EmailCenter() {
           <TabsList>
             <TabsTrigger value="recent">Recent Emails</TabsTrigger>
             <TabsTrigger value="scheduled">Scheduled</TabsTrigger>
+            <TabsTrigger value="drafts">Drafts</TabsTrigger>
+            <TabsTrigger value="filtered">Advanced Filters</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="recent">
-            <EmailLogsList emails={recentEmails} />
+          <TabsContent value="recent" className="space-y-4">
+            <EmailLogsList emails={recentEmails} onViewDetails={handleViewDetails} />
           </TabsContent>
 
-          <TabsContent value="scheduled">
+          <TabsContent value="scheduled" className="space-y-4">
             <ScheduledEmailsList
               emails={scheduledEmails}
-              onEdit={(email) => console.log('Edit', email)}
-              onCancel={(email) => console.log('Cancel', email)}
+              onEdit={handleEditEmail}
+              onCancel={handleCancelEmail}
             />
+          </TabsContent>
+
+          <TabsContent value="drafts" className="space-y-4">
+            <DraftEmailsList
+              emails={draftEmails}
+              onEdit={handleEditEmail}
+              onDelete={handleDeleteDraft}
+              onSend={handleSendDraft}
+            />
+          </TabsContent>
+
+          <TabsContent value="filtered" className="space-y-4">
+            <EmailFilters onFilterChange={handleFilterChange} />
+            <EmailLogsList emails={filteredEmails} onViewDetails={handleViewDetails} />
           </TabsContent>
         </Tabs>
       </div>
 
       <ScheduleEmailDialog
         open={scheduleDialogOpen}
-        onOpenChange={setScheduleDialogOpen}
+        onOpenChange={handleCloseScheduleDialog}
         onSchedule={handleScheduleEmail}
+        initialData={editingEmail || undefined}
+      />
+
+      <EmailDetailDialog
+        email={detailEmail}
+        open={detailDialogOpen}
+        onOpenChange={setDetailDialogOpen}
       />
     </div>
   );
