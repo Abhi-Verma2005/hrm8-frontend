@@ -51,7 +51,7 @@ export function RPOServiceForm({ initialData, onSubmit, onCancel }: RPOServiceFo
         frequency: fee.frequency,
         description: fee.description,
         isGuidePrice: fee.isGuidePrice
-      })),
+      })) as RPOFeeStructure[],
       rpoAssignedConsultants: initialData?.rpoAssignedConsultants || [],
       rpoAutoRenew: initialData?.rpoAutoRenew || false,
       rpoNoticePeriod: initialData?.rpoNoticePeriod || 30,
@@ -325,12 +325,15 @@ export function RPOServiceForm({ initialData, onSubmit, onCancel }: RPOServiceFo
                 {isCustomPricing && (
                   <>
                     <Separator />
-                    <FormField
+                     <FormField
                       control={form.control}
                       name="rpoFeeStructures"
                       render={({ field }) => (
                         <FormItem>
-                          <RPOFeeStructureBuilder fees={field.value} onChange={field.onChange} />
+                          <RPOFeeStructureBuilder 
+                            fees={field.value as RPOFeeStructure[]} 
+                            onChange={field.onChange} 
+                          />
                           <FormMessage />
                         </FormItem>
                       )}
