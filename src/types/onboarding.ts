@@ -1,113 +1,122 @@
+export type ConsultantType = 'employee' | 'contractor';
 export type OnboardingStatus = 'not-started' | 'in-progress' | 'completed' | 'overdue';
-export type TaskStatus = 'pending' | 'in-progress' | 'completed' | 'skipped';
-export type TaskPriority = 'low' | 'medium' | 'high' | 'critical';
-export type DocumentStatus = 'pending' | 'uploaded' | 'approved' | 'rejected';
-export type NotificationType = 'task-assigned' | 'task-reminder' | 'task-completed' | 'document-uploaded' | 'document-approved' | 'workflow-completed';
+export type ChecklistItemStatus = 'pending' | 'in-progress' | 'completed' | 'skipped';
+export type DocumentStatus = 'not-submitted' | 'submitted' | 'approved' | 'rejected' | 'revision-required';
+export type TrainingStatus = 'not-started' | 'in-progress' | 'completed' | 'failed';
 
-export interface OnboardingWorkflow {
+export interface OnboardingChecklistItem {
   id: string;
-  employeeId: string;
-  employeeName: string;
-  employeeEmail: string;
-  jobTitle: string;
-  department: string;
-  startDate: string;
-  status: OnboardingStatus;
-  progress: number; // 0-100
-  assignedTo: string;
-  assignedToName: string;
-  dueDate: string;
-  completedDate?: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-}
-
-export interface OnboardingTask {
-  id: string;
-  workflowId: string;
   title: string;
   description: string;
-  category: 'administrative' | 'hr' | 'it' | 'training' | 'compliance' | 'equipment' | 'orientation' | 'other';
-  status: TaskStatus;
-  priority: TaskPriority;
-  assignedTo: string;
-  assignedToName: string;
-  dueDate: string;
+  status: ChecklistItemStatus;
+  dueDate?: string;
   completedDate?: string;
   completedBy?: string;
-  completedByName?: string;
-  estimatedDuration?: number; // in minutes
-  actualDuration?: number;
-  dependencies?: string[]; // task IDs that must be completed first
-  notes?: string;
-  attachments?: string[];
+  assignedTo?: string;
+  priority: 'low' | 'medium' | 'high';
+  category: 'hr' | 'it' | 'training' | 'documentation' | 'admin' | 'compliance';
+  dependencies?: string[]; // IDs of items that must be completed first
   order: number;
-  createdAt: string;
-  updatedAt: string;
+  notes?: string;
+  isRequired: boolean;
+  applicableFor: ConsultantType[];
 }
 
 export interface OnboardingDocument {
   id: string;
-  workflowId: string;
   name: string;
-  description?: string;
-  type: 'contract' | 'identification' | 'tax-form' | 'bank-details' | 'emergency-contact' | 'policy-acknowledgment' | 'certification' | 'background-check' | 'other';
+  description: string;
   status: DocumentStatus;
-  required: boolean;
+  category: 'identity' | 'tax' | 'contract' | 'banking' | 'compliance' | 'insurance' | 'other';
   fileUrl?: string;
   fileName?: string;
-  fileSize?: number;
-  mimeType?: string;
-  uploadedBy?: string;
-  uploadedByName?: string;
-  uploadedAt?: string;
+  uploadedDate?: string;
   reviewedBy?: string;
-  reviewedByName?: string;
-  reviewedAt?: string;
+  reviewedDate?: string;
   reviewNotes?: string;
   expiryDate?: string;
-  createdAt: string;
-  updatedAt: string;
+  isRequired: boolean;
+  applicableFor: ConsultantType[];
+  template?: string; // URL to template if available
 }
 
-export interface OnboardingNotification {
+export interface TrainingModule {
   id: string;
-  workflowId: string;
-  type: NotificationType;
-  recipient: string;
-  recipientName: string;
-  subject: string;
-  message: string;
-  sentAt: string;
-  readAt?: string;
-  actionUrl?: string;
-  metadata?: Record<string, any>;
+  title: string;
+  description: string;
+  category: 'compliance' | 'technical' | 'product' | 'sales' | 'hr-policy' | 'safety' | 'other';
+  duration: number; // in minutes
+  status: TrainingStatus;
+  startedDate?: string;
+  completedDate?: string;
+  score?: number; // percentage
+  passingScore: number;
+  attempts: number;
+  maxAttempts: number;
+  certificateUrl?: string;
+  contentUrl?: string;
+  isRequired: boolean;
+  applicableFor: ConsultantType[];
+  order: number;
+}
+
+export interface OnboardingWorkflow {
+  id: string;
+  consultantId: string;
+  consultantName: string;
+  consultantType: ConsultantType;
+  
+  // Status & Dates
+  status: OnboardingStatus;
+  startDate: string;
+  targetCompletionDate: string;
+  actualCompletionDate?: string;
+  
+  // Assigned People
+  onboardingCoordinator?: string;
+  onboardingCoordinatorName?: string;
+  buddy?: string;
+  buddyName?: string;
+  manager?: string;
+  managerName?: string;
+  
+  // Progress
+  checklist: OnboardingChecklistItem[];
+  documents: OnboardingDocument[];
+  training: TrainingModule[];
+  
+  // Metrics
+  overallProgress: number; // percentage
+  checklistProgress: number;
+  documentProgress: number;
+  trainingProgress: number;
+  
+  // Special Dates
+  firstDayDate?: string;
+  orientationDate?: string;
+  
+  // Notes & Communication
+  notes?: string;
+  welcomeMessageSent: boolean;
+  lastActivityDate?: string;
+  
+  // Metadata
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  tags?: string[];
 }
 
 export interface OnboardingTemplate {
   id: string;
   name: string;
   description: string;
-  department?: string;
-  jobTitle?: string;
-  duration: number; // in days
-  tasks: Omit<OnboardingTask, 'id' | 'workflowId' | 'assignedTo' | 'assignedToName' | 'status' | 'completedDate' | 'completedBy' | 'completedByName' | 'actualDuration' | 'createdAt' | 'updatedAt'>[];
-  documents: Omit<OnboardingDocument, 'id' | 'workflowId' | 'status' | 'fileUrl' | 'fileName' | 'fileSize' | 'mimeType' | 'uploadedBy' | 'uploadedByName' | 'uploadedAt' | 'reviewedBy' | 'reviewedByName' | 'reviewedAt' | 'reviewNotes' | 'createdAt' | 'updatedAt'>[];
+  consultantType: ConsultantType;
+  defaultDuration: number; // days
+  checklistItems: Omit<OnboardingChecklistItem, 'id' | 'status' | 'completedDate' | 'completedBy'>[];
+  documents: Omit<OnboardingDocument, 'id' | 'status' | 'uploadedDate' | 'fileUrl' | 'fileName' | 'reviewedBy' | 'reviewedDate'>[];
+  training: Omit<TrainingModule, 'id' | 'status' | 'startedDate' | 'completedDate' | 'score' | 'attempts'>[];
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  createdBy: string;
-}
-
-export interface OnboardingStats {
-  total: number;
-  notStarted: number;
-  inProgress: number;
-  completed: number;
-  overdue: number;
-  avgCompletionTime: number; // in days
-  avgProgress: number;
-  taskCompletionRate: number;
-  documentCompletionRate: number;
 }

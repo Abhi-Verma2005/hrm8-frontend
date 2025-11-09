@@ -1,319 +1,508 @@
-import { 
+import type { 
   OnboardingWorkflow, 
-  OnboardingTask, 
+  OnboardingChecklistItem, 
   OnboardingDocument, 
-  OnboardingNotification,
+  TrainingModule,
   OnboardingTemplate,
-  OnboardingStats
-} from "@/types/onboarding";
-import { 
-  mockOnboardingWorkflows, 
-  mockOnboardingTasks, 
-  mockOnboardingDocuments,
-  mockOnboardingNotifications,
-  mockOnboardingTemplates
-} from "@/data/mockOnboardingData";
+  ConsultantType 
+} from '@/types/onboarding';
 
-const STORAGE_KEYS = {
-  WORKFLOWS: 'onboarding_workflows',
-  TASKS: 'onboarding_tasks',
-  DOCUMENTS: 'onboarding_documents',
-  NOTIFICATIONS: 'onboarding_notifications',
-  TEMPLATES: 'onboarding_templates',
-};
+const ONBOARDING_KEY = 'onboarding_workflows';
+const TEMPLATES_KEY = 'onboarding_templates';
 
-// Workflows
-export function getOnboardingWorkflows(): OnboardingWorkflow[] {
-  const stored = localStorage.getItem(STORAGE_KEYS.WORKFLOWS);
-  return stored ? JSON.parse(stored) : mockOnboardingWorkflows;
+// Workflow Management
+export function getAllWorkflows(): OnboardingWorkflow[] {
+  const stored = localStorage.getItem(ONBOARDING_KEY);
+  return stored ? JSON.parse(stored) : [];
 }
 
-export function getOnboardingWorkflowById(id: string): OnboardingWorkflow | undefined {
-  return getOnboardingWorkflows().find(w => w.id === id);
+export function getWorkflowById(id: string): OnboardingWorkflow | undefined {
+  return getAllWorkflows().find(w => w.id === id);
 }
 
-export function saveOnboardingWorkflow(workflow: OnboardingWorkflow): void {
-  const workflows = getOnboardingWorkflows();
-  const index = workflows.findIndex(w => w.id === workflow.id);
+export function getConsultantWorkflow(consultantId: string): OnboardingWorkflow | undefined {
+  return getAllWorkflows().find(w => w.consultantId === consultantId);
+}
+
+export function createWorkflow(
+  workflow: Omit<OnboardingWorkflow, 'id' | 'createdAt' | 'updatedAt' | 'overallProgress' | 'checklistProgress' | 'documentProgress' | 'trainingProgress'>
+): OnboardingWorkflow {
+  const all = getAllWorkflows();
   
-  if (index >= 0) {
-    workflows[index] = { ...workflow, updatedAt: new Date().toISOString() };
-  } else {
-    workflows.push({ ...workflow, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-  }
-  
-  localStorage.setItem(STORAGE_KEYS.WORKFLOWS, JSON.stringify(workflows));
-}
-
-export function deleteOnboardingWorkflow(id: string): void {
-  const workflows = getOnboardingWorkflows().filter(w => w.id !== id);
-  localStorage.setItem(STORAGE_KEYS.WORKFLOWS, JSON.stringify(workflows));
-  
-  // Also delete related tasks, documents, and notifications
-  const tasks = getOnboardingTasks(id);
-  tasks.forEach(task => deleteOnboardingTask(task.id));
-  
-  const documents = getOnboardingDocuments(id);
-  documents.forEach(doc => deleteOnboardingDocument(doc.id));
-}
-
-// Tasks
-export function getOnboardingTasks(workflowId: string): OnboardingTask[] {
-  const stored = localStorage.getItem(STORAGE_KEYS.TASKS);
-  const allTasks = stored ? JSON.parse(stored) : mockOnboardingTasks;
-  return allTasks.filter((t: OnboardingTask) => t.workflowId === workflowId);
-}
-
-export function getAllOnboardingTasks(): OnboardingTask[] {
-  const stored = localStorage.getItem(STORAGE_KEYS.TASKS);
-  return stored ? JSON.parse(stored) : mockOnboardingTasks;
-}
-
-export function getOnboardingTaskById(id: string): OnboardingTask | undefined {
-  return getAllOnboardingTasks().find(t => t.id === id);
-}
-
-export function saveOnboardingTask(task: OnboardingTask): void {
-  const tasks = getAllOnboardingTasks();
-  const index = tasks.findIndex(t => t.id === task.id);
-  
-  if (index >= 0) {
-    tasks[index] = { ...task, updatedAt: new Date().toISOString() };
-  } else {
-    tasks.push({ ...task, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-  }
-  
-  localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
-  
-  // Update workflow progress
-  updateWorkflowProgress(task.workflowId);
-}
-
-export function deleteOnboardingTask(id: string): void {
-  const tasks = getAllOnboardingTasks().filter(t => t.id !== id);
-  localStorage.setItem(STORAGE_KEYS.TASKS, JSON.stringify(tasks));
-}
-
-// Documents
-export function getOnboardingDocuments(workflowId: string): OnboardingDocument[] {
-  const stored = localStorage.getItem(STORAGE_KEYS.DOCUMENTS);
-  const allDocuments = stored ? JSON.parse(stored) : mockOnboardingDocuments;
-  return allDocuments.filter((d: OnboardingDocument) => d.workflowId === workflowId);
-}
-
-export function getAllOnboardingDocuments(): OnboardingDocument[] {
-  const stored = localStorage.getItem(STORAGE_KEYS.DOCUMENTS);
-  return stored ? JSON.parse(stored) : mockOnboardingDocuments;
-}
-
-export function getOnboardingDocumentById(id: string): OnboardingDocument | undefined {
-  return getAllOnboardingDocuments().find(d => d.id === id);
-}
-
-export function saveOnboardingDocument(document: OnboardingDocument): void {
-  const documents = getAllOnboardingDocuments();
-  const index = documents.findIndex(d => d.id === document.id);
-  
-  if (index >= 0) {
-    documents[index] = { ...document, updatedAt: new Date().toISOString() };
-  } else {
-    documents.push({ ...document, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-  }
-  
-  localStorage.setItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(documents));
-  
-  // Update workflow progress
-  updateWorkflowProgress(document.workflowId);
-}
-
-export function deleteOnboardingDocument(id: string): void {
-  const documents = getAllOnboardingDocuments().filter(d => d.id !== id);
-  localStorage.setItem(STORAGE_KEYS.DOCUMENTS, JSON.stringify(documents));
-}
-
-// Notifications
-export function getOnboardingNotifications(workflowId: string): OnboardingNotification[] {
-  const stored = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
-  const allNotifications = stored ? JSON.parse(stored) : mockOnboardingNotifications;
-  return allNotifications.filter((n: OnboardingNotification) => n.workflowId === workflowId);
-}
-
-export function saveOnboardingNotification(notification: OnboardingNotification): void {
-  const stored = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
-  const notifications = stored ? JSON.parse(stored) : mockOnboardingNotifications;
-  notifications.push(notification);
-  localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
-}
-
-// Templates
-export function getOnboardingTemplates(): OnboardingTemplate[] {
-  const stored = localStorage.getItem(STORAGE_KEYS.TEMPLATES);
-  return stored ? JSON.parse(stored) : mockOnboardingTemplates;
-}
-
-export function getOnboardingTemplateById(id: string): OnboardingTemplate | undefined {
-  return getOnboardingTemplates().find(t => t.id === id);
-}
-
-export function saveOnboardingTemplate(template: OnboardingTemplate): void {
-  const templates = getOnboardingTemplates();
-  const index = templates.findIndex(t => t.id === template.id);
-  
-  if (index >= 0) {
-    templates[index] = { ...template, updatedAt: new Date().toISOString() };
-  } else {
-    templates.push({ ...template, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-  }
-  
-  localStorage.setItem(STORAGE_KEYS.TEMPLATES, JSON.stringify(templates));
-}
-
-export function deleteOnboardingTemplate(id: string): void {
-  const templates = getOnboardingTemplates().filter(t => t.id !== id);
-  localStorage.setItem(STORAGE_KEYS.TEMPLATES, JSON.stringify(templates));
-}
-
-// Helper functions
-function updateWorkflowProgress(workflowId: string): void {
-  const workflow = getOnboardingWorkflowById(workflowId);
-  if (!workflow) return;
-  
-  const tasks = getOnboardingTasks(workflowId);
-  const documents = getOnboardingDocuments(workflowId);
-  
-  const totalItems = tasks.length + documents.length;
-  if (totalItems === 0) return;
-  
-  const completedTasks = tasks.filter(t => t.status === 'completed').length;
-  const completedDocuments = documents.filter(d => d.status === 'approved' || (d.required === false && d.status !== 'pending')).length;
-  
-  const progress = Math.round(((completedTasks + completedDocuments) / totalItems) * 100);
-  
-  let status = workflow.status;
-  if (progress === 0) status = 'not-started';
-  else if (progress === 100) status = 'completed';
-  else if (new Date(workflow.dueDate) < new Date() && progress < 100) status = 'overdue';
-  else status = 'in-progress';
-  
-  saveOnboardingWorkflow({
+  const newWorkflow: OnboardingWorkflow = {
     ...workflow,
-    progress,
-    status,
-    completedDate: progress === 100 ? new Date().toISOString() : undefined,
+    id: `onboarding_${Date.now()}`,
+    overallProgress: 0,
+    checklistProgress: 0,
+    documentProgress: 0,
+    trainingProgress: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  
+  all.push(newWorkflow);
+  localStorage.setItem(ONBOARDING_KEY, JSON.stringify(all));
+  
+  return newWorkflow;
+}
+
+function calculateProgress(workflow: OnboardingWorkflow): OnboardingWorkflow {
+  const checklistTotal = workflow.checklist.filter(item => item.isRequired).length;
+  const checklistCompleted = workflow.checklist.filter(item => 
+    item.isRequired && item.status === 'completed'
+  ).length;
+  
+  const documentTotal = workflow.documents.filter(doc => doc.isRequired).length;
+  const documentCompleted = workflow.documents.filter(doc => 
+    doc.isRequired && doc.status === 'approved'
+  ).length;
+  
+  const trainingTotal = workflow.training.filter(t => t.isRequired).length;
+  const trainingCompleted = workflow.training.filter(t => 
+    t.isRequired && t.status === 'completed'
+  ).length;
+  
+  const checklistProgress = checklistTotal > 0 ? (checklistCompleted / checklistTotal) * 100 : 100;
+  const documentProgress = documentTotal > 0 ? (documentCompleted / documentTotal) * 100 : 100;
+  const trainingProgress = trainingTotal > 0 ? (trainingCompleted / trainingTotal) * 100 : 100;
+  
+  const overallProgress = (checklistProgress + documentProgress + trainingProgress) / 3;
+  
+  return {
+    ...workflow,
+    checklistProgress: Math.round(checklistProgress),
+    documentProgress: Math.round(documentProgress),
+    trainingProgress: Math.round(trainingProgress),
+    overallProgress: Math.round(overallProgress),
+    status: overallProgress === 100 ? 'completed' : 
+            overallProgress > 0 ? 'in-progress' : 'not-started',
+    updatedAt: new Date().toISOString(),
+    lastActivityDate: new Date().toISOString(),
+  };
+}
+
+export function updateWorkflow(
+  id: string,
+  updates: Partial<OnboardingWorkflow>
+): OnboardingWorkflow | null {
+  const all = getAllWorkflows();
+  const index = all.findIndex(w => w.id === id);
+  
+  if (index === -1) return null;
+  
+  all[index] = calculateProgress({
+    ...all[index],
+    ...updates,
+  });
+  
+  localStorage.setItem(ONBOARDING_KEY, JSON.stringify(all));
+  return all[index];
+}
+
+// Checklist Management
+export function updateChecklistItem(
+  workflowId: string,
+  itemId: string,
+  updates: Partial<OnboardingChecklistItem>
+): OnboardingWorkflow | null {
+  const workflow = getWorkflowById(workflowId);
+  if (!workflow) return null;
+  
+  const checklist = workflow.checklist.map(item =>
+    item.id === itemId ? { ...item, ...updates } : item
+  );
+  
+  return updateWorkflow(workflowId, { checklist });
+}
+
+export function completeChecklistItem(
+  workflowId: string,
+  itemId: string,
+  completedBy: string
+): OnboardingWorkflow | null {
+  return updateChecklistItem(workflowId, itemId, {
+    status: 'completed',
+    completedDate: new Date().toISOString(),
+    completedBy,
   });
 }
 
-export function getOnboardingStats(): OnboardingStats {
-  const workflows = getOnboardingWorkflows();
-  const tasks = getAllOnboardingTasks();
-  const documents = getAllOnboardingDocuments();
+// Document Management
+export function updateDocument(
+  workflowId: string,
+  documentId: string,
+  updates: Partial<OnboardingDocument>
+): OnboardingWorkflow | null {
+  const workflow = getWorkflowById(workflowId);
+  if (!workflow) return null;
   
-  const completedWorkflows = workflows.filter(w => w.status === 'completed');
-  const completionTimes = completedWorkflows
-    .filter(w => w.completedDate)
-    .map(w => {
-      const start = new Date(w.startDate).getTime();
-      const end = new Date(w.completedDate!).getTime();
-      return (end - start) / (1000 * 60 * 60 * 24); // days
-    });
+  const documents = workflow.documents.map(doc =>
+    doc.id === documentId ? { ...doc, ...updates } : doc
+  );
   
-  const avgCompletionTime = completionTimes.length > 0
-    ? Math.round(completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length)
-    : 0;
+  return updateWorkflow(workflowId, { documents });
+}
+
+export function submitDocument(
+  workflowId: string,
+  documentId: string,
+  fileUrl: string,
+  fileName: string
+): OnboardingWorkflow | null {
+  return updateDocument(workflowId, documentId, {
+    status: 'submitted',
+    fileUrl,
+    fileName,
+    uploadedDate: new Date().toISOString(),
+  });
+}
+
+export function reviewDocument(
+  workflowId: string,
+  documentId: string,
+  status: 'approved' | 'rejected' | 'revision-required',
+  reviewedBy: string,
+  reviewNotes?: string
+): OnboardingWorkflow | null {
+  return updateDocument(workflowId, documentId, {
+    status,
+    reviewedBy,
+    reviewedDate: new Date().toISOString(),
+    reviewNotes,
+  });
+}
+
+// Training Management
+export function updateTraining(
+  workflowId: string,
+  trainingId: string,
+  updates: Partial<TrainingModule>
+): OnboardingWorkflow | null {
+  const workflow = getWorkflowById(workflowId);
+  if (!workflow) return null;
   
-  const avgProgress = workflows.length > 0
-    ? Math.round(workflows.reduce((sum, w) => sum + w.progress, 0) / workflows.length)
-    : 0;
+  const training = workflow.training.map(t =>
+    t.id === trainingId ? { ...t, ...updates } : t
+  );
   
-  const completedTasks = tasks.filter(t => t.status === 'completed').length;
-  const taskCompletionRate = tasks.length > 0
-    ? Math.round((completedTasks / tasks.length) * 100)
-    : 0;
+  return updateWorkflow(workflowId, { training });
+}
+
+export function startTraining(
+  workflowId: string,
+  trainingId: string
+): OnboardingWorkflow | null {
+  return updateTraining(workflowId, trainingId, {
+    status: 'in-progress',
+    startedDate: new Date().toISOString(),
+  });
+}
+
+export function completeTraining(
+  workflowId: string,
+  trainingId: string,
+  score: number
+): OnboardingWorkflow | null {
+  const workflow = getWorkflowById(workflowId);
+  if (!workflow) return null;
   
-  const approvedDocuments = documents.filter(d => d.status === 'approved').length;
-  const documentCompletionRate = documents.length > 0
-    ? Math.round((approvedDocuments / documents.length) * 100)
-    : 0;
+  const training = workflow.training.find(t => t.id === trainingId);
+  if (!training) return null;
   
-  return {
-    total: workflows.length,
-    notStarted: workflows.filter(w => w.status === 'not-started').length,
-    inProgress: workflows.filter(w => w.status === 'in-progress').length,
-    completed: workflows.filter(w => w.status === 'completed').length,
-    overdue: workflows.filter(w => w.status === 'overdue').length,
-    avgCompletionTime,
-    avgProgress,
-    taskCompletionRate,
-    documentCompletionRate,
-  };
+  const passed = score >= training.passingScore;
+  const newAttempts = training.attempts + 1;
+  
+  return updateTraining(workflowId, trainingId, {
+    status: passed ? 'completed' : newAttempts >= training.maxAttempts ? 'failed' : 'in-progress',
+    completedDate: passed ? new Date().toISOString() : undefined,
+    score,
+    attempts: newAttempts,
+  });
+}
+
+// Templates
+export function getAllTemplates(): OnboardingTemplate[] {
+  const stored = localStorage.getItem(TEMPLATES_KEY);
+  return stored ? JSON.parse(stored) : getDefaultTemplates();
+}
+
+export function getTemplateById(id: string): OnboardingTemplate | undefined {
+  return getAllTemplates().find(t => t.id === id);
 }
 
 export function createWorkflowFromTemplate(
   templateId: string,
-  employeeData: {
-    employeeId: string;
-    employeeName: string;
-    employeeEmail: string;
-    jobTitle: string;
-    department: string;
-    startDate: string;
-    assignedTo: string;
-    assignedToName: string;
-  }
-): string {
-  const template = getOnboardingTemplateById(templateId);
-  if (!template) throw new Error('Template not found');
+  consultantId: string,
+  consultantName: string,
+  startDate: string,
+  createdBy: string
+): OnboardingWorkflow | null {
+  const template = getTemplateById(templateId);
+  if (!template) return null;
   
-  const workflowId = `workflow-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  const dueDate = new Date(employeeData.startDate);
-  dueDate.setDate(dueDate.getDate() + template.duration);
+  const targetDate = new Date(startDate);
+  targetDate.setDate(targetDate.getDate() + template.defaultDuration);
   
-  const workflow: OnboardingWorkflow = {
-    id: workflowId,
-    ...employeeData,
+  return createWorkflow({
+    consultantId,
+    consultantName,
+    consultantType: template.consultantType,
     status: 'not-started',
-    progress: 0,
-    dueDate: dueDate.toISOString(),
+    startDate,
+    targetCompletionDate: targetDate.toISOString(),
+    checklist: template.checklistItems.map((item, index) => ({
+      ...item,
+      id: `checklist_${Date.now()}_${index}`,
+      status: 'pending',
+    })),
+    documents: template.documents.map((doc, index) => ({
+      ...doc,
+      id: `document_${Date.now()}_${index}`,
+      status: 'not-submitted',
+    })),
+    training: template.training.map((t, index) => ({
+      ...t,
+      id: `training_${Date.now()}_${index}`,
+      status: 'not-started',
+      attempts: 0,
+    })),
+    welcomeMessageSent: false,
+    createdBy,
+  });
+}
+
+function getDefaultTemplates(): OnboardingTemplate[] {
+  const employeeTemplate: OnboardingTemplate = {
+    id: 'template_employee',
+    name: 'Full-Time Employee Onboarding',
+    description: 'Complete onboarding for direct employees',
+    consultantType: 'employee',
+    defaultDuration: 30,
+    checklistItems: [
+      {
+        title: 'Send Welcome Email',
+        description: 'Send personalized welcome email with first day details',
+        priority: 'high',
+        category: 'hr',
+        order: 1,
+        isRequired: true,
+        applicableFor: ['employee', 'contractor'],
+      },
+      {
+        title: 'Setup Workstation',
+        description: 'Prepare desk, computer, and necessary equipment',
+        priority: 'high',
+        category: 'it',
+        order: 2,
+        isRequired: true,
+        applicableFor: ['employee'],
+      },
+      {
+        title: 'Create IT Accounts',
+        description: 'Setup email, Slack, and system access',
+        priority: 'high',
+        category: 'it',
+        order: 3,
+        isRequired: true,
+        applicableFor: ['employee', 'contractor'],
+      },
+      {
+        title: 'First Day Orientation',
+        description: 'Conduct office tour and team introductions',
+        priority: 'high',
+        category: 'hr',
+        order: 4,
+        isRequired: true,
+        applicableFor: ['employee'],
+      },
+      {
+        title: 'Benefits Enrollment',
+        description: 'Complete health insurance and 401k setup',
+        priority: 'high',
+        category: 'hr',
+        order: 5,
+        isRequired: true,
+        applicableFor: ['employee'],
+      },
+    ],
+    documents: [
+      {
+        name: 'Employment Contract',
+        description: 'Signed employment agreement',
+        category: 'contract',
+        isRequired: true,
+        applicableFor: ['employee'],
+      },
+      {
+        name: 'W-4 Tax Form',
+        description: 'Federal tax withholding form',
+        category: 'tax',
+        isRequired: true,
+        applicableFor: ['employee'],
+      },
+      {
+        name: 'I-9 Verification',
+        description: 'Employment eligibility verification',
+        category: 'identity',
+        isRequired: true,
+        applicableFor: ['employee'],
+      },
+      {
+        name: 'Direct Deposit Form',
+        description: 'Banking information for payroll',
+        category: 'banking',
+        isRequired: true,
+        applicableFor: ['employee'],
+      },
+    ],
+    training: [
+      {
+        title: 'Company Overview',
+        description: 'Learn about company history, mission, and values',
+        category: 'hr-policy',
+        duration: 30,
+        passingScore: 80,
+        maxAttempts: 3,
+        isRequired: true,
+        applicableFor: ['employee', 'contractor'],
+        order: 1,
+      },
+      {
+        title: 'HR Policies & Procedures',
+        description: 'Understand workplace policies and guidelines',
+        category: 'hr-policy',
+        duration: 45,
+        passingScore: 80,
+        maxAttempts: 3,
+        isRequired: true,
+        applicableFor: ['employee'],
+        order: 2,
+      },
+      {
+        title: 'Workplace Safety',
+        description: 'Safety protocols and emergency procedures',
+        category: 'safety',
+        duration: 20,
+        passingScore: 100,
+        maxAttempts: 5,
+        isRequired: true,
+        applicableFor: ['employee', 'contractor'],
+        order: 3,
+      },
+    ],
+    isActive: true,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    createdBy: 'current-user', // Replace with actual user
   };
   
-  saveOnboardingWorkflow(workflow);
+  const contractorTemplate: OnboardingTemplate = {
+    id: 'template_contractor',
+    name: 'Contractor Onboarding',
+    description: 'Streamlined onboarding for contractors',
+    consultantType: 'contractor',
+    defaultDuration: 14,
+    checklistItems: [
+      {
+        title: 'Send Welcome Email',
+        description: 'Send welcome email with project details',
+        priority: 'high',
+        category: 'hr',
+        order: 1,
+        isRequired: true,
+        applicableFor: ['contractor'],
+      },
+      {
+        title: 'Create System Access',
+        description: 'Setup necessary system and tool access',
+        priority: 'high',
+        category: 'it',
+        order: 2,
+        isRequired: true,
+        applicableFor: ['contractor'],
+      },
+      {
+        title: 'Project Briefing',
+        description: 'Introduce to project scope and expectations',
+        priority: 'high',
+        category: 'admin',
+        order: 3,
+        isRequired: true,
+        applicableFor: ['contractor'],
+      },
+    ],
+    documents: [
+      {
+        name: 'Contractor Agreement',
+        description: 'Signed independent contractor agreement',
+        category: 'contract',
+        isRequired: true,
+        applicableFor: ['contractor'],
+      },
+      {
+        name: 'W-9 Form',
+        description: 'Taxpayer identification form',
+        category: 'tax',
+        isRequired: true,
+        applicableFor: ['contractor'],
+      },
+      {
+        name: 'NDA',
+        description: 'Non-disclosure agreement',
+        category: 'compliance',
+        isRequired: true,
+        applicableFor: ['contractor'],
+      },
+    ],
+    training: [
+      {
+        title: 'Company Overview',
+        description: 'Brief introduction to company and culture',
+        category: 'hr-policy',
+        duration: 20,
+        passingScore: 80,
+        maxAttempts: 3,
+        isRequired: true,
+        applicableFor: ['contractor'],
+        order: 1,
+      },
+      {
+        title: 'Security & Compliance',
+        description: 'Data security and compliance requirements',
+        category: 'compliance',
+        duration: 30,
+        passingScore: 90,
+        maxAttempts: 3,
+        isRequired: true,
+        applicableFor: ['contractor'],
+        order: 2,
+      },
+    ],
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
   
-  // Create tasks from template
-  template.tasks.forEach((taskTemplate, index) => {
-    const taskDueDate = new Date(employeeData.startDate);
-    taskDueDate.setDate(taskDueDate.getDate() + (index + 1) * 2); // Spread tasks over time
-    
-    const task: OnboardingTask = {
-      id: `task-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
-      workflowId,
-      ...taskTemplate,
-      assignedTo: employeeData.assignedTo,
-      assignedToName: employeeData.assignedToName,
-      status: 'pending',
-      dueDate: taskDueDate.toISOString(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    
-    saveOnboardingTask(task);
-  });
+  const templates = [employeeTemplate, contractorTemplate];
+  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates));
+  return templates;
+}
+
+// Statistics
+export function getOnboardingStats() {
+  const workflows = getAllWorkflows();
   
-  // Create documents from template
-  template.documents.forEach((docTemplate, index) => {
-    const document: OnboardingDocument = {
-      id: `doc-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`,
-      workflowId,
-      ...docTemplate,
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    
-    saveOnboardingDocument(document);
-  });
-  
-  return workflowId;
+  return {
+    total: workflows.length,
+    active: workflows.filter(w => w.status === 'in-progress').length,
+    completed: workflows.filter(w => w.status === 'completed').length,
+    overdue: workflows.filter(w => {
+      if (w.status === 'completed') return false;
+      return new Date(w.targetCompletionDate) < new Date();
+    }).length,
+    employees: workflows.filter(w => w.consultantType === 'employee').length,
+    contractors: workflows.filter(w => w.consultantType === 'contractor').length,
+    avgProgress: workflows.length > 0
+      ? Math.round(workflows.reduce((sum, w) => sum + w.overallProgress, 0) / workflows.length)
+      : 0,
+  };
 }
