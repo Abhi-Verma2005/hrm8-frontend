@@ -29,19 +29,19 @@ export function CustomPricingManager() {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Custom Pricing Agreements</CardTitle>
-            <CardDescription>Manage employer-specific pricing arrangements</CardDescription>
+      <CardHeader className="p-4 md:p-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
+            <CardTitle className="text-lg md:text-xl">Custom Pricing Agreements</CardTitle>
+            <CardDescription className="text-xs md:text-sm">Manage employer-specific pricing arrangements</CardDescription>
           </div>
-          <Button onClick={handleCreate}>
+          <Button onClick={handleCreate} className="w-full md:w-auto touch-manipulation min-h-[44px]">
             <Plus className="h-4 w-4 mr-2" />
             Add Agreement
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6">
         <CustomPricingList customPricing={customPricing} onEdit={handleEdit} />
         <CustomPricingDialog
           open={dialogOpen}

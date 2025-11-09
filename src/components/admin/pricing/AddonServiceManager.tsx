@@ -29,19 +29,19 @@ export function AddonServiceManager() {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle>Add-on Services</CardTitle>
-            <CardDescription>Manage additional services and their pricing</CardDescription>
+      <CardHeader className="p-4 md:p-6">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
+            <CardTitle className="text-lg md:text-xl">Add-on Services</CardTitle>
+            <CardDescription className="text-xs md:text-sm">Manage additional services and their pricing</CardDescription>
           </div>
-          <Button onClick={handleCreate}>
+          <Button onClick={handleCreate} className="w-full md:w-auto touch-manipulation min-h-[44px]">
             <Plus className="h-4 w-4 mr-2" />
             Add Service
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4 md:p-6">
         <AddonServiceList addons={addons} onEdit={handleEdit} />
         <AddonServiceDialog
           open={dialogOpen}
