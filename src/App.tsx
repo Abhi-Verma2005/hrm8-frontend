@@ -25,6 +25,7 @@ import InterviewScheduling from "./pages/InterviewScheduling";
 import OfferManagement from "./pages/OfferManagement";
 import PipelineKanban from "./pages/PipelineKanban";
 import EmailTemplates from "./pages/EmailTemplates";
+import EmailCenter from "./pages/EmailCenter";
 import ImportExport from "./pages/ImportExport";
 import Applications from "./pages/Applications";
 import Analytics from "./pages/Analytics";
