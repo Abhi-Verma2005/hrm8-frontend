@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
-import { LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building2, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare, Handshake, UserSquare } from "lucide-react";
+import { Home, LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building2, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare, Handshake, UserSquare } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 
@@ -12,9 +12,11 @@ import { useRecentRecords } from "@/hooks/useRecentRecords";
 import { FeedbackNotificationBadge } from "@/components/feedback/FeedbackNotificationBadge";
 import { formatDistanceToNow } from "date-fns";
 import { usePermissions } from "@/hooks/usePermissions";
-// CORE Section
-const coreNavItems = [
-  { title: "Dashboard", url: "/dashboard/overview", icon: LayoutDashboard },
+
+// MAIN NAVIGATION
+const mainNavItems = [
+  { title: "Home", url: "/home", icon: Home },
+  { title: "Dashboards", url: "/dashboard/overview", icon: LayoutDashboard },
 ];
 
 // ATS (Applicant Tracking System) Section
@@ -180,16 +182,11 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        {/* CORE Section */}
+        {/* MAIN NAVIGATION */}
         <SidebarGroup>
-          {isExpanded && (
-            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Core
-            </SidebarGroupLabel>
-          )}
           <SidebarGroupContent>
             <SidebarMenu>
-              {coreNavItems.map(item => (
+              {mainNavItems.map(item => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 

@@ -2,260 +2,304 @@ import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
-  Users, Briefcase, Calendar, TrendingUp, Award, BookOpen,
-  Clock, Target, FileText, MessageSquare, DollarSign, LogOut
+  Users, Briefcase, TrendingUp, AlertCircle, DollarSign, Activity,
+  Clock, CheckCircle, Server, Zap, Bell, MessageSquare, Target,
+  ArrowUpRight, ArrowDownRight, Calendar, Building2, Plug, Shield
 } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { getEmployees } from "@/lib/employeeStorage";
-import { getPerformanceGoals, getPerformanceReviews, getFeedback360 } from "@/lib/performanceStorage";
-import { getLeaveRequests } from "@/lib/leaveStorage";
-import { format } from "date-fns";
+import { StatsCard } from "@/components/ui/stats-card";
+import {
+  getPlatformMetrics,
+  getSupportTickets,
+  getRecruitmentQueue,
+  getSystemIntegrations,
+  getPlatformActivity,
+  getTicketsByStatus,
+  getTicketsByPriority,
+  getServicesByStatus,
+  type SupportTicket,
+  type PlatformActivity,
+} from "@/data/mockPlatformData";
+import { format, formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export default function HomePage() {
   const navigate = useNavigate();
 
-  // Fetch data from all modules
-  const employees = useMemo(() => getEmployees(), []);
-  const goals = useMemo(() => getPerformanceGoals(), []);
-  const reviews = useMemo(() => getPerformanceReviews(), []);
-  const feedback360 = useMemo(() => getFeedback360(), []);
-  const leaveRequests = useMemo(() => getLeaveRequests(), []);
+  // Fetch platform data
+  const metrics = useMemo(() => getPlatformMetrics(), []);
+  const tickets = useMemo(() => getSupportTickets(), []);
+  const recruitmentQueue = useMemo(() => getRecruitmentQueue(), []);
+  const integrations = useMemo(() => getSystemIntegrations(), []);
+  const activities = useMemo(() => getPlatformActivity(), []);
 
-  // Calculate key metrics
+  // Calculate key stats
   const stats = useMemo(() => {
-    const activeEmployees = employees.filter(e => e.status === 'active').length;
-    const newHires = employees.filter(e => {
-      const hireDate = new Date(e.hireDate);
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      return hireDate > thirtyDaysAgo;
-    }).length;
-
-    const activeGoals = goals.filter(g => g.status === 'in-progress').length;
-    const completedGoals = goals.filter(g => g.status === 'completed').length;
-    const goalCompletionRate = goals.length > 0 ? Math.round((completedGoals / goals.length) * 100) : 0;
-
-    const pendingReviews = reviews.filter(r => r.status === 'in-progress' || r.status === 'not-started').length;
-    
-    const pending360Feedback = feedback360.filter(f => f.status === 'pending' || f.status === 'in-progress').length;
-
-    const pendingLeaveRequests = leaveRequests.filter(l => l.status === 'pending').length;
-
-    const avgRating = reviews
-      .filter(r => r.overallRating)
-      .reduce((sum, r) => sum + r.overallRating!, 0) / reviews.filter(r => r.overallRating).length || 0;
+    const openTickets = getTicketsByStatus('open').length;
+    const criticalTickets = getTicketsByPriority('critical').length;
+    const pendingServices = getServicesByStatus('pending').length;
+    const activeIntegrations = integrations.filter(i => i.status === 'active').length;
+    const errorIntegrations = integrations.filter(i => i.status === 'error').length;
 
     return {
-      activeEmployees,
-      newHires,
-      activeGoals,
-      goalCompletionRate,
-      pendingReviews,
-      pending360Feedback,
-      pendingLeaveRequests,
-      avgRating: avgRating.toFixed(1),
+      openTickets,
+      criticalTickets,
+      pendingServices,
+      activeIntegrations,
+      errorIntegrations,
     };
-  }, [employees, goals, reviews, feedback360, leaveRequests]);
+  }, [integrations]);
 
-  // Recent activity
-  const recentActivity = useMemo(() => {
-    const activities: Array<{
-      id: string;
-      type: string;
-      title: string;
-      description: string;
-      timestamp: string;
-      icon: typeof Users;
-    }> = [];
+  const getPriorityColor = (priority: SupportTicket['priority']) => {
+    switch (priority) {
+      case 'critical': return 'text-red-600 bg-red-50 border-red-200';
+      case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
+      case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
+      case 'low': return 'text-blue-600 bg-blue-50 border-blue-200';
+    }
+  };
 
-    // Recent goals
-    goals.slice(0, 3).forEach(goal => {
-      activities.push({
-        id: goal.id,
-        type: 'goal',
-        title: 'Goal Updated',
-        description: `${goal.employeeName}: ${goal.title}`,
-        timestamp: goal.updatedAt,
-        icon: Target,
-      });
-    });
-
-    // Recent reviews
-    reviews.slice(0, 3).forEach(review => {
-      activities.push({
-        id: review.id,
-        type: 'review',
-        title: 'Review Progress',
-        description: `${review.employeeName} - ${review.status}`,
-        timestamp: review.updatedAt,
-        icon: FileText,
-      });
-    });
-
-    // Recent leave requests
-    leaveRequests.slice(0, 2).forEach(leave => {
-      activities.push({
-        id: leave.id,
-        type: 'leave',
-        title: 'Leave Request',
-        description: `${leave.employeeName} - ${leave.leaveTypeName}`,
-        timestamp: leave.createdAt,
-        icon: Calendar,
-      });
-    });
-
-    return activities.sort((a, b) => 
-      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    ).slice(0, 10);
-  }, [goals, reviews, leaveRequests]);
+  const getActivityIcon = (type: PlatformActivity['type']) => {
+    switch (type) {
+      case 'user-signup': return Users;
+      case 'job-posted': return Briefcase;
+      case 'service-requested': return Target;
+      case 'payment-received': return DollarSign;
+      case 'support-ticket': return MessageSquare;
+      case 'integration-connected': return Plug;
+      default: return Activity;
+    }
+  };
 
   return (
     <DashboardPageLayout>
       <Helmet>
-        <title>Home - HRMS Dashboard</title>
+        <title>Home - Super Admin Dashboard</title>
       </Helmet>
 
       <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back!</h1>
-          <p className="text-muted-foreground">Here's what's happening across your organization</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Platform Overview</h1>
+            <p className="text-muted-foreground">Monitor and manage your HRM8 platform operations</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate('/support-tickets')}>
+              <MessageSquare className="h-4 w-4 mr-2" />
+              Support
+            </Button>
+            <Button onClick={() => navigate('/admin-settings')}>
+              <Shield className="h-4 w-4 mr-2" />
+              Settings
+            </Button>
+          </div>
         </div>
 
-        {/* Key Metrics */}
+        {/* Platform Health KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/hrms')}>
+          <StatsCard
+            title="Total Users"
+            value={metrics.totalActiveUsers.toLocaleString()}
+            icon={Users}
+            description={`${metrics.totalEmployers} employers`}
+            trend={{ value: metrics.revenueGrowth, isPositive: true }}
+          />
+          <StatsCard
+            title="Monthly Revenue"
+            value={`$${(metrics.monthlyRecurringRevenue / 1000).toFixed(0)}K`}
+            icon={DollarSign}
+            description="MRR"
+            trend={{ value: metrics.revenueGrowth, isPositive: true }}
+          />
+          <StatsCard
+            title="Platform Uptime"
+            value={`${metrics.platformUptime}%`}
+            icon={Server}
+            description="Last 30 days"
+            className="border-l-4 border-l-green-500"
+          />
+          <StatsCard
+            title="Avg Response Time"
+            value={`${metrics.avgResponseTime}h`}
+            icon={Clock}
+            description={`${metrics.customerSatisfaction}/5 satisfaction`}
+          />
+        </div>
+
+        {/* Priority Action Items */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-red-500" 
+                onClick={() => navigate('/support-tickets')}>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                Active Employees
+              <CardTitle className="text-sm font-medium flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-red-600" />
+                  Critical Tickets
+                </span>
+                <Badge variant="destructive">{stats.criticalTickets}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.activeEmployees}</div>
+              <div className="text-2xl font-bold text-red-600">{stats.openTickets}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                {stats.newHires} new hires this month
+                Open tickets requiring attention
               </p>
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/performance')}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-orange-500"
+                onClick={() => navigate('/recruitment-services')}>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Target className="h-4 w-4 text-muted-foreground" />
-                Active Goals
+              <CardTitle className="text-sm font-medium flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Target className="h-4 w-4 text-orange-600" />
+                  Pending Services
+                </span>
+                <Badge variant="secondary">{stats.pendingServices}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.activeGoals}</div>
+              <div className="text-2xl font-bold text-orange-600">{recruitmentQueue.length}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                {stats.goalCompletionRate}% completion rate
+                Recruitment services in queue
               </p>
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/performance')}>
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-blue-500"
+                onClick={() => navigate('/employers')}>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                Pending Reviews
+              <CardTitle className="text-sm font-medium flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-blue-600" />
+                  New Sign-ups
+                </span>
+                <Badge variant="secondary">{metrics.newSignupsThisMonth}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.pendingReviews}</div>
+              <div className="text-2xl font-bold text-blue-600">{metrics.totalEmployers}</div>
               <p className="text-xs text-muted-foreground mt-1">
-                Avg rating: {stats.avgRating}/5.0
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate('/leave')}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-muted-foreground" />
-                Leave Requests
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.pendingLeaveRequests}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                Pending approval
+                Total active employers
               </p>
             </CardContent>
           </Card>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Admin Actions */}
         <Card>
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/hrms')}>
-                <Users className="h-6 w-6 mb-2" />
-                <span className="text-xs">Employees</span>
+              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/employers')}>
+                <Building2 className="h-6 w-6 mb-2" />
+                <span className="text-xs">Employers</span>
               </Button>
-              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/jobs')}>
-                <Briefcase className="h-6 w-6 mb-2" />
-                <span className="text-xs">Jobs</span>
+              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/support-tickets')}>
+                <MessageSquare className="h-6 w-6 mb-2" />
+                <span className="text-xs">Tickets</span>
               </Button>
-              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/performance/goals/new')}>
+              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/recruitment-services')}>
                 <Target className="h-6 w-6 mb-2" />
-                <span className="text-xs">New Goal</span>
+                <span className="text-xs">Services</span>
               </Button>
-              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/performance/reviews/new')}>
-                <FileText className="h-6 w-6 mb-2" />
-                <span className="text-xs">New Review</span>
+              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/users')}>
+                <Users className="h-6 w-6 mb-2" />
+                <span className="text-xs">Users</span>
               </Button>
-              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/talent-development')}>
-                <BookOpen className="h-6 w-6 mb-2" />
-                <span className="text-xs">Learning</span>
+              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/integrations')}>
+                <Plug className="h-6 w-6 mb-2" />
+                <span className="text-xs">Integrations</span>
               </Button>
-              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/attendance')}>
-                <Clock className="h-6 w-6 mb-2" />
-                <span className="text-xs">Attendance</span>
+              <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/finance')}>
+                <DollarSign className="h-6 w-6 mb-2" />
+                <span className="text-xs">Finance</span>
               </Button>
             </div>
           </CardContent>
         </Card>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Recent Activity */}
-          <div className="lg:col-span-2">
+          {/* Support Ticket Queue */}
+          <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Support Ticket Queue</span>
+                  <Button variant="ghost" size="sm" onClick={() => navigate('/support-tickets')}>
+                    View All
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {tickets.slice(0, 5).map((ticket) => (
+                    <div key={ticket.id} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors"
+                         onClick={() => navigate('/support-tickets')}>
+                      <div className={cn(
+                        "flex items-center justify-center w-10 h-10 rounded-full border",
+                        getPriorityColor(ticket.priority)
+                      )}>
+                        <AlertCircle className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{ticket.subject}</p>
+                            <p className="text-xs text-muted-foreground">{ticket.employerName}</p>
+                          </div>
+                          <Badge variant="outline" className="text-xs shrink-0">
+                            {ticket.ticketNumber}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {ticket.status}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(ticket.createdAt), { addSuffix: true })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Platform Activity */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Platform Activity</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentActivity.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-8">
-                      No recent activity
-                    </p>
-                  ) : (
-                    recentActivity.map((activity) => {
-                      const ActivityIcon = activity.icon;
-                      return (
-                        <div key={activity.id} className="flex items-start gap-4 pb-4 border-b last:border-0 last:pb-0">
-                          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                            <ActivityIcon className="h-5 w-5 text-primary" />
-                          </div>
-                          <div className="flex-1 space-y-1">
-                            <p className="text-sm font-medium">{activity.title}</p>
-                            <p className="text-sm text-muted-foreground">{activity.description}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {format(new Date(activity.timestamp), 'MMM d, yyyy h:mm a')}
-                            </p>
-                          </div>
+                  {activities.slice(0, 8).map((activity) => {
+                    const ActivityIcon = getActivityIcon(activity.type);
+                    return (
+                      <div key={activity.id} className="flex items-start gap-4 pb-3 border-b last:border-0 last:pb-0">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
+                          <ActivityIcon className="h-5 w-5 text-primary" />
                         </div>
-                      );
-                    })
-                  )}
+                        <div className="flex-1 space-y-1">
+                          <p className="text-sm font-medium">{activity.description}</p>
+                          {activity.employerName && (
+                            <p className="text-xs text-muted-foreground">{activity.employerName}</p>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            {formatDistanceToNow(new Date(activity.timestamp), { addSuffix: true })}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -263,59 +307,123 @@ export default function HomePage() {
 
           {/* Side Cards */}
           <div className="space-y-6">
-            {/* Performance Summary */}
+            {/* Recruitment Services Queue */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  Performance Summary
+                  <Target className="h-5 w-5" />
+                  Recruitment Services
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">Goal Completion</span>
-                    <span className="font-medium">{stats.goalCompletionRate}%</span>
+              <CardContent className="space-y-3">
+                {recruitmentQueue.slice(0, 3).map((service) => (
+                  <div key={service.id} 
+                       className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors"
+                       onClick={() => navigate('/recruitment-services')}>
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{service.jobTitle}</p>
+                        <p className="text-xs text-muted-foreground">{service.employerName}</p>
+                      </div>
+                      <Badge variant="secondary" className="text-xs ml-2">
+                        {service.priority}
+                      </Badge>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-muted-foreground">Progress</span>
+                        <span className="font-medium">{service.progress}%</span>
+                      </div>
+                      <Progress value={service.progress} className="h-1" />
+                    </div>
                   </div>
-                  <Progress value={stats.goalCompletionRate} />
-                </div>
-                <div className="pt-3 border-t space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Pending Reviews</span>
-                    <Badge variant="secondary">{stats.pendingReviews}</Badge>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">360 Feedback</span>
-                    <Badge variant="secondary">{stats.pending360Feedback}</Badge>
-                  </div>
-                </div>
-                <Button className="w-full" onClick={() => navigate('/performance')}>
-                  View Performance
+                ))}
+                <Button variant="outline" className="w-full" onClick={() => navigate('/recruitment-services')}>
+                  View All Services
                 </Button>
               </CardContent>
             </Card>
 
-            {/* Module Access */}
+            {/* System Integrations Status */}
             <Card>
               <CardHeader>
-                <CardTitle>Modules</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <Plug className="h-5 w-5" />
+                  System Status
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                <Button variant="ghost" className="w-full justify-start" onClick={() => navigate('/compensation')}>
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  Compensation
+              <CardContent className="space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Active Integrations</span>
+                    <Badge variant="secondary">{stats.activeIntegrations}/{integrations.length}</Badge>
+                  </div>
+                  {stats.errorIntegrations > 0 && (
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Issues</span>
+                      <Badge variant="destructive">{stats.errorIntegrations}</Badge>
+                    </div>
+                  )}
+                </div>
+                <div className="pt-2 border-t space-y-2">
+                  {integrations.slice(0, 4).map((integration) => (
+                    <div key={integration.id} className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground truncate">{integration.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">
+                          {integration.connectedEmployers}
+                        </span>
+                        <div className={cn(
+                          "h-2 w-2 rounded-full",
+                          integration.status === 'active' && "bg-green-500",
+                          integration.status === 'maintenance' && "bg-yellow-500",
+                          integration.status === 'error' && "bg-red-500"
+                        )} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Button variant="outline" className="w-full" onClick={() => navigate('/integrations')}>
+                  Manage Integrations
                 </Button>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => navigate('/onboarding')}>
-                  <Award className="h-4 w-4 mr-2" />
-                  Onboarding
-                </Button>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => navigate('/offboarding')}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Offboarding
-                </Button>
-                <Button variant="ghost" className="w-full justify-start" onClick={() => navigate('/analytics')}>
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Analytics
+              </CardContent>
+            </Card>
+
+            {/* Revenue Summary */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Revenue Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-2xl font-bold">
+                      ${(metrics.monthlyRecurringRevenue / 1000).toFixed(1)}K
+                    </span>
+                    <div className="flex items-center gap-1 text-sm text-green-600">
+                      <ArrowUpRight className="h-3 w-3" />
+                      <span>{metrics.revenueGrowth}%</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Monthly Recurring Revenue</p>
+                </div>
+                <div className="pt-3 border-t space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Churn Rate</span>
+                    <div className="flex items-center gap-1 text-red-600">
+                      <span className="font-medium">{metrics.churnRate}%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">New This Month</span>
+                    <Badge variant="secondary">{metrics.newSignupsThisMonth}</Badge>
+                  </div>
+                </div>
+                <Button className="w-full" onClick={() => navigate('/finance')}>
+                  View Finance Details
                 </Button>
               </CardContent>
             </Card>
