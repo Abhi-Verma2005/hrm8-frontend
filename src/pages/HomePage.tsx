@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { StatsCard } from "@/components/ui/stats-card";
 import { RecentNotificationsCard } from "@/components/notifications/widgets/RecentNotificationsCard";
+import { PendingServicesWidget } from "@/components/recruitment/widgets/PendingServicesWidget";
 import {
   getPlatformMetrics,
   getSupportTickets,
@@ -319,6 +320,9 @@ export default function HomePage() {
           <div className="space-y-6">
             {/* Recent Notifications */}
             <RecentNotificationsCard userId="super-admin-001" maxItems={5} />
+
+            {/* Pending Service Requests */}
+            <PendingServicesWidget maxItems={5} />
 
             {/* System Integrations Status */}
             <Card>
