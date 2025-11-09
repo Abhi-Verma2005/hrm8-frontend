@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
-import { Home, LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building2, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare, Handshake, UserSquare } from "lucide-react";
+import { Home, LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building2, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare, Handshake, UserSquare, Server } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 
@@ -131,6 +131,7 @@ const integrationsNavItems = [
 const systemNavItems = [
   { title: "Admin Settings", url: "/admin-settings", icon: Shield },
   { title: "Support Tickets", url: "/support-tickets", icon: Ticket },
+  { title: "System Monitoring", url: "/system-monitoring", icon: Server },
 ];
 export function AppSidebar() {
   const location = useLocation();
@@ -166,19 +167,19 @@ export function AppSidebar() {
     onMouseLeave={() => !open && setIsHovering(false)}
   >
       <SidebarHeader className="border-b border-sidebar-border p-4 bg-gradient-to-b from-sidebar-accent/30 to-transparent">
-        <NavLink 
-          to="/home"
-          className={cn(
-            "flex items-center transition-all duration-200 hover:opacity-80",
-            isExpanded ? "justify-start px-2" : "justify-center"
-          )}
-        >
-          {isExpanded ? (
-            <img src={logoDark} alt="HRM8" className="h-8" />
-          ) : (
-            <img src={iconMark} alt="HRM8" className="h-8 w-8" />
-          )}
-        </NavLink>
+          <NavLink 
+            to="/home"
+            className={cn(
+              "flex items-center transition-all duration-200 hover:opacity-80",
+              isExpanded ? "justify-start px-2" : "justify-center"
+            )}
+          >
+            {isExpanded ? (
+              <img src={logoDark} alt="HRM8" className="h-8" />
+            ) : (
+              <img src={iconMark} alt="HRM8" className="h-8 w-8" />
+            )}
+          </NavLink>
       </SidebarHeader>
 
       <SidebarContent>

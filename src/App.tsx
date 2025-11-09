@@ -82,6 +82,7 @@ import Integrations from "./pages/Integrations";
 import Reports from "./pages/Reports";
 import AdminSettings from "./pages/AdminSettings";
 import SupportTickets from "./pages/SupportTickets";
+import SystemMonitoring from "./pages/SystemMonitoring";
 import VerifyCertificate from "./pages/VerifyCertificate";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import RecruitmentIntegration from "./pages/RecruitmentIntegration";
@@ -242,6 +243,7 @@ function AppContent() {
             <Route path="/reports" element={<Reports />} />
             <Route path="/admin-settings" element={<AdminSettings />} />
             <Route path="/support-tickets" element={<SupportTickets />} />
+            <Route path="/system-monitoring" element={<SystemMonitoring />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
           </Route>
