@@ -156,13 +156,9 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   const currentService = serviceTypeConfig[currentServiceType] || serviceTypeConfig['self-managed'];
   const ServiceIcon = currentService.icon;
 
-  const scrollToTop = () => {
-    const scrollContainer = findScrollContainer();
-    if (scrollContainer) {
-      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  const handleChangeService = () => {
+    setStep(1);
+    // Scroll is handled automatically by the useEffect on line 56
   };
 
   const onSubmit = async (data: JobFormData) => {
@@ -367,7 +363,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={scrollToTop}
+                  onClick={handleChangeService}
                   className="text-xs transition-all duration-200 hover:scale-105"
                 >
                   <ArrowUp className="h-3 w-3 mr-1" />
