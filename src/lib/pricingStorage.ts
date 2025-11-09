@@ -422,7 +422,7 @@ export function createAddonService(
 export function updateAddonService(
   id: string,
   updates: Partial<AddonService>,
-  changedBy: string,
+  changedBy: string = 'system',
   reason?: string
 ): AddonService | null {
   const index = addons.findIndex(a => a.id === id);
@@ -447,6 +447,13 @@ export function updateAddonService(
   });
 
   return addons[index];
+}
+
+export function deleteAddonService(id: string): boolean {
+  const index = addons.findIndex(a => a.id === id);
+  if (index === -1) return false;
+  addons.splice(index, 1);
+  return true;
 }
 
 // Recruitment Service Functions
@@ -474,7 +481,7 @@ export function createRecruitmentService(
 export function updateRecruitmentService(
   id: string,
   updates: Partial<RecruitmentService>,
-  changedBy: string,
+  changedBy: string = 'system',
   reason?: string
 ): RecruitmentService | null {
   const index = recruitmentServices.findIndex(r => r.id === id);
@@ -499,6 +506,13 @@ export function updateRecruitmentService(
   });
 
   return recruitmentServices[index];
+}
+
+export function deleteRecruitmentService(id: string): boolean {
+  const index = recruitmentServices.findIndex(r => r.id === id);
+  if (index === -1) return false;
+  recruitmentServices.splice(index, 1);
+  return true;
 }
 
 // Custom Pricing Functions
