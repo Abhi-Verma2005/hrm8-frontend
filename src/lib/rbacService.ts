@@ -1,5 +1,10 @@
 import { AppRole, UserRole, ROLE_HIERARCHY } from "@/types/rbac";
 
+// Check if running in development mode
+export function isDevelopmentMode(): boolean {
+  return import.meta.env.DEV;
+}
+
 // Mock current user - in production, this would come from Supabase auth
 const mockCurrentUserId = 'user-1';
 const mockUserRoles: UserRole[] = [
@@ -17,9 +22,23 @@ const mockUserRoles: UserRole[] = [
 let userRoles = [...mockUserRoles];
 
 export function getUserRoles(userId: string): UserRole[] {
-  return userRoles.filter(
+  const roles = userRoles.filter(
     (role) => role.userId === userId && role.isActive && (!role.expiresAt || new Date(role.expiresAt) > new Date())
   );
+  
+  // In dev mode, always inject super_admin role
+  if (isDevelopmentMode() && !roles.some(r => r.role === 'super_admin')) {
+    roles.push({
+      id: 'dev-super-admin',
+      userId,
+      role: 'super_admin',
+      grantedBy: 'system-dev',
+      grantedAt: new Date().toISOString(),
+      isActive: true,
+    });
+  }
+  
+  return roles;
 }
 
 export function hasRole(userId: string, role: AppRole): boolean {
@@ -33,6 +52,11 @@ export function hasAnyRole(userId: string, roles: AppRole[]): boolean {
 }
 
 export function hasPermission(userId: string, permission: string): boolean {
+  // In dev mode, always grant all permissions
+  if (isDevelopmentMode()) {
+    return true;
+  }
+  
   const roles = getUserRoles(userId);
   
   // Check if user has super_admin role

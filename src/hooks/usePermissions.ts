@@ -4,10 +4,15 @@ import { useMemo } from "react";
 import { hasModuleAccess as checkModuleAccess, type ModuleName } from "@/lib/moduleAccessControl";
 import { type SubscriptionTier } from "@/lib/subscriptionConfig";
 
+// Check if running in development mode
+function isDevelopmentMode(): boolean {
+  return import.meta.env.DEV;
+}
+
 // Mock current user - in production, this would come from auth context
 const mockCurrentUser = {
   id: 'user-1',
-  role: 'admin' as UserRole,
+  role: (isDevelopmentMode() ? 'owner' : 'admin') as UserRole,
   // Mock employer context - in production, would come from context/auth
   employerId: 'employer-1',
   modules: {
@@ -27,18 +32,26 @@ export function usePermissions() {
   }, [mockCurrentUser.role, mockCurrentUser.modules.atsEnabled, mockCurrentUser.modules.hrmsEnabled]);
 
   const hasPermission = (permission: Permission): boolean => {
+    // In dev mode, grant all permissions
+    if (isDevelopmentMode()) return true;
     return effectivePermissions.includes(permission);
   };
 
   const hasAnyPermission = (permissions: Permission[]): boolean => {
+    // In dev mode, grant all permissions
+    if (isDevelopmentMode()) return true;
     return permissions.some(permission => hasPermission(permission));
   };
 
   const hasAllPermissions = (permissions: Permission[]): boolean => {
+    // In dev mode, grant all permissions
+    if (isDevelopmentMode()) return true;
     return permissions.every(permission => hasPermission(permission));
   };
 
   const hasModuleAccess = (module: ModuleName): boolean => {
+    // In dev mode, grant access to all modules
+    if (isDevelopmentMode()) return true;
     // In production, this would get the actual subscription tier from context
     const mockSubscriptionTier: SubscriptionTier = 'medium';
     return checkModuleAccess(mockSubscriptionTier, mockCurrentUser.modules, module);

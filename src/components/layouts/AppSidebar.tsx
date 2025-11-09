@@ -164,16 +164,19 @@ export function AppSidebar() {
     onMouseLeave={() => !open && setIsHovering(false)}
   >
       <SidebarHeader className="border-b border-sidebar-border p-4 bg-gradient-to-b from-sidebar-accent/30 to-transparent">
-        <div className={cn(
-          "flex items-center transition-all duration-200",
-          isExpanded ? "justify-start px-2" : "justify-center"
-        )}>
+        <NavLink 
+          to="/home"
+          className={cn(
+            "flex items-center transition-all duration-200 hover:opacity-80",
+            isExpanded ? "justify-start px-2" : "justify-center"
+          )}
+        >
           {isExpanded ? (
             <img src={logoDark} alt="HRM8" className="h-8" />
           ) : (
             <img src={iconMark} alt="HRM8" className="h-8 w-8" />
           )}
-        </div>
+        </NavLink>
       </SidebarHeader>
 
       <SidebarContent>
