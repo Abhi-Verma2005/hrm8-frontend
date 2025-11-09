@@ -11,6 +11,7 @@ import { ApplicationDetailPanel } from "./ApplicationDetailPanel";
 
 interface ApplicationPipelineProps {
   jobId?: string;
+  applications?: Application[];
 }
 
 const pipelineStages: { stage: ApplicationStage; label: string; color: string }[] = [
@@ -23,7 +24,7 @@ const pipelineStages: { stage: ApplicationStage; label: string; color: string }[
   { stage: "Rejected", label: "Rejected", color: "bg-red-50 dark:bg-red-950/30" },
 ];
 
-export function ApplicationPipeline({ jobId }: ApplicationPipelineProps) {
+export function ApplicationPipeline({ jobId, applications: providedApplications }: ApplicationPipelineProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
@@ -32,12 +33,18 @@ export function ApplicationPipeline({ jobId }: ApplicationPipelineProps) {
 
   useEffect(() => {
     loadApplications();
-  }, [jobId]);
+  }, [jobId, providedApplications]);
 
   const loadApplications = () => {
-    const allApps = getApplications();
-    const filtered = jobId ? allApps.filter(app => app.jobId === jobId) : allApps;
-    setApplications(filtered);
+    if (providedApplications) {
+      // Use provided filtered applications
+      setApplications(providedApplications);
+    } else {
+      // Fetch and filter by jobId if provided
+      const allApps = getApplications();
+      const filtered = jobId ? allApps.filter(app => app.jobId === jobId) : allApps;
+      setApplications(filtered);
+    }
   };
 
   const handleDragStart = (event: DragStartEvent) => {

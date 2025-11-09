@@ -12,14 +12,13 @@ import { SavedSearchesPanel } from "@/components/candidates/SavedSearchesPanel";
 import { DuplicateDetectionPanel } from "@/components/candidates/DuplicateDetectionPanel";
 import { SearchHistoryPanel } from "@/components/candidates/SearchHistoryPanel";
 import { CandidateBulkActionsToolbar } from "@/components/candidates/bulk/CandidateBulkActionsToolbar";
-import { CandidatePipelineBoard } from "@/components/candidates/pipeline/CandidatePipelineBoard";
+
 import { CandidateImportDialog } from "@/components/candidates/import-export/CandidateImportDialog";
 import { CandidateExportDialog } from "@/components/candidates/import-export/CandidateExportDialog";
 import { StatsCard } from "@/components/ui/stats-card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3, Search, Filter, List, Kanban } from "lucide-react";
+import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3, Search, Filter } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getCandidates, getCandidateById, saveCandidate, updateCandidate } from "@/lib/mockCandidateStorage";
 import { uploadDocument } from "@/lib/mockDocumentStorage";
@@ -46,7 +45,6 @@ export default function Candidates() {
   const [showSearchPanel, setShowSearchPanel] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'kanban'>('list');
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingCandidateId, setEditingCandidateId] = useState<string | null>(null);
@@ -374,18 +372,10 @@ export default function Candidates() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Candidates</h1>
             <p className="text-muted-foreground">
-              Manage candidate pool and placements
+              Manage your candidate database
             </p>
           </div>
           <div className="flex gap-2">
-            <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v as 'list' | 'kanban')}>
-              <ToggleGroupItem value="list" aria-label="List view">
-                <List className="h-4 w-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="kanban" aria-label="Kanban view">
-                <Kanban className="h-4 w-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
             <Button onClick={() => {
               setEditingCandidateId(null);
               setDrawerOpen(true);
@@ -430,38 +420,34 @@ export default function Candidates() {
         </div>
 
         {/* Bulk Actions Toolbar */}
-        {viewMode === 'list' && (
-          <CandidateBulkActionsToolbar
-            selectedCount={selectedCandidates.length}
-            onClearSelection={() => setSelectedCandidates([])}
-            onBulkStageUpdate={handleBulkStageUpdate}
-            onBulkTagAdd={handleBulkTagAdd}
-            onBulkPriorityUpdate={handleBulkPriorityUpdate}
-            onBulkArchive={handleBulkArchive}
-            onBulkDelete={handleBulkDelete}
-            onBulkEmail={handleBulkEmail}
-            onBulkScheduleInterview={handleBulkScheduleInterview}
-          />
-        )}
+        <CandidateBulkActionsToolbar
+          selectedCount={selectedCandidates.length}
+          onClearSelection={() => setSelectedCandidates([])}
+          onBulkStageUpdate={handleBulkStageUpdate}
+          onBulkTagAdd={handleBulkTagAdd}
+          onBulkPriorityUpdate={handleBulkPriorityUpdate}
+          onBulkArchive={handleBulkArchive}
+          onBulkDelete={handleBulkDelete}
+          onBulkEmail={handleBulkEmail}
+          onBulkScheduleInterview={handleBulkScheduleInterview}
+        />
 
-        {viewMode === 'list' && (
-          <div className="flex gap-2">
-            <Button 
-              variant={showAdvancedSearch ? "default" : "outline"}
-              onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
-            >
-              <Search className="mr-2 h-4 w-4" />
-              Advanced Search
-            </Button>
-            <Button 
-              variant={showSearchPanel ? "default" : "outline"}
-              onClick={() => setShowSearchPanel(!showSearchPanel)}
-            >
-              <Filter className="mr-2 h-4 w-4" />
-              Saved & History
-            </Button>
-          </div>
-        )}
+        <div className="flex gap-2">
+          <Button 
+            variant={showAdvancedSearch ? "default" : "outline"}
+            onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+          >
+            <Search className="mr-2 h-4 w-4" />
+            Advanced Search
+          </Button>
+          <Button 
+            variant={showSearchPanel ? "default" : "outline"}
+            onClick={() => setShowSearchPanel(!showSearchPanel)}
+          >
+            <Filter className="mr-2 h-4 w-4" />
+            Saved & History
+          </Button>
+        </div>
 
         {showAdvancedSearch && (
           <AdvancedSearchBuilder 
@@ -489,41 +475,28 @@ export default function Candidates() {
           </Tabs>
         )}
 
-        {viewMode === 'list' && (
-          <>
-            <CandidatesFilterBar
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              statusFilter={statusFilter}
-              onStatusChange={setStatusFilter}
-              experienceLevelFilter={experienceLevelFilter}
-              onExperienceLevelChange={setExperienceLevelFilter}
-              workArrangementFilter={workArrangementFilter}
-              onWorkArrangementChange={setWorkArrangementFilter}
-              sourceFilter={sourceFilter}
-              onSourceChange={setSourceFilter}
-              onClearFilters={handleClearFilters}
-              activeFilterCount={activeFilterCount}
-            />
+        <CandidatesFilterBar
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          statusFilter={statusFilter}
+          onStatusChange={setStatusFilter}
+          experienceLevelFilter={experienceLevelFilter}
+          onExperienceLevelChange={setExperienceLevelFilter}
+          workArrangementFilter={workArrangementFilter}
+          onWorkArrangementChange={setWorkArrangementFilter}
+          sourceFilter={sourceFilter}
+          onSourceChange={setSourceFilter}
+          onClearFilters={handleClearFilters}
+          activeFilterCount={activeFilterCount}
+        />
 
-            <DataTable
-              data={filteredCandidates}
-              columns={candidateTableColumns}
-              selectable
-              onSelectedRowsChange={setSelectedCandidates}
-              emptyMessage="No candidates found"
-            />
-          </>
-        )}
-
-        {viewMode === 'kanban' && (
-          <CandidatePipelineBoard
-            filters={{
-              search: searchTerm,
-            }}
-            onViewDetails={(candidate) => navigate(`/candidates/${candidate.id}`)}
-          />
-        )}
+        <DataTable
+          data={filteredCandidates}
+          columns={candidateTableColumns}
+          selectable
+          onSelectedRowsChange={setSelectedCandidates}
+          emptyMessage="No candidates found"
+        />
       </div>
 
       <CandidateImportDialog

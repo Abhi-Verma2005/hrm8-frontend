@@ -3,6 +3,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Upload, Download, LayoutGrid, List } from "lucide-react";
 import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
+import { ApplicationListView } from "@/components/applications/ApplicationListView";
 import { ApplicationDetailPanel } from "@/components/applications/ApplicationDetailPanel";
 import { ApplicationFilters } from "@/components/applications/ApplicationFilters";
 import { getApplications } from "@/lib/mockApplicationStorage";
@@ -110,11 +111,12 @@ export default function Applications() {
         />
 
         {viewMode === "pipeline" ? (
-          <ApplicationPipeline />
+          <ApplicationPipeline applications={filteredApplications} />
         ) : (
-          <div className="text-center text-muted-foreground py-12">
-            <p>List view coming soon</p>
-          </div>
+          <ApplicationListView
+            applications={filteredApplications}
+            onApplicationClick={handleApplicationClick}
+          />
         )}
 
         <ApplicationDetailPanel
