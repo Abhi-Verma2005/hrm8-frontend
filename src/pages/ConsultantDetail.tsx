@@ -173,7 +173,10 @@ export default function ConsultantDetail() {
           </TabsContent>
 
           <TabsContent value="commissions">
-            <CommissionsTab consultantId={consultant.id} />
+            <CommissionsTab 
+              consultantId={consultant.id}
+              consultantName={`${consultant.firstName} ${consultant.lastName}`}
+            />
           </TabsContent>
 
           <TabsContent value="activity">

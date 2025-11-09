@@ -4,15 +4,17 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CommissionCalculator } from './commissions/CommissionCalculator';
 import { PaymentManagementCard } from './commissions/PaymentManagementCard';
 import { CommissionForecast } from './commissions/CommissionForecast';
-import { DollarSign, TrendingUp, Clock, CheckCircle2, Search, Filter, Plus } from 'lucide-react';
+import { CommissionAnalyticsTab } from './commissions/CommissionAnalyticsTab';
+import { DollarSign, TrendingUp, Clock, CheckCircle2, Search, Filter, Plus, BarChart3 } from 'lucide-react';
 import { getConsultantCommissions, getCommissionStats } from '@/lib/commissionStorage';
 import type { CommissionStatus } from '@/types/commission';
 import { format } from 'date-fns';
 
-export function CommissionsTab({ consultantId }: { consultantId: string }) {
+export function CommissionsTab({ consultantId, consultantName }: { consultantId: string; consultantName?: string }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   
@@ -29,7 +31,19 @@ export function CommissionsTab({ consultantId }: { consultantId: string }) {
   });
 
   return (
-    <div className="space-y-6">
+    <Tabs defaultValue="overview" className="space-y-6">
+      <TabsList>
+        <TabsTrigger value="overview">
+          <DollarSign className="h-4 w-4 mr-2" />
+          Overview
+        </TabsTrigger>
+        <TabsTrigger value="analytics">
+          <BarChart3 className="h-4 w-4 mr-2" />
+          Analytics & Reports
+        </TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="overview" className="space-y-6">
       {/* Commission Calculator */}
       <CommissionCalculator 
         consultantId={consultantId}
@@ -163,6 +177,14 @@ export function CommissionsTab({ consultantId }: { consultantId: string }) {
           )}
         </CardContent>
       </Card>
-    </div>
+      </TabsContent>
+
+      <TabsContent value="analytics">
+        <CommissionAnalyticsTab 
+          consultantId={consultantId}
+          consultantName={consultantName}
+        />
+      </TabsContent>
+    </Tabs>
   );
 }
