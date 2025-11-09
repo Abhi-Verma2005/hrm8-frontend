@@ -5,11 +5,22 @@ export type ServiceStage = 'initiated' | 'in-progress' | 'shortlisting' | 'inter
 
 export interface RPOFeeStructure {
   id: string;
-  type: 'monthly-retainer' | 'per-vacancy' | 'milestone' | 'one-time' | 'custom';
+  type: 'consultant-monthly' | 'per-vacancy' | 'milestone' | 'one-time' | 'custom';
   name: string;
   amount: number;
-  frequency?: 'one-time' | 'monthly' | 'quarterly' | 'per-placement';
+  frequency?: 'one-time' | 'monthly' | 'quarterly' | 'per-placement' | 'per-vacancy';
   description?: string;
+  isGuidePrice?: boolean; // Flag for guide vs. actual negotiated price
+}
+
+export interface RPOConsultantAssignment {
+  id: string;
+  consultantId: string;
+  consultantName: string;
+  monthlyRate: number; // Can differ from guide price
+  startDate: string;
+  endDate?: string;
+  isActive: boolean;
 }
 
 export interface ServiceProject {
@@ -66,9 +77,14 @@ export interface ServiceProject {
   rpoEndDate?: string;
   rpoDuration?: number; // Duration in months
   rpoFeeStructures?: RPOFeeStructure[];
+  rpoAssignedConsultants?: RPOConsultantAssignment[]; // NEW - track individual consultants
+  rpoNumberOfConsultants?: number; // NEW - for guide pricing calculation
+  rpoMonthlyRatePerConsultant?: number; // NEW - actual negotiated rate (vs guide)
   rpoMonthlyRetainer?: number;
-  rpoPerVacancyFee?: number;
+  rpoPerVacancyFee?: number; // NEW - actual negotiated per-vacancy fee
+  rpoEstimatedVacancies?: number; // NEW - for pricing calculation
   rpoTotalContractValue?: number;
+  rpoIsCustomPricing?: boolean; // NEW - flag if using custom pricing vs guide
   rpoAutoRenew?: boolean;
   rpoNoticePeriod?: number; // Notice period in days
   rpoNotes?: string;

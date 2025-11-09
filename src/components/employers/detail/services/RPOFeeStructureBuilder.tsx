@@ -16,18 +16,18 @@ interface RPOFeeStructureBuilderProps {
 
 const FEE_TEMPLATES = [
   {
-    name: "Standard Monthly Retainer",
-    type: "monthly-retainer" as const,
-    amount: 10000,
+    name: "Consultant Monthly Retainer",
+    type: "consultant-monthly" as const,
+    amount: 5990,
     frequency: "monthly" as const,
-    description: "Base monthly retainer for ongoing recruitment support"
+    description: "Monthly fee per dedicated consultant (guide price: $5,990)"
   },
   {
-    name: "Per Placement Fee",
+    name: "Per Vacancy Fee",
     type: "per-vacancy" as const,
     amount: 3990,
-    frequency: "per-placement" as const,
-    description: "Additional fee per successful placement"
+    frequency: "per-vacancy" as const,
+    description: "Fee per vacancy filled (guide price: $3,990)"
   },
   {
     name: "Quarterly Performance Bonus",
@@ -54,7 +54,7 @@ export function RPOFeeStructureBuilder({ fees, onChange }: RPOFeeStructureBuilde
       ...template
     } : {
       id: `fee_${Date.now()}`,
-      type: 'monthly-retainer',
+      type: 'consultant-monthly',
       name: '',
       amount: 0,
       frequency: 'monthly',
@@ -194,10 +194,11 @@ export function RPOFeeStructureBuilder({ fees, onChange }: RPOFeeStructureBuilde
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="monthly-retainer">Monthly Retainer</SelectItem>
-                        <SelectItem value="per-vacancy">Per Placement</SelectItem>
+                        <SelectItem value="consultant-monthly">Consultant Monthly</SelectItem>
+                        <SelectItem value="per-vacancy">Per Vacancy</SelectItem>
                         <SelectItem value="milestone">Milestone Payment</SelectItem>
                         <SelectItem value="one-time">One-Time Fee</SelectItem>
+                        <SelectItem value="custom">Custom</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -214,6 +215,7 @@ export function RPOFeeStructureBuilder({ fees, onChange }: RPOFeeStructureBuilde
                         <SelectItem value="monthly">Monthly</SelectItem>
                         <SelectItem value="quarterly">Quarterly</SelectItem>
                         <SelectItem value="per-placement">Per Placement</SelectItem>
+                        <SelectItem value="per-vacancy">Per Vacancy</SelectItem>
                         <SelectItem value="one-time">One-Time</SelectItem>
                       </SelectContent>
                     </Select>

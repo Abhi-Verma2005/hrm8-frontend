@@ -285,7 +285,7 @@ export const mockServiceProjects: ServiceProject[] = [
     rpoFeeStructures: [
       {
         id: 'fee_1',
-        type: 'monthly-retainer',
+        type: 'consultant-monthly',
         name: 'Monthly Retainer',
         amount: 10000,
         frequency: 'monthly',
@@ -346,7 +346,7 @@ export const mockServiceProjects: ServiceProject[] = [
     rpoFeeStructures: [
       {
         id: 'fee_1',
-        type: 'monthly-retainer',
+        type: 'consultant-monthly',
         name: 'Base Retainer',
         amount: 15000,
         frequency: 'monthly',
@@ -417,7 +417,7 @@ export const mockServiceProjects: ServiceProject[] = [
     rpoFeeStructures: [
       {
         id: 'fee_1',
-        type: 'monthly-retainer',
+        type: 'consultant-monthly',
         name: 'Healthcare Recruitment Retainer',
         amount: 8500,
         frequency: 'monthly',
@@ -488,7 +488,7 @@ export const mockServiceProjects: ServiceProject[] = [
     rpoFeeStructures: [
       {
         id: 'fee_1',
-        type: 'monthly-retainer',
+        type: 'consultant-monthly',
         name: 'Base Retainer (Reduced)',
         amount: 3000,
         frequency: 'monthly',

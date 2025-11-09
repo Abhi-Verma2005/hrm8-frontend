@@ -28,6 +28,9 @@ export function RPOServiceCard({ service, onEdit, onViewDetails }: RPOServiceCar
     ? contacts.find(c => c.id === service.rpoPrimaryContactId)
     : null;
   
+  // Check if using custom pricing
+  const isCustomPricing = service.rpoIsCustomPricing || false;
+  
   return (
     <Card className="p-6">
       <div className="space-y-4">
@@ -38,6 +41,11 @@ export function RPOServiceCard({ service, onEdit, onViewDetails }: RPOServiceCar
               <Badge variant="outline" className="bg-orange-500/10 text-orange-700 border-orange-300">
                 RPO
               </Badge>
+              {isCustomPricing && (
+                <Badge variant="secondary" className="text-xs">
+                  Custom Pricing
+                </Badge>
+              )}
               <ServiceStatusBadge status={service.status} />
             </div>
             <h3 className="font-semibold text-lg mb-1">{service.name}</h3>

@@ -150,20 +150,19 @@ export const HRMS_ADDON = {
 // Additional Add-on Services
 export const ADDON_SERVICES = {
   assessments: {
-    name: 'Skills Assessments',
-    monthlyCost: 99,
-    perUseCost: 5,
-    description: 'Pre-employment skills testing'
+    name: 'Candidate Assessments',
+    pricingModel: 'assessment-based',
+    description: 'Assessment-based pricing - varies by type and volume'
   },
   referenceChecking: {
     name: 'Reference Checking',
-    perCheckCost: 25,
-    description: 'Automated reference verification'
+    perCandidateCost: 69,
+    description: 'Automated reference verification - per candidate'
   },
   videoInterviewing: {
     name: 'Video Interviewing',
-    monthlyCost: 149,
-    description: 'One-way and live video interviews'
+    perJobCost: 99,
+    description: 'One-way and live video interviews - per job posting'
   }
 } as const;
 
@@ -190,10 +189,24 @@ export const RECRUITMENT_SERVICES = {
     name: 'Executive Search'
   },
   'rpo': {
-    monthlyFee: 10000,
+    baseMonthlyPerConsultant: 5990, // Guide price
+    basePerVacancy: 3990, // Guide price
     upfrontPercentage: 0,
-    name: 'RPO (Recruitment Process Outsourcing)'
+    name: 'RPO (Recruitment Process Outsourcing)',
+    description: 'Pricing tailored to employer needs - guide prices shown',
+    isTailored: true,
+    minimumConsultants: 1,
+    minimumContract: 6, // months
+    note: 'Pricing is customized for each employer based on volume, duration, and specific requirements'
   }
+} as const;
+
+export const PRICING_NOTES = {
+  annualPayment: 'Subscription fees paid annually',
+  hrmsBlocks: 'HRMS charged in blocks of 50 employees paid annually',
+  optionalServices: 'Optional services - additional charges apply',
+  currency: 'Pricing in USD',
+  rpoCustom: 'RPO pricing is tailored to each employer - guide prices shown for reference'
 } as const;
 
 export function getServiceBaseFee(serviceType: 'shortlisting' | 'full-service' | 'executive-search' | 'rpo'): number {
@@ -205,7 +218,7 @@ export function getServiceBaseFee(serviceType: 'shortlisting' | 'full-service' |
     case 'executive-search':
       return RECRUITMENT_SERVICES['executive-search'].baseFeeUnder100k;
     case 'rpo':
-      return RECRUITMENT_SERVICES['rpo'].monthlyFee;
+      return RECRUITMENT_SERVICES['rpo'].baseMonthlyPerConsultant;
     default:
       return 0;
   }
@@ -213,6 +226,38 @@ export function getServiceBaseFee(serviceType: 'shortlisting' | 'full-service' |
 
 export function isMonthlyService(serviceType: string): boolean {
   return serviceType === 'rpo';
+}
+
+export function calculateRPOGuidePricing(
+  consultants: number,
+  months: number,
+  estimatedVacancies: number
+): {
+  monthlyRetainer: number;
+  totalMonthlyFees: number;
+  perVacancyFees: number;
+  totalEstimated: number;
+  breakdown: string[];
+} {
+  const GUIDE_CONSULTANT_RATE = RECRUITMENT_SERVICES.rpo.baseMonthlyPerConsultant;
+  const GUIDE_VACANCY_FEE = RECRUITMENT_SERVICES.rpo.basePerVacancy;
+  
+  const monthlyRetainer = consultants * GUIDE_CONSULTANT_RATE;
+  const totalMonthlyFees = monthlyRetainer * months;
+  const perVacancyFees = estimatedVacancies * GUIDE_VACANCY_FEE;
+  const totalEstimated = totalMonthlyFees + perVacancyFees;
+  
+  return {
+    monthlyRetainer,
+    totalMonthlyFees,
+    perVacancyFees,
+    totalEstimated,
+    breakdown: [
+      `${consultants} consultant(s) × $${GUIDE_CONSULTANT_RATE.toLocaleString()}/month × ${months} months = $${totalMonthlyFees.toLocaleString()}`,
+      `${estimatedVacancies} estimated vacancies × $${GUIDE_VACANCY_FEE.toLocaleString()} = $${perVacancyFees.toLocaleString()}`,
+      `Total Estimated: $${totalEstimated.toLocaleString()}`
+    ]
+  };
 }
 
 export type SubscriptionTier = keyof typeof SUBSCRIPTION_TIERS;

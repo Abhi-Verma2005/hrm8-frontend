@@ -7,31 +7,78 @@ import type { ServiceProject, RPOFeeStructure } from '@/types/recruitmentService
 export function calculateRPOContractValue(
   feeStructures: RPOFeeStructure[], 
   durationMonths: number,
-  estimatedPlacements?: number
+  estimatedPlacements?: number,
+  numberOfConsultants?: number
 ): number {
   let total = 0;
   
   feeStructures.forEach(fee => {
-    switch (fee.frequency) {
-      case 'monthly':
-        total += fee.amount * durationMonths;
+    switch (fee.type) {
+      case 'consultant-monthly':
+        // Monthly consultant fee * months * number of consultants
+        total += fee.amount * durationMonths * (numberOfConsultants || 1);
         break;
-      case 'quarterly':
-        total += fee.amount * Math.ceil(durationMonths / 3);
-        break;
-      case 'per-placement':
+      case 'per-vacancy':
         total += fee.amount * (estimatedPlacements || 0);
         break;
-      case 'one-time':
-        total += fee.amount;
-        break;
       default:
-        // For custom or undefined, add as one-time
-        total += fee.amount;
+        // Handle by frequency for backward compatibility
+        switch (fee.frequency) {
+          case 'monthly':
+            total += fee.amount * durationMonths;
+            break;
+          case 'quarterly':
+            total += fee.amount * Math.ceil(durationMonths / 3);
+            break;
+          case 'per-placement':
+          case 'per-vacancy':
+            total += fee.amount * (estimatedPlacements || 0);
+            break;
+          case 'one-time':
+            total += fee.amount;
+            break;
+          default:
+            total += fee.amount;
+        }
     }
   });
   
   return total;
+}
+
+/**
+ * Calculate guide pricing for RPO
+ */
+export function calculateRPOGuidePrice(
+  consultants: number,
+  months: number,
+  estimatedVacancies: number
+): {
+  monthlyRetainer: number;
+  totalMonthlyFees: number;
+  perVacancyFees: number;
+  totalEstimated: number;
+  breakdown: string[];
+} {
+  const GUIDE_CONSULTANT_RATE = 5990;
+  const GUIDE_VACANCY_FEE = 3990;
+  
+  const monthlyRetainer = consultants * GUIDE_CONSULTANT_RATE;
+  const totalMonthlyFees = monthlyRetainer * months;
+  const perVacancyFees = estimatedVacancies * GUIDE_VACANCY_FEE;
+  const totalEstimated = totalMonthlyFees + perVacancyFees;
+  
+  return {
+    monthlyRetainer,
+    totalMonthlyFees,
+    perVacancyFees,
+    totalEstimated,
+    breakdown: [
+      `${consultants} consultant(s) × $${GUIDE_CONSULTANT_RATE.toLocaleString()}/month × ${months} months = $${totalMonthlyFees.toLocaleString()}`,
+      `${estimatedVacancies} estimated vacancies × $${GUIDE_VACANCY_FEE.toLocaleString()} = $${perVacancyFees.toLocaleString()}`,
+      `Total Estimated: $${totalEstimated.toLocaleString()}`
+    ]
+  };
 }
 
 /**
