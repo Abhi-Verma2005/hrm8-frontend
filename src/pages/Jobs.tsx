@@ -36,7 +36,7 @@ import {
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { JobsFilterBar } from "@/components/jobs/JobsFilterBar";
 import { getCountryFromLocation, expandRegionsToCountries, REGION_COUNTRY_MAP, getRegionForCountry } from "@/lib/countryRegions";
-import { JobPostingCostDialog } from "@/components/jobs/JobPostingCostDialog";
+
 import { AdvancedFilterBuilder } from "@/components/jobs/filters/AdvancedFilterBuilder";
 import { SavedFiltersPanel } from "@/components/jobs/filters/SavedFiltersPanel";
 import { BulkActionsToolbar } from "@/components/jobs/bulk/BulkActionsToolbar";
@@ -51,7 +51,7 @@ export default function Jobs() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingJobId, setEditingJobId] = useState<string | null>(null);
-  const [showJobPostingDialog, setShowJobPostingDialog] = useState(false);
+  
   const [showServiceDialog, setShowServiceDialog] = useState(false);
   const [selectedServiceType, setSelectedServiceType] = useState<'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo'>('self-managed');
   
@@ -87,11 +87,11 @@ export default function Jobs() {
     };
   }, [jobs]);
   
-  // Auto-open job posting dialog when navigating with action=create
+  // Auto-open service selection dialog when navigating with action=create
   useEffect(() => {
     if (searchParams.get('action') === 'create') {
       setEditingJobId(null);
-      setShowJobPostingDialog(true);
+      setShowServiceDialog(true);
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, setSearchParams]);
@@ -230,24 +230,7 @@ export default function Jobs() {
 
   const handleCreateJob = () => {
     setEditingJobId(null);
-    setShowJobPostingDialog(true);
-  };
-
-  const handleJobPostingContinue = () => {
-    setShowJobPostingDialog(false);
     setShowServiceDialog(true);
-  };
-
-  const handleJobPostingUpgrade = () => {
-    setShowJobPostingDialog(false);
-    toast({
-      title: "Upgrade Options",
-      description: "Contact us to upgrade your subscription plan.",
-    });
-  };
-
-  const handleJobPostingCancel = () => {
-    setShowJobPostingDialog(false);
   };
 
   const handleServiceTypeSelect = (serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search') => {
@@ -708,15 +691,7 @@ export default function Jobs() {
           />
         </FormDrawer>
 
-      <JobPostingCostDialog
-        open={showJobPostingDialog}
-        employerId="1"
-        onContinue={handleJobPostingContinue}
-        onUpgrade={handleJobPostingUpgrade}
-        onCancel={handleJobPostingCancel}
-      />
-
-      <ServiceTypeSelectionDialog 
+      <ServiceTypeSelectionDialog
         open={showServiceDialog}
         onServiceTypeSelect={handleServiceTypeSelect}
         onCancel={handleServiceDialogCancel}
