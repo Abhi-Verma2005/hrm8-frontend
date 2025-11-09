@@ -7,10 +7,13 @@ import {
   CustomPricingManager,
   PricingHistoryViewer,
   PricingExportTools,
-  BulkOperations
+  BulkOperations,
+  PricingCalculator,
+  ClientComparisonTool,
+  PricingAnalytics,
+  ApprovalWorkflows
 } from '@/components/admin/pricing';
-import { DollarSign, Check } from 'lucide-react';
-import { PRICING_NOTES } from '@/lib/subscriptionConfig';
+import { DollarSign } from 'lucide-react';
 
 export function PricingManagementTab() {
   return (
@@ -33,12 +36,16 @@ export function PricingManagementTab() {
       </Card>
 
       <Tabs defaultValue="ats" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-7">
-          <TabsTrigger value="ats">ATS Tiers</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-11 gap-1">
+          <TabsTrigger value="ats">ATS</TabsTrigger>
           <TabsTrigger value="addons">Add-ons</TabsTrigger>
           <TabsTrigger value="recruitment">Recruitment</TabsTrigger>
-          <TabsTrigger value="custom">Custom Pricing</TabsTrigger>
-          <TabsTrigger value="bulk">Bulk Ops</TabsTrigger>
+          <TabsTrigger value="custom">Custom</TabsTrigger>
+          <TabsTrigger value="calculator">Calculator</TabsTrigger>
+          <TabsTrigger value="comparison">Comparison</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="approvals">Approvals</TabsTrigger>
+          <TabsTrigger value="bulk">Bulk</TabsTrigger>
           <TabsTrigger value="history">History</TabsTrigger>
           <TabsTrigger value="export">Export</TabsTrigger>
         </TabsList>
@@ -61,6 +68,26 @@ export function PricingManagementTab() {
         {/* Custom Pricing Tab */}
         <TabsContent value="custom" className="space-y-4">
           <CustomPricingManager />
+        </TabsContent>
+
+        {/* Pricing Calculator Tab */}
+        <TabsContent value="calculator" className="space-y-4">
+          <PricingCalculator />
+        </TabsContent>
+
+        {/* Client Comparison Tab */}
+        <TabsContent value="comparison" className="space-y-4">
+          <ClientComparisonTool />
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics" className="space-y-4">
+          <PricingAnalytics />
+        </TabsContent>
+
+        {/* Approvals Tab */}
+        <TabsContent value="approvals" className="space-y-4">
+          <ApprovalWorkflows />
         </TabsContent>
 
         {/* Bulk Operations Tab */}

@@ -14,3 +14,7 @@ export { CustomPricingList } from './CustomPricingList';
 export { CustomPricingDialog } from './CustomPricingDialog';
 export { PricingExportTools } from './PricingExportTools';
 export { BulkOperations } from './BulkOperations';
+export { PricingCalculator } from './PricingCalculator';
+export { ClientComparisonTool } from './ClientComparisonTool';
+export { PricingAnalytics } from './PricingAnalytics';
+export { ApprovalWorkflows } from './ApprovalWorkflows';
