@@ -12,7 +12,7 @@ import { JobWizardStep3 } from "./JobWizardStep3";
 import { JobWizardStep4 } from "./JobWizardStep4";
 import { JobWizardStep5 } from "./JobWizardStep5";
 import { JobWizardStep6 } from "./JobWizardStep6";
-import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, Briefcase, Users, Star, Crown, ArrowUp } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -27,6 +27,7 @@ import { saveJob } from "@/lib/mockJobStorage";
 import { generateJobCode } from "@/lib/jobUtils";
 import { getEmployerById } from "@/lib/employerService";
 import { calculateServicePricing, processAccountPayment, processCreditCardPayment } from "@/lib/paymentService";
+import { cn } from "@/lib/utils";
 
 
 interface JobWizardProps {
@@ -117,6 +118,52 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   const isHRM8Service = currentServiceType !== 'self-managed';
   const totalSteps = isHRM8Service ? 1 : 6;
   const progress = (step / totalSteps) * 100;
+
+  // Service type display configuration
+  const serviceTypeConfig = {
+    'self-managed': { 
+      name: 'Self-Managed', 
+      price: 'FREE', 
+      icon: Briefcase,
+      color: 'text-muted-foreground'
+    },
+    'shortlisting': { 
+      name: 'Shortlisting Service', 
+      price: '$1,990', 
+      icon: Users,
+      color: 'text-blue-600'
+    },
+    'full-service': { 
+      name: 'Full Service', 
+      price: '$5,990', 
+      icon: Star,
+      color: 'text-primary'
+    },
+    'executive-search': { 
+      name: 'Executive Search', 
+      price: '$9,990+', 
+      icon: Crown,
+      color: 'text-amber-600'
+    },
+    'rpo': { 
+      name: 'RPO', 
+      price: 'Custom', 
+      icon: Briefcase,
+      color: 'text-purple-600'
+    }
+  };
+
+  const currentService = serviceTypeConfig[currentServiceType] || serviceTypeConfig['self-managed'];
+  const ServiceIcon = currentService.icon;
+
+  const scrollToTop = () => {
+    const scrollContainer = findScrollContainer();
+    if (scrollContainer) {
+      scrollContainer.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const onSubmit = async (data: JobFormData) => {
     if (!data.termsAccepted) {
@@ -276,12 +323,43 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>Step {step} of {totalSteps}</span>
             <span>{Math.round(progress)}% Complete</span>
           </div>
           <Progress value={progress} className="h-2" />
+          
+          {/* Service Type Indicator */}
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border">
+            <div className="flex items-center gap-3">
+              <div className={cn("p-2 rounded-md bg-background", currentService.color)}>
+                <ServiceIcon className="h-4 w-4" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-muted-foreground">Selected Service</span>
+                <span className="text-sm font-semibold">{currentService.name}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground">Service Fee</div>
+                <div className="text-lg font-bold text-primary">{currentService.price}</div>
+              </div>
+              {step > 1 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={scrollToTop}
+                  className="text-xs"
+                >
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                  Change
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
 
         {step === 1 && <JobWizardStep1 form={form} />}
