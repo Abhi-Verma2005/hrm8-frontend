@@ -59,8 +59,6 @@ import HomePage from "./pages/HomePage";
 import NotificationCenterPage from "./pages/NotificationCenterPage";
 import EmployeeCreate from "./pages/EmployeeCreate";
 import LeaveRequestCreate from "./pages/LeaveRequestCreate";
-import Onboarding from "./pages/Onboarding";
-import OnboardingWorkflowDetail from "./pages/OnboardingWorkflowDetail";
 import TimeAttendance from "./pages/TimeAttendance";
 import Payroll from "./pages/Payroll";
 import Benefits from "./pages/Benefits";
@@ -206,8 +204,6 @@ function AppContent() {
               <Route path="/talent-development" element={<TalentDevelopment />} />
               <Route path="/talent-development/learning-paths/:id" element={<LearningPathDetail />} />
               <Route path="/talent-development/courses/:id" element={<CourseDetail />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/onboarding/:id" element={<OnboardingWorkflowDetail />} />
               <Route path="/attendance" element={<TimeAttendance />} />
               <Route path="/payroll" element={<Payroll />} />
               <Route path="/benefits" element={<Benefits />} />
