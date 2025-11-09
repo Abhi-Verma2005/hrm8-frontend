@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AppRole, UserRole } from "@/types/rbac";
-import { getUserRoles, hasRole, hasAnyRole, hasPermission, getCurrentUserId } from "@/lib/rbacService";
+import { getUserRoles, hasRole, hasAnyRole, hasPermission, getCurrentUserId, isDevelopmentMode } from "@/lib/rbacService";
 
 export function useRBAC() {
   const [userId] = useState(getCurrentUserId());
@@ -29,9 +29,9 @@ export function useRBAC() {
     return hasPermission(userId, permission);
   };
 
-  const isSuperAdmin = checkRole('super_admin');
-  const isHRAdmin = checkRole('hr_admin');
-  const isManager = checkAnyRole(['manager', 'department_head', 'hr_manager']);
+  const isSuperAdmin = isDevelopmentMode() || checkRole('super_admin');
+  const isHRAdmin = isDevelopmentMode() || checkRole('hr_admin');
+  const isManager = isDevelopmentMode() || checkAnyRole(['manager', 'department_head', 'hr_manager']);
 
   return {
     userId,

@@ -16,10 +16,19 @@ import { SecurityComplianceTab } from "@/components/admin/settings/SecurityCompl
 import { AuditLogsTab } from "@/components/admin/settings/AuditLogsTab";
 
 export default function AdminSettings() {
-  const { isSuperAdmin } = useRBAC();
+  const { isSuperAdmin, loading } = useRBAC();
 
   // In dev mode, bypass permission check - only enforce in production
   const hasAccess = isDevelopmentMode() || isSuperAdmin;
+
+  // Don't show error while loading roles
+  if (loading) {
+    return (
+      <DashboardPageLayout>
+        <div className="p-6">Loading...</div>
+      </DashboardPageLayout>
+    );
+  }
 
   if (!hasAccess) {
     return (
