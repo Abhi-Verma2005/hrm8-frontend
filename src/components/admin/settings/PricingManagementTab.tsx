@@ -1,6 +1,14 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ATSSubscriptionManager, AddonServiceManager, RecruitmentServiceManager } from '@/components/admin/pricing';
+import { 
+  ATSSubscriptionManager, 
+  AddonServiceManager, 
+  RecruitmentServiceManager,
+  CustomPricingManager,
+  PricingHistoryViewer,
+  PricingExportTools,
+  BulkOperations
+} from '@/components/admin/pricing';
 import { DollarSign, Check } from 'lucide-react';
 import { PRICING_NOTES } from '@/lib/subscriptionConfig';
 
@@ -25,11 +33,14 @@ export function PricingManagementTab() {
       </Card>
 
       <Tabs defaultValue="ats" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="ats">ATS Subscriptions</TabsTrigger>
-          <TabsTrigger value="addons">Add-on Services</TabsTrigger>
-          <TabsTrigger value="recruitment">Recruitment Services</TabsTrigger>
-          <TabsTrigger value="notes">Pricing Notes</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-7">
+          <TabsTrigger value="ats">ATS Tiers</TabsTrigger>
+          <TabsTrigger value="addons">Add-ons</TabsTrigger>
+          <TabsTrigger value="recruitment">Recruitment</TabsTrigger>
+          <TabsTrigger value="custom">Custom Pricing</TabsTrigger>
+          <TabsTrigger value="bulk">Bulk Ops</TabsTrigger>
+          <TabsTrigger value="history">History</TabsTrigger>
+          <TabsTrigger value="export">Export</TabsTrigger>
         </TabsList>
 
         {/* ATS Subscriptions Tab */}
@@ -47,54 +58,24 @@ export function PricingManagementTab() {
           <RecruitmentServiceManager />
         </TabsContent>
 
-        {/* Pricing Notes Tab */}
-        <TabsContent value="notes">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pricing Notes & Guidelines</CardTitle>
-              <CardDescription>Important information about pricing structure</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4">
-                <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                  <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium">{PRICING_NOTES.annualPayment}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      All ATS subscription fees are billed annually
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                  <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium">{PRICING_NOTES.currency}</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      All prices are shown in GBP (£)
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                  <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium">Flexible Add-ons</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Add-on services can be purchased separately and combined with any subscription tier
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-4 rounded-lg border bg-card">
-                  <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="font-medium">Custom Pricing Available</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Enterprise and high-volume customers can request custom pricing arrangements
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Custom Pricing Tab */}
+        <TabsContent value="custom" className="space-y-4">
+          <CustomPricingManager />
+        </TabsContent>
+
+        {/* Bulk Operations Tab */}
+        <TabsContent value="bulk" className="space-y-4">
+          <BulkOperations />
+        </TabsContent>
+
+        {/* History Tab */}
+        <TabsContent value="history" className="space-y-4">
+          <PricingHistoryViewer />
+        </TabsContent>
+
+        {/* Export Tab */}
+        <TabsContent value="export" className="space-y-4">
+          <PricingExportTools />
         </TabsContent>
       </Tabs>
     </div>
