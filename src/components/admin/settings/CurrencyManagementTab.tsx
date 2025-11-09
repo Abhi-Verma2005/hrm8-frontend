@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Edit, Trash2, Banknote, RefreshCw, TrendingUp, DollarSign } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { CurrencyConverter } from "./CurrencyConverter";
 
 const currencySchema = z.object({
   code: z.string().trim().length(3, "Currency code must be 3 characters").toUpperCase(),
@@ -740,88 +741,92 @@ export function CurrencyManagementTab() {
       </TabsContent>
 
       <TabsContent value="settings" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <DollarSign className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle>Currency Settings</CardTitle>
-                <CardDescription>Configure global currency preferences</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border rounded-lg">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <CurrencyConverter currencies={currencies} />
+          
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-primary" />
+                </div>
                 <div>
-                  <h4 className="font-medium">Auto-Update Exchange Rates</h4>
+                  <CardTitle>Currency Settings</CardTitle>
+                  <CardDescription>Configure global currency preferences</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <h4 className="font-medium">Auto-Update Exchange Rates</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Automatically fetch latest rates from external API
+                    </p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+
+                <div className="p-4 border rounded-lg space-y-3">
+                  <h4 className="font-medium">Update Frequency</h4>
+                  <Select defaultValue="daily">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hourly">Hourly</SelectItem>
+                      <SelectItem value="daily">Daily</SelectItem>
+                      <SelectItem value="weekly">Weekly</SelectItem>
+                      <SelectItem value="manual">Manual Only</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <p className="text-sm text-muted-foreground">
-                    Automatically fetch latest rates from external API
+                    How often to update exchange rates automatically
                   </p>
                 </div>
-                <Switch defaultChecked />
-              </div>
 
-              <div className="p-4 border rounded-lg space-y-3">
-                <h4 className="font-medium">Update Frequency</h4>
-                <Select defaultValue="daily">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="hourly">Hourly</SelectItem>
-                    <SelectItem value="daily">Daily</SelectItem>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="manual">Manual Only</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">
-                  How often to update exchange rates automatically
-                </p>
-              </div>
-
-              <div className="p-4 border rounded-lg space-y-3">
-                <h4 className="font-medium">Exchange Rate Source</h4>
-                <Select defaultValue="frankfurter">
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="frankfurter">Frankfurter API (Free)</SelectItem>
-                    <SelectItem value="custom">Custom API</SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-sm text-muted-foreground">
-                  Select the API source for exchange rates
-                </p>
-              </div>
-
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <h4 className="font-medium">Show Currency Symbols</h4>
+                <div className="p-4 border rounded-lg space-y-3">
+                  <h4 className="font-medium">Exchange Rate Source</h4>
+                  <Select defaultValue="frankfurter">
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="frankfurter">Frankfurter API (Free)</SelectItem>
+                      <SelectItem value="custom">Custom API</SelectItem>
+                    </SelectContent>
+                  </Select>
                   <p className="text-sm text-muted-foreground">
-                    Display currency symbols instead of codes
+                    Select the API source for exchange rates
                   </p>
                 </div>
-                <Switch defaultChecked />
-              </div>
 
-              <div className="flex items-center justify-between p-4 border rounded-lg">
-                <div>
-                  <h4 className="font-medium">Round to Currency Decimals</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Automatically round amounts based on currency settings
-                  </p>
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <h4 className="font-medium">Show Currency Symbols</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Display currency symbols instead of codes
+                    </p>
+                  </div>
+                  <Switch defaultChecked />
                 </div>
-                <Switch defaultChecked />
-              </div>
-            </div>
 
-            <Button className="w-full">Save Settings</Button>
-          </CardContent>
-        </Card>
+                <div className="flex items-center justify-between p-4 border rounded-lg">
+                  <div>
+                    <h4 className="font-medium">Round to Currency Decimals</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Automatically round amounts based on currency settings
+                    </p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+              </div>
+
+              <Button className="w-full">Save Settings</Button>
+            </CardContent>
+          </Card>
+        </div>
       </TabsContent>
     </Tabs>
   );
