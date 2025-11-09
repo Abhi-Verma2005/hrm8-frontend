@@ -1,257 +1,345 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { RichTextEditor } from '@/components/ui/rich-text-editor';
-import { Plus, Edit, Trash2, Search, Mail } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { getApplicationEmailTemplates, saveApplicationEmailTemplate, deleteApplicationEmailTemplate, ApplicationEmailTemplate } from '@/lib/applicationEmailTemplates';
+import { useState } from "react";
+import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Mail,
+  Plus,
+  Search,
+  MoreVertical,
+  Edit,
+  Copy,
+  Trash2,
+  Eye,
+  History,
+  Filter,
+  FileText,
+} from "lucide-react";
+import {
+  getEmailTemplates,
+  createTemplate,
+  updateTemplate,
+  deleteTemplate,
+  duplicateTemplate,
+  EmailTemplate,
+} from "@/lib/emailTemplateService";
+import { TemplateEditor } from "@/components/email-templates/TemplateEditor";
+import { useToast } from "@/hooks/use-toast";
+import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export default function EmailTemplates() {
-  const [templates, setTemplates] = useState<ApplicationEmailTemplate[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [editingTemplate, setEditingTemplate] = useState<ApplicationEmailTemplate | null>(null);
-  const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState<string | null>(null);
-  const [formData, setFormData] = useState({ name: '', subject: '', body: '' });
   const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState<string>("all");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    loadTemplates();
-  }, []);
-
-  const loadTemplates = () => {
-    setTemplates(getApplicationEmailTemplates());
-  };
-
-  const filteredTemplates = templates.filter(t =>
+  const templates = getEmailTemplates({
+    type: filterType !== "all" ? (filterType as any) : undefined,
+    isActive: filterStatus === "active" ? true : filterStatus === "inactive" ? false : undefined,
+  }).filter((t) =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     t.subject.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const stats = {
+    total: getEmailTemplates().length,
+    active: getEmailTemplates({ isActive: true }).length,
+    default: getEmailTemplates().filter((t) => t.isDefault).length,
+  };
+
+  const getTypeColor = (type: EmailTemplate['type']) => {
+    const colors = {
+      application_confirmation: 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-400',
+      interview_invitation: 'bg-purple-100 text-purple-700 dark:bg-purple-950/30 dark:text-purple-400',
+      offer_letter: 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-400',
+      rejection: 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-400',
+      stage_change: 'bg-orange-100 text-orange-700 dark:bg-orange-950/30 dark:text-orange-400',
+      reminder: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-950/30 dark:text-yellow-400',
+      custom: 'bg-gray-100 text-gray-700 dark:bg-gray-950/30 dark:text-gray-400',
+    };
+    return colors[type];
+  };
+
+  const getTypeLabel = (type: EmailTemplate['type']) => {
+    return type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  };
+
   const handleCreate = () => {
-    if (!formData.name.trim() || !formData.subject.trim() || !formData.body.trim()) {
+    setSelectedTemplate(null);
+    setEditorOpen(true);
+  };
+
+  const handleEdit = (template: EmailTemplate) => {
+    setSelectedTemplate(template);
+    setEditorOpen(true);
+  };
+
+  const handleSave = (data: any, changeNote?: string) => {
+    if (selectedTemplate) {
+      updateTemplate(selectedTemplate.id, data, changeNote);
       toast({
-        title: "All fields required",
-        description: "Please fill in all fields",
+        title: "Template updated",
+        description: `"${data.name}" has been updated`,
+      });
+    } else {
+      const newTemplate = createTemplate({
+        ...data,
+        createdBy: 'current-user',
+      });
+      toast({
+        title: "Template created",
+        description: `"${newTemplate.name}" has been created`,
+      });
+    }
+    setRefreshKey((k) => k + 1);
+  };
+
+  const handleDuplicate = (template: EmailTemplate) => {
+    const newName = `${template.name} (Copy)`;
+    duplicateTemplate(template.id, newName);
+    toast({
+      title: "Template duplicated",
+      description: `Created "${newName}"`,
+    });
+    setRefreshKey((k) => k + 1);
+  };
+
+  const handleDelete = (template: EmailTemplate) => {
+    if (template.isDefault) {
+      toast({
+        title: "Cannot delete",
+        description: "Default templates cannot be deleted",
         variant: "destructive",
       });
       return;
     }
 
-    saveApplicationEmailTemplate(formData);
-    loadTemplates();
-    setShowCreateDialog(false);
-    setFormData({ name: '', subject: '', body: '' });
-    
-    toast({
-      title: "Template created",
-      description: "Email template has been created successfully",
-    });
-  };
-
-  const handleDelete = (id: string) => {
-    deleteApplicationEmailTemplate(id);
-    loadTemplates();
-    setShowDeleteDialog(null);
-    
-    toast({
-      title: "Template deleted",
-      description: "Email template has been deleted successfully",
-    });
-  };
-
-  const openEditDialog = (template: ApplicationEmailTemplate) => {
-    setEditingTemplate(template);
-    setFormData({ name: template.name, subject: template.subject, body: template.body });
+    if (confirm(`Delete template "${template.name}"?`)) {
+      deleteTemplate(template.id);
+      toast({
+        title: "Template deleted",
+        description: `"${template.name}" has been removed`,
+      });
+      setRefreshKey((k) => k + 1);
+    }
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Email Templates</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage reusable email templates for candidate communications
-          </p>
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Email Templates</h1>
+            <p className="text-muted-foreground">
+              Manage automated email templates for candidate communications
+            </p>
+          </div>
+          <Button onClick={handleCreate}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Template
+          </Button>
         </div>
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              New Template
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Create Email Template</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Template Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g., Interview Invitation"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="subject">Email Subject *</Label>
-                <Input
-                  id="subject"
-                  value={formData.subject}
-                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  placeholder="e.g., Interview Invitation - {jobTitle}"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Email Body *</Label>
-                <RichTextEditor
-                  content={formData.body}
-                  onChange={(content) => setFormData({ ...formData, body: content })}
-                  placeholder="Compose your email template..."
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleCreate}>Create Template</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </div>
 
-      <div className="flex items-center gap-4">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search templates..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredTemplates.map((template) => (
-          <Card key={template.id}>
-            <CardHeader>
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <CardTitle className="text-lg">{template.name}</CardTitle>
-                  {!template.isCustom && (
-                    <Badge variant="secondary" className="mt-2">Default</Badge>
-                  )}
-                </div>
-                <Mail className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <CardDescription className="line-clamp-2">
-                {template.subject}
-              </CardDescription>
+        {/* Stats */}
+        <div className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Templates</CardTitle>
+              <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div 
-                className="prose prose-sm max-w-none line-clamp-3 text-sm text-muted-foreground"
-                dangerouslySetInnerHTML={{ __html: template.body }}
-              />
+              <div className="text-2xl font-bold">{stats.total}</div>
             </CardContent>
-            <CardFooter className="gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={() => openEditDialog(template)}
-                disabled={!template.isCustom}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                View
-              </Button>
-              {template.isCustom && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowDeleteDialog(template.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              )}
-            </CardFooter>
           </Card>
-        ))}
-      </div>
 
-      {filteredTemplates.length === 0 && (
-        <div className="text-center py-12">
-          <Mail className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No templates found</h3>
-          <p className="text-muted-foreground">
-            {searchQuery ? 'Try adjusting your search' : 'Create your first email template'}
-          </p>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Active</CardTitle>
+              <Mail className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.active}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Default Templates</CardTitle>
+              <History className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.default}</div>
+            </CardContent>
+          </Card>
         </div>
-      )}
 
-      <AlertDialog open={!!showDeleteDialog} onOpenChange={() => setShowDeleteDialog(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Template</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this template? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => showDeleteDialog && handleDelete(showDeleteDialog)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[200px] max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search templates..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+
+          <Select value={filterType} onValueChange={setFilterType}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="application_confirmation">Application Confirmation</SelectItem>
+              <SelectItem value="interview_invitation">Interview Invitation</SelectItem>
+              <SelectItem value="offer_letter">Offer Letter</SelectItem>
+              <SelectItem value="rejection">Rejection</SelectItem>
+              <SelectItem value="stage_change">Stage Change</SelectItem>
+              <SelectItem value="reminder">Reminder</SelectItem>
+              <SelectItem value="custom">Custom</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className="w-[150px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {(searchQuery || filterType !== "all" || filterStatus !== "all") && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSearchQuery("");
+                setFilterType("all");
+                setFilterStatus("all");
+              }}
             >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <Filter className="h-4 w-4 mr-2" />
+              Clear Filters
+            </Button>
+          )}
+        </div>
 
-      {editingTemplate && (
-        <Dialog open={!!editingTemplate} onOpenChange={() => setEditingTemplate(null)}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingTemplate.name}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label>Subject</Label>
-                <p className="text-sm mt-1">{editingTemplate.subject}</p>
-              </div>
-              <div>
-                <Label>Body</Label>
-                <div 
-                  className="prose prose-sm max-w-none mt-2 p-4 border rounded-md"
-                  dangerouslySetInnerHTML={{ __html: editingTemplate.body }}
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button onClick={() => setEditingTemplate(null)}>Close</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
+        {/* Templates List */}
+        <div className="space-y-3">
+          {templates.map((template) => (
+            <Card key={template.id} className="hover:shadow-md transition-shadow">
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="font-semibold text-lg">{template.name}</h3>
+                      <Badge className={getTypeColor(template.type)}>
+                        {getTypeLabel(template.type)}
+                      </Badge>
+                      {template.isDefault && (
+                        <Badge variant="outline">Default</Badge>
+                      )}
+                      {!template.isActive && (
+                        <Badge variant="secondary">Inactive</Badge>
+                      )}
+                    </div>
+
+                    <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
+                      <span className="font-medium">Subject:</span> {template.subject}
+                    </p>
+
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span>Version {template.version}</span>
+                      <span>•</span>
+                      <span>{template.variables.length} variables</span>
+                      <span>•</span>
+                      <span>Updated {formatDistanceToNow(new Date(template.updatedAt), { addSuffix: true })}</span>
+                    </div>
+                  </div>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleEdit(template)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleDuplicate(template)}>
+                        <Copy className="h-4 w-4 mr-2" />
+                        Duplicate
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {!template.isDefault && (
+                        <DropdownMenuItem
+                          onClick={() => handleDelete(template)}
+                          className="text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {templates.length === 0 && (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <Mail className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No templates found</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {searchQuery || filterType !== "all" || filterStatus !== "all"
+                    ? "Try adjusting your filters"
+                    : "Create your first email template to get started"}
+                </p>
+                <Button onClick={handleCreate}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Template
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        <TemplateEditor
+          open={editorOpen}
+          onOpenChange={setEditorOpen}
+          template={selectedTemplate}
+          onSave={handleSave}
+        />
+      </div>
+    </DashboardPageLayout>
   );
 }
