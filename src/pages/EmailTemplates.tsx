@@ -30,6 +30,7 @@ import {
   History,
   Filter,
   FileText,
+  BarChart3,
 } from "lucide-react";
 import {
   getEmailTemplates,
@@ -40,6 +41,8 @@ import {
   EmailTemplate,
 } from "@/lib/emailTemplateService";
 import { TemplateEditor } from "@/components/email-templates/TemplateEditor";
+import { TemplateAnalytics } from "@/components/email-templates/TemplateAnalytics";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -195,7 +198,20 @@ export default function EmailTemplates() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3">
+        <Tabs defaultValue="templates" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="templates">
+              <Mail className="h-4 w-4 mr-2" />
+              Templates
+            </TabsTrigger>
+            <TabsTrigger value="analytics">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Analytics
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="templates" className="space-y-4">
+            <div className="flex flex-wrap items-center gap-3">
           <div className="relative flex-1 min-w-[200px] max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -332,6 +348,12 @@ export default function EmailTemplates() {
             </Card>
           )}
         </div>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-4">
+            <TemplateAnalytics />
+          </TabsContent>
+        </Tabs>
 
         <TemplateEditor
           open={editorOpen}
