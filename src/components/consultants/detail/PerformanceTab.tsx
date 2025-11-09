@@ -3,6 +3,9 @@ import { Award, TrendingUp, Target, Clock, Users, Star } from 'lucide-react';
 import { PerformanceTrendsChart } from './charts/PerformanceTrendsChart';
 import { RevenueTrendsChart } from './charts/RevenueTrendsChart';
 import { PerformanceBreakdownChart } from './charts/PerformanceBreakdownChart';
+import { GoalsSection } from './performance/GoalsSection';
+import { RecentReviewsSection } from './performance/RecentReviewsSection';
+import { SkillsSection } from './performance/SkillsSection';
 
 interface PerformanceTabProps {
   consultantId: string;
@@ -88,6 +91,15 @@ export function PerformanceTab({ consultantId }: PerformanceTabProps) {
             <p className="text-xs text-muted-foreground">Out of 5.0</p>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Goals & Objectives */}
+      <GoalsSection consultantId={consultantId} />
+
+      {/* Reviews & Skills */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <RecentReviewsSection consultantId={consultantId} />
+        <SkillsSection consultantId={consultantId} />
       </div>
 
       {/* Charts */}
