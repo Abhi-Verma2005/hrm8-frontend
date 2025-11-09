@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { FileText, Download, Search, Filter, CalendarIcon, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { TablePagination } from "@/components/tables/TablePagination";
 
 interface AuditLog {
   id: string;
@@ -152,6 +153,8 @@ export function AuditLogsTab() {
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const { toast } = useToast();
 
   const categories = [
@@ -201,6 +204,7 @@ export function AuditLogsTab() {
     }
 
     setFilteredLogs(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
   };
 
   const handleRefresh = () => {
@@ -273,6 +277,22 @@ export function AuditLogsTab() {
     setDateFrom(undefined);
     setDateTo(undefined);
     setFilteredLogs(logs);
+    setCurrentPage(1);
+  };
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredLogs.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedLogs = filteredLogs.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1); // Reset to first page when page size changes
   };
 
   return (
@@ -427,13 +447,6 @@ export function AuditLogsTab() {
             </div>
           </div>
 
-          {/* Results Summary */}
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <span>
-              Showing {filteredLogs.length} of {logs.length} logs
-            </span>
-          </div>
-
           {/* Audit Logs Table */}
           <div className="border rounded-lg overflow-hidden">
             <Table>
@@ -456,7 +469,7 @@ export function AuditLogsTab() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredLogs.map((log) => (
+                  paginatedLogs.map((log) => (
                     <TableRow key={log.id}>
                       <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
                       <TableCell>
@@ -486,6 +499,18 @@ export function AuditLogsTab() {
               </TableBody>
             </Table>
           </div>
+
+          {/* Pagination */}
+          {filteredLogs.length > 0 && (
+            <TablePagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              totalItems={filteredLogs.length}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
+            />
+          )}
         </CardContent>
       </Card>
     </div>
