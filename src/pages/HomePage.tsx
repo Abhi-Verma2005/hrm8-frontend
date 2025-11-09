@@ -12,8 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { StatsCard } from "@/components/ui/stats-card";
-import { UnreadNotificationsList } from "@/components/notifications/widgets/UnreadNotificationsList";
-import { PriorityAlerts } from "@/components/notifications/widgets/PriorityAlerts";
+import { RecentNotificationsCard } from "@/components/notifications/widgets/RecentNotificationsCard";
 import {
   getPlatformMetrics,
   getSupportTickets,
@@ -224,6 +223,15 @@ export default function HomePage() {
                 <DollarSign className="h-6 w-6 mb-2" />
                 <span className="text-xs">Finance</span>
               </Button>
+              <Button variant="outline" className="h-auto flex-col py-4 relative" onClick={() => navigate('/notifications')}>
+                <Bell className="h-6 w-6 mb-2" />
+                <span className="text-xs">Notifications</span>
+                {stats.openTickets > 0 && (
+                  <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-[10px]">
+                    {stats.openTickets > 9 ? '9+' : stats.openTickets}
+                  </Badge>
+                )}
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -309,42 +317,8 @@ export default function HomePage() {
 
           {/* Side Cards */}
           <div className="space-y-6">
-            {/* Recruitment Services Queue */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Recruitment Services
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {recruitmentQueue.slice(0, 3).map((service) => (
-                  <div key={service.id} 
-                       className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors"
-                       onClick={() => navigate('/recruitment-services')}>
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{service.jobTitle}</p>
-                        <p className="text-xs text-muted-foreground">{service.employerName}</p>
-                      </div>
-                      <Badge variant="secondary" className="text-xs ml-2">
-                        {service.priority}
-                      </Badge>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Progress</span>
-                        <span className="font-medium">{service.progress}%</span>
-                      </div>
-                      <Progress value={service.progress} className="h-1" />
-                    </div>
-                  </div>
-                ))}
-                <Button variant="outline" className="w-full" onClick={() => navigate('/recruitment-services')}>
-                  View All Services
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Recent Notifications */}
+            <RecentNotificationsCard userId="super-admin-001" maxItems={5} />
 
             {/* System Integrations Status */}
             <Card>
