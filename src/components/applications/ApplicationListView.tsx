@@ -20,6 +20,8 @@ import type { Application, ApplicationStatus, ApplicationStage } from "@/types/a
 interface ApplicationListViewProps {
   applications: Application[];
   onApplicationClick: (application: Application) => void;
+  selectable?: boolean;
+  onSelectedRowsChange?: (selectedIds: string[]) => void;
 }
 
 const statusConfig: Record<ApplicationStatus, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -46,7 +48,12 @@ const stageColors: Record<string, string> = {
   'Withdrawn': 'bg-gray-500',
 };
 
-export function ApplicationListView({ applications, onApplicationClick }: ApplicationListViewProps) {
+export function ApplicationListView({ 
+  applications, 
+  onApplicationClick,
+  selectable = false,
+  onSelectedRowsChange,
+}: ApplicationListViewProps) {
   const columns: Column<Application>[] = useMemo(() => [
     {
       key: "candidateName",
@@ -179,6 +186,8 @@ export function ApplicationListView({ applications, onApplicationClick }: Applic
       searchable
       searchKeys={["candidateName", "candidateEmail", "jobTitle"]}
       emptyMessage="No applications found"
+      selectable={selectable}
+      onSelectedRowsChange={onSelectedRowsChange}
     />
   );
 }
