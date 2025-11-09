@@ -110,6 +110,7 @@ import { initializeMockFeedbackData } from './lib/mockFeedbackData';
 import { initializeMockTeamData } from './lib/mockTeamData';
 import { initializeMockTemplates } from './lib/mockTemplateData';
 import { initializeMockAutomationRules } from './lib/mockAutomationData';
+import { initializeMockAlertRules } from './data/mockAlertRules';
 import { useEffect } from 'react';
 import { ProtectedRoutes } from './components/common/ProtectedRoutes';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
@@ -125,6 +126,7 @@ function AppContent() {
     initializeMockTeamData();
     initializeMockTemplates();
     initializeMockAutomationRules();
+    initializeMockAlertRules();
   }, []);
 
   return (

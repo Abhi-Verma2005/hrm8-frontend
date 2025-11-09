@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { StatsCard } from "@/components/ui/stats-card";
+import { UnreadNotificationsList } from "@/components/notifications/widgets/UnreadNotificationsList";
+import { PriorityAlerts } from "@/components/notifications/widgets/PriorityAlerts";
 import {
   getPlatformMetrics,
   getSupportTickets,
