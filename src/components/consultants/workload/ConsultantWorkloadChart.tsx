@@ -10,17 +10,18 @@ interface ConsultantWorkloadChartProps {
 export function ConsultantWorkloadChart({ data }: ConsultantWorkloadChartProps) {
   const chartData = data.map(item => ({
     name: item.consultantName,
-    jobs: item.currentJobs,
-    employers: item.currentEmployers,
-    available: Math.max(0, item.totalCapacity - item.totalAssigned),
+    assigned: item.hoursAssigned,
+    available: item.hoursRemaining,
     utilizationPercent: item.utilizationPercent,
   }));
 
   return (
     <Card className="p-6">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold">Team Workload Overview</h3>
-        <p className="text-sm text-muted-foreground">Current assignments vs. capacity</p>
+      <div className="mb-4 flex items-start justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">Team Workload Overview</h3>
+          <p className="text-sm text-muted-foreground">Hours assigned vs. available (160h/month)</p>
+        </div>
       </div>
       
       <ResponsiveContainer width="100%" height={400}>
@@ -37,16 +38,16 @@ export function ConsultantWorkloadChart({ data }: ConsultantWorkloadChartProps) 
                     <p className="font-semibold mb-2">{data.name}</p>
                     <div className="space-y-1 text-sm">
                       <p className="flex justify-between gap-4">
-                        <span className="text-muted-foreground">Jobs:</span>
-                        <span className="font-medium">{data.jobs}</span>
+                        <span className="text-muted-foreground">Hours Assigned:</span>
+                        <span className="font-medium">{data.assigned}h</span>
                       </p>
                       <p className="flex justify-between gap-4">
-                        <span className="text-muted-foreground">Employers:</span>
-                        <span className="font-medium">{data.employers}</span>
+                        <span className="text-muted-foreground">Hours Available:</span>
+                        <span className="font-medium">{data.available}h</span>
                       </p>
                       <p className="flex justify-between gap-4">
-                        <span className="text-muted-foreground">Available:</span>
-                        <span className="font-medium">{data.available}</span>
+                        <span className="text-muted-foreground">Total Capacity:</span>
+                        <span className="font-medium">160h</span>
                       </p>
                       <p className="flex justify-between gap-4 pt-1 border-t mt-2">
                         <span className="text-muted-foreground">Utilization:</span>
@@ -60,11 +61,10 @@ export function ConsultantWorkloadChart({ data }: ConsultantWorkloadChartProps) 
             }}
           />
           <Legend />
-          <Bar dataKey="jobs" stackId="a" fill="hsl(var(--chart-3))" name="Jobs" />
-          <Bar dataKey="employers" stackId="a" fill="hsl(var(--chart-4))" name="Employers" />
-          <Bar dataKey="available" stackId="a" name="Available Capacity">
+          <Bar dataKey="assigned" stackId="a" fill="hsl(var(--chart-3))" name="Hours Assigned" />
+          <Bar dataKey="available" stackId="a" name="Hours Available">
             {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={getCapacityColor(entry.utilizationPercent)} opacity={0.3} />
+              <Cell key={`cell-${index}`} fill={getCapacityColor(entry.utilizationPercent)} opacity={0.4} />
             ))}
           </Bar>
         </BarChart>

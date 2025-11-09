@@ -22,10 +22,10 @@ const SERVICE_LABELS = {
 
 export function ServiceTypeDistributionChart({ data }: ServiceTypeDistributionChartProps) {
   const chartData = [
-    { name: SERVICE_LABELS.shortlisting, value: data.shortlisting.count, percentage: data.shortlisting.percentage },
-    { name: SERVICE_LABELS['full-service'], value: data['full-service'].count, percentage: data['full-service'].percentage },
-    { name: SERVICE_LABELS['executive-search'], value: data['executive-search'].count, percentage: data['executive-search'].percentage },
-    { name: SERVICE_LABELS.rpo, value: data.rpo.count, percentage: data.rpo.percentage },
+    { name: SERVICE_LABELS.shortlisting, value: data.shortlisting.count, hours: data.shortlisting.hours, percentage: data.shortlisting.percentage },
+    { name: SERVICE_LABELS['full-service'], value: data['full-service'].count, hours: data['full-service'].hours, percentage: data['full-service'].percentage },
+    { name: SERVICE_LABELS['executive-search'], value: data['executive-search'].count, hours: data['executive-search'].hours, percentage: data['executive-search'].percentage },
+    { name: SERVICE_LABELS.rpo, value: data.rpo.count, hours: data.rpo.hours, percentage: data.rpo.percentage },
   ].filter(item => item.value > 0);
 
   return (
@@ -76,6 +76,9 @@ export function ServiceTypeDistributionChart({ data }: ServiceTypeDistributionCh
                       <p className="text-sm text-muted-foreground">
                         {data.value} service{data.value !== 1 ? 's' : ''} ({data.percentage}%)
                       </p>
+                      <p className="text-sm text-muted-foreground">
+                        {data.hours} hours total
+                      </p>
                     </div>
                   );
                 }
@@ -87,9 +90,15 @@ export function ServiceTypeDistributionChart({ data }: ServiceTypeDistributionCh
         </ResponsiveContainer>
       )}
 
-      <div className="mt-4 text-center">
-        <p className="text-2xl font-bold">{data.total}</p>
-        <p className="text-sm text-muted-foreground">Total Active Services</p>
+      <div className="mt-4 grid grid-cols-2 gap-4 text-center">
+        <div>
+          <p className="text-2xl font-bold">{data.total}</p>
+          <p className="text-sm text-muted-foreground">Total Services</p>
+        </div>
+        <div>
+          <p className="text-2xl font-bold">{data.totalHours}h</p>
+          <p className="text-sm text-muted-foreground">Total Hours</p>
+        </div>
       </div>
     </Card>
   );

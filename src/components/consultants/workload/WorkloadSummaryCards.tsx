@@ -15,13 +15,17 @@ export function WorkloadSummaryCards({ summary }: WorkloadSummaryCardsProps) {
     ? Math.round((summary.available / summary.totalActive) * 100) 
     : 0;
 
+  const avgHoursPerConsultant = summary.totalActive > 0
+    ? Math.round(summary.totalHoursAssigned / summary.totalActive)
+    : 0;
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatsCard
         title="Total Active"
         value={summary.totalActive}
         icon={Users}
-        description={`${summary.averageUtilization}% avg utilization`}
+        description={`${avgHoursPerConsultant}h avg per consultant`}
       />
 
       <StatsCard

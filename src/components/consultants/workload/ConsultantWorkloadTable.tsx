@@ -70,8 +70,7 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
             <tr>
               <th className="text-left p-4 font-medium">Consultant</th>
               <th className="text-left p-4 font-medium">Status</th>
-              <th className="text-left p-4 font-medium">Jobs</th>
-              <th className="text-left p-4 font-medium">Employers</th>
+              <th className="text-left p-4 font-medium">Hours Assigned</th>
               <th className="text-left p-4 font-medium">Utilization</th>
               <th className="text-left p-4 font-medium">Services</th>
               <th className="text-right p-4 font-medium">Actions</th>
@@ -113,21 +112,10 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
                   <td className="p-4">
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{consultant.currentJobs}/{consultant.maxJobs}</span>
+                        <span className="font-medium">{consultant.hoursAssigned} / {consultant.monthlyHoursAvailable}h</span>
                       </div>
                       <Progress 
-                        value={(consultant.currentJobs / consultant.maxJobs) * 100} 
-                        className="h-2"
-                      />
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{consultant.currentEmployers}/{consultant.maxEmployers}</span>
-                      </div>
-                      <Progress 
-                        value={(consultant.currentEmployers / consultant.maxEmployers) * 100} 
+                        value={consultant.utilizationPercent} 
                         className="h-2"
                       />
                     </div>
@@ -141,8 +129,8 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
                   </td>
                   <td className="p-4">
                     <div className="flex flex-wrap gap-1">
-                      {Object.entries(consultant.serviceBreakdown).map(([type, count]) => {
-                        if (count === 0) return null;
+                      {Object.entries(consultant.serviceHoursBreakdown).map(([type, hours]) => {
+                        if (hours === 0) return null;
                         const serviceType = type as keyof typeof SERVICE_TYPE_COLORS;
                         return (
                           <Badge
@@ -150,7 +138,7 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
                             variant="outline"
                             className={cn("text-xs", SERVICE_TYPE_COLORS[serviceType])}
                           >
-                            {SERVICE_TYPE_LABELS[serviceType]}: {count}
+                            {SERVICE_TYPE_LABELS[serviceType]}: {hours}h
                           </Badge>
                         );
                       })}
@@ -179,7 +167,7 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
                 {/* Expanded row with service details */}
                 {expandedRow === consultant.consultantId && (
                   <tr>
-                    <td colSpan={7} className="p-4 bg-muted/20">
+                    <td colSpan={6} className="p-4 bg-muted/20">
                       <div className="space-y-2">
                         <p className="text-sm font-medium">Active Services:</p>
                         {consultant.activeServices.length > 0 ? (
@@ -193,11 +181,17 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
                                   navigate(`/recruitment-services/${service.id}`);
                                 }}
                               >
-                                <div>
+                                <div className="flex-1">
                                   <p className="text-sm font-medium">{service.name}</p>
-                                  <Badge variant="outline" className="text-xs mt-1">
-                                    {SERVICE_TYPE_LABELS[service.type as keyof typeof SERVICE_TYPE_LABELS]}
-                                  </Badge>
+                                  <div className="flex items-center gap-2 mt-1">
+                                    <Badge variant="outline" className="text-xs">
+                                      {SERVICE_TYPE_LABELS[service.type as keyof typeof SERVICE_TYPE_LABELS]}
+                                    </Badge>
+                                    <span className="text-xs text-muted-foreground">{service.hours}h</span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    Est. completion: {new Date(service.expectedCompletion).toLocaleDateString()}
+                                  </p>
                                 </div>
                               </div>
                             ))}

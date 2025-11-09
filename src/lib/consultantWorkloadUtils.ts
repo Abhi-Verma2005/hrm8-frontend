@@ -2,6 +2,8 @@ import type { Consultant, ConsultantType } from '@/types/consultant';
 import type { ServiceProject, ServiceType } from '@/types/recruitmentService';
 import { getAllConsultants } from './consultantStorage';
 import { getAllServiceProjects } from './recruitmentServiceStorage';
+import { getJobById } from './mockJobStorage';
+import { getServiceHours, MONTHLY_HOURS_AVAILABLE } from './serviceHoursConfig';
 
 export interface WorkloadData {
   consultantId: string;
@@ -9,15 +11,12 @@ export interface WorkloadData {
   consultantType: ConsultantType;
   consultantStatus: string;
   avatar?: string;
-  maxJobs: number;
-  currentJobs: number;
-  maxEmployers: number;
-  currentEmployers: number;
-  totalCapacity: number;
-  totalAssigned: number;
+  monthlyHoursAvailable: number;
+  hoursAssigned: number;
+  hoursRemaining: number;
   utilizationPercent: number;
   status: 'available' | 'busy' | 'at-capacity' | 'overloaded';
-  serviceBreakdown: {
+  serviceHoursBreakdown: {
     shortlisting: number;
     'full-service': number;
     'executive-search': number;
@@ -27,6 +26,8 @@ export interface WorkloadData {
     id: string;
     name: string;
     type: ServiceType;
+    hours: number;
+    expectedCompletion: string;
   }>;
 }
 
@@ -36,15 +37,36 @@ export interface TeamWorkloadSummary {
   available: number;
   overloaded: number;
   averageUtilization: number;
+  totalHoursAssigned: number;
+  totalHoursAvailable: number;
   workloadData: WorkloadData[];
 }
 
 export interface ServiceTypeBreakdown {
-  shortlisting: { count: number; percentage: number };
-  'full-service': { count: number; percentage: number };
-  'executive-search': { count: number; percentage: number };
-  rpo: { count: number; percentage: number };
+  shortlisting: { count: number; hours: number; percentage: number };
+  'full-service': { count: number; hours: number; percentage: number };
+  'executive-search': { count: number; hours: number; percentage: number };
+  rpo: { count: number; hours: number; percentage: number };
   total: number;
+  totalHours: number;
+}
+
+function getServiceProjectHours(service: ServiceProject): number {
+  // For RPO, hours are calculated based on dedicated consultants
+  if (service.serviceType === 'rpo' && service.rpoAssignedConsultants) {
+    // RPO services with dedicated consultants don't count toward hourly workload
+    // They're tracked separately as full-time assignments
+    return 0;
+  }
+
+  // Get linked job for salary information (for executive search)
+  let salaryMax: number | undefined;
+  if (service.serviceType === 'executive-search' && service.jobId) {
+    const job = getJobById(service.jobId);
+    salaryMax = job?.salaryMax;
+  }
+
+  return getServiceHours(service.serviceType, salaryMax);
 }
 
 export function calculateConsultantWorkload(consultantId: string): WorkloadData {
@@ -63,17 +85,36 @@ export function calculateConsultantWorkload(consultantId: string): WorkloadData 
       service.consultants.some(c => c.id === consultantId)
   );
 
-  // Calculate service type breakdown
-  const serviceBreakdown = {
-    shortlisting: consultantServices.filter(s => s.serviceType === 'shortlisting').length,
-    'full-service': consultantServices.filter(s => s.serviceType === 'full-service').length,
-    'executive-search': consultantServices.filter(s => s.serviceType === 'executive-search').length,
-    rpo: consultantServices.filter(s => s.serviceType === 'rpo').length,
+  // Calculate hours breakdown by service type
+  const serviceHoursBreakdown = {
+    shortlisting: 0,
+    'full-service': 0,
+    'executive-search': 0,
+    rpo: 0,
   };
 
-  const totalCapacity = consultant.maxJobs + consultant.maxEmployers;
-  const totalAssigned = consultant.currentJobs + consultant.currentEmployers;
-  const utilizationPercent = totalCapacity > 0 ? (totalAssigned / totalCapacity) * 100 : 0;
+  const activeServices = consultantServices.map(service => {
+    const hours = getServiceProjectHours(service);
+    
+    // Add to breakdown
+    serviceHoursBreakdown[service.serviceType] += hours;
+
+    // Calculate expected completion (30 days from now)
+    const expectedCompletion = new Date();
+    expectedCompletion.setDate(expectedCompletion.getDate() + 30);
+
+    return {
+      id: service.id,
+      name: service.name,
+      type: service.serviceType,
+      hours,
+      expectedCompletion: expectedCompletion.toISOString(),
+    };
+  });
+
+  const hoursAssigned = Object.values(serviceHoursBreakdown).reduce((sum, h) => sum + h, 0);
+  const hoursRemaining = Math.max(0, MONTHLY_HOURS_AVAILABLE - hoursAssigned);
+  const utilizationPercent = (hoursAssigned / MONTHLY_HOURS_AVAILABLE) * 100;
 
   let status: WorkloadData['status'];
   if (utilizationPercent > 100) {
@@ -92,20 +133,13 @@ export function calculateConsultantWorkload(consultantId: string): WorkloadData 
     consultantType: consultant.type,
     consultantStatus: consultant.status,
     avatar: consultant.photo,
-    maxJobs: consultant.maxJobs,
-    currentJobs: consultant.currentJobs,
-    maxEmployers: consultant.maxEmployers,
-    currentEmployers: consultant.currentEmployers,
-    totalCapacity,
-    totalAssigned,
+    monthlyHoursAvailable: MONTHLY_HOURS_AVAILABLE,
+    hoursAssigned,
+    hoursRemaining,
     utilizationPercent: Math.round(utilizationPercent),
     status,
-    serviceBreakdown,
-    activeServices: consultantServices.map(s => ({
-      id: s.id,
-      name: s.name,
-      type: s.serviceType,
-    })),
+    serviceHoursBreakdown,
+    activeServices,
   };
 }
 
@@ -124,12 +158,17 @@ export function getTeamWorkloadSummary(): TeamWorkloadSummary {
     ? Math.round(totalUtilization / workloadData.length) 
     : 0;
 
+  const totalHoursAssigned = workloadData.reduce((sum, w) => sum + w.hoursAssigned, 0);
+  const totalHoursAvailable = workloadData.length * MONTHLY_HOURS_AVAILABLE;
+
   return {
     totalActive: activeConsultants.length,
     atCapacity,
     available,
     overloaded,
     averageUtilization,
+    totalHoursAssigned,
+    totalHoursAvailable,
     workloadData: workloadData.sort((a, b) => b.utilizationPercent - a.utilizationPercent),
   };
 }
@@ -139,32 +178,50 @@ export function getServiceTypeDistribution(): ServiceTypeBreakdown {
   const activeServices = allServices.filter(s => s.status === 'active');
 
   const counts = {
-    shortlisting: activeServices.filter(s => s.serviceType === 'shortlisting').length,
-    'full-service': activeServices.filter(s => s.serviceType === 'full-service').length,
-    'executive-search': activeServices.filter(s => s.serviceType === 'executive-search').length,
-    rpo: activeServices.filter(s => s.serviceType === 'rpo').length,
+    shortlisting: 0,
+    'full-service': 0,
+    'executive-search': 0,
+    rpo: 0,
   };
 
+  const hours = {
+    shortlisting: 0,
+    'full-service': 0,
+    'executive-search': 0,
+    rpo: 0,
+  };
+
+  activeServices.forEach(service => {
+    counts[service.serviceType]++;
+    hours[service.serviceType] += getServiceProjectHours(service);
+  });
+
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
+  const totalHours = Object.values(hours).reduce((sum, h) => sum + h, 0);
 
   return {
     shortlisting: {
       count: counts.shortlisting,
+      hours: hours.shortlisting,
       percentage: total > 0 ? Math.round((counts.shortlisting / total) * 100) : 0,
     },
     'full-service': {
       count: counts['full-service'],
+      hours: hours['full-service'],
       percentage: total > 0 ? Math.round((counts['full-service'] / total) * 100) : 0,
     },
     'executive-search': {
       count: counts['executive-search'],
+      hours: hours['executive-search'],
       percentage: total > 0 ? Math.round((counts['executive-search'] / total) * 100) : 0,
     },
     rpo: {
       count: counts.rpo,
+      hours: hours.rpo,
       percentage: total > 0 ? Math.round((counts.rpo / total) * 100) : 0,
     },
     total,
+    totalHours,
   };
 }
 
