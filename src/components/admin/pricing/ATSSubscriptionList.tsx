@@ -20,26 +20,45 @@ export function ATSSubscriptionList({ tiers, onEdit }: ATSSubscriptionListProps)
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="font-semibold text-lg">{tier.name}</h3>
+                {tier.popularBadge && (
+                  <Badge variant="default" className="bg-primary">
+                    Popular
+                  </Badge>
+                )}
                 <Badge variant={tier.status === 'active' ? 'default' : 'secondary'}>
                   {tier.status}
                 </Badge>
               </div>
+              <p className="text-sm text-muted-foreground mb-3">{tier.description}</p>
               <div className="grid grid-cols-2 gap-4 text-sm mb-3">
                 <div>
                   <span className="text-muted-foreground">Monthly:</span>
-                  <span className="ml-2 font-medium">${tier.monthlyPrice}</span>
+                  <span className="ml-2 font-medium">
+                    ${tier.monthlyPrice > 0 ? tier.monthlyPrice : 'Free'}
+                  </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Annual:</span>
-                  <span className="ml-2 font-medium">${tier.annualPrice}</span>
+                  <span className="ml-2 font-medium">
+                    ${tier.annualPrice > 0 ? tier.annualPrice : 'Free'}
+                  </span>
+                  {tier.annualDiscount > 0 && (
+                    <span className="ml-1 text-xs text-green-600">
+                      (Save {tier.annualDiscount}%)
+                    </span>
+                  )}
                 </div>
                 <div>
                   <span className="text-muted-foreground">Max Jobs:</span>
-                  <span className="ml-2 font-medium">{tier.maxJobs}</span>
+                  <span className="ml-2 font-medium">
+                    {tier.maxJobs === 999999 ? 'Unlimited' : tier.maxJobs}
+                  </span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Max Users:</span>
-                  <span className="ml-2 font-medium">{tier.maxUsers}</span>
+                  <span className="ml-2 font-medium">
+                    {tier.maxUsers === 999999 ? 'Unlimited' : tier.maxUsers}
+                  </span>
                 </div>
               </div>
               <div className="flex flex-wrap gap-1">
@@ -61,6 +80,11 @@ export function ATSSubscriptionList({ tiers, onEdit }: ATSSubscriptionListProps)
           </div>
         </div>
       ))}
+      {tiers.length === 0 && (
+        <div className="text-center py-8 text-muted-foreground">
+          No subscription tiers found. Create your first tier to get started.
+        </div>
+      )}
     </div>
   );
 }
