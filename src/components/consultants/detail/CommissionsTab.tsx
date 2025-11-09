@@ -1,28 +1,18 @@
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Plus, DollarSign, TrendingUp, Clock, CheckCircle, Search } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { CommissionCalculator } from './commissions/CommissionCalculator';
+import { PaymentManagementCard } from './commissions/PaymentManagementCard';
+import { CommissionForecast } from './commissions/CommissionForecast';
+import { DollarSign, TrendingUp, Clock, CheckCircle2, Search, Filter, Plus } from 'lucide-react';
 import { getConsultantCommissions, getCommissionStats } from '@/lib/commissionStorage';
-import { formatRevenue } from '@/lib/consultantUtils';
-import { format } from 'date-fns';
-import { useState } from 'react';
-import { CommissionStatusBadge } from './CommissionStatusBadge';
-import type { Consultant } from '@/types/consultant';
 import type { CommissionStatus } from '@/types/commission';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { format } from 'date-fns';
 
-interface CommissionsTabProps {
-  consultantId: string;
-  consultant: Consultant;
-}
-
-export function CommissionsTab({ consultantId, consultant }: CommissionsTabProps) {
+export function CommissionsTab({ consultantId }: { consultantId: string }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   
@@ -33,13 +23,28 @@ export function CommissionsTab({ consultantId, consultant }: CommissionsTabProps
   const filteredCommissions = commissions.filter(commission => {
     const matchesSearch = searchTerm === '' || 
       (commission.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       commission.entityName.toLowerCase().includes(searchTerm.toLowerCase()));
+       commission.entityName?.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || commission.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   return (
     <div className="space-y-6">
+      {/* Commission Calculator */}
+      <CommissionCalculator 
+        consultantId={consultantId}
+        onSave={() => {
+          // Refresh data
+          window.location.reload();
+        }}
+      />
+
+      {/* Payment Management & Forecast */}
+      <div className="grid gap-6 md:grid-cols-2">
+        <PaymentManagementCard consultantId={consultantId} />
+        <CommissionForecast consultantId={consultantId} />
+      </div>
+
       {/* Commission Stats */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
@@ -48,7 +53,7 @@ export function CommissionsTab({ consultantId, consultant }: CommissionsTabProps
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatRevenue(stats.totalEarned)}</div>
+            <div className="text-2xl font-bold">${(stats.totalEarned / 1000).toFixed(0)}K</div>
             <p className="text-xs text-muted-foreground">{stats.total} commissions</p>
           </CardContent>
         </Card>
@@ -59,7 +64,7 @@ export function CommissionsTab({ consultantId, consultant }: CommissionsTabProps
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatRevenue(stats.pendingAmount)}</div>
+            <div className="text-2xl font-bold">${(stats.pendingAmount / 1000).toFixed(0)}K</div>
             <p className="text-xs text-muted-foreground">{stats.pending} commissions</p>
           </CardContent>
         </Card>
@@ -67,10 +72,10 @@ export function CommissionsTab({ consultantId, consultant }: CommissionsTabProps
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Approved</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatRevenue(stats.approvedAmount)}</div>
+            <div className="text-2xl font-bold">${(stats.approvedAmount / 1000).toFixed(0)}K</div>
             <p className="text-xs text-muted-foreground">{stats.approved} commissions</p>
           </CardContent>
         </Card>
@@ -81,7 +86,7 @@ export function CommissionsTab({ consultantId, consultant }: CommissionsTabProps
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatRevenue(stats.paidAmount)}</div>
+            <div className="text-2xl font-bold">${(stats.paidAmount / 1000).toFixed(0)}K</div>
             <p className="text-xs text-muted-foreground">{stats.paid} commissions</p>
           </CardContent>
         </Card>
@@ -133,7 +138,7 @@ export function CommissionsTab({ consultantId, consultant }: CommissionsTabProps
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
                   <div className="flex-1">
-                    <div className="font-medium">{commission.description || commission.entityName}</div>
+                    <div className="font-medium">{commission.description || commission.entityName || 'Commission'}</div>
                     <div className="text-sm text-muted-foreground mt-1">
                       {commission.entityType} • {format(new Date(commission.earnedDate), 'MMM dd, yyyy')}
                     </div>
@@ -143,7 +148,14 @@ export function CommissionsTab({ consultantId, consultant }: CommissionsTabProps
                       <div className="font-bold">${commission.commissionAmount.toLocaleString()}</div>
                       <div className="text-sm text-muted-foreground">{commission.commissionRate}%</div>
                     </div>
-                    <CommissionStatusBadge status={commission.status as 'pending' | 'approved' | 'paid' | 'disputed'} />
+                    <Badge variant={
+                      commission.status === 'paid' ? 'default' :
+                      commission.status === 'approved' ? 'secondary' :
+                      commission.status === 'pending' ? 'outline' :
+                      'destructive'
+                    }>
+                      {commission.status}
+                    </Badge>
                   </div>
                 </div>
               ))}
