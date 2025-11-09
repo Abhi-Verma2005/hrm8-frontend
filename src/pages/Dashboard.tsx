@@ -1,235 +1,281 @@
-import { useState, useEffect } from 'react';
-import { useParams, Navigate } from 'react-router-dom';
-import { DashboardGrid } from '@/components/dashboard/DashboardGrid';
-import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
-import { EditModeToolbar } from '@/components/dashboard/EditModeToolbar';
-import { WidgetPalette } from '@/components/dashboard/WidgetPalette';
-import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
-import { DashboardSelector } from '@/components/dashboard/DashboardSelector';
-import { useDashboardLayout } from '@/hooks/useDashboardLayout';
-import { WIDGET_REGISTRY } from '@/lib/dashboard/widgetRegistry';
-import { DASHBOARD_METADATA } from '@/lib/dashboard/dashboardTypes';
-import type { WidgetType } from '@/lib/dashboard/widgetRegistry';
-import type { DashboardWidget } from '@/lib/dashboard/types';
-import type { DashboardType } from '@/lib/dashboard/dashboardTypes';
-import { Button } from "@/components/ui/button";
-import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Users, 
+  Briefcase, 
+  TrendingUp, 
+  Clock,
+  CheckCircle,
+  XCircle,
+  UserCheck,
+  Calendar
+} from 'lucide-react';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import type { DateRange } from "react-day-picker";
-import { Download } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
+
+// Mock data for charts
+const applicationsByStage = [
+  { name: 'New', value: 45, color: '#3b82f6' },
+  { name: 'Screening', value: 32, color: '#8b5cf6' },
+  { name: 'Interview', value: 28, color: '#6366f1' },
+  { name: 'Offer', value: 12, color: '#10b981' },
+  { name: 'Hired', value: 8, color: '#22c55e' },
+  { name: 'Rejected', value: 15, color: '#ef4444' },
+];
+
+const applicationsTrend = [
+  { date: 'Week 1', applications: 24, interviews: 8, offers: 2 },
+  { date: 'Week 2', applications: 32, interviews: 12, offers: 3 },
+  { date: 'Week 3', applications: 28, interviews: 15, offers: 5 },
+  { date: 'Week 4', applications: 38, interviews: 18, offers: 4 },
+  { date: 'Week 5', applications: 45, interviews: 22, offers: 6 },
+];
+
+const recruiterPerformance = [
+  { name: 'Sarah Johnson', applications: 42, hired: 8 },
+  { name: 'Michael Chen', applications: 38, hired: 6 },
+  { name: 'Emily Rodriguez', applications: 35, hired: 7 },
+  { name: 'David Kim', applications: 29, hired: 5 },
+];
+
+const topPositions = [
+  { position: 'Senior Developer', applications: 48, avgTime: 12 },
+  { position: 'Product Manager', applications: 32, avgTime: 15 },
+  { position: 'UX Designer', applications: 28, avgTime: 10 },
+  { position: 'Data Analyst', applications: 24, avgTime: 14 },
+  { position: 'Marketing Manager', applications: 20, avgTime: 11 },
+];
 
 export default function Dashboard() {
-  const { type } = useParams<{ type: string }>();
-  const dashboardType = (type || 'overview') as DashboardType;
-  
-  if (type && !['overview', 'jobs', 'hrms', 'financial', 'consulting', 'recruitment-services', 'employers', 'candidates'].includes(type)) {
-    return <Navigate to="/dashboard/overview" replace />;
-  }
-  
-  const dashboardMeta = DASHBOARD_METADATA[dashboardType];
-  
-  const {
-    layout,
-    isEditMode,
-    setIsEditMode,
-    updateWidget,
-    updateLayout,
-    addWidget,
-    removeWidget,
-    resetLayout,
-    saveLayout,
-    undo,
-    redo,
-    canUndo,
-    canRedo
-  } = useDashboardLayout(dashboardType);
-  
-  const [isPaletteOpen, setIsPaletteOpen] = useState(false);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const [showLivePreview, setShowLivePreview] = useState(true);
-  const { toast } = useToast();
-  
-  // Keyboard shortcuts for undo/redo
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        undo();
-      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
-        e.preventDefault();
-        redo();
-      }
-    };
-    
-    if (isEditMode) {
-      window.addEventListener('keydown', handleKeyDown);
-      return () => window.removeEventListener('keydown', handleKeyDown);
-    }
-  }, [isEditMode, undo, redo]);
-  
-  const handleAddWidget = (widgetType: WidgetType) => {
-    const widgetDef = WIDGET_REGISTRY[widgetType];
-    const newWidget: DashboardWidget = {
-      id: `${widgetType}-${Date.now()}`,
-      type: widgetDef.category,
-      component: widgetDef.component,
-      title: widgetDef.name,
-      gridArea: {
-        x: 0,
-        y: 0,
-        w: widgetDef.defaultSize.w,
-        h: widgetDef.defaultSize.h
-      },
-      props: widgetDef.defaultProps,
-      isVisible: true
-    };
-    
-    addWidget(newWidget);
-    setHasUnsavedChanges(true);
-    setIsPaletteOpen(false);
-    
-    toast({
-      title: "Widget added",
-      description: `${widgetDef.name} has been added to your dashboard.`,
-    });
-  };
-
-  const handleSave = () => {
-    saveLayout();
-    setHasUnsavedChanges(false);
-    toast({
-      title: "Layout saved",
-      description: "Your dashboard layout has been saved successfully.",
-    });
-  };
-
-  const handleReset = () => {
-    resetLayout();
-    setHasUnsavedChanges(false);
-    toast({
-      title: "Layout reset",
-      description: "Your dashboard has been reset to the default layout.",
-    });
-  };
-
-  const handleUpdateWidget = (id: string, updates: Partial<DashboardWidget>) => {
-    updateWidget(id, updates);
-    setHasUnsavedChanges(true);
-  };
-  
-  const handleUpdateLayout = (widgets: DashboardWidget[]) => {
-    updateLayout(widgets);
-    setHasUnsavedChanges(true);
-  };
-
-  const handleRemoveWidget = (id: string) => {
-    removeWidget(id);
-    setHasUnsavedChanges(true);
-    toast({
-      title: "Widget removed",
-      description: "The widget has been removed from your dashboard.",
-    });
-  };
-  
   return (
-    <DashboardPageLayout>
-      <div className="min-h-screen bg-background">
-        {/* Edit Mode Toolbar - Only shows in edit mode */}
-        {isEditMode && (
-          <EditModeToolbar
-            hasUnsavedChanges={hasUnsavedChanges}
-            showLivePreview={showLivePreview}
-            onToggleLivePreview={() => setShowLivePreview(!showLivePreview)}
-            onSave={handleSave}
-            onReset={handleReset}
-            onAddWidget={() => setIsPaletteOpen(true)}
-            onUndo={undo}
-            onRedo={redo}
-            canUndo={canUndo}
-            canRedo={canRedo}
-          />
-        )}
-        
-        {/* Main Dashboard Content */}
-        <div className="p-6 space-y-6">
-        {/* Dashboard Selector with Edit Mode Toggle */}
-        <div className="flex items-center justify-between border-b border-border pb-4">
-          <DashboardSelector currentDashboard={dashboardType} />
-          <EditModeToggle
-            isEditMode={isEditMode}
-            onToggle={() => setIsEditMode(!isEditMode)}
-          />
-        </div>
-        
-        {/* Header Section */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">{dashboardMeta.name}</h1>
-            <p className="text-muted-foreground">
-              {isEditMode 
-                ? "Drag widgets to reorder or click + to add new ones" 
-                : dashboardMeta.description
-              }
+    <div className="container mx-auto p-6 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Analytics Dashboard</h1>
+        <p className="text-muted-foreground mt-1">
+          Overview of your recruitment metrics and performance
+        </p>
+      </div>
+
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
+            <Briefcase className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">140</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-green-600">+12%</span> from last month
             </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Candidates</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">117</div>
+            <p className="text-xs text-muted-foreground">
+              83.6% of total applications
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Offers Extended</CardTitle>
+            <CheckCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">12</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-green-600">+3</span> this week
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Avg. Time to Hire</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">12.3 days</div>
+            <p className="text-xs text-muted-foreground">
+              <span className="text-green-600">-2 days</span> improvement
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="positions">Positions</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Applications by Stage</CardTitle>
+                <CardDescription>Current distribution across hiring stages</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={applicationsByStage}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, value }) => `${name}: ${value}`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {applicationsByStage.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Application Trends</CardTitle>
+                <CardDescription>Activity over the last 5 weeks</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={applicationsTrend}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="date" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line type="monotone" dataKey="applications" stroke="#3b82f6" strokeWidth={2} />
+                    <Line type="monotone" dataKey="interviews" stroke="#8b5cf6" strokeWidth={2} />
+                    <Line type="monotone" dataKey="offers" stroke="#10b981" strokeWidth={2} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
           </div>
-          
-          {!isEditMode && (
-            <div className="flex items-center gap-3">
-              <DateRangePicker
-                value={dateRange}
-                onChange={setDateRange}
-                placeholder="Select period"
-                align="end"
-              />
-              
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="All Departments" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
-                  <SelectItem value="engineering">Engineering</SelectItem>
-                  <SelectItem value="marketing">Marketing</SelectItem>
-                  <SelectItem value="sales">Sales</SelectItem>
-                  <SelectItem value="operations">Operations</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Button variant="secondary" size="sm">
-                <Download className="h-4 w-4" />
-                Export
-              </Button>
-            </div>
-          )}
-        </div>
-        
-        {/* Dashboard Grid */}
-        <DashboardGrid
-          layout={layout}
-          isEditMode={isEditMode}
-          showLivePreview={showLivePreview}
-          onUpdateWidget={handleUpdateWidget}
-          onUpdateLayout={handleUpdateLayout}
-          onRemoveWidget={handleRemoveWidget}
-        />
-      </div>
-      
-        {/* Widget Palette Drawer */}
-        <WidgetPalette
-          open={isPaletteOpen}
-          onOpenChange={setIsPaletteOpen}
-          onAddWidget={handleAddWidget}
-          dashboardType={dashboardType}
-        />
-      </div>
-    </DashboardPageLayout>
+        </TabsContent>
+
+        <TabsContent value="pipeline" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Conversion Funnel</CardTitle>
+              <CardDescription>Candidate progression through stages</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { stage: 'Applied', count: 140, percentage: 100, color: 'bg-blue-500' },
+                  { stage: 'Screening', count: 105, percentage: 75, color: 'bg-purple-500' },
+                  { stage: 'Interview', count: 75, percentage: 54, color: 'bg-indigo-500' },
+                  { stage: 'Offer', count: 28, percentage: 20, color: 'bg-green-500' },
+                  { stage: 'Hired', count: 20, percentage: 14, color: 'bg-emerald-500' },
+                ].map((item) => (
+                  <div key={item.stage} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{item.stage}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">{item.count} candidates</span>
+                        <Badge variant="secondary">{item.percentage}%</Badge>
+                      </div>
+                    </div>
+                    <div className="w-full bg-muted rounded-full h-3">
+                      <div
+                        className={`${item.color} h-3 rounded-full transition-all`}
+                        style={{ width: `${item.percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="performance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recruiter Performance</CardTitle>
+              <CardDescription>Applications managed and successful hires</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={recruiterPerformance}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="applications" fill="#3b82f6" name="Applications" />
+                  <Bar dataKey="hired" fill="#10b981" name="Hired" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="positions" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Positions</CardTitle>
+              <CardDescription>Most active job openings and hiring times</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {topPositions.map((pos, index) => (
+                  <div key={pos.position} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <div className="font-medium">{pos.position}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {pos.applications} applications
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-medium">{pos.avgTime} days</div>
+                      <div className="text-sm text-muted-foreground">avg. time to hire</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }

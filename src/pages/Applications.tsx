@@ -5,8 +5,9 @@ import { Upload, Download, LayoutGrid, List } from "lucide-react";
 import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
 import { ApplicationListView } from "@/components/applications/ApplicationListView";
 import { ApplicationDetailPanel } from "@/components/applications/ApplicationDetailPanel";
-import { ApplicationFilters } from "@/components/applications/ApplicationFilters";
 import { ApplicationBulkActionsToolbar } from "@/components/applications/ApplicationBulkActionsToolbar";
+import { AdvancedFilters } from "@/components/applications/AdvancedFilters";
+import { ExportDataDialog } from "@/components/applications/ExportDataDialog";
 import { getApplications, updateApplication } from "@/lib/mockApplicationStorage";
 import { Application, ApplicationStage, ApplicationStatus } from "@/types/application";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,11 +18,16 @@ export default function Applications() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [detailPanelOpen, setDetailPanelOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStages, setSelectedStages] = useState<ApplicationStage[]>([]);
-  const [selectedStatuses, setSelectedStatuses] = useState<ApplicationStatus[]>([]);
   const [viewMode, setViewMode] = useState<"pipeline" | "list">("pipeline");
   const [selectedApplicationIds, setSelectedApplicationIds] = useState<string[]>([]);
+  const [showExportDialog, setShowExportDialog] = useState(false);
+  const [filters, setFilters] = useState<any>({
+    search: '',
+    status: '',
+    stage: '',
+    recruiter: '',
+    source: '',
+  });
 
   useEffect(() => {
     loadApplications();
@@ -37,11 +43,26 @@ export default function Applications() {
     setDetailPanelOpen(true);
   };
 
-  const handleClearFilters = () => {
-    setSearchQuery("");
-    setSelectedStages([]);
-    setSelectedStatuses([]);
-  };
+  const filteredApplications = applications.filter((app) => {
+    if (filters.search) {
+      const query = filters.search.toLowerCase();
+      if (
+        !app.candidateName.toLowerCase().includes(query) &&
+        !app.candidateEmail.toLowerCase().includes(query) &&
+        !app.jobTitle.toLowerCase().includes(query)
+      ) {
+        return false;
+      }
+    }
+
+    if (filters.status && app.status !== filters.status) return false;
+    if (filters.stage && app.stage !== filters.stage) return false;
+    if (filters.recruiter && app.assignedToName !== filters.recruiter) return false;
+    if (filters.dateFrom && new Date(app.appliedDate) < filters.dateFrom) return false;
+    if (filters.dateTo && new Date(app.appliedDate) > filters.dateTo) return false;
+
+    return true;
+  });
 
   // Bulk action handlers
   const handleBulkStatusUpdate = (status: ApplicationStatus, stage: ApplicationStage) => {
@@ -105,29 +126,6 @@ export default function Applications() {
     setSelectedApplicationIds([]);
   };
 
-  const filteredApplications = applications.filter((app) => {
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      if (
-        !app.candidateName.toLowerCase().includes(query) &&
-        !app.candidateEmail.toLowerCase().includes(query) &&
-        !app.jobTitle.toLowerCase().includes(query)
-      ) {
-        return false;
-      }
-    }
-
-    if (selectedStages.length > 0 && !selectedStages.includes(app.stage)) {
-      return false;
-    }
-
-    if (selectedStatuses.length > 0 && !selectedStatuses.includes(app.status)) {
-      return false;
-    }
-
-    return true;
-  });
-
   return (
     <DashboardPageLayout
       breadcrumbActions={
@@ -136,7 +134,7 @@ export default function Applications() {
             <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => setShowExportDialog(true)}>
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -166,15 +164,7 @@ export default function Applications() {
           </Tabs>
         </div>
 
-        <ApplicationFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedStages={selectedStages}
-          onStagesChange={setSelectedStages}
-          selectedStatuses={selectedStatuses}
-          onStatusesChange={setSelectedStatuses}
-          onClearFilters={handleClearFilters}
-        />
+        <AdvancedFilters onFilterChange={setFilters} />
 
         {viewMode === "list" && (
           <ApplicationBulkActionsToolbar
@@ -204,6 +194,13 @@ export default function Applications() {
           open={detailPanelOpen}
           onOpenChange={setDetailPanelOpen}
           onRefresh={loadApplications}
+        />
+
+        <ExportDataDialog
+          open={showExportDialog}
+          onOpenChange={setShowExportDialog}
+          data={filteredApplications}
+          filename="applications-export"
         />
       </div>
     </DashboardPageLayout>
