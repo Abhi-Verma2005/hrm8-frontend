@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
+import { subscribeToAuditLogs, type AuditLog as AuditLogType } from "@/lib/auditLogService";
 import { FileText, Download, Search, Filter, CalendarIcon, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -148,8 +149,8 @@ const mockAuditLogs: AuditLog[] = [
 ];
 
 export function AuditLogsTab() {
-  const [logs, setLogs] = useState<AuditLog[]>(mockAuditLogs);
-  const [filteredLogs, setFilteredLogs] = useState<AuditLog[]>(mockAuditLogs);
+  const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [filteredLogs, setFilteredLogs] = useState<AuditLog[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -163,6 +164,30 @@ export function AuditLogsTab() {
   const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
   const { toast } = useToast();
 
+  // Subscribe to real-time audit log updates
+  useEffect(() => {
+    const unsubscribe = subscribeToAuditLogs((updatedLogs: any[]) => {
+      // Convert from AuditLogService format to component format
+      const formattedLogs: AuditLog[] = updatedLogs.map(log => ({
+        id: log.id,
+        timestamp: log.timestamp,
+        user: log.userName,
+        userId: log.userId,
+        action: log.description,
+        category: log.category,
+        entityType: log.resource,
+        entityId: log.resourceId || '',
+        changes: log.metadata?.changes ? JSON.stringify(log.metadata.changes) : '',
+        ipAddress: log.ipAddress || 'N/A',
+        userAgent: log.userAgent || 'N/A',
+        status: log.status,
+      }));
+      setLogs(formattedLogs);
+    });
+    
+    return unsubscribe;
+  }, []);
+
   const categories = [
     { value: "all", label: "All Categories" },
     { value: "pricing", label: "Pricing" },
@@ -173,6 +198,11 @@ export function AuditLogsTab() {
     { value: "settings", label: "Settings" },
     { value: "audit", label: "Audit" },
   ];
+
+  // Apply filters whenever logs or filters change
+  useEffect(() => {
+    applyFilters();
+  }, [logs, searchQuery, categoryFilter, statusFilter, dateFrom, dateTo]);
 
   const applyFilters = () => {
     let filtered = [...logs];

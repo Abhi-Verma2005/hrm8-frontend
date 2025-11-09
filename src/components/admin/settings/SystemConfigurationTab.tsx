@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Settings, Globe, Mail, Bell, Database, Key, Check, Copy, Trash2, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { logConfigAction } from "@/lib/auditLogService";
 
 interface SystemConfig {
   systemName: string;
@@ -100,6 +101,7 @@ export function SystemConfigurationTab() {
   ]);
 
   const handleSaveGeneral = () => {
+    logConfigAction('update', 'General Settings', 'Updated general system settings');
     toast({
       title: "Settings saved",
       description: "General system settings have been updated successfully.",
@@ -107,6 +109,7 @@ export function SystemConfigurationTab() {
   };
 
   const handleSaveEmail = () => {
+    logConfigAction('update', 'Email Configuration', 'Updated email settings');
     toast({
       title: "Email settings saved",
       description: "Email configuration has been updated successfully.",
@@ -114,6 +117,7 @@ export function SystemConfigurationTab() {
   };
 
   const handleTestEmail = () => {
+    logConfigAction('execute', 'Email Test', 'Sent test email');
     toast({
       title: "Test email sent",
       description: "A test email has been sent to verify your configuration.",
@@ -121,6 +125,7 @@ export function SystemConfigurationTab() {
   };
 
   const handleSaveNotifications = () => {
+    logConfigAction('update', 'Notification Settings', 'Updated notification preferences');
     toast({
       title: "Notification settings saved",
       description: "Notification preferences have been updated successfully.",
@@ -135,6 +140,11 @@ export function SystemConfigurationTab() {
       createdAt: new Date().toISOString().split('T')[0],
     };
     setApiKeys([...apiKeys, newKey]);
+    
+    logConfigAction('create', 'API Key', `Generated new API key: ${newKey.name}`, {
+      keyId: { before: null, after: newKey.id }
+    });
+    
     toast({
       title: "API key generated",
       description: "New API key has been created successfully.",
@@ -150,7 +160,15 @@ export function SystemConfigurationTab() {
   };
 
   const handleRevokeApiKey = (id: string) => {
+    const key = apiKeys.find(k => k.id === id);
     setApiKeys(apiKeys.filter(k => k.id !== id));
+    
+    if (key) {
+      logConfigAction('delete', 'API Key', `Revoked API key: ${key.name}`, {
+        keyId: { before: id, after: null }
+      });
+    }
+    
     toast({
       title: "API key revoked",
       description: "The API key has been permanently revoked.",

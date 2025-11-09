@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plug, Mail, Calendar, Users, DollarSign, Shield, Database, BarChart3, Check, Settings as SettingsIcon, Plus, Trash2, ExternalLink } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { logIntegrationAction } from "@/lib/auditLogService";
 
 interface Integration {
   id: string;
@@ -146,6 +147,9 @@ export function IntegrationsTab() {
       i.id === integration.id ? { ...i, status: 'connected', lastSync: 'Just now' } : i
     ));
     setSelectedIntegration(null);
+    
+    logIntegrationAction('create', integration.name, `Connected ${integration.name} integration`);
+    
     toast({
       title: "Integration connected",
       description: `${integration.name} has been successfully connected.`,
@@ -157,6 +161,9 @@ export function IntegrationsTab() {
       i.id === integration.id ? { ...i, status: 'available', lastSync: undefined } : i
     ));
     setSelectedIntegration(null);
+    
+    logIntegrationAction('delete', integration.name, `Disconnected ${integration.name} integration`);
+    
     toast({
       title: "Integration disconnected",
       description: `${integration.name} has been disconnected.`,
@@ -168,6 +175,9 @@ export function IntegrationsTab() {
     setIntegrations(integrations.map(i =>
       i.id === integration.id ? { ...i, lastSync: 'Just now' } : i
     ));
+    
+    logIntegrationAction('update', integration.name, `Synced ${integration.name} integration data`);
+    
     toast({
       title: "Sync initiated",
       description: `${integration.name} is syncing data...`,
@@ -185,6 +195,11 @@ export function IntegrationsTab() {
     };
     setWebhooks([...webhooks, newWebhook]);
     setIsAddWebhookOpen(false);
+    
+    logIntegrationAction('create', 'Webhook', `Created webhook: ${newWebhook.name} (${newWebhook.url})`, {
+      events: newWebhook.events
+    });
+    
     toast({
       title: "Webhook added",
       description: "New webhook has been created successfully.",
@@ -192,7 +207,13 @@ export function IntegrationsTab() {
   };
 
   const handleDeleteWebhook = (id: string) => {
+    const webhook = webhooks.find(w => w.id === id);
     setWebhooks(webhooks.filter(w => w.id !== id));
+    
+    if (webhook) {
+      logIntegrationAction('delete', 'Webhook', `Deleted webhook: ${webhook.name}`);
+    }
+    
     toast({
       title: "Webhook deleted",
       description: "Webhook has been removed.",

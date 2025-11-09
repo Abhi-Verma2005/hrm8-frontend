@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Shield, Lock, Database, FileCheck, Activity, HardDrive, AlertTriangle, CheckCircle, Download } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { logSecurityAction } from "@/lib/auditLogService";
 import { Slider } from "@/components/ui/slider";
 
 interface PasswordPolicy {
@@ -96,6 +97,7 @@ export function SecurityComplianceTab() {
   const [securityScore] = useState(85);
 
   const handleSavePasswordPolicy = () => {
+    logSecurityAction('update', 'Password Policy', 'Updated password policy settings');
     toast({
       title: "Password policy updated",
       description: "New password requirements will apply to all users.",
@@ -103,6 +105,7 @@ export function SecurityComplianceTab() {
   };
 
   const handleSaveMFA = () => {
+    logSecurityAction('update', 'MFA Settings', 'Updated multi-factor authentication settings');
     toast({
       title: "MFA settings updated",
       description: "Multi-factor authentication settings have been saved.",
@@ -110,6 +113,7 @@ export function SecurityComplianceTab() {
   };
 
   const handleSaveSession = () => {
+    logSecurityAction('update', 'Session Settings', 'Updated session management settings');
     toast({
       title: "Session settings updated",
       description: "Session management settings have been saved.",

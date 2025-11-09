@@ -15,6 +15,7 @@ import { AppRole } from "@/types/rbac";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { logUserAction } from "@/lib/auditLogService";
 
 interface AdminUser {
   id: string;
@@ -127,6 +128,13 @@ export function UserManagementTab() {
     setUsers([...users, newUser]);
     setIsAddDialogOpen(false);
     reset();
+    
+    // Log the action
+    logUserAction('create', newUser.id, `Created user ${data.firstName} ${data.lastName}`, {
+      email: { before: null, after: data.email },
+      role: { before: null, after: data.role }
+    });
+    
     toast({
       title: "User added successfully",
       description: `${data.firstName} ${data.lastName} has been added.`,
@@ -135,9 +143,35 @@ export function UserManagementTab() {
 
   const handleEditUser = (data: UserFormData) => {
     if (!editingUser) return;
+    
+    const oldUser = editingUser;
+    const changes: Record<string, { before: any; after: any }> = {};
+    
+    if (oldUser.firstName !== data.firstName || oldUser.lastName !== data.lastName) {
+      changes.name = { 
+        before: `${oldUser.firstName} ${oldUser.lastName}`, 
+        after: `${data.firstName} ${data.lastName}` 
+      };
+    }
+    if (oldUser.email !== data.email) {
+      changes.email = { before: oldUser.email, after: data.email };
+    }
+    if (oldUser.role !== data.role) {
+      changes.role = { before: oldUser.role, after: data.role };
+    }
+    if (oldUser.department !== data.department) {
+      changes.department = { before: oldUser.department, after: data.department };
+    }
+    
     setUsers(users.map(u => u.id === editingUser.id ? { ...u, ...data } : u));
     setEditingUser(null);
     reset();
+    
+    // Log the action
+    if (Object.keys(changes).length > 0) {
+      logUserAction('update', editingUser.id, `Updated user ${data.firstName} ${data.lastName}`, changes);
+    }
+    
     toast({
       title: "User updated successfully",
       description: `${data.firstName} ${data.lastName}'s information has been updated.`,
@@ -146,8 +180,13 @@ export function UserManagementTab() {
 
   const handleDeleteUser = () => {
     if (!deletingUser) return;
+    const user = deletingUser;
     setUsers(users.filter(u => u.id !== deletingUser.id));
     setDeletingUser(null);
+    
+    // Log the action
+    logUserAction('delete', user.id, `Deleted user ${user.firstName} ${user.lastName}`);
+    
     toast({
       title: "User deleted",
       description: "User has been permanently removed.",
@@ -155,8 +194,17 @@ export function UserManagementTab() {
   };
 
   const handleStatusToggle = (userId: string, currentStatus: string) => {
+    const user = users.find(u => u.id === userId);
+    if (!user) return;
+    
     const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
     setUsers(users.map(u => u.id === userId ? { ...u, status: newStatus } : u));
+    
+    // Log the action
+    logUserAction('update', userId, `Changed user status to ${newStatus}`, {
+      status: { before: currentStatus, after: newStatus }
+    });
+    
     toast({
       title: "Status updated",
       description: `User status changed to ${newStatus}.`,
