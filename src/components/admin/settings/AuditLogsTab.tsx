@@ -14,6 +14,8 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { TablePagination } from "@/components/tables/TablePagination";
 import { AuditLogDetailsModal } from "./AuditLogDetailsModal";
+import { AuditLogTimeline } from "./AuditLogTimeline";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface AuditLog {
   id: string;
@@ -158,6 +160,7 @@ export function AuditLogsTab() {
   const [pageSize, setPageSize] = useState(10);
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"table" | "timeline">("table");
   const { toast } = useToast();
 
   const categories = [
@@ -329,7 +332,13 @@ export function AuditLogsTab() {
                 </CardDescription>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex items-center gap-2">
+              <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "table" | "timeline")}>
+                <TabsList>
+                  <TabsTrigger value="table">Table</TabsTrigger>
+                  <TabsTrigger value="timeline">Timeline</TabsTrigger>
+                </TabsList>
+              </Tabs>
               <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
                 <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
                 Refresh
@@ -465,72 +474,83 @@ export function AuditLogsTab() {
             </div>
           </div>
 
-          {/* Audit Logs Table */}
-          <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead>User</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Changes</TableHead>
-                  <TableHead>IP Address</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredLogs.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      No audit logs found matching your filters.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedLogs.map((log) => (
-                    <TableRow 
-                      key={log.id} 
-                      className="cursor-pointer hover:bg-muted/70 transition-colors"
-                      onClick={() => handleRowClick(log)}
-                    >
-                      <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{log.user}</div>
-                          <div className="text-xs text-muted-foreground">{log.userId}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium">{log.action}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="capitalize">
-                          {log.category}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="max-w-xs truncate" title={log.changes}>
-                        {log.changes}
-                      </TableCell>
-                      <TableCell className="font-mono text-xs">{log.ipAddress}</TableCell>
-                      <TableCell>
-                        <Badge variant={log.status === "success" ? "default" : "destructive"}>
-                          {log.status}
-                        </Badge>
-                      </TableCell>
+          {/* View Content */}
+          {viewMode === "table" ? (
+            <>
+              {/* Audit Logs Table */}
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Timestamp</TableHead>
+                      <TableHead>User</TableHead>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Changes</TableHead>
+                      <TableHead>IP Address</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredLogs.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                          No audit logs found matching your filters.
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      paginatedLogs.map((log) => (
+                        <TableRow 
+                          key={log.id} 
+                          className="cursor-pointer hover:bg-muted/70 transition-colors"
+                          onClick={() => handleRowClick(log)}
+                        >
+                          <TableCell className="font-mono text-xs">{log.timestamp}</TableCell>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{log.user}</div>
+                              <div className="text-xs text-muted-foreground">{log.userId}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="font-medium">{log.action}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="capitalize">
+                              {log.category}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="max-w-xs truncate" title={log.changes}>
+                            {log.changes}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs">{log.ipAddress}</TableCell>
+                          <TableCell>
+                            <Badge variant={log.status === "success" ? "default" : "destructive"}>
+                              {log.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
 
-          {/* Pagination */}
-          {filteredLogs.length > 0 && (
-            <TablePagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              pageSize={pageSize}
-              totalItems={filteredLogs.length}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePageSizeChange}
+              {/* Pagination */}
+              {filteredLogs.length > 0 && (
+                <TablePagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  pageSize={pageSize}
+                  totalItems={filteredLogs.length}
+                  onPageChange={handlePageChange}
+                  onPageSizeChange={handlePageSizeChange}
+                />
+              )}
+            </>
+          ) : (
+            /* Timeline View */
+            <AuditLogTimeline 
+              logs={filteredLogs} 
+              onLogClick={handleRowClick}
             />
           )}
         </CardContent>
