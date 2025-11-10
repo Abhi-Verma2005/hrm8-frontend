@@ -29,7 +29,7 @@ import { SalaryExpectationsChart } from './charts/SalaryExpectationsChart';
 import { RecentActivityCard } from './RecentActivityCard';
 import { useNavigate } from 'react-router-dom';
 import type { DashboardWidget } from '@/lib/dashboard/types';
-import { getCardActions } from '@/lib/dashboard/cardActions';
+import { getCardConfig } from '@/lib/dashboard/cardConfig';
 
 const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
   EnhancedStatCard,
@@ -82,35 +82,36 @@ export function WidgetRenderer({ widget, dashboardType = 'jobs' }: WidgetRendere
     );
   }
   
-  // Add navigation and icons to stat cards using centralized card actions
+  // Add navigation and icons to stat cards using centralized card config
   if (widget.component === 'EnhancedStatCard') {
-    const cardData = getCardActions(widget.title, dashboardType);
+    const cardConfig = getCardConfig(widget.title);
     
-    if (!cardData) {
-      // Fallback if no card data found
+    if (!cardConfig) {
+      // Fallback if no card config found
       return <Component {...widget.props} />;
     }
 
-    const Icon = cardData.icon;
+    const Icon = cardConfig.icon;
     const icon = <Icon className="h-6 w-6" />;
 
     // Map card actions to menu items
-    const menuItems = cardData.actions?.map(action => ({
+    const menuItems = cardConfig.actions?.map(action => ({
       label: action.label,
       icon: <action.icon className="h-4 w-4" />,
-      onClick: action.path ? () => navigate(action.path!) : action.action || (() => {}),
+      onClick: action.path ? () => navigate(action.path) : action.action || (() => {}),
     }));
 
     // Use first action as primary action button
-    const primaryAction = cardData.actions?.[0];
+    const primaryAction = cardConfig.actions?.[0];
 
     return (
       <Component
         {...widget.props}
         icon={icon}
+        variant={cardConfig.variant}
         showAction={!!primaryAction}
         actionLabel={primaryAction?.label || 'View'}
-        onAction={primaryAction?.path ? () => navigate(primaryAction.path!) : primaryAction?.action}
+        onAction={primaryAction?.path ? () => navigate(primaryAction.path) : primaryAction?.action}
         showMenu={!!menuItems && menuItems.length > 0}
         menuItems={menuItems}
       />

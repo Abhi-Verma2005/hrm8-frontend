@@ -1,7 +1,6 @@
 import { Employer } from "@/types/entities";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { Sparkles, Briefcase, DollarSign, Activity, Eye, Plus, Download } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useCardConfig } from "@/hooks/useCardConfig";
 
 interface EmployerMetrics {
   totalRevenue: number;
@@ -21,7 +20,11 @@ interface EmployerQuickStatsProps {
 }
 
 export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProps) {
-  const navigate = useNavigate();
+  // Get card configurations
+  const subscriptionConfig = useCardConfig('Subscription');
+  const capacityConfig = useCardConfig('Capacity');
+  const financialConfig = useCardConfig('Financial');
+  const activityConfig = useCardConfig('Activity');
   
   const getTierLabel = (tier: string) => {
     const labels: Record<string, string> = {
@@ -45,65 +48,23 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
         title="Subscription"
         value={getTierLabel(employer.subscriptionTier)}
         change={employer.status.charAt(0).toUpperCase() + employer.status.slice(1)}
-        icon={<Sparkles className="h-6 w-6" />}
-        variant="primary"
-        showMenu={true}
-        menuItems={[
-          {
-            label: "View Details",
-            icon: <Eye className="h-4 w-4" />,
-            onClick: () => {}
-          },
-          {
-            label: "Upgrade Plan",
-            icon: <Plus className="h-4 w-4" />,
-            onClick: () => {}
-          }
-        ]}
+        {...subscriptionConfig}
       />
       
       <EnhancedStatCard
         title="Capacity"
         value={`${metrics.activeJobs}/${employer.totalJobsPosted || 0}`}
         change={`${employer.currentUsers}/${employer.maxUsers === Infinity ? '∞' : employer.maxUsers} Users`}
-        icon={<Briefcase className="h-6 w-6" />}
-        variant="neutral"
-        showMenu={true}
-        menuItems={[
-          {
-            label: "View Jobs",
-            icon: <Eye className="h-4 w-4" />,
-            onClick: () => navigate('/jobs')
-          },
-          {
-            label: "Add Job",
-            icon: <Plus className="h-4 w-4" />,
-            onClick: () => {}
-          }
-        ]}
+        {...capacityConfig}
       />
       
       <EnhancedStatCard
         title="Financial"
         value={`$${metrics.lifetimeValue.toLocaleString()}`}
         change={`$${metrics.monthlyRevenue}/mo MRR`}
-        icon={<DollarSign className="h-6 w-6" />}
-        variant="success"
         isCurrency={true}
         rawValue={metrics.lifetimeValue}
-        showMenu={true}
-        menuItems={[
-          {
-            label: "View Revenue",
-            icon: <Eye className="h-4 w-4" />,
-            onClick: () => navigate('/financial')
-          },
-          {
-            label: "Export Report",
-            icon: <Download className="h-4 w-4" />,
-            onClick: () => {}
-          }
-        ]}
+        {...financialConfig}
       />
       
       <EnhancedStatCard
@@ -112,21 +73,7 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
           `${Math.floor(metrics.daysAsCustomer / 30)} months` : 
           `${Math.floor(metrics.daysAsCustomer / 365)} years`}
         change={formatActivity()}
-        icon={<Activity className="h-6 w-6" />}
-        variant="neutral"
-        showMenu={true}
-        menuItems={[
-          {
-            label: "View Activity",
-            icon: <Eye className="h-4 w-4" />,
-            onClick: () => {}
-          },
-          {
-            label: "Contact Employer",
-            icon: <Plus className="h-4 w-4" />,
-            onClick: () => {}
-          }
-        ]}
+        {...activityConfig}
       />
     </div>
   );

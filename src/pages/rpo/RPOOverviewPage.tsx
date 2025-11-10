@@ -4,16 +4,22 @@ import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { getRPODashboardMetrics } from '@/lib/rpoTrackingUtils';
 import { getRenewalAlertsSummary } from '@/lib/rpoRenewalUtils';
 import { getAllServiceProjects } from '@/lib/recruitmentServiceStorage';
-import { FileText, AlertTriangle, Building2, Users, DollarSign, Clock, BarChart3, UserCog, FileBarChart, Eye, Plus, Download } from 'lucide-react';
+import { FileText, AlertTriangle, BarChart3, UserCog, FileBarChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RPOContractsTable } from '@/components/rpo/RPOContractsTable';
+import { useCardConfig } from '@/hooks/useCardConfig';
 
 export default function RPOOverviewPage() {
-  const navigate = useNavigate();
   const metrics = useMemo(() => getRPODashboardMetrics(), []);
   const renewalSummary = useMemo(() => getRenewalAlertsSummary(), []);
+  
+  // Get card configurations
+  const activeContractsConfig = useCardConfig('Active Contracts');
+  const dedicatedConsultantsConfig = useCardConfig('Dedicated Consultants');
+  const mrrConfig = useCardConfig('Monthly Recurring Revenue');
+  const expiringSoonConfig = useCardConfig('Expiring Soon');
 
   // Get actual RPO contracts from storage
   const rpoContracts = useMemo(() => {
@@ -67,52 +73,14 @@ export default function RPOOverviewPage() {
             value={metrics.totalActiveContracts.toString()}
             change="+12% vs last month"
             trend="up"
-            icon={<Building2 className="h-6 w-6" />}
-            variant="neutral"
-            showMenu={true}
-            menuItems={[
-              {
-                label: "View All Contracts",
-                icon: <Eye className="h-4 w-4" />,
-                onClick: () => navigate('/rpo/contracts')
-              },
-              {
-                label: "Create Contract",
-                icon: <Plus className="h-4 w-4" />,
-                onClick: () => navigate('/recruitment-services?type=rpo')
-              },
-              {
-                label: "Export",
-                icon: <Download className="h-4 w-4" />,
-                onClick: () => {}
-              }
-            ]}
+            {...activeContractsConfig}
           />
           <EnhancedStatCard
             title="Dedicated Consultants"
             value={metrics.totalDedicatedConsultants.toString()}
             change="+8% vs last month"
             trend="up"
-            icon={<Users className="h-6 w-6" />}
-            variant="success"
-            showMenu={true}
-            menuItems={[
-              {
-                label: "View All Consultants",
-                icon: <Eye className="h-4 w-4" />,
-                onClick: () => navigate('/rpo/consultants')
-              },
-              {
-                label: "Assign to Project",
-                icon: <Plus className="h-4 w-4" />,
-                onClick: () => {}
-              },
-              {
-                label: "Export",
-                icon: <Download className="h-4 w-4" />,
-                onClick: () => {}
-              }
-            ]}
+            {...dedicatedConsultantsConfig}
           />
           <EnhancedStatCard
             title="Monthly Recurring Revenue"
@@ -121,52 +89,15 @@ export default function RPOOverviewPage() {
             rawValue={metrics.totalMonthlyRecurringRevenue}
             change="+15% vs last month"
             trend="up"
-            icon={<DollarSign className="h-6 w-6" />}
-            variant="primary"
-            showMenu={true}
-            menuItems={[
-              {
-                label: "View MRR Report",
-                icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
-              },
-              {
-                label: "View Forecast",
-                icon: <Eye className="h-4 w-4" />,
-                onClick: () => navigate('/rpo/forecast')
-              },
-              {
-                label: "Export",
-                icon: <Download className="h-4 w-4" />,
-                onClick: () => {}
-              }
-            ]}
+            {...mrrConfig}
           />
           <EnhancedStatCard
             title="Expiring Soon"
             value={renewalSummary.total.toString()}
             change={renewalSummary.critical > 0 ? `${renewalSummary.critical} critical within 30 days` : "All clear"}
             trend={renewalSummary.critical > 0 ? "down" : "up"}
-            icon={<Clock className="h-6 w-6" />}
             variant={renewalSummary.critical > 0 ? "warning" : "success"}
-            showMenu={true}
-            menuItems={[
-              {
-                label: "View Expiring",
-                icon: <Eye className="h-4 w-4" />,
-                onClick: () => navigate('/rpo/renewals')
-              },
-              {
-                label: "Set Reminders",
-                icon: <AlertTriangle className="h-4 w-4" />,
-                onClick: () => {}
-              },
-              {
-                label: "Export",
-                icon: <Download className="h-4 w-4" />,
-                onClick: () => {}
-              }
-            ]}
+            {...expiringSoonConfig}
           />
         </div>
 
