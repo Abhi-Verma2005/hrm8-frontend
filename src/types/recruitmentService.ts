@@ -70,6 +70,7 @@ export interface ServiceProject {
   description?: string;
   requirements?: string[];
   tags?: string[];
+  customHours?: number; // Override default service hours for custom workload management
   
   // RPO-specific fields
   isRPO?: boolean;

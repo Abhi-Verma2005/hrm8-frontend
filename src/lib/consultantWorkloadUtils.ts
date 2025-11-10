@@ -63,6 +63,11 @@ export interface ServiceTypeBreakdown {
 }
 
 function getServiceProjectHours(service: ServiceProject): number {
+  // Use custom hours if set
+  if (service.customHours !== undefined && service.customHours !== null) {
+    return service.customHours;
+  }
+
   // For RPO, hours are calculated based on dedicated consultants
   if (service.serviceType === 'rpo' && service.rpoAssignedConsultants) {
     // RPO services with dedicated consultants don't count toward hourly workload

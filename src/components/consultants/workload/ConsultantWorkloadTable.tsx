@@ -2,11 +2,15 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DataTable } from '@/components/tables/DataTable';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { CalendarOff } from 'lucide-react';
+import { CalendarOff, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import type { WorkloadData } from '@/lib/consultantWorkloadUtils';
 import { createConsultantWorkloadColumns } from './ConsultantWorkloadColumns';
+import { ServiceHoursEditor } from './ServiceHoursEditor';
+import { getAllServiceProjects } from '@/lib/recruitmentServiceStorage';
+import type { ServiceProject } from '@/types/recruitmentService';
 
 interface ConsultantWorkloadTableProps {
   data: WorkloadData[];
@@ -27,10 +31,30 @@ const SERVICE_TYPE_LABELS = {
 export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) {
   const navigate = useNavigate();
   const [selectedConsultant, setSelectedConsultant] = useState<WorkloadData | null>(null);
+  const [editingService, setEditingService] = useState<ServiceProject | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   
   const columns = createConsultantWorkloadColumns({
     onViewDetails: (workload) => setSelectedConsultant(workload),
+    onUpdate: () => {
+      setRefreshKey(prev => prev + 1);
+      // Refresh the selected consultant data
+      if (selectedConsultant) {
+        const updatedData = data.find(d => d.consultantId === selectedConsultant.consultantId);
+        if (updatedData) {
+          setSelectedConsultant(updatedData);
+        }
+      }
+    },
   }) as any; // Type cast to handle WorkloadData vs WorkloadDataWithId
+  
+  const handleEditServiceHours = (serviceId: string) => {
+    const allServices = getAllServiceProjects();
+    const service = allServices.find(s => s.id === serviceId);
+    if (service) {
+      setEditingService(service);
+    }
+  };
 
   // Transform data to include 'id' property required by DataTable
   const tableData: WorkloadDataWithId[] = data.map(item => ({ ...item, id: item.consultantId }));
@@ -128,14 +152,20 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
                     {selectedConsultant.activeServices.map((service) => (
                       <div
                         key={service.id}
-                        className="flex items-center justify-between p-3 bg-background rounded-lg border cursor-pointer hover:bg-accent"
-                        onClick={() => {
-                          setSelectedConsultant(null);
-                          navigate(`/recruitment-services/${service.id}`);
-                        }}
+                        className="group relative p-3 bg-background rounded-lg border hover:border-primary/50 transition-colors"
                       >
                         <div className="flex-1">
-                          <p className="text-sm font-medium">{service.name}</p>
+                          <div className="flex items-center justify-between gap-2 mb-1">
+                            <p className="text-sm font-medium flex-1">{service.name}</p>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleEditServiceHours(service.id)}
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </Button>
+                          </div>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge variant="outline" className="text-xs">
                               {SERVICE_TYPE_LABELS[service.type as keyof typeof SERVICE_TYPE_LABELS]}
@@ -145,6 +175,17 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
                           <p className="text-xs text-muted-foreground mt-1">
                             Est. completion: {new Date(service.expectedCompletion).toLocaleDateString()}
                           </p>
+                          <Button
+                            variant="link"
+                            size="sm"
+                            className="h-auto p-0 text-xs mt-1"
+                            onClick={() => {
+                              setSelectedConsultant(null);
+                              navigate(`/recruitment-services/${service.id}`);
+                            }}
+                          >
+                            View Details →
+                          </Button>
                         </div>
                       </div>
                     ))}
@@ -157,6 +198,25 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Service Hours Editor */}
+      {editingService && (
+        <ServiceHoursEditor
+          service={editingService}
+          open={!!editingService}
+          onOpenChange={(open) => !open && setEditingService(null)}
+          onUpdate={() => {
+            setRefreshKey(prev => prev + 1);
+            // Refresh the selected consultant data
+            if (selectedConsultant) {
+              const updatedData = data.find(d => d.consultantId === selectedConsultant.consultantId);
+              if (updatedData) {
+                setSelectedConsultant(updatedData);
+              }
+            }
+          }}
+        />
+      )}
     </>
   );
 }
