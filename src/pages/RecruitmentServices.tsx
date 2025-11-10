@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Building, DollarSign } from 'lucide-react';
+import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Building, DollarSign, FileText } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
@@ -87,6 +87,12 @@ export default function RecruitmentServices() {
             <p className="text-muted-foreground">Manage and track all recruitment service projects</p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link to="/recruitment-services/rpo">
+                <FileText className="mr-2 h-4 w-4" />
+                RPO Dashboard
+              </Link>
+            </Button>
             <Button onClick={() => toast.info('New service project coming soon!')}>
               <Plus className="mr-2 h-4 w-4" />
               New Service Project

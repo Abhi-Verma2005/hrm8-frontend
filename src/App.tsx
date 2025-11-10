@@ -37,6 +37,7 @@ import EmployerDetail from "./pages/EmployerDetail";
 import Consultants from "./pages/Consultants";
 import ConsultantDetail from "./pages/ConsultantDetail";
 import ConsultantWorkloadPage from "./pages/ConsultantWorkloadPage";
+import RPODashboardPage from "./pages/RPODashboardPage";
 import RecruitmentServices from "./pages/RecruitmentServices";
 import ServiceProjectDetail from "./pages/ServiceProjectDetail";
 import HRMS from "./pages/HRMS";
@@ -183,6 +184,7 @@ function AppContent() {
             <Route path="/consultants/workload" element={<ConsultantWorkloadPage />} />
             <Route path="/consultants/:id" element={<ConsultantDetail />} />
             <Route path="/recruitment-services" element={<RecruitmentServices />} />
+            <Route path="/recruitment-services/rpo" element={<RPODashboardPage />} />
             <Route path="/recruitment-services/:id" element={<ServiceProjectDetail />} />
             
             {/* HRMS Module Routes */}
