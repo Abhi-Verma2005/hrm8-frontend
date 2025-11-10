@@ -3,13 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { DataTable, Column } from "@/components/tables/DataTable";
-import { Plus } from "lucide-react";
-import { getAllSalesAgents } from "@/lib/salesAgentStorage";
+import { Plus, Users, DollarSign, Target, TrendingUp } from "lucide-react";
+import { getAllSalesAgents, getSalesAgentStats } from "@/lib/salesAgentStorage";
 import type { SalesAgent } from "@/types/salesAgent";
+import { StatsCard } from "@/components/ui/stats-card";
 
 export default function SalesTeamPage() {
   const navigate = useNavigate();
   const [salesAgents] = useState<SalesAgent[]>(getAllSalesAgents());
+  const stats = getSalesAgentStats();
+  
+  const quotaAttainment = stats.totalQuota > 0 
+    ? (stats.totalRevenue / stats.totalQuota * 100).toFixed(1)
+    : '0';
 
   const columns: Column<SalesAgent>[] = [
     {
@@ -72,25 +78,55 @@ export default function SalesTeamPage() {
   ];
 
   return (
-    <DashboardPageLayout
-      title="Sales Team"
-      subtitle="Manage your sales team and track performance"
-      fullWidth={true}
-      actions={
-        <Button onClick={() => navigate("/sales/team/new")}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Sales Agent
-        </Button>
-      }
-    >
-      <DataTable
-        columns={columns}
-        data={salesAgents}
-        searchable
-        searchKeys={["firstName", "lastName", "email"]}
-        exportable
-        exportFilename="sales-team"
-      />
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Sales Team</h1>
+            <p className="text-muted-foreground mt-2">Manage your sales team and track performance</p>
+          </div>
+          <Button onClick={() => navigate("/sales/team/new")}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Sales Agent
+          </Button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatsCard
+            title="Total Agents"
+            value={stats.total}
+            icon={Users}
+            description={`${stats.active} active`}
+          />
+          <StatsCard
+            title="Total Revenue"
+            value={`$${(stats.totalRevenue / 1000).toFixed(0)}K`}
+            icon={DollarSign}
+            description="All-time"
+          />
+          <StatsCard
+            title="Avg Win Rate"
+            value={`${stats.avgConversionRate.toFixed(1)}%`}
+            icon={TrendingUp}
+            description="Conversion rate"
+          />
+          <StatsCard
+            title="Quota Attainment"
+            value={`${quotaAttainment}%`}
+            icon={Target}
+            description="Team average"
+          />
+        </div>
+
+        <DataTable
+          columns={columns}
+          data={salesAgents}
+          searchable
+          searchKeys={["firstName", "lastName", "email"]}
+          exportable
+          exportFilename="sales-team"
+        />
+      </div>
     </DashboardPageLayout>
   );
 }

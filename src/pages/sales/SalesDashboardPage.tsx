@@ -66,12 +66,13 @@ export default function SalesDashboardPage() {
   ];
 
   return (
-    <DashboardPageLayout
-      title="Sales Dashboard"
-      subtitle="Monitor sales performance, pipeline, and team activity"
-      fullWidth={true}
-    >
-      <div className="space-y-6">
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Sales Dashboard</h1>
+          <p className="text-muted-foreground mt-2">Monitor sales performance, pipeline, and team activity</p>
+        </div>
+
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {stats.map((stat, index) => {

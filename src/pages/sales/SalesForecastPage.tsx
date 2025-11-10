@@ -12,12 +12,13 @@ export default function SalesForecastPage() {
   const quotaGap = salesStats.totalQuota - salesStats.totalRevenue;
 
   return (
-    <DashboardPageLayout
-      title="Sales Forecasting"
-      subtitle="Revenue projections and sales forecasts"
-      fullWidth={true}
-    >
-      <div className="space-y-6">
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Sales Forecasting</h1>
+          <p className="text-muted-foreground mt-2">Revenue projections and sales forecasts</p>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2">
           <Card className="p-6">
             <div className="flex items-center justify-between mb-4">

@@ -3,14 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { DataTable, Column } from "@/components/tables/DataTable";
-import { Plus } from "lucide-react";
-import { getAllOpportunities } from "@/lib/salesOpportunityStorage";
+import { Plus, Target, DollarSign, TrendingUp, Award } from "lucide-react";
+import { getAllOpportunities, getOpportunityStats } from "@/lib/salesOpportunityStorage";
 import type { SalesOpportunity } from "@/types/salesOpportunity";
 import { format } from "date-fns";
+import { StatsCard } from "@/components/ui/stats-card";
 
 export default function OpportunitiesPage() {
   const navigate = useNavigate();
   const [opportunities] = useState<SalesOpportunity[]>(getAllOpportunities());
+  const stats = getOpportunityStats();
 
   const columns: Column<SalesOpportunity>[] = [
     {
@@ -67,25 +69,55 @@ export default function OpportunitiesPage() {
   ];
 
   return (
-    <DashboardPageLayout
-      title="Opportunities"
-      subtitle="Manage and track all sales opportunities"
-      fullWidth={true}
-      actions={
-        <Button onClick={() => navigate("/sales/opportunities/new")}>
-          <Plus className="h-4 w-4 mr-2" />
-          New Opportunity
-        </Button>
-      }
-    >
-      <DataTable
-        columns={columns}
-        data={opportunities}
-        searchable
-        searchKeys={["name", "employerName"]}
-        exportable
-        exportFilename="opportunities"
-      />
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Opportunities</h1>
+            <p className="text-muted-foreground mt-2">Manage and track all sales opportunities</p>
+          </div>
+          <Button onClick={() => navigate("/sales/opportunities/new")}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Opportunity
+          </Button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatsCard
+            title="Total Opportunities"
+            value={stats.total}
+            icon={Target}
+            description={`${stats.active} open`}
+          />
+          <StatsCard
+            title="Open Value"
+            value={`$${(stats.pipelineValue / 1000).toFixed(0)}K`}
+            icon={DollarSign}
+            description="Pipeline value"
+          />
+          <StatsCard
+            title="Avg Deal Size"
+            value={`$${(stats.avgDealSize / 1000).toFixed(0)}K`}
+            icon={TrendingUp}
+            description="Per opportunity"
+          />
+          <StatsCard
+            title="Win Rate"
+            value={`${stats.conversionRate.toFixed(1)}%`}
+            icon={Award}
+            description="Conversion rate"
+          />
+        </div>
+
+        <DataTable
+          columns={columns}
+          data={opportunities}
+          searchable
+          searchKeys={["name", "employerName"]}
+          exportable
+          exportFilename="opportunities"
+        />
+      </div>
     </DashboardPageLayout>
   );
 }

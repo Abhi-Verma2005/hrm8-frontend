@@ -7,12 +7,13 @@ export default function CommissionsPage() {
   const stats = getSalesAgentStats();
 
   return (
-    <DashboardPageLayout
-      title="Commission Management"
-      subtitle="Track and manage sales commissions"
-      fullWidth={true}
-    >
-      <div className="space-y-6">
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold">Commission Management</h1>
+          <p className="text-muted-foreground mt-2">Track and manage sales commissions</p>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-3">
           <Card className="p-6">
             <div className="flex items-center justify-between">

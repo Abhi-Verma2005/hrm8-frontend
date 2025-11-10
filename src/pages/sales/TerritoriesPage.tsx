@@ -2,12 +2,14 @@ import { useState } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { DataTable, Column } from "@/components/tables/DataTable";
-import { Plus } from "lucide-react";
-import { getAllTerritories } from "@/lib/salesTerritoryStorage";
+import { Plus, MapPin, Users, Building2, DollarSign } from "lucide-react";
+import { getAllTerritories, getTerritoryStats } from "@/lib/salesTerritoryStorage";
 import type { SalesTerritory } from "@/types/salesTerritory";
+import { StatsCard } from "@/components/ui/stats-card";
 
 export default function TerritoriesPage() {
   const [territories] = useState<SalesTerritory[]>(getAllTerritories());
+  const stats = getTerritoryStats();
 
   const columns: Column<SalesTerritory>[] = [
     {
@@ -57,24 +59,55 @@ export default function TerritoriesPage() {
   ];
 
   return (
-    <DashboardPageLayout
-      title="Territories"
-      subtitle="Manage sales territories and assignments"
-      actions={
-        <Button>
-          <Plus className="h-4 w-4 mr-2" />
-          New Territory
-        </Button>
-      }
-    >
-      <DataTable
-        columns={columns}
-        data={territories}
-        searchable
-        searchKeys={["name", "primarySalesAgentName"]}
-        exportable
-        exportFilename="territories"
-      />
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Territories</h1>
+            <p className="text-muted-foreground mt-2">Manage sales territories and assignments</p>
+          </div>
+          <Button>
+            <Plus className="h-4 w-4 mr-2" />
+            New Territory
+          </Button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatsCard
+            title="Total Territories"
+            value={stats.total}
+            icon={MapPin}
+            description={`${stats.active} active`}
+          />
+          <StatsCard
+            title="Active Employers"
+            value={stats.activeEmployers}
+            icon={Building2}
+            description="Across territories"
+          />
+          <StatsCard
+            title="Total Employers"
+            value={stats.totalEmployers}
+            icon={Users}
+            description="All employers"
+          />
+          <StatsCard
+            title="Total Revenue"
+            value={`$${(stats.totalRevenue / 1000).toFixed(0)}K`}
+            icon={DollarSign}
+            description="All territories"
+          />
+        </div>
+
+        <DataTable
+          columns={columns}
+          data={territories}
+          searchable
+          searchKeys={["name", "primarySalesAgentName"]}
+          exportable
+          exportFilename="territories"
+        />
+      </div>
     </DashboardPageLayout>
   );
 }
