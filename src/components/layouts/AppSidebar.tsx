@@ -71,6 +71,20 @@ const operationsNavItems = [
   { title: "Employers", url: "/employers", icon: Building2 },
   { title: "Consultants", url: "/consultants", icon: Handshake },
   { title: "Recruitment Services", url: "/recruitment-services", icon: Target },
+  { 
+    title: "RPO", 
+    url: "/rpo", 
+    icon: FileText,
+    subItems: [
+      { title: "Overview", url: "/rpo" },
+      { title: "Contracts", url: "/rpo/contracts" },
+      { title: "Consultants", url: "/rpo/consultants" },
+      { title: "Performance", url: "/rpo/performance" },
+      { title: "Renewals", url: "/rpo/renewals" },
+      { title: "Tasks & Allocation", url: "/rpo/tasks" },
+      { title: "Revenue Forecast", url: "/rpo/forecast" },
+    ]
+  },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Calendar", url: "/calendar", icon: Calendar },
   { title: "Internal Jobs", url: "/internal-jobs", icon: UserSquare },

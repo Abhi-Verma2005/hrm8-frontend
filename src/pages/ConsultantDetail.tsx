@@ -26,6 +26,7 @@ import { ConsultantHeroSection } from '@/components/consultants/detail/Consultan
 import { ConsultantOverviewTab } from '@/components/consultants/detail/ConsultantOverviewTab';
 import { PerformanceTab } from '@/components/consultants/detail/PerformanceTab';
 import { AssignmentsTab } from '@/components/consultants/detail/AssignmentsTab';
+import { RPOAssignmentsTab } from '@/components/consultants/detail/RPOAssignmentsTab';
 import { CommissionsTab } from '@/components/consultants/detail/CommissionsTab';
 import { ActivityTab } from '@/components/consultants/detail/ActivityTab';
 import { DocumentsTab } from '@/components/consultants/detail/DocumentsTab';
@@ -114,6 +115,7 @@ export default function ConsultantDetail() {
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="performance">Performance</TabsTrigger>
               <TabsTrigger value="assignments">Assignments</TabsTrigger>
+              <TabsTrigger value="rpo">RPO Assignments</TabsTrigger>
               <TabsTrigger value="commissions">Commissions</TabsTrigger>
               <TabsTrigger value="activity">Activity</TabsTrigger>
               <TabsTrigger value="documents">Documents</TabsTrigger>
@@ -172,8 +174,12 @@ export default function ConsultantDetail() {
             <AssignmentsTab consultantId={consultant.id} consultant={consultant} />
           </TabsContent>
 
+          <TabsContent value="rpo">
+            <RPOAssignmentsTab consultant={consultant} />
+          </TabsContent>
+
           <TabsContent value="commissions">
-            <CommissionsTab 
+            <CommissionsTab
               consultantId={consultant.id}
               consultantName={`${consultant.firstName} ${consultant.lastName}`}
             />
