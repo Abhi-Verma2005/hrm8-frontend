@@ -10,6 +10,7 @@ interface DashboardPageLayoutProps {
   children: ReactNode;
   breadcrumbActions?: ReactNode;
   fullWidth?: boolean;
+  dashboardActions?: ReactNode;
 }
 
 export function DashboardPageLayout({ 
@@ -18,7 +19,8 @@ export function DashboardPageLayout({
   actions, 
   children, 
   breadcrumbActions,
-  fullWidth = true
+  fullWidth = true,
+  dashboardActions
 }: DashboardPageLayoutProps) {
   const currentDashboard = useCurrentDashboard();
   
@@ -30,7 +32,10 @@ export function DashboardPageLayout({
       {currentDashboard && (
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <div className="container py-3">
-            <DashboardSelector currentDashboard={currentDashboard} />
+            <div className="flex items-center justify-between">
+              <DashboardSelector currentDashboard={currentDashboard} />
+              {dashboardActions && <div>{dashboardActions}</div>}
+            </div>
           </div>
         </div>
       )}

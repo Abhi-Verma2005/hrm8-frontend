@@ -140,7 +140,14 @@ export default function Dashboard() {
   };
   
   return (
-    <DashboardPageLayout>
+    <DashboardPageLayout
+      dashboardActions={
+        <EditModeToggle
+          isEditMode={isEditMode}
+          onToggle={() => setIsEditMode(!isEditMode)}
+        />
+      }
+    >
       <div className="min-h-screen bg-background">
         {/* Edit Mode Toolbar - Only shows in edit mode */}
         {isEditMode && (
@@ -160,14 +167,6 @@ export default function Dashboard() {
         
         {/* Main Dashboard Content */}
         <div className="p-6 space-y-6">
-        {/* Edit Mode Toggle */}
-        <div className="flex items-center justify-end border-b border-border pb-4">
-          <EditModeToggle
-            isEditMode={isEditMode}
-            onToggle={() => setIsEditMode(!isEditMode)}
-          />
-        </div>
-        
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
