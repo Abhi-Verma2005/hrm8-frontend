@@ -130,7 +130,7 @@ export function EnhancedStatCard({
         showMenu && "pr-8"
       )}>
         <div className={cn(
-          "rounded-xl shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3",
+          "rounded-full shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3",
           "group-hover:shadow-xl",
           iconBgStyles[variant], 
           iconSizeStyles[size]
