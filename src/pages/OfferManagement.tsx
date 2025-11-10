@@ -161,7 +161,7 @@ export default function OfferManagement() {
                             <div>
                               <p className="text-muted-foreground">Salary</p>
                               <p className="font-medium">
-                                ${offer.salary.toLocaleString()} {offer.currency}
+                                ${offer.salary.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {offer.currency}
                               </p>
                               <p className="text-xs text-muted-foreground capitalize">
                                 per {offer.salaryPeriod}

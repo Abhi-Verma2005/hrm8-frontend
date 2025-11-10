@@ -149,6 +149,8 @@ export default function EmployeeDetail() {
                       {new Intl.NumberFormat('en-US', {
                         style: 'currency',
                         currency: employee.currency,
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0,
                       }).format(employee.salary)}
                     </span>
                     <span className="text-sm text-muted-foreground">/ {employee.payFrequency}</span>

@@ -145,8 +145,8 @@ export default function Requisitions() {
                     <div className="text-sm">
                       <span className="font-medium">Budget: </span>
                       <span>
-                        ${req.estimatedSalary.min.toLocaleString()} - $
-                        {req.estimatedSalary.max.toLocaleString()} {req.estimatedSalary.currency}
+                        ${req.estimatedSalary.min.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} - $
+                        {req.estimatedSalary.max.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {req.estimatedSalary.currency}
                       </span>
                     </div>
                     <Button variant="outline" size="sm" asChild>

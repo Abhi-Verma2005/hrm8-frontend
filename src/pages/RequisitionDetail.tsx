@@ -95,8 +95,8 @@ export default function RequisitionDetail() {
               <div>
                 <span className="text-sm font-medium">Estimated Salary:</span>
                 <p>
-                  ${requisition.estimatedSalary.min.toLocaleString()} - $
-                  {requisition.estimatedSalary.max.toLocaleString()} {requisition.estimatedSalary.currency}
+                  ${requisition.estimatedSalary.min.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} - $
+                  {requisition.estimatedSalary.max.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {requisition.estimatedSalary.currency}
                 </p>
               </div>
               <div>

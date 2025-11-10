@@ -111,7 +111,7 @@ export default function Offers() {
                   <div className="space-y-1">
                     <div className="text-sm">
                       <span className="font-medium">Salary:</span>{" "}
-                      ${offer.salary.toLocaleString()} {offer.salaryCurrency} per {offer.salaryPeriod}
+                      ${offer.salary.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} {offer.salaryCurrency} per {offer.salaryPeriod}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Start Date: {new Date(offer.startDate).toLocaleDateString()}
