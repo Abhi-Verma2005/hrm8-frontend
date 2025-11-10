@@ -40,11 +40,13 @@ import ConsultantWorkloadPage from "./pages/ConsultantWorkloadPage";
 import RPODashboardPage from "./pages/RPODashboardPage";
 import RPOOverviewPage from "./pages/rpo/RPOOverviewPage";
 import RPOContractsPage from "./pages/rpo/RPOContractsPage";
+import RPOContractDetailPage from "./pages/rpo/RPOContractDetailPage";
 import RPOConsultantsPage from "./pages/rpo/RPOConsultantsPage";
 import RPOPerformancePage from "./pages/rpo/RPOPerformancePage";
 import RPORenewalsPage from "./pages/rpo/RPORenewalsPage";
 import RPOTasksPage from "./pages/rpo/RPOTasksPage";
 import RPOForecastPage from "./pages/rpo/RPOForecastPage";
+import RPOManagementPage from "./pages/rpo/RPOManagementPage";
 import RecruitmentServices from "./pages/RecruitmentServices";
 import ServiceProjectDetail from "./pages/ServiceProjectDetail";
 import HRMS from "./pages/HRMS";
@@ -196,11 +198,13 @@ function AppContent() {
             {/* RPO Module Routes */}
             <Route path="/rpo" element={<RPOOverviewPage />} />
             <Route path="/rpo/contracts" element={<RPOContractsPage />} />
+            <Route path="/rpo/contracts/:id" element={<RPOContractDetailPage />} />
             <Route path="/rpo/consultants" element={<RPOConsultantsPage />} />
             <Route path="/rpo/performance" element={<RPOPerformancePage />} />
             <Route path="/rpo/renewals" element={<RPORenewalsPage />} />
             <Route path="/rpo/tasks" element={<RPOTasksPage />} />
             <Route path="/rpo/forecast" element={<RPOForecastPage />} />
+            <Route path="/rpo/management" element={<RPOManagementPage />} />
             
             {/* HRMS Module Routes */}
             <Route element={<ProtectedRoutes requiredModule="hrms" moduleName="HRMS (Human Resource Management System)" />}>
