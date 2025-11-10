@@ -11,7 +11,6 @@ import { DashboardLayout } from "./components/layouts/DashboardLayout";
 import { GlobalSearch } from "./components/common/GlobalSearch";
 import Dashboard from "./pages/Dashboard";
 import CandidatesDashboard from "./pages/CandidatesDashboard";
-import HRMSDashboard from "./pages/HRMSDashboard";
 import OverviewDashboardPage from "./pages/OverviewDashboardPage";
 import FinancialDashboardPage from "./pages/FinancialDashboardPage";
 import HRMSDashboardPage from "./pages/HRMSDashboardPage";
@@ -139,8 +138,6 @@ import { initializeMockAlertRules } from './data/mockAlertRules';
 import { useEffect } from 'react';
 import { ProtectedRoutes } from './components/common/ProtectedRoutes';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
-import DashboardSalesPage from './pages/DashboardSalesPage';
-import DashboardRPOPage from './pages/DashboardRPOPage';
 
 const queryClient = new QueryClient();
 
@@ -174,10 +171,7 @@ function AppContent() {
             <Route path="/dashboard/consulting" element={<ConsultingDashboardPage />} />
             <Route path="/dashboard/recruitment-services" element={<RecruitmentServicesDashboardPage />} />
             <Route path="/dashboard/employers" element={<EmployersDashboardPage />} />
-            
             <Route path="/dashboard/candidates" element={<CandidatesDashboard />} />
-            <Route path="/dashboard/sales" element={<DashboardSalesPage />} />
-            <Route path="/dashboard/rpo" element={<DashboardRPOPage />} />
             
             {/* HRMS Dashboard - Protected */}
             <Route element={<ProtectedRoutes requiredModule="hrms" moduleName="HRMS Dashboard" />}>

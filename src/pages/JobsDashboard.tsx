@@ -1,11 +1,12 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
+import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import { Badge } from "@/components/ui/badge";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { 
@@ -23,6 +24,8 @@ import type { DateRange } from "react-day-picker";
 
 export default function JobsDashboard() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [isEditMode, setIsEditMode] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -31,6 +34,17 @@ export default function JobsDashboard() {
   const handleExport = () => {
     toast({ title: "Exporting jobs analytics..." });
   };
+
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setSelectedCountry("all");
+    setSelectedRegion("all");
+  };
+
+  const hasActiveFilters = 
+    selectedCountry !== "all" || 
+    selectedRegion !== "all" || 
+    dateRange !== undefined;
 
   // Calculate metrics
   const metrics = useMemo(() => {
@@ -138,21 +152,31 @@ export default function JobsDashboard() {
           </div>
           
           {!isEditMode && (
-            <div className="flex items-center gap-3">
-              <DateRangePicker
-                value={dateRange}
-                onChange={setDateRange}
-                placeholder="Select period"
-                align="end"
-              />
-              
-              <Button variant="secondary" size="sm" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
+            <DashboardActionBar
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              selectedCountry={selectedCountry}
+              onCountryChange={setSelectedCountry}
+              selectedRegion={selectedRegion}
+              onRegionChange={setSelectedRegion}
+              onExport={handleExport}
+              onResetFilters={handleResetFilters}
+              hasActiveFilters={hasActiveFilters}
+            />
           )}
         </div>
+
+        {/* Active Filters */}
+        {!isEditMode && (
+          <ActiveFiltersIndicator
+            selectedCountry={selectedCountry}
+            selectedRegion={selectedRegion}
+            dateRange={dateRange}
+            onClearCountry={() => setSelectedCountry("all")}
+            onClearRegion={() => setSelectedRegion("all")}
+            onClearDateRange={() => setDateRange(undefined)}
+          />
+        )}
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -231,9 +255,6 @@ export default function JobsDashboard() {
               <StandardChartCard
                 title="Job Posting Activity"
                 description="Monthly job posting and fill rates"
-                showDatePicker={true}
-                dateRange={dateRange}
-                onDateRangeChange={setDateRange}
                 onDownload={() => toast({ title: "Downloading posting data..." })}
                 menuItems={[
                   { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
@@ -281,9 +302,6 @@ export default function JobsDashboard() {
               <StandardChartCard
                 title="Application Volume"
                 description="Weekly application submissions"
-                showDatePicker={true}
-                dateRange={dateRange}
-                onDateRangeChange={setDateRange}
                 onDownload={() => toast({ title: "Downloading application data..." })}
                 menuItems={[
                   { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
