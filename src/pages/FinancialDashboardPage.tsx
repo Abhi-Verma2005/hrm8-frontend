@@ -15,17 +15,8 @@ import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from "recharts";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { isWithinInterval } from "date-fns";
+import { applyLocationFilterToMetric, applyLocationFilterToTimeSeries } from "@/lib/mockDataWithLocations";
 
 const revenueExpenses = [
   { month: 'Jan', revenue: 245000, expenses: 182000, profit: 63000 },
@@ -71,30 +62,64 @@ export default function FinancialDashboardPage() {
 
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
-  // Filter data based on date range
+  // Calculate filtered metrics
+  const filteredTotalRevenue = useMemo(() => 
+    applyLocationFilterToMetric(356000, selectedCountry, selectedRegion),
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredNetProfit = useMemo(() => 
+    applyLocationFilterToMetric(121000, selectedCountry, selectedRegion),
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredTotalExpenses = useMemo(() => 
+    applyLocationFilterToMetric(235000, selectedCountry, selectedRegion),
+    [selectedCountry, selectedRegion]
+  );
+
+  // Filter data based on date range and location
   const filteredRevenueExpenses = useMemo(() => {
-    if (!dateRange?.from) return revenueExpenses;
+    let data = revenueExpenses;
     
-    return revenueExpenses.filter((item) => {
-      const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
-      return isWithinInterval(itemDate, {
-        start: dateRange.from!,
-        end: dateRange.to || dateRange.from!,
+    if (dateRange?.from) {
+      data = data.filter((item) => {
+        const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
+        return isWithinInterval(itemDate, {
+          start: dateRange.from!,
+          end: dateRange.to || dateRange.from!,
+        });
       });
-    });
-  }, [dateRange]);
+    }
+    
+    return applyLocationFilterToTimeSeries(
+      data,
+      selectedCountry,
+      selectedRegion,
+      ['revenue', 'expenses', 'profit']
+    );
+  }, [dateRange, selectedCountry, selectedRegion]);
 
   const filteredPayrollTrends = useMemo(() => {
-    if (!dateRange?.from) return payrollTrends;
+    let data = payrollTrends;
     
-    return payrollTrends.filter((item) => {
-      const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
-      return isWithinInterval(itemDate, {
-        start: dateRange.from!,
-        end: dateRange.to || dateRange.from!,
+    if (dateRange?.from) {
+      data = data.filter((item) => {
+        const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
+        return isWithinInterval(itemDate, {
+          start: dateRange.from!,
+          end: dateRange.to || dateRange.from!,
+        });
       });
-    });
-  }, [dateRange]);
+    }
+    
+    return applyLocationFilterToTimeSeries(
+      data,
+      selectedCountry,
+      selectedRegion,
+      ['payroll', 'benefits']
+    );
+  }, [dateRange, selectedCountry, selectedRegion]);
 
   const handleExport = () => {
     toast({ 
@@ -140,13 +165,12 @@ export default function FinancialDashboardPage() {
             )}
           </div>
 
-          {/* Key Metrics */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <EnhancedStatCard
               title="Total Revenue"
               value=""
               isCurrency={true}
-              rawValue={356000}
+              rawValue={filteredTotalRevenue}
               change="+15.2%"
               trend="up"
               icon={<DollarSign className="h-6 w-6" />}

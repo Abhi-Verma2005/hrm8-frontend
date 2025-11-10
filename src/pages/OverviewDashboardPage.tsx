@@ -15,17 +15,14 @@ import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from "recharts";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { subMonths, isWithinInterval, startOfMonth, endOfMonth } from "date-fns";
+import { isWithinInterval } from "date-fns";
+import { 
+  applyLocationFilterToMetric, 
+  applyLocationFilterToTimeSeries,
+  getTotalByLocationFilter,
+  clientsByLocation,
+  projectsByLocation
+} from "@/lib/mockDataWithLocations";
 
 const hiringTrends = [
   { month: 'Jan', hires: 45, applications: 320, interviews: 128 },
@@ -72,30 +69,73 @@ export default function OverviewDashboardPage() {
 
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
-  // Filter data based on date range
+  // Calculate filtered metrics
+  const filteredTotalEmployees = useMemo(() => 
+    applyLocationFilterToMetric(394, selectedCountry, selectedRegion),
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredActiveProjects = useMemo(() => 
+    getTotalByLocationFilter(projectsByLocation, selectedCountry, selectedRegion, 'active'),
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredMonthlyRevenue = useMemo(() => 
+    applyLocationFilterToMetric(356000, selectedCountry, selectedRegion),
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredTotalClients = useMemo(() => 
+    getTotalByLocationFilter(clientsByLocation, selectedCountry, selectedRegion, 'count'),
+    [selectedCountry, selectedRegion]
+  );
+
+  // Filter data based on date range and location
   const filteredHiringTrends = useMemo(() => {
-    if (!dateRange?.from) return hiringTrends;
+    let data = hiringTrends;
     
-    return hiringTrends.filter((item) => {
-      const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
-      return isWithinInterval(itemDate, {
-        start: dateRange.from!,
-        end: dateRange.to || dateRange.from!,
+    // Apply date filter
+    if (dateRange?.from) {
+      data = data.filter((item) => {
+        const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
+        return isWithinInterval(itemDate, {
+          start: dateRange.from!,
+          end: dateRange.to || dateRange.from!,
+        });
       });
-    });
-  }, [dateRange]);
+    }
+    
+    // Apply location filter
+    return applyLocationFilterToTimeSeries(
+      data,
+      selectedCountry,
+      selectedRegion,
+      ['hires', 'applications', 'interviews']
+    );
+  }, [dateRange, selectedCountry, selectedRegion]);
 
   const filteredRevenueExpenses = useMemo(() => {
-    if (!dateRange?.from) return revenueExpenses;
+    let data = revenueExpenses;
     
-    return revenueExpenses.filter((item) => {
-      const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
-      return isWithinInterval(itemDate, {
-        start: dateRange.from!,
-        end: dateRange.to || dateRange.from!,
+    // Apply date filter
+    if (dateRange?.from) {
+      data = data.filter((item) => {
+        const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
+        return isWithinInterval(itemDate, {
+          start: dateRange.from!,
+          end: dateRange.to || dateRange.from!,
+        });
       });
-    });
-  }, [dateRange]);
+    }
+    
+    // Apply location filter
+    return applyLocationFilterToTimeSeries(
+      data,
+      selectedCountry,
+      selectedRegion,
+      ['revenue', 'expenses']
+    );
+  }, [dateRange, selectedCountry, selectedRegion]);
 
   const filteredEmployeeDistribution = useMemo(() => {
     return employeeDistribution;
@@ -149,11 +189,10 @@ export default function OverviewDashboardPage() {
             )}
           </div>
 
-          {/* Key Metrics */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <EnhancedStatCard
               title="Total Employees"
-              value="394"
+              value={filteredTotalEmployees.toString()}
               change="+12.5%"
               trend="up"
               icon={<Users className="h-6 w-6" />}
@@ -168,7 +207,7 @@ export default function OverviewDashboardPage() {
 
             <EnhancedStatCard
               title="Active Projects"
-              value="47"
+              value={filteredActiveProjects.toString()}
               change="+8.3%"
               trend="up"
               icon={<Target className="h-6 w-6" />}
@@ -185,7 +224,7 @@ export default function OverviewDashboardPage() {
               title="Monthly Revenue"
               value=""
               isCurrency={true}
-              rawValue={356000}
+              rawValue={filteredMonthlyRevenue}
               change="+15.2%"
               trend="up"
               icon={<DollarSign className="h-6 w-6" />}
@@ -200,7 +239,7 @@ export default function OverviewDashboardPage() {
 
             <EnhancedStatCard
               title="Total Clients"
-              value="89"
+              value={filteredTotalClients.toString()}
               change="+5.7%"
               trend="up"
               icon={<Building2 className="h-6 w-6" />}
@@ -218,11 +257,10 @@ export default function OverviewDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <StandardChartCard
               title="Hiring Trends"
-              description={`Monthly hiring activity${dateRange?.from ? ' (filtered)' : ''}`}
+              description={`Monthly hiring activity${hasActiveFilters ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading hiring trends..." })}
               menuItems={[
                 { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/analytics') },
-                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setDateRange(undefined) },
                 { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
@@ -242,11 +280,10 @@ export default function OverviewDashboardPage() {
 
             <StandardChartCard
               title="Revenue vs Expenses"
-              description={`Financial performance comparison${dateRange?.from ? ' (filtered)' : ''}`}
+              description={`Financial performance comparison${hasActiveFilters ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading financial data..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/finance') },
-                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setDateRange(undefined) },
                 { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >

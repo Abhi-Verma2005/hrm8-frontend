@@ -18,6 +18,7 @@ import { getCandidates } from "@/lib/mockCandidateStorage";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { useToast } from "@/hooks/use-toast";
 import type { DateRange } from "react-day-picker";
+import { applyLocationFilterToMetric } from "@/lib/mockDataWithLocations";
 
 export default function CandidatesDashboard() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -41,12 +42,24 @@ export default function CandidatesDashboard() {
     toast({ title: "Filters reset" });
   };
 
-  // Calculate metrics
+  // Calculate metrics with location filtering
   const metrics = useMemo(() => {
-    const total = candidates.length;
-    const active = candidates.filter(c => c.status === 'active').length;
-    const placed = candidates.filter(c => c.status === 'placed').length;
-    const inactive = candidates.filter(c => c.status === 'inactive').length;
+    const total = applyLocationFilterToMetric(candidates.length, selectedCountry, selectedRegion);
+    const active = applyLocationFilterToMetric(
+      candidates.filter(c => c.status === 'active').length,
+      selectedCountry,
+      selectedRegion
+    );
+    const placed = applyLocationFilterToMetric(
+      candidates.filter(c => c.status === 'placed').length,
+      selectedCountry,
+      selectedRegion
+    );
+    const inactive = applyLocationFilterToMetric(
+      candidates.filter(c => c.status === 'inactive').length,
+      selectedCountry,
+      selectedRegion
+    );
     
     return {
       total,
@@ -56,7 +69,7 @@ export default function CandidatesDashboard() {
       placementRate: total > 0 ? ((placed / total) * 100).toFixed(1) : 0,
       activeRate: total > 0 ? ((active / total) * 100).toFixed(1) : 0,
     };
-  }, [candidates]);
+  }, [candidates, selectedCountry, selectedRegion]);
 
   // Monthly trends data
   const monthlyTrends = [
