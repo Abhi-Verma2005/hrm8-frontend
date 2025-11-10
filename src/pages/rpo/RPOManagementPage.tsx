@@ -10,6 +10,7 @@ import { RPOConsultantPerformanceDashboard } from '@/components/rpo/RPOConsultan
 import { RPOConsultantSkillMatrix } from '@/components/rpo/RPOConsultantSkillMatrix';
 import { RPOWorkloadBalancingDashboard } from '@/components/rpo/RPOWorkloadBalancingDashboard';
 import { RPOPerformanceReviewSystem } from '@/components/rpo/RPOPerformanceReviewSystem';
+import { RPOContractHealthScoring } from '@/components/rpo/RPOContractHealthScoring';
 import { LayoutDashboard } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -39,8 +40,9 @@ export default function RPODashboardPage() {
         </div>
 
         <Tabs defaultValue="notifications" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-10">
+          <TabsList className="grid w-full grid-cols-11">
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="health">Health</TabsTrigger>
             <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="skills">Skills</TabsTrigger>
@@ -54,6 +56,10 @@ export default function RPODashboardPage() {
 
           <TabsContent value="notifications" className="space-y-6">
             <RPONotifications />
+          </TabsContent>
+
+          <TabsContent value="health" className="space-y-6">
+            <RPOContractHealthScoring />
           </TabsContent>
 
           <TabsContent value="performance" className="space-y-6">
