@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
+import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import type { DateRange } from "react-day-picker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,7 +33,6 @@ import {
 } from "@/lib/rpoDashboardUtils";
 import { getAllServiceProjects } from "@/lib/recruitmentServiceStorage";
 import { PieChart, Pie, Cell, BarChart, Bar, AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useNavigate } from "react-router-dom";
 
 export default function DashboardRPOPage() {
   const navigate = useNavigate();
@@ -231,200 +232,220 @@ export default function DashboardRPOPage() {
 
         {/* Charts Row 1 */}
         <div className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Contract Status Distribution</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={statusData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={(entry) => `${entry.status}: ${entry.count}`}
-                    outerRadius={100}
-                    fill="hsl(var(--primary))"
-                    dataKey="count"
-                  >
-                    {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <StandardChartCard
+            title="Contract Status Distribution"
+            onDownload={() => toast({ title: "Downloading contract data..." })}
+            menuItems={[
+              { label: "View Contracts", onClick: () => navigate('/recruitment-services') },
+              { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={statusData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={(entry) => `${entry.status}: ${entry.count}`}
+                  outerRadius={100}
+                  fill="hsl(var(--primary))"
+                  dataKey="count"
+                >
+                  {statusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Revenue Forecast (12 Months)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={revenueData}>
-                  <defs>
-                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip 
-                    formatter={(value: number) => formatCurrency(value)}
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
-                  />
-                  <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorRevenue)" />
-                  <Legend />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <StandardChartCard
+            title="Revenue Forecast (12 Months)"
+            showDatePicker={true}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onDownload={() => toast({ title: "Downloading forecast data..." })}
+            menuItems={[
+              { label: "View Details", onClick: () => {} },
+              { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={revenueData}>
+                <defs>
+                  <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="month" className="text-xs" />
+                <YAxis className="text-xs" />
+                <Tooltip 
+                  formatter={(value: number) => formatCurrency(value)}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                />
+                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorRevenue)" />
+                <Legend />
+              </AreaChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
         </div>
 
         {/* Charts Row 2 */}
         <div className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Consultant Utilization</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={utilizationData.slice(0, 10)} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis type="number" className="text-xs" domain={[0, 100]} />
-                  <YAxis dataKey="name" type="category" width={120} className="text-xs" />
-                  <Tooltip 
-                    formatter={(value: number) => `${value.toFixed(0)}%`}
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
-                  />
-                  <Bar dataKey="utilization" radius={[0, 4, 4, 0]}>
-                    {utilizationData.slice(0, 10).map((entry, index) => (
-                      <Cell 
-                        key={`cell-${index}`} 
-                        fill={entry.utilization > 80 ? '#10b981' : entry.utilization > 60 ? '#f59e0b' : '#ef4444'} 
-                      />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <StandardChartCard
+            title="Consultant Utilization"
+            onDownload={() => toast({ title: "Downloading utilization data..." })}
+            menuItems={[
+              { label: "View Consultants", onClick: () => navigate('/consultants') },
+              { label: "Manage Assignments", onClick: () => {} },
+              { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={utilizationData.slice(0, 10)} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis type="number" className="text-xs" domain={[0, 100]} />
+                <YAxis dataKey="name" type="category" width={120} className="text-xs" />
+                <Tooltip 
+                  formatter={(value: number) => `${value.toFixed(0)}%`}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                />
+                <Bar dataKey="utilization" radius={[0, 4, 4, 0]}>
+                  {utilizationData.slice(0, 10).map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.utilization > 80 ? '#10b981' : entry.utilization > 60 ? '#f59e0b' : '#ef4444'} 
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Placements by Service Type</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={placementsData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }} />
-                  <Legend />
-                  <Bar dataKey="rpoFullService" stackId="a" fill="hsl(var(--chart-1))" name="RPO Full Service" />
-                  <Bar dataKey="executiveSearch" stackId="a" fill="hsl(var(--chart-2))" name="Executive Search" />
-                  <Bar dataKey="shortlisting" stackId="a" fill="hsl(var(--chart-3))" name="Shortlisting" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <StandardChartCard
+            title="Placements by Service Type"
+            showDatePicker={true}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onDownload={() => toast({ title: "Downloading placements data..." })}
+            menuItems={[
+              { label: "View Placements", onClick: () => {} },
+              { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={placementsData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="month" className="text-xs" />
+                <YAxis className="text-xs" />
+                <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }} />
+                <Legend />
+                <Bar dataKey="rpoFullService" stackId="a" fill="hsl(var(--chart-1))" name="RPO Full Service" />
+                <Bar dataKey="executiveSearch" stackId="a" fill="hsl(var(--chart-2))" name="Executive Search" />
+                <Bar dataKey="shortlisting" stackId="a" fill="hsl(var(--chart-3))" name="Shortlisting" />
+              </BarChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
         </div>
 
         {/* Renewal Timeline */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Upcoming Renewals (Next 6 Months)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2 text-sm font-semibold">Contract</th>
-                    <th className="text-left p-2 text-sm font-semibold">Employer</th>
-                    <th className="text-left p-2 text-sm font-semibold">Renewal Date</th>
-                    <th className="text-right p-2 text-sm font-semibold">Days Until</th>
-                    <th className="text-right p-2 text-sm font-semibold">Value</th>
-                    <th className="text-center p-2 text-sm font-semibold">Urgency</th>
+        <StandardChartCard
+          title="Upcoming Renewals (Next 6 Months)"
+          onDownload={() => toast({ title: "Downloading renewals data..." })}
+          menuItems={[
+            { label: "View All Renewals", onClick: () => navigate('/rpo/renewals') },
+            { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
+          ]}
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-2 text-sm font-semibold">Contract</th>
+                  <th className="text-left p-2 text-sm font-semibold">Employer</th>
+                  <th className="text-left p-2 text-sm font-semibold">Renewal Date</th>
+                  <th className="text-right p-2 text-sm font-semibold">Days Until</th>
+                  <th className="text-right p-2 text-sm font-semibold">Value</th>
+                  <th className="text-center p-2 text-sm font-semibold">Urgency</th>
+                </tr>
+              </thead>
+              <tbody>
+                {renewalData.map((renewal, index) => (
+                  <tr key={index} className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => navigate('/rpo/renewals')}>
+                    <td className="p-2 text-sm">{renewal.contractName}</td>
+                    <td className="p-2 text-sm">{renewal.employer}</td>
+                    <td className="p-2 text-sm">{new Date(renewal.renewalDate).toLocaleDateString()}</td>
+                    <td className="p-2 text-sm text-right">{renewal.daysUntilRenewal}</td>
+                    <td className="p-2 text-sm text-right">{formatCurrency(renewal.value)}</td>
+                    <td className="p-2 text-sm text-center">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        renewal.urgency === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
+                        renewal.urgency === 'medium' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
+                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                      }`}>
+                        {renewal.urgency}
+                      </span>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {renewalData.map((renewal, index) => (
-                    <tr key={index} className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => navigate('/rpo/renewals')}>
-                      <td className="p-2 text-sm">{renewal.contractName}</td>
-                      <td className="p-2 text-sm">{renewal.employer}</td>
-                      <td className="p-2 text-sm">{new Date(renewal.renewalDate).toLocaleDateString()}</td>
-                      <td className="p-2 text-sm text-right">{renewal.daysUntilRenewal}</td>
-                      <td className="p-2 text-sm text-right">{formatCurrency(renewal.value)}</td>
-                      <td className="p-2 text-sm text-center">
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          renewal.urgency === 'high' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200' :
-                          renewal.urgency === 'medium' ? 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200' :
-                          'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
-                        }`}>
-                          {renewal.urgency}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                  {renewalData.length === 0 && (
-                    <tr>
-                      <td colSpan={6} className="p-4 text-center text-muted-foreground">
-                        No contracts expiring in the next 6 months
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+                {renewalData.length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="p-4 text-center text-muted-foreground">
+                      No contracts expiring in the next 6 months
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </StandardChartCard>
 
         {/* Active Contracts Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Active Contracts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2 text-sm font-semibold">Contract Name</th>
-                    <th className="text-left p-2 text-sm font-semibold">Client</th>
-                    <th className="text-left p-2 text-sm font-semibold">Consultants</th>
-                    <th className="text-right p-2 text-sm font-semibold">MRR</th>
-                    <th className="text-left p-2 text-sm font-semibold">Start Date</th>
+        <StandardChartCard
+          title="Active Contracts"
+          onDownload={() => toast({ title: "Downloading contracts data..." })}
+          menuItems={[
+            { label: "View All Contracts", onClick: () => navigate('/recruitment-services') },
+            { label: "Create New", onClick: () => navigate('/recruitment-services/new') },
+            { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
+          ]}
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-2 text-sm font-semibold">Contract Name</th>
+                  <th className="text-left p-2 text-sm font-semibold">Client</th>
+                  <th className="text-left p-2 text-sm font-semibold">Consultants</th>
+                  <th className="text-right p-2 text-sm font-semibold">MRR</th>
+                  <th className="text-left p-2 text-sm font-semibold">Start Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rpoProjects.slice(0, 10).map((project) => (
+                  <tr key={project.id} className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => navigate(`/recruitment-services/${project.id}`)}>
+                    <td className="p-2 text-sm">{project.name}</td>
+                    <td className="p-2 text-sm">{project.clientName}</td>
+                    <td className="p-2 text-sm">{project.consultants.length}</td>
+                    <td className="p-2 text-sm text-right">{formatCurrency(project.rpoMonthlyRetainer || 0)}</td>
+                    <td className="p-2 text-sm">{new Date(project.startDate).toLocaleDateString()}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {rpoProjects.slice(0, 10).map((project) => (
-                    <tr key={project.id} className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => navigate(`/recruitment-services/${project.id}`)}>
-                      <td className="p-2 text-sm">{project.name}</td>
-                      <td className="p-2 text-sm">{project.clientName}</td>
-                      <td className="p-2 text-sm">{project.consultants.length}</td>
-                      <td className="p-2 text-sm text-right">{formatCurrency(project.rpoMonthlyRetainer || 0)}</td>
-                      <td className="p-2 text-sm">{new Date(project.startDate).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                  {rpoProjects.length === 0 && (
-                    <tr>
-                      <td colSpan={5} className="p-4 text-center text-muted-foreground">
-                        No active RPO contracts
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+                {rpoProjects.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="p-4 text-center text-muted-foreground">
+                      No active RPO contracts
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </StandardChartCard>
 
         {/* Quick Links */}
         <div className="grid gap-4 md:grid-cols-4">

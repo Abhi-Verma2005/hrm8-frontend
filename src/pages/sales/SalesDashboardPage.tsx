@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card } from "@/components/ui/card";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
+import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/DataTable";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
@@ -18,6 +20,7 @@ import { Link } from "react-router-dom";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 export default function SalesDashboardPage() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { formatCurrency } = useCurrencyFormat();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
@@ -231,8 +234,15 @@ export default function SalesDashboardPage() {
         </div>
 
         {/* Sales Funnel */}
-        <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Sales Pipeline by Stage</h3>
+        <StandardChartCard
+          title="Sales Pipeline by Stage"
+          onDownload={() => toast({ title: "Downloading pipeline data..." })}
+          menuItems={[
+            { label: "View Pipeline", onClick: () => navigate('/sales/pipeline') },
+            { label: "Add Opportunity", onClick: () => navigate('/sales/opportunities/new') },
+            { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
+          ]}
+        >
           <div className="space-y-4">
             <div>
               <div className="flex justify-between text-sm mb-1">
@@ -271,12 +281,19 @@ export default function SalesDashboardPage() {
               </div>
             </div>
           </div>
-        </Card>
+        </StandardChartCard>
 
         {/* Activity Overview */}
         <div className="grid gap-4 md:grid-cols-2">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Sales Activities</h3>
+          <StandardChartCard
+            title="Sales Activities"
+            onDownload={() => toast({ title: "Downloading activities..." })}
+            menuItems={[
+              { label: "View All Activities", onClick: () => navigate('/sales/activities') },
+              { label: "Schedule Activity", onClick: () => {} },
+              { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
+            ]}
+          >
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Completed Today</span>
@@ -291,10 +308,17 @@ export default function SalesDashboardPage() {
                 <span className="font-semibold text-orange-600">{activityStats.followUpNeeded}</span>
               </div>
             </div>
-          </Card>
+          </StandardChartCard>
 
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Territory Performance</h3>
+          <StandardChartCard
+            title="Territory Performance"
+            onDownload={() => toast({ title: "Downloading territory data..." })}
+            menuItems={[
+              { label: "View Territories", onClick: () => navigate('/sales/territories') },
+              { label: "Manage Territories", onClick: () => {} },
+              { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
+            ]}
+          >
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Total Territories</span>
@@ -309,44 +333,42 @@ export default function SalesDashboardPage() {
                 <span className="font-semibold">{territoryStats.avgQuotaAttainment.toFixed(1)}%</span>
               </div>
             </div>
-          </Card>
+          </StandardChartCard>
         </div>
 
         {/* Data Tables */}
         <div className="grid gap-4 md:grid-cols-2">
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Top Opportunities</h3>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/sales/opportunities">
-                  View All
-                  <ArrowRight className="ml-1 h-3 w-3" />
-                </Link>
-              </Button>
-            </div>
+          <StandardChartCard
+            title="Top Opportunities"
+            onDownload={() => toast({ title: "Downloading opportunities..." })}
+            menuItems={[
+              { label: "View All Opportunities", onClick: () => navigate('/sales/opportunities') },
+              { label: "Create New", onClick: () => navigate('/sales/opportunities/new') },
+              { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
+            ]}
+          >
             <DataTable
               columns={createTopDealsColumns()}
               data={topOpportunities}
               searchable={false}
             />
-          </Card>
+          </StandardChartCard>
 
-          <Card className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Recent Activities</h3>
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/sales/activities">
-                  View All
-                  <ArrowRight className="ml-1 h-3 w-3" />
-                </Link>
-              </Button>
-            </div>
+          <StandardChartCard
+            title="Recent Activities"
+            onDownload={() => toast({ title: "Downloading activities..." })}
+            menuItems={[
+              { label: "View All", onClick: () => navigate('/sales/activities') },
+              { label: "Schedule New", onClick: () => {} },
+              { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
+            ]}
+          >
             <DataTable
               columns={createActivityColumns()}
               data={recentActivities}
               searchable={false}
             />
-          </Card>
+          </StandardChartCard>
         </div>
       </div>
     </DashboardPageLayout>
