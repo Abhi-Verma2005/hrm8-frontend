@@ -1,28 +1,34 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { Badge } from "@/components/ui/badge";
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell 
 } from "recharts";
 import { 
   Briefcase, TrendingUp, TrendingDown, Clock,
-  CheckCircle, AlertCircle, Download, Eye, Filter, BarChart3, Calendar
+  CheckCircle, AlertCircle, Download, Eye, Filter, BarChart3, Calendar, Plus
 } from "lucide-react";
 import { getJobs } from "@/lib/mockJobStorage";
-import { Badge } from "@/components/ui/badge";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { useToast } from "@/hooks/use-toast";
 import type { DateRange } from "react-day-picker";
 
 export default function JobsDashboard() {
-  const [timeRange, setTimeRange] = useState("90d");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const jobs = getJobs();
+
+  const handleExport = () => {
+    toast({ title: "Exporting jobs analytics..." });
+  };
 
   // Calculate metrics
   const metrics = useMemo(() => {
@@ -115,95 +121,84 @@ export default function JobsDashboard() {
   ];
 
   return (
-    <DashboardPageLayout>
-      <div className="p-6 space-y-6 animate-fade-in">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Jobs Analytics</h1>
-            <p className="text-muted-foreground">
-              Job posting performance, hiring metrics, and recruitment efficiency
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="30d">Last 30 days</SelectItem>
-                <SelectItem value="90d">Last 90 days</SelectItem>
-                <SelectItem value="6m">Last 6 months</SelectItem>
-                <SelectItem value="12m">Last 12 months</SelectItem>
-                <SelectItem value="ytd">Year to date</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-          </div>
+    <DashboardPageLayout
+      title="Jobs Analytics"
+      subtitle="Job posting performance, hiring metrics, and recruitment efficiency"
+      breadcrumbActions={
+        <div className="flex items-center gap-3">
+          <DateRangePicker
+            date={dateRange}
+            onDateChange={setDateRange}
+          />
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
         </div>
-
+      }
+    >
+      <div className="p-6 space-y-6 animate-fade-in">
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Job Postings</CardTitle>
-              <Briefcase className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.total}</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">+18.2%</span>
-                <span>vs last period</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Total Job Postings"
+            value={metrics.total.toString()}
+            change="+18.2%"
+            trend="up"
+            icon={<Briefcase className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              { label: "View All Jobs", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/jobs') },
+              { label: "Create New", icon: <Plus className="h-4 w-4" />, onClick: () => navigate('/jobs/new') },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
-              <AlertCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.active}</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <span>Currently hiring</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Active Jobs"
+            value={metrics.active.toString()}
+            change="Currently hiring"
+            trend="up"
+            icon={<AlertCircle className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              { label: "View Active", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/jobs?status=open') },
+              { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Fill Rate</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.fillRate}%</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">+2.4%</span>
-                <span>vs target</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Fill Rate"
+            value={`${metrics.fillRate}%`}
+            change="+2.4%"
+            trend="up"
+            icon={<CheckCircle className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+              { label: "Compare", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Avg. Time to Fill</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">32 days</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingDown className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">-5 days</span>
-                <span>vs last period</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Avg. Time to Fill"
+            value="32 days"
+            change="-5 days"
+            trend="up"
+            icon={<Clock className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
         </div>
 
         {/* Charts */}

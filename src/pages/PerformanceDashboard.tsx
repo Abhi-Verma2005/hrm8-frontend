@@ -1,29 +1,35 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { Badge } from "@/components/ui/badge";
 import { 
   LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie
 } from "recharts";
 import { 
   Target, TrendingUp, TrendingDown, Users,
-  CheckCircle, Clock, Download, Eye, Filter, BarChart3, Calendar, Star
+  CheckCircle, Clock, Download, Eye, Filter, BarChart3, Calendar, Star, Plus
 } from "lucide-react";
 import { getPerformanceGoals, getPerformanceReviews } from "@/lib/performanceStorage";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { useToast } from "@/hooks/use-toast";
 import type { DateRange } from "react-day-picker";
 
 export default function PerformanceDashboard() {
-  const [timeRange, setTimeRange] = useState("6m");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const goals = getPerformanceGoals();
   const reviews = getPerformanceReviews();
+
+  const handleExport = () => {
+    toast({ title: "Exporting performance analytics..." });
+  };
 
   // Calculate metrics
   const metrics = useMemo(() => {
@@ -118,93 +124,84 @@ export default function PerformanceDashboard() {
   ];
 
   return (
-    <DashboardPageLayout>
-      <div className="p-6 space-y-6 animate-fade-in">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Performance Analytics</h1>
-            <p className="text-muted-foreground">
-              Goals, reviews, ratings, and employee development insights
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="30d">Last 30 days</SelectItem>
-                <SelectItem value="90d">Last 90 days</SelectItem>
-                <SelectItem value="6m">Last 6 months</SelectItem>
-                <SelectItem value="12m">Last 12 months</SelectItem>
-                <SelectItem value="ytd">Year to date</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              Export Report
-            </Button>
-          </div>
+    <DashboardPageLayout
+      title="Performance Analytics"
+      subtitle="Goals, reviews, ratings, and employee development insights"
+      breadcrumbActions={
+        <div className="flex items-center gap-3">
+          <DateRangePicker
+            date={dateRange}
+            onDateChange={setDateRange}
+          />
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
         </div>
-
+      }
+    >
+      <div className="p-6 space-y-6 animate-fade-in">
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Goals</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.totalGoals}</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <span>{metrics.completionRate}% completed</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Total Goals"
+            value={metrics.totalGoals.toString()}
+            change={`${metrics.completionRate}% completed`}
+            trend="up"
+            icon={<Target className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              { label: "View All Goals", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/performance') },
+              { label: "Create Goal", icon: <Plus className="h-4 w-4" />, onClick: () => navigate('/performance/goals/new') },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">On Track Goals</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.onTrackGoals}</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">+12.5%</span>
-                <span>vs last period</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="On Track Goals"
+            value={metrics.onTrackGoals.toString()}
+            change="+12.5%"
+            trend="up"
+            icon={<CheckCircle className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              { label: "View On Track", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/performance?status=on-track') },
+              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Avg. Performance</CardTitle>
-              <Star className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.avgRating}/5.0</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">+0.2</span>
-                <span>vs last period</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Avg. Performance"
+            value={`${metrics.avgRating}/5.0`}
+            change="+0.2"
+            trend="up"
+            icon={<Star className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              { label: "View Ratings", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/performance/reviews') },
+              { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Pending Reviews</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.pendingReviews}</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <span>{metrics.completedReviews} completed</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Pending Reviews"
+            value={metrics.pendingReviews.toString()}
+            change={`${metrics.completedReviews} completed`}
+            trend="down"
+            icon={<Clock className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              { label: "View Pending", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/performance/reviews?status=pending') },
+              { label: "View All Reviews", icon: <Filter className="h-4 w-4" />, onClick: () => navigate('/performance/reviews') },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
         </div>
 
         {/* Charts */}

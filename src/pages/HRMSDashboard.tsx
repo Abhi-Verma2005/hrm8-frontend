@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -12,10 +13,11 @@ import {
 } from "recharts";
 import { 
   Users, TrendingUp, TrendingDown, UserPlus, UserMinus, 
-  Clock, DollarSign, Award, Download, Building2, Eye, BarChart3, Calendar, Filter
+  Clock, DollarSign, Award, Download, Building2, Eye, BarChart3, Calendar, Filter, Plus
 } from "lucide-react";
 import { getEmployees } from "@/lib/employeeStorage";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -24,6 +26,7 @@ export default function HRMSDashboard() {
   const employees = getEmployees();
   const { formatCurrency } = useCurrencyFormat();
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleExport = () => {
     toast({
@@ -139,63 +142,65 @@ export default function HRMSDashboard() {
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Headcount</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.total}</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">+4.2%</span>
-                <span>vs last year</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Total Headcount"
+            value={metrics.total.toString()}
+            change="+4.2%"
+            trend="up"
+            icon={<Users className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              { label: "View Employees", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/hrms') },
+              { label: "Add Employee", icon: <Plus className="h-4 w-4" />, onClick: () => navigate('/hrms/employees/new') },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Active Employees</CardTitle>
-              <UserPlus className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.active}</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <span>{metrics.activeRate}% of workforce</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Active Employees"
+            value={metrics.active.toString()}
+            change={`${metrics.activeRate}% of workforce`}
+            trend="up"
+            icon={<UserPlus className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              { label: "View Active", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/hrms?status=active') },
+              { label: "View Analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/hrms/analytics') },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Turnover Rate</CardTitle>
-              <UserMinus className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">9.8%</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingDown className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">-1.3%</span>
-                <span>vs last year</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Turnover Rate"
+            value="9.8%"
+            change="-1.3%"
+            trend="up"
+            icon={<UserMinus className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+              { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Avg. Salary</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(metrics.avgSalary)}</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">+3.5%</span>
-                <span>vs last year</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Avg. Salary"
+            value={formatCurrency(metrics.avgSalary)}
+            change="+3.5%"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "View Analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/hrms/analytics') },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
         </div>
 
         {/* Charts */}

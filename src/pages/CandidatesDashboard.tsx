@@ -1,28 +1,33 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { Badge } from "@/components/ui/badge";
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell 
 } from "recharts";
 import { 
   Users, TrendingUp, TrendingDown, Clock, 
-  CheckCircle, Award, Download, Eye, Filter, BarChart3, Calendar
+  CheckCircle, Award, Download, Eye, Filter, BarChart3, Calendar, Plus
 } from "lucide-react";
 import { getCandidates } from "@/lib/mockCandidateStorage";
-import { Badge } from "@/components/ui/badge";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { useToast } from "@/hooks/use-toast";
 import type { DateRange } from "react-day-picker";
 
 export default function CandidatesDashboard() {
-  const [timeRange, setTimeRange] = useState("30d");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const candidates = getCandidates();
+
+  const handleExport = () => {
+    toast({ title: "Exporting candidate analytics..." });
+  };
 
   // Calculate metrics
   const metrics = useMemo(() => {
@@ -101,95 +106,84 @@ export default function CandidatesDashboard() {
   ];
 
   return (
-    <DashboardPageLayout>
-      <div className="p-6 space-y-6 animate-fade-in">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Candidates Analytics</h1>
-            <p className="text-muted-foreground">
-              Track recruitment metrics and candidate pipeline performance
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7d">Last 7 days</SelectItem>
-                <SelectItem value="30d">Last 30 days</SelectItem>
-                <SelectItem value="90d">Last 90 days</SelectItem>
-                <SelectItem value="12m">Last 12 months</SelectItem>
-                <SelectItem value="ytd">Year to date</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline">
-              <Download className="mr-2 h-4 w-4" />
-              Export
-            </Button>
-          </div>
+    <DashboardPageLayout
+      title="Candidates Analytics"
+      subtitle="Track recruitment metrics and candidate pipeline performance"
+      breadcrumbActions={
+        <div className="flex items-center gap-3">
+          <DateRangePicker
+            date={dateRange}
+            onDateChange={setDateRange}
+          />
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
         </div>
-
+      }
+    >
+      <div className="p-6 space-y-6 animate-fade-in">
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Candidates</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.total}</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">+12.5%</span>
-                <span>vs last period</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Total Candidates"
+            value={metrics.total.toString()}
+            change="+12.5%"
+            trend="up"
+            icon={<Users className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              { label: "View All Candidates", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/candidates') },
+              { label: "Add Candidate", icon: <Plus className="h-4 w-4" />, onClick: () => navigate('/candidates?action=create') },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Active Candidates</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.active}</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <span>{metrics.activeRate}% of total</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Active Candidates"
+            value={metrics.active.toString()}
+            change={`${metrics.activeRate}% of total`}
+            trend="up"
+            icon={<CheckCircle className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              { label: "View Active", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/candidates?status=active') },
+              { label: "View Pipeline", icon: <Filter className="h-4 w-4" />, onClick: () => navigate('/candidates/pipeline') },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Placement Rate</CardTitle>
-              <Award className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.placementRate}%</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingUp className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">+3.2%</span>
-                <span>vs last period</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Placement Rate"
+            value={`${metrics.placementRate}%`}
+            change="+3.2%"
+            trend="up"
+            icon={<Award className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              { label: "View Placements", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/candidates?status=placed') },
+              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Avg. Time to Hire</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">21 days</div>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <TrendingDown className="h-3 w-3 text-green-500" />
-                <span className="text-green-500">-2 days</span>
-                <span>vs last period</span>
-              </div>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Avg. Time to Hire"
+            value="21 days"
+            change="-2 days"
+            trend="up"
+            icon={<Clock className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
         </div>
 
         {/* Charts */}
