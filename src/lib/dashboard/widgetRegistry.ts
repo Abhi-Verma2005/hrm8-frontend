@@ -352,7 +352,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     maxSize: { w: 6, h: 1 },
     defaultProps: {
       title: "Total Revenue",
-      value: "$2.4M",
+      value: "$2,400,000",
       change: "+18%",
       trend: "up",
       variant: "success"
@@ -371,7 +371,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     maxSize: { w: 6, h: 1 },
     defaultProps: {
       title: "Total Expenses",
-      value: "$1.8M",
+      value: "$1,800,000",
       change: "+5%",
       trend: "up",
       variant: "warning"
@@ -409,7 +409,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     maxSize: { w: 6, h: 1 },
     defaultProps: {
       title: "Payroll Cost",
-      value: "$890K",
+      value: "$890,000",
       change: "+2%",
       trend: "up",
       variant: "primary"
