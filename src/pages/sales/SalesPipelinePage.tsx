@@ -12,6 +12,13 @@ import { createOpportunityColumns } from "@/components/sales/SalesOpportunityTab
 import { OpportunitiesFilterBar } from "@/components/sales/OpportunitiesFilterBar";
 import { OpportunityBulkActions } from "@/components/sales/OpportunityBulkActions";
 import { useToast } from "@/hooks/use-toast";
+import { exportOpportunities } from "@/lib/salesExportService";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function SalesPipelinePage() {
   const navigate = useNavigate();
@@ -61,14 +68,16 @@ export default function SalesPipelinePage() {
     setTypeFilter('all');
   };
 
-  const handleExport = (selectedIds: string[]) => {
+  const handleExport = (selectedIds: string[], format: 'csv' | 'excel' = 'excel') => {
     const dataToExport = selectedIds.length > 0
       ? opportunities.filter(opp => selectedIds.includes(opp.id))
       : filteredOpportunities;
     
+    exportOpportunities(dataToExport, format, 'sales-pipeline');
+    
     toast({
-      title: "Exporting Opportunities",
-      description: `Exporting ${dataToExport.length} opportunities...`,
+      title: "Export Complete",
+      description: `Exported ${dataToExport.length} opportunities as ${format.toUpperCase()}`,
     });
   };
 
@@ -113,6 +122,22 @@ export default function SalesPipelinePage() {
                 Table
               </Button>
             </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleExport([], 'excel')}>
+                  Export as Excel
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExport([], 'csv')}>
+                  Export as CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button onClick={() => navigate("/sales/opportunities/new")}>
               <Plus className="h-4 w-4 mr-2" />
               New Opportunity

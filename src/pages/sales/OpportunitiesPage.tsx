@@ -10,9 +10,18 @@ import { StatsCard } from "@/components/ui/stats-card";
 import { createOpportunityColumns } from "@/components/sales/SalesOpportunityTableColumns";
 import { OpportunitiesFilterBar } from "@/components/sales/OpportunitiesFilterBar";
 import { OpportunityBulkActions } from "@/components/sales/OpportunityBulkActions";
+import { exportOpportunities } from "@/lib/salesExportService";
+import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function OpportunitiesPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [opportunities] = useState<SalesOpportunity[]>(getAllOpportunities());
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState("all");
@@ -41,8 +50,17 @@ export default function OpportunitiesPage() {
     setTypeFilter("all");
   };
 
-  const handleExport = (selectedIds: string[]) => {
-    console.log("Exporting selected opportunities:", selectedIds);
+  const handleExport = (selectedIds: string[], format: 'csv' | 'excel' = 'excel') => {
+    const dataToExport = selectedIds.length > 0
+      ? opportunities.filter(o => selectedIds.includes(o.id))
+      : filteredOpportunities;
+    
+    exportOpportunities(dataToExport, format, 'sales-opportunities');
+    
+    toast({
+      title: "Export Complete",
+      description: `Exported ${dataToExport.length} opportunities as ${format.toUpperCase()}`,
+    });
   };
 
   const handleDelete = (selectedIds: string[]) => {
@@ -61,10 +79,28 @@ export default function OpportunitiesPage() {
             <h1 className="text-3xl font-bold">Opportunities</h1>
             <p className="text-muted-foreground mt-2">Manage and track all sales opportunities</p>
           </div>
-          <Button onClick={() => navigate("/sales/opportunities/new")}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Opportunity
-          </Button>
+          <div className="flex gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <DollarSign className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={() => handleExport([], 'excel')}>
+                  Export as Excel
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleExport([], 'csv')}>
+                  Export as CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button onClick={() => navigate("/sales/opportunities/new")}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Opportunity
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

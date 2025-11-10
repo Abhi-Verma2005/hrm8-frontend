@@ -12,6 +12,13 @@ import { getAllOpportunities } from "@/lib/salesOpportunityStorage";
 import { transformToForecastItems, getForecastStats, ConfidenceLevel } from "@/lib/salesForecastUtils";
 import { getSalesAgentStats } from "@/lib/salesAgentStorage";
 import { useToast } from "@/hooks/use-toast";
+import { exportForecast } from "@/lib/salesExportService";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function SalesForecastPage() {
   const { toast } = useToast();
@@ -48,14 +55,18 @@ export default function SalesForecastPage() {
     setAgentFilter('all');
   };
 
-  const handleExport = (selectedIds: string[]) => {
-    const dataToExport = selectedIds.length > 0
-      ? forecastItems.filter(item => selectedIds.includes(item.id))
-      : filteredForecast;
+  const handleExport = (selectedIds: string[], format: 'csv' | 'excel' = 'excel') => {
+    const selectedOpportunities = selectedIds.length > 0
+      ? opportunities.filter(opp => selectedIds.includes(opp.id))
+      : opportunities.filter(opp => 
+          filteredForecast.some(item => item.id === opp.id)
+        );
+    
+    exportForecast(selectedOpportunities, format, 'sales-forecast');
     
     toast({
-      title: "Exporting Forecast",
-      description: `Exporting ${dataToExport.length} forecast records...`,
+      title: "Export Complete",
+      description: `Exported ${selectedOpportunities.length} forecast items as ${format.toUpperCase()}`,
     });
   };
 
@@ -83,10 +94,22 @@ export default function SalesForecastPage() {
   return (
     <DashboardPageLayout
       breadcrumbActions={
-        <Button variant="outline" size="sm" onClick={() => handleExport([])}>
-          <Download className="h-4 w-4 mr-2" />
-          Export
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => handleExport([], 'excel')}>
+              Export as Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport([], 'csv')}>
+              Export as CSV
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       }
     >
       <div className="p-6 space-y-6">

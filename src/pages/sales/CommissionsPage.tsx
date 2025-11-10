@@ -10,6 +10,13 @@ import { CommissionBulkActions } from "@/components/sales/CommissionBulkActions"
 import { getAllCommissions, getCommissionStats } from "@/lib/salesCommissionStorage";
 import { CommissionStatus } from "@/types/salesCommission";
 import { useToast } from "@/hooks/use-toast";
+import { exportCommissions } from "@/lib/salesExportService";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function CommissionsPage() {
   const { toast } = useToast();
@@ -39,14 +46,16 @@ export default function CommissionsPage() {
     setAgentFilter('all');
   };
 
-  const handleExport = (selectedIds: string[]) => {
+  const handleExport = (selectedIds: string[], format: 'csv' | 'excel' = 'excel') => {
     const dataToExport = selectedIds.length > 0
       ? allCommissions.filter(c => selectedIds.includes(c.id))
       : filteredCommissions;
     
+    exportCommissions(dataToExport, format, 'sales-commissions');
+    
     toast({
-      title: "Exporting Commissions",
-      description: `Exporting ${dataToExport.length} commission records...`,
+      title: "Export Complete",
+      description: `Exported ${dataToExport.length} commissions as ${format.toUpperCase()}`,
     });
   };
 
@@ -74,10 +83,22 @@ export default function CommissionsPage() {
   return (
     <DashboardPageLayout
       breadcrumbActions={
-        <Button variant="outline" size="sm" onClick={() => handleExport([])}>
-          <Download className="h-4 w-4 mr-2" />
-          Export
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem onClick={() => handleExport([], 'excel')}>
+              Export as Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport([], 'csv')}>
+              Export as CSV
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       }
     >
       <div className="p-6 space-y-6">
