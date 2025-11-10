@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Eye, CalendarOff } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Eye, CalendarOff, Filter, X } from 'lucide-react';
 import type { WorkloadData } from '@/lib/consultantWorkloadUtils';
 import { getCapacityBgColor } from '@/lib/consultantWorkloadUtils';
 import { cn } from '@/lib/utils';
@@ -37,6 +38,35 @@ const SERVICE_TYPE_LABELS = {
 export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) {
   const navigate = useNavigate();
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [serviceTypeFilter, setServiceTypeFilter] = useState<string>('all');
+
+  // Filter data based on selected filters
+  const filteredData = useMemo(() => {
+    let filtered = [...data];
+
+    // Filter by status
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(consultant => consultant.status === statusFilter);
+    }
+
+    // Filter by service type
+    if (serviceTypeFilter !== 'all') {
+      filtered = filtered.filter(consultant => {
+        const breakdown = consultant.serviceCountBreakdown;
+        return breakdown[serviceTypeFilter as keyof typeof breakdown] > 0;
+      });
+    }
+
+    return filtered;
+  }, [data, statusFilter, serviceTypeFilter]);
+
+  const hasActiveFilters = statusFilter !== 'all' || serviceTypeFilter !== 'all';
+
+  const clearFilters = () => {
+    setStatusFilter('all');
+    setServiceTypeFilter('all');
+  };
 
   const getInitials = (name: string) => {
     const parts = name.split(' ');
@@ -65,9 +95,61 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
 
   return (
     <Card className="overflow-hidden" data-workload-table>
-      <div className="p-6 border-b">
-        <h3 className="text-lg font-semibold">Detailed Consultant Workload</h3>
-        <p className="text-sm text-muted-foreground">Click a row to view service details</p>
+      <div className="p-6 border-b space-y-4">
+        <div>
+          <h3 className="text-lg font-semibold">Detailed Consultant Workload</h3>
+          <p className="text-sm text-muted-foreground">Click a row to view service details</p>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">Filters:</span>
+          </div>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px] bg-background">
+              <SelectValue placeholder="All Statuses" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="available">Available</SelectItem>
+              <SelectItem value="busy">Busy</SelectItem>
+              <SelectItem value="at-capacity">At Capacity</SelectItem>
+              <SelectItem value="overloaded">Overloaded</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={serviceTypeFilter} onValueChange={setServiceTypeFilter}>
+            <SelectTrigger className="w-[220px] bg-background">
+              <SelectValue placeholder="All Service Types" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              <SelectItem value="all">All Service Types</SelectItem>
+              <SelectItem value="shortlisting">Shortlisting</SelectItem>
+              <SelectItem value="full-service">Full Service</SelectItem>
+              <SelectItem value="executive-search-under-100k">Exec. Search &lt;$100k</SelectItem>
+              <SelectItem value="executive-search-over-100k">Exec. Search &gt;$100k</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="h-9 px-2 lg:px-3"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Clear Filters
+            </Button>
+          )}
+
+          <span className="text-sm text-muted-foreground ml-auto">
+            Showing {filteredData.length} of {data.length} consultants
+          </span>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -86,7 +168,7 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
             </tr>
           </thead>
           <tbody className="divide-y">
-            {data.map((consultant) => (
+            {filteredData.map((consultant) => (
               <>
                 <tr
                   key={consultant.consultantId}
@@ -303,6 +385,15 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
       {data.length === 0 && (
         <div className="p-8 text-center text-muted-foreground">
           No consultant data available
+        </div>
+      )}
+
+      {data.length > 0 && filteredData.length === 0 && (
+        <div className="p-8 text-center text-muted-foreground">
+          <p className="mb-2">No consultants match the selected filters</p>
+          <Button variant="link" onClick={clearFilters}>
+            Clear Filters
+          </Button>
         </div>
       )}
     </Card>
