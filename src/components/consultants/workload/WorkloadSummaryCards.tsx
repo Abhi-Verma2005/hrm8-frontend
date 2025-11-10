@@ -31,6 +31,7 @@ export function WorkloadSummaryCards({ summary }: WorkloadSummaryCardsProps) {
         title="Total Active"
         value={summary.totalActive.toString()}
         change={`${avgHoursPerConsultant}h avg per consultant`}
+        trend="up"
         {...totalActiveConfig}
       />
 
@@ -38,6 +39,7 @@ export function WorkloadSummaryCards({ summary }: WorkloadSummaryCardsProps) {
         title="At Capacity"
         value={summary.atCapacity.toString()}
         change={`${atCapacityPercent}% of team`}
+        trend={summary.atCapacity > 0 ? "up" : "down"}
         {...atCapacityConfig}
       />
 
@@ -45,6 +47,7 @@ export function WorkloadSummaryCards({ summary }: WorkloadSummaryCardsProps) {
         title="Available"
         value={summary.available.toString()}
         change={`${availablePercent}% of team`}
+        trend={summary.available > 0 ? "up" : "down"}
         {...availableConfig}
       />
 
@@ -52,6 +55,7 @@ export function WorkloadSummaryCards({ summary }: WorkloadSummaryCardsProps) {
         title="Overloaded"
         value={summary.overloaded.toString()}
         change="Requires attention"
+        trend={summary.overloaded > 0 ? "up" : "down"}
         {...overloadedConfig}
       />
     </div>

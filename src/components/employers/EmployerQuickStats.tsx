@@ -48,6 +48,7 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
         title="Subscription"
         value={getTierLabel(employer.subscriptionTier)}
         change={employer.status.charAt(0).toUpperCase() + employer.status.slice(1)}
+        trend={employer.status === 'active' ? 'up' : 'down'}
         {...subscriptionConfig}
       />
       
@@ -55,6 +56,7 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
         title="Capacity"
         value={`${metrics.activeJobs}/${employer.totalJobsPosted || 0}`}
         change={`${employer.currentUsers}/${employer.maxUsers === Infinity ? '∞' : employer.maxUsers} Users`}
+        trend={metrics.activeJobs > 0 ? 'up' : 'down'}
         {...capacityConfig}
       />
       
@@ -64,6 +66,7 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
         change={`$${metrics.monthlyRevenue}/mo MRR`}
         isCurrency={true}
         rawValue={metrics.lifetimeValue}
+        trend={metrics.lifetimeValue > 0 ? 'up' : 'down'}
         {...financialConfig}
       />
       
@@ -73,6 +76,7 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
           `${Math.floor(metrics.daysAsCustomer / 30)} months` : 
           `${Math.floor(metrics.daysAsCustomer / 365)} years`}
         change={formatActivity()}
+        trend="up"
         {...activityConfig}
       />
     </div>

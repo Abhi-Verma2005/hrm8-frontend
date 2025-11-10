@@ -18,9 +18,12 @@ export function useCardConfig(title: string): UseCardConfigResult {
   const config = getCardConfig(title);
 
   if (!config) {
+    // Return defensive defaults for missing configurations
     return {
       icon: null,
+      variant: 'neutral',
       showMenu: false,
+      menuItems: [],
     };
   }
 
