@@ -117,6 +117,7 @@ import Calendar from "./pages/Calendar";
 import CollaborativeFeedback from "./pages/CollaborativeFeedback";
 import NotificationCenter from "./pages/NotificationCenter";
 import FeedbackTemplates from "./pages/FeedbackTemplates";
+import QuestionnaireTemplates from "./pages/QuestionnaireTemplates";
 import FeedbackDashboard from "./pages/FeedbackDashboard";
 import SkillsManagement from "./pages/SkillsManagement";
 import NotificationsCenter from "./pages/NotificationsCenter";
@@ -275,7 +276,8 @@ function AppContent() {
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/collaborative-feedback" element={<CollaborativeFeedback />} />
             <Route path="/notifications" element={<NotificationCenter />} />
-            <Route path="/feedback-templates" element={<FeedbackTemplates />} />
+          <Route path="/feedback-templates" element={<FeedbackTemplates />} />
+          <Route path="/questionnaire-templates" element={<QuestionnaireTemplates />} />
             <Route path="/feedback-dashboard" element={<FeedbackDashboard />} />
             <Route path="/skills-management" element={<SkillsManagement />} />
             <Route path="/notifications-center" element={<NotificationsCenter />} />
