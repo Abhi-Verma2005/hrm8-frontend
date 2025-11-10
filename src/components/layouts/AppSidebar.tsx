@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
-import { Home, LayoutDashboard, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building2, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare, Handshake, UserSquare, Server, Bell, Map } from "lucide-react";
+import { Home, LayoutGrid, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building2, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare, Handshake, UserSquare, Server, Bell, Map, CircleDollarSign, LineChart, FileCheck, FileSignature, ShieldCheck, PieChart, MailPlus, Inbox, Award, HeartHandshake, Banknote, Settings2, ScrollText, UserRound } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 
@@ -16,7 +16,7 @@ import { usePermissions } from "@/hooks/usePermissions";
 // MAIN NAVIGATION
 const mainNavItems = [
   { title: "Home", url: "/home", icon: Home },
-  { title: "Dashboards", url: "/dashboard/overview", icon: LayoutDashboard },
+  { title: "Dashboards", url: "/dashboard/overview", icon: LayoutGrid },
 ];
 
 // ATS (Applicant Tracking System) Section
@@ -41,7 +41,7 @@ const atsNavItems = [
       { title: "Pipeline Board", url: "/candidates/pipeline" },
     ]
   },
-  { title: "Applications", url: "/applications", icon: FileText },
+  { title: "Applications", url: "/applications", icon: FileCheck },
   { title: "Requisitions", url: "/requisitions", icon: ClipboardList },
   { 
     title: "Interviews", 
@@ -57,25 +57,25 @@ const atsNavItems = [
   { 
     title: "Offers", 
     url: "/offers", 
-    icon: Mail,
+    icon: FileSignature,
     subItems: [
       { title: "All Offers", url: "/offers" },
       { title: "Management", url: "/offers/manage" },
     ]
   },
-  { title: "Background Checks", url: "/background-checks", icon: Shield },
+  { title: "Background Checks", url: "/background-checks", icon: ShieldCheck },
 ];
 
 // SALES Section
 const salesNavItems = [
   { title: "Sales Dashboard", url: "/sales/dashboard", icon: TrendingUp },
-  { title: "Sales Team", url: "/sales/team", icon: Users },
+  { title: "Sales Team", url: "/sales/team", icon: UserCog },
   { title: "Pipeline", url: "/sales/pipeline", icon: Target },
-  { title: "Opportunities", url: "/sales/opportunities", icon: Briefcase },
+  { title: "Opportunities", url: "/sales/opportunities", icon: CircleDollarSign },
   { title: "Activities", url: "/sales/activities", icon: BarChart3 },
   { title: "Commissions", url: "/sales/commissions", icon: DollarSign },
   { title: "Territories", url: "/sales/territories", icon: Map },
-  { title: "Forecast", url: "/sales/forecast", icon: TrendingUp },
+  { title: "Forecast", url: "/sales/forecast", icon: LineChart },
 ];
 
 // OPERATIONS Section
@@ -86,7 +86,7 @@ const operationsNavItems = [
   { 
     title: "RPO", 
     url: "/rpo", 
-    icon: FileText,
+    icon: UserRound,
     subItems: [
       { title: "Overview", url: "/rpo" },
       { title: "Contracts", url: "/rpo/contracts" },
@@ -97,12 +97,12 @@ const operationsNavItems = [
       { title: "Revenue Forecast", url: "/rpo/forecast" },
     ]
   },
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Analytics", url: "/analytics", icon: PieChart },
   { title: "Calendar", url: "/calendar", icon: Calendar },
   { title: "Internal Jobs", url: "/internal-jobs", icon: UserSquare },
-  { title: "Email Templates", url: "/email-templates", icon: Mail },
+  { title: "Email Templates", url: "/email-templates", icon: MailPlus },
   { title: "Import/Export", url: "/import-export", icon: FileBarChart },
-  { title: "Inbox", url: "/inbox", icon: Mail },
+  { title: "Inbox", url: "/inbox", icon: Inbox },
 ];
 
 // HR MANAGEMENT Section
@@ -110,7 +110,7 @@ const hrManagementNavItems = [
   { 
     title: "Employees", 
     url: "/hrms", 
-    icon: Heart,
+    icon: UserCheck,
     subItems: [
       { title: "Employees", url: "/hrms" },
       { title: "Analytics", url: "/hrms/analytics" },
@@ -118,7 +118,7 @@ const hrManagementNavItems = [
     ]
   },
   { title: "Onboarding", url: "/onboarding", icon: UserCog },
-  { title: "Performance", url: "/performance", icon: TrendingUp },
+  { title: "Performance", url: "/performance", icon: Award },
   { title: "Talent Development", url: "/talent-development", icon: GraduationCap },
   { title: "Leave Management", url: "/leave", icon: CalendarDays },
   { title: "Time & Attendance", url: "/attendance", icon: Clock },
@@ -129,18 +129,18 @@ const hrManagementNavItems = [
   { title: "Documents", url: "/documents", icon: FolderOpen },
   { title: "Offboarding", url: "/offboarding", icon: UserMinus },
   { title: "Self-Service", url: "/ess", icon: User },
-  { title: "Compliance", url: "/compliance", icon: Shield },
-  { title: "Employee Relations", url: "/employee-relations", icon: Shield },
+  { title: "Compliance", url: "/compliance", icon: ScrollText },
+  { title: "Employee Relations", url: "/employee-relations", icon: MessageSquare },
   { title: "Role Management", url: "/role-management", icon: Crown },
   { title: "Accrual Policies", url: "/accrual-policies", icon: CalendarClock },
   { title: "Workforce Planning", url: "/workforce-planning", icon: BarChart2 },
-  { title: "Benefits Admin", url: "/benefits-admin", icon: Heart },
+  { title: "Benefits Admin", url: "/benefits-admin", icon: HeartHandshake },
 ];
 
 // MANAGEMENT Section
 const managementNavItems = [
   { title: "Users", url: "/users", icon: UsersRound },
-  { title: "Finance", url: "/finance", icon: DollarSign },
+  { title: "Finance", url: "/finance", icon: Banknote },
   { title: "Integrations", url: "/integrations", icon: Plug },
   { title: "Reports", url: "/reports", icon: FileBarChart },
 ];
@@ -155,7 +155,7 @@ const integrationsNavItems = [
 
 // SYSTEM Section
 const systemNavItems = [
-  { title: "Admin Settings", url: "/admin-settings", icon: Shield },
+  { title: "Admin Settings", url: "/admin-settings", icon: Settings2 },
   { title: "Support Tickets", url: "/support-tickets", icon: Ticket },
   { title: "System Monitoring", url: "/system-monitoring", icon: Server },
   { title: "Notification Settings", url: "/notification-preferences", icon: Bell },
