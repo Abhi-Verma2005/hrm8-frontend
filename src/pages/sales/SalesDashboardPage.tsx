@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
+import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
 import { Card } from "@/components/ui/card";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
@@ -113,6 +114,16 @@ export default function SalesDashboardPage() {
           <h1 className="text-3xl font-bold">Sales Dashboard</h1>
           <p className="text-muted-foreground mt-2">Monitor sales performance, pipeline, and team activity</p>
         </div>
+
+        {/* Active Filters Indicator */}
+        <ActiveFiltersIndicator
+          selectedCountry={selectedCountry}
+          selectedRegion={selectedRegion}
+          dateRange={dateRange}
+          onClearCountry={() => setSelectedCountry("all")}
+          onClearRegion={() => setSelectedRegion("all")}
+          onClearDateRange={() => setDateRange(undefined)}
+        />
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

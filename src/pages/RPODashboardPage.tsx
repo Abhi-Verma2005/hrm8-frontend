@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { RPOOverviewCards } from '@/components/rpo/RPOOverviewCards';
 import { DashboardActionBar } from '@/components/dashboard/DashboardActionBar';
+import { ActiveFiltersIndicator } from '@/components/dashboard/ActiveFiltersIndicator';
 import { RPOContractsList } from '@/components/rpo/RPOContractsList';
 import { RPORevenueForecastChart } from '@/components/rpo/RPORevenueForecastChart';
 import { RPOConsultantAvailabilityTracker } from '@/components/rpo/RPOConsultantAvailabilityTracker';
@@ -89,11 +90,21 @@ export default function RPODashboardPage() {
             <h1 className="text-3xl font-bold">RPO Contracts Dashboard</h1>
           </div>
           <p className="text-muted-foreground">
-            Track dedicated consultants, monthly retainers, and contract timelines for all RPO services
-          </p>
-        </div>
+          Track dedicated consultants, monthly retainers, and contract timelines for all RPO services
+        </p>
+      </div>
 
-        <RPOOverviewCards metrics={filteredMetrics} />
+      {/* Active Filters Indicator */}
+      <ActiveFiltersIndicator
+        selectedCountry={selectedCountry}
+        selectedRegion={selectedRegion}
+        dateRange={dateRange}
+        onClearCountry={() => setSelectedCountry("all")}
+        onClearRegion={() => setSelectedRegion("all")}
+        onClearDateRange={() => setDateRange(undefined)}
+      />
+
+      <RPOOverviewCards metrics={filteredMetrics} />
 
         {renewalSummary.critical > 0 && (
           <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">

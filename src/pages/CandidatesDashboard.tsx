@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
+import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
@@ -159,6 +160,16 @@ export default function CandidatesDashboard() {
             />
           )}
         </div>
+
+        {/* Active Filters Indicator */}
+        <ActiveFiltersIndicator
+          selectedCountry={selectedCountry}
+          selectedRegion={selectedRegion}
+          dateRange={dateRange}
+          onClearCountry={() => setSelectedCountry("all")}
+          onClearRegion={() => setSelectedRegion("all")}
+          onClearDateRange={() => setDateRange(undefined)}
+        />
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

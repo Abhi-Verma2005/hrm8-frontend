@@ -4,6 +4,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
+import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { 
   Users, Briefcase, TrendingUp, DollarSign, Download, Eye, Filter as FilterIcon, 
@@ -186,10 +187,20 @@ export default function OverviewDashboardPage() {
                 onResetFilters={handleResetFilters}
                 hasActiveFilters={hasActiveFilters}
               />
-            )}
-          </div>
+          )}
+        </div>
 
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {/* Active Filters Indicator */}
+        <ActiveFiltersIndicator
+          selectedCountry={selectedCountry}
+          selectedRegion={selectedRegion}
+          dateRange={dateRange}
+          onClearCountry={() => setSelectedCountry("all")}
+          onClearRegion={() => setSelectedRegion("all")}
+          onClearDateRange={() => setDateRange(undefined)}
+        />
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <EnhancedStatCard
               title="Total Employees"
               value={filteredTotalEmployees.toString()}

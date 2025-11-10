@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { DashboardActionBar } from '@/components/dashboard/DashboardActionBar';
+import { ActiveFiltersIndicator } from '@/components/dashboard/ActiveFiltersIndicator';
 import { getRPODashboardMetrics } from '@/lib/rpoTrackingUtils';
 import { getRenewalAlertsSummary } from '@/lib/rpoRenewalUtils';
 import { getAllServiceProjects } from '@/lib/recruitmentServiceStorage';
@@ -111,11 +112,21 @@ export default function RPOOverviewPage() {
             </div>
           </div>
           <p className="text-muted-foreground">
-            Comprehensive RPO contract management, consultant allocation, and performance tracking
-          </p>
-        </div>
+          Comprehensive RPO contract management, consultant allocation, and performance tracking
+        </p>
+      </div>
 
-        {/* Metrics Cards */}
+      {/* Active Filters Indicator */}
+      <ActiveFiltersIndicator
+        selectedCountry={selectedCountry}
+        selectedRegion={selectedRegion}
+        dateRange={dateRange}
+        onClearCountry={() => setSelectedCountry("all")}
+        onClearRegion={() => setSelectedRegion("all")}
+        onClearDateRange={() => setDateRange(undefined)}
+      />
+
+      {/* Metrics Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <EnhancedStatCard
             title="Active Contracts"

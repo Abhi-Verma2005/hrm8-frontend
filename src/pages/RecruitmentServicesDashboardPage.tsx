@@ -4,6 +4,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
+import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { 
   Briefcase, Users, Target, TrendingUp, Download, Eye, Filter, 
@@ -163,10 +164,20 @@ export default function RecruitmentServicesDashboardPage() {
                 onResetFilters={handleResetFilters}
                 hasActiveFilters={hasActiveFilters}
               />
-            )}
-          </div>
+          )}
+        </div>
 
-          {/* Key Metrics */}
+        {/* Active Filters Indicator */}
+        <ActiveFiltersIndicator
+          selectedCountry={selectedCountry}
+          selectedRegion={selectedRegion}
+          dateRange={dateRange}
+          onClearCountry={() => setSelectedCountry("all")}
+          onClearRegion={() => setSelectedRegion("all")}
+          onClearDateRange={() => setDateRange(undefined)}
+        />
+
+        {/* Key Metrics */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <EnhancedStatCard
               title="Active Projects"
