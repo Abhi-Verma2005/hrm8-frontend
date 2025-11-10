@@ -4,11 +4,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download, FileText, Table, Eye } from "lucide-react";
+import { Download, FileText, Table, Eye, Save, FolderOpen } from "lucide-react";
 import { exportToCSV, ExportOptions } from "@/utils/exportHelpers";
 import { ExportPreviewDialog } from "./ExportPreviewDialog";
+import { ExportTemplateDialog } from "./ExportTemplateDialog";
+import { ExportTemplateManager } from "./ExportTemplateManager";
+import { ExportTemplate } from "@/lib/exportTemplateStorage";
 import { useToast } from "@/hooks/use-toast";
 
 interface ExportButtonProps {
@@ -17,6 +21,8 @@ interface ExportButtonProps {
   fields?: string[];
   currencyFields?: string[];
   showPreview?: boolean;
+  showTemplates?: boolean;
+  availableFields?: string[];
 }
 
 export function ExportButton({ 
@@ -24,18 +30,27 @@ export function ExportButton({
   filename, 
   fields, 
   currencyFields,
-  showPreview = true 
+  showPreview = true,
+  showTemplates = true,
+  availableFields
 }: ExportButtonProps) {
   const { toast } = useToast();
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [saveTemplateOpen, setSaveTemplateOpen] = useState(false);
+  const [manageTemplatesOpen, setManageTemplatesOpen] = useState(false);
+  const [currentFields, setCurrentFields] = useState<string[] | undefined>(fields);
+  const [currentCurrencyFields, setCurrentCurrencyFields] = useState<string[] | undefined>(currencyFields);
+
+  // Get available fields from data if not provided
+  const fieldsList = availableFields || (data.length > 0 ? Object.keys(data[0]) : []);
 
   const handleExportCSV = () => {
     try {
       let exportData = data;
-      if (fields) {
+      if (currentFields) {
         exportData = data.map(item => {
           const filtered: any = {};
-          fields.forEach(field => {
+          currentFields.forEach(field => {
             filtered[field] = item[field];
           });
           return filtered;
@@ -43,7 +58,7 @@ export function ExportButton({
       }
       
       const options: ExportOptions = {
-        currencyFields: currencyFields
+        currencyFields: currentCurrencyFields
       };
       
       exportToCSV(exportData, filename, options);
@@ -63,6 +78,24 @@ export function ExportButton({
 
   const handlePreview = () => {
     setPreviewOpen(true);
+  };
+
+  const handleSaveTemplate = () => {
+    setSaveTemplateOpen(true);
+  };
+
+  const handleManageTemplates = () => {
+    setManageTemplatesOpen(true);
+  };
+
+  const handleTemplateSelect = (template: ExportTemplate) => {
+    setCurrentFields(template.fields);
+    setCurrentCurrencyFields(template.currencyFields);
+    
+    toast({
+      title: "Template Applied",
+      description: `Using "${template.name}" configuration`,
+    });
   };
 
   const handleExportJSON = () => {
@@ -102,7 +135,7 @@ export function ExportButton({
             Export
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
+        <DropdownMenuContent align="end" className="w-48 bg-background z-50">
           {showPreview && (
             <DropdownMenuItem onClick={handlePreview}>
               <Eye className="h-4 w-4 mr-2" />
@@ -117,6 +150,20 @@ export function ExportButton({
             <FileText className="h-4 w-4 mr-2" />
             Export as JSON
           </DropdownMenuItem>
+          
+          {showTemplates && fieldsList.length > 0 && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSaveTemplate}>
+                <Save className="h-4 w-4 mr-2" />
+                Save as Template
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleManageTemplates}>
+                <FolderOpen className="h-4 w-4 mr-2" />
+                Manage Templates
+              </DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -125,9 +172,26 @@ export function ExportButton({
         onOpenChange={setPreviewOpen}
         data={data}
         filename={filename}
-        fields={fields}
-        currencyFields={currencyFields}
+        fields={currentFields}
+        currencyFields={currentCurrencyFields}
       />
+
+      {showTemplates && fieldsList.length > 0 && (
+        <>
+          <ExportTemplateDialog
+            open={saveTemplateOpen}
+            onOpenChange={setSaveTemplateOpen}
+            availableFields={fieldsList}
+          />
+
+          <ExportTemplateManager
+            open={manageTemplatesOpen}
+            onOpenChange={setManageTemplatesOpen}
+            availableFields={fieldsList}
+            onTemplateSelect={handleTemplateSelect}
+          />
+        </>
+      )}
     </>
   );
 }
