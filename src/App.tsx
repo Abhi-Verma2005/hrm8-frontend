@@ -116,6 +116,14 @@ import SavedSearches from "./pages/SavedSearches";
 import CompensationManagement from "./pages/CompensationManagement";
 import TrainingDevelopment from "./pages/TrainingDevelopment";
 import OnboardingOffboardingDashboard from "./pages/OnboardingOffboardingDashboard";
+import SalesDashboardPage from "./pages/sales/SalesDashboardPage";
+import SalesTeamPage from "./pages/sales/SalesTeamPage";
+import SalesPipelinePage from "./pages/sales/SalesPipelinePage";
+import OpportunitiesPage from "./pages/sales/OpportunitiesPage";
+import SalesActivitiesPage from "./pages/sales/SalesActivitiesPage";
+import CommissionsPage from "./pages/sales/CommissionsPage";
+import TerritoriesPage from "./pages/sales/TerritoriesPage";
+import SalesForecastPage from "./pages/sales/SalesForecastPage";
 import { initializeMockFeedbackData } from './lib/mockFeedbackData';
 import { initializeMockTeamData } from './lib/mockTeamData';
 import { initializeMockTemplates } from './lib/mockTemplateData';
@@ -187,6 +195,16 @@ function AppContent() {
               <Route path="/background-checks" element={<BackgroundChecks />} />
               <Route path="/internal-jobs" element={<InternalJobs />} />
             </Route>
+            {/* Sales Module Routes */}
+            <Route path="/sales/dashboard" element={<SalesDashboardPage />} />
+            <Route path="/sales/team" element={<SalesTeamPage />} />
+            <Route path="/sales/pipeline" element={<SalesPipelinePage />} />
+            <Route path="/sales/opportunities" element={<OpportunitiesPage />} />
+            <Route path="/sales/activities" element={<SalesActivitiesPage />} />
+            <Route path="/sales/commissions" element={<CommissionsPage />} />
+            <Route path="/sales/territories" element={<TerritoriesPage />} />
+            <Route path="/sales/forecast" element={<SalesForecastPage />} />
+            
             <Route path="/employers" element={<Employers />} />
             <Route path="/employers/:employerId" element={<EmployerDetail />} />
             <Route path="/consultants" element={<Consultants />} />

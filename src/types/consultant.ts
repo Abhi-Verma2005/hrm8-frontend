@@ -4,6 +4,23 @@ export type ConsultantStatus = 'active' | 'on-leave' | 'inactive' | 'suspended';
 
 export type EmploymentType = 'full-time' | 'part-time' | 'contract' | 'freelance';
 
+export type PrimaryRole = 'recruitment' | 'sales' | 'both';
+
+export interface SalesMetrics {
+  closedDeals: number;
+  totalSalesRevenue: number;
+  activeOpportunities: number;
+  averageDealSize: number;
+  quotaAttainment: number; // Percentage
+}
+
+export interface RecruitmentMetrics {
+  totalPlacements: number;
+  totalRevenue: number;
+  successRate: number;
+  averageDaysToFill: number;
+}
+
 export interface Consultant {
   id: string;
   firstName: string;
@@ -14,6 +31,7 @@ export interface Consultant {
   
   // Type & Status
   type: ConsultantType;
+  primaryRole: PrimaryRole; // Clarifies if they focus on recruitment, sales, or both
   status: ConsultantStatus;
   employmentType: EmploymentType;
   
@@ -51,6 +69,10 @@ export interface Consultant {
   averageDaysToFill: number;
   clientSatisfaction?: number;
   candidateSatisfaction?: number;
+  
+  // Role-Specific Metrics
+  salesMetrics?: SalesMetrics; // For sales-rep and 360-consultant
+  recruitmentMetrics?: RecruitmentMetrics; // For recruiter and 360-consultant
   
   // Commission
   commissionStructure: 'percentage' | 'flat' | 'tiered' | 'custom';

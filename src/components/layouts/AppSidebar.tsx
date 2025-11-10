@@ -66,10 +66,22 @@ const atsNavItems = [
   { title: "Background Checks", url: "/background-checks", icon: Shield },
 ];
 
+// SALES Section
+const salesNavItems = [
+  { title: "Sales Dashboard", url: "/sales/dashboard", icon: TrendingUp },
+  { title: "Sales Team", url: "/sales/team", icon: Users },
+  { title: "Pipeline", url: "/sales/pipeline", icon: Target },
+  { title: "Opportunities", url: "/sales/opportunities", icon: Briefcase },
+  { title: "Activities", url: "/sales/activities", icon: BarChart3 },
+  { title: "Commissions", url: "/sales/commissions", icon: DollarSign },
+  { title: "Territories", url: "/sales/territories", icon: Map },
+  { title: "Forecast", url: "/sales/forecast", icon: TrendingUp },
+];
+
 // OPERATIONS Section
 const operationsNavItems = [
   { title: "Employers", url: "/employers", icon: Building2 },
-  { title: "Consultants", url: "/consultants", icon: Handshake },
+  { title: "Recruitment Team", url: "/consultants", icon: Handshake },
   { title: "Recruitment Services", url: "/recruitment-services", icon: Target },
   { 
     title: "RPO", 
