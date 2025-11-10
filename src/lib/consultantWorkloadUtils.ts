@@ -20,7 +20,15 @@ export interface WorkloadData {
   serviceHoursBreakdown: {
     shortlisting: number;
     'full-service': number;
-    'executive-search': number;
+    'executive-search-under-100k': number;
+    'executive-search-over-100k': number;
+    rpo: number;
+  };
+  serviceCountBreakdown: {
+    shortlisting: number;
+    'full-service': number;
+    'executive-search-under-100k': number;
+    'executive-search-over-100k': number;
     rpo: number;
   };
   activeServices: Array<{
@@ -91,19 +99,43 @@ export function calculateConsultantWorkload(consultantId: string): WorkloadData 
       service.consultants.some(c => c.id === consultantId)
   );
 
-  // Calculate hours breakdown by service type
+  // Calculate hours and count breakdown by service type
   const serviceHoursBreakdown = {
     shortlisting: 0,
     'full-service': 0,
-    'executive-search': 0,
+    'executive-search-under-100k': 0,
+    'executive-search-over-100k': 0,
+    rpo: 0,
+  };
+
+  const serviceCountBreakdown = {
+    shortlisting: 0,
+    'full-service': 0,
+    'executive-search-under-100k': 0,
+    'executive-search-over-100k': 0,
     rpo: 0,
   };
 
   const activeServices = consultantServices.map(service => {
     const hours = getServiceProjectHours(service);
     
+    // Determine service category
+    let category: keyof typeof serviceHoursBreakdown;
+    
+    if (service.serviceType === 'executive-search') {
+      // Check job salary to categorize
+      const job = service.jobId ? getJobById(service.jobId) : null;
+      const salaryMax = job?.salaryMax || 0;
+      category = salaryMax >= 100000 
+        ? 'executive-search-over-100k' 
+        : 'executive-search-under-100k';
+    } else {
+      category = service.serviceType as keyof typeof serviceHoursBreakdown;
+    }
+    
     // Add to breakdown
-    serviceHoursBreakdown[service.serviceType] += hours;
+    serviceHoursBreakdown[category] += hours;
+    serviceCountBreakdown[category] += 1;
 
     // Calculate expected completion (30 days from now)
     const expectedCompletion = new Date();
@@ -148,6 +180,7 @@ export function calculateConsultantWorkload(consultantId: string): WorkloadData 
     utilizationPercent: Math.round(utilizationPercent),
     status,
     serviceHoursBreakdown,
+    serviceCountBreakdown,
     activeServices,
     timeOffAdjustment,
   };

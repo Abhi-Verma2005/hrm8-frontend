@@ -19,15 +19,19 @@ interface ConsultantWorkloadTableProps {
 const SERVICE_TYPE_COLORS = {
   shortlisting: 'bg-chart-1',
   'full-service': 'bg-chart-2',
-  'executive-search': 'bg-chart-3',
-  rpo: 'bg-chart-4',
+  'executive-search-under-100k': 'bg-chart-3',
+  'executive-search-over-100k': 'bg-chart-4',
+  rpo: 'bg-chart-5',
+  'executive-search': 'bg-chart-3', // fallback for activeServices display
 };
 
 const SERVICE_TYPE_LABELS = {
   shortlisting: 'Shortlisting',
   'full-service': 'Full Service',
-  'executive-search': 'Exec Search',
+  'executive-search-under-100k': 'Exec. Search <$100k',
+  'executive-search-over-100k': 'Exec. Search >$100k',
   rpo: 'RPO',
+  'executive-search': 'Exec Search', // fallback for activeServices display
 };
 
 export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) {
@@ -74,7 +78,10 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
               <th className="text-left p-4 font-medium">Status</th>
               <th className="text-left p-4 font-medium">Hours Assigned</th>
               <th className="text-left p-4 font-medium">Utilization</th>
-              <th className="text-left p-4 font-medium">Services</th>
+              <th className="text-center p-4 font-medium">Shortlisting</th>
+              <th className="text-center p-4 font-medium">Full Service</th>
+              <th className="text-center p-4 font-medium">Exec. Search &lt;$100k</th>
+              <th className="text-center p-4 font-medium">Exec. Search &gt;$100k</th>
               <th className="text-right p-4 font-medium">Actions</th>
             </tr>
           </thead>
@@ -144,26 +151,55 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
                       </span>
                     </div>
                   </td>
-                  <td className="p-4">
-                    <div className="flex flex-wrap gap-1">
-                      {Object.entries(consultant.serviceHoursBreakdown).map(([type, hours]) => {
-                        if (hours === 0) return null;
-                        const serviceType = type as keyof typeof SERVICE_TYPE_COLORS;
-                        return (
-                          <Badge
-                            key={type}
-                            variant="outline"
-                            className={cn("text-xs", SERVICE_TYPE_COLORS[serviceType])}
-                          >
-                            {SERVICE_TYPE_LABELS[serviceType]}: {hours}h
-                          </Badge>
-                        );
-                      })}
-                      {consultant.activeServices.length === 0 && (
-                        <span className="text-sm text-muted-foreground">No services</span>
-                      )}
-                    </div>
+                  
+                  {/* Shortlisting column */}
+                  <td className="p-4 text-center">
+                    <span className={cn(
+                      "inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold",
+                      consultant.serviceCountBreakdown.shortlisting > 0 
+                        ? "bg-chart-1 text-chart-1-foreground" 
+                        : "bg-muted text-muted-foreground"
+                    )}>
+                      {consultant.serviceCountBreakdown.shortlisting}
+                    </span>
                   </td>
+
+                  {/* Full Service column */}
+                  <td className="p-4 text-center">
+                    <span className={cn(
+                      "inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold",
+                      consultant.serviceCountBreakdown['full-service'] > 0 
+                        ? "bg-chart-2 text-chart-2-foreground" 
+                        : "bg-muted text-muted-foreground"
+                    )}>
+                      {consultant.serviceCountBreakdown['full-service']}
+                    </span>
+                  </td>
+
+                  {/* Exec. Search <$100k column */}
+                  <td className="p-4 text-center">
+                    <span className={cn(
+                      "inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold",
+                      consultant.serviceCountBreakdown['executive-search-under-100k'] > 0 
+                        ? "bg-chart-3 text-chart-3-foreground" 
+                        : "bg-muted text-muted-foreground"
+                    )}>
+                      {consultant.serviceCountBreakdown['executive-search-under-100k']}
+                    </span>
+                  </td>
+
+                  {/* Exec. Search >$100k column */}
+                  <td className="p-4 text-center">
+                    <span className={cn(
+                      "inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold",
+                      consultant.serviceCountBreakdown['executive-search-over-100k'] > 0 
+                        ? "bg-chart-4 text-chart-4-foreground" 
+                        : "bg-muted text-muted-foreground"
+                    )}>
+                      {consultant.serviceCountBreakdown['executive-search-over-100k']}
+                    </span>
+                  </td>
+
                   <td className="p-4">
                     <div className="flex items-center justify-end gap-2">
                       <Button
@@ -184,7 +220,7 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
                 {/* Expanded row with service details */}
                 {expandedRow === consultant.consultantId && (
                   <tr>
-                    <td colSpan={6} className="p-4 bg-muted/20">
+                    <td colSpan={9} className="p-4 bg-muted/20">
                       <div className="space-y-4">
                         {/* Time Off Section */}
                         {consultant.timeOffAdjustment && (
