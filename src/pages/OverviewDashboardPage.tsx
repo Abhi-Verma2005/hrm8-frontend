@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { 
-  Users, Briefcase, TrendingUp, DollarSign, Download, Eye, Filter, 
+  Users, Briefcase, TrendingUp, DollarSign, Download, Eye, Filter as FilterIcon, 
   BarChart3, Building2, Target, CheckCircle 
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,17 @@ import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from "recharts";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { subMonths, isWithinInterval, startOfMonth, endOfMonth } from "date-fns";
 
 const hiringTrends = [
   { month: 'Jan', hires: 45, applications: 320, interviews: 128 },
@@ -57,9 +68,62 @@ export default function OverviewDashboardPage() {
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+
+  // Filter data based on date range
+  const filteredHiringTrends = useMemo(() => {
+    if (!dateRange?.from) return hiringTrends;
+    
+    return hiringTrends.filter((item) => {
+      const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
+      return isWithinInterval(itemDate, {
+        start: dateRange.from!,
+        end: dateRange.to || dateRange.from!,
+      });
+    });
+  }, [dateRange]);
+
+  const filteredRevenueExpenses = useMemo(() => {
+    if (!dateRange?.from) return revenueExpenses;
+    
+    return revenueExpenses.filter((item) => {
+      const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
+      return isWithinInterval(itemDate, {
+        start: dateRange.from!,
+        end: dateRange.to || dateRange.from!,
+      });
+    });
+  }, [dateRange]);
+
+  const filteredEmployeeDistribution = useMemo(() => {
+    if (selectedDepartment === "all") return employeeDistribution;
+    return employeeDistribution.filter(item => item.department === selectedDepartment);
+  }, [selectedDepartment]);
+
+  const filteredProjectPipeline = useMemo(() => {
+    if (selectedStatus === "all") return projectPipeline;
+    return projectPipeline.filter(item => item.status === selectedStatus);
+  }, [selectedStatus]);
 
   const handleExport = () => {
-    toast({ title: "Exporting overview data..." });
+    const filters = {
+      dateRange,
+      department: selectedDepartment,
+      status: selectedStatus,
+    };
+    toast({ 
+      title: "Exporting overview data...", 
+      description: `Applying ${Object.values(filters).filter(Boolean).length} filter(s)`
+    });
+  };
+
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setSelectedDepartment("all");
+    setSelectedStatus("all");
+    toast({ title: "Filters reset" });
   };
 
   return (
@@ -85,6 +149,65 @@ export default function OverviewDashboardPage() {
                   placeholder="Select period"
                   align="end"
                 />
+
+                <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <FilterIcon className="h-4 w-4 mr-2" />
+                      Filters
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Dashboard Filters</DialogTitle>
+                      <DialogDescription>
+                        Apply filters to customize your dashboard view
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label>Department</Label>
+                        <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Departments</SelectItem>
+                            {employeeDistribution.map(dept => (
+                              <SelectItem key={dept.department} value={dept.department}>
+                                {dept.department}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Project Status</Label>
+                        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Statuses</SelectItem>
+                            {projectPipeline.map(status => (
+                              <SelectItem key={status.status} value={status.status}>
+                                {status.status}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button onClick={handleResetFilters} variant="outline" className="flex-1">
+                          Reset Filters
+                        </Button>
+                        <Button onClick={() => setFilterDialogOpen(false)} className="flex-1">
+                          Apply
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 
                 <Button variant="secondary" size="sm" onClick={handleExport}>
                   <Download className="h-4 w-4 mr-2" />
@@ -163,19 +286,19 @@ export default function OverviewDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <StandardChartCard
               title="Hiring Trends"
-              description="Monthly hiring activity"
+              description={`Monthly hiring activity${dateRange?.from ? ' (filtered)' : ''}`}
               showDatePicker={true}
               dateRange={dateRange}
               onDateRangeChange={setDateRange}
               onDownload={() => toast({ title: "Downloading hiring trends..." })}
               menuItems={[
-                { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/analytics') },
+                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setDateRange(undefined) },
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={hiringTrends}>
+                <LineChart data={filteredHiringTrends}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -190,19 +313,19 @@ export default function OverviewDashboardPage() {
 
             <StandardChartCard
               title="Revenue vs Expenses"
-              description="Financial performance comparison"
+              description={`Financial performance comparison${dateRange?.from ? ' (filtered)' : ''}`}
               showDatePicker={true}
               dateRange={dateRange}
               onDateRangeChange={setDateRange}
               onDownload={() => toast({ title: "Downloading financial data..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/finance') },
-                { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setDateRange(undefined) },
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={revenueExpenses}>
+                <BarChart data={filteredRevenueExpenses}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -216,18 +339,18 @@ export default function OverviewDashboardPage() {
 
             <StandardChartCard
               title="Employee Distribution"
-              description="By department"
+              description={`By department${selectedDepartment !== 'all' ? ` (${selectedDepartment})` : ''}`}
               onDownload={() => toast({ title: "Downloading employee data..." })}
               menuItems={[
                 { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/hrms') },
-                { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                { label: "Filter Department", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setFilterDialogOpen(true) },
+                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setSelectedDepartment("all") }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={employeeDistribution}
+                    data={filteredEmployeeDistribution}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
@@ -247,16 +370,16 @@ export default function OverviewDashboardPage() {
 
             <StandardChartCard
               title="Project Pipeline"
-              description="Projects by status"
+              description={`Projects by status${selectedStatus !== 'all' ? ` (${selectedStatus})` : ''}`}
               onDownload={() => toast({ title: "Downloading pipeline data..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/recruitment-services') },
-                { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                { label: "Filter Status", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setFilterDialogOpen(true) },
+                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setSelectedStatus("all") }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={projectPipeline}>
+                <BarChart data={filteredProjectPipeline}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="status" />
                   <YAxis />

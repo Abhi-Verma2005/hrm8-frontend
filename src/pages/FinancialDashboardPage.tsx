@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { 
-  DollarSign, TrendingUp, TrendingDown, CreditCard, Download, Eye, Filter, 
+  DollarSign, TrendingUp, TrendingDown, CreditCard, Download, Eye, Filter as FilterIcon, 
   BarChart3, PieChart as PieChartIcon, Wallet
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -16,6 +16,17 @@ import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from "recharts";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { isWithinInterval } from "date-fns";
 
 const revenueExpenses = [
   { month: 'Jan', revenue: 245000, expenses: 182000, profit: 63000 },
@@ -56,9 +67,50 @@ export default function FinancialDashboardPage() {
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+
+  // Filter data based on date range
+  const filteredRevenueExpenses = useMemo(() => {
+    if (!dateRange?.from) return revenueExpenses;
+    
+    return revenueExpenses.filter((item) => {
+      const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
+      return isWithinInterval(itemDate, {
+        start: dateRange.from!,
+        end: dateRange.to || dateRange.from!,
+      });
+    });
+  }, [dateRange]);
+
+  const filteredPayrollTrends = useMemo(() => {
+    if (!dateRange?.from) return payrollTrends;
+    
+    return payrollTrends.filter((item) => {
+      const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
+      return isWithinInterval(itemDate, {
+        start: dateRange.from!,
+        end: dateRange.to || dateRange.from!,
+      });
+    });
+  }, [dateRange]);
+
+  const filteredCostBreakdown = useMemo(() => {
+    if (selectedCategory === "all") return costBreakdown;
+    return costBreakdown.filter(item => item.name === selectedCategory);
+  }, [selectedCategory]);
 
   const handleExport = () => {
-    toast({ title: "Exporting financial data..." });
+    toast({ 
+      title: "Exporting financial data...",
+      description: dateRange?.from ? "Applying date filter" : undefined
+    });
+  };
+
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setSelectedCategory("all");
+    toast({ title: "Filters reset" });
   };
 
   return (
@@ -84,6 +136,49 @@ export default function FinancialDashboardPage() {
                   placeholder="Select period"
                   align="end"
                 />
+
+                <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      <FilterIcon className="h-4 w-4 mr-2" />
+                      Filters
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Financial Filters</DialogTitle>
+                      <DialogDescription>
+                        Apply filters to customize your financial view
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label>Expense Category</Label>
+                        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Categories</SelectItem>
+                            {costBreakdown.map(cat => (
+                              <SelectItem key={cat.name} value={cat.name}>
+                                {cat.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button onClick={handleResetFilters} variant="outline" className="flex-1">
+                          Reset Filters
+                        </Button>
+                        <Button onClick={() => setFilterDialogOpen(false)} className="flex-1">
+                          Apply
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
                 
                 <Button variant="secondary" size="sm" onClick={handleExport}>
                   <Download className="h-4 w-4 mr-2" />
@@ -139,7 +234,7 @@ export default function FinancialDashboardPage() {
               showMenu={true}
               menuItems={[
                 { label: "View Trend", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                { label: "Compare Periods", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                { label: "Compare Periods", icon: <FilterIcon className="h-4 w-4" />, onClick: () => {} },
                 { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             />
@@ -173,12 +268,12 @@ export default function FinancialDashboardPage() {
               onDownload={() => toast({ title: "Downloading financial comparison..." })}
               menuItems={[
                 { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setDateRange(undefined) },
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={revenueExpenses}>
+                <BarChart data={filteredRevenueExpenses}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -199,8 +294,8 @@ export default function FinancialDashboardPage() {
               onDownload={() => toast({ title: "Downloading budget analysis..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                { label: "Adjust Budget", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                { label: "Adjust Budget", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setFilterDialogOpen(true) },
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
@@ -222,14 +317,14 @@ export default function FinancialDashboardPage() {
               onDownload={() => toast({ title: "Downloading cost breakdown..." })}
               menuItems={[
                 { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                { label: "Filter Category", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setFilterDialogOpen(true) },
+                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setSelectedCategory("all") }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={costBreakdown}
+                    data={filteredCostBreakdown}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
@@ -261,7 +356,7 @@ export default function FinancialDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={payrollTrends}>
+                <AreaChart data={filteredPayrollTrends}>
                   <defs>
                     <linearGradient id="colorPayroll" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
