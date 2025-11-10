@@ -9,6 +9,7 @@ import { RPONotifications } from '@/components/rpo/RPONotifications';
 import { RPOConsultantPerformanceDashboard } from '@/components/rpo/RPOConsultantPerformanceDashboard';
 import { RPOConsultantSkillMatrix } from '@/components/rpo/RPOConsultantSkillMatrix';
 import { RPOWorkloadBalancingDashboard } from '@/components/rpo/RPOWorkloadBalancingDashboard';
+import { RPOPerformanceReviewSystem } from '@/components/rpo/RPOPerformanceReviewSystem';
 import { LayoutDashboard } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -38,14 +39,15 @@ export default function RPODashboardPage() {
         </div>
 
         <Tabs defaultValue="notifications" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9">
+          <TabsList className="grid w-full grid-cols-10">
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
             <TabsTrigger value="skills">Skills</TabsTrigger>
             <TabsTrigger value="workload">Workload</TabsTrigger>
-            <TabsTrigger value="suggestions">AI Suggestions</TabsTrigger>
+            <TabsTrigger value="suggestions">AI</TabsTrigger>
             <TabsTrigger value="renewals">Renewals</TabsTrigger>
-            <TabsTrigger value="sla">SLA Tracking</TabsTrigger>
+            <TabsTrigger value="sla">SLA</TabsTrigger>
             <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
             <TabsTrigger value="reports">Reports</TabsTrigger>
           </TabsList>
@@ -56,6 +58,10 @@ export default function RPODashboardPage() {
 
           <TabsContent value="performance" className="space-y-6">
             <RPOConsultantPerformanceDashboard />
+          </TabsContent>
+
+          <TabsContent value="reviews" className="space-y-6">
+            <RPOPerformanceReviewSystem />
           </TabsContent>
 
           <TabsContent value="skills" className="space-y-6">
