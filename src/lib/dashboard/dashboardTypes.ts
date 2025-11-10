@@ -181,7 +181,7 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
     name: 'RPO',
     description: 'Recruitment Process Outsourcing operations',
     icon: UserRound,
-    defaultRoute: '/rpo/dashboard',
+    defaultRoute: '/rpo',
     availableWidgets: [
       'stat-active-projects',
       'stat-total-candidates',
