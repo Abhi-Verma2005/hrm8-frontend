@@ -2,7 +2,7 @@ import {
   Eye, Plus, Filter, Download, Settings, RefreshCw, 
   Users, Briefcase, FileText, UserCheck, Building2, 
   DollarSign, Calendar, FolderKanban, UserCircle,
-  TrendingUp, BarChart3, Mail, Phone
+  TrendingUp, BarChart3, Mail, Phone, Target
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -21,6 +21,44 @@ export interface CardActionMap {
 }
 
 // Dashboard-specific action mappings
+export const OVERVIEW_DASHBOARD_ACTIONS: CardActionMap = {
+  'Active Jobs': {
+    icon: Briefcase,
+    actions: [
+      { label: 'View all jobs', icon: Eye, path: '/jobs' },
+      { label: 'Create new job', icon: Plus, path: '/jobs?action=create' },
+      { label: 'View analytics', icon: BarChart3, path: '/dashboard/jobs' },
+      { label: 'Export data', icon: Download },
+    ],
+  },
+  'Total Employees': {
+    icon: UserCircle,
+    actions: [
+      { label: 'View all employees', icon: Users, path: '/candidates' },
+      { label: 'Add employee', icon: Plus, path: '/candidates?action=create' },
+      { label: 'View org chart', icon: Building2, path: '/analytics' },
+      { label: 'Export data', icon: Download },
+    ],
+  },
+  'Total Revenue': {
+    icon: DollarSign,
+    actions: [
+      { label: 'View financial report', icon: BarChart3, path: '/dashboard/financial' },
+      { label: 'View trends', icon: TrendingUp, path: '/dashboard/financial' },
+      { label: 'Export data', icon: Download },
+    ],
+  },
+  'Active Projects': {
+    icon: FolderKanban,
+    actions: [
+      { label: 'View all projects', icon: Eye, path: '/jobs' },
+      { label: 'Create project', icon: Plus, path: '/jobs?action=create' },
+      { label: 'View pipeline', icon: Filter, path: '/jobs?view=pipeline' },
+      { label: 'Export data', icon: Download },
+    ],
+  },
+};
+
 export const JOBS_DASHBOARD_ACTIONS: CardActionMap = {
   'Active Jobs': {
     icon: Briefcase,
@@ -290,12 +328,48 @@ export const SALES_DASHBOARD_ACTIONS: CardActionMap = {
   },
 };
 
+export const RECRUITMENT_SERVICES_DASHBOARD_ACTIONS: CardActionMap = {
+  'Active Projects': {
+    icon: FolderKanban,
+    actions: [
+      { label: 'View all projects', icon: Eye, path: '/recruitment-services' },
+      { label: 'Create project', icon: Plus, path: '/recruitment-services?action=create' },
+      { label: 'View pipeline', icon: Filter, path: '/recruitment-services' },
+    ],
+  },
+  'Shortlisting': {
+    icon: Users,
+    actions: [
+      { label: 'View shortlisting projects', icon: Eye, path: '/recruitment-services?type=shortlisting' },
+      { label: 'Create project', icon: Plus, path: '/recruitment-services?action=create&type=shortlisting' },
+      { label: 'View candidates', icon: Users, path: '/candidates' },
+    ],
+  },
+  'Full-Service': {
+    icon: Briefcase,
+    actions: [
+      { label: 'View full-service projects', icon: Eye, path: '/recruitment-services?type=full-service' },
+      { label: 'Create project', icon: Plus, path: '/recruitment-services?action=create&type=full-service' },
+      { label: 'View pipeline', icon: Filter, path: '/recruitment-services' },
+    ],
+  },
+  'Executive Search': {
+    icon: Target,
+    actions: [
+      { label: 'View executive projects', icon: Eye, path: '/recruitment-services?type=executive-search' },
+      { label: 'Create project', icon: Plus, path: '/recruitment-services?action=create&type=executive-search' },
+      { label: 'View candidates', icon: Users, path: '/candidates' },
+    ],
+  },
+};
+
 // Helper function to get actions for a card based on dashboard type
 export function getCardActions(
   cardTitle: string,
   dashboardType: string
 ): { icon: LucideIcon; actions?: CardAction[] } | null {
   const actionMaps: Record<string, CardActionMap> = {
+    overview: OVERVIEW_DASHBOARD_ACTIONS,
     jobs: JOBS_DASHBOARD_ACTIONS,
     hrms: HRMS_DASHBOARD_ACTIONS,
     financial: FINANCIAL_DASHBOARD_ACTIONS,
@@ -304,6 +378,7 @@ export function getCardActions(
     candidates: CANDIDATES_DASHBOARD_ACTIONS,
     employers: EMPLOYERS_DASHBOARD_ACTIONS,
     sales: SALES_DASHBOARD_ACTIONS,
+    'recruitment-services': RECRUITMENT_SERVICES_DASHBOARD_ACTIONS,
   };
 
   const actionMap = actionMaps[dashboardType];
