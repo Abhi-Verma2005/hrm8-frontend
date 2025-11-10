@@ -206,7 +206,23 @@ export const RPO_DASHBOARD_ACTIONS: CardActionMap = {
       { label: 'View pipeline', icon: Filter, path: '/jobs?view=pipeline' },
     ],
   },
+  'Active Projects': {
+    icon: FolderKanban,
+    actions: [
+      { label: 'View all', icon: Eye, path: '/jobs' },
+      { label: 'Create assignment', icon: Plus, path: '/jobs?action=create' },
+      { label: 'View pipeline', icon: Filter, path: '/jobs?view=pipeline' },
+    ],
+  },
   'Candidate Pipeline': {
+    icon: Users,
+    actions: [
+      { label: 'View pipeline', icon: Eye, path: '/candidates' },
+      { label: 'Add candidate', icon: Plus, path: '/candidates?action=create' },
+      { label: 'View analytics', icon: BarChart3, path: '/dashboard/candidates' },
+    ],
+  },
+  'Total Candidates': {
     icon: Users,
     actions: [
       { label: 'View pipeline', icon: Eye, path: '/candidates' },
@@ -247,7 +263,21 @@ export const CANDIDATES_DASHBOARD_ACTIONS: CardActionMap = {
       { label: 'View analytics', icon: BarChart3, path: '/dashboard/candidates' },
     ],
   },
+  'Active Candidates': {
+    icon: UserCheck,
+    actions: [
+      { label: 'View active', icon: Eye, path: '/candidates?status=active' },
+      { label: 'View analytics', icon: BarChart3, path: '/dashboard/candidates' },
+    ],
+  },
   'Placed': {
+    icon: Briefcase,
+    actions: [
+      { label: 'View placed', icon: Eye, path: '/candidates?status=placed' },
+      { label: 'View success metrics', icon: TrendingUp, path: '/dashboard/candidates' },
+    ],
+  },
+  'Placed Candidates': {
     icon: Briefcase,
     actions: [
       { label: 'View placed', icon: Eye, path: '/candidates?status=placed' },
@@ -259,6 +289,13 @@ export const CANDIDATES_DASHBOARD_ACTIONS: CardActionMap = {
     actions: [
       { label: 'View inactive', icon: Eye, path: '/candidates?status=inactive' },
       { label: 'Re-engage campaign', icon: Mail },
+    ],
+  },
+  'Conversion Rate': {
+    icon: TrendingUp,
+    actions: [
+      { label: 'View metrics', icon: Eye, path: '/dashboard/candidates' },
+      { label: 'View trends', icon: BarChart3, path: '/analytics' },
     ],
   },
 };
@@ -279,6 +316,13 @@ export const EMPLOYERS_DASHBOARD_ACTIONS: CardActionMap = {
       { label: 'View analytics', icon: BarChart3, path: '/dashboard/employers' },
     ],
   },
+  'Active Accounts': {
+    icon: Building2,
+    actions: [
+      { label: 'View active', icon: Eye, path: '/employers?status=active' },
+      { label: 'View analytics', icon: BarChart3, path: '/dashboard/employers' },
+    ],
+  },
   'Active Jobs': {
     icon: Briefcase,
     actions: [
@@ -293,10 +337,32 @@ export const EMPLOYERS_DASHBOARD_ACTIONS: CardActionMap = {
       { label: 'View trends', icon: TrendingUp, path: '/dashboard/financial' },
     ],
   },
+  'Monthly Revenue': {
+    icon: DollarSign,
+    actions: [
+      { label: 'View breakdown', icon: Eye, path: '/dashboard/financial' },
+      { label: 'View trends', icon: TrendingUp, path: '/dashboard/financial' },
+    ],
+  },
+  'Profit Margin': {
+    icon: TrendingUp,
+    actions: [
+      { label: 'View details', icon: Eye, path: '/dashboard/financial' },
+      { label: 'View trends', icon: TrendingUp, path: '/dashboard/financial' },
+    ],
+  },
 };
 
 export const SALES_DASHBOARD_ACTIONS: CardActionMap = {
   'Active Opportunities': {
+    icon: FolderKanban,
+    actions: [
+      { label: 'View pipeline', icon: Eye, path: '/employers' },
+      { label: 'Create opportunity', icon: Plus, path: '/employers?action=create' },
+      { label: 'View analytics', icon: BarChart3, path: '/dashboard/sales' },
+    ],
+  },
+  'Active Projects': {
     icon: FolderKanban,
     actions: [
       { label: 'View pipeline', icon: Eye, path: '/employers' },
@@ -309,6 +375,13 @@ export const SALES_DASHBOARD_ACTIONS: CardActionMap = {
     actions: [
       { label: 'View forecast', icon: TrendingUp, path: '/dashboard/sales' },
       { label: 'View breakdown', icon: Eye, path: '/dashboard/financial' },
+    ],
+  },
+  'Total Revenue': {
+    icon: DollarSign,
+    actions: [
+      { label: 'View breakdown', icon: Eye, path: '/dashboard/financial' },
+      { label: 'View trends', icon: TrendingUp, path: '/dashboard/financial' },
     ],
   },
   'Win Rate': {
