@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
-import { Button } from "@/components/ui/button";
-import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { 
   Briefcase, Users, TrendingUp, Clock, Download, Eye, Filter as FilterIcon, 
@@ -58,30 +57,21 @@ export default function ConsultingDashboardPage() {
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedIndustry, setSelectedIndustry] = useState<string>("all");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
+
+  const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
   const filteredRevenueForecast = useMemo(() => filterByDateRange(revenueForecast, dateRange, 'month'), [dateRange]);
-  
-  const filteredClientDistribution = useMemo(() => {
-    if (selectedIndustry === "all") return clientDistribution;
-    return clientDistribution.filter(item => item.industry === selectedIndustry);
-  }, [selectedIndustry]);
-
-  const filteredProjectPipeline = useMemo(() => {
-    if (selectedStatus === "all") return projectPipeline;
-    return projectPipeline.filter(item => item.status === selectedStatus);
-  }, [selectedStatus]);
 
   const handleExport = () => {
-    toast({ title: "Exporting consulting data...", description: dateRange?.from ? "Applying date filter" : undefined });
+    toast({ title: "Exporting consulting data..." });
   };
 
   const handleResetFilters = () => {
     setDateRange(undefined);
-    setSelectedIndustry("all");
-    setSelectedStatus("all");
+    setSelectedCountry("all");
+    setSelectedRegion("all");
     toast({ title: "Filters reset" });
   };
 
@@ -101,50 +91,17 @@ export default function ConsultingDashboardPage() {
             </div>
             
             {!isEditMode && (
-              <div className="flex items-center gap-3">
-                <DateRangePicker
-                  value={dateRange}
-                  onChange={setDateRange}
-                  placeholder="Select period"
-                  align="end"
-                />
-
-                <DashboardFilterDialog
-                  open={filterDialogOpen}
-                  onOpenChange={setFilterDialogOpen}
-                  title="Consulting Filters"
-                  description="Filter consulting metrics"
-                  filters={[
-                    {
-                      name: "industry",
-                      label: "Industry",
-                      value: selectedIndustry,
-                      onChange: setSelectedIndustry,
-                      options: [
-                        { value: "all", label: "All Industries" },
-                        ...clientDistribution.map(item => ({ value: item.industry, label: item.industry }))
-                      ]
-                    },
-                    {
-                      name: "status",
-                      label: "Project Status",
-                      value: selectedStatus,
-                      onChange: setSelectedStatus,
-                      options: [
-                        { value: "all", label: "All Statuses" },
-                        ...projectPipeline.map(item => ({ value: item.status, label: item.status }))
-                      ]
-                    }
-                  ]}
-                  onReset={handleResetFilters}
-                  onApply={() => setFilterDialogOpen(false)}
-                />
-                
-                <Button variant="secondary" size="sm" onClick={handleExport}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </div>
+              <DashboardActionBar
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                selectedCountry={selectedCountry}
+                selectedRegion={selectedRegion}
+                onCountryChange={setSelectedCountry}
+                onRegionChange={setSelectedRegion}
+                onExport={handleExport}
+                onResetFilters={handleResetFilters}
+                hasActiveFilters={hasActiveFilters}
+              />
             )}
           </div>
 
@@ -219,12 +176,11 @@ export default function ConsultingDashboardPage() {
               onDownload={() => toast({ title: "Downloading pipeline data..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setSelectedStatus("all") },
                 { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={filteredProjectPipeline}>
+                <BarChart data={projectPipeline}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="status" />
                   <YAxis />
@@ -240,14 +196,13 @@ export default function ConsultingDashboardPage() {
               onDownload={() => toast({ title: "Downloading client data..." })}
               menuItems={[
                 { label: "View All Clients", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/employers') },
-                { label: "Filter Industry", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setFilterDialogOpen(true) },
-                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setSelectedIndustry("all") }
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
-                    data={filteredClientDistribution}
+                    data={clientDistribution}
                     cx="50%"
                     cy="50%"
                     labelLine={false}

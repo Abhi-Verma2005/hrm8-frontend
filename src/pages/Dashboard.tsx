@@ -5,7 +5,7 @@ import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { EditModeToolbar } from '@/components/dashboard/EditModeToolbar';
 import { WidgetPalette } from '@/components/dashboard/WidgetPalette';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
-import { DashboardSelector } from '@/components/dashboard/DashboardSelector';
+import { DashboardActionBar } from '@/components/dashboard/DashboardActionBar';
 import { useDashboardLayout } from '@/hooks/useDashboardLayout';
 import { WIDGET_REGISTRY } from '@/lib/dashboard/widgetRegistry';
 import { DASHBOARD_METADATA } from '@/lib/dashboard/dashboardTypes';
@@ -46,9 +46,24 @@ export default function Dashboard() {
   
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showLivePreview, setShowLivePreview] = useState(true);
   const { toast } = useToast();
+  
+  const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
+  
+  const handleExport = () => {
+    toast({ title: "Exporting dashboard data..." });
+  };
+
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setSelectedCountry("all");
+    setSelectedRegion("all");
+    toast({ title: "Filters reset" });
+  };
   
   // Keyboard shortcuts for undo/redo
   useEffect(() => {
@@ -173,19 +188,17 @@ export default function Dashboard() {
           </div>
           
           {!isEditMode && (
-            <div className="flex items-center gap-3">
-              <DateRangePicker
-                value={dateRange}
-                onChange={setDateRange}
-                placeholder="Select period"
-                align="end"
-              />
-              
-              <Button variant="secondary" size="sm">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
+            <DashboardActionBar
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              selectedCountry={selectedCountry}
+              selectedRegion={selectedRegion}
+              onCountryChange={setSelectedCountry}
+              onRegionChange={setSelectedRegion}
+              onExport={handleExport}
+              onResetFilters={handleResetFilters}
+              hasActiveFilters={hasActiveFilters}
+            />
           )}
         </div>
         

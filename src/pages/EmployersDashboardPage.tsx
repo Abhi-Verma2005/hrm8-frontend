@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
-import { Button } from "@/components/ui/button";
-import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { 
   Building2, Briefcase, DollarSign, TrendingUp, Download, Eye, Filter, 
@@ -57,9 +56,20 @@ export default function EmployersDashboardPage() {
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
+
+  const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
   const handleExport = () => {
     toast({ title: "Exporting employers data..." });
+  };
+
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setSelectedCountry("all");
+    setSelectedRegion("all");
+    toast({ title: "Filters reset" });
   };
 
   return (
@@ -78,19 +88,17 @@ export default function EmployersDashboardPage() {
             </div>
             
             {!isEditMode && (
-              <div className="flex items-center gap-3">
-                <DateRangePicker
-                  value={dateRange}
-                  onChange={setDateRange}
-                  placeholder="Select period"
-                  align="end"
-                />
-                
-                <Button variant="secondary" size="sm" onClick={handleExport}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </div>
+              <DashboardActionBar
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                selectedCountry={selectedCountry}
+                selectedRegion={selectedRegion}
+                onCountryChange={setSelectedCountry}
+                onRegionChange={setSelectedRegion}
+                onExport={handleExport}
+                onResetFilters={handleResetFilters}
+                hasActiveFilters={hasActiveFilters}
+              />
             )}
           </div>
 

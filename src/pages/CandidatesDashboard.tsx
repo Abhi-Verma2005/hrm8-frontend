@@ -2,9 +2,8 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { Button } from "@/components/ui/button";
+import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import { Badge } from "@/components/ui/badge";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { 
@@ -23,12 +22,23 @@ import type { DateRange } from "react-day-picker";
 export default function CandidatesDashboard() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const { toast } = useToast();
   const navigate = useNavigate();
   const candidates = getCandidates();
 
+  const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
+
   const handleExport = () => {
     toast({ title: "Exporting candidate analytics..." });
+  };
+
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setSelectedCountry("all");
+    setSelectedRegion("all");
+    toast({ title: "Filters reset" });
   };
 
   // Calculate metrics
@@ -123,19 +133,17 @@ export default function CandidatesDashboard() {
           </div>
           
           {!isEditMode && (
-            <div className="flex items-center gap-3">
-              <DateRangePicker
-                value={dateRange}
-                onChange={setDateRange}
-                placeholder="Select period"
-                align="end"
-              />
-              
-              <Button variant="secondary" size="sm" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-            </div>
+            <DashboardActionBar
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              selectedCountry={selectedCountry}
+              selectedRegion={selectedRegion}
+              onCountryChange={setSelectedCountry}
+              onRegionChange={setSelectedRegion}
+              onExport={handleExport}
+              onResetFilters={handleResetFilters}
+              hasActiveFilters={hasActiveFilters}
+            />
           )}
         </div>
 

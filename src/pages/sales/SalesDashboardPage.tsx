@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { Card } from "@/components/ui/card";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
@@ -24,6 +25,10 @@ export default function SalesDashboardPage() {
   const { toast } = useToast();
   const { formatCurrency } = useCurrencyFormat();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
+  
+  const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
   const salesAgentStats = getSalesAgentStats();
   const opportunityStats = getOpportunityStats();
   const activityStats = getActivityStats();
@@ -58,22 +63,27 @@ export default function SalesDashboardPage() {
     });
   };
 
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setSelectedCountry("all");
+    setSelectedRegion("all");
+    toast({ title: "Filters reset" });
+  };
+
   return (
     <DashboardPageLayout
       breadcrumbActions={
-        <div className="flex items-center gap-3">
-          <DateRangePicker
-            value={dateRange}
-            onChange={setDateRange}
-            placeholder="Select period"
-            align="end"
-          />
-          
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-        </div>
+        <DashboardActionBar
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          selectedCountry={selectedCountry}
+          selectedRegion={selectedRegion}
+          onCountryChange={setSelectedCountry}
+          onRegionChange={setSelectedRegion}
+          onExport={handleExport}
+          onResetFilters={handleResetFilters}
+          hasActiveFilters={hasActiveFilters}
+        />
       }
     >
       <div className="p-6 space-y-6">

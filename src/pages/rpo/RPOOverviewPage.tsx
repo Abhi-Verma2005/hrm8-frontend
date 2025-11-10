@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
+import { DashboardActionBar } from '@/components/dashboard/DashboardActionBar';
 import { getRPODashboardMetrics } from '@/lib/rpoTrackingUtils';
 import { getRenewalAlertsSummary } from '@/lib/rpoRenewalUtils';
 import { getAllServiceProjects } from '@/lib/recruitmentServiceStorage';
@@ -9,10 +10,29 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RPOContractsTable } from '@/components/rpo/RPOContractsTable';
+import { useToast } from '@/hooks/use-toast';
+import type { DateRange } from 'react-day-picker';
 
 export default function RPOOverviewPage() {
   const metrics = useMemo(() => getRPODashboardMetrics(), []);
   const renewalSummary = useMemo(() => getRenewalAlertsSummary(), []);
+  const { toast } = useToast();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
+
+  const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
+
+  const handleExport = () => {
+    toast({ title: "Exporting RPO data..." });
+  };
+
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setSelectedCountry("all");
+    setSelectedRegion("all");
+    toast({ title: "Filters reset" });
+  };
 
   // Get actual RPO contracts from storage
   const rpoContracts = useMemo(() => {
@@ -20,7 +40,21 @@ export default function RPOOverviewPage() {
   }, []);
 
   return (
-    <DashboardPageLayout>
+    <DashboardPageLayout
+      breadcrumbActions={
+        <DashboardActionBar
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          selectedCountry={selectedCountry}
+          selectedRegion={selectedRegion}
+          onCountryChange={setSelectedCountry}
+          onRegionChange={setSelectedRegion}
+          onExport={handleExport}
+          onResetFilters={handleResetFilters}
+          hasActiveFilters={hasActiveFilters}
+        />
+      }
+    >
       <div className="p-6 space-y-6">
         <div>
           <div className="flex items-center justify-between mb-2">

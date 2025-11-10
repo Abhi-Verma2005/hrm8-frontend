@@ -356,6 +356,7 @@ export interface DateRangePickerProps {
   placeholder?: string;
   className?: string;
   align?: "start" | "center" | "end";
+  size?: "default" | "sm";
 }
 
 export function DateRangePicker({
@@ -363,7 +364,8 @@ export function DateRangePicker({
   onChange,
   placeholder = "Select date range",
   className,
-  align = "start"
+  align = "start",
+  size = "default"
 }: DateRangePickerProps) {
   const [open, setOpen] = React.useState(false);
   const [selectedPreset, setSelectedPreset] = React.useState<PresetValue | null>(
@@ -499,8 +501,10 @@ export function DateRangePicker({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
+          size={size}
           className={cn(
-            "justify-start text-left font-normal w-auto max-w-[280px] transition-all",
+            "justify-start text-left font-normal transition-all",
+            size === "sm" ? "w-auto" : "w-auto max-w-[280px]",
             !value && "text-muted-foreground",
             value && "font-medium",
             className

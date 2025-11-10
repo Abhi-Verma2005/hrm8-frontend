@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { RPOOverviewCards } from '@/components/rpo/RPOOverviewCards';
+import { DashboardActionBar } from '@/components/dashboard/DashboardActionBar';
 import { RPOContractsList } from '@/components/rpo/RPOContractsList';
 import { RPORevenueForecastChart } from '@/components/rpo/RPORevenueForecastChart';
 import { RPOConsultantAvailabilityTracker } from '@/components/rpo/RPOConsultantAvailabilityTracker';
@@ -19,8 +20,28 @@ import {
 import { FileText, AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import type { DateRange } from 'react-day-picker';
 
 export default function RPODashboardPage() {
+  const { toast } = useToast();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
+
+  const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
+
+  const handleExport = () => {
+    toast({ title: "Exporting RPO data..." });
+  };
+
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setSelectedCountry("all");
+    setSelectedRegion("all");
+    toast({ title: "Filters reset" });
+  };
+
   const metrics = useMemo(() => getRPODashboardMetrics(), []);
   const revenueForecast = useMemo(() => getRevenueProjection(12), []);
   const consultantAvailability = useMemo(() => getConsultantRPOAvailability(), []);
@@ -36,7 +57,21 @@ export default function RPODashboardPage() {
   const benchmarks = useMemo(() => getPerformanceBenchmarks(), []);
 
   return (
-    <DashboardPageLayout>
+    <DashboardPageLayout
+      breadcrumbActions={
+        <DashboardActionBar
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          selectedCountry={selectedCountry}
+          selectedRegion={selectedRegion}
+          onCountryChange={setSelectedCountry}
+          onRegionChange={setSelectedRegion}
+          onExport={handleExport}
+          onResetFilters={handleResetFilters}
+          hasActiveFilters={hasActiveFilters}
+        />
+      }
+    >
       <div className="p-6 space-y-6">
         <div>
           <div className="flex items-center gap-2 mb-2">

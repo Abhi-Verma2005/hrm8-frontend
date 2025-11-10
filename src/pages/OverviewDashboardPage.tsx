@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
-import { Button } from "@/components/ui/button";
-import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { 
   Users, Briefcase, TrendingUp, DollarSign, Download, Eye, Filter as FilterIcon, 
@@ -68,9 +67,10 @@ export default function OverviewDashboardPage() {
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [isEditMode, setIsEditMode] = useState(false);
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
+
+  const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
   // Filter data based on date range
   const filteredHiringTrends = useMemo(() => {
@@ -98,31 +98,24 @@ export default function OverviewDashboardPage() {
   }, [dateRange]);
 
   const filteredEmployeeDistribution = useMemo(() => {
-    if (selectedDepartment === "all") return employeeDistribution;
-    return employeeDistribution.filter(item => item.department === selectedDepartment);
-  }, [selectedDepartment]);
+    return employeeDistribution;
+  }, []);
 
   const filteredProjectPipeline = useMemo(() => {
-    if (selectedStatus === "all") return projectPipeline;
-    return projectPipeline.filter(item => item.status === selectedStatus);
-  }, [selectedStatus]);
+    return projectPipeline;
+  }, []);
 
   const handleExport = () => {
-    const filters = {
-      dateRange,
-      department: selectedDepartment,
-      status: selectedStatus,
-    };
     toast({ 
       title: "Exporting overview data...", 
-      description: `Applying ${Object.values(filters).filter(Boolean).length} filter(s)`
+      description: "Preparing your export..."
     });
   };
 
   const handleResetFilters = () => {
     setDateRange(undefined);
-    setSelectedDepartment("all");
-    setSelectedStatus("all");
+    setSelectedCountry("all");
+    setSelectedRegion("all");
     toast({ title: "Filters reset" });
   };
 
@@ -142,78 +135,17 @@ export default function OverviewDashboardPage() {
             </div>
             
             {!isEditMode && (
-              <div className="flex items-center gap-3">
-                <DateRangePicker
-                  value={dateRange}
-                  onChange={setDateRange}
-                  placeholder="Select period"
-                  align="end"
-                />
-
-                <Dialog open={filterDialogOpen} onOpenChange={setFilterDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="sm">
-                      <FilterIcon className="h-4 w-4 mr-2" />
-                      Filters
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Dashboard Filters</DialogTitle>
-                      <DialogDescription>
-                        Apply filters to customize your dashboard view
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-4 py-4">
-                      <div className="space-y-2">
-                        <Label>Department</Label>
-                        <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Departments</SelectItem>
-                            {employeeDistribution.map(dept => (
-                              <SelectItem key={dept.department} value={dept.department}>
-                                {dept.department}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Project Status</Label>
-                        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="all">All Statuses</SelectItem>
-                            {projectPipeline.map(status => (
-                              <SelectItem key={status.status} value={status.status}>
-                                {status.status}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button onClick={handleResetFilters} variant="outline" className="flex-1">
-                          Reset Filters
-                        </Button>
-                        <Button onClick={() => setFilterDialogOpen(false)} className="flex-1">
-                          Apply
-                        </Button>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-                
-                <Button variant="secondary" size="sm" onClick={handleExport}>
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </div>
+              <DashboardActionBar
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                selectedCountry={selectedCountry}
+                selectedRegion={selectedRegion}
+                onCountryChange={setSelectedCountry}
+                onRegionChange={setSelectedRegion}
+                onExport={handleExport}
+                onResetFilters={handleResetFilters}
+                hasActiveFilters={hasActiveFilters}
+              />
             )}
           </div>
 
@@ -333,12 +265,11 @@ export default function OverviewDashboardPage() {
 
             <StandardChartCard
               title="Employee Distribution"
-              description={`By department${selectedDepartment !== 'all' ? ` (${selectedDepartment})` : ''}`}
+              description="By department"
               onDownload={() => toast({ title: "Downloading employee data..." })}
               menuItems={[
                 { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/hrms') },
-                { label: "Filter Department", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setFilterDialogOpen(true) },
-                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setSelectedDepartment("all") }
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
@@ -364,12 +295,11 @@ export default function OverviewDashboardPage() {
 
             <StandardChartCard
               title="Project Pipeline"
-              description={`Projects by status${selectedStatus !== 'all' ? ` (${selectedStatus})` : ''}`}
+              description="Projects by status"
               onDownload={() => toast({ title: "Downloading pipeline data..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/recruitment-services') },
-                { label: "Filter Status", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setFilterDialogOpen(true) },
-                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setSelectedStatus("all") }
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
