@@ -101,6 +101,8 @@ import SupportTickets from "./pages/SupportTickets";
 import SystemMonitoring from "./pages/SystemMonitoring";
 import NotificationPreferences from "./pages/NotificationPreferences";
 import VerifyCertificate from "./pages/VerifyCertificate";
+import ConsentForm from "./pages/ConsentForm";
+import ReferenceQuestionnaire from "./pages/ReferenceQuestionnaire";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import RecruitmentIntegration from "./pages/RecruitmentIntegration";
 import EnhancedLearning from "./pages/EnhancedLearning";
@@ -304,7 +306,9 @@ function AppContent() {
           
           {/* Public routes (no sidebar) */}
           <Route path="/verify/:code?" element={<VerifyCertificate />} />
-          
+          <Route path="/consent/:token" element={<ConsentForm />} />
+          <Route path="/reference/:token" element={<ReferenceQuestionnaire />} />
+      
       {/* Public 360 Feedback Form - No authentication required */}
       <Route path="/feedback/:feedbackId/:providerId" element={<PublicFeedbackForm />} />
       

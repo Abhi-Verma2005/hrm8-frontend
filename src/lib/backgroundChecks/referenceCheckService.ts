@@ -3,7 +3,7 @@ import type { RefereeDetails, ReferenceResponse, QuestionAnswer } from '@/types/
 import {
   saveReferee,
   updateReferee,
-  getRefereeByToken,
+  getRefereeByToken as getRefereeByTokenStorage,
   getRefereesByBackgroundCheck
 } from './refereeStorage';
 import { updateBackgroundCheck } from '@/lib/mockBackgroundCheckStorage';
@@ -11,6 +11,10 @@ import { generateRefereeInvitationEmail } from './emailTemplates';
 
 export function generateRefereeToken(): string {
   return `referee_${uuidv4()}_${Date.now()}`;
+}
+
+export function getRefereeByToken(token: string): RefereeDetails | undefined {
+  return getRefereeByTokenStorage(token);
 }
 
 export function createReferee(
@@ -53,7 +57,7 @@ export function inviteReferee(
 }
 
 export function validateRefereeToken(token: string): boolean {
-  const referee = getRefereeByToken(token);
+  const referee = getRefereeByTokenStorage(token);
   
   if (!referee) return false;
   if (referee.status === 'completed') return false;
@@ -74,14 +78,14 @@ export function validateRefereeToken(token: string): boolean {
 }
 
 export function markRefereeQuestionnaireOpened(token: string): void {
-  const referee = getRefereeByToken(token);
+  const referee = getRefereeByTokenStorage(token);
   if (referee && referee.status === 'invited') {
     updateReferee(referee.id, { status: 'opened' });
   }
 }
 
 export function markRefereeQuestionnaireInProgress(token: string): void {
-  const referee = getRefereeByToken(token);
+  const referee = getRefereeByTokenStorage(token);
   if (referee && (referee.status === 'invited' || referee.status === 'opened')) {
     updateReferee(referee.id, { status: 'in-progress' });
   }
@@ -94,7 +98,7 @@ export function submitReferenceResponse(
   ipAddress: string = '0.0.0.0',
   completionTime?: number
 ): void {
-  const referee = getRefereeByToken(token);
+  const referee = getRefereeByTokenStorage(token);
   if (!referee) throw new Error('Referee not found');
   if (referee.status === 'completed') throw new Error('Response already submitted');
   

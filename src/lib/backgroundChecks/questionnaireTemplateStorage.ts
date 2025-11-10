@@ -233,6 +233,13 @@ export function getTemplateById(id: string): QuestionnaireTemplate | undefined {
   return getTemplates().find(t => t.id === id);
 }
 
+export function getQuestionnaireTemplate(id: string): QuestionnaireTemplate | undefined {
+  if (id === 'default') {
+    return getDefaultTemplate();
+  }
+  return getTemplateById(id);
+}
+
 export function getDefaultTemplate(): QuestionnaireTemplate {
   const templates = getTemplates();
   return templates.find(t => t.isDefault) || templates[0];

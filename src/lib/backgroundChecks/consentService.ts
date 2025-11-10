@@ -4,7 +4,7 @@ import type { BackgroundCheckType } from '@/types/backgroundCheck';
 import {
   saveConsentRequest,
   updateConsent,
-  getConsentByToken,
+  getConsentByToken as getConsentByTokenStorage,
   saveConsentResponse
 } from './consentStorage';
 import { updateBackgroundCheck } from '@/lib/mockBackgroundCheckStorage';
@@ -73,6 +73,10 @@ export function sendConsentEmail(consent: ConsentRequest): void {
   
   // Update status to sent
   updateConsent(consent.id, { status: 'sent' });
+}
+
+export function getConsentByToken(token: string): ConsentRequest | undefined {
+  return getConsentByTokenStorage(token);
 }
 
 export function validateConsentToken(token: string): boolean {
