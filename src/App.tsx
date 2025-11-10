@@ -12,6 +12,12 @@ import { GlobalSearch } from "./components/common/GlobalSearch";
 import Dashboard from "./pages/Dashboard";
 import CandidatesDashboard from "./pages/CandidatesDashboard";
 import HRMSDashboard from "./pages/HRMSDashboard";
+import OverviewDashboardPage from "./pages/OverviewDashboardPage";
+import FinancialDashboardPage from "./pages/FinancialDashboardPage";
+import HRMSDashboardPage from "./pages/HRMSDashboardPage";
+import ConsultingDashboardPage from "./pages/ConsultingDashboardPage";
+import RecruitmentServicesDashboardPage from "./pages/RecruitmentServicesDashboardPage";
+import EmployersDashboardPage from "./pages/EmployersDashboardPage";
 import JobsDashboard from "./pages/JobsDashboard";
 import PerformanceDashboard from "./pages/PerformanceDashboard";
 import Candidates from "./pages/Candidates";
@@ -161,14 +167,21 @@ function AppContent() {
           <Route element={<DashboardLayout />}>
             <Route path="/home" element={<HomePage />} />
             <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
-            <Route path="/dashboard/:type" element={<Dashboard />} />
+            
+            {/* Standalone Dashboard Pages */}
+            <Route path="/dashboard/overview" element={<OverviewDashboardPage />} />
+            <Route path="/dashboard/financial" element={<FinancialDashboardPage />} />
+            <Route path="/dashboard/consulting" element={<ConsultingDashboardPage />} />
+            <Route path="/dashboard/recruitment-services" element={<RecruitmentServicesDashboardPage />} />
+            <Route path="/dashboard/employers" element={<EmployersDashboardPage />} />
+            
             <Route path="/dashboard/candidates" element={<CandidatesDashboard />} />
             <Route path="/dashboard/sales" element={<DashboardSalesPage />} />
             <Route path="/dashboard/rpo" element={<DashboardRPOPage />} />
             
             {/* HRMS Dashboard - Protected */}
             <Route element={<ProtectedRoutes requiredModule="hrms" moduleName="HRMS Dashboard" />}>
-              <Route path="/dashboard/hrms" element={<HRMSDashboard />} />
+              <Route path="/dashboard/hrms" element={<HRMSDashboardPage />} />
             </Route>
             
             <Route path="/dashboard/jobs" element={<JobsDashboard />} />
