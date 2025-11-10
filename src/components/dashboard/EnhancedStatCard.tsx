@@ -16,7 +16,7 @@ interface EnhancedStatCardProps {
   value: string | number;
   change: string;
   trend?: "up" | "down";
-  icon: React.ReactNode;
+  icon?: React.ReactNode;
   variant?: "primary" | "success" | "warning" | "neutral";
   showAction?: boolean;
   actionLabel?: string;
@@ -53,8 +53,8 @@ export function EnhancedStatCard({
   rawValue,
   size = "default",
   layout = "vertical",
-  elevation = "md",
-  showGradient = true,
+  elevation = "sm",
+  showGradient = false,
   showBorder = true,
   iconPosition = "left",
 }: EnhancedStatCardProps) {
@@ -78,9 +78,9 @@ export function EnhancedStatCard({
 
   const elevationStyles = {
     none: "",
-    sm: "hover:shadow-md",
-    md: "hover:shadow-lg",
-    lg: "hover:shadow-xl",
+    sm: "shadow-sm hover:shadow-md",
+    md: "shadow-md hover:shadow-lg",
+    lg: "shadow-lg hover:shadow-xl",
   };
 
   const variantStyles = {
@@ -129,14 +129,16 @@ export function EnhancedStatCard({
         layout === "horizontal" && "flex-row items-center",
         showMenu && "pr-8"
       )}>
-        <div className={cn(
-          "rounded-full shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3",
-          "group-hover:shadow-xl",
-          iconBgStyles[variant], 
-          iconSizeStyles[size]
-        )}>
-          {icon}
-        </div>
+        {icon && (
+          <div className={cn(
+            "rounded-full shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3",
+            "group-hover:shadow-xl",
+            iconBgStyles[variant], 
+            iconSizeStyles[size]
+          )}>
+            {icon}
+          </div>
+        )}
         <Badge
           className={cn(
             "shadow-sm -mt-[2px] transition-all duration-300",

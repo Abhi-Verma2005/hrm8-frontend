@@ -68,6 +68,9 @@ export default function RPOOverviewPage() {
             trend="up"
             icon={<Building2 className="h-6 w-6" />}
             variant="primary"
+            showGradient={false}
+            showBorder={true}
+            elevation="sm"
           />
           <EnhancedStatCard
             title="Dedicated Consultants"
@@ -76,6 +79,9 @@ export default function RPOOverviewPage() {
             trend="up"
             icon={<Users className="h-6 w-6" />}
             variant="success"
+            showGradient={false}
+            showBorder={true}
+            elevation="sm"
           />
           <EnhancedStatCard
             title="Monthly Recurring Revenue"
@@ -86,6 +92,9 @@ export default function RPOOverviewPage() {
             trend="up"
             icon={<DollarSign className="h-6 w-6" />}
             variant="primary"
+            showGradient={false}
+            showBorder={true}
+            elevation="sm"
           />
           <EnhancedStatCard
             title="Expiring Soon"
@@ -94,6 +103,9 @@ export default function RPOOverviewPage() {
             trend={renewalSummary.critical > 0 ? "down" : "up"}
             variant={renewalSummary.critical > 0 ? "warning" : "success"}
             icon={<Clock className="h-6 w-6" />}
+            showGradient={false}
+            showBorder={true}
+            elevation="sm"
           />
         </div>
 
