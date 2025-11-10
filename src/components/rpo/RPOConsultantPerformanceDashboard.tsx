@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Trophy, 
   Star, 
@@ -16,10 +19,15 @@ import {
   Award,
   Search,
   Filter,
-  ArrowUpDown
+  ArrowUpDown,
+  FileDown,
+  FileSpreadsheet,
+  FileText
 } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { exportToPDF, exportToExcel } from '@/lib/consultantPerformanceExport';
 
 interface ConsultantPerformance {
   id: string;
@@ -37,11 +45,20 @@ interface ConsultantPerformance {
 }
 
 export function RPOConsultantPerformanceDashboard() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedContract, setSelectedContract] = useState('all');
   const [selectedPeriod, setSelectedPeriod] = useState('last-month');
   const [sortBy, setSortBy] = useState('rating');
   const [performanceFilter, setPerformanceFilter] = useState('all');
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [exportFormat, setExportFormat] = useState<'pdf' | 'excel'>('pdf');
+  const [exportOptions, setExportOptions] = useState({
+    includeCharts: true,
+    includeRankings: true,
+    includeMetrics: true,
+    includeTrends: true
+  });
 
   // Mock consultant performance data
   const consultants: ConsultantPerformance[] = [
@@ -171,6 +188,34 @@ export function RPOConsultantPerformanceDashboard() {
   const avgSatisfaction = consultants.reduce((acc, c) => acc + c.clientSatisfaction, 0) / consultants.length;
   const totalPlacements = consultants.reduce((acc, c) => acc + c.totalPlacements, 0);
 
+  const handleExport = () => {
+    try {
+      const filename = `consultant-performance-${selectedPeriod}-${new Date().toISOString().split('T')[0]}`;
+      
+      if (exportFormat === 'pdf') {
+        exportToPDF(filteredConsultants, exportOptions, filename);
+        toast({
+          title: 'PDF Generated',
+          description: 'Performance report has been exported as PDF',
+        });
+      } else {
+        exportToExcel(filteredConsultants, exportOptions, filename);
+        toast({
+          title: 'Excel Generated',
+          description: 'Performance report has been exported as Excel',
+        });
+      }
+      
+      setExportDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: 'Export Failed',
+        description: 'There was an error generating the report. Please try again.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Section */}
@@ -179,10 +224,161 @@ export function RPOConsultantPerformanceDashboard() {
           <h2 className="text-3xl font-bold">Consultant Performance</h2>
           <p className="text-muted-foreground">Track and analyze individual consultant metrics</p>
         </div>
-        <Button>
-          <Award className="h-4 w-4 mr-2" />
-          Generate Report
-        </Button>
+        <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <FileDown className="h-4 w-4 mr-2" />
+              Export Report
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Export Performance Report</DialogTitle>
+              <DialogDescription>
+                Choose format and content to include in the report
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-6">
+              {/* Format Selection */}
+              <div className="space-y-3">
+                <Label>Export Format</Label>
+                <div className="grid gap-3">
+                  <div
+                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                      exportFormat === 'pdf'
+                        ? 'border-primary bg-primary/5'
+                        : 'hover:border-primary/50'
+                    }`}
+                    onClick={() => setExportFormat('pdf')}
+                  >
+                    <div className="flex items-start gap-3">
+                      <FileText className="h-5 w-5 text-primary mt-0.5" />
+                      <div className="flex-1">
+                        <div className="font-medium">PDF Report</div>
+                        <div className="text-sm text-muted-foreground">
+                          Professional formatted report with tables
+                        </div>
+                      </div>
+                      <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                        exportFormat === 'pdf'
+                          ? 'border-primary bg-primary'
+                          : 'border-muted-foreground'
+                      }`}>
+                        {exportFormat === 'pdf' && (
+                          <div className="h-2 w-2 bg-white rounded-full" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div
+                    className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                      exportFormat === 'excel'
+                        ? 'border-primary bg-primary/5'
+                        : 'hover:border-primary/50'
+                    }`}
+                    onClick={() => setExportFormat('excel')}
+                  >
+                    <div className="flex items-start gap-3">
+                      <FileSpreadsheet className="h-5 w-5 text-primary mt-0.5" />
+                      <div className="flex-1">
+                        <div className="font-medium">Excel Spreadsheet</div>
+                        <div className="text-sm text-muted-foreground">
+                          Data export for analysis and custom reporting
+                        </div>
+                      </div>
+                      <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center ${
+                        exportFormat === 'excel'
+                          ? 'border-primary bg-primary'
+                          : 'border-muted-foreground'
+                      }`}>
+                        {exportFormat === 'excel' && (
+                          <div className="h-2 w-2 bg-white rounded-full" />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content Options */}
+              <div className="space-y-3">
+                <Label>Include in Report</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="rankings"
+                      checked={exportOptions.includeRankings}
+                      onCheckedChange={(checked) =>
+                        setExportOptions({ ...exportOptions, includeRankings: checked as boolean })
+                      }
+                    />
+                    <Label
+                      htmlFor="rankings"
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      Consultant Rankings
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="metrics"
+                      checked={exportOptions.includeMetrics}
+                      onCheckedChange={(checked) =>
+                        setExportOptions({ ...exportOptions, includeMetrics: checked as boolean })
+                      }
+                    />
+                    <Label
+                      htmlFor="metrics"
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      Detailed Metrics
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="charts"
+                      checked={exportOptions.includeCharts}
+                      onCheckedChange={(checked) =>
+                        setExportOptions({ ...exportOptions, includeCharts: checked as boolean })
+                      }
+                    />
+                    <Label
+                      htmlFor="charts"
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      Performance Charts
+                    </Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="trends"
+                      checked={exportOptions.includeTrends}
+                      onCheckedChange={(checked) =>
+                        setExportOptions({ ...exportOptions, includeTrends: checked as boolean })
+                      }
+                    />
+                    <Label
+                      htmlFor="trends"
+                      className="text-sm font-normal cursor-pointer"
+                    >
+                      Performance Analysis
+                    </Label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Export Button */}
+              <Button onClick={handleExport} className="w-full" size="lg">
+                <FileDown className="h-4 w-4 mr-2" />
+                Generate {exportFormat === 'pdf' ? 'PDF' : 'Excel'} Report
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Summary Cards */}
