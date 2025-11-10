@@ -1,5 +1,7 @@
 import { ReactNode } from 'react';
 import { DashboardHeader } from './DashboardHeader';
+import { DashboardSelector } from '@/components/dashboard/DashboardSelector';
+import { useCurrentDashboard } from '@/hooks/useCurrentDashboard';
 
 interface DashboardPageLayoutProps {
   title?: string;
@@ -18,9 +20,21 @@ export function DashboardPageLayout({
   breadcrumbActions,
   fullWidth = true
 }: DashboardPageLayoutProps) {
+  const currentDashboard = useCurrentDashboard();
+  
   return (
     <>
       <DashboardHeader breadcrumbActions={breadcrumbActions} />
+      
+      {/* Persistent Dashboard Selector */}
+      {currentDashboard && (
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="container py-3">
+            <DashboardSelector currentDashboard={currentDashboard} />
+          </div>
+        </div>
+      )}
+      
       <div className="flex-1">
         {(title || subtitle || actions) && (
           <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

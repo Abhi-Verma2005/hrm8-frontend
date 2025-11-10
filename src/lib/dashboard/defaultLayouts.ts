@@ -948,6 +948,106 @@ export const DEFAULT_CANDIDATES_LAYOUT: DashboardLayout = {
   updatedAt: new Date()
 };
 
+const DEFAULT_SALES_LAYOUT: DashboardLayout = {
+  id: 'sales',
+  name: 'Sales Dashboard',
+  dashboardType: 'sales',
+  widgets: [
+    {
+      id: 'sales-stat-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Total Revenue',
+      gridArea: { x: 0, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Total Revenue",
+        value: "$2.4M",
+        change: "+18%",
+        trend: "up",
+        variant: "primary"
+      },
+      isVisible: true
+    },
+    {
+      id: 'sales-stat-2',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Active Projects',
+      gridArea: { x: 3, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Active Projects",
+        value: "16",
+        change: "+8%",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'sales-activity',
+      type: 'activity',
+      component: 'ActivityFeed',
+      title: 'Recent Activity',
+      gridArea: { x: 0, y: 1, w: 12, h: 2 },
+      props: {},
+      isVisible: true,
+      isLocked: true
+    }
+  ],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
+const DEFAULT_RPO_LAYOUT: DashboardLayout = {
+  id: 'rpo',
+  name: 'RPO Dashboard',
+  dashboardType: 'rpo',
+  widgets: [
+    {
+      id: 'rpo-stat-1',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Active Projects',
+      gridArea: { x: 0, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Active Projects",
+        value: "12",
+        change: "+5%",
+        trend: "up",
+        variant: "primary"
+      },
+      isVisible: true
+    },
+    {
+      id: 'rpo-stat-2',
+      type: 'stat',
+      component: 'EnhancedStatCard',
+      title: 'Total Candidates',
+      gridArea: { x: 3, y: 0, w: 3, h: 1 },
+      props: {
+        title: "Total Candidates",
+        value: "486",
+        change: "+12%",
+        trend: "up",
+        variant: "success"
+      },
+      isVisible: true
+    },
+    {
+      id: 'rpo-activity',
+      type: 'activity',
+      component: 'ActivityFeed',
+      title: 'Recent Activity',
+      gridArea: { x: 0, y: 1, w: 12, h: 2 },
+      props: {},
+      isVisible: true,
+      isLocked: true
+    }
+  ],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
 export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   overview: DEFAULT_OVERVIEW_LAYOUT,
   jobs: DEFAULT_JOBS_LAYOUT,
@@ -956,5 +1056,7 @@ export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   consulting: DEFAULT_CONSULTING_LAYOUT,
   'recruitment-services': DEFAULT_RECRUITMENT_SERVICES_LAYOUT,
   employers: DEFAULT_EMPLOYERS_LAYOUT,
-  candidates: DEFAULT_CANDIDATES_LAYOUT
+  candidates: DEFAULT_CANDIDATES_LAYOUT,
+  sales: DEFAULT_SALES_LAYOUT,
+  rpo: DEFAULT_RPO_LAYOUT
 };

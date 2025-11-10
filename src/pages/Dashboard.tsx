@@ -29,7 +29,7 @@ export default function Dashboard() {
   const { type } = useParams<{ type: string }>();
   const dashboardType = (type || 'overview') as DashboardType;
   
-  if (type && !['overview', 'jobs', 'hrms', 'financial', 'consulting', 'recruitment-services', 'employers', 'candidates'].includes(type)) {
+  if (type && !['overview', 'jobs', 'hrms', 'financial', 'consulting', 'recruitment-services', 'employers', 'candidates', 'sales', 'rpo'].includes(type)) {
     return <Navigate to="/dashboard/overview" replace />;
   }
   
@@ -160,9 +160,8 @@ export default function Dashboard() {
         
         {/* Main Dashboard Content */}
         <div className="p-6 space-y-6">
-        {/* Dashboard Selector with Edit Mode Toggle */}
-        <div className="flex items-center justify-between border-b border-border pb-4">
-          <DashboardSelector currentDashboard={dashboardType} />
+        {/* Edit Mode Toggle */}
+        <div className="flex items-center justify-end border-b border-border pb-4">
           <EditModeToggle
             isEditMode={isEditMode}
             onToggle={() => setIsEditMode(!isEditMode)}

@@ -1,7 +1,7 @@
-import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, Target, Building2, type LucideIcon } from "lucide-react";
+import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, Target, Building2, TrendingUp, UserRound, type LucideIcon } from "lucide-react";
 import type { WidgetType } from "./widgetRegistry";
 
-export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting' | 'recruitment-services' | 'employers' | 'candidates';
+export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting' | 'recruitment-services' | 'employers' | 'candidates' | 'sales' | 'rpo';
 
 export interface DashboardMetadata {
   id: DashboardType;
@@ -160,6 +160,32 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
       'chart-candidate-placement-trends',
       'chart-top-skills-demand',
       'chart-salary-expectations',
+      'activity-feed'
+    ]
+  },
+  sales: {
+    id: 'sales',
+    name: 'Sales',
+    description: 'Track sales opportunities, pipeline, and forecasts',
+    icon: TrendingUp,
+    defaultRoute: '/sales/pipeline',
+    availableWidgets: [
+      'stat-total-revenue',
+      'stat-active-projects',
+      'chart-revenue-expense',
+      'activity-feed'
+    ]
+  },
+  rpo: {
+    id: 'rpo',
+    name: 'RPO',
+    description: 'Recruitment Process Outsourcing operations',
+    icon: UserRound,
+    defaultRoute: '/rpo/dashboard',
+    availableWidgets: [
+      'stat-active-projects',
+      'stat-total-candidates',
+      'chart-hiring-trends',
       'activity-feed'
     ]
   }
