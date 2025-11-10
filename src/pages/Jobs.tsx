@@ -2,8 +2,8 @@ import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3, Filter, X, Zap } from "lucide-react";
-import { StatsCard } from "@/components/ui/stats-card";
+import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3, Filter, X, Zap, Eye } from "lucide-react";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { getJobs, deleteJob, getJobById } from "@/lib/mockJobStorage";
 import { Job } from "@/types/job";
@@ -567,29 +567,58 @@ export default function Jobs() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Jobs"
             value={stats.total}
-            icon={Briefcase}
-            description={`${stats.active} currently active`}
+            change="+8%"
+            trend="up"
+            icon={<Briefcase className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              { label: "View all jobs", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "View templates", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export data", icon: <Download className="h-4 w-4" />, onClick: () => {} },
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Active Postings"
             value={stats.active}
-            icon={Clock}
-            description={`${stats.total > 0 ? ((stats.active / stats.total) * 100).toFixed(0) : 0}% of total`}
+            change="+12%"
+            trend="up"
+            icon={<Clock className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              { label: "View active jobs", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "Create new job", icon: <Plus className="h-4 w-4" />, onClick: () => handleCreateJob() },
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Total Applicants"
             value={stats.applicants}
-            icon={FileText}
-            description={`Avg ${stats.avgApplicants} per job`}
+            change="+15%"
+            trend="up"
+            icon={<FileText className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              { label: "View applicants", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export data", icon: <Download className="h-4 w-4" />, onClick: () => {} },
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Filled Positions"
             value={stats.filled}
-            icon={CheckCircle}
-            description="Successfully filled"
+            change="+5%"
+            trend="up"
+            icon={<CheckCircle className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              { label: "View filled", icon: <CheckCircle className="h-4 w-4" />, onClick: () => {} },
+              { label: "View analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+            ]}
           />
         </div>
 

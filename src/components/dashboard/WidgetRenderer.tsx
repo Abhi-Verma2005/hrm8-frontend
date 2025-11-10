@@ -27,12 +27,9 @@ import { CandidatePlacementTrendsChart } from './charts/CandidatePlacementTrends
 import { TopSkillsDemandChart } from './charts/TopSkillsDemandChart';
 import { SalaryExpectationsChart } from './charts/SalaryExpectationsChart';
 import { RecentActivityCard } from './RecentActivityCard';
-import { 
-  Users, Briefcase, FileText, UserCheck, Eye, Plus, Filter, Download, XCircle, CheckCircle,
-  UserCircle, Calendar, Building2, DollarSign, FolderKanban
-} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { DashboardWidget } from '@/lib/dashboard/types';
+import { getCardActions } from '@/lib/dashboard/cardActions';
 
 const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
   EnhancedStatCard,
@@ -68,9 +65,10 @@ const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
 
 interface WidgetRendererProps {
   widget: DashboardWidget;
+  dashboardType?: string;
 }
 
-export function WidgetRenderer({ widget }: WidgetRendererProps) {
+export function WidgetRenderer({ widget, dashboardType = 'jobs' }: WidgetRendererProps) {
   const navigate = useNavigate();
   const Component = COMPONENT_MAP[widget.component];
   
@@ -84,73 +82,36 @@ export function WidgetRenderer({ widget }: WidgetRendererProps) {
     );
   }
   
-  // Add navigation and icons to stat cards
+  // Add navigation and icons to stat cards using centralized card actions
   if (widget.component === 'EnhancedStatCard') {
-    const iconMap: Record<string, React.ReactNode> = {
-      // Jobs
-      'Active Jobs': <Briefcase className="h-6 w-6" />,
-      'Total Candidates': <Users className="h-6 w-6" />,
-      'Applications': <FileText className="h-6 w-6" />,
-      'Hired This Month': <UserCheck className="h-6 w-6" />,
-      // HRMS
-      'Total Employees': <UserCircle className="h-6 w-6" />,
-      'Attendance Rate': <Calendar className="h-6 w-6" />,
-      'Leave Requests': <FileText className="h-6 w-6" />,
-      'Departments': <Building2 className="h-6 w-6" />,
-      // Financial
-      'Total Revenue': <DollarSign className="h-6 w-6" />,
-      'Total Expenses': <DollarSign className="h-6 w-6" />,
-      'Profit Margin': <DollarSign className="h-6 w-6" />,
-      'Payroll Cost': <DollarSign className="h-6 w-6" />,
-      // Consulting
-      'Active Projects': <FolderKanban className="h-6 w-6" />,
-      'Total Clients': <Building2 className="h-6 w-6" />,
-      'Utilization Rate': <Users className="h-6 w-6" />,
-      'Billable Hours': <Calendar className="h-6 w-6" />,
-    };
+    const cardData = getCardActions(widget.title, dashboardType);
+    
+    if (!cardData) {
+      // Fallback if no card data found
+      return <Component {...widget.props} />;
+    }
 
-    const actionMap: Record<string, { label: string; action: () => void }> = {
-      'Active Jobs': { label: 'View Jobs', action: () => navigate('/jobs') },
-      'Total Candidates': { label: 'View All', action: () => navigate('/candidates') },
-      'Applications': { label: 'Review', action: () => navigate('/applications') },
-      'Hired This Month': { label: 'View Hires', action: () => navigate('/candidates') },
-      'Total Employees': { label: 'View All', action: () => navigate('/candidates') },
-      'Attendance Rate': { label: 'View Details', action: () => navigate('/analytics') },
-      'Leave Requests': { label: 'Review', action: () => navigate('/applications') },
-      'Active Projects': { label: 'View All', action: () => navigate('/jobs') },
-      'Total Clients': { label: 'View All', action: () => navigate('/candidates') },
-    };
+    const Icon = cardData.icon;
+    const icon = <Icon className="h-6 w-6" />;
 
-    const menuMap: Record<string, Array<{ label: string; icon: React.ReactNode; onClick: () => void }>> = {
-      'Active Jobs': [
-        { label: "View all jobs", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/jobs') },
-        { label: "Create new job", icon: <Plus className="h-4 w-4" />, onClick: () => navigate('/jobs') },
-      ],
-      'Total Candidates': [
-        { label: "Browse candidates", icon: <Users className="h-4 w-4" />, onClick: () => navigate('/candidates') },
-        { label: "Add candidate", icon: <Plus className="h-4 w-4" />, onClick: () => navigate('/candidates') },
-      ],
-      'Applications': [
-        { label: "Review pending", icon: <FileText className="h-4 w-4" />, onClick: () => navigate('/applications') },
-        { label: "View rejected", icon: <XCircle className="h-4 w-4" />, onClick: () => navigate('/applications') },
-      ],
-      'Hired This Month': [
-        { label: "View hires", icon: <UserCheck className="h-4 w-4" />, onClick: () => navigate('/candidates') },
-      ],
-    };
+    // Map card actions to menu items
+    const menuItems = cardData.actions?.map(action => ({
+      label: action.label,
+      icon: <action.icon className="h-4 w-4" />,
+      onClick: action.path ? () => navigate(action.path!) : action.action || (() => {}),
+    }));
 
-    const icon = iconMap[widget.title];
-    const action = actionMap[widget.title];
-    const menuItems = menuMap[widget.title];
+    // Use first action as primary action button
+    const primaryAction = cardData.actions?.[0];
 
     return (
       <Component
         {...widget.props}
         icon={icon}
-        showAction={!!action}
-        actionLabel={action?.label}
-        onAction={action?.action}
-        showMenu={!!menuItems}
+        showAction={!!primaryAction}
+        actionLabel={primaryAction?.label || 'View'}
+        onAction={primaryAction?.path ? () => navigate(primaryAction.path!) : primaryAction?.action}
+        showMenu={!!menuItems && menuItems.length > 0}
         menuItems={menuItems}
       />
     );

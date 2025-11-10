@@ -29,6 +29,12 @@ interface EnhancedStatCardProps {
   }>;
   isCurrency?: boolean;
   rawValue?: number;
+  size?: "default" | "compact" | "large";
+  layout?: "vertical" | "horizontal";
+  elevation?: "none" | "sm" | "md" | "lg";
+  showGradient?: boolean;
+  showBorder?: boolean;
+  iconPosition?: "left" | "right" | "top";
 }
 
 export function EnhancedStatCard({
@@ -45,6 +51,12 @@ export function EnhancedStatCard({
   menuItems = [],
   isCurrency = false,
   rawValue,
+  size = "default",
+  layout = "vertical",
+  elevation = "md",
+  showGradient = true,
+  showBorder = true,
+  iconPosition = "left",
 }: EnhancedStatCardProps) {
   const { formatCurrency } = useCurrencyFormat();
   
@@ -52,11 +64,37 @@ export function EnhancedStatCard({
   const displayValue = isCurrency && rawValue !== undefined 
     ? formatCurrency(rawValue) 
     : value;
+  const sizeStyles = {
+    compact: "p-4",
+    default: "p-6",
+    large: "p-8",
+  };
+
+  const valueSizeStyles = {
+    compact: "text-2xl",
+    default: "text-3xl",
+    large: "text-4xl",
+  };
+
+  const elevationStyles = {
+    none: "",
+    sm: "hover:shadow-md",
+    md: "hover:shadow-lg",
+    lg: "hover:shadow-xl",
+  };
+
   const variantStyles = {
-    primary: "border-l-6 border-l-blue-500 bg-gradient-to-br from-blue-50/50 to-cyan-50/30",
-    success: "border-l-6 border-l-emerald-500 bg-gradient-to-br from-emerald-50/50 to-green-50/30",
-    warning: "border-l-6 border-l-orange-500 bg-gradient-to-br from-orange-50/50 to-amber-50/30",
-    neutral: "border-l-6 border-l-purple-500 bg-gradient-to-br from-purple-50/50 to-indigo-50/30",
+    primary: showBorder ? "border-l-6 border-l-blue-500" : "",
+    success: showBorder ? "border-l-6 border-l-emerald-500" : "",
+    warning: showBorder ? "border-l-6 border-l-orange-500" : "",
+    neutral: showBorder ? "border-l-6 border-l-purple-500" : "",
+  };
+
+  const gradientStyles = {
+    primary: showGradient ? "bg-gradient-to-br from-blue-50/50 to-cyan-50/30" : "",
+    success: showGradient ? "bg-gradient-to-br from-emerald-50/50 to-green-50/30" : "",
+    warning: showGradient ? "bg-gradient-to-br from-orange-50/50 to-amber-50/30" : "",
+    neutral: showGradient ? "bg-gradient-to-br from-purple-50/50 to-indigo-50/30" : "",
   };
 
   const iconBgStyles = {
@@ -66,15 +104,28 @@ export function EnhancedStatCard({
     neutral: "bg-purple-500 text-white shadow-lg shadow-purple-500/30",
   };
 
+  const iconSizeStyles = {
+    compact: "p-2",
+    default: "p-3",
+    large: "p-4",
+  };
+
   return (
     <Card
       className={cn(
-        "p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 cursor-pointer group relative h-full flex flex-col justify-between",
-        variantStyles[variant]
+        sizeStyles[size],
+        "transition-all duration-300 cursor-pointer group relative h-full flex flex-col justify-between",
+        variantStyles[variant],
+        gradientStyles[variant],
+        elevation !== "none" && `${elevationStyles[elevation]} hover:-translate-y-1`
       )}
     >
-      <div className="flex items-start justify-between mb-4 pr-8">
-        <div className={cn("p-3 rounded-xl shadow-md", iconBgStyles[variant])}>
+      <div className={cn(
+        "flex items-start justify-between mb-4",
+        layout === "horizontal" && "flex-row items-center",
+        showMenu && "pr-8"
+      )}>
+        <div className={cn("rounded-xl shadow-md", iconBgStyles[variant], iconSizeStyles[size])}>
           {icon}
         </div>
         <Badge
@@ -94,7 +145,7 @@ export function EnhancedStatCard({
         </Badge>
       </div>
       <p className="text-sm text-muted-foreground mb-2 font-medium">{title}</p>
-      <h3 className="text-3xl font-bold tracking-tight">{displayValue}</h3>
+      <h3 className={cn(valueSizeStyles[size], "font-bold tracking-tight")}>{displayValue}</h3>
 
       {showAction && onAction && (
         <Button

@@ -1,3 +1,10 @@
+/**
+ * @deprecated This component has been replaced by EnhancedStatCard.
+ * Please use EnhancedStatCard from @/components/dashboard/EnhancedStatCard instead.
+ * 
+ * For email-specific stats, use EnhancedStatCard with appropriate variant and props.
+ */
+
 import { Card, CardContent } from '@/components/ui/card';
 import { LucideIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';

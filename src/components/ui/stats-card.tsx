@@ -1,3 +1,19 @@
+/**
+ * @deprecated This component has been replaced by EnhancedStatCard.
+ * Please use EnhancedStatCard from @/components/dashboard/EnhancedStatCard instead.
+ * 
+ * EnhancedStatCard provides:
+ * - Consistent styling across all dashboards
+ * - Action menus with contextual options
+ * - Better customization options (size, layout, elevation)
+ * - Currency formatting support
+ * - Improved hover effects and animations
+ * 
+ * Migration guide:
+ * Old: <StatsCard title="..." value={...} icon={Icon} description="..." />
+ * New: <EnhancedStatCard title="..." value={...} change="+10%" trend="up" icon={<Icon className="h-6 w-6" />} variant="neutral" />
+ */
+
 import { Card, CardContent } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";

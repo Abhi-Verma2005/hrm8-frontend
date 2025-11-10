@@ -15,10 +15,10 @@ import { CandidateBulkActionsToolbar } from "@/components/candidates/bulk/Candid
 
 import { CandidateImportDialog } from "@/components/candidates/import-export/CandidateImportDialog";
 import { CandidateExportDialog } from "@/components/candidates/import-export/CandidateExportDialog";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3, Search, Filter } from "lucide-react";
+import { Plus, Download, Upload, Users, UserCheck, Briefcase, UserX, BarChart3, Search, Filter, Eye, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getCandidates, getCandidateById, saveCandidate, updateCandidate } from "@/lib/mockCandidateStorage";
 import { uploadDocument } from "@/lib/mockDocumentStorage";
@@ -393,29 +393,59 @@ export default function Candidates() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Candidates"
             value={stats.total}
-            icon={Users}
-            description={`${stats.active} currently active`}
+            change="+10%"
+            trend="up"
+            icon={<Users className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              { label: "View all candidates", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "Add candidate", icon: <Plus className="h-4 w-4" />, onClick: () => { setEditingCandidateId(null); setDrawerOpen(true); } },
+              { label: "Import candidates", icon: <Upload className="h-4 w-4" />, onClick: () => setShowImportDialog(true) },
+              { label: "Export data", icon: <Download className="h-4 w-4" />, onClick: () => setShowExportDialog(true) },
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Active"
             value={stats.active}
-            icon={UserCheck}
-            description={`${stats.total > 0 ? ((stats.active / stats.total) * 100).toFixed(0) : 0}% of total`}
+            change="+8%"
+            trend="up"
+            icon={<UserCheck className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              { label: "View active", icon: <Eye className="h-4 w-4" />, onClick: () => setStatusFilter('active') },
+              { label: "View analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Placed"
             value={stats.placed}
-            icon={Briefcase}
-            description="Successfully placed"
+            change="+12%"
+            trend="up"
+            icon={<Briefcase className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              { label: "View placed", icon: <Eye className="h-4 w-4" />, onClick: () => setStatusFilter('placed') },
+              { label: "View success metrics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Inactive"
             value={stats.inactive}
-            icon={UserX}
-            description="Not currently seeking"
+            change="-3%"
+            trend="down"
+            icon={<UserX className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              { label: "View inactive", icon: <Eye className="h-4 w-4" />, onClick: () => setStatusFilter('inactive') },
+              { label: "Re-engage campaign", icon: <Mail className="h-4 w-4" />, onClick: () => {} },
+            ]}
           />
         </div>
 

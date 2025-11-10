@@ -17,7 +17,8 @@ export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayout = {
         value: "24",
         change: "+12%",
         trend: "up",
-        variant: "neutral"
+        variant: "neutral",
+        showMenu: true
       },
       isVisible: true
     },
@@ -32,7 +33,8 @@ export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayout = {
         value: "1,234",
         change: "+8%",
         trend: "up",
-        variant: "success"
+        variant: "success",
+        showMenu: true
       },
       isVisible: true
     },
@@ -47,7 +49,8 @@ export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayout = {
         value: "567",
         change: "+23%",
         trend: "up",
-        variant: "primary"
+        variant: "primary",
+        showMenu: true
       },
       isVisible: true
     },
@@ -62,7 +65,8 @@ export const DEFAULT_DASHBOARD_LAYOUT: DashboardLayout = {
         value: "18",
         change: "+5%",
         trend: "up",
-        variant: "warning"
+        variant: "warning",
+        showMenu: true
       },
       isVisible: true
     },
