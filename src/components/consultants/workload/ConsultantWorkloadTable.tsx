@@ -9,6 +9,9 @@ import { format } from 'date-fns';
 import type { WorkloadData } from '@/lib/consultantWorkloadUtils';
 import { createConsultantWorkloadColumns } from './ConsultantWorkloadColumns';
 import { ServiceHoursEditor } from './ServiceHoursEditor';
+import { BulkActionsBar } from './BulkActionsBar';
+import { BulkAssignToServiceDialog } from './BulkAssignToServiceDialog';
+import { BulkCapacityAdjustmentDialog } from './BulkCapacityAdjustmentDialog';
 import { getAllServiceProjects } from '@/lib/recruitmentServiceStorage';
 import type { ServiceProject } from '@/types/recruitmentService';
 
@@ -33,6 +36,9 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
   const [selectedConsultant, setSelectedConsultant] = useState<WorkloadData | null>(null);
   const [editingService, setEditingService] = useState<ServiceProject | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [showBulkAssign, setShowBulkAssign] = useState(false);
+  const [showBulkCapacity, setShowBulkCapacity] = useState(false);
   
   const columns = createConsultantWorkloadColumns({
     onViewDetails: (workload) => setSelectedConsultant(workload),
@@ -55,6 +61,21 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
       setEditingService(service);
     }
   };
+
+  const handleUpdate = () => {
+    setRefreshKey(prev => prev + 1);
+    // Clear selection after bulk actions
+    setSelectedIds([]);
+    // Refresh selected consultant if applicable
+    if (selectedConsultant) {
+      const updatedData = data.find(d => d.consultantId === selectedConsultant.consultantId);
+      if (updatedData) {
+        setSelectedConsultant(updatedData);
+      }
+    }
+  };
+
+  const selectedConsultants = data.filter(d => selectedIds.includes(d.consultantId));
 
   // Transform data to include 'id' property required by DataTable
   const tableData: WorkloadDataWithId[] = data.map(item => ({ ...item, id: item.consultantId }));
@@ -80,6 +101,15 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
 
   return (
     <>
+      {selectedIds.length > 0 && (
+        <BulkActionsBar
+          selectedCount={selectedIds.length}
+          onAssignToService={() => setShowBulkAssign(true)}
+          onAdjustCapacity={() => setShowBulkCapacity(true)}
+          onClearSelection={() => setSelectedIds([])}
+        />
+      )}
+
       <DataTable
         data={tableData}
         columns={columns}
@@ -95,6 +125,8 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
         exportFilename="consultant-workload"
         columnCustomization
         columnPreferenceKey="consultant-workload-columns"
+        selectable
+        onSelectedRowsChange={setSelectedIds}
         emptyMessage="No consultant workload data available"
       />
 
@@ -205,18 +237,24 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
           service={editingService}
           open={!!editingService}
           onOpenChange={(open) => !open && setEditingService(null)}
-          onUpdate={() => {
-            setRefreshKey(prev => prev + 1);
-            // Refresh the selected consultant data
-            if (selectedConsultant) {
-              const updatedData = data.find(d => d.consultantId === selectedConsultant.consultantId);
-              if (updatedData) {
-                setSelectedConsultant(updatedData);
-              }
-            }
-          }}
+          onUpdate={handleUpdate}
         />
       )}
+
+      {/* Bulk Action Dialogs */}
+      <BulkAssignToServiceDialog
+        open={showBulkAssign}
+        onOpenChange={setShowBulkAssign}
+        selectedConsultants={selectedConsultants}
+        onUpdate={handleUpdate}
+      />
+
+      <BulkCapacityAdjustmentDialog
+        open={showBulkCapacity}
+        onOpenChange={setShowBulkCapacity}
+        selectedConsultants={selectedConsultants}
+        onUpdate={handleUpdate}
+      />
     </>
   );
 }
