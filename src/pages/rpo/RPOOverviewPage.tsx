@@ -1,16 +1,17 @@
 import { useMemo } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { getRPODashboardMetrics } from '@/lib/rpoTrackingUtils';
 import { getRenewalAlertsSummary } from '@/lib/rpoRenewalUtils';
 import { getAllServiceProjects } from '@/lib/recruitmentServiceStorage';
-import { FileText, AlertTriangle, Building2, Users, DollarSign, Clock, BarChart3, UserCog, FileBarChart } from 'lucide-react';
+import { FileText, AlertTriangle, Building2, Users, DollarSign, Clock, BarChart3, UserCog, FileBarChart, Eye, Plus, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { StatsCard } from '@/components/ui/stats-card';
 import { RPOContractsTable } from '@/components/rpo/RPOContractsTable';
 
 export default function RPOOverviewPage() {
+  const navigate = useNavigate();
   const metrics = useMemo(() => getRPODashboardMetrics(), []);
   const renewalSummary = useMemo(() => getRenewalAlertsSummary(), []);
 
@@ -61,37 +62,111 @@ export default function RPOOverviewPage() {
 
         {/* Metrics Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Active Contracts"
-            value={metrics.totalActiveContracts}
-            icon={Building2}
-            description="Currently active RPO contracts"
-            trend={{ value: 12, isPositive: true }}
-            change="vs last month"
+            value={metrics.totalActiveContracts.toString()}
+            change="+12% vs last month"
+            trend="up"
+            icon={<Building2 className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All Contracts",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/rpo/contracts')
+              },
+              {
+                label: "Create Contract",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => navigate('/recruitment-services?type=rpo')
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Dedicated Consultants"
-            value={metrics.totalDedicatedConsultants}
-            icon={Users}
-            description="Consultants assigned to RPO"
-            trend={{ value: 8, isPositive: true }}
-            change="vs last month"
+            value={metrics.totalDedicatedConsultants.toString()}
+            change="+8% vs last month"
+            trend="up"
+            icon={<Users className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All Consultants",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/rpo/consultants')
+              },
+              {
+                label: "Assign to Project",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Monthly Recurring Revenue"
-            value={`$${metrics.totalMonthlyRecurringRevenue.toLocaleString()}`}
-            icon={DollarSign}
-            description="Total MRR from active contracts"
-            trend={{ value: 15, isPositive: true }}
-            change="vs last month"
+            value=""
+            isCurrency={true}
+            rawValue={metrics.totalMonthlyRecurringRevenue}
+            change="+15% vs last month"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View MRR Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "View Forecast",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/rpo/forecast')
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Expiring Soon"
-            value={renewalSummary.total}
-            icon={Clock}
-            description={`${renewalSummary.critical} critical within 30 days`}
-            trend={{ value: renewalSummary.critical, isPositive: false }}
-            change="requiring action"
+            value={renewalSummary.total.toString()}
+            change={renewalSummary.critical > 0 ? `${renewalSummary.critical} critical within 30 days` : "All clear"}
+            trend={renewalSummary.critical > 0 ? "down" : "up"}
+            icon={<Clock className="h-6 w-6" />}
+            variant={renewalSummary.critical > 0 ? "warning" : "success"}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Expiring",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/rpo/renewals')
+              },
+              {
+                label: "Set Reminders",
+                icon: <AlertTriangle className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 
