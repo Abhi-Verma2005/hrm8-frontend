@@ -215,10 +215,7 @@ export default function ConsultingDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <StandardChartCard
               title="Project Pipeline"
-              description="Projects by stage"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Projects by stage${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading pipeline data..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
@@ -270,10 +267,7 @@ export default function ConsultingDashboardPage() {
 
             <StandardChartCard
               title="Resource Allocation"
-              description="Consultant utilization rates"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Consultant utilization rates${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading allocation data..." })}
               menuItems={[
                 { label: "View Consultants", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/consultants') },
@@ -296,10 +290,7 @@ export default function ConsultingDashboardPage() {
 
             <StandardChartCard
               title="Revenue Forecast"
-              description="Actual vs forecasted revenue"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Actual vs forecasted revenue${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading forecast data..." })}
               menuItems={[
                 { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },

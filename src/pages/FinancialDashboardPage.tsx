@@ -261,10 +261,7 @@ export default function FinancialDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <StandardChartCard
               title="Revenue vs Expenses"
-              description="Monthly financial comparison"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Monthly financial comparison${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading financial comparison..." })}
               menuItems={[
                 { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
@@ -287,10 +284,7 @@ export default function FinancialDashboardPage() {
 
             <StandardChartCard
               title="Budget Analysis"
-              description="Budget vs actual spending"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Budget vs actual spending${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading budget analysis..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
@@ -344,10 +338,7 @@ export default function FinancialDashboardPage() {
 
             <StandardChartCard
               title="Payroll Trends"
-              description="Monthly payroll and benefits"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Monthly payroll and benefits${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading payroll trends..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/payroll') },

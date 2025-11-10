@@ -287,9 +287,6 @@ export default function OverviewDashboardPage() {
             <StandardChartCard
               title="Hiring Trends"
               description={`Monthly hiring activity${dateRange?.from ? ' (filtered)' : ''}`}
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
               onDownload={() => toast({ title: "Downloading hiring trends..." })}
               menuItems={[
                 { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/analytics') },
@@ -314,9 +311,6 @@ export default function OverviewDashboardPage() {
             <StandardChartCard
               title="Revenue vs Expenses"
               description={`Financial performance comparison${dateRange?.from ? ' (filtered)' : ''}`}
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
               onDownload={() => toast({ title: "Downloading financial data..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/finance') },

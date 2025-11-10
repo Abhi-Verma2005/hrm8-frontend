@@ -170,10 +170,7 @@ export default function RecruitmentServicesDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <StandardChartCard
               title="Service Pipeline"
-              description="Projects by status"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Projects by status${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading pipeline data..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
@@ -225,10 +222,7 @@ export default function RecruitmentServicesDashboardPage() {
 
             <StandardChartCard
               title="Consultant Performance"
-              description="Top performing consultants"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Top performing consultants${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading performance data..." })}
               menuItems={[
                 { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/consultants') },
@@ -249,10 +243,7 @@ export default function RecruitmentServicesDashboardPage() {
 
             <StandardChartCard
               title="Revenue Trends"
-              description="Monthly revenue vs target"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Monthly revenue vs target${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading revenue trends..." })}
               menuItems={[
                 { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
@@ -275,10 +266,7 @@ export default function RecruitmentServicesDashboardPage() {
 
             <StandardChartCard
               title="Project Completion Rate"
-              description="Monthly completion metrics"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Monthly completion metrics${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading completion data..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },

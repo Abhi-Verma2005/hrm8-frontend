@@ -194,10 +194,7 @@ export default function EmployersDashboardPage() {
 
             <StandardChartCard
               title="Revenue vs Expenses"
-              description="Monthly financial comparison"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Monthly financial comparison${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading financial data..." })}
               menuItems={[
                 { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
@@ -220,10 +217,7 @@ export default function EmployersDashboardPage() {
 
             <StandardChartCard
               title="Budget Analysis"
-              description="Budget vs actual spending"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Budget vs actual spending${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading budget analysis..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
@@ -246,10 +240,7 @@ export default function EmployersDashboardPage() {
 
             <StandardChartCard
               title="Client Activity"
-              description="New clients and project trends"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`New clients and project trends${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading activity data..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },

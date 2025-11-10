@@ -157,10 +157,7 @@ export default function HRMSDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2">
             <StandardChartCard
               title="Attendance Trends"
-              description="Monthly attendance statistics"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Monthly attendance statistics${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading attendance trends..." })}
               menuItems={[
                 { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
@@ -215,10 +212,7 @@ export default function HRMSDashboardPage() {
 
             <StandardChartCard
               title="Leave Analysis"
-              description="Leave requests by type"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Leave requests by type${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading leave analysis..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/leave') },
@@ -242,10 +236,7 @@ export default function HRMSDashboardPage() {
 
             <StandardChartCard
               title="Performance Overview"
-              description="Quarterly performance ratings"
-              showDatePicker={true}
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
+              description={`Quarterly performance ratings${dateRange?.from ? ' (filtered)' : ''}`}
               onDownload={() => toast({ title: "Downloading performance data..." })}
               menuItems={[
                 { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/performance') },

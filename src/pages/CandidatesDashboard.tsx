@@ -215,10 +215,7 @@ export default function CandidatesDashboard() {
             <div className="grid gap-4 md:grid-cols-2">
               <StandardChartCard
                 title="Application Trends"
-                description="Monthly candidate applications over time"
-                showDatePicker={true}
-                dateRange={dateRange}
-                onDateRangeChange={setDateRange}
+                description={`Monthly candidate applications over time${dateRange?.from ? ' (filtered)' : ''}`}
                 onDownload={() => toast({ title: "Downloading application trends..." })}
                 menuItems={[
                   { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
@@ -251,10 +248,7 @@ export default function CandidatesDashboard() {
 
               <StandardChartCard
                 title="Status Distribution"
-                description="Candidate pipeline by status"
-                showDatePicker={true}
-                dateRange={dateRange}
-                onDateRangeChange={setDateRange}
+                description={`Candidate pipeline by status${dateRange?.from ? ' (filtered)' : ''}`}
                 onDownload={() => toast({ title: "Downloading status data..." })}
                 menuItems={[
                   { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
@@ -278,10 +272,7 @@ export default function CandidatesDashboard() {
 
               <StandardChartCard
                 title="Time to Hire Trend"
-                description="Average days from application to placement"
-                showDatePicker={true}
-                dateRange={dateRange}
-                onDateRangeChange={setDateRange}
+                description={`Average days from application to placement${dateRange?.from ? ' (filtered)' : ''}`}
                 onDownload={() => toast({ title: "Downloading time to hire data..." })}
                 menuItems={[
                   { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
