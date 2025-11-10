@@ -168,7 +168,7 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
     name: 'Sales',
     description: 'Track sales opportunities, pipeline, and forecasts',
     icon: TrendingUp,
-    defaultRoute: '/sales/pipeline',
+    defaultRoute: '/dashboard/sales',
     availableWidgets: [
       'stat-total-revenue',
       'stat-active-projects',
@@ -181,7 +181,7 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
     name: 'RPO',
     description: 'Recruitment Process Outsourcing operations',
     icon: UserRound,
-    defaultRoute: '/rpo',
+    defaultRoute: '/dashboard/rpo',
     availableWidgets: [
       'stat-active-projects',
       'stat-total-candidates',

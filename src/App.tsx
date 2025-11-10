@@ -132,6 +132,8 @@ import { initializeMockAlertRules } from './data/mockAlertRules';
 import { useEffect } from 'react';
 import { ProtectedRoutes } from './components/common/ProtectedRoutes';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+import DashboardSalesPage from './pages/DashboardSalesPage';
+import DashboardRPOPage from './pages/DashboardRPOPage';
 
 const queryClient = new QueryClient();
 
@@ -160,6 +162,8 @@ function AppContent() {
             <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
             <Route path="/dashboard/:type" element={<Dashboard />} />
             <Route path="/dashboard/candidates" element={<CandidatesDashboard />} />
+            <Route path="/dashboard/sales" element={<DashboardSalesPage />} />
+            <Route path="/dashboard/rpo" element={<DashboardRPOPage />} />
             
             {/* HRMS Dashboard - Protected */}
             <Route element={<ProtectedRoutes requiredModule="hrms" moduleName="HRMS Dashboard" />}>
