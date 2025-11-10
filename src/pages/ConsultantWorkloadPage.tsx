@@ -1,12 +1,17 @@
 import { useMemo, useState } from 'react';
-import { Info } from 'lucide-react';
+import { Info, TrendingUp } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { WorkloadSummaryCards } from '@/components/consultants/workload/WorkloadSummaryCards';
 import { ConsultantWorkloadChart } from '@/components/consultants/workload/ConsultantWorkloadChart';
 import { ServiceTypeDistributionChart } from '@/components/consultants/workload/ServiceTypeDistributionChart';
 import { ConsultantWorkloadTable } from '@/components/consultants/workload/ConsultantWorkloadTable';
 import { ServiceHoursConfigDialog } from '@/components/consultants/workload/ServiceHoursConfig';
+import { WorkloadForecastChart } from '@/components/consultants/workload/WorkloadForecastChart';
+import { ConsultantForecastTable } from '@/components/consultants/workload/ConsultantForecastTable';
+import { CapacityAlerts } from '@/components/consultants/workload/CapacityAlerts';
 import { getTeamWorkloadSummary, getServiceTypeDistribution } from '@/lib/consultantWorkloadUtils';
+import { generateWorkloadForecast } from '@/lib/workloadForecastUtils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Tooltip,
   TooltipContent,
@@ -18,6 +23,7 @@ export default function ConsultantWorkloadPage() {
   const [refreshKey, setRefreshKey] = useState(0);
   const teamSummary = useMemo(() => getTeamWorkloadSummary(), [refreshKey]);
   const serviceDistribution = useMemo(() => getServiceTypeDistribution(), [refreshKey]);
+  const forecast = useMemo(() => generateWorkloadForecast(6), [refreshKey]);
 
   const handleConfigUpdate = () => {
     setRefreshKey(prev => prev + 1);
@@ -51,12 +57,32 @@ export default function ConsultantWorkloadPage() {
 
         <WorkloadSummaryCards summary={teamSummary} />
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <ConsultantWorkloadChart data={teamSummary.workloadData} />
-          <ServiceTypeDistributionChart data={serviceDistribution} />
-        </div>
+        <Tabs defaultValue="current" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="current">Current Workload</TabsTrigger>
+            <TabsTrigger value="forecast" className="gap-2">
+              <TrendingUp className="h-4 w-4" />
+              Capacity Forecast
+            </TabsTrigger>
+          </TabsList>
 
-        <ConsultantWorkloadTable data={teamSummary.workloadData} />
+          <TabsContent value="current" className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <ConsultantWorkloadChart data={teamSummary.workloadData} />
+              <ServiceTypeDistributionChart data={serviceDistribution} />
+            </div>
+
+            <ConsultantWorkloadTable data={teamSummary.workloadData} />
+          </TabsContent>
+
+          <TabsContent value="forecast" className="space-y-6">
+            <CapacityAlerts forecasts={forecast} />
+
+            <WorkloadForecastChart forecasts={forecast} />
+
+            <ConsultantForecastTable forecasts={forecast} />
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardPageLayout>
   );
