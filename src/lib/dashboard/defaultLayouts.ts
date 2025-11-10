@@ -44,7 +44,8 @@ export const DEFAULT_OVERVIEW_LAYOUT: DashboardLayout = {
       gridArea: { x: 6, y: 0, w: 3, h: 1 },
       props: {
         title: "Total Revenue",
-        value: "$2.4M",
+        isCurrency: true,
+        rawValue: 2400000,
         change: "+18%",
         trend: "up",
         variant: "warning"
@@ -362,7 +363,8 @@ export const DEFAULT_FINANCIAL_LAYOUT: DashboardLayout = {
       gridArea: { x: 0, y: 0, w: 3, h: 1 },
       props: {
         title: "Total Revenue",
-        value: "$2.4M",
+        isCurrency: true,
+        rawValue: 2400000,
         change: "+18%",
         trend: "up",
         variant: "warning"
@@ -377,7 +379,8 @@ export const DEFAULT_FINANCIAL_LAYOUT: DashboardLayout = {
       gridArea: { x: 3, y: 0, w: 3, h: 1 },
       props: {
         title: "Total Expenses",
-        value: "$1.8M",
+        isCurrency: true,
+        rawValue: 1800000,
         change: "+5%",
         trend: "up",
         variant: "warning"
@@ -407,7 +410,8 @@ export const DEFAULT_FINANCIAL_LAYOUT: DashboardLayout = {
       gridArea: { x: 9, y: 0, w: 3, h: 1 },
       props: {
         title: "Payroll Cost",
-        value: "$890K",
+        isCurrency: true,
+        rawValue: 890000,
         change: "+2%",
         trend: "up",
         variant: "primary"
@@ -741,7 +745,8 @@ export const DEFAULT_EMPLOYERS_LAYOUT: DashboardLayout = {
       gridArea: { x: 6, y: 0, w: 3, h: 1 },
       props: {
         title: "Monthly Revenue",
-        value: "$145K",
+        isCurrency: true,
+        rawValue: 145000,
         change: "+12%",
         trend: "up",
         variant: "success"
