@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Plus } from "lucide-react";
+import { Shield, Plus, FileText } from "lucide-react";
 import { getBackgroundChecks, saveBackgroundCheck } from "@/lib/mockBackgroundCheckStorage";
 import { BackgroundCheck } from "@/types/backgroundCheck";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ import { BackgroundCheckForm } from "@/components/backgroundChecks/BackgroundChe
 import { toast } from "@/hooks/use-toast";
 
 export default function BackgroundChecks() {
+  const navigate = useNavigate();
   const [checks, setChecks] = useState<BackgroundCheck[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -75,10 +77,19 @@ export default function BackgroundChecks() {
               Manage candidate screening and verification
             </p>
           </div>
-          <Button onClick={() => setIsFormOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Initiate Check
-          </Button>
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/questionnaire-templates')}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Manage Templates
+            </Button>
+            <Button onClick={() => setIsFormOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Initiate Check
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-4">
