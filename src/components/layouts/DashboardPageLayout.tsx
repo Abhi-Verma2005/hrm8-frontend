@@ -31,7 +31,7 @@ export function DashboardPageLayout({
       {/* Persistent Dashboard Selector */}
       {currentDashboard && (
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="container py-3">
+          <div className="w-full px-6 py-3">
             <div className="flex items-center justify-between">
               <DashboardSelector currentDashboard={currentDashboard} />
               {dashboardActions && <div>{dashboardActions}</div>}
@@ -43,7 +43,7 @@ export function DashboardPageLayout({
       <div className="flex-1">
         {(title || subtitle || actions) && (
           <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container py-6">
+            <div className="w-full px-6 py-6">
               <div className="flex items-center justify-between">
                 <div>
                   {title && <h1 className="text-3xl font-bold tracking-tight">{title}</h1>}
