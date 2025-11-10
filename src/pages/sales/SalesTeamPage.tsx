@@ -2,80 +2,70 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/common/data-table/DataTable";
+import { DataTable, Column } from "@/components/tables/DataTable";
 import { Plus } from "lucide-react";
 import { getAllSalesAgents } from "@/lib/salesAgentStorage";
 import type { SalesAgent } from "@/types/salesAgent";
-import { ColumnDef } from "@tanstack/react-table";
 
 export default function SalesTeamPage() {
   const navigate = useNavigate();
   const [salesAgents] = useState<SalesAgent[]>(getAllSalesAgents());
 
-  const columns: ColumnDef<SalesAgent>[] = [
+  const columns: Column<SalesAgent>[] = [
     {
-      accessorKey: "firstName",
-      header: "Name",
-      cell: ({ row }) => {
-        return `${row.original.firstName} ${row.original.lastName}`;
-      },
+      key: "name",
+      label: "Name",
+      render: (agent) => `${agent.firstName} ${agent.lastName}`,
     },
     {
-      accessorKey: "salesRole",
-      header: "Role",
-      cell: ({ getValue }) => {
-        const role = getValue() as string;
-        return role.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      },
+      key: "salesRole",
+      label: "Role",
+      render: (agent) => agent.salesRole.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
     },
     {
-      accessorKey: "salesType",
-      header: "Type",
-      cell: ({ getValue }) => {
-        const type = getValue() as string;
-        return type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      },
+      key: "salesType",
+      label: "Type",
+      render: (agent) => agent.salesType.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
     },
     {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ getValue }) => {
-        const status = getValue() as string;
+      key: "status",
+      label: "Status",
+      render: (agent) => {
         const colors: Record<string, string> = {
           active: "bg-green-100 text-green-800",
           inactive: "bg-gray-100 text-gray-800",
           "on-leave": "bg-yellow-100 text-yellow-800",
         };
         return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[status] || colors.active}`}>
-            {status.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[agent.status] || colors.active}`}>
+            {agent.status.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
           </span>
         );
       },
     },
     {
-      accessorKey: "currentRevenue",
-      header: "Revenue",
-      cell: ({ getValue }) => `$${(getValue() as number / 1000).toFixed(0)}K`,
+      key: "currentRevenue",
+      label: "Revenue",
+      render: (agent) => `$${(agent.currentRevenue / 1000).toFixed(0)}K`,
     },
     {
-      accessorKey: "closedDeals",
-      header: "Closed Deals",
+      key: "closedDeals",
+      label: "Closed Deals",
     },
     {
-      accessorKey: "activeOpportunities",
-      header: "Active Opps",
+      key: "activeOpportunities",
+      label: "Active Opps",
     },
     {
-      accessorKey: "conversionRate",
-      header: "Win Rate",
-      cell: ({ getValue }) => `${(getValue() as number).toFixed(1)}%`,
+      key: "conversionRate",
+      label: "Win Rate",
+      render: (agent) => `${agent.conversionRate.toFixed(1)}%`,
     },
     {
-      id: "quota",
-      header: "Quota Attainment",
-      cell: ({ row }) => {
-        const attainment = (row.original.currentRevenue / row.original.quotaAmount * 100).toFixed(0);
+      key: "quota",
+      label: "Quota Attainment",
+      render: (agent) => {
+        const attainment = (agent.currentRevenue / agent.quotaAmount * 100).toFixed(0);
         return `${attainment}%`;
       },
     },
@@ -95,8 +85,10 @@ export default function SalesTeamPage() {
       <DataTable
         columns={columns}
         data={salesAgents}
-        searchKey="firstName"
-        searchPlaceholder="Search sales agents..."
+        searchable
+        searchKeys={["firstName", "lastName", "email"]}
+        exportable
+        exportFilename="sales-team"
       />
     </DashboardPageLayout>
   );

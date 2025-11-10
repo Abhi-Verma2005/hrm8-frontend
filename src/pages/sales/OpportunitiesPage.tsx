@@ -2,43 +2,38 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { DataTable } from "@/components/common/data-table/DataTable";
+import { DataTable, Column } from "@/components/tables/DataTable";
 import { Plus } from "lucide-react";
 import { getAllOpportunities } from "@/lib/salesOpportunityStorage";
 import type { SalesOpportunity } from "@/types/salesOpportunity";
-import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 
 export default function OpportunitiesPage() {
   const navigate = useNavigate();
   const [opportunities] = useState<SalesOpportunity[]>(getAllOpportunities());
 
-  const columns: ColumnDef<SalesOpportunity>[] = [
+  const columns: Column<SalesOpportunity>[] = [
     {
-      accessorKey: "name",
-      header: "Opportunity",
+      key: "name",
+      label: "Opportunity",
     },
     {
-      accessorKey: "employerName",
-      header: "Employer",
+      key: "employerName",
+      label: "Employer",
     },
     {
-      accessorKey: "salesAgentName",
-      header: "Sales Agent",
+      key: "salesAgentName",
+      label: "Sales Agent",
     },
     {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ getValue }) => {
-        const type = getValue() as string;
-        return type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      },
+      key: "type",
+      label: "Type",
+      render: (opp) => opp.type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
     },
     {
-      accessorKey: "stage",
-      header: "Stage",
-      cell: ({ getValue }) => {
-        const stage = getValue() as string;
+      key: "stage",
+      label: "Stage",
+      render: (opp) => {
         const colors: Record<string, string> = {
           prospecting: "bg-blue-100 text-blue-800",
           qualification: "bg-purple-100 text-purple-800",
@@ -48,29 +43,26 @@ export default function OpportunitiesPage() {
           "closed-lost": "bg-red-100 text-red-800",
         };
         return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[stage]}`}>
-            {stage.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+          <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[opp.stage]}`}>
+            {opp.stage.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
           </span>
         );
       },
     },
     {
-      accessorKey: "estimatedValue",
-      header: "Value",
-      cell: ({ getValue }) => `$${(getValue() as number / 1000).toFixed(0)}K`,
+      key: "estimatedValue",
+      label: "Value",
+      render: (opp) => `$${(opp.estimatedValue / 1000).toFixed(0)}K`,
     },
     {
-      accessorKey: "probability",
-      header: "Probability",
-      cell: ({ getValue }) => `${getValue()}%`,
+      key: "probability",
+      label: "Probability",
+      render: (opp) => `${opp.probability}%`,
     },
     {
-      accessorKey: "expectedCloseDate",
-      header: "Expected Close",
-      cell: ({ getValue }) => {
-        const date = getValue() as string;
-        return format(new Date(date), 'MMM dd, yyyy');
-      },
+      key: "expectedCloseDate",
+      label: "Expected Close",
+      render: (opp) => format(new Date(opp.expectedCloseDate), 'MMM dd, yyyy'),
     },
   ];
 
@@ -88,8 +80,10 @@ export default function OpportunitiesPage() {
       <DataTable
         columns={columns}
         data={opportunities}
-        searchKey="name"
-        searchPlaceholder="Search opportunities..."
+        searchable
+        searchKeys={["name", "employerName"]}
+        exportable
+        exportFilename="opportunities"
       />
     </DashboardPageLayout>
   );
