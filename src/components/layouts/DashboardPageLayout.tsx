@@ -16,7 +16,7 @@ export function DashboardPageLayout({
   actions, 
   children, 
   breadcrumbActions,
-  fullWidth = false
+  fullWidth = true
 }: DashboardPageLayoutProps) {
   return (
     <>
