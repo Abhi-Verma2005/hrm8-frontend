@@ -135,7 +135,7 @@ export default function HRMSDashboard() {
       }
       dashboardActions={<ViewOnlyEditButton />}
     >
-      <div className="p-6 space-y-6 animate-fade-in">
+      <div className="space-y-6 animate-fade-in">
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
