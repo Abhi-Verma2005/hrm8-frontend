@@ -18,6 +18,7 @@ import { ColumnCustomization } from "./ColumnCustomization";
 import { EditableCell, EditableFieldType, SelectOption } from "./EditableCell";
 import { GroupConfig, GroupHeader, groupData, calculateAggregates, GroupedData } from "./TableGrouping";
 import { PivotTable, PivotConfig } from "./PivotTable";
+import { cn } from "@/lib/utils";
 
 export interface Column<T> {
   key: string;
@@ -66,6 +67,8 @@ interface DataTableProps<T> {
   pivotMode?: boolean;
   pivotConfig?: PivotConfig;
   onPivotConfigChange?: (config: PivotConfig) => void;
+  // Row click handler
+  onRowClick?: (item: T) => void;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -99,6 +102,7 @@ export function DataTable<T extends { id: string }>({
   pivotMode = false,
   pivotConfig,
   onPivotConfigChange,
+  onRowClick,
 }: DataTableProps<T>) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -633,9 +637,13 @@ export function DataTable<T extends { id: string }>({
                       />
                       {isExpanded &&
                         group.items.map((item) => (
-                          <TableRow key={item.id}>
+                          <TableRow 
+                            key={item.id}
+                            onClick={() => onRowClick?.(item)}
+                            className={cn(onRowClick && "cursor-pointer")}
+                          >
                             {selectable && (
-                              <TableCell>
+                              <TableCell onClick={(e) => e.stopPropagation()}>
                                 <Checkbox
                                   checked={selectedIds.includes(item.id)}
                                   onCheckedChange={(checked) =>

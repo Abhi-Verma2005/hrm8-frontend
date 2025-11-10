@@ -75,7 +75,7 @@ export function createTopDealsColumns(): Column<SalesOpportunity>[] {
       key: 'actions',
       label: '',
       render: () => (
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
           View
           <ArrowRight className="ml-1 h-3 w-3" />
         </Button>

@@ -102,7 +102,7 @@ export function createCommissionColumns(): Column<SalesCommission>[] {
       label: '',
       render: (commission) => (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="icon">
               <MoreHorizontal className="h-4 w-4" />
             </Button>

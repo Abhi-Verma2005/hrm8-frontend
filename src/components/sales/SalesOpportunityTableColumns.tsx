@@ -90,7 +90,7 @@ export function createOpportunityColumns(): Column<SalesOpportunity>[] {
       label: '',
       render: (opp) => (
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="sm">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
