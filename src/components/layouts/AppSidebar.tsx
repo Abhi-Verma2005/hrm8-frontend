@@ -2,13 +2,15 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
-import { Home, LayoutGrid, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building2, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare, Handshake, UserSquare, Server, Bell, Map, CircleDollarSign, LineChart, FileCheck, FileSignature, ShieldCheck, PieChart, MailPlus, Inbox, Award, HeartHandshake, Banknote, Settings2, ScrollText, UserRound } from "lucide-react";
+import { Home, LayoutGrid, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building2, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare, Handshake, UserSquare, Server, Bell, Map, CircleDollarSign, LineChart, FileCheck, FileSignature, ShieldCheck, PieChart, MailPlus, Inbox, Award, HeartHandshake, Banknote, Settings2, ScrollText, UserRound, ChevronDown } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 
 import { cn } from "@/lib/utils";
 import { SidebarFooterContent } from "./SidebarFooterContent";
 import { useRecentRecords } from "@/hooks/useRecentRecords";
+import { useSidebarSections } from "@/hooks/useSidebarSections";
 import { FeedbackNotificationBadge } from "@/components/feedback/FeedbackNotificationBadge";
 import { formatDistanceToNow } from "date-fns";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -165,6 +167,7 @@ export function AppSidebar() {
   const { open } = useSidebar();
   const { records: recentRecords, clearRecentRecords } = useRecentRecords();
   const { user } = usePermissions();
+  const { sections, toggleSection } = useSidebarSections();
   const [isHovering, setIsHovering] = useState(false);
   
   // Check module access
@@ -249,15 +252,69 @@ export function AppSidebar() {
         {/* ATS Section - Only show if ATS module is enabled */}
         {hasATS && (
           <>
-            <SidebarGroup>
-              {isExpanded && (
-                <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  Recruitment (ATS)
+            <Collapsible open={sections.ats} onOpenChange={() => toggleSection('ats')}>
+              <SidebarGroup>
+                {isExpanded && (
+                  <CollapsibleTrigger asChild>
+                    <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-sidebar-accent/30 rounded-sm transition-colors flex items-center justify-between group">
+                      <span>Recruitment (ATS)</span>
+                      <ChevronDown className="h-3 w-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    </SidebarGroupLabel>
+                  </CollapsibleTrigger>
+                )}
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {atsNavItems.map(item => (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton 
+                            asChild 
+                            isActive={isActive(item.url)}
+                            className={cn(
+                              "relative transition-all duration-200",
+                              "hover:bg-sidebar-accent/50",
+                              isActive(item.url) && [
+                                "bg-primary/10",
+                                "text-primary",
+                                "font-medium",
+                                isExpanded && "border-l-4 border-primary"
+                              ]
+                            )}
+                          >
+                            <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                              <item.icon className={cn(
+                                "h-5 w-5 transition-all",
+                                !isExpanded && "mx-auto"
+                              )} />
+                              {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                            </NavLink>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </SidebarGroup>
+            </Collapsible>
+            <SidebarSeparator />
+          </>
+        )}
+
+        {/* SALES Section */}
+        <Collapsible open={sections.sales} onOpenChange={() => toggleSection('sales')}>
+          <SidebarGroup>
+            {isExpanded && (
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-sidebar-accent/30 rounded-sm transition-colors flex items-center justify-between group">
+                  <span>Sales</span>
+                  <ChevronDown className="h-3 w-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </SidebarGroupLabel>
-              )}
+              </CollapsibleTrigger>
+            )}
+            <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {atsNavItems.map(item => (
+                  {salesNavItems.map(item => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton 
                         asChild 
@@ -285,104 +342,125 @@ export function AppSidebar() {
                   ))}
                 </SidebarMenu>
               </SidebarGroupContent>
-            </SidebarGroup>
-            <SidebarSeparator />
-          </>
-        )}
-
-        {/* SALES Section */}
-        <SidebarGroup>
-          {isExpanded && (
-            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Sales
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {salesNavItems.map(item => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={isActive(item.url)}
-                    className={cn(
-                      "relative transition-all duration-200",
-                      "hover:bg-sidebar-accent/50",
-                      isActive(item.url) && [
-                        "bg-primary/10",
-                        "text-primary",
-                        "font-medium",
-                        isExpanded && "border-l-4 border-primary"
-                      ]
-                    )}
-                  >
-                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
-                      <item.icon className={cn(
-                        "h-5 w-5 transition-all",
-                        !isExpanded && "mx-auto"
-                      )} />
-                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
         <SidebarSeparator />
 
         {/* OPERATIONS Section */}
-        <SidebarGroup>
-          {isExpanded && (
-            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Operations
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {operationsNavItems.map(item => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={isActive(item.url)}
-                    className={cn(
-                      "relative transition-all duration-200",
-                      "hover:bg-sidebar-accent/50",
-                      isActive(item.url) && [
-                        "bg-primary/10",
-                        "text-primary",
-                        "font-medium",
-                        isExpanded && "border-l-4 border-primary"
-                      ]
-                    )}
-                  >
-                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
-                      <item.icon className={cn(
-                        "h-5 w-5 transition-all",
-                        !isExpanded && "mx-auto"
-                      )} />
-                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <Collapsible open={sections.operations} onOpenChange={() => toggleSection('operations')}>
+          <SidebarGroup>
+            {isExpanded && (
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-sidebar-accent/30 rounded-sm transition-colors flex items-center justify-between group">
+                  <span>Operations</span>
+                  <ChevronDown className="h-3 w-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+            )}
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {operationsNavItems.map(item => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive(item.url)}
+                        className={cn(
+                          "relative transition-all duration-200",
+                          "hover:bg-sidebar-accent/50",
+                          isActive(item.url) && [
+                            "bg-primary/10",
+                            "text-primary",
+                            "font-medium",
+                            isExpanded && "border-l-4 border-primary"
+                          ]
+                        )}
+                      >
+                        <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                          <item.icon className={cn(
+                            "h-5 w-5 transition-all",
+                            !isExpanded && "mx-auto"
+                          )} />
+                          {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
         <SidebarSeparator />
 
         {/* HR MANAGEMENT Section - Only show if HRMS module is enabled */}
         {hasHRMS && (
           <>
-            <SidebarGroup>
-              {isExpanded && (
-                <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  HR Management
+            <Collapsible open={sections.hrManagement} onOpenChange={() => toggleSection('hrManagement')}>
+              <SidebarGroup>
+                {isExpanded && (
+                  <CollapsibleTrigger asChild>
+                    <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-sidebar-accent/30 rounded-sm transition-colors flex items-center justify-between group">
+                      <span>HR Management</span>
+                      <ChevronDown className="h-3 w-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    </SidebarGroupLabel>
+                  </CollapsibleTrigger>
+                )}
+                <CollapsibleContent>
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {hrManagementNavItems.map(item => (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton 
+                            asChild 
+                            isActive={isActive(item.url)}
+                            className={cn(
+                              "relative transition-all duration-200",
+                              "hover:bg-sidebar-accent/50",
+                              isActive(item.url) && [
+                                "bg-primary/10",
+                                "text-primary",
+                                "font-medium",
+                                isExpanded && "border-l-4 border-primary"
+                              ]
+                            )}
+                          >
+                            <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                              <item.icon className={cn(
+                                "h-5 w-5 transition-all",
+                                !isExpanded && "mx-auto"
+                              )} />
+                              {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                            </NavLink>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </CollapsibleContent>
+              </SidebarGroup>
+            </Collapsible>
+            <SidebarSeparator />
+          </>
+        )}
+
+        {/* MANAGEMENT Section */}
+        <Collapsible open={sections.management} onOpenChange={() => toggleSection('management')}>
+          <SidebarGroup>
+            {isExpanded && (
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-sidebar-accent/30 rounded-sm transition-colors flex items-center justify-between group">
+                  <span>Management</span>
+                  <ChevronDown className="h-3 w-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </SidebarGroupLabel>
-              )}
+              </CollapsibleTrigger>
+            )}
+            <CollapsibleContent>
               <SidebarGroupContent>
                 <SidebarMenu>
-                  {hrManagementNavItems.map(item => (
+                  {managementNavItems.map(item => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton 
                         asChild 
@@ -410,129 +488,103 @@ export function AppSidebar() {
                   ))}
                 </SidebarMenu>
               </SidebarGroupContent>
-            </SidebarGroup>
-            <SidebarSeparator />
-          </>
-        )}
-
-        {/* MANAGEMENT Section */}
-        <SidebarGroup>
-          {isExpanded && (
-            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Management
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {managementNavItems.map(item => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={isActive(item.url)}
-                    className={cn(
-                      "relative transition-all duration-200",
-                      "hover:bg-sidebar-accent/50",
-                      isActive(item.url) && [
-                        "bg-primary/10",
-                        "text-primary",
-                        "font-medium",
-                        isExpanded && "border-l-4 border-primary"
-                      ]
-                    )}
-                  >
-                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
-                      <item.icon className={cn(
-                        "h-5 w-5 transition-all",
-                        !isExpanded && "mx-auto"
-                      )} />
-                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
         <SidebarSeparator />
 
         {/* INTEGRATIONS & INTELLIGENCE Section */}
-        <SidebarGroup>
-          {isExpanded && (
-            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Integration & Intelligence
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {integrationsNavItems.map(item => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={isActive(item.url)}
-                    className={cn(
-                      "relative transition-all duration-200",
-                      "hover:bg-sidebar-accent/50",
-                      isActive(item.url) && [
-                        "bg-primary/10",
-                        "text-primary",
-                        "font-medium",
-                        isExpanded && "border-l-4 border-primary"
-                      ]
-                    )}
-                  >
-                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
-                      <item.icon className={cn(
-                        "h-5 w-5 transition-all",
-                        !isExpanded && "mx-auto"
-                      )} />
-                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <Collapsible open={sections.integrations} onOpenChange={() => toggleSection('integrations')}>
+          <SidebarGroup>
+            {isExpanded && (
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-sidebar-accent/30 rounded-sm transition-colors flex items-center justify-between group">
+                  <span>Integration & Intelligence</span>
+                  <ChevronDown className="h-3 w-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+            )}
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {integrationsNavItems.map(item => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive(item.url)}
+                        className={cn(
+                          "relative transition-all duration-200",
+                          "hover:bg-sidebar-accent/50",
+                          isActive(item.url) && [
+                            "bg-primary/10",
+                            "text-primary",
+                            "font-medium",
+                            isExpanded && "border-l-4 border-primary"
+                          ]
+                        )}
+                      >
+                        <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                          <item.icon className={cn(
+                            "h-5 w-5 transition-all",
+                            !isExpanded && "mx-auto"
+                          )} />
+                          {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
         {/* SYSTEM Section */}
-        <SidebarGroup>
-          {isExpanded && (
-            <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              System
-            </SidebarGroupLabel>
-          )}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {systemNavItems.map(item => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    isActive={isActive(item.url)}
-                    className={cn(
-                      "relative transition-all duration-200",
-                      "hover:bg-sidebar-accent/50",
-                      isActive(item.url) && [
-                        "bg-primary/10",
-                        "text-primary",
-                        "font-medium",
-                        isExpanded && "border-l-4 border-primary"
-                      ]
-                    )}
-                  >
-                    <NavLink to={item.url} className="flex items-center gap-3 w-full">
-                      <item.icon className={cn(
-                        "h-5 w-5 transition-all",
-                        !isExpanded && "mx-auto"
-                      )} />
-                      {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <Collapsible open={sections.system} onOpenChange={() => toggleSection('system')}>
+          <SidebarGroup>
+            {isExpanded && (
+              <CollapsibleTrigger asChild>
+                <SidebarGroupLabel className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider cursor-pointer hover:bg-sidebar-accent/30 rounded-sm transition-colors flex items-center justify-between group">
+                  <span>System</span>
+                  <ChevronDown className="h-3 w-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </SidebarGroupLabel>
+              </CollapsibleTrigger>
+            )}
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {systemNavItems.map(item => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        asChild 
+                        isActive={isActive(item.url)}
+                        className={cn(
+                          "relative transition-all duration-200",
+                          "hover:bg-sidebar-accent/50",
+                          isActive(item.url) && [
+                            "bg-primary/10",
+                            "text-primary",
+                            "font-medium",
+                            isExpanded && "border-l-4 border-primary"
+                          ]
+                        )}
+                      >
+                        <NavLink to={item.url} className="flex items-center gap-3 w-full">
+                          <item.icon className={cn(
+                            "h-5 w-5 transition-all",
+                            !isExpanded && "mx-auto"
+                          )} />
+                          {isExpanded && <span className="transition-opacity duration-200">{item.title}</span>}
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </SidebarGroup>
+        </Collapsible>
 
       {/* Recent Records Section */}
       {recentRecords.length > 0 && (
