@@ -7,6 +7,7 @@ interface DashboardPageLayoutProps {
   actions?: ReactNode;
   children: ReactNode;
   breadcrumbActions?: ReactNode;
+  fullWidth?: boolean;
 }
 
 export function DashboardPageLayout({ 
@@ -14,7 +15,8 @@ export function DashboardPageLayout({
   subtitle, 
   actions, 
   children, 
-  breadcrumbActions 
+  breadcrumbActions,
+  fullWidth = false
 }: DashboardPageLayoutProps) {
   return (
     <>
@@ -33,7 +35,7 @@ export function DashboardPageLayout({
             </div>
           </div>
         )}
-        <div className="container py-6">
+        <div className={fullWidth ? "w-full px-6 py-6" : "container py-6"}>
           {children}
         </div>
       </div>

@@ -10,6 +10,7 @@ export default function CommissionsPage() {
     <DashboardPageLayout
       title="Commission Management"
       subtitle="Track and manage sales commissions"
+      fullWidth={true}
     >
       <div className="space-y-6">
         <div className="grid gap-4 md:grid-cols-3">

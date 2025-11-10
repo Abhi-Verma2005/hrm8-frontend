@@ -29,6 +29,7 @@ export default function SalesPipelinePage() {
     <DashboardPageLayout
       title="Sales Pipeline"
       subtitle="Visualize and manage your sales opportunities"
+      fullWidth={true}
       actions={
         <Button>
           <Plus className="h-4 w-4 mr-2" />

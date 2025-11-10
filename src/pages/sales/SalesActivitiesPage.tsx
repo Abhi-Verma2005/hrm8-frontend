@@ -62,6 +62,7 @@ export default function SalesActivitiesPage() {
     <DashboardPageLayout
       title="Sales Activities"
       subtitle="Track and log all sales activities"
+      fullWidth={true}
       actions={
         <Button>
           <Plus className="h-4 w-4 mr-2" />

@@ -69,6 +69,7 @@ export default function SalesDashboardPage() {
     <DashboardPageLayout
       title="Sales Dashboard"
       subtitle="Monitor sales performance, pipeline, and team activity"
+      fullWidth={true}
     >
       <div className="space-y-6">
         {/* Key Metrics */}

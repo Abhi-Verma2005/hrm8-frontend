@@ -70,6 +70,7 @@ export default function OpportunitiesPage() {
     <DashboardPageLayout
       title="Opportunities"
       subtitle="Manage and track all sales opportunities"
+      fullWidth={true}
       actions={
         <Button onClick={() => navigate("/sales/opportunities/new")}>
           <Plus className="h-4 w-4 mr-2" />

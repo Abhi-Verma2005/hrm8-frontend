@@ -75,6 +75,7 @@ export default function SalesTeamPage() {
     <DashboardPageLayout
       title="Sales Team"
       subtitle="Manage your sales team and track performance"
+      fullWidth={true}
       actions={
         <Button onClick={() => navigate("/sales/team/new")}>
           <Plus className="h-4 w-4 mr-2" />
