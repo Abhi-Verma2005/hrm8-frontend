@@ -114,10 +114,14 @@ export function EnhancedStatCard({
     <Card
       className={cn(
         sizeStyles[size],
-        "transition-all duration-300 cursor-pointer group relative h-full flex flex-col justify-between",
+        "transition-all duration-300 cursor-pointer group relative h-full flex flex-col justify-between overflow-hidden",
+        "hover:scale-[1.02] active:scale-[0.98]",
+        "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
+        "before:-translate-x-full before:transition-transform before:duration-700 hover:before:translate-x-full",
+        "animate-fade-in",
         variantStyles[variant],
         gradientStyles[variant],
-        elevation !== "none" && `${elevationStyles[elevation]} hover:-translate-y-1`
+        elevation !== "none" && `${elevationStyles[elevation]} hover:-translate-y-1 hover:shadow-2xl`
       )}
     >
       <div className={cn(
@@ -125,33 +129,47 @@ export function EnhancedStatCard({
         layout === "horizontal" && "flex-row items-center",
         showMenu && "pr-8"
       )}>
-        <div className={cn("rounded-xl shadow-md", iconBgStyles[variant], iconSizeStyles[size])}>
+        <div className={cn(
+          "rounded-xl shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3",
+          "group-hover:shadow-xl",
+          iconBgStyles[variant], 
+          iconSizeStyles[size]
+        )}>
           {icon}
         </div>
         <Badge
           className={cn(
-            "shadow-sm -mt-[2px]",
+            "shadow-sm -mt-[2px] transition-all duration-300",
+            "group-hover:scale-110 group-hover:shadow-md",
             trend === "up"
               ? "bg-success/10 text-success border-success/20 hover:bg-success/20"
               : "bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/20"
           )}
         >
           {trend === "up" ? (
-            <TrendingUp className="h-3 w-3 mr-1" />
+            <TrendingUp className="h-3 w-3 mr-1 group-hover:animate-pulse" />
           ) : (
-            <TrendingDown className="h-3 w-3 mr-1" />
+            <TrendingDown className="h-3 w-3 mr-1 group-hover:animate-pulse" />
           )}
           {change}
         </Badge>
       </div>
-      <p className="text-sm text-muted-foreground mb-2 font-medium">{title}</p>
-      <h3 className={cn(valueSizeStyles[size], "font-bold tracking-tight")}>{displayValue}</h3>
+      <p className="text-sm text-muted-foreground mb-2 font-medium transition-colors duration-300 group-hover:text-foreground">
+        {title}
+      </p>
+      <h3 className={cn(
+        valueSizeStyles[size], 
+        "font-bold tracking-tight transition-all duration-300",
+        "group-hover:scale-105 group-hover:text-primary"
+      )}>
+        {displayValue}
+      </h3>
 
       {showAction && onAction && (
         <Button
           variant="ghost"
           size="sm"
-          className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0"
           onClick={(e) => {
             e.stopPropagation();
             onAction();
@@ -167,7 +185,7 @@ export function EnhancedStatCard({
             <Button
               variant="ghost"
               size="icon-sm"
-              className="absolute top-4 right-4 opacity-60 hover:opacity-100 transition-opacity"
+              className="absolute top-4 right-4 opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110 hover:rotate-90"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreVertical className="h-4 w-4" />
