@@ -1,5 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StandardChartCard } from "./StandardChartCard";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { Download, Eye, Filter } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const data = [
   { status: "Lead", count: 15 },
@@ -10,24 +12,30 @@ const data = [
 ];
 
 export function ProjectPipelineChart() {
+  const { toast } = useToast();
+  
   return (
-    <Card className="shadow-md h-full">
-      <CardHeader>
-        <CardTitle>Project Pipeline</CardTitle>
-        <CardDescription>Projects by status</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis dataKey="status" className="text-xs" />
-            <YAxis className="text-xs" />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="count" fill="hsl(var(--primary))" name="Projects" />
-          </BarChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <StandardChartCard
+      title="Project Pipeline"
+      description="Projects by status"
+      showDatePicker={false}
+      onDownload={() => toast({ title: "Downloading pipeline data..." })}
+      menuItems={[
+        { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+        { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+        { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+      ]}
+    >
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+          <XAxis dataKey="status" className="text-xs" />
+          <YAxis className="text-xs" />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="count" fill="hsl(var(--primary))" name="Projects" />
+        </BarChart>
+      </ResponsiveContainer>
+    </StandardChartCard>
   );
 }

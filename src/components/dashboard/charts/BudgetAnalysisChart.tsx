@@ -1,5 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StandardChartCard } from "./StandardChartCard";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts";
+import { Download, Eye, BarChart3 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const data = [
   { category: "Payroll", budget: 1000, actual: 890 },
@@ -11,25 +13,31 @@ const data = [
 ];
 
 export function BudgetAnalysisChart() {
+  const { toast } = useToast();
+  
   return (
-    <Card className="shadow-md h-full">
-      <CardHeader>
-        <CardTitle>Budget Analysis</CardTitle>
-        <CardDescription>Budget vs actual spending (in thousands)</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis dataKey="category" className="text-xs" />
-            <YAxis className="text-xs" />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="budget" fill="hsl(var(--chart-1))" name="Budget" />
-            <Bar dataKey="actual" fill="hsl(var(--chart-2))" name="Actual" />
-          </BarChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <StandardChartCard
+      title="Budget Analysis"
+      description="Budget vs actual spending (in thousands)"
+      showDatePicker={false}
+      onDownload={() => toast({ title: "Downloading budget data..." })}
+      menuItems={[
+        { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+        { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+        { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+      ]}
+    >
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+          <XAxis dataKey="category" className="text-xs" />
+          <YAxis className="text-xs" />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="budget" fill="hsl(var(--chart-1))" name="Budget" />
+          <Bar dataKey="actual" fill="hsl(var(--chart-2))" name="Actual" />
+        </BarChart>
+      </ResponsiveContainer>
+    </StandardChartCard>
   );
 }

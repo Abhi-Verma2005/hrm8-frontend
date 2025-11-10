@@ -1,5 +1,7 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StandardChartCard } from "./StandardChartCard";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { Download, Eye, BarChart3 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const data = [
   { name: "Payroll", value: 890 },
@@ -20,34 +22,40 @@ const COLORS = [
 ];
 
 export function CostBreakdownChart() {
+  const { toast } = useToast();
+  
   return (
-    <Card className="shadow-md h-full">
-      <CardHeader>
-        <CardTitle>Cost Breakdown</CardTitle>
-        <CardDescription>Expenses by category</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={250}>
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-              outerRadius={80}
-              fill="hsl(var(--primary))"
-              dataKey="value"
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-              ))}
-            </Pie>
-            <Tooltip />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <StandardChartCard
+      title="Cost Breakdown"
+      description="Expenses by category"
+      showDatePicker={false}
+      onDownload={() => toast({ title: "Downloading cost data..." })}
+      menuItems={[
+        { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+        { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+        { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+      ]}
+    >
+      <ResponsiveContainer width="100%" height={250}>
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+            outerRadius={80}
+            fill="hsl(var(--primary))"
+            dataKey="value"
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    </StandardChartCard>
   );
 }
