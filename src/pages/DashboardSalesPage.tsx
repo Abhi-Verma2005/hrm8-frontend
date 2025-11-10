@@ -5,7 +5,7 @@ import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCa
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import type { DateRange } from "react-day-picker";
-import { ViewOnlyEditButton } from "@/components/dashboard/ViewOnlyEditButton";
+import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { 
   TrendingUp, 
   DollarSign, 
@@ -38,6 +38,7 @@ export default function DashboardSalesPage() {
   const { toast } = useToast();
   const { formatCurrency: formatCurrencyContext } = useCurrencyFormat();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [isEditMode, setIsEditMode] = useState(false);
   const metrics = getSalesDashboardMetrics();
   const funnelData = getSalesFunnelData();
   const forecastData = getRevenueForecastData();
@@ -69,7 +70,7 @@ export default function DashboardSalesPage() {
 
   return (
     <DashboardPageLayout
-      dashboardActions={<ViewOnlyEditButton />}
+      dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
       <div className="space-y-6">
         {/* Header Section */}
@@ -81,19 +82,21 @@ export default function DashboardSalesPage() {
             </p>
           </div>
           
-          <div className="flex items-center gap-3">
-            <DateRangePicker
-              value={dateRange}
-              onChange={setDateRange}
-              placeholder="Select period"
-              align="end"
-            />
-            
-            <Button variant="secondary" size="sm" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </div>
+          {!isEditMode && (
+            <div className="flex items-center gap-3">
+              <DateRangePicker
+                value={dateRange}
+                onChange={setDateRange}
+                placeholder="Select period"
+                align="end"
+              />
+              
+              <Button variant="secondary" size="sm" onClick={handleExport}>
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Key Metrics */}

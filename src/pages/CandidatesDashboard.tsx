@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import { Badge } from "@/components/ui/badge";
-import { ViewOnlyEditButton } from "@/components/dashboard/ViewOnlyEditButton";
+import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell 
@@ -22,6 +22,7 @@ import type { DateRange } from "react-day-picker";
 
 export default function CandidatesDashboard() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [isEditMode, setIsEditMode] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const candidates = getCandidates();
@@ -108,7 +109,7 @@ export default function CandidatesDashboard() {
 
   return (
     <DashboardPageLayout
-      dashboardActions={<ViewOnlyEditButton />}
+      dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
       <div className="space-y-6 animate-fade-in">
         {/* Header Section */}
@@ -120,19 +121,21 @@ export default function CandidatesDashboard() {
             </p>
           </div>
           
-          <div className="flex items-center gap-3">
-            <DateRangePicker
-              value={dateRange}
-              onChange={setDateRange}
-              placeholder="Select period"
-              align="end"
-            />
-            
-            <Button variant="secondary" size="sm" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </div>
+          {!isEditMode && (
+            <div className="flex items-center gap-3">
+              <DateRangePicker
+                value={dateRange}
+                onChange={setDateRange}
+                placeholder="Select period"
+                align="end"
+              />
+              
+              <Button variant="secondary" size="sm" onClick={handleExport}>
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Key Metrics */}
