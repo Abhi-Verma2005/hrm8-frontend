@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DateRangePicker } from "@/components/ui/date-range-picker";
 import { Badge } from "@/components/ui/badge";
+import { ViewOnlyEditButton } from "@/components/dashboard/ViewOnlyEditButton";
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell 
@@ -121,6 +122,7 @@ export default function CandidatesDashboard() {
           </Button>
         </div>
       }
+      dashboardActions={<ViewOnlyEditButton />}
     >
       <div className="p-6 space-y-6 animate-fade-in">
         {/* Key Metrics */}

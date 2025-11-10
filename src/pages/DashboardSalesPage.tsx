@@ -5,6 +5,7 @@ import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCa
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import type { DateRange } from "react-day-picker";
+import { ViewOnlyEditButton } from "@/components/dashboard/ViewOnlyEditButton";
 import { 
   TrendingUp, 
   DollarSign, 
@@ -85,6 +86,7 @@ export default function DashboardSalesPage() {
           </Button>
         </div>
       }
+      dashboardActions={<ViewOnlyEditButton />}
     >
       <div className="space-y-6">
         {/* Key Metrics */}

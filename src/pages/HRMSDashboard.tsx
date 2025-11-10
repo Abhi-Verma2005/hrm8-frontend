@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import type { DateRange } from "react-day-picker";
+import { ViewOnlyEditButton } from "@/components/dashboard/ViewOnlyEditButton";
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell 
@@ -115,30 +116,26 @@ export default function HRMSDashboard() {
   ];
 
   return (
-    <DashboardPageLayout>
-      <div className="p-6 space-y-6 animate-fade-in">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">HR Analytics</h1>
-            <p className="text-muted-foreground">
-              Workforce insights, headcount trends, and organizational metrics
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <DateRangePicker
-              value={dateRange}
-              onChange={setDateRange}
-              placeholder="Select period"
-              align="end"
-            />
-            
-            <Button variant="outline" size="sm" onClick={handleExport}>
-              <Download className="mr-2 h-4 w-4" />
-              Export Report
-            </Button>
-          </div>
+    <DashboardPageLayout
+      title="HR Analytics"
+      subtitle="Workforce insights, headcount trends, and organizational metrics"
+      breadcrumbActions={
+        <div className="flex items-center gap-3">
+          <DateRangePicker
+            value={dateRange}
+            onChange={setDateRange}
+            placeholder="Select period"
+            align="end"
+          />
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
         </div>
+      }
+      dashboardActions={<ViewOnlyEditButton />}
+    >
+      <div className="p-6 space-y-6 animate-fade-in">
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

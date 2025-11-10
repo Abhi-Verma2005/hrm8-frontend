@@ -5,6 +5,7 @@ import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import type { DateRange } from "react-day-picker";
+import { ViewOnlyEditButton } from "@/components/dashboard/ViewOnlyEditButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -84,6 +85,7 @@ export default function DashboardRPOPage() {
           </Button>
         </div>
       }
+      dashboardActions={<ViewOnlyEditButton />}
     >
       <div className="space-y-6">
         {/* Key Metrics */}
