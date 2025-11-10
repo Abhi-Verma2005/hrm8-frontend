@@ -1,4 +1,15 @@
-export function exportToCSV(data: any[], filename: string) {
+import { formatCurrency, formatCurrencyNumber } from '@/lib/currencyUtils';
+
+export interface ExportOptions {
+  currencyFields?: string[];
+  dateFields?: string[];
+}
+
+export function exportToCSV(
+  data: any[], 
+  filename: string, 
+  options?: ExportOptions
+) {
   if (data.length === 0) return;
 
   // Get headers from first object
@@ -9,12 +20,18 @@ export function exportToCSV(data: any[], filename: string) {
     headers.join(','),
     ...data.map(row => 
       headers.map(header => {
-        const value = row[header];
-        // Handle values that might contain commas
-        if (typeof value === 'string' && value.includes(',')) {
-          return `"${value}"`;
+        let value = row[header];
+        
+        // Format currency fields
+        if (options?.currencyFields?.includes(header) && typeof value === 'number') {
+          value = formatCurrency(value);
         }
-        return value;
+        
+        // Handle values that might contain commas or quotes
+        if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+          return `"${value.replace(/"/g, '""')}"`;
+        }
+        return value ?? '';
       }).join(',')
     )
   ].join('\n');
@@ -33,17 +50,32 @@ export function exportToCSV(data: any[], filename: string) {
   document.body.removeChild(link);
 }
 
-export function exportToPDF(data: any[], title: string) {
+export function exportToPDF(
+  data: any[], 
+  title: string,
+  options?: ExportOptions
+) {
   // This is a placeholder for PDF export functionality
   // In a real implementation, you would use a library like jspdf
   alert('PDF export functionality requires jspdf library. CSV export is available.');
 }
 
-export function formatDataForExport(data: any[], fields: string[]) {
+export function formatDataForExport(
+  data: any[], 
+  fields: string[],
+  options?: ExportOptions
+) {
   return data.map(item => {
     const formatted: any = {};
     fields.forEach(field => {
-      formatted[field] = item[field];
+      let value = item[field];
+      
+      // Format currency fields
+      if (options?.currencyFields?.includes(field) && typeof value === 'number') {
+        value = formatCurrency(value);
+      }
+      
+      formatted[field] = value;
     });
     return formatted;
   });

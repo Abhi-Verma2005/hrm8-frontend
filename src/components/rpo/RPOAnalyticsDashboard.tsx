@@ -82,7 +82,9 @@ export function RPOAnalyticsDashboard() {
       ...placementPredictionData.map(d => ({ Section: 'Placement Predictions', ...d })),
       ...marketTrendData.map(d => ({ Section: 'Market Trends', ...d })),
     ];
-    exportToCSV(reportData, 'rpo_analytics_report');
+    exportToCSV(reportData, 'rpo_analytics_report', {
+      currencyFields: ['actual', 'predicted', 'lower', 'upper']
+    });
   };
 
   return (

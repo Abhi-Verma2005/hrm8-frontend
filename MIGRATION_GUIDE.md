@@ -168,3 +168,32 @@ amount.toFixed(2) // Keep as is for non-currency
 - Default format is `'whole'` (no decimals)
 - The context automatically persists user preferences
 - All currency formatting should eventually use this system for consistency
+
+## Export Functionality
+
+All export functions (CSV, Excel, PDF) automatically respect the user's currency format preference. When exporting data with currency values, the format will match what the user sees in the UI.
+
+### Using Export Functions
+
+```typescript
+import { exportToCSV } from '@/utils/exportHelpers';
+
+const data = [
+  { name: 'Item', price: 1234567, total: 9876543 }
+];
+
+// Specify which fields contain currency
+exportToCSV(data, 'my-export', {
+  currencyFields: ['price', 'total']
+});
+```
+
+See `src/utils/EXPORT_GUIDE.md` for complete export documentation.
+
+## Related Files
+
+- `src/contexts/CurrencyFormatContext.tsx` - Context and hook for currency formatting
+- `src/lib/currencyUtils.ts` - Standalone utility functions
+- `src/pages/Settings.tsx` - User preference toggle
+- `src/utils/exportHelpers.ts` - Export utilities with currency formatting
+- `src/utils/EXPORT_GUIDE.md` - Complete export documentation

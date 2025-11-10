@@ -6,16 +6,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Download, FileText, Table } from "lucide-react";
-import { exportToCSV } from "@/utils/exportHelpers";
+import { exportToCSV, ExportOptions } from "@/utils/exportHelpers";
 import { useToast } from "@/hooks/use-toast";
 
 interface ExportButtonProps {
   data: any[];
   filename: string;
   fields?: string[];
+  currencyFields?: string[];
 }
 
-export function ExportButton({ data, filename, fields }: ExportButtonProps) {
+export function ExportButton({ data, filename, fields, currencyFields }: ExportButtonProps) {
   const { toast } = useToast();
 
   const handleExportCSV = () => {
@@ -31,11 +32,15 @@ export function ExportButton({ data, filename, fields }: ExportButtonProps) {
         });
       }
       
-      exportToCSV(exportData, filename);
+      const options: ExportOptions = {
+        currencyFields: currencyFields
+      };
+      
+      exportToCSV(exportData, filename, options);
       
       toast({
         title: "Export Successful",
-        description: `${filename} exported as CSV`,
+        description: `${filename} exported as CSV with your currency format preference`,
       });
     } catch (error) {
       toast({
