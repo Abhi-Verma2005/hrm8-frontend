@@ -197,20 +197,22 @@ export function CurrencyExportExample() {
 
           {/* Method 2: ExportButton Component */}
           <div className="space-y-2">
-            <h4 className="font-semibold">Method 2: ExportButton Component (Recommended)</h4>
+            <h4 className="font-semibold">Method 2: ExportButton Component with Preview (Recommended)</h4>
             <p className="text-sm text-muted-foreground">
-              Use the reusable <code className="bg-muted px-1 rounded">ExportButton</code> component
+              Use the reusable <code className="bg-muted px-1 rounded">ExportButton</code> component with built-in preview
             </p>
             <ExportButton
               data={sampleSalesData}
               filename="sales-report"
               currencyFields={currencyFields}
+              showPreview={true}
             />
             <pre className="bg-muted p-2 rounded text-xs overflow-x-auto">
 {`<ExportButton
   data={data}
   filename="sales-report"
   currencyFields={['subtotal', 'tax', 'total']}
+  showPreview={true}
 />`}
             </pre>
           </div>

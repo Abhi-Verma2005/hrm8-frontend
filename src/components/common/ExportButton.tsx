@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -5,8 +6,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Download, FileText, Table } from "lucide-react";
+import { Download, FileText, Table, Eye } from "lucide-react";
 import { exportToCSV, ExportOptions } from "@/utils/exportHelpers";
+import { ExportPreviewDialog } from "./ExportPreviewDialog";
 import { useToast } from "@/hooks/use-toast";
 
 interface ExportButtonProps {
@@ -14,10 +16,18 @@ interface ExportButtonProps {
   filename: string;
   fields?: string[];
   currencyFields?: string[];
+  showPreview?: boolean;
 }
 
-export function ExportButton({ data, filename, fields, currencyFields }: ExportButtonProps) {
+export function ExportButton({ 
+  data, 
+  filename, 
+  fields, 
+  currencyFields,
+  showPreview = true 
+}: ExportButtonProps) {
   const { toast } = useToast();
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const handleExportCSV = () => {
     try {
@@ -51,6 +61,10 @@ export function ExportButton({ data, filename, fields, currencyFields }: ExportB
     }
   };
 
+  const handlePreview = () => {
+    setPreviewOpen(true);
+  };
+
   const handleExportJSON = () => {
     try {
       const jsonString = JSON.stringify(data, null, 2);
@@ -80,23 +94,40 @@ export function ExportButton({ data, filename, fields, currencyFields }: ExportB
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Download className="h-4 w-4 mr-2" />
-          Export
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem onClick={handleExportCSV}>
-          <Table className="h-4 w-4 mr-2" />
-          Export as CSV
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleExportJSON}>
-          <FileText className="h-4 w-4 mr-2" />
-          Export as JSON
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {showPreview && (
+            <DropdownMenuItem onClick={handlePreview}>
+              <Eye className="h-4 w-4 mr-2" />
+              Preview & Export
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuItem onClick={handleExportCSV}>
+            <Table className="h-4 w-4 mr-2" />
+            Export as CSV
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleExportJSON}>
+            <FileText className="h-4 w-4 mr-2" />
+            Export as JSON
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <ExportPreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        data={data}
+        filename={filename}
+        fields={fields}
+        currencyFields={currencyFields}
+      />
+    </>
   );
 }

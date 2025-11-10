@@ -52,9 +52,9 @@ exportToCSV(salesData, 'sales-report', {
 
 ## Using ExportButton Component
 
-The `ExportButton` component makes it easy to add export functionality to your pages.
+The `ExportButton` component makes it easy to add export functionality with preview to your pages.
 
-### Basic Example
+### Basic Example with Preview (Recommended)
 
 ```tsx
 import { ExportButton } from '@/components/common/ExportButton';
@@ -70,6 +70,28 @@ function MyComponent() {
       data={data} 
       filename="my-export"
       currencyFields={['amount']}
+      showPreview={true}  // Default is true
+    />
+  );
+}
+```
+
+### Without Preview (Direct Export)
+
+```tsx
+import { ExportButton } from '@/components/common/ExportButton';
+
+function MyComponent() {
+  const data = [
+    { name: 'Item 1', amount: 5000 }
+  ];
+
+  return (
+    <ExportButton 
+      data={data} 
+      filename="quick-export"
+      currencyFields={['amount']}
+      showPreview={false}  // Skip preview dialog
     />
   );
 }
@@ -96,7 +118,53 @@ function MyComponent() {
       filename="public-export"
       fields={['name', 'amount']}  // Only export these fields
       currencyFields={['amount']}
+      showPreview={true}
     />
+  );
+}
+```
+
+## Export Preview Dialog
+
+The export preview dialog shows users exactly how their data will look before downloading, with all currency formatting applied according to their preferences.
+
+### Features
+
+- **Visual Data Preview**: See first 10 rows with formatted values
+- **Currency Field Indicators**: Currency columns are clearly marked
+- **Format Selection**: Choose between CSV and JSON export
+- **Row/Column Count**: Quick summary of data size
+- **Responsive Design**: Works on all screen sizes
+
+### Direct Usage
+
+```tsx
+import { ExportPreviewDialog } from '@/components/common/ExportPreviewDialog';
+import { useState } from 'react';
+
+function MyComponent() {
+  const [previewOpen, setPreviewOpen] = useState(false);
+  
+  const data = [
+    { product: 'Widget A', revenue: 125000, cost: 80000 }
+  ];
+
+  return (
+    <>
+      <Button onClick={() => setPreviewOpen(true)}>
+        Preview Export
+      </Button>
+      
+      <ExportPreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        data={data}
+        filename="revenue-report"
+        currencyFields={['revenue', 'cost']}
+        title="Revenue Report Preview"
+        description="Review your revenue data before exporting"
+      />
+    </>
   );
 }
 ```
@@ -188,15 +256,19 @@ exportToCSV(invoices, 'invoices', {
 
 ## Best Practices
 
-1. **Always Specify Currency Fields**: When exporting data with currency values, always specify the `currencyFields` option to ensure proper formatting.
+1. **Always Use Preview for Important Data**: Enable `showPreview={true}` for financial or sensitive data exports to let users verify formatting.
 
-2. **Use Consistent Field Names**: Use clear field names that indicate currency values (e.g., `amount`, `price`, `total`, `revenue`).
+2. **Always Specify Currency Fields**: When exporting data with currency values, always specify the `currencyFields` option to ensure proper formatting.
 
-3. **Test Both Formats**: Test your exports with both whole number and decimal currency formats to ensure they work correctly.
+3. **Use Consistent Field Names**: Use clear field names that indicate currency values (e.g., `amount`, `price`, `total`, `revenue`).
 
-4. **Field Selection**: When using `fields` parameter, make sure your `currencyFields` only reference fields that are actually exported.
+4. **Test Both Formats**: Test your exports with both whole number and decimal currency formats to ensure they work correctly.
 
-5. **User Communication**: Let users know their export will respect their currency format preference with appropriate toast messages.
+5. **Field Selection**: When using `fields` parameter, make sure your `currencyFields` only reference fields that are actually exported.
+
+6. **User Communication**: Let users know their export will respect their currency format preference with appropriate toast messages.
+
+7. **Large Datasets**: For very large datasets (>1000 rows), consider adding a loading state or processing indicator.
 
 ## Migration from Old Code
 
@@ -226,3 +298,4 @@ exportToCSV(data, 'export', {
 - `src/lib/currencyUtils.ts` - Currency formatting functions
 - `src/contexts/CurrencyFormatContext.tsx` - Currency format context
 - `src/components/common/ExportButton.tsx` - Reusable export button component
+- `src/components/common/ExportPreviewDialog.tsx` - Export preview modal with visual data preview
