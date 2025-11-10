@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,14 +9,19 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell 
 } from "recharts";
 import { 
-  Users, TrendingUp, TrendingDown, Calendar, Clock, 
-  CheckCircle, XCircle, Target, Award, Download, Filter
+  Users, TrendingUp, TrendingDown, Clock, 
+  CheckCircle, Award, Download, Eye, Filter, BarChart3, Calendar
 } from "lucide-react";
 import { getCandidates } from "@/lib/mockCandidateStorage";
 import { Badge } from "@/components/ui/badge";
+import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
+import { useToast } from "@/hooks/use-toast";
+import type { DateRange } from "react-day-picker";
 
 export default function CandidatesDashboard() {
   const [timeRange, setTimeRange] = useState("30d");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const { toast } = useToast();
   const candidates = getCandidates();
 
   // Calculate metrics
@@ -198,141 +203,170 @@ export default function CandidatesDashboard() {
 
           <TabsContent value="trends" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Application Trends</CardTitle>
-                  <CardDescription>Monthly candidate applications over time</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <AreaChart data={monthlyTrends}>
-                      <defs>
-                        <linearGradient id="colorApplications" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Area 
-                        type="monotone" 
-                        dataKey="applications" 
-                        stroke="#3b82f6" 
-                        fillOpacity={1}
-                        fill="url(#colorApplications)" 
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Application Trends"
+                description="Monthly candidate applications over time"
+                showDatePicker={true}
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                onDownload={() => toast({ title: "Downloading application trends..." })}
+                menuItems={[
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={monthlyTrends}>
+                    <defs>
+                      <linearGradient id="colorApplications" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Area 
+                      type="monotone" 
+                      dataKey="applications" 
+                      stroke="#3b82f6" 
+                      fillOpacity={1}
+                      fill="url(#colorApplications)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Status Distribution</CardTitle>
-                  <CardDescription>Candidate pipeline by status</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={monthlyTrends}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="active" fill="#10b981" name="Active" />
-                      <Bar dataKey="placed" fill="#3b82f6" name="Placed" />
-                      <Bar dataKey="inactive" fill="#6b7280" name="Inactive" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Status Distribution"
+                description="Candidate pipeline by status"
+                showDatePicker={true}
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                onDownload={() => toast({ title: "Downloading status data..." })}
+                menuItems={[
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={monthlyTrends}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="active" fill="#10b981" name="Active" />
+                    <Bar dataKey="placed" fill="#3b82f6" name="Placed" />
+                    <Bar dataKey="inactive" fill="#6b7280" name="Inactive" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Time to Hire Trend</CardTitle>
-                  <CardDescription>Average days from application to placement</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={timeToHireData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Line 
-                        type="monotone" 
-                        dataKey="days" 
-                        stroke="#8b5cf6" 
-                        strokeWidth={2}
-                        dot={{ fill: '#8b5cf6', r: 4 }}
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Time to Hire Trend"
+                description="Average days from application to placement"
+                showDatePicker={true}
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                onDownload={() => toast({ title: "Downloading time to hire data..." })}
+                menuItems={[
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={timeToHireData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Line 
+                      type="monotone" 
+                      dataKey="days" 
+                      stroke="#8b5cf6" 
+                      strokeWidth={2}
+                      dot={{ fill: '#8b5cf6', r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Experience Level Distribution</CardTitle>
-                  <CardDescription>Candidates by experience level</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={experienceData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis dataKey="level" type="category" />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="#3b82f6">
-                        {experienceData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b'][index % 4]} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Experience Level Distribution"
+                description="Candidates by experience level"
+                onDownload={() => toast({ title: "Downloading experience data..." })}
+                menuItems={[
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={experienceData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" />
+                    <YAxis dataKey="level" type="category" />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="#3b82f6">
+                      {experienceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b'][index % 4]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
             </div>
           </TabsContent>
 
           <TabsContent value="sources" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Candidate Sources</CardTitle>
-                  <CardDescription>Where candidates are coming from</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={350}>
-                    <PieChart>
-                      <Pie
-                        data={sourceData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={120}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {sourceData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Candidate Sources"
+                description="Where candidates are coming from"
+                onDownload={() => toast({ title: "Downloading source data..." })}
+                menuItems={[
+                  { label: "View All Sources", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Filter by Source", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={350}>
+                  <PieChart>
+                    <Pie
+                      data={sourceData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={120}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {sourceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Source Performance</CardTitle>
-                  <CardDescription>Candidates by source channel</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <StandardChartCard
+                title="Source Performance"
+                description="Candidates by source channel"
+                onDownload={() => toast({ title: "Downloading performance data..." })}
+                menuItems={[
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <div className="space-y-4">
                   {sourceData.map((source, index) => (
                     <div key={index} className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -356,107 +390,113 @@ export default function CandidatesDashboard() {
                       </div>
                     </div>
                   ))}
-                </CardContent>
-              </Card>
+                </div>
+              </StandardChartCard>
             </div>
           </TabsContent>
 
           <TabsContent value="skills" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Top Skills in Demand</CardTitle>
-                <CardDescription>Most requested skills across open positions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={topSkills} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="skill" type="category" width={100} />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#3b82f6" radius={[0, 8, 8, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            <StandardChartCard
+              title="Top Skills in Demand"
+              description="Most requested skills across open positions"
+              onDownload={() => toast({ title: "Downloading skills data..." })}
+              menuItems={[
+                { label: "View All Skills", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+              ]}
+            >
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={topSkills} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="skill" type="category" width={100} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#3b82f6" radius={[0, 8, 8, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </StandardChartCard>
           </TabsContent>
 
           <TabsContent value="funnel" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recruitment Funnel</CardTitle>
-                <CardDescription>Candidate progression through hiring stages</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {funnelData.map((stage, index) => {
-                    const percentage = index === 0 ? 100 : ((stage.count / funnelData[0].count) * 100).toFixed(1);
-                    const dropOff = index > 0 
-                      ? ((funnelData[index - 1].count - stage.count) / funnelData[index - 1].count * 100).toFixed(1)
-                      : 0;
-                    
-                    return (
-                      <div key={index} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Badge 
-                              variant="outline" 
-                              className="w-20 justify-center"
-                              style={{ borderColor: stage.color, color: stage.color }}
-                            >
-                              {stage.stage}
-                            </Badge>
-                            <span className="text-2xl font-bold">{stage.count}</span>
-                            <span className="text-sm text-muted-foreground">
-                              ({percentage}% of total)
-                            </span>
-                          </div>
-                          {index > 0 && (
-                            <span className="text-sm text-destructive">
-                              -{dropOff}% drop-off
-                            </span>
-                          )}
-                        </div>
-                        <div className="w-full bg-muted rounded-full h-8">
-                          <div 
-                            className="h-8 rounded-full flex items-center justify-end px-3 transition-all"
-                            style={{ 
-                              width: `${percentage}%`,
-                              backgroundColor: stage.color 
-                            }}
+            <StandardChartCard
+              title="Recruitment Funnel"
+              description="Candidate progression through hiring stages"
+              onDownload={() => toast({ title: "Downloading funnel data..." })}
+              menuItems={[
+                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+              ]}
+            >
+              <div className="space-y-4">
+                {funnelData.map((stage, index) => {
+                  const percentage = index === 0 ? 100 : ((stage.count / funnelData[0].count) * 100).toFixed(1);
+                  const dropOff = index > 0 
+                    ? ((funnelData[index - 1].count - stage.count) / funnelData[index - 1].count * 100).toFixed(1)
+                    : 0;
+                  
+                  return (
+                    <div key={index} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Badge 
+                            variant="outline" 
+                            className="w-20 justify-center"
+                            style={{ borderColor: stage.color, color: stage.color }}
                           >
-                            <span className="text-sm font-medium text-white">
-                              {percentage}%
-                            </span>
-                          </div>
+                            {stage.stage}
+                          </Badge>
+                          <span className="text-2xl font-bold">{stage.count}</span>
+                          <span className="text-sm text-muted-foreground">
+                            ({percentage}% of total)
+                          </span>
+                        </div>
+                        {index > 0 && (
+                          <span className="text-sm text-destructive">
+                            -{dropOff}% drop-off
+                          </span>
+                        )}
+                      </div>
+                      <div className="w-full bg-muted rounded-full h-8">
+                        <div 
+                          className="h-8 rounded-full flex items-center justify-end px-3 transition-all"
+                          style={{ 
+                            width: `${percentage}%`,
+                            backgroundColor: stage.color 
+                          }}
+                        >
+                          <span className="text-sm font-medium text-white">
+                            {percentage}%
+                          </span>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
+              </div>
 
-                <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-green-500">7.8%</div>
-                      <div className="text-xs text-muted-foreground">Conversion Rate</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-blue-500">30%</div>
-                      <div className="text-xs text-muted-foreground">Screening Pass</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-purple-500">48%</div>
-                      <div className="text-xs text-muted-foreground">Interview Pass</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-orange-500">78%</div>
-                      <div className="text-xs text-muted-foreground">Offer Acceptance</div>
-                    </div>
+              <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-green-500">7.8%</div>
+                    <div className="text-xs text-muted-foreground">Conversion Rate</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-blue-500">30%</div>
+                    <div className="text-xs text-muted-foreground">Screening Pass</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-500">48%</div>
+                    <div className="text-xs text-muted-foreground">Interview Pass</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-orange-500">78%</div>
+                    <div className="text-xs text-muted-foreground">Offer Acceptance</div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </StandardChartCard>
           </TabsContent>
         </Tabs>
       </div>

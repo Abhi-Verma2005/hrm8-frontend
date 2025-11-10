@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -9,14 +9,19 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie
 } from "recharts";
 import { 
-  Target, TrendingUp, TrendingDown, Award, Users,
-  CheckCircle, Clock, AlertCircle, Download, Star
+  Target, TrendingUp, TrendingDown, Users,
+  CheckCircle, Clock, Download, Eye, Filter, BarChart3, Calendar, Star
 } from "lucide-react";
 import { getPerformanceGoals, getPerformanceReviews } from "@/lib/performanceStorage";
 import { Badge } from "@/components/ui/badge";
+import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
+import { useToast } from "@/hooks/use-toast";
+import type { DateRange } from "react-day-picker";
 
 export default function PerformanceDashboard() {
   const [timeRange, setTimeRange] = useState("6m");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const { toast } = useToast();
   const goals = getPerformanceGoals();
   const reviews = getPerformanceReviews();
 
@@ -30,7 +35,6 @@ export default function PerformanceDashboard() {
     const completedReviews = reviews.filter(r => r.status === 'completed').length;
     const pendingReviews = reviews.filter(r => r.status === 'in-progress' || r.status === 'not-started').length;
     
-    // Calculate average ratings
     const completedReviewsWithRatings = reviews.filter(r => r.status === 'completed' && r.overallRating);
     const avgRating = completedReviewsWithRatings.length > 0
       ? (completedReviewsWithRatings.reduce((sum, r) => sum + (r.overallRating || 0), 0) / completedReviewsWithRatings.length).toFixed(1)
@@ -214,59 +218,67 @@ export default function PerformanceDashboard() {
 
           <TabsContent value="goals" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Goal Progress Trends</CardTitle>
-                  <CardDescription>Monthly goal status distribution</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={goalTrends}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="completed" stackId="a" fill="#10b981" name="Completed" />
-                      <Bar dataKey="onTrack" stackId="a" fill="#3b82f6" name="On Track" />
-                      <Bar dataKey="atRisk" stackId="a" fill="#ef4444" name="At Risk" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Goal Progress Trends"
+                description="Monthly goal status distribution"
+                showDatePicker={true}
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                onDownload={() => toast({ title: "Downloading goal trends..." })}
+                menuItems={[
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={goalTrends}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="completed" stackId="a" fill="#10b981" name="Completed" />
+                    <Bar dataKey="onTrack" stackId="a" fill="#3b82f6" name="On Track" />
+                    <Bar dataKey="atRisk" stackId="a" fill="#ef4444" name="At Risk" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Goal Categories</CardTitle>
-                  <CardDescription>Distribution by goal type</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={goalCategories}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ category, percent }) => `${category}: ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={100}
-                        fill="#8884d8"
-                        dataKey="count"
-                      >
-                        {goalCategories.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Goal Categories"
+                description="Distribution by goal type"
+                onDownload={() => toast({ title: "Downloading goal categories..." })}
+                menuItems={[
+                  { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={goalCategories}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ category, percent }) => `${category}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="count"
+                    >
+                      {goalCategories.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
               <Card className="md:col-span-2">
                 <CardHeader>
                   <CardTitle>Goal Status Overview</CardTitle>
-                  <CardDescription>Current state of all goals</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -323,115 +335,139 @@ export default function PerformanceDashboard() {
 
           <TabsContent value="reviews" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Performance Ratings Distribution</CardTitle>
-                  <CardDescription>Employee rating breakdown</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={ratingsData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis dataKey="rating" type="category" width={150} />
-                      <Tooltip />
-                      <Bar dataKey="count" radius={[0, 8, 8, 0]}>
-                        {ratingsData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Performance Ratings Distribution"
+                description="Employee rating breakdown"
+                onDownload={() => toast({ title: "Downloading ratings data..." })}
+                menuItems={[
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={ratingsData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" />
+                    <YAxis dataKey="rating" type="category" width={150} />
+                    <Tooltip />
+                    <Bar dataKey="count" radius={[0, 8, 8, 0]}>
+                      {ratingsData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Review Completion</CardTitle>
-                  <CardDescription>Weekly review schedule vs completion</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={reviewTimeline}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="week" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Line 
-                        type="monotone" 
-                        dataKey="scheduled" 
-                        stroke="#94a3b8" 
-                        strokeWidth={2}
-                        name="Scheduled"
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="completed" 
-                        stroke="#10b981" 
-                        strokeWidth={2}
-                        name="Completed"
-                      />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Review Completion"
+                description="Weekly review schedule vs completion"
+                showDatePicker={true}
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                onDownload={() => toast({ title: "Downloading review data..." })}
+                menuItems={[
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={reviewTimeline}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="week" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="scheduled" 
+                      stroke="#94a3b8" 
+                      strokeWidth={2}
+                      name="Scheduled"
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="completed" 
+                      stroke="#10b981" 
+                      strokeWidth={2}
+                      name="Completed"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card className="md:col-span-2">
-                <CardHeader>
-                  <CardTitle>Performance Improvement Trends</CardTitle>
-                  <CardDescription>Quarterly employee performance changes</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={improvementData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="quarter" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="improved" fill="#10b981" name="Improved" />
-                      <Bar dataKey="maintained" fill="#3b82f6" name="Maintained" />
-                      <Bar dataKey="declined" fill="#ef4444" name="Declined" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Performance Improvement Trends"
+                description="Quarterly employee performance changes"
+                showDatePicker={true}
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                onDownload={() => toast({ title: "Downloading improvement data..." })}
+                menuItems={[
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+                className="md:col-span-2"
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={improvementData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="quarter" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="improved" fill="#10b981" name="Improved" />
+                    <Bar dataKey="maintained" fill="#3b82f6" name="Maintained" />
+                    <Bar dataKey="declined" fill="#ef4444" name="Declined" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
             </div>
           </TabsContent>
 
           <TabsContent value="competencies" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Competency Radar</CardTitle>
-                  <CardDescription>Average scores across key competencies</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={350}>
-                    <RadarChart data={competencyData}>
-                      <PolarGrid />
-                      <PolarAngleAxis dataKey="competency" />
-                      <PolarRadiusAxis angle={90} domain={[0, 5]} />
-                      <Radar 
-                        name="Average Score" 
-                        dataKey="score" 
-                        stroke="#3b82f6" 
-                        fill="#3b82f6" 
-                        fillOpacity={0.6} 
-                      />
-                      <Tooltip />
-                    </RadarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Competency Radar"
+                description="Average scores across key competencies"
+                onDownload={() => toast({ title: "Downloading competency data..." })}
+                menuItems={[
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={350}>
+                  <RadarChart data={competencyData}>
+                    <PolarGrid />
+                    <PolarAngleAxis dataKey="competency" />
+                    <PolarRadiusAxis angle={90} domain={[0, 5]} />
+                    <Radar 
+                      name="Average Score" 
+                      dataKey="score" 
+                      stroke="#3b82f6" 
+                      fill="#3b82f6" 
+                      fillOpacity={0.6} 
+                    />
+                    <Tooltip />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Competency Scores</CardTitle>
-                  <CardDescription>Detailed breakdown by competency area</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <StandardChartCard
+                title="Competency Scores"
+                description="Detailed breakdown by competency area"
+                onDownload={() => toast({ title: "Downloading scores..." })}
+                menuItems={[
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                ]}
+              >
+                <div className="space-y-4">
                   {competencyData.map((comp, index) => (
                     <div key={index} className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -448,53 +484,56 @@ export default function PerformanceDashboard() {
                       </div>
                     </div>
                   ))}
-                </CardContent>
-              </Card>
+                </div>
+              </StandardChartCard>
             </div>
           </TabsContent>
 
           <TabsContent value="departments" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Department Performance Comparison</CardTitle>
-                <CardDescription>Average ratings and goal completion by department</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={departmentPerformance}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="department" />
-                    <YAxis yAxisId="left" orientation="left" stroke="#3b82f6" />
-                    <YAxis yAxisId="right" orientation="right" stroke="#10b981" />
-                    <Tooltip />
-                    <Legend />
-                    <Bar yAxisId="left" dataKey="avgRating" fill="#3b82f6" name="Avg Rating (out of 5)" />
-                    <Bar yAxisId="right" dataKey="goalCompletion" fill="#10b981" name="Goal Completion %" />
-                  </BarChart>
-                </ResponsiveContainer>
+            <StandardChartCard
+              title="Department Performance Comparison"
+              description="Average ratings and goal completion by department"
+              onDownload={() => toast({ title: "Downloading department data..." })}
+              menuItems={[
+                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+              ]}
+            >
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={departmentPerformance}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="department" />
+                  <YAxis yAxisId="left" orientation="left" stroke="#3b82f6" />
+                  <YAxis yAxisId="right" orientation="right" stroke="#10b981" />
+                  <Tooltip />
+                  <Legend />
+                  <Bar yAxisId="left" dataKey="avgRating" fill="#3b82f6" name="Avg Rating (out of 5)" />
+                  <Bar yAxisId="right" dataKey="goalCompletion" fill="#10b981" name="Goal Completion %" />
+                </BarChart>
+              </ResponsiveContainer>
 
-                <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-green-500">86%</div>
-                      <div className="text-xs text-muted-foreground">Avg Goal Completion</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-blue-500">4.2</div>
-                      <div className="text-xs text-muted-foreground">Avg Performance Rating</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-purple-500">92%</div>
-                      <div className="text-xs text-muted-foreground">Review Completion</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-orange-500">78%</div>
-                      <div className="text-xs text-muted-foreground">Employee Engagement</div>
-                    </div>
+              <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-green-500">86%</div>
+                    <div className="text-xs text-muted-foreground">Avg Goal Completion</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-blue-500">4.2</div>
+                    <div className="text-xs text-muted-foreground">Avg Performance Rating</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-500">92%</div>
+                    <div className="text-xs text-muted-foreground">Review Completion</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-orange-500">78%</div>
+                    <div className="text-xs text-muted-foreground">Employee Engagement</div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </StandardChartCard>
           </TabsContent>
         </Tabs>
       </div>
