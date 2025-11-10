@@ -1,81 +1,62 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { DataTable, Column } from "@/components/tables/DataTable";
+import { DataTable } from "@/components/tables/DataTable";
 import { Plus, Users, DollarSign, Target, TrendingUp } from "lucide-react";
 import { getAllSalesAgents, getSalesAgentStats } from "@/lib/salesAgentStorage";
 import type { SalesAgent } from "@/types/salesAgent";
 import { StatsCard } from "@/components/ui/stats-card";
+import { createSalesAgentColumns } from "@/components/sales/SalesAgentTableColumns";
+import { SalesTeamFilterBar } from "@/components/sales/SalesTeamFilterBar";
+import { SalesAgentBulkActions } from "@/components/sales/SalesAgentBulkActions";
 
 export default function SalesTeamPage() {
   const navigate = useNavigate();
   const [salesAgents] = useState<SalesAgent[]>(getAllSalesAgents());
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
   const stats = getSalesAgentStats();
   
   const quotaAttainment = stats.totalQuota > 0 
     ? (stats.totalRevenue / stats.totalQuota * 100).toFixed(1)
     : '0';
 
-  const columns: Column<SalesAgent>[] = [
-    {
-      key: "name",
-      label: "Name",
-      render: (agent) => `${agent.firstName} ${agent.lastName}`,
-    },
-    {
-      key: "salesRole",
-      label: "Role",
-      render: (agent) => agent.salesRole.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    },
-    {
-      key: "salesType",
-      label: "Type",
-      render: (agent) => agent.salesType.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    },
-    {
-      key: "status",
-      label: "Status",
-      render: (agent) => {
-        const colors: Record<string, string> = {
-          active: "bg-green-100 text-green-800",
-          inactive: "bg-gray-100 text-gray-800",
-          "on-leave": "bg-yellow-100 text-yellow-800",
-        };
-        return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[agent.status] || colors.active}`}>
-            {agent.status.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-          </span>
-        );
-      },
-    },
-    {
-      key: "currentRevenue",
-      label: "Revenue",
-      render: (agent) => `$${(agent.currentRevenue / 1000).toFixed(0)}K`,
-    },
-    {
-      key: "closedDeals",
-      label: "Closed Deals",
-    },
-    {
-      key: "activeOpportunities",
-      label: "Active Opps",
-    },
-    {
-      key: "conversionRate",
-      label: "Win Rate",
-      render: (agent) => `${agent.conversionRate.toFixed(1)}%`,
-    },
-    {
-      key: "quota",
-      label: "Quota Attainment",
-      render: (agent) => {
-        const attainment = (agent.currentRevenue / agent.quotaAmount * 100).toFixed(0);
-        return `${attainment}%`;
-      },
-    },
-  ];
+  const columns = useMemo(() => createSalesAgentColumns(), []);
+
+  const filteredAgents = useMemo(() => {
+    return salesAgents.filter((agent) => {
+      const matchesSearch = 
+        search === "" ||
+        `${agent.firstName} ${agent.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
+        agent.email.toLowerCase().includes(search.toLowerCase());
+      
+      const matchesStatus = statusFilter === "all" || agent.status === statusFilter;
+      const matchesRole = roleFilter === "all" || agent.salesRole === roleFilter;
+      
+      return matchesSearch && matchesStatus && matchesRole;
+    });
+  }, [salesAgents, search, statusFilter, roleFilter]);
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setStatusFilter("all");
+    setRoleFilter("all");
+  };
+
+  const handleExport = () => {
+    console.log("Exporting selected agents:", selectedIds);
+  };
+
+  const handleDelete = () => {
+    console.log("Deleting selected agents:", selectedIds);
+  };
+
+  const handleSendEmail = () => {
+    console.log("Sending email to selected agents:", selectedIds);
+  };
 
   return (
     <DashboardPageLayout>
@@ -118,13 +99,32 @@ export default function SalesTeamPage() {
           />
         </div>
 
+        <SalesTeamFilterBar
+          search={search}
+          onSearchChange={setSearch}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          roleFilter={roleFilter}
+          onRoleFilterChange={setRoleFilter}
+          onClearFilters={handleClearFilters}
+        />
+
         <DataTable
           columns={columns}
-          data={salesAgents}
-          searchable
-          searchKeys={["firstName", "lastName", "email"]}
+          data={filteredAgents}
+          selectable
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
           exportable
           exportFilename="sales-team"
+        />
+
+        <SalesAgentBulkActions
+          selectedCount={selectedIds.length}
+          onExport={handleExport}
+          onDelete={handleDelete}
+          onSendEmail={handleSendEmail}
+          onClearSelection={() => setSelectedIds([])}
         />
       </div>
     </DashboardPageLayout>

@@ -1,72 +1,58 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { DataTable, Column } from "@/components/tables/DataTable";
+import { DataTable } from "@/components/tables/DataTable";
 import { Plus, Target, DollarSign, TrendingUp, Award } from "lucide-react";
 import { getAllOpportunities, getOpportunityStats } from "@/lib/salesOpportunityStorage";
 import type { SalesOpportunity } from "@/types/salesOpportunity";
-import { format } from "date-fns";
 import { StatsCard } from "@/components/ui/stats-card";
+import { createOpportunityColumns } from "@/components/sales/SalesOpportunityTableColumns";
+import { OpportunitiesFilterBar } from "@/components/sales/OpportunitiesFilterBar";
+import { OpportunityBulkActions } from "@/components/sales/OpportunityBulkActions";
 
 export default function OpportunitiesPage() {
   const navigate = useNavigate();
   const [opportunities] = useState<SalesOpportunity[]>(getAllOpportunities());
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+  const [stageFilter, setStageFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const stats = getOpportunityStats();
 
-  const columns: Column<SalesOpportunity>[] = [
-    {
-      key: "name",
-      label: "Opportunity",
-    },
-    {
-      key: "employerName",
-      label: "Employer",
-    },
-    {
-      key: "salesAgentName",
-      label: "Sales Agent",
-    },
-    {
-      key: "type",
-      label: "Type",
-      render: (opp) => opp.type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    },
-    {
-      key: "stage",
-      label: "Stage",
-      render: (opp) => {
-        const colors: Record<string, string> = {
-          prospecting: "bg-blue-100 text-blue-800",
-          qualification: "bg-purple-100 text-purple-800",
-          proposal: "bg-yellow-100 text-yellow-800",
-          negotiation: "bg-orange-100 text-orange-800",
-          "closed-won": "bg-green-100 text-green-800",
-          "closed-lost": "bg-red-100 text-red-800",
-        };
-        return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[opp.stage]}`}>
-            {opp.stage.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-          </span>
-        );
-      },
-    },
-    {
-      key: "estimatedValue",
-      label: "Value",
-      render: (opp) => `$${(opp.estimatedValue / 1000).toFixed(0)}K`,
-    },
-    {
-      key: "probability",
-      label: "Probability",
-      render: (opp) => `${opp.probability}%`,
-    },
-    {
-      key: "expectedCloseDate",
-      label: "Expected Close",
-      render: (opp) => format(new Date(opp.expectedCloseDate), 'MMM dd, yyyy'),
-    },
-  ];
+  const columns = useMemo(() => createOpportunityColumns(), []);
+
+  const filteredOpportunities = useMemo(() => {
+    return opportunities.filter((opp) => {
+      const matchesSearch = 
+        search === "" ||
+        opp.name.toLowerCase().includes(search.toLowerCase()) ||
+        opp.employerName.toLowerCase().includes(search.toLowerCase());
+      
+      const matchesStage = stageFilter === "all" || opp.stage === stageFilter;
+      const matchesType = typeFilter === "all" || opp.type === typeFilter;
+      
+      return matchesSearch && matchesStage && matchesType;
+    });
+  }, [opportunities, search, stageFilter, typeFilter]);
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setStageFilter("all");
+    setTypeFilter("all");
+  };
+
+  const handleExport = () => {
+    console.log("Exporting selected opportunities:", selectedIds);
+  };
+
+  const handleDelete = () => {
+    console.log("Deleting selected opportunities:", selectedIds);
+  };
+
+  const handleChangeStage = () => {
+    console.log("Changing stage for selected opportunities:", selectedIds);
+  };
 
   return (
     <DashboardPageLayout>
@@ -109,13 +95,32 @@ export default function OpportunitiesPage() {
           />
         </div>
 
+        <OpportunitiesFilterBar
+          search={search}
+          onSearchChange={setSearch}
+          stageFilter={stageFilter}
+          onStageFilterChange={setStageFilter}
+          typeFilter={typeFilter}
+          onTypeFilterChange={setTypeFilter}
+          onClearFilters={handleClearFilters}
+        />
+
         <DataTable
           columns={columns}
-          data={opportunities}
-          searchable
-          searchKeys={["name", "employerName"]}
+          data={filteredOpportunities}
+          selectable
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
           exportable
           exportFilename="opportunities"
+        />
+
+        <OpportunityBulkActions
+          selectedCount={selectedIds.length}
+          onExport={handleExport}
+          onDelete={handleDelete}
+          onChangeStage={handleChangeStage}
+          onClearSelection={() => setSelectedIds([])}
         />
       </div>
     </DashboardPageLayout>

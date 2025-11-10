@@ -1,62 +1,58 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { DataTable, Column } from "@/components/tables/DataTable";
+import { DataTable } from "@/components/tables/DataTable";
 import { Plus, MapPin, Users, Building2, DollarSign } from "lucide-react";
 import { getAllTerritories, getTerritoryStats } from "@/lib/salesTerritoryStorage";
 import type { SalesTerritory } from "@/types/salesTerritory";
 import { StatsCard } from "@/components/ui/stats-card";
+import { createTerritoryColumns } from "@/components/sales/SalesTerritoryTableColumns";
+import { TerritoriesFilterBar } from "@/components/sales/TerritoriesFilterBar";
+import { TerritoryBulkActions } from "@/components/sales/TerritoryBulkActions";
 
 export default function TerritoriesPage() {
   const [territories] = useState<SalesTerritory[]>(getAllTerritories());
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+  const [regionFilter, setRegionFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const stats = getTerritoryStats();
 
-  const columns: Column<SalesTerritory>[] = [
-    {
-      key: "name",
-      label: "Territory",
-    },
-    {
-      key: "region",
-      label: "Region",
-      render: (territory) => territory.region.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-    },
-    {
-      key: "primarySalesAgentName",
-      label: "Primary Agent",
-      render: (territory) => territory.primarySalesAgentName || "Unassigned",
-    },
-    {
-      key: "activeEmployers",
-      label: "Active Employers",
-    },
-    {
-      key: "totalEmployers",
-      label: "Total Employers",
-    },
-    {
-      key: "annualRevenue",
-      label: "Revenue",
-      render: (territory) => `$${(territory.annualRevenue / 1000).toFixed(0)}K`,
-    },
-    {
-      key: "quotaAttainment",
-      label: "Quota Attainment",
-      render: (territory) => {
-        const attainment = (territory.annualRevenue / territory.quota * 100).toFixed(0);
-        return `${attainment}%`;
-      },
-    },
-    {
-      key: "isActive",
-      label: "Status",
-      render: (territory) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-medium ${territory.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}>
-          {territory.isActive ? 'Active' : 'Inactive'}
-        </span>
-      ),
-    },
-  ];
+  const columns = useMemo(() => createTerritoryColumns(), []);
+
+  const filteredTerritories = useMemo(() => {
+    return territories.filter((territory) => {
+      const matchesSearch = 
+        search === "" ||
+        territory.name.toLowerCase().includes(search.toLowerCase()) ||
+        (territory.primarySalesAgentName && territory.primarySalesAgentName.toLowerCase().includes(search.toLowerCase()));
+      
+      const matchesRegion = regionFilter === "all" || territory.region === regionFilter;
+      const matchesStatus = statusFilter === "all" || 
+        (statusFilter === "active" && territory.isActive) ||
+        (statusFilter === "inactive" && !territory.isActive);
+      
+      return matchesSearch && matchesRegion && matchesStatus;
+    });
+  }, [territories, search, regionFilter, statusFilter]);
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setRegionFilter("all");
+    setStatusFilter("all");
+  };
+
+  const handleExport = () => {
+    console.log("Exporting selected territories:", selectedIds);
+  };
+
+  const handleDelete = () => {
+    console.log("Deleting selected territories:", selectedIds);
+  };
+
+  const handleAssignAgents = () => {
+    console.log("Assigning agents to territories:", selectedIds);
+  };
 
   return (
     <DashboardPageLayout>
@@ -99,13 +95,32 @@ export default function TerritoriesPage() {
           />
         </div>
 
+        <TerritoriesFilterBar
+          search={search}
+          onSearchChange={setSearch}
+          regionFilter={regionFilter}
+          onRegionFilterChange={setRegionFilter}
+          statusFilter={statusFilter}
+          onStatusFilterChange={setStatusFilter}
+          onClearFilters={handleClearFilters}
+        />
+
         <DataTable
           columns={columns}
-          data={territories}
-          searchable
-          searchKeys={["name", "primarySalesAgentName"]}
+          data={filteredTerritories}
+          selectable
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
           exportable
           exportFilename="territories"
+        />
+
+        <TerritoryBulkActions
+          selectedCount={selectedIds.length}
+          onExport={handleExport}
+          onDelete={handleDelete}
+          onAssignAgents={handleAssignAgents}
+          onClearSelection={() => setSelectedIds([])}
         />
       </div>
     </DashboardPageLayout>

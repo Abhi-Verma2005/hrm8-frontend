@@ -1,64 +1,56 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { DataTable, Column } from "@/components/tables/DataTable";
+import { DataTable } from "@/components/tables/DataTable";
 import { Plus, ListChecks, Calendar, AlertCircle, CheckCircle } from "lucide-react";
 import { getAllActivities, getActivityStats } from "@/lib/salesActivityStorage";
 import type { SalesActivity } from "@/types/salesActivity";
-import { format } from "date-fns";
 import { StatsCard } from "@/components/ui/stats-card";
+import { createActivityColumns } from "@/components/sales/SalesActivityTableColumns";
+import { ActivitiesFilterBar } from "@/components/sales/ActivitiesFilterBar";
+import { ActivityBulkActions } from "@/components/sales/ActivityBulkActions";
 
 export default function SalesActivitiesPage() {
   const [activities] = useState<SalesActivity[]>(getAllActivities());
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [outcomeFilter, setOutcomeFilter] = useState("all");
   const stats = getActivityStats();
 
-  const columns: Column<SalesActivity>[] = [
-    {
-      key: "subject",
-      label: "Subject",
-    },
-    {
-      key: "activityType",
-      label: "Type",
-      render: (activity) => activity.activityType.charAt(0).toUpperCase() + activity.activityType.slice(1),
-    },
-    {
-      key: "salesAgentName",
-      label: "Sales Agent",
-    },
-    {
-      key: "employerName",
-      label: "Employer",
-      render: (activity) => activity.employerName || "-",
-    },
-    {
-      key: "outcome",
-      label: "Outcome",
-      render: (activity) => {
-        if (!activity.outcome) return "-";
-        const colors: Record<string, string> = {
-          successful: "bg-green-100 text-green-800",
-          unsuccessful: "bg-red-100 text-red-800",
-          "follow-up-needed": "bg-orange-100 text-orange-800",
-        };
-        return (
-          <span className={`px-2 py-1 rounded-full text-xs font-medium ${colors[activity.outcome]}`}>
-            {activity.outcome.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
-          </span>
-        );
-      },
-    },
-    {
-      key: "completedAt",
-      label: "Completed",
-      render: (activity) => activity.completedAt ? format(new Date(activity.completedAt), 'MMM dd, yyyy HH:mm') : "Scheduled",
-    },
-    {
-      key: "duration",
-      label: "Duration",
-      render: (activity) => activity.duration ? `${activity.duration} min` : "-",
-    },
-  ];
+  const columns = useMemo(() => createActivityColumns(), []);
+
+  const filteredActivities = useMemo(() => {
+    return activities.filter((activity) => {
+      const matchesSearch = 
+        search === "" ||
+        activity.subject.toLowerCase().includes(search.toLowerCase()) ||
+        activity.salesAgentName.toLowerCase().includes(search.toLowerCase());
+      
+      const matchesType = typeFilter === "all" || activity.activityType === typeFilter;
+      const matchesOutcome = outcomeFilter === "all" || activity.outcome === outcomeFilter;
+      
+      return matchesSearch && matchesType && matchesOutcome;
+    });
+  }, [activities, search, typeFilter, outcomeFilter]);
+
+  const handleClearFilters = () => {
+    setSearch("");
+    setTypeFilter("all");
+    setOutcomeFilter("all");
+  };
+
+  const handleExport = () => {
+    console.log("Exporting selected activities:", selectedIds);
+  };
+
+  const handleDelete = () => {
+    console.log("Deleting selected activities:", selectedIds);
+  };
+
+  const handleMarkComplete = () => {
+    console.log("Marking activities as complete:", selectedIds);
+  };
 
   return (
     <DashboardPageLayout>
@@ -101,13 +93,32 @@ export default function SalesActivitiesPage() {
           />
         </div>
 
+        <ActivitiesFilterBar
+          search={search}
+          onSearchChange={setSearch}
+          typeFilter={typeFilter}
+          onTypeFilterChange={setTypeFilter}
+          outcomeFilter={outcomeFilter}
+          onOutcomeFilterChange={setOutcomeFilter}
+          onClearFilters={handleClearFilters}
+        />
+
         <DataTable
           columns={columns}
-          data={activities}
-          searchable
-          searchKeys={["subject", "salesAgentName"]}
+          data={filteredActivities}
+          selectable
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
           exportable
           exportFilename="sales-activities"
+        />
+
+        <ActivityBulkActions
+          selectedCount={selectedIds.length}
+          onExport={handleExport}
+          onDelete={handleDelete}
+          onMarkComplete={handleMarkComplete}
+          onClearSelection={() => setSelectedIds([])}
         />
       </div>
     </DashboardPageLayout>
