@@ -1,8 +1,8 @@
 import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, Download, Image as ImageIcon, Users, UserCheck, UserX, UserPlus, BarChart3, List, Kanban, Search, Filter } from "lucide-react";
+import { Plus, Upload, Download, Image as ImageIcon, Users, UserCheck, UserX, UserPlus, BarChart3, List, Kanban, Search, Filter, Eye } from "lucide-react";
 import { DataTable } from "@/components/tables/DataTable";
 import { createEmployeeColumns } from "@/components/hrms/EmployeeTableColumns";
 import { EmployeesFilterBar } from "@/components/hrms/EmployeesFilterBar";
@@ -13,7 +13,7 @@ import { BulkPhotoUploadDialog } from "@/components/hrms/BulkPhotoUploadDialog";
 import { BulkEditDialog } from "@/components/hrms/BulkEditDialog";
 import { EmployeesBulkActionsToolbar } from "@/components/hrms/EmployeesBulkActionsToolbar";
 import { EmployeesKanbanBoard } from "@/components/hrms/EmployeesKanbanBoard";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Employee } from "@/types/employee";
 import { getEmployees } from "@/lib/employeeStorage";
@@ -23,6 +23,7 @@ import { isWithinInterval, parseISO, startOfMonth } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
 export default function HRMS() {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -263,29 +264,90 @@ export default function HRMS() {
 
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Employees"
-            value={stats.total}
-            icon={Users}
-            description={`${stats.active} currently active`}
+            value={stats.total.toString()}
+            change={`${stats.active} currently active`}
+            icon={<Users className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All Employees",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/hrms/employees')
+              },
+              {
+                label: "Add Employee",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => navigate('/hrms/employees/new')
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => setExportDialogOpen(true)
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Active"
-            value={stats.active}
-            icon={UserCheck}
-            description={`${stats.total > 0 ? ((stats.active / stats.total) * 100).toFixed(0) : 0}% of workforce`}
+            value={stats.active.toString()}
+            change={`${stats.total > 0 ? ((stats.active / stats.total) * 100).toFixed(0) : 0}% of workforce`}
+            icon={<UserCheck className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Active",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => { setStatusFilter('active'); }
+              },
+              {
+                label: "Filter by Status",
+                icon: <Filter className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="On Leave"
-            value={stats.onLeave}
-            icon={UserX}
-            description="Currently on leave"
+            value={stats.onLeave.toString()}
+            change="Currently on leave"
+            icon={<UserX className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View on Leave",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => { setStatusFilter('on-leave'); }
+              },
+              {
+                label: "Approve Leave",
+                icon: <UserCheck className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="New Hires"
-            value={stats.newHires}
-            icon={UserPlus}
-            description="This month"
+            value={stats.newHires.toString()}
+            change="This month"
+            icon={<UserPlus className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View New Hires",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/hrms/employees')
+              },
+              {
+                label: "Onboarding Tasks",
+                icon: <List className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 

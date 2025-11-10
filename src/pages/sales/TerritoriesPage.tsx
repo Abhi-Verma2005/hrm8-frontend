@@ -2,10 +2,10 @@ import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/DataTable";
-import { Plus, MapPin, Users, Building2, DollarSign } from "lucide-react";
+import { Plus, MapPin, Users, Building2, DollarSign, Eye, Download } from "lucide-react";
 import { getAllTerritories, getTerritoryStats } from "@/lib/salesTerritoryStorage";
 import type { SalesTerritory } from "@/types/salesTerritory";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { createTerritoryColumns } from "@/components/sales/SalesTerritoryTableColumns";
 import { TerritoriesFilterBar } from "@/components/sales/TerritoriesFilterBar";
 import { TerritoryBulkActions } from "@/components/sales/TerritoryBulkActions";
@@ -68,29 +68,82 @@ export default function TerritoriesPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Territories"
-            value={stats.total}
-            icon={MapPin}
-            description={`${stats.active} active`}
+            value={stats.total.toString()}
+            change={`${stats.active} active`}
+            icon={<MapPin className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All Territories",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "New Territory",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Active Employers"
-            value={stats.activeEmployers}
-            icon={Building2}
-            description="Across territories"
+            value={stats.activeEmployers.toString()}
+            change="Across territories"
+            icon={<Building2 className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Employers",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Total Employers"
-            value={stats.totalEmployers}
-            icon={Users}
-            description="All employers"
+            value={stats.totalEmployers.toString()}
+            change="All employers"
+            icon={<Users className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Total Revenue"
-            value={`$${stats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            icon={DollarSign}
-            description="All territories"
+            value={stats.totalRevenue.toString()}
+            change="All territories"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="warning"
+            isCurrency={true}
+            rawValue={stats.totalRevenue}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Report",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 

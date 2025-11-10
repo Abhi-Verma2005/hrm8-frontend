@@ -1,8 +1,9 @@
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { RPOContractsTable } from '@/components/rpo/RPOContractsTable';
-import { StatsCard } from '@/components/ui/stats-card';
-import { Building2, Users, DollarSign, Clock, TrendingUp, FileText, BarChart3 } from 'lucide-react';
+import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
+import { Building2, Users, DollarSign, Clock, TrendingUp, FileText, BarChart3, Eye, Plus, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 import { ServiceProject } from '@/types/recruitmentService';
 import { useCurrencyFormat } from '@/contexts/CurrencyFormatContext';
 
@@ -111,6 +112,7 @@ const mockContracts: ServiceProject[] = [
 ];
 
 export default function RPOManagementPage() {
+  const navigate = useNavigate();
   const { formatCurrency } = useCurrencyFormat();
   
   // Calculate metrics from contracts
@@ -158,37 +160,96 @@ export default function RPOManagementPage() {
 
         {/* Metric Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Active Contracts"
             value={totalContracts.toString()}
-            description="Currently running RPO contracts"
-            icon={Building2}
-            trend={{ value: 12, isPositive: true }}
-            change="vs last month"
+            change="Currently running RPO contracts"
+            trend="up"
+            icon={<Building2 className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All Contracts",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/recruitment-services/rpo/contracts')
+              },
+              {
+                label: "Create Contract",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Dedicated Consultants"
             value={totalConsultants.toString()}
-            description="Total assigned consultants"
-            icon={Users}
-            trend={{ value: 8, isPositive: true }}
-            change="new this quarter"
+            change="Total assigned consultants"
+            trend="up"
+            icon={<Users className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All Consultants",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/recruitment-services/rpo/consultants')
+              },
+              {
+                label: "Manage Consultants",
+                icon: <Users className="h-4 w-4" />,
+                onClick: () => navigate('/recruitment-services/rpo/consultants')
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Monthly Recurring Revenue"
-            value={formatCurrency(monthlyRevenue)}
-            description="Total MRR from active contracts"
-            icon={DollarSign}
-            trend={{ value: 15, isPositive: true }}
-            change="growth rate"
+            value={monthlyRevenue.toString()}
+            change="Total MRR from active contracts"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="primary"
+            isCurrency={true}
+            rawValue={monthlyRevenue}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => navigate('/recruitment-services/rpo/forecast')
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Expiring Soon"
             value={expiringContracts.toString()}
-            description="Contracts ending in 30 days"
-            icon={Clock}
-            trend={{ value: 2, isPositive: false }}
-            change="require action"
+            change="Contracts ending in 30 days"
+            trend="down"
+            icon={<Clock className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Renewals",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/recruitment-services/rpo/renewals')
+              },
+              {
+                label: "Set Reminders",
+                icon: <Clock className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 

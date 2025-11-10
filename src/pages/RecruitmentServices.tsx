@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Building, DollarSign, FileText } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Building, DollarSign, FileText, Eye } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
-import { StatsCard } from '@/components/ui/stats-card';
+import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { createServiceProjectColumns } from '@/components/recruitment-services/ServiceProjectTableColumns';
 import { getAllServiceProjects, getServiceStats, updateServiceProject } from '@/lib/recruitmentServiceStorage';
 import { toast } from 'sonner';
@@ -13,6 +13,7 @@ import type { ServiceStats } from '@/types/recruitmentService';
 import { useCurrencyFormat } from '@/contexts/CurrencyFormatContext';
 
 export default function RecruitmentServices() {
+  const navigate = useNavigate();
   const { formatCurrency } = useCurrencyFormat();
   const [projects, setProjects] = useState<ServiceProject[]>([]);
   const [stats, setStats] = useState<ServiceStats | null>(null);
@@ -111,43 +112,113 @@ export default function RecruitmentServices() {
         {loading ? (
           <div className="text-center py-8 text-muted-foreground">Loading...</div>
         ) : stats ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-            <StatsCard
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <EnhancedStatCard
               title="Active Projects"
-              value={stats.totalActive}
-              icon={FolderKanban}
+              value={stats.totalActive.toString()}
               change="+7"
+              icon={<FolderKanban className="h-6 w-6" />}
+              variant="neutral"
+              showMenu={true}
+              menuItems={[
+                {
+                  label: "View All Projects",
+                  icon: <Eye className="h-4 w-4" />,
+                  onClick: () => navigate('/recruitment-services')
+                },
+                {
+                  label: "Create Project",
+                  icon: <Plus className="h-4 w-4" />,
+                  onClick: () => toast.info('New service project coming soon!')
+                }
+              ]}
             />
             
-            <StatsCard
+            <EnhancedStatCard
               title="Shortlisting"
-              value={stats.byType.shortlisting}
-              icon={Users}
+              value={stats.byType.shortlisting.toString()}
+              change="Projects"
+              icon={<Users className="h-6 w-6" />}
+              variant="primary"
+              showMenu={true}
+              menuItems={[
+                {
+                  label: "View Shortlisting",
+                  icon: <Eye className="h-4 w-4" />,
+                  onClick: () => navigate('/recruitment-services')
+                }
+              ]}
             />
 
-            <StatsCard
+            <EnhancedStatCard
               title="Full-Service"
-              value={stats.byType.fullService}
-              icon={Briefcase}
+              value={stats.byType.fullService.toString()}
+              change="Projects"
+              icon={<Briefcase className="h-6 w-6" />}
+              variant="success"
+              showMenu={true}
+              menuItems={[
+                {
+                  label: "View Full-Service",
+                  icon: <Eye className="h-4 w-4" />,
+                  onClick: () => navigate('/recruitment-services')
+                }
+              ]}
             />
 
-            <StatsCard
+            <EnhancedStatCard
               title="Executive Search"
-              value={stats.byType.executiveSearch}
-              icon={Target}
+              value={stats.byType.executiveSearch.toString()}
+              change="Projects"
+              icon={<Target className="h-6 w-6" />}
+              variant="warning"
+              showMenu={true}
+              menuItems={[
+                {
+                  label: "View Executive",
+                  icon: <Eye className="h-4 w-4" />,
+                  onClick: () => navigate('/recruitment-services')
+                }
+              ]}
             />
 
-            <StatsCard
+            <EnhancedStatCard
               title="RPO"
-              value={stats.byType.rpo}
-              icon={Building}
+              value={stats.byType.rpo.toString()}
+              change="Contracts"
+              icon={<Building className="h-6 w-6" />}
+              variant="primary"
+              showMenu={true}
+              menuItems={[
+                {
+                  label: "View RPO",
+                  icon: <Eye className="h-4 w-4" />,
+                  onClick: () => navigate('/recruitment-services/rpo')
+                }
+              ]}
             />
 
-            <StatsCard
+            <EnhancedStatCard
               title="Service Revenue"
-              value={formatCurrency(stats.totalRevenue)}
-              icon={DollarSign}
+              value={stats.totalRevenue.toString()}
               change="+22%"
+              icon={<DollarSign className="h-6 w-6" />}
+              variant="success"
+              isCurrency={true}
+              rawValue={stats.totalRevenue}
+              showMenu={true}
+              menuItems={[
+                {
+                  label: "View Report",
+                  icon: <Eye className="h-4 w-4" />,
+                  onClick: () => navigate('/dashboard/recruitment-services')
+                },
+                {
+                  label: "Export",
+                  icon: <Download className="h-4 w-4" />,
+                  onClick: () => {}
+                }
+              ]}
             />
           </div>
         ) : null}

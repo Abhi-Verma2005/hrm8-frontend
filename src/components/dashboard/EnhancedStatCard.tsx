@@ -15,7 +15,7 @@ interface EnhancedStatCardProps {
   title: string;
   value: string | number;
   change: string;
-  trend: "up" | "down";
+  trend?: "up" | "down";
   icon: React.ReactNode;
   variant?: "primary" | "success" | "warning" | "neutral";
   showAction?: boolean;

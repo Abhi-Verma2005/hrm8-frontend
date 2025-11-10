@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Clock, CheckCircle2, TrendingUp, Download } from "lucide-react";
+import { DollarSign, Clock, CheckCircle2, TrendingUp, Download, Eye, BarChart3 } from "lucide-react";
 import { DataTable } from "@/components/tables/DataTable";
 import { createCommissionColumns } from "@/components/sales/CommissionTableColumns";
 import { CommissionsFilterBar } from "@/components/sales/CommissionsFilterBar";
@@ -95,32 +95,96 @@ export default function CommissionsPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Earned"
-            value={`$${stats.totalEarned.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            icon={DollarSign}
-            description={`${stats.paidCount} commissions paid`}
-            trend={{ value: 12, isPositive: true }}
+            value={stats.totalEarned.toString()}
+            change={`${stats.paidCount} commissions paid`}
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="success"
+            isCurrency={true}
+            rawValue={stats.totalEarned}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All Commissions",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "View Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => setExportDialogOpen(true)
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Pending"
-            value={`$${stats.pending.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            icon={Clock}
-            description={`${stats.pendingCount + stats.approvedCount} awaiting payment`}
+            value={stats.pending.toString()}
+            change={`${stats.pendingCount + stats.approvedCount} awaiting payment`}
+            icon={<Clock className="h-6 w-6" />}
+            variant="warning"
+            isCurrency={true}
+            rawValue={stats.pending}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Pending",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => setStatusFilter('pending')
+              },
+              {
+                label: "Approve All",
+                icon: <CheckCircle2 className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Paid This Month"
-            value={`$${stats.paidThisMonth.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            icon={CheckCircle2}
-            description="Current month payments"
-            trend={{ value: 8, isPositive: true }}
+            value={stats.paidThisMonth.toString()}
+            change="Current month payments"
+            trend="up"
+            icon={<CheckCircle2 className="h-6 w-6" />}
+            variant="primary"
+            isCurrency={true}
+            rawValue={stats.paidThisMonth}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Paid",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => setStatusFilter('paid')
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => setExportDialogOpen(true)
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Average Commission"
-            value={`$${stats.averageCommission.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            icon={TrendingUp}
-            description="Per deal average"
-            trend={{ value: 5, isPositive: true }}
+            value={stats.averageCommission.toString()}
+            change="Per deal average"
+            trend="up"
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="neutral"
+            isCurrency={true}
+            rawValue={stats.averageCommission}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Analytics",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 

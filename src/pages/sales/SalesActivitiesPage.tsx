@@ -2,10 +2,10 @@ import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/DataTable";
-import { Plus, ListChecks, Calendar, AlertCircle, CheckCircle } from "lucide-react";
+import { Plus, ListChecks, Calendar, AlertCircle, CheckCircle, Eye, Download } from "lucide-react";
 import { getAllActivities, getActivityStats } from "@/lib/salesActivityStorage";
 import type { SalesActivity } from "@/types/salesActivity";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { createActivityColumns } from "@/components/sales/SalesActivityTableColumns";
 import { ActivitiesFilterBar } from "@/components/sales/ActivitiesFilterBar";
 import { ActivityBulkActions } from "@/components/sales/ActivityBulkActions";
@@ -66,29 +66,80 @@ export default function SalesActivitiesPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Activities"
-            value={stats.total}
-            icon={ListChecks}
-            description="All time"
+            value={stats.total.toString()}
+            change="All time"
+            icon={<ListChecks className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All Activities",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Log Activity",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Completed"
-            value={stats.completed}
-            icon={CheckCircle}
-            description="Finished tasks"
+            value={stats.completed.toString()}
+            change="Finished tasks"
+            icon={<CheckCircle className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Completed",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Upcoming"
-            value={stats.upcoming}
-            icon={Calendar}
-            description="Scheduled"
+            value={stats.upcoming.toString()}
+            change="Scheduled"
+            icon={<Calendar className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Schedule",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Follow-ups"
-            value={stats.followUpNeeded}
-            icon={AlertCircle}
-            description="Need attention"
+            value={stats.followUpNeeded.toString()}
+            change="Need attention"
+            icon={<AlertCircle className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Follow-ups",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Mark Complete",
+                icon: <CheckCircle className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 

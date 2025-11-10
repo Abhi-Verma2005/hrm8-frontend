@@ -3,18 +3,17 @@ import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Target, DollarSign, TrendingUp, Award, LayoutGrid, List } from "lucide-react";
+import { Plus, Target, DollarSign, TrendingUp, Award, LayoutGrid, List, Eye, Download, BarChart3 } from "lucide-react";
 import { DataTable } from "@/components/tables/DataTable";
 import { getAllOpportunities, getOpportunityStats } from "@/lib/salesOpportunityStorage";
 import type { SalesOpportunity, OpportunityStage, OpportunityType } from "@/types/salesOpportunity";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { createOpportunityColumns } from "@/components/sales/SalesOpportunityTableColumns";
 import { OpportunitiesFilterBar } from "@/components/sales/OpportunitiesFilterBar";
 import { OpportunityBulkActions } from "@/components/sales/OpportunityBulkActions";
 import { useToast } from "@/hooks/use-toast";
 import { exportOpportunities } from "@/lib/salesExportService";
 import { SalesExportDialog, ExportConfig } from "@/components/sales/SalesExportDialog";
-import { Download } from "lucide-react";
 
 export default function SalesPipelinePage() {
   const navigate = useNavigate();
@@ -143,29 +142,79 @@ export default function SalesPipelinePage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Opportunities"
-            value={stats.total}
-            icon={Target}
-            description={`${stats.active} in pipeline`}
+            value={stats.total.toString()}
+            change={`${stats.active} in pipeline`}
+            icon={<Target className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All Opportunities",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/sales/opportunities')
+              },
+              {
+                label: "Create Opportunity",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => navigate('/sales/opportunities/new')
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Pipeline Value"
-            value={`$${stats.pipelineValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            icon={DollarSign}
-            description="Open opportunities"
+            value={stats.pipelineValue.toString()}
+            change="Open opportunities"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="primary"
+            isCurrency={true}
+            rawValue={stats.pipelineValue}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Forecast",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => navigate('/sales/forecast')
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => setExportDialogOpen(true)
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Win Rate"
             value={`${stats.conversionRate.toFixed(1)}%`}
-            icon={Award}
-            description="Conversion rate"
+            change="Conversion rate"
+            icon={<Award className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Avg Deal Size"
-            value={`$${stats.avgDealSize.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            icon={TrendingUp}
-            description="Per closed deal"
+            value={stats.avgDealSize.toString()}
+            change="Per closed deal"
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="warning"
+            isCurrency={true}
+            rawValue={stats.avgDealSize}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Analytics",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 

@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
-import { Plus, Download, Upload, Building, DollarSign, Briefcase, Clock, BarChart3 } from "lucide-react";
+import { Plus, Download, Upload, Building, DollarSign, Briefcase, Clock, BarChart3, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DataTable } from "@/components/tables/DataTable";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { EmployersFilterBar } from "@/components/employers/EmployersFilterBar";
 import { createEmployerColumns } from "@/components/employers/EmployerTableColumns";
 import { getEmployers, deleteEmployer } from "@/lib/employerService";
@@ -20,11 +20,13 @@ import type { SubscriptionTier } from "@/lib/subscriptionConfig";
 import { toast } from "sonner";
 
 export default function Employers() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const allEmployers = getEmployers();
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [countryFilter, setCountryFilter] = useState<string>('all');
   const [tierFilter, setTierFilter] = useState<SubscriptionTier | 'all'>('all');
   const [accountTypeFilter, setAccountTypeFilter] = useState<Employer['accountType'] | 'all'>('all');
@@ -225,29 +227,92 @@ export default function Employers() {
 
         {/* Stats Dashboard */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Employers"
-            value={stats.total}
-            icon={Building}
-            description={`${stats.active} active`}
+            value={stats.total.toString()}
+            change={`${stats.active} active`}
+            icon={<Building className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All Employers",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/employers')
+              },
+              {
+                label: "Add Employer",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => { setEditingEmployerId(null); setDrawerOpen(true); }
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: handleExport
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Active Accounts"
-            value={stats.active}
-            icon={Briefcase}
-            description={`${((stats.active / stats.total) * 100).toFixed(0)}% of total`}
+            value={stats.active.toString()}
+            change={`${((stats.active / stats.total) * 100).toFixed(0)}% of total`}
+            icon={<Briefcase className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Active",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => { setStatusFilter('active'); navigate('/employers'); }
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: handleExport
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Monthly Revenue"
-            value={formatRevenue(stats.revenue)}
-            icon={DollarSign}
-            description="From subscriptions"
+            value={stats.revenue.toString()}
+            change="From subscriptions"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="primary"
+            isCurrency={true}
+            rawValue={stats.revenue}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => navigate('/dashboard/employers')
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: handleExport
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Pending Renewals"
-            value={stats.pendingRenewals}
-            icon={Clock}
-            description="Due within 30 days"
+            value={stats.pendingRenewals.toString()}
+            change="Due within 30 days"
+            icon={<Clock className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Renewals",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/employers')
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: handleExport
+              }
+            ]}
           />
         </div>
 

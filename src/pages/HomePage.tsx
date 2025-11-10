@@ -4,14 +4,14 @@ import { Helmet } from "react-helmet-async";
 import {
   Users, Briefcase, TrendingUp, AlertCircle, DollarSign, Activity,
   Clock, CheckCircle, Server, Zap, Bell, MessageSquare, Target,
-  ArrowUpRight, ArrowDownRight, Calendar, Building2, Plug, Shield
+  ArrowUpRight, ArrowDownRight, Calendar, Building2, Plug, Shield, Eye, BarChart3
 } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { RecentNotificationsCard } from "@/components/notifications/widgets/RecentNotificationsCard";
 import { PendingServicesWidget } from "@/components/recruitment/widgets/PendingServicesWidget";
 import {
@@ -106,32 +106,89 @@ export default function HomePage() {
 
         {/* Platform Health KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Users"
             value={metrics.totalActiveUsers.toLocaleString()}
-            icon={Users}
-            description={`${metrics.totalEmployers} employers`}
-            trend={{ value: metrics.revenueGrowth, isPositive: true }}
+            change={`${metrics.totalEmployers} employers`}
+            trend="up"
+            icon={<Users className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Users",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/users')
+              },
+              {
+                label: "Analytics",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => navigate('/analytics')
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Monthly Revenue"
-            value={formatCurrency(metrics.monthlyRecurringRevenue)}
-            icon={DollarSign}
-            description="MRR"
-            trend={{ value: metrics.revenueGrowth, isPositive: true }}
+            value={metrics.monthlyRecurringRevenue.toString()}
+            change="MRR"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="primary"
+            isCurrency={true}
+            rawValue={metrics.monthlyRecurringRevenue}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Revenue Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => navigate('/finance')
+              },
+              {
+                label: "Forecast",
+                icon: <TrendingUp className="h-4 w-4" />,
+                onClick: () => navigate('/finance')
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Platform Uptime"
             value={`${metrics.platformUptime}%`}
-            icon={Server}
-            description="Last 30 days"
-            className="border-l-4 border-l-green-500"
+            change="Last 30 days"
+            icon={<Server className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Status",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/admin-settings')
+              },
+              {
+                label: "System Health",
+                icon: <Activity className="h-4 w-4" />,
+                onClick: () => navigate('/admin-settings')
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Avg Response Time"
             value={`${metrics.avgResponseTime}h`}
-            icon={Clock}
-            description={`${metrics.customerSatisfaction}/5 satisfaction`}
+            change={`${metrics.customerSatisfaction}/5 satisfaction`}
+            icon={<Clock className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Metrics",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/support-tickets')
+              },
+              {
+                label: "Performance Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 

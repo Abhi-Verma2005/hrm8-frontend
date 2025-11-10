@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, AlertCircle, Target, Download } from "lucide-react";
+import { TrendingUp, AlertCircle, Target, Download, Eye, BarChart3 } from "lucide-react";
 import { DataTable } from "@/components/tables/DataTable";
 import { createForecastColumns } from "@/components/sales/ForecastTableColumns";
 import { ForecastFilterBar } from "@/components/sales/ForecastFilterBar";
@@ -108,31 +108,85 @@ export default function SalesForecastPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Pipeline"
-            value={`$${forecastStats.totalPipeline.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            icon={TrendingUp}
-            description={`${forecastStats.opportunityCount} active opportunities`}
+            value={forecastStats.totalPipeline.toString()}
+            change={`${forecastStats.opportunityCount} active opportunities`}
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="neutral"
+            isCurrency={true}
+            rawValue={forecastStats.totalPipeline}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Pipeline",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => setExportDialogOpen(true)
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Weighted Forecast"
-            value={`$${forecastStats.weightedForecast.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            icon={Target}
-            description="Most likely scenario"
-            trend={{ value: 8, isPositive: true }}
+            value={forecastStats.weightedForecast.toString()}
+            change="Most likely scenario"
+            trend="up"
+            icon={<Target className="h-6 w-6" />}
+            variant="primary"
+            isCurrency={true}
+            rawValue={forecastStats.weightedForecast}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Forecast",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "View Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Best Case"
-            value={`$${forecastStats.bestCase.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            icon={TrendingUp}
-            description="Optimistic scenario"
-            trend={{ value: 30, isPositive: true }}
+            value={forecastStats.bestCase.toString()}
+            change="Optimistic scenario"
+            trend="up"
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="success"
+            isCurrency={true}
+            rawValue={forecastStats.bestCase}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Analysis",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Quota Gap"
-            value={`$${quotaGap.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
-            icon={AlertCircle}
-            description="Remaining to reach quota"
+            value={quotaGap.toString()}
+            change="Remaining to reach quota"
+            icon={<AlertCircle className="h-6 w-6" />}
+            variant="warning"
+            isCurrency={true}
+            rawValue={quotaGap}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Details",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 
