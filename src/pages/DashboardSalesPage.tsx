@@ -140,7 +140,7 @@ export default function DashboardSalesPage() {
             showMenu={true}
             menuItems={[
               {
-                label: "View All",
+                label: "View All Opportunities",
                 icon: <Eye className="h-4 w-4" />,
                 onClick: () => navigate('/sales/opportunities')
               },

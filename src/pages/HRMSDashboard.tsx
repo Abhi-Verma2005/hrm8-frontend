@@ -159,7 +159,7 @@ export default function HRMSDashboard() {
             variant="neutral"
             showMenu={true}
             menuItems={[
-              { label: "View Employees", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/hrms') },
+              { label: "View All Employees", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/hrms') },
               { label: "Add Employee", icon: <Plus className="h-4 w-4" />, onClick: () => navigate('/hrms/employees/new') },
               { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
             ]}

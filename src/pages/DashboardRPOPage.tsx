@@ -111,7 +111,7 @@ export default function DashboardRPOPage() {
             showMenu={true}
             menuItems={[
               {
-                label: "View All",
+                label: "View All Contracts",
                 icon: <Eye className="h-4 w-4" />,
                 onClick: () => navigate('/rpo/contracts')
               },
@@ -137,7 +137,7 @@ export default function DashboardRPOPage() {
             showMenu={true}
             menuItems={[
               {
-                label: "View Consultants",
+                label: "View All Consultants",
                 icon: <Eye className="h-4 w-4" />,
                 onClick: () => navigate('/rpo/consultants')
               },

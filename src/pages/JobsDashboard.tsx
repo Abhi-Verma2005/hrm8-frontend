@@ -180,7 +180,7 @@ export default function JobsDashboard() {
             variant="primary"
             showMenu={true}
             menuItems={[
-              { label: "View Active", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/jobs?status=open') },
+              { label: "View Active Jobs", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/jobs?status=open') },
               { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
               { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
             ]}
