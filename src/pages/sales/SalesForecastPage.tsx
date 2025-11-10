@@ -13,12 +13,7 @@ import { transformToForecastItems, getForecastStats, ConfidenceLevel } from "@/l
 import { getSalesAgentStats } from "@/lib/salesAgentStorage";
 import { useToast } from "@/hooks/use-toast";
 import { exportForecast } from "@/lib/salesExportService";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { SalesExportDialog, ExportConfig } from "@/components/sales/SalesExportDialog";
 
 export default function SalesForecastPage() {
   const { toast } = useToast();
@@ -26,6 +21,7 @@ export default function SalesForecastPage() {
   const [quarterFilter, setQuarterFilter] = useState('all');
   const [confidenceFilter, setConfidenceFilter] = useState<ConfidenceLevel | 'all'>('all');
   const [agentFilter, setAgentFilter] = useState('all');
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   const opportunities = getAllOpportunities();
   const forecastStats = getForecastStats(opportunities);
@@ -55,19 +51,8 @@ export default function SalesForecastPage() {
     setAgentFilter('all');
   };
 
-  const handleExport = (selectedIds: string[], format: 'csv' | 'excel' = 'excel') => {
-    const selectedOpportunities = selectedIds.length > 0
-      ? opportunities.filter(opp => selectedIds.includes(opp.id))
-      : opportunities.filter(opp => 
-          filteredForecast.some(item => item.id === opp.id)
-        );
-    
-    exportForecast(selectedOpportunities, format, 'sales-forecast');
-    
-    toast({
-      title: "Export Complete",
-      description: `Exported ${selectedOpportunities.length} forecast items as ${format.toUpperCase()}`,
-    });
+  const handleExport = () => {
+    console.log("Bulk export not yet implemented");
   };
 
   const handleDelete = (selectedIds: string[]) => {
@@ -91,25 +76,29 @@ export default function SalesForecastPage() {
     });
   };
 
+  const handleExportDialog = (config: ExportConfig) => {
+    const selectedOpportunities = opportunities.filter(opp => 
+      filteredForecast.some(item => item.id === opp.id)
+    );
+    
+    exportForecast(selectedOpportunities, config.format, 'sales-forecast', {
+      fields: config.fields,
+      dateRange: config.dateRange,
+    });
+    
+    toast({
+      title: "Export Complete",
+      description: `Exported ${selectedOpportunities.length} forecast items as ${config.format.toUpperCase()}`,
+    });
+  };
+
   return (
     <DashboardPageLayout
       breadcrumbActions={
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleExport([], 'excel')}>
-              Export as Excel
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport([], 'csv')}>
-              Export as CSV
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(true)}>
+          <Download className="h-4 w-4 mr-2" />
+          Export
+        </Button>
       }
     >
       <div className="p-6 space-y-6">
@@ -167,7 +156,7 @@ export default function SalesForecastPage() {
           renderBulkActions={(selectedIds) => (
             <ForecastBulkActions
               selectedCount={selectedIds.length}
-              onExport={() => handleExport(selectedIds)}
+              onExport={() => handleExport()}
               onDelete={() => handleDelete(selectedIds)}
               onAdjustProbability={() => handleAdjustProbability(selectedIds)}
               onSendReport={() => handleSendReport(selectedIds)}
@@ -176,6 +165,14 @@ export default function SalesForecastPage() {
           )}
           exportable
           exportFilename="sales-forecast"
+        />
+
+        <SalesExportDialog
+          open={exportDialogOpen}
+          onOpenChange={setExportDialogOpen}
+          exportType="forecast"
+          onExport={handleExportDialog}
+          totalRecords={filteredForecast.length}
         />
 
         <Card className="p-6">

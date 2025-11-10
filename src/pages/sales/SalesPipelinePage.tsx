@@ -13,18 +13,15 @@ import { OpportunitiesFilterBar } from "@/components/sales/OpportunitiesFilterBa
 import { OpportunityBulkActions } from "@/components/sales/OpportunityBulkActions";
 import { useToast } from "@/hooks/use-toast";
 import { exportOpportunities } from "@/lib/salesExportService";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { SalesExportDialog, ExportConfig } from "@/components/sales/SalesExportDialog";
+import { Download } from "lucide-react";
 
 export default function SalesPipelinePage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
   const [opportunities] = useState<SalesOpportunity[]>(getAllOpportunities());
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const stats = getOpportunityStats();
 
   // Filter state for table view
@@ -95,6 +92,18 @@ export default function SalesPipelinePage() {
     });
   };
 
+  const handleExportDialog = (config: ExportConfig) => {
+    exportOpportunities(filteredOpportunities, config.format, 'sales-pipeline', {
+      fields: config.fields,
+      dateRange: config.dateRange,
+    });
+    
+    toast({
+      title: "Export Complete",
+      description: `Exported ${filteredOpportunities.length} opportunities as ${config.format.toUpperCase()}`,
+    });
+  };
+
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
@@ -122,22 +131,10 @@ export default function SalesPipelinePage() {
                 Table
               </Button>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <DollarSign className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => handleExport([], 'excel')}>
-                  Export as Excel
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleExport([], 'csv')}>
-                  Export as CSV
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button variant="outline" onClick={() => setExportDialogOpen(true)}>
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
             <Button onClick={() => navigate("/sales/opportunities/new")}>
               <Plus className="h-4 w-4 mr-2" />
               New Opportunity
@@ -243,6 +240,14 @@ export default function SalesPipelinePage() {
             />
           </div>
         )}
+
+        <SalesExportDialog
+          open={exportDialogOpen}
+          onOpenChange={setExportDialogOpen}
+          exportType="opportunities"
+          onExport={handleExportDialog}
+          totalRecords={filteredOpportunities.length}
+        />
       </div>
     </DashboardPageLayout>
   );

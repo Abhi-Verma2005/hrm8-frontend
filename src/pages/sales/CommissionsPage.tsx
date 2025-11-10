@@ -11,18 +11,14 @@ import { getAllCommissions, getCommissionStats } from "@/lib/salesCommissionStor
 import { CommissionStatus } from "@/types/salesCommission";
 import { useToast } from "@/hooks/use-toast";
 import { exportCommissions } from "@/lib/salesExportService";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { SalesExportDialog, ExportConfig } from "@/components/sales/SalesExportDialog";
 
 export default function CommissionsPage() {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<CommissionStatus | 'all'>('all');
   const [agentFilter, setAgentFilter] = useState('all');
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
   const stats = getCommissionStats();
   const allCommissions = getAllCommissions();
@@ -46,17 +42,8 @@ export default function CommissionsPage() {
     setAgentFilter('all');
   };
 
-  const handleExport = (selectedIds: string[], format: 'csv' | 'excel' = 'excel') => {
-    const dataToExport = selectedIds.length > 0
-      ? allCommissions.filter(c => selectedIds.includes(c.id))
-      : filteredCommissions;
-    
-    exportCommissions(dataToExport, format, 'sales-commissions');
-    
-    toast({
-      title: "Export Complete",
-      description: `Exported ${dataToExport.length} commissions as ${format.toUpperCase()}`,
-    });
+  const handleExport = () => {
+    console.log("Bulk export not yet implemented");
   };
 
   const handleDelete = (selectedIds: string[]) => {
@@ -80,25 +67,25 @@ export default function CommissionsPage() {
     });
   };
 
+  const handleExportDialog = (config: ExportConfig) => {
+    exportCommissions(filteredCommissions, config.format, 'sales-commissions', {
+      fields: config.fields,
+      dateRange: config.dateRange,
+    });
+    
+    toast({
+      title: "Export Complete",
+      description: `Exported ${filteredCommissions.length} commissions as ${config.format.toUpperCase()}`,
+    });
+  };
+
   return (
     <DashboardPageLayout
       breadcrumbActions={
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem onClick={() => handleExport([], 'excel')}>
-              Export as Excel
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport([], 'csv')}>
-              Export as CSV
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button variant="outline" size="sm" onClick={() => setExportDialogOpen(true)}>
+          <Download className="h-4 w-4 mr-2" />
+          Export
+        </Button>
       }
     >
       <div className="p-6 space-y-6">
@@ -155,7 +142,7 @@ export default function CommissionsPage() {
           renderBulkActions={(selectedIds) => (
             <CommissionBulkActions
               selectedCount={selectedIds.length}
-              onExport={() => handleExport(selectedIds)}
+              onExport={() => handleExport()}
               onDelete={() => handleDelete(selectedIds)}
               onApprove={() => handleApprove(selectedIds)}
               onMarkPaid={() => handleMarkPaid(selectedIds)}
@@ -164,6 +151,14 @@ export default function CommissionsPage() {
           )}
           exportable
           exportFilename="commissions"
+        />
+
+        <SalesExportDialog
+          open={exportDialogOpen}
+          onOpenChange={setExportDialogOpen}
+          exportType="commissions"
+          onExport={handleExportDialog}
+          totalRecords={filteredCommissions.length}
         />
       </div>
     </DashboardPageLayout>

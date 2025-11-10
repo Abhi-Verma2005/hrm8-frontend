@@ -1,8 +1,17 @@
 import { SalesOpportunity } from "@/types/salesOpportunity";
 import { SalesCommission } from "@/types/salesCommission";
 import * as XLSX from "xlsx";
+import { isWithinInterval, parseISO } from "date-fns";
 
 export type SalesExportFormat = "csv" | "excel";
+
+export interface ExportOptions {
+  fields?: string[];
+  dateRange?: {
+    from: Date | undefined;
+    to: Date | undefined;
+  };
+}
 
 function formatCurrency(amount: number): string {
   return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
@@ -16,24 +25,60 @@ function formatDate(dateString: string): string {
 export function exportOpportunities(
   opportunities: SalesOpportunity[],
   format: SalesExportFormat,
-  filename: string = "sales-opportunities"
+  filename: string = "sales-opportunities",
+  options?: ExportOptions
 ) {
-  const data = opportunities.map((opp) => ({
-    "Opportunity Name": opp.name,
-    "Employer": opp.employerName,
-    "Sales Agent": opp.salesAgentName,
-    "Type": opp.type,
-    "Product Type": opp.productType,
-    "Estimated Value": formatCurrency(opp.estimatedValue),
-    "Probability": `${opp.probability}%`,
-    "Stage": opp.stage,
-    "Priority": opp.priority,
-    "Lead Source": opp.leadSource,
-    "Expected Close Date": formatDate(opp.expectedCloseDate),
-    "Created Date": formatDate(opp.createdAt),
-    "Next Steps": opp.nextSteps || "N/A",
-    "Notes": opp.notes || "N/A",
+  // Apply date range filter
+  let filteredOpportunities = opportunities;
+  if (options?.dateRange?.from || options?.dateRange?.to) {
+    filteredOpportunities = opportunities.filter((opp) => {
+      const oppDate = parseISO(opp.createdAt);
+      if (options.dateRange?.from && options.dateRange?.to) {
+        return isWithinInterval(oppDate, { start: options.dateRange.from, end: options.dateRange.to });
+      } else if (options.dateRange?.from) {
+        return oppDate >= options.dateRange.from;
+      } else if (options.dateRange?.to) {
+        return oppDate <= options.dateRange.to;
+      }
+      return true;
+    });
+  }
+
+  const fullData = filteredOpportunities.map((opp) => ({
+    name: opp.name,
+    employerName: opp.employerName,
+    salesAgentName: opp.salesAgentName,
+    type: opp.type,
+    productType: opp.productType,
+    estimatedValue: formatCurrency(opp.estimatedValue),
+    probability: `${opp.probability}%`,
+    stage: opp.stage,
+    priority: opp.priority,
+    leadSource: opp.leadSource,
+    expectedCloseDate: formatDate(opp.expectedCloseDate),
+    createdAt: formatDate(opp.createdAt),
+    nextSteps: opp.nextSteps || "N/A",
+    notes: opp.notes || "N/A",
   }));
+
+  const fieldMapping: Record<string, string> = {
+    name: "Opportunity Name",
+    employerName: "Employer",
+    salesAgentName: "Sales Agent",
+    type: "Type",
+    productType: "Product Type",
+    estimatedValue: "Estimated Value",
+    probability: "Probability",
+    stage: "Stage",
+    priority: "Priority",
+    leadSource: "Lead Source",
+    expectedCloseDate: "Expected Close Date",
+    createdAt: "Created Date",
+    nextSteps: "Next Steps",
+    notes: "Notes",
+  };
+
+  const data = filterFields(fullData, options?.fields, fieldMapping);
 
   if (format === "csv") {
     exportToCSV(data, filename);
@@ -46,22 +91,56 @@ export function exportOpportunities(
 export function exportCommissions(
   commissions: SalesCommission[],
   format: SalesExportFormat,
-  filename: string = "sales-commissions"
+  filename: string = "sales-commissions",
+  options?: ExportOptions
 ) {
-  const data = commissions.map((comm) => ({
-    "Sales Agent": comm.salesAgentName,
-    "Opportunity": comm.opportunityName,
-    "Employer": comm.employerName,
-    "Deal Value": formatCurrency(comm.dealValue),
-    "Commission Rate": `${comm.commissionRate}%`,
-    "Commission Amount": formatCurrency(comm.commissionAmount),
-    "Status": comm.status,
-    "Calculated At": formatDate(comm.calculatedAt),
-    "Approved At": comm.approvedAt ? formatDate(comm.approvedAt) : "N/A",
-    "Paid At": comm.paidAt ? formatDate(comm.paidAt) : "N/A",
-    "Payment Method": comm.paymentMethod || "N/A",
-    "Notes": comm.notes || "N/A",
+  // Apply date range filter
+  let filteredCommissions = commissions;
+  if (options?.dateRange?.from || options?.dateRange?.to) {
+    filteredCommissions = commissions.filter((comm) => {
+      const commDate = parseISO(comm.calculatedAt);
+      if (options.dateRange?.from && options.dateRange?.to) {
+        return isWithinInterval(commDate, { start: options.dateRange.from, end: options.dateRange.to });
+      } else if (options.dateRange?.from) {
+        return commDate >= options.dateRange.from;
+      } else if (options.dateRange?.to) {
+        return commDate <= options.dateRange.to;
+      }
+      return true;
+    });
+  }
+
+  const fullData = filteredCommissions.map((comm) => ({
+    salesAgentName: comm.salesAgentName,
+    opportunityName: comm.opportunityName,
+    employerName: comm.employerName,
+    dealValue: formatCurrency(comm.dealValue),
+    commissionRate: `${comm.commissionRate}%`,
+    commissionAmount: formatCurrency(comm.commissionAmount),
+    status: comm.status,
+    calculatedAt: formatDate(comm.calculatedAt),
+    approvedAt: comm.approvedAt ? formatDate(comm.approvedAt) : "N/A",
+    paidAt: comm.paidAt ? formatDate(comm.paidAt) : "N/A",
+    paymentMethod: comm.paymentMethod || "N/A",
+    notes: comm.notes || "N/A",
   }));
+
+  const fieldMapping: Record<string, string> = {
+    salesAgentName: "Sales Agent",
+    opportunityName: "Opportunity",
+    employerName: "Employer",
+    dealValue: "Deal Value",
+    commissionRate: "Commission Rate",
+    commissionAmount: "Commission Amount",
+    status: "Status",
+    calculatedAt: "Calculated At",
+    approvedAt: "Approved At",
+    paidAt: "Paid At",
+    paymentMethod: "Payment Method",
+    notes: "Notes",
+  };
+
+  const data = filterFields(fullData, options?.fields, fieldMapping);
 
   if (format === "csv") {
     exportToCSV(data, filename);
@@ -74,25 +153,85 @@ export function exportCommissions(
 export function exportForecast(
   opportunities: SalesOpportunity[],
   format: SalesExportFormat,
-  filename: string = "sales-forecast"
+  filename: string = "sales-forecast",
+  options?: ExportOptions
 ) {
-  const data = opportunities.map((opp) => ({
-    "Opportunity": opp.name,
-    "Employer": opp.employerName,
-    "Sales Agent": opp.salesAgentName,
-    "Estimated Value": formatCurrency(opp.estimatedValue),
-    "Weighted Value": formatCurrency(opp.estimatedValue * (opp.probability / 100)),
-    "Probability": `${opp.probability}%`,
-    "Stage": opp.stage,
-    "Expected Close": formatDate(opp.expectedCloseDate),
-    "Priority": opp.priority,
+  // Apply date range filter
+  let filteredOpportunities = opportunities;
+  if (options?.dateRange?.from || options?.dateRange?.to) {
+    filteredOpportunities = opportunities.filter((opp) => {
+      const oppDate = parseISO(opp.expectedCloseDate);
+      if (options.dateRange?.from && options.dateRange?.to) {
+        return isWithinInterval(oppDate, { start: options.dateRange.from, end: options.dateRange.to });
+      } else if (options.dateRange?.from) {
+        return oppDate >= options.dateRange.from;
+      } else if (options.dateRange?.to) {
+        return oppDate <= options.dateRange.to;
+      }
+      return true;
+    });
+  }
+
+  const fullData = filteredOpportunities.map((opp) => ({
+    name: opp.name,
+    employerName: opp.employerName,
+    salesAgentName: opp.salesAgentName,
+    estimatedValue: formatCurrency(opp.estimatedValue),
+    weightedValue: formatCurrency(opp.estimatedValue * (opp.probability / 100)),
+    probability: `${opp.probability}%`,
+    stage: opp.stage,
+    expectedCloseDate: formatDate(opp.expectedCloseDate),
+    priority: opp.priority,
   }));
+
+  const fieldMapping: Record<string, string> = {
+    name: "Opportunity",
+    employerName: "Employer",
+    salesAgentName: "Sales Agent",
+    estimatedValue: "Estimated Value",
+    weightedValue: "Weighted Value",
+    probability: "Probability",
+    stage: "Stage",
+    expectedCloseDate: "Expected Close",
+    priority: "Priority",
+  };
+
+  const data = filterFields(fullData, options?.fields, fieldMapping);
 
   if (format === "csv") {
     exportToCSV(data, filename);
   } else {
     exportToExcel(data, filename, "Forecast");
   }
+}
+
+// Helper function to filter fields
+function filterFields(
+  data: any[],
+  selectedFields: string[] | undefined,
+  fieldMapping: Record<string, string>
+): any[] {
+  if (!selectedFields || selectedFields.length === 0) {
+    // Return all fields with proper labels
+    return data.map(row => {
+      const labeledRow: any = {};
+      Object.entries(row).forEach(([key, value]) => {
+        labeledRow[fieldMapping[key] || key] = value;
+      });
+      return labeledRow;
+    });
+  }
+
+  // Return only selected fields with proper labels
+  return data.map(row => {
+    const filteredRow: any = {};
+    selectedFields.forEach(field => {
+      if (field in row) {
+        filteredRow[fieldMapping[field] || field] = row[field];
+      }
+    });
+    return filteredRow;
+  });
 }
 
 // Generic CSV Export
