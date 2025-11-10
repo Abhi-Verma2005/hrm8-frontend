@@ -17,10 +17,7 @@ export const DEFAULT_OVERVIEW_LAYOUT: DashboardLayout = {
         value: "24",
         change: "+12%",
         trend: "up",
-        variant: "primary",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "primary"
       },
       isVisible: true
     },
@@ -35,10 +32,7 @@ export const DEFAULT_OVERVIEW_LAYOUT: DashboardLayout = {
         value: "342",
         change: "+6%",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -54,10 +48,7 @@ export const DEFAULT_OVERVIEW_LAYOUT: DashboardLayout = {
         rawValue: 2400000,
         change: "+18%",
         trend: "up",
-        variant: "warning",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "warning"
       },
       isVisible: true
     },
@@ -72,10 +63,7 @@ export const DEFAULT_OVERVIEW_LAYOUT: DashboardLayout = {
         value: "32",
         change: "+15%",
         trend: "up",
-        variant: "neutral",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "neutral"
       },
       isVisible: true
     },
@@ -146,10 +134,7 @@ export const DEFAULT_JOBS_LAYOUT: DashboardLayout = {
         value: "24",
         change: "+12%",
         trend: "up",
-        variant: "neutral",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "neutral"
       },
       isVisible: true
     },
@@ -164,10 +149,7 @@ export const DEFAULT_JOBS_LAYOUT: DashboardLayout = {
         value: "1,234",
         change: "+8%",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -182,10 +164,7 @@ export const DEFAULT_JOBS_LAYOUT: DashboardLayout = {
         value: "567",
         change: "+23%",
         trend: "up",
-        variant: "primary",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "primary"
       },
       isVisible: true
     },
@@ -200,10 +179,7 @@ export const DEFAULT_JOBS_LAYOUT: DashboardLayout = {
         value: "18",
         change: "+5%",
         trend: "up",
-        variant: "warning",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "warning"
       },
       isVisible: true
     },
@@ -274,10 +250,7 @@ export const DEFAULT_HRMS_LAYOUT: DashboardLayout = {
         value: "342",
         change: "+6%",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -292,10 +265,7 @@ export const DEFAULT_HRMS_LAYOUT: DashboardLayout = {
         value: "94.2%",
         change: "+2.1%",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -310,10 +280,7 @@ export const DEFAULT_HRMS_LAYOUT: DashboardLayout = {
         value: "23",
         change: "-12%",
         trend: "down",
-        variant: "primary",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "primary"
       },
       isVisible: true
     },
@@ -328,10 +295,7 @@ export const DEFAULT_HRMS_LAYOUT: DashboardLayout = {
         value: "12",
         change: "0%",
         trend: "neutral",
-        variant: "neutral",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "neutral"
       },
       isVisible: true
     },
@@ -403,10 +367,7 @@ export const DEFAULT_FINANCIAL_LAYOUT: DashboardLayout = {
         rawValue: 2400000,
         change: "+18%",
         trend: "up",
-        variant: "warning",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "warning"
       },
       isVisible: true
     },
@@ -422,10 +383,7 @@ export const DEFAULT_FINANCIAL_LAYOUT: DashboardLayout = {
         rawValue: 1800000,
         change: "+5%",
         trend: "up",
-        variant: "warning",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "warning"
       },
       isVisible: true
     },
@@ -440,10 +398,7 @@ export const DEFAULT_FINANCIAL_LAYOUT: DashboardLayout = {
         value: "25%",
         change: "+3%",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -459,10 +414,7 @@ export const DEFAULT_FINANCIAL_LAYOUT: DashboardLayout = {
         rawValue: 890000,
         change: "+2%",
         trend: "up",
-        variant: "primary",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "primary"
       },
       isVisible: true
     },
@@ -533,10 +485,7 @@ export const DEFAULT_CONSULTING_LAYOUT: DashboardLayout = {
         value: "32",
         change: "+15%",
         trend: "up",
-        variant: "neutral",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "neutral"
       },
       isVisible: true
     },
@@ -551,10 +500,7 @@ export const DEFAULT_CONSULTING_LAYOUT: DashboardLayout = {
         value: "18",
         change: "+3",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -569,10 +515,7 @@ export const DEFAULT_CONSULTING_LAYOUT: DashboardLayout = {
         value: "78%",
         change: "+5%",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -587,10 +530,7 @@ export const DEFAULT_CONSULTING_LAYOUT: DashboardLayout = {
         value: "2,840",
         change: "+12%",
         trend: "up",
-        variant: "primary",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "primary"
       },
       isVisible: true
     },
@@ -661,10 +601,7 @@ export const DEFAULT_RECRUITMENT_SERVICES_LAYOUT: DashboardLayout = {
         value: "28",
         change: "+7",
         trend: "up",
-        variant: "primary",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "primary"
       },
       isVisible: true
     },
@@ -679,10 +616,7 @@ export const DEFAULT_RECRUITMENT_SERVICES_LAYOUT: DashboardLayout = {
         value: "12",
         change: "+3",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -697,10 +631,7 @@ export const DEFAULT_RECRUITMENT_SERVICES_LAYOUT: DashboardLayout = {
         value: "8",
         change: "+2",
         trend: "up",
-        variant: "primary",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "primary"
       },
       isVisible: true
     },
@@ -715,10 +646,7 @@ export const DEFAULT_RECRUITMENT_SERVICES_LAYOUT: DashboardLayout = {
         value: "5",
         change: "+1",
         trend: "up",
-        variant: "warning",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "warning"
       },
       isVisible: true
     },
@@ -790,10 +718,7 @@ export const DEFAULT_EMPLOYERS_LAYOUT: DashboardLayout = {
         value: "18",
         change: "+3",
         trend: "up",
-        variant: "primary",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "primary"
       },
       isVisible: true
     },
@@ -808,10 +733,7 @@ export const DEFAULT_EMPLOYERS_LAYOUT: DashboardLayout = {
         value: "15",
         change: "+2",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -827,10 +749,7 @@ export const DEFAULT_EMPLOYERS_LAYOUT: DashboardLayout = {
         rawValue: 145000,
         change: "+12%",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -845,10 +764,7 @@ export const DEFAULT_EMPLOYERS_LAYOUT: DashboardLayout = {
         value: "28%",
         change: "+3%",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -919,10 +835,7 @@ export const DEFAULT_CANDIDATES_LAYOUT: DashboardLayout = {
         value: "150",
         change: "+12%",
         trend: "up",
-        variant: "primary",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "primary"
       },
       isVisible: true
     },
@@ -937,10 +850,7 @@ export const DEFAULT_CANDIDATES_LAYOUT: DashboardLayout = {
         value: "45",
         change: "+8%",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -955,10 +865,7 @@ export const DEFAULT_CANDIDATES_LAYOUT: DashboardLayout = {
         value: "12",
         change: "+15%",
         trend: "up",
-        variant: "warning",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "warning"
       },
       isVisible: true
     },
@@ -973,10 +880,7 @@ export const DEFAULT_CANDIDATES_LAYOUT: DashboardLayout = {
         value: "18.5%",
         change: "+2.3%",
         trend: "up",
-        variant: "neutral",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "neutral"
       },
       isVisible: true
     },
@@ -1065,10 +969,7 @@ const DEFAULT_SALES_LAYOUT: DashboardLayout = {
         value: "$2.4M",
         change: "+18%",
         trend: "up",
-        variant: "primary",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "primary"
       },
       isVisible: true
     },
@@ -1083,10 +984,7 @@ const DEFAULT_SALES_LAYOUT: DashboardLayout = {
         value: "16",
         change: "+8%",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
@@ -1121,10 +1019,7 @@ const DEFAULT_RPO_LAYOUT: DashboardLayout = {
         value: "12",
         change: "+5%",
         trend: "up",
-        variant: "primary",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "primary"
       },
       isVisible: true
     },
@@ -1139,10 +1034,7 @@ const DEFAULT_RPO_LAYOUT: DashboardLayout = {
         value: "486",
         change: "+12%",
         trend: "up",
-        variant: "success",
-        showGradient: false,
-        showBorder: true,
-        elevation: "sm"
+        variant: "success"
       },
       isVisible: true
     },
