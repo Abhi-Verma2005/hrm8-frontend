@@ -301,7 +301,7 @@ export function exportToPDF(
     const topByRevenue = [...consultants].sort((a, b) => b.revenue - a.revenue).slice(0, 5);
     const revenueData = topByRevenue.map(c => [
       c.name,
-      `$${c.revenue.toLocaleString()}`,
+      formatCurrencyUtil(c.revenue),
       c.totalPlacements.toString()
     ]);
 
