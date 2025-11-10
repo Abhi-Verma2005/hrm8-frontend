@@ -10,8 +10,10 @@ import { getAllServiceProjects, getServiceStats, updateServiceProject } from '@/
 import { toast } from 'sonner';
 import type { ServiceProject } from '@/types/recruitmentService';
 import type { ServiceStats } from '@/types/recruitmentService';
+import { useCurrencyFormat } from '@/contexts/CurrencyFormatContext';
 
 export default function RecruitmentServices() {
+  const { formatCurrency } = useCurrencyFormat();
   const [projects, setProjects] = useState<ServiceProject[]>([]);
   const [stats, setStats] = useState<ServiceStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -143,7 +145,7 @@ export default function RecruitmentServices() {
 
             <StatsCard
               title="Service Revenue"
-              value={`$${(stats.totalRevenue / 1000000).toFixed(1)}M`}
+              value={formatCurrency(stats.totalRevenue)}
               icon={DollarSign}
               change="+22%"
             />

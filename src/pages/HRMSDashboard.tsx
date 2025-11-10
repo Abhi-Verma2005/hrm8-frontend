@@ -14,10 +14,12 @@ import {
 } from "lucide-react";
 import { getEmployees } from "@/lib/employeeStorage";
 import { Badge } from "@/components/ui/badge";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 export default function HRMSDashboard() {
   const [timeRange, setTimeRange] = useState("12m");
   const employees = getEmployees();
+  const { formatCurrency } = useCurrencyFormat();
 
   // Calculate metrics
   const metrics = useMemo(() => {
@@ -180,7 +182,7 @@ export default function HRMSDashboard() {
               <DollarSign className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${(metrics.avgSalary / 1000).toFixed(0)}K</div>
+              <div className="text-2xl font-bold">{formatCurrency(metrics.avgSalary)}</div>
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <TrendingUp className="h-3 w-3 text-green-500" />
                 <span className="text-green-500">+3.5%</span>

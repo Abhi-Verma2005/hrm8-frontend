@@ -5,9 +5,11 @@ import { getEmployees } from "@/lib/employeeStorage";
 import { Users, Briefcase, TrendingUp, DollarSign, MapPin, Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 export default function HRAnalytics() {
   const employees = getEmployees();
+  const { formatCurrency } = useCurrencyFormat();
 
   const analytics = useMemo(() => {
     const total = employees.length;
@@ -96,12 +98,12 @@ export default function HRAnalytics() {
           />
           <StatCard
             title="Average Salary"
-            value={`$${analytics.avgSalary.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+            value={formatCurrency(analytics.avgSalary)}
             icon={DollarSign}
           />
           <StatCard
             title="Total Payroll"
-            value={`$${analytics.totalPayroll.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+            value={formatCurrency(analytics.totalPayroll)}
             icon={TrendingUp}
           />
         </div>

@@ -4,6 +4,7 @@ import { StatsCard } from '@/components/ui/stats-card';
 import { Building2, Users, DollarSign, Clock, TrendingUp, FileText, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ServiceProject } from '@/types/recruitmentService';
+import { useCurrencyFormat } from '@/contexts/CurrencyFormatContext';
 
 // Mock data - replace with real data from your API/state management
 const mockContracts: ServiceProject[] = [
@@ -110,6 +111,8 @@ const mockContracts: ServiceProject[] = [
 ];
 
 export default function RPOManagementPage() {
+  const { formatCurrency } = useCurrencyFormat();
+  
   // Calculate metrics from contracts
   const totalContracts = mockContracts.filter(c => c.status === 'active').length;
   const totalConsultants = new Set(
@@ -173,7 +176,7 @@ export default function RPOManagementPage() {
           />
           <StatsCard
             title="Monthly Recurring Revenue"
-            value={`$${(monthlyRevenue / 1000).toFixed(0)}K`}
+            value={formatCurrency(monthlyRevenue)}
             description="Total MRR from active contracts"
             icon={DollarSign}
             trend={{ value: 15, isPositive: true }}

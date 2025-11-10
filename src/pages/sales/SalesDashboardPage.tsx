@@ -12,9 +12,11 @@ import { createTopDealsColumns } from "@/components/sales/TopDealsTableColumns";
 import { createActivityColumns } from "@/components/sales/SalesActivityTableColumns";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 export default function SalesDashboardPage() {
   const { toast } = useToast();
+  const { formatCurrency } = useCurrencyFormat();
   const salesAgentStats = getSalesAgentStats();
   const opportunityStats = getOpportunityStats();
   const activityStats = getActivityStats();
@@ -68,14 +70,14 @@ export default function SalesDashboardPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <StatsCard
             title="Total Revenue"
-            value={`$${salesAgentStats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+            value={formatCurrency(salesAgentStats.totalRevenue)}
             icon={DollarSign}
             description="Year to date"
             trend={{ value: 12.5, isPositive: true }}
           />
           <StatsCard
             title="Pipeline Value"
-            value={`$${opportunityStats.pipelineValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+            value={formatCurrency(opportunityStats.pipelineValue)}
             icon={TrendingUp}
             description={`${pipelineCoverage.toFixed(0)}% quota coverage`}
             trend={{ value: Number(pipelineCoverage) >= 300 ? 15 : -5, isPositive: Number(pipelineCoverage) >= 300 }}
@@ -102,7 +104,7 @@ export default function SalesDashboardPage() {
           />
           <StatsCard
             title="Avg Deal Size"
-            value={`$${opportunityStats.avgDealSize.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+            value={formatCurrency(opportunityStats.avgDealSize)}
             icon={DollarSign}
             description="Per closed deal"
             trend={{ value: 7, isPositive: true }}
@@ -116,7 +118,7 @@ export default function SalesDashboardPage() {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Prospecting</span>
-                <span className="font-medium">$250,000</span>
+                <span className="font-medium">{formatCurrency(250000)}</span>
               </div>
               <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-blue-500" style={{ width: '20%' }} />
@@ -125,7 +127,7 @@ export default function SalesDashboardPage() {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Qualification</span>
-                <span className="font-medium">$350,000</span>
+                <span className="font-medium">{formatCurrency(350000)}</span>
               </div>
               <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-blue-600" style={{ width: '30%' }} />
@@ -134,7 +136,7 @@ export default function SalesDashboardPage() {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Proposal</span>
-                <span className="font-medium">$420,000</span>
+                <span className="font-medium">{formatCurrency(420000)}</span>
               </div>
               <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-blue-700" style={{ width: '40%' }} />
@@ -143,7 +145,7 @@ export default function SalesDashboardPage() {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Negotiation</span>
-                <span className="font-medium">$180,000</span>
+                <span className="font-medium">{formatCurrency(180000)}</span>
               </div>
               <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-green-500" style={{ width: '15%' }} />

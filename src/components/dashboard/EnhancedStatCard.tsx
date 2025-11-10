@@ -9,10 +9,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 interface EnhancedStatCardProps {
   title: string;
-  value: string;
+  value: string | number;
   change: string;
   trend: "up" | "down";
   icon: React.ReactNode;
@@ -26,6 +27,8 @@ interface EnhancedStatCardProps {
     icon?: React.ReactNode;
     onClick: () => void;
   }>;
+  isCurrency?: boolean;
+  rawValue?: number;
 }
 
 export function EnhancedStatCard({
@@ -40,7 +43,15 @@ export function EnhancedStatCard({
   onAction,
   showMenu = false,
   menuItems = [],
+  isCurrency = false,
+  rawValue,
 }: EnhancedStatCardProps) {
+  const { formatCurrency } = useCurrencyFormat();
+  
+  // Format the display value
+  const displayValue = isCurrency && rawValue !== undefined 
+    ? formatCurrency(rawValue) 
+    : value;
   const variantStyles = {
     primary: "border-l-6 border-l-blue-500 bg-gradient-to-br from-blue-50/50 to-cyan-50/30",
     success: "border-l-6 border-l-emerald-500 bg-gradient-to-br from-emerald-50/50 to-green-50/30",
@@ -83,7 +94,7 @@ export function EnhancedStatCard({
         </Badge>
       </div>
       <p className="text-sm text-muted-foreground mb-2 font-medium">{title}</p>
-      <h3 className="text-3xl font-bold tracking-tight">{value}</h3>
+      <h3 className="text-3xl font-bold tracking-tight">{displayValue}</h3>
 
       {showAction && onAction && (
         <Button

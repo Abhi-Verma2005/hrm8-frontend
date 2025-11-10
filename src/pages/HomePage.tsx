@@ -28,9 +28,11 @@ import {
 } from "@/data/mockPlatformData";
 import { format, formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { formatCurrency } = useCurrencyFormat();
 
   // Fetch platform data
   const metrics = useMemo(() => getPlatformMetrics(), []);
@@ -113,7 +115,7 @@ export default function HomePage() {
           />
           <StatsCard
             title="Monthly Revenue"
-            value={`$${(metrics.monthlyRecurringRevenue / 1000).toFixed(0)}K`}
+            value={formatCurrency(metrics.monthlyRecurringRevenue)}
             icon={DollarSign}
             description="MRR"
             trend={{ value: metrics.revenueGrowth, isPositive: true }}
@@ -381,7 +383,7 @@ export default function HomePage() {
                 <div>
                   <div className="flex items-baseline gap-2 mb-1">
                     <span className="text-2xl font-bold">
-                      ${(metrics.monthlyRecurringRevenue / 1000).toFixed(1)}K
+                      {formatCurrency(metrics.monthlyRecurringRevenue)}
                     </span>
                     <div className="flex items-center gap-1 text-sm text-green-600">
                       <ArrowUpRight className="h-3 w-3" />
