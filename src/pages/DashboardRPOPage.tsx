@@ -71,7 +71,8 @@ export default function DashboardRPOPage() {
     <DashboardPageLayout
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
-      <div className="space-y-6">
+      <div className="min-h-screen bg-background">
+        <div className="p-6 space-y-6">
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
@@ -478,6 +479,7 @@ export default function DashboardRPOPage() {
             <span>Renewals</span>
           </Button>
         </div>
+      </div>
       </div>
     </DashboardPageLayout>
   );

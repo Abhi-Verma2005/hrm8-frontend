@@ -111,7 +111,8 @@ export default function CandidatesDashboard() {
     <DashboardPageLayout
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
-      <div className="space-y-6 animate-fade-in">
+      <div className="min-h-screen bg-background">
+        <div className="p-6 space-y-6">
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
@@ -508,6 +509,7 @@ export default function CandidatesDashboard() {
             </StandardChartCard>
           </TabsContent>
         </Tabs>
+        </div>
       </div>
     </DashboardPageLayout>
   );
