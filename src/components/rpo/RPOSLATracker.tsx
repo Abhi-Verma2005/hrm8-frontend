@@ -4,6 +4,10 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckCircle2, AlertCircle, Clock, TrendingUp, TrendingDown } from 'lucide-react';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { RPOSLAAlerts } from './RPOSLAAlerts';
+import { RPOSLAForecasting } from './RPOSLAForecasting';
+import { RPOSLAComparison } from './RPOSLAComparison';
+import { RPOSLAExport } from './RPOSLAExport';
 
 interface SLAMetric {
   name: string;
@@ -141,10 +145,13 @@ export function RPOSLATracker({ contractId }: RPOSLATrackerProps) {
 
   return (
     <Tabs defaultValue="overview" className="space-y-6">
-      <TabsList>
+      <TabsList className="grid w-full grid-cols-6">
         <TabsTrigger value="overview">Overview</TabsTrigger>
-        <TabsTrigger value="trends">Historical Trends</TabsTrigger>
-        <TabsTrigger value="comparison">Target vs Actual</TabsTrigger>
+        <TabsTrigger value="trends">Trends</TabsTrigger>
+        <TabsTrigger value="comparison">Comparison</TabsTrigger>
+        <TabsTrigger value="alerts">Alerts</TabsTrigger>
+        <TabsTrigger value="forecast">Forecast</TabsTrigger>
+        <TabsTrigger value="export">Export</TabsTrigger>
       </TabsList>
 
       {/* Overview Tab */}
@@ -424,6 +431,34 @@ export function RPOSLATracker({ contractId }: RPOSLATrackerProps) {
             );
           })}
         </div>
+      </TabsContent>
+
+      {/* Alerts Tab */}
+      <TabsContent value="alerts">
+        <RPOSLAAlerts contractId={contractId} />
+      </TabsContent>
+
+      {/* Forecasting Tab */}
+      <TabsContent value="forecast">
+        <RPOSLAForecasting contractId={contractId} />
+      </TabsContent>
+
+      {/* Multi-Contract Comparison Tab */}
+      <TabsContent value="comparison">
+        <Card>
+          <CardHeader>
+            <CardTitle>Multi-Contract Comparison</CardTitle>
+            <CardDescription>Compare SLA performance across all RPO contracts</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <RPOSLAComparison />
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* Export Tab */}
+      <TabsContent value="export">
+        <RPOSLAExport contractId={contractId} />
       </TabsContent>
     </Tabs>
   );
