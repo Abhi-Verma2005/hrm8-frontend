@@ -4,7 +4,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DateRangePicker } from "@/components/ui/date-range-picker";
+import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import { Badge } from "@/components/ui/badge";
 import { ViewOnlyEditButton } from "@/components/dashboard/ViewOnlyEditButton";
 import { 
@@ -131,8 +131,10 @@ export default function PerformanceDashboard() {
       breadcrumbActions={
         <div className="flex items-center gap-3">
           <DateRangePicker
-            date={dateRange}
-            onDateChange={setDateRange}
+            value={dateRange}
+            onChange={setDateRange}
+            placeholder="Select period"
+            align="end"
           />
           <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
@@ -142,7 +144,7 @@ export default function PerformanceDashboard() {
       }
       dashboardActions={<ViewOnlyEditButton />}
     >
-      <div className="p-6 space-y-6 animate-fade-in">
+      <div className="space-y-6 animate-fade-in">
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <EnhancedStatCard
