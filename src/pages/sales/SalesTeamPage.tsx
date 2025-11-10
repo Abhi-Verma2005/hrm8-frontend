@@ -14,7 +14,6 @@ import { SalesAgentBulkActions } from "@/components/sales/SalesAgentBulkActions"
 export default function SalesTeamPage() {
   const navigate = useNavigate();
   const [salesAgents] = useState<SalesAgent[]>(getAllSalesAgents());
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
@@ -46,15 +45,15 @@ export default function SalesTeamPage() {
     setRoleFilter("all");
   };
 
-  const handleExport = () => {
+  const handleExport = (selectedIds: string[]) => {
     console.log("Exporting selected agents:", selectedIds);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (selectedIds: string[]) => {
     console.log("Deleting selected agents:", selectedIds);
   };
 
-  const handleSendEmail = () => {
+  const handleSendEmail = (selectedIds: string[]) => {
     console.log("Sending email to selected agents:", selectedIds);
   };
 
@@ -113,18 +112,17 @@ export default function SalesTeamPage() {
           columns={columns}
           data={filteredAgents}
           selectable
-          selectedIds={selectedIds}
-          onSelectionChange={setSelectedIds}
+          renderBulkActions={(selectedIds) => (
+            <SalesAgentBulkActions
+              selectedCount={selectedIds.length}
+              onExport={() => handleExport(selectedIds)}
+              onDelete={() => handleDelete(selectedIds)}
+              onSendEmail={() => handleSendEmail(selectedIds)}
+              onClearSelection={() => {}}
+            />
+          )}
           exportable
           exportFilename="sales-team"
-        />
-
-        <SalesAgentBulkActions
-          selectedCount={selectedIds.length}
-          onExport={handleExport}
-          onDelete={handleDelete}
-          onSendEmail={handleSendEmail}
-          onClearSelection={() => setSelectedIds([])}
         />
       </div>
     </DashboardPageLayout>

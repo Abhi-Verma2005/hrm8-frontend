@@ -14,7 +14,6 @@ import { OpportunityBulkActions } from "@/components/sales/OpportunityBulkAction
 export default function OpportunitiesPage() {
   const navigate = useNavigate();
   const [opportunities] = useState<SalesOpportunity[]>(getAllOpportunities());
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [stageFilter, setStageFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
@@ -42,15 +41,15 @@ export default function OpportunitiesPage() {
     setTypeFilter("all");
   };
 
-  const handleExport = () => {
+  const handleExport = (selectedIds: string[]) => {
     console.log("Exporting selected opportunities:", selectedIds);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (selectedIds: string[]) => {
     console.log("Deleting selected opportunities:", selectedIds);
   };
 
-  const handleChangeStage = () => {
+  const handleChangeStage = (selectedIds: string[]) => {
     console.log("Changing stage for selected opportunities:", selectedIds);
   };
 
@@ -109,18 +108,17 @@ export default function OpportunitiesPage() {
           columns={columns}
           data={filteredOpportunities}
           selectable
-          selectedIds={selectedIds}
-          onSelectionChange={setSelectedIds}
+          renderBulkActions={(selectedIds) => (
+            <OpportunityBulkActions
+              selectedCount={selectedIds.length}
+              onExport={() => handleExport(selectedIds)}
+              onDelete={() => handleDelete(selectedIds)}
+              onChangeStage={() => handleChangeStage(selectedIds)}
+              onClearSelection={() => {}}
+            />
+          )}
           exportable
           exportFilename="opportunities"
-        />
-
-        <OpportunityBulkActions
-          selectedCount={selectedIds.length}
-          onExport={handleExport}
-          onDelete={handleDelete}
-          onChangeStage={handleChangeStage}
-          onClearSelection={() => setSelectedIds([])}
         />
       </div>
     </DashboardPageLayout>

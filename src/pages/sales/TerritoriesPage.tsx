@@ -12,7 +12,6 @@ import { TerritoryBulkActions } from "@/components/sales/TerritoryBulkActions";
 
 export default function TerritoriesPage() {
   const [territories] = useState<SalesTerritory[]>(getAllTerritories());
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [regionFilter, setRegionFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -42,15 +41,15 @@ export default function TerritoriesPage() {
     setStatusFilter("all");
   };
 
-  const handleExport = () => {
+  const handleExport = (selectedIds: string[]) => {
     console.log("Exporting selected territories:", selectedIds);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (selectedIds: string[]) => {
     console.log("Deleting selected territories:", selectedIds);
   };
 
-  const handleAssignAgents = () => {
+  const handleAssignAgents = (selectedIds: string[]) => {
     console.log("Assigning agents to territories:", selectedIds);
   };
 
@@ -109,18 +108,17 @@ export default function TerritoriesPage() {
           columns={columns}
           data={filteredTerritories}
           selectable
-          selectedIds={selectedIds}
-          onSelectionChange={setSelectedIds}
+          renderBulkActions={(selectedIds) => (
+            <TerritoryBulkActions
+              selectedCount={selectedIds.length}
+              onExport={() => handleExport(selectedIds)}
+              onDelete={() => handleDelete(selectedIds)}
+              onAssignAgents={() => handleAssignAgents(selectedIds)}
+              onClearSelection={() => {}}
+            />
+          )}
           exportable
           exportFilename="territories"
-        />
-
-        <TerritoryBulkActions
-          selectedCount={selectedIds.length}
-          onExport={handleExport}
-          onDelete={handleDelete}
-          onAssignAgents={handleAssignAgents}
-          onClearSelection={() => setSelectedIds([])}
         />
       </div>
     </DashboardPageLayout>

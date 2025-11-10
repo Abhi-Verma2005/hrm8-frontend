@@ -12,7 +12,6 @@ import { ActivityBulkActions } from "@/components/sales/ActivityBulkActions";
 
 export default function SalesActivitiesPage() {
   const [activities] = useState<SalesActivity[]>(getAllActivities());
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [outcomeFilter, setOutcomeFilter] = useState("all");
@@ -40,15 +39,15 @@ export default function SalesActivitiesPage() {
     setOutcomeFilter("all");
   };
 
-  const handleExport = () => {
+  const handleExport = (selectedIds: string[]) => {
     console.log("Exporting selected activities:", selectedIds);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (selectedIds: string[]) => {
     console.log("Deleting selected activities:", selectedIds);
   };
 
-  const handleMarkComplete = () => {
+  const handleMarkComplete = (selectedIds: string[]) => {
     console.log("Marking activities as complete:", selectedIds);
   };
 
@@ -107,18 +106,17 @@ export default function SalesActivitiesPage() {
           columns={columns}
           data={filteredActivities}
           selectable
-          selectedIds={selectedIds}
-          onSelectionChange={setSelectedIds}
+          renderBulkActions={(selectedIds) => (
+            <ActivityBulkActions
+              selectedCount={selectedIds.length}
+              onExport={() => handleExport(selectedIds)}
+              onDelete={() => handleDelete(selectedIds)}
+              onMarkComplete={() => handleMarkComplete(selectedIds)}
+              onClearSelection={() => {}}
+            />
+          )}
           exportable
           exportFilename="sales-activities"
-        />
-
-        <ActivityBulkActions
-          selectedCount={selectedIds.length}
-          onExport={handleExport}
-          onDelete={handleDelete}
-          onMarkComplete={handleMarkComplete}
-          onClearSelection={() => setSelectedIds([])}
         />
       </div>
     </DashboardPageLayout>
