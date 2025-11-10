@@ -1,6 +1,7 @@
 import { Employer } from "@/types/entities";
-import { StatsCard } from "@/components/ui/stats-card";
-import { Sparkles, Briefcase, DollarSign, Activity } from "lucide-react";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
+import { Sparkles, Briefcase, DollarSign, Activity, Eye, Plus, Download } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface EmployerMetrics {
   totalRevenue: number;
@@ -20,6 +21,8 @@ interface EmployerQuickStatsProps {
 }
 
 export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProps) {
+  const navigate = useNavigate();
+  
   const getTierLabel = (tier: string) => {
     const labels: Record<string, string> = {
       small: "Small Plan",
@@ -38,34 +41,92 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      <StatsCard
+      <EnhancedStatCard
         title="Subscription"
         value={getTierLabel(employer.subscriptionTier)}
-        icon={Sparkles}
-        description={employer.status.charAt(0).toUpperCase() + employer.status.slice(1)}
+        change={employer.status.charAt(0).toUpperCase() + employer.status.slice(1)}
+        icon={<Sparkles className="h-6 w-6" />}
+        variant="primary"
+        showMenu={true}
+        menuItems={[
+          {
+            label: "View Details",
+            icon: <Eye className="h-4 w-4" />,
+            onClick: () => {}
+          },
+          {
+            label: "Upgrade Plan",
+            icon: <Plus className="h-4 w-4" />,
+            onClick: () => {}
+          }
+        ]}
       />
       
-      <StatsCard
+      <EnhancedStatCard
         title="Capacity"
         value={`${metrics.activeJobs}/${employer.totalJobsPosted || 0}`}
-        icon={Briefcase}
-        description={`${employer.currentUsers}/${employer.maxUsers === Infinity ? '∞' : employer.maxUsers} Users`}
+        change={`${employer.currentUsers}/${employer.maxUsers === Infinity ? '∞' : employer.maxUsers} Users`}
+        icon={<Briefcase className="h-6 w-6" />}
+        variant="neutral"
+        showMenu={true}
+        menuItems={[
+          {
+            label: "View Jobs",
+            icon: <Eye className="h-4 w-4" />,
+            onClick: () => navigate('/jobs')
+          },
+          {
+            label: "Add Job",
+            icon: <Plus className="h-4 w-4" />,
+            onClick: () => {}
+          }
+        ]}
       />
       
-      <StatsCard
+      <EnhancedStatCard
         title="Financial"
         value={`$${metrics.lifetimeValue.toLocaleString()}`}
-        icon={DollarSign}
-        description={`$${metrics.monthlyRevenue}/mo MRR`}
+        change={`$${metrics.monthlyRevenue}/mo MRR`}
+        icon={<DollarSign className="h-6 w-6" />}
+        variant="success"
+        isCurrency={true}
+        rawValue={metrics.lifetimeValue}
+        showMenu={true}
+        menuItems={[
+          {
+            label: "View Revenue",
+            icon: <Eye className="h-4 w-4" />,
+            onClick: () => navigate('/financial')
+          },
+          {
+            label: "Export Report",
+            icon: <Download className="h-4 w-4" />,
+            onClick: () => {}
+          }
+        ]}
       />
       
-      <StatsCard
+      <EnhancedStatCard
         title="Activity"
         value={metrics.daysAsCustomer < 365 ? 
           `${Math.floor(metrics.daysAsCustomer / 30)} months` : 
           `${Math.floor(metrics.daysAsCustomer / 365)} years`}
-        icon={Activity}
-        description={formatActivity()}
+        change={formatActivity()}
+        icon={<Activity className="h-6 w-6" />}
+        variant="neutral"
+        showMenu={true}
+        menuItems={[
+          {
+            label: "View Activity",
+            icon: <Eye className="h-4 w-4" />,
+            onClick: () => {}
+          },
+          {
+            label: "Contact Employer",
+            icon: <Plus className="h-4 w-4" />,
+            onClick: () => {}
+          }
+        ]}
       />
     </div>
   );

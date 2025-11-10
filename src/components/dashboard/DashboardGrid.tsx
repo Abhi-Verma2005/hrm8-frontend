@@ -57,7 +57,7 @@ export function DashboardGrid({
         strategy={rectSortingStrategy}
       >
         <div
-          className="grid gap-6 relative"
+          className="grid gap-4 relative"
           style={{
             gridTemplateColumns: 'repeat(12, 1fr)',
             gridAutoRows: 'minmax(200px, auto)',
