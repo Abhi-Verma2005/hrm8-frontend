@@ -5,9 +5,17 @@ import { RPOContractsList } from '@/components/rpo/RPOContractsList';
 import { RPORevenueForecastChart } from '@/components/rpo/RPORevenueForecastChart';
 import { RPOConsultantAvailabilityTracker } from '@/components/rpo/RPOConsultantAvailabilityTracker';
 import { RPOContractRenewalAlerts } from '@/components/rpo/RPOContractRenewalAlerts';
+import { RPOPerformanceDashboard } from '@/components/rpo/RPOPerformanceDashboard';
 import { getRPODashboardMetrics, getRevenueProjection } from '@/lib/rpoTrackingUtils';
 import { getConsultantRPOAvailability, getConsultantRPOStats } from '@/lib/rpoConsultantAvailabilityUtils';
 import { getRenewalAlerts, getRenewalAlertsSummary } from '@/lib/rpoRenewalUtils';
+import { 
+  getAllContractPerformanceMetrics,
+  getPerformanceMetricsSummary,
+  getYearOverYearComparison,
+  getMonthlyPerformanceTrend,
+  getPerformanceBenchmarks
+} from '@/lib/rpoPerformanceUtils';
 import { FileText, AlertTriangle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +27,13 @@ export default function RPODashboardPage() {
   const availabilityStats = useMemo(() => getConsultantRPOStats(), []);
   const renewalAlerts = useMemo(() => getRenewalAlerts(), []);
   const renewalSummary = useMemo(() => getRenewalAlertsSummary(), []);
+  
+  // Performance metrics
+  const performanceMetrics = useMemo(() => getAllContractPerformanceMetrics(), []);
+  const performanceSummary = useMemo(() => getPerformanceMetricsSummary(), []);
+  const yoyComparison = useMemo(() => getYearOverYearComparison(), []);
+  const monthlyTrend = useMemo(() => getMonthlyPerformanceTrend(12), []);
+  const benchmarks = useMemo(() => getPerformanceBenchmarks(), []);
 
   return (
     <DashboardPageLayout>
@@ -53,6 +68,7 @@ export default function RPODashboardPage() {
         <Tabs defaultValue="contracts" className="space-y-6">
           <TabsList>
             <TabsTrigger value="contracts">Contracts</TabsTrigger>
+            <TabsTrigger value="performance">Performance Metrics</TabsTrigger>
             <TabsTrigger value="renewals" className="gap-2">
               Renewals
               {renewalSummary.total > 0 && (
@@ -67,6 +83,16 @@ export default function RPODashboardPage() {
 
           <TabsContent value="contracts">
             <RPOContractsList contracts={metrics.contracts} />
+          </TabsContent>
+
+          <TabsContent value="performance">
+            <RPOPerformanceDashboard
+              contracts={performanceMetrics}
+              summary={performanceSummary}
+              yoyComparison={yoyComparison}
+              monthlyTrend={monthlyTrend}
+              benchmarks={benchmarks}
+            />
           </TabsContent>
 
           <TabsContent value="renewals">
