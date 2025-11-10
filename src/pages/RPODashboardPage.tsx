@@ -2,11 +2,13 @@ import { useMemo } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { RPOOverviewCards } from '@/components/rpo/RPOOverviewCards';
 import { RPOContractsList } from '@/components/rpo/RPOContractsList';
-import { getRPODashboardMetrics } from '@/lib/rpoTrackingUtils';
+import { RPORevenueForecastChart } from '@/components/rpo/RPORevenueForecastChart';
+import { getRPODashboardMetrics, getRevenueProjection } from '@/lib/rpoTrackingUtils';
 import { FileText } from 'lucide-react';
 
 export default function RPODashboardPage() {
   const metrics = useMemo(() => getRPODashboardMetrics(), []);
+  const revenueForecast = useMemo(() => getRevenueProjection(12), []);
 
   return (
     <DashboardPageLayout>
@@ -22,6 +24,8 @@ export default function RPODashboardPage() {
         </div>
 
         <RPOOverviewCards metrics={metrics} />
+
+        <RPORevenueForecastChart forecasts={revenueForecast} />
 
         <RPOContractsList contracts={metrics.contracts} />
       </div>

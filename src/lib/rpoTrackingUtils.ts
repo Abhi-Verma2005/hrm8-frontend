@@ -1,7 +1,7 @@
 import type { ServiceProject } from '@/types/recruitmentService';
 import { getAllServiceProjects } from './recruitmentServiceStorage';
 import { getConsultantById } from './consultantStorage';
-import { differenceInMonths, differenceInDays, isPast, isFuture, isWithinInterval } from 'date-fns';
+import { differenceInMonths, differenceInDays, isPast, isFuture, isWithinInterval, format } from 'date-fns';
 
 export interface RPOContractSummary {
   id: string;
@@ -173,4 +173,65 @@ export function getConsultantRPOAssignments(consultantId: string): RPOContractSu
   return metrics.contracts.filter(contract =>
     contract.assignedConsultants.some(c => c.consultantId === consultantId && c.isActive)
   );
+}
+
+export interface MonthlyRevenueForecast {
+  month: string;
+  monthLabel: string;
+  projectedRevenue: number;
+  activeContracts: number;
+  contractBreakdown: Array<{
+    contractId: string;
+    contractName: string;
+    clientName: string;
+    monthlyRetainer: number;
+  }>;
+}
+
+export function getRevenueProjection(months: number = 12): MonthlyRevenueForecast[] {
+  const metrics = getRPODashboardMetrics();
+  const activeContracts = metrics.contracts.filter(c => c.status === 'active');
+  
+  const now = new Date();
+  const forecasts: MonthlyRevenueForecast[] = [];
+
+  for (let i = 0; i < months; i++) {
+    const forecastDate = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    const monthLabel = format(forecastDate, 'MMM yyyy');
+    const month = format(forecastDate, 'yyyy-MM');
+
+    // Calculate which contracts will be active in this month
+    const contractsActiveInMonth = activeContracts.filter(contract => {
+      const contractStart = new Date(contract.startDate);
+      const contractEnd = contract.endDate ? new Date(contract.endDate) : null;
+
+      // Check if contract is active during this forecast month
+      const isAfterStart = forecastDate >= contractStart;
+      const isBeforeEnd = !contractEnd || forecastDate <= contractEnd;
+
+      return isAfterStart && isBeforeEnd;
+    });
+
+    const projectedRevenue = contractsActiveInMonth.reduce(
+      (sum, contract) => sum + contract.monthlyRetainer,
+      0
+    );
+
+    const contractBreakdown = contractsActiveInMonth.map(contract => ({
+      contractId: contract.id,
+      contractName: contract.name,
+      clientName: contract.clientName,
+      monthlyRetainer: contract.monthlyRetainer,
+    }));
+
+    forecasts.push({
+      month,
+      monthLabel,
+      projectedRevenue,
+      activeContracts: contractsActiveInMonth.length,
+      contractBreakdown,
+    });
+  }
+
+  return forecasts;
 }
