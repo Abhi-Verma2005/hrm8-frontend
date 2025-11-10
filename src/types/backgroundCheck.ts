@@ -36,6 +36,7 @@ export interface BackgroundCheck {
   completedDate?: string;
   consentGiven: boolean;
   consentDate?: string;
+  consentRequestId?: string;
   results: BackgroundCheckResult[];
   overallStatus?: 'clear' | 'conditional' | 'not-clear';
   reviewedBy?: string;
@@ -44,6 +45,13 @@ export interface BackgroundCheck {
   expiryDate?: string;
   reportUrl?: string;
   cost?: number;
+  totalCost?: number;
+  costBreakdown?: Array<{ checkType: BackgroundCheckType; cost: number }>;
+  referees?: string[];
+  questionnaireTemplateId?: string;
+  billedTo?: string;
+  billedToName?: string;
+  paymentStatus?: 'pending' | 'paid' | 'failed';
   createdAt: string;
   updatedAt: string;
 }

@@ -11,6 +11,7 @@ import { ApplicationsTab } from './ApplicationsTab';
 import { NotesTab } from './NotesTab';
 import { HistoryTab } from './HistoryTab';
 import { DocumentManager } from './DocumentManager';
+import { BackgroundChecksTab } from './BackgroundChecksTab';
 import { Candidate } from '@/types/entities';
 import { 
   ArrowLeft, 
@@ -24,7 +25,8 @@ import {
   User,
   History,
   Star,
-  FolderOpen
+  FolderOpen,
+  ShieldCheck
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -142,18 +144,22 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
 
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">
             <User className="h-4 w-4 mr-2" />
             Overview
           </TabsTrigger>
           <TabsTrigger value="feedback">
             <MessageSquare className="h-4 w-4 mr-2" />
-            Team Feedback
+            Feedback
           </TabsTrigger>
           <TabsTrigger value="applications">
             <Briefcase className="h-4 w-4 mr-2" />
             Applications
+          </TabsTrigger>
+          <TabsTrigger value="background-checks">
+            <ShieldCheck className="h-4 w-4 mr-2" />
+            Checks
           </TabsTrigger>
           <TabsTrigger value="documents">
             <FolderOpen className="h-4 w-4 mr-2" />
@@ -229,6 +235,15 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
         {/* Applications Tab */}
         <TabsContent value="applications">
           <ApplicationsTab candidateId={candidate.id} />
+        </TabsContent>
+
+        {/* Background Checks Tab */}
+        <TabsContent value="background-checks">
+          <BackgroundChecksTab 
+            candidateId={candidate.id}
+            candidateName={candidate.name}
+            candidateEmail={candidate.email}
+          />
         </TabsContent>
 
         {/* Documents Tab */}
