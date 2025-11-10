@@ -1,30 +1,19 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DataTable } from '@/components/tables/DataTable';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Eye, CalendarOff, Filter, X } from 'lucide-react';
-import type { WorkloadData } from '@/lib/consultantWorkloadUtils';
-import { getCapacityBgColor } from '@/lib/consultantWorkloadUtils';
-import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { CalendarOff } from 'lucide-react';
 import { format } from 'date-fns';
+import type { WorkloadData } from '@/lib/consultantWorkloadUtils';
+import { createConsultantWorkloadColumns } from './ConsultantWorkloadColumns';
 
 interface ConsultantWorkloadTableProps {
   data: WorkloadData[];
 }
 
-const SERVICE_TYPE_COLORS = {
-  shortlisting: 'bg-chart-1',
-  'full-service': 'bg-chart-2',
-  'executive-search-under-100k': 'bg-chart-3',
-  'executive-search-over-100k': 'bg-chart-4',
-  rpo: 'bg-chart-5',
-  'executive-search': 'bg-chart-3', // fallback for activeServices display
-};
+// Extend WorkloadData with required 'id' field for DataTable
+type WorkloadDataWithId = WorkloadData & { id: string };
 
 const SERVICE_TYPE_LABELS = {
   shortlisting: 'Shortlisting',
@@ -32,370 +21,140 @@ const SERVICE_TYPE_LABELS = {
   'executive-search-under-100k': 'Exec. Search <$100k',
   'executive-search-over-100k': 'Exec. Search >$100k',
   rpo: 'RPO',
-  'executive-search': 'Exec Search', // fallback for activeServices display
+  'executive-search': 'Exec Search',
 };
 
 export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) {
   const navigate = useNavigate();
-  const [expandedRow, setExpandedRow] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [serviceTypeFilter, setServiceTypeFilter] = useState<string>('all');
+  const [selectedConsultant, setSelectedConsultant] = useState<WorkloadData | null>(null);
+  
+  const columns = createConsultantWorkloadColumns({
+    onViewDetails: (workload) => setSelectedConsultant(workload),
+  }) as any; // Type cast to handle WorkloadData vs WorkloadDataWithId
 
-  // Filter data based on selected filters
-  const filteredData = useMemo(() => {
-    let filtered = [...data];
+  // Transform data to include 'id' property required by DataTable
+  const tableData: WorkloadDataWithId[] = data.map(item => ({ ...item, id: item.consultantId }));
 
-    // Filter by status
-    if (statusFilter !== 'all') {
-      filtered = filtered.filter(consultant => consultant.status === statusFilter);
-    }
+  const statusOptions = [
+    { label: 'Available', value: 'available' },
+    { label: 'Busy', value: 'busy' },
+    { label: 'At Capacity', value: 'at-capacity' },
+    { label: 'Overloaded', value: 'overloaded' },
+  ];
 
-    // Filter by service type
-    if (serviceTypeFilter !== 'all') {
-      filtered = filtered.filter(consultant => {
-        const breakdown = consultant.serviceCountBreakdown;
-        return breakdown[serviceTypeFilter as keyof typeof breakdown] > 0;
-      });
-    }
+  const typeOptions = [
+    { label: 'Shortlisting', value: 'shortlisting' },
+    { label: 'Full Service', value: 'full-service' },
+    { label: 'Exec. Search <$100k', value: 'executive-search-under-100k' },
+    { label: 'Exec. Search >$100k', value: 'executive-search-over-100k' },
+  ];
 
-    return filtered;
-  }, [data, statusFilter, serviceTypeFilter]);
-
-  const hasActiveFilters = statusFilter !== 'all' || serviceTypeFilter !== 'all';
-
-  const clearFilters = () => {
-    setStatusFilter('all');
-    setServiceTypeFilter('all');
-  };
-
-  const getInitials = (name: string) => {
-    const parts = name.split(' ');
-    return parts.map(p => p[0]).join('').toUpperCase();
-  };
-
-  const getStatusBadgeVariant = (status: string) => {
-    switch (status) {
-      case 'available': return 'default';
-      case 'busy': return 'secondary';
-      case 'at-capacity': return 'warning';
-      case 'overloaded': return 'destructive';
-      default: return 'outline';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'available': return 'Available';
-      case 'busy': return 'Busy';
-      case 'at-capacity': return 'At Capacity';
-      case 'overloaded': return 'Overloaded';
-      default: return status;
-    }
+  // Custom row click handler to show details dialog
+  const handleRowClick = (workload: WorkloadData) => {
+    setSelectedConsultant(workload);
   };
 
   return (
-    <Card className="overflow-hidden" data-workload-table>
-      <div className="p-6 border-b space-y-4">
-        <div>
-          <h3 className="text-lg font-semibold">Detailed Consultant Workload</h3>
-          <p className="text-sm text-muted-foreground">Click a row to view service details</p>
-        </div>
+    <>
+      <DataTable
+        data={tableData}
+        columns={columns}
+        searchable
+        searchKeys={['consultantName'] as any}
+        statusFilter
+        statusOptions={statusOptions}
+        statusKey={'status' as any}
+        typeFilter
+        typeOptions={typeOptions}
+        typeKey={'consultantType' as any}
+        exportable
+        exportFilename="consultant-workload"
+        emptyMessage="No consultant workload data available"
+      />
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Filter className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Filters:</span>
-          </div>
+      {/* Service Details Dialog */}
+      <Dialog open={!!selectedConsultant} onOpenChange={() => setSelectedConsultant(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedConsultant?.consultantName} - Service Details
+            </DialogTitle>
+          </DialogHeader>
 
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px] bg-background">
-              <SelectValue placeholder="All Statuses" />
-            </SelectTrigger>
-            <SelectContent className="bg-background z-50">
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="available">Available</SelectItem>
-              <SelectItem value="busy">Busy</SelectItem>
-              <SelectItem value="at-capacity">At Capacity</SelectItem>
-              <SelectItem value="overloaded">Overloaded</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={serviceTypeFilter} onValueChange={setServiceTypeFilter}>
-            <SelectTrigger className="w-[220px] bg-background">
-              <SelectValue placeholder="All Service Types" />
-            </SelectTrigger>
-            <SelectContent className="bg-background z-50">
-              <SelectItem value="all">All Service Types</SelectItem>
-              <SelectItem value="shortlisting">Shortlisting</SelectItem>
-              <SelectItem value="full-service">Full Service</SelectItem>
-              <SelectItem value="executive-search-under-100k">Exec. Search &lt;$100k</SelectItem>
-              <SelectItem value="executive-search-over-100k">Exec. Search &gt;$100k</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={clearFilters}
-              className="h-9 px-2 lg:px-3"
-            >
-              <X className="h-4 w-4 mr-1" />
-              Clear Filters
-            </Button>
-          )}
-
-          <span className="text-sm text-muted-foreground ml-auto">
-            Showing {filteredData.length} of {data.length} consultants
-          </span>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-muted/50">
-            <tr>
-              <th className="text-left p-4 font-medium">Consultant</th>
-              <th className="text-left p-4 font-medium">Status</th>
-              <th className="text-left p-4 font-medium">Hours Assigned</th>
-              <th className="text-left p-4 font-medium">Utilization</th>
-              <th className="text-center p-4 font-medium">Shortlisting</th>
-              <th className="text-center p-4 font-medium">Full Service</th>
-              <th className="text-center p-4 font-medium">Exec. Search &lt;$100k</th>
-              <th className="text-center p-4 font-medium">Exec. Search &gt;$100k</th>
-              <th className="text-right p-4 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {filteredData.map((consultant) => (
-              <>
-                <tr
-                  key={consultant.consultantId}
-                  className={cn(
-                    "hover:bg-muted/50 cursor-pointer transition-colors",
-                    getCapacityBgColor(consultant.utilizationPercent),
-                    expandedRow === consultant.consultantId && "bg-muted/30"
+          {selectedConsultant && (
+            <div className="space-y-4">
+              {/* Time Off Section */}
+              {selectedConsultant.timeOffAdjustment && (
+                selectedConsultant.timeOffAdjustment.scheduledDaysOff > 0 || 
+                selectedConsultant.timeOffAdjustment.upcomingTimeOff.length > 0
+              ) && (
+                <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                    <CalendarOff className="h-4 w-4" />
+                    Time Off & Availability
+                  </h4>
+                  {selectedConsultant.timeOffAdjustment.scheduledDaysOff > 0 && (
+                    <p className="text-sm text-muted-foreground mb-2">
+                      <span className="font-medium text-warning">
+                        {selectedConsultant.timeOffAdjustment.scheduledDaysOff} days off
+                      </span>{' '}
+                      scheduled this month ({selectedConsultant.timeOffAdjustment.hoursOff}h reduced capacity)
+                    </p>
                   )}
-                  onClick={() => setExpandedRow(
-                    expandedRow === consultant.consultantId ? null : consultant.consultantId
-                  )}
-                >
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src={consultant.avatar} />
-                        <AvatarFallback>{getInitials(consultant.consultantName)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{consultant.consultantName}</p>
-                        <p className="text-sm text-muted-foreground capitalize">
-                          {consultant.consultantType.replace('-', ' ')}
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    <Badge variant={getStatusBadgeVariant(consultant.status)}>
-                      {getStatusLabel(consultant.status)}
-                    </Badge>
-                  </td>
-                  <td className="p-4">
+                  {selectedConsultant.timeOffAdjustment.upcomingTimeOff.length > 0 && (
                     <div className="space-y-1">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="font-medium">{consultant.hoursAssigned} / {consultant.monthlyHoursAvailable}h</span>
-                        {consultant.timeOffAdjustment && consultant.timeOffAdjustment.scheduledDaysOff > 0 && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <CalendarOff className="h-4 w-4 text-warning" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{consultant.timeOffAdjustment.scheduledDaysOff} days off this month</p>
-                                <p className="text-xs text-muted-foreground">
-                                  ({consultant.timeOffAdjustment.hoursOff}h reduced capacity)
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
-                      </div>
-                      <Progress 
-                        value={consultant.utilizationPercent} 
-                        className="h-2"
-                      />
+                      <p className="text-xs font-medium text-muted-foreground">Upcoming:</p>
+                      {selectedConsultant.timeOffAdjustment.upcomingTimeOff.slice(0, 3).map(timeOff => (
+                        <div key={timeOff.id} className="text-xs text-muted-foreground flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            {timeOff.type}
+                          </Badge>
+                          {format(new Date(timeOff.startDate), 'MMM d')} - {format(new Date(timeOff.endDate), 'MMM d')}
+                          <span className="text-muted-foreground">({timeOff.totalDays} days)</span>
+                        </div>
+                      ))}
                     </div>
-                  </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold">
-                        {consultant.utilizationPercent}%
-                      </span>
-                    </div>
-                  </td>
-                  
-                  {/* Shortlisting column */}
-                  <td className="p-4 text-center">
-                    <span className={cn(
-                      "inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold",
-                      consultant.serviceCountBreakdown.shortlisting > 0 
-                        ? "bg-chart-1 text-chart-1-foreground" 
-                        : "bg-muted text-muted-foreground"
-                    )}>
-                      {consultant.serviceCountBreakdown.shortlisting}
-                    </span>
-                  </td>
+                  )}
+                </div>
+              )}
 
-                  {/* Full Service column */}
-                  <td className="p-4 text-center">
-                    <span className={cn(
-                      "inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold",
-                      consultant.serviceCountBreakdown['full-service'] > 0 
-                        ? "bg-chart-2 text-chart-2-foreground" 
-                        : "bg-muted text-muted-foreground"
-                    )}>
-                      {consultant.serviceCountBreakdown['full-service']}
-                    </span>
-                  </td>
-
-                  {/* Exec. Search <$100k column */}
-                  <td className="p-4 text-center">
-                    <span className={cn(
-                      "inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold",
-                      consultant.serviceCountBreakdown['executive-search-under-100k'] > 0 
-                        ? "bg-chart-3 text-chart-3-foreground" 
-                        : "bg-muted text-muted-foreground"
-                    )}>
-                      {consultant.serviceCountBreakdown['executive-search-under-100k']}
-                    </span>
-                  </td>
-
-                  {/* Exec. Search >$100k column */}
-                  <td className="p-4 text-center">
-                    <span className={cn(
-                      "inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold",
-                      consultant.serviceCountBreakdown['executive-search-over-100k'] > 0 
-                        ? "bg-chart-4 text-chart-4-foreground" 
-                        : "bg-muted text-muted-foreground"
-                    )}>
-                      {consultant.serviceCountBreakdown['executive-search-over-100k']}
-                    </span>
-                  </td>
-
-                  <td className="p-4">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/consultants/${consultant.consultantId}`);
+              {/* Active Services Section */}
+              <div>
+                <p className="text-sm font-medium mb-2">Active Services:</p>
+                {selectedConsultant.activeServices.length > 0 ? (
+                  <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+                    {selectedConsultant.activeServices.map((service) => (
+                      <div
+                        key={service.id}
+                        className="flex items-center justify-between p-3 bg-background rounded-lg border cursor-pointer hover:bg-accent"
+                        onClick={() => {
+                          setSelectedConsultant(null);
+                          navigate(`/recruitment-services/${service.id}`);
                         }}
                       >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-
-                {/* Expanded row with service details */}
-                {expandedRow === consultant.consultantId && (
-                  <tr>
-                    <td colSpan={9} className="p-4 bg-muted/20">
-                      <div className="space-y-4">
-                        {/* Time Off Section */}
-                        {consultant.timeOffAdjustment && (
-                          consultant.timeOffAdjustment.scheduledDaysOff > 0 || 
-                          consultant.timeOffAdjustment.upcomingTimeOff.length > 0
-                        ) && (
-                          <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
-                            <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                              <CalendarOff className="h-4 w-4" />
-                              Time Off & Availability
-                            </h4>
-                            {consultant.timeOffAdjustment.scheduledDaysOff > 0 && (
-                              <p className="text-sm text-muted-foreground mb-2">
-                                <span className="font-medium text-warning">
-                                  {consultant.timeOffAdjustment.scheduledDaysOff} days off
-                                </span>{' '}
-                                scheduled this month ({consultant.timeOffAdjustment.hoursOff}h reduced capacity)
-                              </p>
-                            )}
-                            {consultant.timeOffAdjustment.upcomingTimeOff.length > 0 && (
-                              <div className="space-y-1">
-                                <p className="text-xs font-medium text-muted-foreground">Upcoming:</p>
-                                {consultant.timeOffAdjustment.upcomingTimeOff.slice(0, 3).map(timeOff => (
-                                  <div key={timeOff.id} className="text-xs text-muted-foreground flex items-center gap-2">
-                                    <Badge variant="outline" className="text-xs">
-                                      {timeOff.type}
-                                    </Badge>
-                                    {format(new Date(timeOff.startDate), 'MMM d')} - {format(new Date(timeOff.endDate), 'MMM d')}
-                                    <span className="text-muted-foreground">({timeOff.totalDays} days)</span>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{service.name}</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge variant="outline" className="text-xs">
+                              {SERVICE_TYPE_LABELS[service.type as keyof typeof SERVICE_TYPE_LABELS]}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">{service.hours}h</span>
                           </div>
-                        )}
-
-                        {/* Active Services Section */}
-                        <div>
-                          <p className="text-sm font-medium mb-2">Active Services:</p>
-                          {consultant.activeServices.length > 0 ? (
-                            <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-                              {consultant.activeServices.map((service) => (
-                                <div
-                                  key={service.id}
-                                  className="flex items-center justify-between p-3 bg-background rounded-lg border cursor-pointer hover:bg-accent"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    navigate(`/recruitment-services/${service.id}`);
-                                  }}
-                                >
-                                  <div className="flex-1">
-                                    <p className="text-sm font-medium">{service.name}</p>
-                                    <div className="flex items-center gap-2 mt-1">
-                                      <Badge variant="outline" className="text-xs">
-                                        {SERVICE_TYPE_LABELS[service.type as keyof typeof SERVICE_TYPE_LABELS]}
-                                      </Badge>
-                                      <span className="text-xs text-muted-foreground">{service.hours}h</span>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground mt-1">
-                                      Est. completion: {new Date(service.expectedCompletion).toLocaleDateString()}
-                                    </p>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">No active services assigned</p>
-                          )}
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Est. completion: {new Date(service.expectedCompletion).toLocaleDateString()}
+                          </p>
                         </div>
                       </div>
-                    </td>
-                  </tr>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No active services assigned</p>
                 )}
-              </>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {data.length === 0 && (
-        <div className="p-8 text-center text-muted-foreground">
-          No consultant data available
-        </div>
-      )}
-
-      {data.length > 0 && filteredData.length === 0 && (
-        <div className="p-8 text-center text-muted-foreground">
-          <p className="mb-2">No consultants match the selected filters</p>
-          <Button variant="link" onClick={clearFilters}>
-            Clear Filters
-          </Button>
-        </div>
-      )}
-    </Card>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
