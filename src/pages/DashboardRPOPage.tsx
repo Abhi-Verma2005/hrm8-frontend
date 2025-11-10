@@ -1,5 +1,5 @@
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -10,8 +10,13 @@ import {
   TrendingUp,
   FileText,
   Calendar,
-  BarChart3
+  BarChart3,
+  Eye,
+  Plus,
+  Bell,
+  Download
 } from "lucide-react";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 import {
   getRPODashboardMetrics,
   getContractStatusDistribution,
@@ -26,6 +31,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function DashboardRPOPage() {
   const navigate = useNavigate();
+  const { formatCurrency: formatCurrencyContext } = useCurrencyFormat();
   const metrics = getRPODashboardMetrics();
   const statusData = getContractStatusDistribution();
   const revenueData = getMonthlyRevenueProjection();
@@ -53,54 +59,145 @@ export default function DashboardRPOPage() {
       <div className="space-y-6">
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <StatsCard
+          <EnhancedStatCard
             title="Active Contracts"
             value={metrics.activeContracts.toString()}
-            icon={Briefcase}
-            description="Currently running"
-            trend={{ value: 10.5, isPositive: true }}
             change="+2 new this quarter"
+            trend="up"
+            icon={<Briefcase className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/rpo/contracts')
+              },
+              {
+                label: "Create Contract",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "View Timeline",
+                icon: <Calendar className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Dedicated Consultants"
             value={metrics.totalConsultants.toString()}
-            icon={Users}
-            description="On RPO projects"
-            trend={{ value: 5.2, isPositive: true }}
             change="+3 since last month"
+            trend="up"
+            icon={<Users className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Consultants",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/rpo/consultants')
+              },
+              {
+                label: "Assign to Project",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Monthly Recurring Revenue"
-            value={formatCurrency(metrics.monthlyRecurringRevenue)}
-            icon={DollarSign}
-            description="Current MRR"
-            trend={{ value: 8.7, isPositive: true }}
+            value=""
+            isCurrency={true}
+            rawValue={metrics.monthlyRecurringRevenue}
             change="+$45K from last month"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View MRR Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Contracts Expiring Soon"
             value={metrics.contractsExpiring.toString()}
-            icon={AlertCircle}
-            description="Within 90 days"
-            trend={{ value: 0, isPositive: false }}
             change={metrics.contractsExpiring > 0 ? "Action required" : "All clear"}
-            className={metrics.contractsExpiring > 0 ? "border-orange-500" : ""}
+            trend={metrics.contractsExpiring > 0 ? "up" : "down"}
+            icon={<AlertCircle className="h-6 w-6" />}
+            variant={metrics.contractsExpiring > 0 ? "warning" : "success"}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Expiring",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/rpo/renewals')
+              },
+              {
+                label: "Set Reminders",
+                icon: <Bell className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              ...(metrics.contractsExpiring > 0 ? [{
+                label: "Take Action",
+                icon: <AlertCircle className="h-4 w-4" />,
+                onClick: () => navigate('/rpo/renewals')
+              }] : [])
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Average Contract Value"
-            value={formatCurrency(metrics.averageContractValue)}
-            icon={DollarSign}
-            description="Per active contract"
-            trend={{ value: 12.3, isPositive: true }}
+            value=""
+            isCurrency={true}
+            rawValue={metrics.averageContractValue}
             change="+$25K from average"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Contract Details",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "View Analytics",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Placements This Month"
             value={metrics.totalPlacementsThisMonth.toString()}
-            icon={TrendingUp}
-            description="Successful hires"
-            trend={{ value: 15.8, isPositive: true }}
             change="+8 vs last month"
+            trend="up"
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Placements",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "View Metrics",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 

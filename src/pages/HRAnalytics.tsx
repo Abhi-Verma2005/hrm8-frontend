@@ -2,14 +2,17 @@ import { useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getEmployees } from "@/lib/employeeStorage";
-import { Users, Briefcase, TrendingUp, DollarSign, MapPin, Award } from "lucide-react";
+import { Users, Briefcase, TrendingUp, DollarSign, MapPin, Award, Eye, Plus, Calendar, BarChart3, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
+import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
+import { useNavigate } from 'react-router-dom';
 
 export default function HRAnalytics() {
-  const employees = getEmployees();
+  const navigate = useNavigate();
   const { formatCurrency } = useCurrencyFormat();
+  const employees = getEmployees();
 
   const analytics = useMemo(() => {
     const total = employees.length;
@@ -58,21 +61,6 @@ export default function HRAnalytics() {
     };
   }, [employees]);
 
-  const StatCard = ({ title, value, icon: Icon, description }: any) => (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        <Icon className="h-4 w-4 text-muted-foreground" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold">{value}</div>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-1">{description}</p>
-        )}
-      </CardContent>
-    </Card>
-  );
-
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
@@ -83,28 +71,108 @@ export default function HRAnalytics() {
           </p>
         </div>
 
+        {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
+          <EnhancedStatCard
             title="Total Employees"
-            value={analytics.total}
-            icon={Users}
-            description={`${analytics.active} active`}
+            value={analytics.total.toString()}
+            change={`${analytics.active} active`}
+            trend="up"
+            icon={<Users className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/employees')
+              },
+              {
+                label: "Add Employee",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => navigate('/employees?action=create')
+              },
+              {
+                label: "View Org Chart",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => navigate('/org-chart')
+              }
+            ]}
           />
-          <StatCard
+
+          <EnhancedStatCard
             title="On Leave"
-            value={analytics.onLeave}
-            icon={Briefcase}
-            description={`${analytics.noticePeriod} in notice period`}
+            value={analytics.onLeave.toString()}
+            change={`${analytics.noticePeriod} in notice period`}
+            trend={analytics.onLeave > 10 ? "up" : "down"}
+            icon={<Calendar className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Leave Calendar",
+                icon: <Calendar className="h-4 w-4" />,
+                onClick: () => navigate('/leave-calendar')
+              },
+              {
+                label: "Approve Requests",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/leave-requests')
+              }
+            ]}
           />
-          <StatCard
+
+          <EnhancedStatCard
             title="Average Salary"
-            value={formatCurrency(analytics.avgSalary)}
-            icon={DollarSign}
+            value=""
+            isCurrency={true}
+            rawValue={analytics.avgSalary}
+            change="Per employee"
+            trend="up"
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Compensation Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export Data",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatCard
+
+          <EnhancedStatCard
             title="Total Payroll"
-            value={formatCurrency(analytics.totalPayroll)}
-            icon={TrendingUp}
+            value=""
+            isCurrency={true}
+            rawValue={analytics.totalPayroll}
+            change="Monthly total"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Payroll Details",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Run Payroll",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 

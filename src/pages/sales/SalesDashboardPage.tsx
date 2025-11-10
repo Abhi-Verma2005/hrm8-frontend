@@ -1,9 +1,9 @@
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card } from "@/components/ui/card";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/DataTable";
-import { TrendingUp, DollarSign, Target, Users, Award, Download, ArrowRight } from "lucide-react";
+import { TrendingUp, DollarSign, Target, Users, Award, Download, ArrowRight, Eye, Plus, Filter, BarChart3 } from "lucide-react";
 import { getSalesAgentStats } from "@/lib/salesAgentStorage";
 import { getAllOpportunities, getOpportunityStats } from "@/lib/salesOpportunityStorage";
 import { getAllActivities, getActivityStats } from "@/lib/salesActivityStorage";
@@ -68,46 +68,152 @@ export default function SalesDashboardPage() {
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Revenue"
-            value={formatCurrency(salesAgentStats.totalRevenue)}
-            icon={DollarSign}
-            description="Year to date"
-            trend={{ value: 12.5, isPositive: true }}
+            value=""
+            isCurrency={true}
+            rawValue={salesAgentStats.totalRevenue}
+            change="+12.5%"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Revenue Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export Data",
+                icon: <Download className="h-4 w-4" />,
+                onClick: handleExport
+              },
+              {
+                label: "View Trends",
+                icon: <TrendingUp className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Pipeline Value"
-            value={formatCurrency(opportunityStats.pipelineValue)}
-            icon={TrendingUp}
-            description={`${pipelineCoverage.toFixed(0)}% quota coverage`}
-            trend={{ value: Number(pipelineCoverage) >= 300 ? 15 : -5, isPositive: Number(pipelineCoverage) >= 300 }}
+            value=""
+            isCurrency={true}
+            rawValue={opportunityStats.pipelineValue}
+            change={`${pipelineCoverage.toFixed(0)}% quota coverage`}
+            trend={pipelineCoverage >= 300 ? "up" : "down"}
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Pipeline",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Add Opportunity",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Quota Attainment"
             value={`${quotaAttainment.toFixed(1)}%`}
-            icon={Target}
-            description="vs target 100%"
-            trend={{ value: Number(quotaAttainment) >= 100 ? 8 : -10, isPositive: Number(quotaAttainment) >= 100 }}
+            change="vs target 100%"
+            trend={quotaAttainment >= 100 ? "up" : "down"}
+            icon={<Target className="h-6 w-6" />}
+            variant={quotaAttainment >= 100 ? "success" : "warning"}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Quota Details",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Set Targets",
+                icon: <Target className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Active Opportunities"
             value={opportunityStats.active.toString()}
-            icon={Award}
-            description={`${opportunityStats.conversionRate.toFixed(1)}% win rate`}
-            trend={{ value: opportunityStats.conversionRate >= 30 ? 5 : -3, isPositive: opportunityStats.conversionRate >= 30 }}
+            change={`${opportunityStats.conversionRate.toFixed(1)}% win rate`}
+            trend={opportunityStats.conversionRate >= 30 ? "up" : "down"}
+            icon={<Award className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Create New",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Filter",
+                icon: <Filter className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Sales Team"
             value={salesAgentStats.active.toString()}
-            icon={Users}
-            description={`${salesAgentStats.total} total agents`}
+            change={`${salesAgentStats.total} total agents`}
+            trend="up"
+            icon={<Users className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Team",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Add Agent",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "View Performance",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Avg Deal Size"
-            value={formatCurrency(opportunityStats.avgDealSize)}
-            icon={DollarSign}
-            description="Per closed deal"
-            trend={{ value: 7, isPositive: true }}
+            value=""
+            isCurrency={true}
+            rawValue={opportunityStats.avgDealSize}
+            change="+7%"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Deal Analysis",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export Report",
+                icon: <Download className="h-4 w-4" />,
+                onClick: handleExport
+              }
+            ]}
           />
         </div>
 

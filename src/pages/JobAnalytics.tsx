@@ -25,16 +25,19 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import { Download, TrendingUp, Users, Eye, Clock, Target } from "lucide-react";
+import { Download, TrendingUp, Users, Eye, Clock, Target, Plus, Filter, BarChart3 } from "lucide-react";
 import { getJobAnalytics, getRecruitmentMetrics } from "@/lib/analyticsService";
 import { exportJobAnalytics } from "@/lib/exportService";
 import { useToast } from "@/hooks/use-toast";
 import { getJobs } from "@/lib/mockJobStorage";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
+import { useNavigate } from "react-router-dom";
 
 const COLORS = ["hsl(var(--primary))", "hsl(var(--secondary))", "hsl(var(--accent))", "hsl(var(--muted))"];
 
 export default function JobAnalytics() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [dateRange, setDateRange] = useState<"7d" | "30d" | "90d" | "1y">("30d");
   
   const jobs = getJobs();
@@ -98,57 +101,103 @@ export default function JobAnalytics() {
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
-              <Target className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.totalJobs}</div>
-              <p className="text-xs text-muted-foreground">
-                {analytics.openJobs} currently open
-              </p>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Total Jobs"
+            value={analytics.totalJobs.toString()}
+            change={`${analytics.openJobs} currently open`}
+            trend="up"
+            icon={<Target className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All Jobs",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/jobs')
+              },
+              {
+                label: "Create Job",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => navigate('/jobs/new')
+              },
+              {
+                label: "View Analytics",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Applicants</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.totalApplicants}</div>
-              <p className="text-xs text-muted-foreground">
-                Avg {analytics.averageApplicantsPerJob} per job
-              </p>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Total Applicants"
+            value={analytics.totalApplicants.toString()}
+            change={`Avg ${analytics.averageApplicantsPerJob} per job`}
+            trend="up"
+            icon={<Users className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Applicants",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/candidates')
+              },
+              {
+                label: "Add Applicant",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => navigate('/candidates?action=create')
+              },
+              {
+                label: "View Pipeline",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => navigate('/pipeline')
+              }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Views</CardTitle>
-              <Eye className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.totalViews.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground">
-                {analytics.conversionRate}% conversion rate
-              </p>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Total Views"
+            value={analytics.totalViews.toLocaleString()}
+            change={`${analytics.conversionRate}% conversion rate`}
+            trend="up"
+            icon={<Eye className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Analytics",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export Report",
+                icon: <Download className="h-4 w-4" />,
+                onClick: handleExport
+              }
+            ]}
+          />
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg Time to Fill</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.avgTimeToFill} days</div>
-              <p className="text-xs text-muted-foreground">
-                Across all filled positions
-              </p>
-            </CardContent>
-          </Card>
+          <EnhancedStatCard
+            title="Avg Time to Fill"
+            value={`${analytics.avgTimeToFill} days`}
+            change="Across all filled positions"
+            trend="down"
+            icon={<Clock className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Metrics",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Set Benchmarks",
+                icon: <Target className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
+          />
         </div>
 
         {/* Charts */}

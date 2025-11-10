@@ -1,11 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-import { Plus, Users, TrendingUp, DollarSign, Award, Upload, Download, BarChart3 } from 'lucide-react';
+import { Plus, Users, TrendingUp, DollarSign, Award, Upload, Download, BarChart3, Eye, Filter } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
 import { createConsultantColumns } from '@/components/consultants/ConsultantTableColumns';
-import { StatsCard } from '@/components/ui/stats-card';
+import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { ConsultantsFilterBar } from '@/components/consultants/ConsultantsFilterBar';
 import { getAllConsultants, getConsultantStats, deleteConsultant } from '@/lib/consultantStorage';
 import { formatRevenue } from '@/lib/consultantUtils';
@@ -178,32 +178,100 @@ export default function ConsultantsPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Consultants"
-            value={stats.total}
-            icon={Users}
-            description={`${stats.active} active`}
+            value={stats.total.toString()}
+            change={`${stats.active} active`}
+            trend="up"
+            icon={<Users className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Add Consultant",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {
+                  setEditingConsultantId(null);
+                  setDrawerOpen(true);
+                }
+              },
+              {
+                label: "View Workload",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => navigate('/consultants/workload')
+              }
+            ]}
           />
 
-          <StatsCard
+          <EnhancedStatCard
             title="Total Placements"
-            value={stats.totalPlacements}
-            icon={Award}
-            description="Active consultants"
+            value={stats.totalPlacements.toString()}
+            change="Active consultants"
+            trend="up"
+            icon={<Award className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Placements",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/placements')
+              },
+              {
+                label: "View Metrics",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
 
-          <StatsCard
+          <EnhancedStatCard
             title="Total Revenue"
             value={formatRevenue(stats.totalRevenue)}
-            icon={TrendingUp}
-            description="From active team"
+            change="From active team"
+            trend="up"
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Revenue Report",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export Data",
+                icon: <Download className="h-4 w-4" />,
+                onClick: handleExport
+              }
+            ]}
           />
 
-          <StatsCard
+          <EnhancedStatCard
             title="Commissions Paid"
             value={formatRevenue(stats.totalCommissionsPaid)}
-            icon={DollarSign}
-            description={`${formatRevenue(stats.pendingCommissions)} pending`}
+            change={`${formatRevenue(stats.pendingCommissions)} pending`}
+            trend={stats.pendingCommissions > 0 ? "up" : "down"}
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Commissions",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Process Payments",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 

@@ -1,5 +1,5 @@
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { StatsCard } from "@/components/ui/stats-card";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -10,8 +10,12 @@ import {
   BarChart3, 
   FileText,
   Download,
-  Calendar
+  Calendar,
+  Eye,
+  Plus,
+  Filter
 } from "lucide-react";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 import {
   getSalesDashboardMetrics,
   getSalesFunnelData,
@@ -26,6 +30,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function DashboardSalesPage() {
   const navigate = useNavigate();
+  const { formatCurrency: formatCurrencyContext } = useCurrencyFormat();
   const metrics = getSalesDashboardMetrics();
   const funnelData = getSalesFunnelData();
   const forecastData = getRevenueForecastData();
@@ -56,53 +61,147 @@ export default function DashboardSalesPage() {
       <div className="space-y-6">
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <StatsCard
+          <EnhancedStatCard
             title="Total Pipeline Value"
-            value={formatCurrency(metrics.totalPipelineValue)}
-            icon={DollarSign}
-            description="Active opportunities value"
-            trend={{ value: 12.5, isPositive: true }}
+            value=""
+            isCurrency={true}
+            rawValue={metrics.totalPipelineValue}
             change="+$250K from last month"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Pipeline",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/sales/pipeline')
+              },
+              {
+                label: "Add Opportunity",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => navigate('/sales/opportunities?action=create')
+              },
+              {
+                label: "Export Data",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Active Opportunities"
             value={metrics.activeOpportunities.toString()}
-            icon={Target}
-            description="Open deals in pipeline"
-            trend={{ value: 8.2, isPositive: true }}
             change="+5 new this month"
+            trend="up"
+            icon={<Target className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View All",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => navigate('/sales/opportunities')
+              },
+              {
+                label: "Create New",
+                icon: <Plus className="h-4 w-4" />,
+                onClick: () => navigate('/sales/opportunities?action=create')
+              },
+              {
+                label: "Filter",
+                icon: <Filter className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Conversion Rate"
             value={`${metrics.conversionRate.toFixed(1)}%`}
-            icon={TrendingUp}
-            description="Win rate"
-            trend={{ value: 4.5, isPositive: true }}
             change="+2.1% vs last quarter"
+            trend="up"
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Analytics",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export Report",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Average Deal Size"
-            value={formatCurrency(metrics.averageDealSize)}
-            icon={BarChart3}
-            description="Per closed deal"
-            trend={{ value: 6.3, isPositive: true }}
+            value=""
+            isCurrency={true}
+            rawValue={metrics.averageDealSize}
             change="+$8K from average"
+            trend="up"
+            icon={<BarChart3 className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Deal Analysis",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Export Report",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Quota Attainment"
             value={`${metrics.quotaAttainment.toFixed(1)}%`}
-            icon={Target}
-            description="Team performance"
-            trend={{ value: metrics.quotaAttainment >= 100 ? 0 : 100 - metrics.quotaAttainment, isPositive: metrics.quotaAttainment >= 80 }}
             change={metrics.quotaAttainment >= 100 ? "Quota exceeded!" : "On track"}
+            trend={metrics.quotaAttainment >= 80 ? "up" : "down"}
+            icon={<Target className="h-6 w-6" />}
+            variant={metrics.quotaAttainment >= 100 ? "success" : metrics.quotaAttainment >= 80 ? "primary" : "warning"}
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Quota Details",
+                icon: <Eye className="h-4 w-4" />,
+                onClick: () => {}
+              },
+              {
+                label: "Set Targets",
+                icon: <Target className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
-          <StatsCard
+          <EnhancedStatCard
             title="Expected Revenue (Q1)"
-            value={formatCurrency(metrics.expectedRevenueThisQuarter)}
-            icon={DollarSign}
-            description="Weighted forecast"
-            trend={{ value: 15.2, isPositive: true }}
+            value=""
+            isCurrency={true}
+            rawValue={metrics.expectedRevenueThisQuarter}
             change="High confidence"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              {
+                label: "View Forecast",
+                icon: <BarChart3 className="h-4 w-4" />,
+                onClick: () => navigate('/sales/forecast')
+              },
+              {
+                label: "Export Report",
+                icon: <Download className="h-4 w-4" />,
+                onClick: () => {}
+              }
+            ]}
           />
         </div>
 
