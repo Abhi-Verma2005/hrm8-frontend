@@ -184,7 +184,8 @@ export function getTeamWorkloadSummary(): TeamWorkloadSummary {
 
 export function getServiceTypeDistribution(): ServiceTypeBreakdown {
   const allServices = getAllServiceProjects();
-  const activeServices = allServices.filter(s => s.status === 'active');
+  // Exclude RPO services - they're tracked separately with dedicated teams
+  const activeServices = allServices.filter(s => s.status === 'active' && s.serviceType !== 'rpo');
 
   const counts = {
     shortlisting: 0,

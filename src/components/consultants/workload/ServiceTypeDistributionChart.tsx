@@ -25,14 +25,13 @@ export function ServiceTypeDistributionChart({ data }: ServiceTypeDistributionCh
     { name: SERVICE_LABELS.shortlisting, value: data.shortlisting.count, hours: data.shortlisting.hours, percentage: data.shortlisting.percentage },
     { name: SERVICE_LABELS['full-service'], value: data['full-service'].count, hours: data['full-service'].hours, percentage: data['full-service'].percentage },
     { name: SERVICE_LABELS['executive-search'], value: data['executive-search'].count, hours: data['executive-search'].hours, percentage: data['executive-search'].percentage },
-    { name: SERVICE_LABELS.rpo, value: data.rpo.count, hours: data.rpo.hours, percentage: data.rpo.percentage },
   ].filter(item => item.value > 0);
 
   return (
     <Card className="p-6">
       <div className="mb-4">
         <h3 className="text-lg font-semibold">Service Type Distribution</h3>
-        <p className="text-sm text-muted-foreground">Active services by type</p>
+        <p className="text-sm text-muted-foreground">Active hourly services by type (RPO tracked separately)</p>
       </div>
 
       {chartData.length === 0 ? (
