@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Info, TrendingUp } from 'lucide-react';
+import { Info, TrendingUp, Calendar } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { WorkloadSummaryCards } from '@/components/consultants/workload/WorkloadSummaryCards';
 import { ConsultantWorkloadChart } from '@/components/consultants/workload/ConsultantWorkloadChart';
@@ -9,6 +9,7 @@ import { ServiceHoursConfigDialog } from '@/components/consultants/workload/Serv
 import { WorkloadForecastChart } from '@/components/consultants/workload/WorkloadForecastChart';
 import { ConsultantForecastTable } from '@/components/consultants/workload/ConsultantForecastTable';
 import { CapacityAlerts } from '@/components/consultants/workload/CapacityAlerts';
+import { TeamCalendarView } from '@/components/consultants/workload/TeamCalendarView';
 import { getTeamWorkloadSummary, getServiceTypeDistribution } from '@/lib/consultantWorkloadUtils';
 import { generateWorkloadForecast } from '@/lib/workloadForecastUtils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -64,6 +65,10 @@ export default function ConsultantWorkloadPage() {
               <TrendingUp className="h-4 w-4" />
               Capacity Forecast
             </TabsTrigger>
+            <TabsTrigger value="calendar" className="gap-2">
+              <Calendar className="h-4 w-4" />
+              Team Calendar
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="current" className="space-y-6">
@@ -81,6 +86,10 @@ export default function ConsultantWorkloadPage() {
             <WorkloadForecastChart forecasts={forecast} />
 
             <ConsultantForecastTable forecasts={forecast} />
+          </TabsContent>
+
+          <TabsContent value="calendar" className="space-y-6">
+            <TeamCalendarView />
           </TabsContent>
         </Tabs>
       </div>
