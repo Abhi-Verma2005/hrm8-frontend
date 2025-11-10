@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { DateRange } from "react-day-picker";
+import { applyLocationFilterToMetric, applyLocationFilterToTimeSeries } from "@/lib/mockDataWithLocations";
+import { filterByDateRange } from "@/lib/dashboardFilterUtils";
 import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend
@@ -61,6 +63,53 @@ export default function EmployersDashboardPage() {
 
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
+  // Apply location filters to metrics
+  const filteredTotalClients = useMemo(() => 
+    applyLocationFilterToMetric(105, selectedCountry, selectedRegion), 
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredActiveProjects = useMemo(() => 
+    applyLocationFilterToMetric(61, selectedCountry, selectedRegion), 
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredTotalRevenue = useMemo(() => 
+    applyLocationFilterToMetric(356000, selectedCountry, selectedRegion), 
+    [selectedCountry, selectedRegion]
+  );
+
+  // Apply location filters to chart data
+  const filteredRevenueExpenses = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      revenueExpenses,
+      selectedCountry,
+      selectedRegion,
+      ['revenue', 'expenses', 'profit']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'month');
+  }, [selectedCountry, selectedRegion, dateRange]);
+
+  const filteredBudgetAnalysis = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      budgetAnalysis,
+      selectedCountry,
+      selectedRegion,
+      ['budget', 'spent']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'category');
+  }, [selectedCountry, selectedRegion, dateRange]);
+
+  const filteredClientActivity = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      clientActivity,
+      selectedCountry,
+      selectedRegion,
+      ['newClients', 'activeProjects', 'completedProjects']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'month');
+  }, [selectedCountry, selectedRegion, dateRange]);
+
   const handleExport = () => {
     toast({ title: "Exporting employers data..." });
   };
@@ -106,7 +155,7 @@ export default function EmployersDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <EnhancedStatCard
               title="Total Clients"
-              value="105"
+              value={filteredTotalClients.toString()}
               change="+13 this quarter"
               trend="up"
               icon={<Building2 className="h-6 w-6" />}
@@ -121,7 +170,7 @@ export default function EmployersDashboardPage() {
 
             <EnhancedStatCard
               title="Active Projects"
-              value="61"
+              value={filteredActiveProjects.toString()}
               change="+12.5%"
               trend="up"
               icon={<Briefcase className="h-6 w-6" />}
@@ -138,7 +187,7 @@ export default function EmployersDashboardPage() {
               title="Total Revenue"
               value=""
               isCurrency={true}
-              rawValue={356000}
+              rawValue={filteredTotalRevenue}
               change="+18.2%"
               trend="up"
               icon={<DollarSign className="h-6 w-6" />}
@@ -211,7 +260,7 @@ export default function EmployersDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={revenueExpenses}>
+                <BarChart data={filteredRevenueExpenses}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -234,7 +283,7 @@ export default function EmployersDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={budgetAnalysis} layout="horizontal">
+                <BarChart data={filteredBudgetAnalysis} layout="horizontal">
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="category" />
                   <YAxis />
@@ -257,7 +306,7 @@ export default function EmployersDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={clientActivity}>
+                <LineChart data={filteredClientActivity}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
@@ -19,6 +19,7 @@ import { createActivityColumns } from "@/components/sales/SalesActivityTableColu
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
+import { applyLocationFilterToMetric } from "@/lib/mockDataWithLocations";
 
 export default function SalesDashboardPage() {
   const navigate = useNavigate();
@@ -33,6 +34,27 @@ export default function SalesDashboardPage() {
   const opportunityStats = getOpportunityStats();
   const activityStats = getActivityStats();
   const territoryStats = getTerritoryStats();
+
+  // Apply location filters to metrics
+  const filteredTotalRevenue = useMemo(() => 
+    applyLocationFilterToMetric(salesAgentStats.totalRevenue, selectedCountry, selectedRegion), 
+    [salesAgentStats.totalRevenue, selectedCountry, selectedRegion]
+  );
+
+  const filteredPipelineValue = useMemo(() => 
+    applyLocationFilterToMetric(opportunityStats.pipelineValue, selectedCountry, selectedRegion), 
+    [opportunityStats.pipelineValue, selectedCountry, selectedRegion]
+  );
+
+  const filteredActiveOpportunities = useMemo(() => 
+    applyLocationFilterToMetric(opportunityStats.active, selectedCountry, selectedRegion), 
+    [opportunityStats.active, selectedCountry, selectedRegion]
+  );
+
+  const filteredAvgDealSize = useMemo(() => 
+    applyLocationFilterToMetric(opportunityStats.avgDealSize, selectedCountry, selectedRegion), 
+    [opportunityStats.avgDealSize, selectedCountry, selectedRegion]
+  );
 
   const allOpportunities = getAllOpportunities();
   const allActivities = getAllActivities();
@@ -49,11 +71,11 @@ export default function SalesDashboardPage() {
     .slice(0, 10);
 
   const quotaAttainment = salesAgentStats.totalQuota > 0 
-    ? (salesAgentStats.totalRevenue / salesAgentStats.totalQuota * 100)
+    ? (filteredTotalRevenue / salesAgentStats.totalQuota * 100)
     : 0;
 
   const pipelineCoverage = salesAgentStats.totalQuota > 0
-    ? (opportunityStats.pipelineValue / salesAgentStats.totalQuota * 100)
+    ? (filteredPipelineValue / salesAgentStats.totalQuota * 100)
     : 0;
 
   const handleExport = () => {
@@ -98,7 +120,7 @@ export default function SalesDashboardPage() {
             title="Total Revenue"
             value=""
             isCurrency={true}
-            rawValue={salesAgentStats.totalRevenue}
+            rawValue={filteredTotalRevenue}
             change="+12.5%"
             trend="up"
             icon={<DollarSign className="h-6 w-6" />}
@@ -126,7 +148,7 @@ export default function SalesDashboardPage() {
             title="Pipeline Value"
             value=""
             isCurrency={true}
-            rawValue={opportunityStats.pipelineValue}
+            rawValue={filteredPipelineValue}
             change={`${pipelineCoverage.toFixed(0)}% quota coverage`}
             trend={pipelineCoverage >= 300 ? "up" : "down"}
             icon={<TrendingUp className="h-6 w-6" />}
@@ -168,7 +190,7 @@ export default function SalesDashboardPage() {
           />
           <EnhancedStatCard
             title="Active Opportunities"
-            value={opportunityStats.active.toString()}
+            value={Math.round(filteredActiveOpportunities).toString()}
             change={`${opportunityStats.conversionRate.toFixed(1)}% win rate`}
             trend={opportunityStats.conversionRate >= 30 ? "up" : "down"}
             icon={<Award className="h-6 w-6" />}
@@ -222,7 +244,7 @@ export default function SalesDashboardPage() {
             title="Avg Deal Size"
             value=""
             isCurrency={true}
-            rawValue={opportunityStats.avgDealSize}
+            rawValue={filteredAvgDealSize}
             change="+7%"
             trend="up"
             icon={<DollarSign className="h-6 w-6" />}

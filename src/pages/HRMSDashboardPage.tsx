@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { DateRange } from "react-day-picker";
+import { applyLocationFilterToMetric, applyLocationFilterToTimeSeries } from "@/lib/mockDataWithLocations";
+import { filterByDateRange } from "@/lib/dashboardFilterUtils";
 import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend
@@ -58,6 +60,48 @@ export default function HRMSDashboardPage() {
 
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
+  // Apply location filters to metrics
+  const filteredTotalEmployees = useMemo(() => 
+    applyLocationFilterToMetric(394, selectedCountry, selectedRegion), 
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredLeaveRequests = useMemo(() => 
+    applyLocationFilterToMetric(47, selectedCountry, selectedRegion), 
+    [selectedCountry, selectedRegion]
+  );
+
+  // Apply location filters to chart data
+  const filteredAttendanceTrends = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      attendanceTrends,
+      selectedCountry,
+      selectedRegion,
+      ['present', 'absent', 'late']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'month');
+  }, [selectedCountry, selectedRegion, dateRange]);
+
+  const filteredLeaveAnalysis = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      leaveAnalysis,
+      selectedCountry,
+      selectedRegion,
+      ['approved', 'pending', 'rejected']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'type');
+  }, [selectedCountry, selectedRegion, dateRange]);
+
+  const filteredPerformanceOverview = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      performanceOverview,
+      selectedCountry,
+      selectedRegion,
+      ['excellent', 'good', 'average', 'poor']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'quarter');
+  }, [selectedCountry, selectedRegion, dateRange]);
+
   const handleExport = () => {
     toast({ title: "Exporting HRMS data..." });
   };
@@ -103,7 +147,7 @@ export default function HRMSDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <EnhancedStatCard
               title="Total Employees"
-              value="394"
+              value={filteredTotalEmployees.toString()}
               change="+12 this month"
               trend="up"
               icon={<Users className="h-6 w-6" />}
@@ -133,7 +177,7 @@ export default function HRMSDashboardPage() {
 
             <EnhancedStatCard
               title="Leave Requests"
-              value="47"
+              value={filteredLeaveRequests.toString()}
               change="23 pending"
               trend="up"
               icon={<Calendar className="h-6 w-6" />}
@@ -174,7 +218,7 @@ export default function HRMSDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={attendanceTrends}>
+                <LineChart data={filteredAttendanceTrends}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -229,7 +273,7 @@ export default function HRMSDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={leaveAnalysis}>
+                <BarChart data={filteredLeaveAnalysis}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="type" />
                   <YAxis />
@@ -253,7 +297,7 @@ export default function HRMSDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={performanceOverview}>
+                <BarChart data={filteredPerformanceOverview}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="quarter" />
                   <YAxis />

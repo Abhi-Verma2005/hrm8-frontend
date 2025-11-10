@@ -22,6 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import type { DateRange } from 'react-day-picker';
+import { applyLocationFilterToMetric, applyLocationFilterToTimeSeries } from '@/lib/mockDataWithLocations';
 
 export default function RPODashboardPage() {
   const { toast } = useToast();
@@ -43,9 +44,6 @@ export default function RPODashboardPage() {
   };
 
   const metrics = useMemo(() => getRPODashboardMetrics(), []);
-  const revenueForecast = useMemo(() => getRevenueProjection(12), []);
-  const consultantAvailability = useMemo(() => getConsultantRPOAvailability(), []);
-  const availabilityStats = useMemo(() => getConsultantRPOStats(), []);
   const renewalAlerts = useMemo(() => getRenewalAlerts(), []);
   const renewalSummary = useMemo(() => getRenewalAlertsSummary(), []);
   
@@ -53,8 +51,20 @@ export default function RPODashboardPage() {
   const performanceMetrics = useMemo(() => getAllContractPerformanceMetrics(), []);
   const performanceSummary = useMemo(() => getPerformanceMetricsSummary(), []);
   const yoyComparison = useMemo(() => getYearOverYearComparison(), []);
-  const monthlyTrend = useMemo(() => getMonthlyPerformanceTrend(12), []);
   const benchmarks = useMemo(() => getPerformanceBenchmarks(), []);
+
+  // Apply location filters to metrics
+  const filteredMetrics = useMemo(() => ({
+    ...metrics,
+    totalActiveContracts: Math.round(applyLocationFilterToMetric(metrics.totalActiveContracts, selectedCountry, selectedRegion)),
+    totalDedicatedConsultants: Math.round(applyLocationFilterToMetric(metrics.totalDedicatedConsultants, selectedCountry, selectedRegion)),
+    totalMonthlyRecurringRevenue: applyLocationFilterToMetric(metrics.totalMonthlyRecurringRevenue, selectedCountry, selectedRegion),
+  }), [metrics, selectedCountry, selectedRegion]);
+
+  const revenueForecast = useMemo(() => getRevenueProjection(12), []);
+  const consultantAvailability = useMemo(() => getConsultantRPOAvailability(), []);
+  const availabilityStats = useMemo(() => getConsultantRPOStats(), []);
+  const monthlyTrend = useMemo(() => getMonthlyPerformanceTrend(12), []);
 
   return (
     <DashboardPageLayout
@@ -83,7 +93,7 @@ export default function RPODashboardPage() {
           </p>
         </div>
 
-        <RPOOverviewCards metrics={metrics} />
+        <RPOOverviewCards metrics={filteredMetrics} />
 
         {renewalSummary.critical > 0 && (
           <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
@@ -117,7 +127,7 @@ export default function RPODashboardPage() {
           </TabsList>
 
           <TabsContent value="contracts">
-            <RPOContractsList contracts={metrics.contracts} />
+            <RPOContractsList contracts={filteredMetrics.contracts} />
           </TabsContent>
 
           <TabsContent value="performance">

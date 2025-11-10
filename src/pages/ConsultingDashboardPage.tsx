@@ -17,6 +17,7 @@ import {
 } from "recharts";
 import { DashboardFilterDialog } from "@/components/dashboard/DashboardFilterDialog";
 import { filterByDateRange } from "@/lib/dashboardFilterUtils";
+import { applyLocationFilterToMetric, applyLocationFilterToTimeSeries } from "@/lib/mockDataWithLocations";
 
 const projectPipeline = [
   { status: 'Discovery', count: 8 },
@@ -62,7 +63,50 @@ export default function ConsultingDashboardPage() {
 
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
-  const filteredRevenueForecast = useMemo(() => filterByDateRange(revenueForecast, dateRange, 'month'), [dateRange]);
+  // Apply location filters to metrics
+  const filteredActiveProjects = useMemo(() => 
+    applyLocationFilterToMetric(32, selectedCountry, selectedRegion), 
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredTotalClients = useMemo(() => 
+    applyLocationFilterToMetric(105, selectedCountry, selectedRegion), 
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredBillableHours = useMemo(() => 
+    applyLocationFilterToMetric(8234, selectedCountry, selectedRegion), 
+    [selectedCountry, selectedRegion]
+  );
+
+  // Apply location filters to chart data
+  const filteredProjectPipeline = useMemo(() => {
+    return applyLocationFilterToTimeSeries(
+      projectPipeline,
+      selectedCountry,
+      selectedRegion,
+      ['count']
+    );
+  }, [selectedCountry, selectedRegion]);
+
+  const filteredResourceAllocation = useMemo(() => {
+    return applyLocationFilterToTimeSeries(
+      resourceAllocation,
+      selectedCountry,
+      selectedRegion,
+      ['allocated', 'available']
+    );
+  }, [selectedCountry, selectedRegion]);
+
+  const filteredRevenueForecast = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      revenueForecast,
+      selectedCountry,
+      selectedRegion,
+      ['actual', 'forecast']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'month');
+  }, [selectedCountry, selectedRegion, dateRange]);
 
   const handleExport = () => {
     toast({ title: "Exporting consulting data..." });
@@ -109,7 +153,7 @@ export default function ConsultingDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <EnhancedStatCard
               title="Active Projects"
-              value="32"
+              value={filteredActiveProjects.toString()}
               change="+8 this month"
               trend="up"
               icon={<Briefcase className="h-6 w-6" />}
@@ -124,7 +168,7 @@ export default function ConsultingDashboardPage() {
 
             <EnhancedStatCard
               title="Total Clients"
-              value="105"
+              value={filteredTotalClients.toString()}
               change="+12.5%"
               trend="up"
               icon={<Users className="h-6 w-6" />}
@@ -154,7 +198,7 @@ export default function ConsultingDashboardPage() {
 
             <EnhancedStatCard
               title="Billable Hours"
-              value="8,234"
+              value={filteredBillableHours.toLocaleString()}
               change="+18.3% vs last month"
               trend="up"
               icon={<Clock className="h-6 w-6" />}
@@ -180,7 +224,7 @@ export default function ConsultingDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={projectPipeline}>
+                <BarChart data={filteredProjectPipeline}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="status" />
                   <YAxis />
@@ -231,7 +275,7 @@ export default function ConsultingDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={resourceAllocation} layout="horizontal">
+                <BarChart data={filteredResourceAllocation} layout="horizontal">
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="consultant" />
                   <YAxis />

@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RPOContractsTable } from '@/components/rpo/RPOContractsTable';
 import { useToast } from '@/hooks/use-toast';
 import type { DateRange } from 'react-day-picker';
+import { applyLocationFilterToMetric } from '@/lib/mockDataWithLocations';
 
 export default function RPOOverviewPage() {
   const metrics = useMemo(() => getRPODashboardMetrics(), []);
@@ -22,6 +23,27 @@ export default function RPOOverviewPage() {
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
 
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
+
+  // Apply location filters to metrics
+  const filteredActiveContracts = useMemo(() => 
+    applyLocationFilterToMetric(metrics.totalActiveContracts, selectedCountry, selectedRegion), 
+    [metrics.totalActiveContracts, selectedCountry, selectedRegion]
+  );
+
+  const filteredDedicatedConsultants = useMemo(() => 
+    applyLocationFilterToMetric(metrics.totalDedicatedConsultants, selectedCountry, selectedRegion), 
+    [metrics.totalDedicatedConsultants, selectedCountry, selectedRegion]
+  );
+
+  const filteredMonthlyRecurringRevenue = useMemo(() => 
+    applyLocationFilterToMetric(metrics.totalMonthlyRecurringRevenue, selectedCountry, selectedRegion), 
+    [metrics.totalMonthlyRecurringRevenue, selectedCountry, selectedRegion]
+  );
+
+  const filteredExpiringContracts = useMemo(() => 
+    applyLocationFilterToMetric(renewalSummary.total, selectedCountry, selectedRegion), 
+    [renewalSummary.total, selectedCountry, selectedRegion]
+  );
 
   const handleExport = () => {
     toast({ title: "Exporting RPO data..." });
@@ -97,7 +119,7 @@ export default function RPOOverviewPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <EnhancedStatCard
             title="Active Contracts"
-            value={metrics.totalActiveContracts.toString()}
+            value={Math.round(filteredActiveContracts).toString()}
             change="+12% vs last month"
             trend="up"
             icon={<Building2 className="h-6 w-6" />}
@@ -105,7 +127,7 @@ export default function RPOOverviewPage() {
           />
           <EnhancedStatCard
             title="Dedicated Consultants"
-            value={metrics.totalDedicatedConsultants.toString()}
+            value={Math.round(filteredDedicatedConsultants).toString()}
             change="+8% vs last month"
             trend="up"
             icon={<Users className="h-6 w-6" />}
@@ -115,7 +137,7 @@ export default function RPOOverviewPage() {
             title="Monthly Recurring Revenue"
             value=""
             isCurrency={true}
-            rawValue={metrics.totalMonthlyRecurringRevenue}
+            rawValue={filteredMonthlyRecurringRevenue}
             change="+15% vs last month"
             trend="up"
             icon={<DollarSign className="h-6 w-6" />}
@@ -123,7 +145,7 @@ export default function RPOOverviewPage() {
           />
           <EnhancedStatCard
             title="Expiring Soon"
-            value={renewalSummary.total.toString()}
+            value={Math.round(filteredExpiringContracts).toString()}
             change={renewalSummary.critical > 0 ? `${renewalSummary.critical} critical within 30 days` : "All clear"}
             trend={renewalSummary.critical > 0 ? "down" : "up"}
             variant={renewalSummary.critical > 0 ? "warning" : "success"}

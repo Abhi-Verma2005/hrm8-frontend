@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { DateRange } from "react-day-picker";
+import { applyLocationFilterToMetric, applyLocationFilterToTimeSeries } from "@/lib/mockDataWithLocations";
+import { filterByDateRange } from "@/lib/dashboardFilterUtils";
 import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend
@@ -68,6 +70,61 @@ export default function RecruitmentServicesDashboardPage() {
 
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
+  // Apply location filters to metrics
+  const filteredActiveProjects = useMemo(() => 
+    applyLocationFilterToMetric(28, selectedCountry, selectedRegion), 
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredServiceRevenue = useMemo(() => 
+    applyLocationFilterToMetric(228000, selectedCountry, selectedRegion), 
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredCompletedProjects = useMemo(() => 
+    applyLocationFilterToMetric(52, selectedCountry, selectedRegion), 
+    [selectedCountry, selectedRegion]
+  );
+
+  // Apply location filters to chart data
+  const filteredServicePipeline = useMemo(() => {
+    return applyLocationFilterToTimeSeries(
+      servicePipeline,
+      selectedCountry,
+      selectedRegion,
+      ['count']
+    );
+  }, [selectedCountry, selectedRegion]);
+
+  const filteredConsultantPerformance = useMemo(() => {
+    return applyLocationFilterToTimeSeries(
+      consultantPerformance,
+      selectedCountry,
+      selectedRegion,
+      ['placements', 'satisfaction']
+    );
+  }, [selectedCountry, selectedRegion]);
+
+  const filteredRevenueTrends = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      revenueTrends,
+      selectedCountry,
+      selectedRegion,
+      ['revenue', 'target']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'month');
+  }, [selectedCountry, selectedRegion, dateRange]);
+
+  const filteredProjectCompletionRate = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      projectCompletionRate,
+      selectedCountry,
+      selectedRegion,
+      ['completed', 'total', 'rate']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'month');
+  }, [selectedCountry, selectedRegion, dateRange]);
+
   const handleExport = () => {
     toast({ title: "Exporting recruitment services data..." });
   };
@@ -113,7 +170,7 @@ export default function RecruitmentServicesDashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <EnhancedStatCard
               title="Active Projects"
-              value="28"
+              value={filteredActiveProjects.toString()}
               change="+15.2%"
               trend="up"
               icon={<Briefcase className="h-6 w-6" />}
@@ -130,7 +187,7 @@ export default function RecruitmentServicesDashboardPage() {
               title="Service Revenue"
               value=""
               isCurrency={true}
-              rawValue={228000}
+              rawValue={filteredServiceRevenue}
               change="+18.3%"
               trend="up"
               icon={<DollarSign className="h-6 w-6" />}
@@ -160,7 +217,7 @@ export default function RecruitmentServicesDashboardPage() {
 
             <EnhancedStatCard
               title="Completed Projects"
-              value="52"
+              value={filteredCompletedProjects.toString()}
               change="15 this month"
               trend="up"
               icon={<CheckCircle className="h-6 w-6" />}
@@ -187,7 +244,7 @@ export default function RecruitmentServicesDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={servicePipeline}>
+                <BarChart data={filteredServicePipeline}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="status" />
                   <YAxis />
@@ -239,7 +296,7 @@ export default function RecruitmentServicesDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={consultantPerformance} layout="horizontal">
+                <BarChart data={filteredConsultantPerformance} layout="horizontal">
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="consultant" />
                   <YAxis />
@@ -260,7 +317,7 @@ export default function RecruitmentServicesDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={revenueTrends}>
+                <LineChart data={filteredRevenueTrends}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -283,7 +340,7 @@ export default function RecruitmentServicesDashboardPage() {
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={projectCompletionRate}>
+                <BarChart data={filteredProjectCompletionRate}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
