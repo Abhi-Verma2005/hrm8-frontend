@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Invoice } from "@/types/billing";
 import { Send } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 interface SendInvoiceDialogProps {
   open: boolean;
@@ -23,6 +24,7 @@ interface SendInvoiceDialogProps {
 }
 
 export function SendInvoiceDialog({ open, onOpenChange, invoice }: SendInvoiceDialogProps) {
+  const { formatCurrency } = useCurrencyFormat();
   const [emailTo, setEmailTo] = useState("");
   const [emailCc, setEmailCc] = useState("");
   const [subject, setSubject] = useState("");
@@ -33,7 +35,7 @@ export function SendInvoiceDialog({ open, onOpenChange, invoice }: SendInvoiceDi
   useState(() => {
     if (invoice) {
       setSubject(`Invoice ${invoice.invoiceNumber} from Your Company`);
-      setMessage(`Dear ${invoice.employerName},\n\nPlease find attached invoice ${invoice.invoiceNumber} for your review.\n\nTotal Amount Due: $${invoice.total.toFixed(2)}\nDue Date: ${invoice.dueDate.toLocaleDateString()}\n\nThank you for your business!\n\nBest regards`);
+      setMessage(`Dear ${invoice.employerName},\n\nPlease find attached invoice ${invoice.invoiceNumber} for your review.\n\nTotal Amount Due: ${formatCurrency(invoice.total)}\nDue Date: ${invoice.dueDate.toLocaleDateString()}\n\nThank you for your business!\n\nBest regards`);
     }
   });
 
@@ -130,7 +132,7 @@ export function SendInvoiceDialog({ open, onOpenChange, invoice }: SendInvoiceDi
           <div className="p-3 rounded-lg bg-muted/50 text-sm">
             <p className="font-medium mb-1">Invoice Preview</p>
             <p className="text-muted-foreground">
-              {invoice.invoiceNumber} • ${invoice.total.toFixed(2)} • {invoice.lineItems.length} items
+              {invoice.invoiceNumber} • {formatCurrency(invoice.total)} • {invoice.lineItems.length} items
             </p>
           </div>
         </div>

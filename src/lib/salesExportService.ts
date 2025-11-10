@@ -2,6 +2,7 @@ import { SalesOpportunity } from "@/types/salesOpportunity";
 import { SalesCommission } from "@/types/salesCommission";
 import * as XLSX from "xlsx";
 import { isWithinInterval, parseISO } from "date-fns";
+import { formatCurrency } from '@/lib/currencyUtils';
 
 export type SalesExportFormat = "csv" | "excel";
 
@@ -11,10 +12,6 @@ export interface ExportOptions {
     from: Date | undefined;
     to: Date | undefined;
   };
-}
-
-function formatCurrency(amount: number): string {
-  return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
 function formatDate(dateString: string): string {

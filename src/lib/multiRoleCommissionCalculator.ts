@@ -1,5 +1,6 @@
 import type { CommissionRoleType, CommissionRoleAssignment, TransactionCommission } from '@/types/commissionRole';
 import type { CommissionRule, CommissionRuleCondition } from '@/types/commissionRule';
+import { formatCurrencyNumber } from './currencyUtils';
 
 export interface CalculateTransactionCommissionInput {
   transactionType: TransactionCommission['transactionType'];
@@ -199,11 +200,11 @@ export function formatCommissionBreakdown(
   }
   
   const lines = roleAssignments.map(ra =>
-    `${ra.roleName} (${ra.consultantName}): ${ra.percentage}% = ${currency} ${ra.commissionAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    `${ra.roleName} (${ra.consultantName}): ${ra.percentage}% = ${currency} ${formatCurrencyNumber(ra.commissionAmount)}`
   );
   
   const total = roleAssignments.reduce((sum, ra) => sum + ra.commissionAmount, 0);
   const totalPercentage = roleAssignments.reduce((sum, ra) => sum + ra.percentage, 0);
   
-  return `${lines.join('\n')}\n\nTotal: ${totalPercentage}% = ${currency} ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `${lines.join('\n')}\n\nTotal: ${totalPercentage}% = ${currency} ${formatCurrencyNumber(total)}`;
 }

@@ -3,12 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { mockTransactions } from "@/data/mockBillingData";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 interface TransactionTimelineProps {
   employerId: string;
 }
 
 export function TransactionTimeline({ employerId }: TransactionTimelineProps) {
+  const { formatCurrency } = useCurrencyFormat();
   const transactions = mockTransactions.slice(0, 8); // Show recent 8 transactions
 
   const getStatusIcon = (status: string) => {
@@ -57,8 +59,8 @@ export function TransactionTimeline({ employerId }: TransactionTimelineProps) {
                       : 'text-foreground'
                   }`}>
                     {transaction.type === 'refund' || (transaction.type === 'adjustment' && transaction.amount < 0)
-                      ? `-$${Math.abs(transaction.amount).toFixed(2)}`
-                      : `$${transaction.amount.toFixed(2)}`}
+                      ? `-${formatCurrency(Math.abs(transaction.amount))}`
+                      : formatCurrency(transaction.amount)}
                   </p>
                 </div>
                 

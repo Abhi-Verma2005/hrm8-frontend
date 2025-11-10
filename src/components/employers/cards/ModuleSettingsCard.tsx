@@ -10,6 +10,7 @@ import { type SubscriptionTier } from "@/lib/subscriptionConfig";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import ModuleChangeConfirmDialog from "./ModuleChangeConfirmDialog";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 interface ModuleSettingsCardProps {
   currentTier: SubscriptionTier;
@@ -27,6 +28,7 @@ export default function ModuleSettingsCard({
   onModuleChange,
 }: ModuleSettingsCardProps) {
   const { toast } = useToast();
+  const { formatCurrency } = useCurrencyFormat();
   const [localAtsEnabled, setLocalAtsEnabled] = useState(atsEnabled);
   const [localHrmsEnabled, setLocalHrmsEnabled] = useState(hrmsEnabled);
   const [localEmployeeCount, setLocalEmployeeCount] = useState(hrmsEmployeeCount);
@@ -120,7 +122,7 @@ export default function ModuleSettingsCard({
             </div>
             <Badge variant="outline" className="text-lg">
               <DollarSign className="h-4 w-4 mr-1" />
-              {currentCost.toFixed(2)}/month
+              {formatCurrency(currentCost)}/month
             </Badge>
           </div>
         </CardHeader>
@@ -191,10 +193,10 @@ export default function ModuleSettingsCard({
                         />
                         <div className="text-sm">
                           <span className="font-semibold">
-                            ${calculateHRMSCost(localEmployeeCount).toFixed(2)}/month
+                            {formatCurrency(calculateHRMSCost(localEmployeeCount))}/month
                           </span>
                           <span className="text-muted-foreground ml-1">
-                            (${(calculateHRMSCost(localEmployeeCount) / localEmployeeCount).toFixed(2)} per employee)
+                            ({formatCurrency(calculateHRMSCost(localEmployeeCount) / localEmployeeCount)} per employee)
                           </span>
                         </div>
                       </div>
@@ -229,16 +231,16 @@ export default function ModuleSettingsCard({
               <h4 className="font-semibold text-sm">Cost Impact</h4>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Current Monthly Cost:</span>
-                <span className="font-medium">${currentCost.toFixed(2)}</span>
+                <span className="font-medium">{formatCurrency(currentCost)}</span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">New Monthly Cost:</span>
-                <span className="font-medium">${newCost.toFixed(2)}</span>
+                <span className="font-medium">{formatCurrency(newCost)}</span>
               </div>
               <div className="flex items-center justify-between text-sm pt-2 border-t">
                 <span className="font-semibold">Difference:</span>
                 <span className={`font-semibold ${costDifference > 0 ? 'text-orange-600' : 'text-green-600'}`}>
-                  {costDifference > 0 ? '+' : ''}{costDifference > 0 ? costDifference.toFixed(2) : '0.00'} /month
+                  {costDifference > 0 ? '+' : ''}{costDifference > 0 ? formatCurrency(costDifference) : formatCurrency(0)} /month
                 </span>
               </div>
             </div>

@@ -7,8 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { getEquityGrants } from "@/lib/compensationStorage";
 import { format } from "date-fns";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 export function EquityGrants() {
+  const { formatCurrency } = useCurrencyFormat();
   const [searchQuery, setSearchQuery] = useState("");
 
   const grants = getEquityGrants();
@@ -117,7 +119,7 @@ export function EquityGrants() {
                       {grant.strikePrice && (
                         <div>
                           <span className="text-muted-foreground">Strike Price: </span>
-                          <span className="font-medium">${grant.strikePrice.toFixed(2)}</span>
+                          <span className="font-medium">{formatCurrency(grant.strikePrice)}</span>
                         </div>
                       )}
                     </div>

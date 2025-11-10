@@ -15,9 +15,11 @@ import { COBRADialog } from "@/components/benefits/COBRADialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { DeleteConfirmationDialog } from "@/components/shared/DeleteConfirmationDialog";
 import { toast } from "sonner";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 export default function BenefitsAdmin() {
   const { isHRAdmin, isSuperAdmin } = useRBAC();
+  const { formatCurrency } = useCurrencyFormat();
   const [activeTab, setActiveTab] = useState("enrollment");
   const [enrollmentDialogOpen, setEnrollmentDialogOpen] = useState(false);
   const [lifeEventDialogOpen, setLifeEventDialogOpen] = useState(false);
@@ -313,7 +315,7 @@ export default function BenefitsAdmin() {
       key: "premiumAmount",
       label: "Premium",
       sortable: true,
-      render: (cobra) => `$${cobra.premiumAmount.toFixed(2)}`,
+      render: (cobra) => formatCurrency(cobra.premiumAmount),
     },
     {
       key: "status",

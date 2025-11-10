@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import { formatCurrency as formatCurrencyUtil } from './currencyUtils';
 
 interface ConsultantPerformance {
   id: string;
@@ -40,7 +41,7 @@ export function exportToExcel(
     ['Total Placements:', consultants.reduce((acc, c) => acc + c.totalPlacements, 0)],
     ['Average Success Rate:', `${(consultants.reduce((acc, c) => acc + c.successRate, 0) / consultants.length).toFixed(1)}%`],
     ['Average Satisfaction:', (consultants.reduce((acc, c) => acc + c.clientSatisfaction, 0) / consultants.length).toFixed(2)],
-    ['Total Revenue:', `$${consultants.reduce((acc, c) => acc + c.revenue, 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`],
+    ['Total Revenue:', formatCurrencyUtil(consultants.reduce((acc, c) => acc + c.revenue, 0))],
   ];
   const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
   XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
@@ -170,7 +171,7 @@ export function exportToPDF(
     `Total Placements: ${consultants.reduce((acc, c) => acc + c.totalPlacements, 0)}`,
     `Average Success Rate: ${(consultants.reduce((acc, c) => acc + c.successRate, 0) / consultants.length).toFixed(1)}%`,
     `Average Satisfaction: ${(consultants.reduce((acc, c) => acc + c.clientSatisfaction, 0) / consultants.length).toFixed(2)}/5.0`,
-    `Total Revenue: $${consultants.reduce((acc, c) => acc + c.revenue, 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+    `Total Revenue: ${formatCurrencyUtil(consultants.reduce((acc, c) => acc + c.revenue, 0))}`
   ];
 
   summaryStats.forEach(stat => {

@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { formatCurrencyNumber } from "@/lib/currencyUtils";
 
 const data = [
   { level: "Entry", min: 45000, avg: 55000, max: 65000 },
@@ -22,7 +23,7 @@ export function SalaryExpectationsChart() {
             <XAxis dataKey="level" className="text-xs" />
             <YAxis 
               className="text-xs" 
-              tickFormatter={(value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+              tickFormatter={(value) => `$${formatCurrencyNumber(value)}`}
             />
             <Tooltip 
               contentStyle={{ 
@@ -30,7 +31,7 @@ export function SalaryExpectationsChart() {
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '6px'
               }}
-              formatter={(value: number) => `$${value.toLocaleString()}`}
+              formatter={(value: number) => `$${formatCurrencyNumber(value)}`}
             />
             <Bar dataKey="min" fill="hsl(var(--chart-3))" radius={[8, 8, 0, 0]} name="Min" />
             <Bar dataKey="avg" fill="hsl(var(--chart-1))" radius={[8, 8, 0, 0]} name="Average" />

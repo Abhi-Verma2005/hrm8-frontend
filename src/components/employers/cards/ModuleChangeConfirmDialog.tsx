@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowRight, CheckCircle, XCircle } from "lucide-react";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 interface ModuleConfig {
   atsEnabled: boolean;
@@ -37,6 +38,7 @@ export default function ModuleChangeConfirmDialog({
   newCost,
   onConfirm,
 }: ModuleChangeConfirmDialogProps) {
+  const { formatCurrency } = useCurrencyFormat();
   const costDifference = newCost - currentCost;
 
   const ModuleStatusRow = ({ label, current, next }: { label: string; current: boolean; next: boolean }) => {
@@ -112,17 +114,17 @@ export default function ModuleChangeConfirmDialog({
             <div className="space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Current:</span>
-                <span className="font-medium">${currentCost.toFixed(2)}/month</span>
+                <span className="font-medium">{formatCurrency(currentCost)}/month</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">New:</span>
-                <span className="font-medium">${newCost.toFixed(2)}/month</span>
+                <span className="font-medium">{formatCurrency(newCost)}/month</span>
               </div>
               <Separator className="my-2" />
               <div className="flex justify-between font-semibold">
                 <span>Change:</span>
                 <span className={costDifference > 0 ? 'text-orange-600' : 'text-green-600'}>
-                  {costDifference > 0 ? '+' : ''}{costDifference > 0 ? `$${costDifference.toFixed(2)}` : '$0.00'}/month
+                  {costDifference > 0 ? '+' : ''}{costDifference > 0 ? formatCurrency(costDifference) : formatCurrency(0)}/month
                 </span>
               </div>
             </div>

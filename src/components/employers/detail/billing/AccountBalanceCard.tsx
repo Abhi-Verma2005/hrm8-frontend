@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DollarSign, AlertCircle, TrendingUp, TrendingDown } from "lucide-react";
 import { mockInvoices } from "@/data/mockBillingData";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 interface AccountBalanceCardProps {
   employerId: string;
@@ -10,6 +11,8 @@ interface AccountBalanceCardProps {
 }
 
 export function AccountBalanceCard({ employerId, onGenerateInvoice }: AccountBalanceCardProps) {
+  const { formatCurrency } = useCurrencyFormat();
+  
   // Calculate balances from mock invoices
   const employerInvoices = mockInvoices.filter(inv => inv.employerId === employerId);
   const unpaidInvoices = employerInvoices.filter(inv => inv.status === 'pending' || inv.status === 'sent' || inv.status === 'overdue');
@@ -51,7 +54,7 @@ export function AccountBalanceCard({ employerId, onGenerateInvoice }: AccountBal
               </p>
             </div>
             <p className="text-lg font-bold text-destructive tabular-nums">
-              ${overdueBalance.toFixed(2)}
+              {formatCurrency(overdueBalance)}
             </p>
           </div>
         )}
@@ -65,7 +68,7 @@ export function AccountBalanceCard({ employerId, onGenerateInvoice }: AccountBal
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
             <p className="text-2xl font-bold tabular-nums">
-              ${currentBalance.toFixed(2)}
+              {formatCurrency(currentBalance)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               {unpaidInvoices.length} unpaid invoice{unpaidInvoices.length !== 1 ? 's' : ''}
@@ -79,7 +82,7 @@ export function AccountBalanceCard({ employerId, onGenerateInvoice }: AccountBal
               <AlertCircle className="h-4 w-4 text-destructive" />
             </div>
             <p className={`text-2xl font-bold tabular-nums ${hasOverdue ? 'text-destructive' : ''}`}>
-              ${overdueBalance.toFixed(2)}
+              {formatCurrency(overdueBalance)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               {overdueInvoices.length} overdue invoice{overdueInvoices.length !== 1 ? 's' : ''}
@@ -93,7 +96,7 @@ export function AccountBalanceCard({ employerId, onGenerateInvoice }: AccountBal
               <TrendingDown className="h-4 w-4 text-muted-foreground" />
             </div>
             <p className="text-2xl font-bold tabular-nums">
-              ${lifetimeSpend.toFixed(2)}
+              {formatCurrency(lifetimeSpend)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               All-time payments

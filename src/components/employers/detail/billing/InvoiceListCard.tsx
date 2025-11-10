@@ -5,6 +5,7 @@ import { Invoice } from "@/types/billing";
 import { FileText, Eye, Send, Download } from "lucide-react";
 import { format } from "date-fns";
 import { mockInvoices } from "@/data/mockBillingData";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 interface InvoiceListCardProps {
   employerId: string;
@@ -13,6 +14,7 @@ interface InvoiceListCardProps {
 }
 
 export function InvoiceListCard({ employerId, onViewInvoice, onSendInvoice }: InvoiceListCardProps) {
+  const { formatCurrency } = useCurrencyFormat();
   const invoices = mockInvoices.filter(inv => inv.employerId === employerId);
 
   const getStatusBadge = (status: Invoice['status']) => {
@@ -73,7 +75,7 @@ export function InvoiceListCard({ employerId, onViewInvoice, onSendInvoice }: In
                 <div className="flex items-center gap-3">
                   <div className="text-right mr-2">
                     <p className="font-bold text-sm tabular-nums">
-                      ${invoice.total.toFixed(2)}
+                      {formatCurrency(invoice.total)}
                     </p>
                     {invoice.status === 'paid' && invoice.paidDate && (
                       <p className="text-xs text-muted-foreground">

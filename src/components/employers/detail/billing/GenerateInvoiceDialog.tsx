@@ -24,6 +24,7 @@ import {
 import { Plus, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { generateInvoiceNumber } from "@/lib/billingStorage";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 const lineItemSchema = z.object({
   description: z.string().min(1, "Description required"),
@@ -39,6 +40,7 @@ interface GenerateInvoiceDialogProps {
 }
 
 export function GenerateInvoiceDialog({ open, onOpenChange, employerId, employerName }: GenerateInvoiceDialogProps) {
+  const { formatCurrency } = useCurrencyFormat();
   const [lineItems, setLineItems] = useState<Array<{ description: string; quantity: number; unitPrice: number }>>([
     { description: "", quantity: 1, unitPrice: 0 }
   ]);
@@ -166,7 +168,7 @@ export function GenerateInvoiceDialog({ open, onOpenChange, employerId, employer
                     </div>
                     <div className="flex items-center justify-end">
                       <span className="font-semibold tabular-nums">
-                        ${(item.quantity * item.unitPrice).toFixed(2)}
+                        {formatCurrency(item.quantity * item.unitPrice)}
                       </span>
                     </div>
                   </div>
@@ -189,15 +191,15 @@ export function GenerateInvoiceDialog({ open, onOpenChange, employerId, employer
           <div className="border-t pt-4 space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium tabular-nums">${calculateSubtotal().toFixed(2)}</span>
+              <span className="font-medium tabular-nums">{formatCurrency(calculateSubtotal())}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Tax (10%)</span>
-              <span className="font-medium tabular-nums">${calculateTax().toFixed(2)}</span>
+              <span className="font-medium tabular-nums">{formatCurrency(calculateTax())}</span>
             </div>
             <div className="flex justify-between font-bold text-lg border-t pt-2">
               <span>Total</span>
-              <span className="tabular-nums">${calculateTotal().toFixed(2)}</span>
+              <span className="tabular-nums">{formatCurrency(calculateTotal())}</span>
             </div>
           </div>
 

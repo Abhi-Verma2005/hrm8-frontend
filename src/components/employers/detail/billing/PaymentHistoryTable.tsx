@@ -11,12 +11,14 @@ import {
 import { CreditCard } from "lucide-react";
 import { format } from "date-fns";
 import { mockTransactions, Transaction } from "@/data/mockBillingData";
+import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 interface PaymentHistoryTableProps {
   employerId: string;
 }
 
 export function PaymentHistoryTable({ employerId }: PaymentHistoryTableProps) {
+  const { formatCurrency } = useCurrencyFormat();
   // In a real app, this would filter by employerId
   const transactions = mockTransactions;
 
@@ -85,8 +87,8 @@ export function PaymentHistoryTable({ employerId }: PaymentHistoryTableProps) {
                 </TableCell>
                 <TableCell className="text-right font-semibold tabular-nums">
                   {transaction.type === 'refund' || transaction.type === 'adjustment' && transaction.amount < 0
-                    ? `-$${Math.abs(transaction.amount).toFixed(2)}`
-                    : `$${transaction.amount.toFixed(2)}`}
+                    ? `-${formatCurrency(Math.abs(transaction.amount))}`
+                    : formatCurrency(transaction.amount)}
                 </TableCell>
               </TableRow>
             ))}

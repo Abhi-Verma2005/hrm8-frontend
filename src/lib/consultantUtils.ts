@@ -77,8 +77,10 @@ export function formatTenure(hireDate: string): string {
   return `${years} ${years === 1 ? 'year' : 'years'}, ${remainingMonths} ${remainingMonths === 1 ? 'month' : 'months'}`;
 }
 
+import { formatCurrency } from './currencyUtils';
+
 export function formatRevenue(amount: number): string {
-  return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  return formatCurrency(amount);
 }
 
 export function getPerformanceRating(successRate: number): 'excellent' | 'good' | 'average' | 'poor' {
