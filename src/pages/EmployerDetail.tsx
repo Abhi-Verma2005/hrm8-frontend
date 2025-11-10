@@ -22,6 +22,7 @@ import EmployerJobsTab from "@/components/employers/detail/jobs/EmployerJobsTab"
 import LocationsDepartmentsTab from "@/components/employers/detail/locations/LocationsDepartmentsTab";
 import { BillingSubscriptionsTab } from "@/components/employers/detail/billing/BillingSubscriptionsTab";
 import { ServicesTab } from "@/components/employers/detail/services/ServicesTab";
+import { RPOContractsTab } from "@/components/employers/detail/rpo/RPOContractsTab";
 import { ActivityHistoryTab } from "@/components/employers/detail/activity/ActivityHistoryTab";
 import { initializeMockCRMData } from "@/data/mockCRMData";
 import { initializeMockContacts } from "@/data/mockContactsData";
@@ -120,6 +121,7 @@ export default function EmployerDetail() {
               <TabsTrigger value="locations">Locations & Departments</TabsTrigger>
               <TabsTrigger value="billing">Billing & Subscriptions</TabsTrigger>
               <TabsTrigger value="services">Services</TabsTrigger>
+              <TabsTrigger value="rpo">RPO Contracts</TabsTrigger>
               <TabsTrigger value="activity">Activity & History</TabsTrigger>
               <TabsTrigger value="documents">Documents</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -208,6 +210,11 @@ export default function EmployerDetail() {
           {/* Services Tab */}
           <TabsContent value="services">
             <ServicesTab employerId={employer.id} />
+          </TabsContent>
+
+          {/* RPO Contracts Tab */}
+          <TabsContent value="rpo">
+            <RPOContractsTab employerId={employer.id} />
           </TabsContent>
 
           {/* Activity & History Tab */}
