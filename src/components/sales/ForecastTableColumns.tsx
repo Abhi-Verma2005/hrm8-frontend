@@ -102,12 +102,22 @@ export function createForecastColumns(): Column<ForecastItem>[] {
       key: 'expectedClose',
       label: 'Expected Close',
       sortable: true,
-      render: (item) => (
-        <div>
-          <div className="text-sm">{format(new Date(item.expectedCloseDate), 'MMM d, yyyy')}</div>
-          <div className="text-xs text-muted-foreground">{item.quarter}</div>
-        </div>
-      ),
+      render: (item) => {
+        try {
+          const date = new Date(item.expectedCloseDate);
+          if (isNaN(date.getTime())) {
+            return <div className="text-sm text-muted-foreground">Invalid date</div>;
+          }
+          return (
+            <div>
+              <div className="text-sm">{format(date, 'MMM d, yyyy')}</div>
+              <div className="text-xs text-muted-foreground">{item.quarter}</div>
+            </div>
+          );
+        } catch {
+          return <div className="text-sm text-muted-foreground">Invalid date</div>;
+        }
+      },
     },
     {
       key: 'confidence',

@@ -70,7 +70,10 @@ export function createActivityColumns(): Column<SalesActivity>[] {
       sortable: true,
       render: (activity) => (
         <span className="text-sm">
-          {format(new Date(activity.scheduledAt), 'MMM d, yyyy')}
+          {activity.scheduledAt 
+            ? format(new Date(activity.scheduledAt), 'MMM d, yyyy')
+            : '-'
+          }
         </span>
       ),
     },

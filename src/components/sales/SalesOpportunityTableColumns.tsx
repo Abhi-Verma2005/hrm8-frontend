@@ -79,9 +79,17 @@ export function createOpportunityColumns(): Column<SalesOpportunity>[] {
       key: 'expectedCloseDate',
       label: 'Expected Close',
       sortable: true,
-      render: (opp) => (
-        <span className="text-sm">{format(new Date(opp.expectedCloseDate), 'MMM d, yyyy')}</span>
-      ),
+      render: (opp) => {
+        try {
+          const date = new Date(opp.expectedCloseDate);
+          if (isNaN(date.getTime())) {
+            return <span className="text-sm text-muted-foreground">Invalid date</span>;
+          }
+          return <span className="text-sm">{format(date, 'MMM d, yyyy')}</span>;
+        } catch {
+          return <span className="text-sm text-muted-foreground">Invalid date</span>;
+        }
+      },
     },
     {
       key: 'actions',
