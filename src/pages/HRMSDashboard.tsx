@@ -120,6 +120,29 @@ export default function HRMSDashboard() {
       dashboardActions={<ViewOnlyEditButton />}
     >
       <div className="space-y-6 animate-fade-in">
+        {/* Header Section */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">HR Analytics</h1>
+            <p className="text-muted-foreground">
+              Workforce insights, headcount trends, and organizational metrics
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-3">
+            <DateRangePicker
+              value={dateRange}
+              onChange={setDateRange}
+              placeholder="Select period"
+              align="end"
+            />
+            
+            <Button variant="secondary" size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </div>
+        </div>
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
