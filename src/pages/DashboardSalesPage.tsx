@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import type { DateRange } from "react-day-picker";
@@ -235,164 +235,190 @@ export default function DashboardSalesPage() {
 
         {/* Charts Row 1 */}
         <div className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Sales Funnel</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={funnelData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="stage" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip 
-                    formatter={(value: number) => formatCurrency(value)}
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
-                  />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                    {funnelData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Revenue Forecast</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={forecastData}>
-                  <defs>
-                    <linearGradient id="colorProjected" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip 
-                    formatter={(value: number) => formatCurrency(value)}
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
-                  />
-                  <Area type="monotone" dataKey="projected" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorProjected)" />
-                  {forecastData.some(d => d.actual) && (
-                    <Area type="monotone" dataKey="actual" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.3} />
-                  )}
-                  <Legend />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Charts Row 2 */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Pipeline by Territory</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={regionData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={(entry) => `${entry.region}: ${entry.percentage.toFixed(0)}%`}
-                    outerRadius={100}
-                    fill="hsl(var(--primary))"
-                    dataKey="value"
-                  >
-                    {regionData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${(index % 5) + 1}))`} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Win Rate Trend</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={winRateData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip 
-                    formatter={(value: number) => `${value.toFixed(1)}%`}
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
-                  />
-                  <Line type="monotone" dataKey="winRate" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ fill: 'hsl(var(--primary))' }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Top Performers Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Top Performers</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <StandardChartCard
+            title="Sales Funnel"
+            showDatePicker={true}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onDownload={() => toast({ title: "Downloading funnel data..." })}
+            menuItems={[
+              { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/sales/pipeline') },
+              { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          >
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={topPerformers} layout="vertical">
+              <BarChart data={funnelData}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis type="number" className="text-xs" />
-                <YAxis dataKey="name" type="category" width={120} className="text-xs" />
+                <XAxis dataKey="stage" className="text-xs" />
+                <YAxis className="text-xs" />
                 <Tooltip 
                   formatter={(value: number) => formatCurrency(value)}
                   contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
                 />
-                <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                  {funnelData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          </StandardChartCard>
+
+          <StandardChartCard
+            title="Revenue Forecast"
+            showDatePicker={true}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onDownload={() => toast({ title: "Downloading forecast data..." })}
+            menuItems={[
+              { label: "View Full Forecast", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/sales/forecast') },
+              { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={forecastData}>
+                <defs>
+                  <linearGradient id="colorProjected" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="month" className="text-xs" />
+                <YAxis className="text-xs" />
+                <Tooltip 
+                  formatter={(value: number) => formatCurrency(value)}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                />
+                <Area type="monotone" dataKey="projected" stroke="hsl(var(--primary))" fillOpacity={1} fill="url(#colorProjected)" />
+                {forecastData.some(d => d.actual) && (
+                  <Area type="monotone" dataKey="actual" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.3} />
+                )}
+                <Legend />
+              </AreaChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
+        </div>
+
+        {/* Charts Row 2 */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <StandardChartCard
+            title="Pipeline by Territory"
+            showDatePicker={false}
+            onDownload={() => toast({ title: "Downloading territory data..." })}
+            menuItems={[
+              { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "Filter by Region", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={regionData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={(entry) => `${entry.region}: ${entry.percentage.toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="hsl(var(--primary))"
+                  dataKey="value"
+                >
+                  {regionData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${(index % 5) + 1}))`} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: number) => formatCurrency(value)} />
+              </PieChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
+
+          <StandardChartCard
+            title="Win Rate Trend"
+            showDatePicker={true}
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            onDownload={() => toast({ title: "Downloading win rate data..." })}
+            menuItems={[
+              { label: "View Analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+              { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={winRateData}>
+                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <XAxis dataKey="month" className="text-xs" />
+                <YAxis className="text-xs" />
+                <Tooltip 
+                  formatter={(value: number) => `${value.toFixed(1)}%`}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                />
+                <Line type="monotone" dataKey="winRate" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ fill: 'hsl(var(--primary))' }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
+        </div>
+
+        {/* Top Performers Chart */}
+        <StandardChartCard
+          title="Top Performers"
+          showDatePicker={false}
+          onDownload={() => toast({ title: "Downloading performer data..." })}
+          menuItems={[
+            { label: "View All Team", icon: <Users className="h-4 w-4" />, onClick: () => navigate('/sales/team') },
+            { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+          ]}
+        >
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={topPerformers} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis type="number" className="text-xs" />
+              <YAxis dataKey="name" type="category" width={120} className="text-xs" />
+              <Tooltip 
+                formatter={(value: number) => formatCurrency(value)}
+                contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+              />
+              <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </StandardChartCard>
 
         {/* Top Opportunities Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Top 10 Opportunities</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-2 text-sm font-semibold">Opportunity</th>
-                    <th className="text-left p-2 text-sm font-semibold">Employer</th>
-                    <th className="text-left p-2 text-sm font-semibold">Stage</th>
-                    <th className="text-right p-2 text-sm font-semibold">Value</th>
-                    <th className="text-right p-2 text-sm font-semibold">Probability</th>
+        <StandardChartCard
+          title="Top 10 Opportunities"
+          showDatePicker={false}
+          onDownload={() => toast({ title: "Downloading opportunities..." })}
+          menuItems={[
+            { label: "View All Opportunities", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/sales/opportunities') },
+            { label: "Export List", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+          ]}
+        >
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left p-2 text-sm font-semibold">Opportunity</th>
+                  <th className="text-left p-2 text-sm font-semibold">Employer</th>
+                  <th className="text-left p-2 text-sm font-semibold">Stage</th>
+                  <th className="text-right p-2 text-sm font-semibold">Value</th>
+                  <th className="text-right p-2 text-sm font-semibold">Probability</th>
+                </tr>
+              </thead>
+              <tbody>
+                {topOpportunities.map((opp) => (
+                  <tr key={opp.id} className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => navigate(`/sales/opportunities`)}>
+                    <td className="p-2 text-sm">{opp.name}</td>
+                    <td className="p-2 text-sm">{opp.employerName}</td>
+                    <td className="p-2 text-sm capitalize">{opp.stage.replace('-', ' ')}</td>
+                    <td className="p-2 text-sm text-right">{formatCurrency(opp.estimatedValue)}</td>
+                    <td className="p-2 text-sm text-right">{opp.probability}%</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {topOpportunities.map((opp) => (
-                    <tr key={opp.id} className="border-b hover:bg-muted/50 cursor-pointer" onClick={() => navigate(`/sales/opportunities`)}>
-                      <td className="p-2 text-sm">{opp.name}</td>
-                      <td className="p-2 text-sm">{opp.employerName}</td>
-                      <td className="p-2 text-sm capitalize">{opp.stage.replace('-', ' ')}</td>
-                      <td className="p-2 text-sm text-right">{formatCurrency(opp.estimatedValue)}</td>
-                      <td className="p-2 text-sm text-right">{opp.probability}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </StandardChartCard>
 
         {/* Quick Links */}
         <div className="grid gap-4 md:grid-cols-4">

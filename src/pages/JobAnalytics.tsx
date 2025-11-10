@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
@@ -201,228 +201,268 @@ export default function JobAnalytics() {
 
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Jobs by Status</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={statusData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={80}
-                        fill="hsl(var(--primary))"
-                        dataKey="value"
-                      >
-                        {statusData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Jobs by Status"
+                showDatePicker={false}
+                onDownload={() => toast({ title: "Downloading chart..." })}
+                menuItems={[
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/jobs') },
+                  { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={statusData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="hsl(var(--primary))"
+                      dataKey="value"
+                    >
+                      {statusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Jobs by Department</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={departmentData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="hsl(var(--primary))" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Jobs by Department"
+                showDatePicker={false}
+                onDownload={() => toast({ title: "Downloading chart..." })}
+                menuItems={[
+                  { label: "Filter by Department", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={departmentData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="hsl(var(--primary))" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
             </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Top Performing Jobs</CardTitle>
-                <CardDescription>By applicant count</CardDescription>
-              </CardHeader>
-              <CardContent>
+            <StandardChartCard
+              title="Top Performing Jobs"
+              description="By applicant count"
+              showDatePicker={false}
+              onDownload={() => toast({ title: "Downloading list..." })}
+              menuItems={[
+                { label: "View All Jobs", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/jobs') },
+                { label: "Export List", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+              ]}
+            >
+              <div className="space-y-3">
+                {analytics.topPerformingJobs.slice(0, 5).map((job, index) => (
+                  <div key={job.jobId} className="flex items-center gap-4">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold">
+                      {index + 1}
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-medium">{job.jobTitle}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {job.applicants} applicants • {job.views} views
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </StandardChartCard>
+          </TabsContent>
+
+          <TabsContent value="trends" className="space-y-4">
+            <StandardChartCard
+              title="Applicant Trend"
+              description="Daily applicant submissions"
+              showDatePicker={true}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              onDownload={() => toast({ title: "Downloading trend data..." })}
+              menuItems={[
+                { label: "View Full Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                { label: "Compare Periods", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+              ]}
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={analytics.applicantsTrend}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                    name="Applicants"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </StandardChartCard>
+
+            <StandardChartCard
+              title="Job Views Trend"
+              description="Daily job post views"
+              showDatePicker={true}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              onDownload={() => toast({ title: "Downloading views data..." })}
+              menuItems={[
+                { label: "View Analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+              ]}
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={analytics.viewsTrend}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="count"
+                    stroke="hsl(var(--accent))"
+                    strokeWidth={2}
+                    name="Views"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </StandardChartCard>
+          </TabsContent>
+
+          <TabsContent value="sources" className="space-y-4">
+            <StandardChartCard
+              title="Source Effectiveness"
+              description="Applicants and hires by source"
+              showDatePicker={true}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              onDownload={() => toast({ title: "Downloading source data..." })}
+              menuItems={[
+                { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+              ]}
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={sourceData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="applicants" fill="hsl(var(--primary))" name="Applicants" />
+                  <Bar dataKey="hires" fill="hsl(var(--accent))" name="Hires" />
+                </BarChart>
+              </ResponsiveContainer>
+            </StandardChartCard>
+
+            <StandardChartCard
+              title="Cost Per Hire by Source"
+              showDatePicker={false}
+              onDownload={() => toast({ title: "Downloading cost data..." })}
+              menuItems={[
+                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+              ]}
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={sourceData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="costPerHire" fill="hsl(var(--secondary))" name="Cost per Hire ($)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </StandardChartCard>
+          </TabsContent>
+
+          <TabsContent value="performance" className="space-y-4">
+            <StandardChartCard
+              title="Time to Hire by Stage"
+              description="Average days per recruitment stage"
+              showDatePicker={true}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              onDownload={() => toast({ title: "Downloading time metrics..." })}
+              menuItems={[
+                { label: "View Metrics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                { label: "Set Benchmarks", icon: <Target className="h-4 w-4" />, onClick: () => {} },
+                { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+              ]}
+            >
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={metrics.timeToHireByStage} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="stage" type="category" width={150} />
+                  <Tooltip />
+                  <Bar dataKey="avgDays" fill="hsl(var(--primary))" name="Avg Days" />
+                </BarChart>
+              </ResponsiveContainer>
+            </StandardChartCard>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <StandardChartCard
+                title="Offer Acceptance Rate"
+                showDatePicker={false}
+                onDownload={() => toast({ title: "Downloading acceptance rate..." })}
+                menuItems={[
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+                ]}
+              >
+                <div className="flex items-center justify-center h-[200px]">
+                  <div className="text-center">
+                    <div className="text-6xl font-bold text-primary">
+                      {metrics.offerAcceptanceRate}%
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Of offers are accepted
+                    </p>
+                  </div>
+                </div>
+              </StandardChartCard>
+
+              <StandardChartCard
+                title="Recruiter Performance"
+                showDatePicker={false}
+                onDownload={() => toast({ title: "Downloading recruiter data..." })}
+                menuItems={[
+                  { label: "View All Recruiters", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+                ]}
+              >
                 <div className="space-y-3">
-                  {analytics.topPerformingJobs.slice(0, 5).map((job, index) => (
-                    <div key={job.jobId} className="flex items-center gap-4">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold">
-                        {index + 1}
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium">{job.jobTitle}</p>
+                  {metrics.recruiterPerformance.slice(0, 4).map((recruiter) => (
+                    <div key={recruiter.recruiterId} className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium">{recruiter.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {job.applicants} applicants • {job.views} views
+                          {recruiter.jobsFilled} jobs filled
                         </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{recruiter.avgTimeToFill} days</p>
+                        <p className="text-xs text-muted-foreground">avg time</p>
                       </div>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="trends" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Applicant Trend</CardTitle>
-                <CardDescription>Daily applicant submissions</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={analytics.applicantsTrend}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="count"
-                      stroke="hsl(var(--primary))"
-                      strokeWidth={2}
-                      name="Applicants"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Job Views Trend</CardTitle>
-                <CardDescription>Daily job post views</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={analytics.viewsTrend}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="count"
-                      stroke="hsl(var(--accent))"
-                      strokeWidth={2}
-                      name="Views"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="sources" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Source Effectiveness</CardTitle>
-                <CardDescription>Applicants and hires by source</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={sourceData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="applicants" fill="hsl(var(--primary))" name="Applicants" />
-                    <Bar dataKey="hires" fill="hsl(var(--accent))" name="Hires" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Cost Per Hire by Source</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={sourceData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="costPerHire" fill="hsl(var(--secondary))" name="Cost per Hire ($)" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="performance" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Time to Hire by Stage</CardTitle>
-                <CardDescription>Average days per recruitment stage</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={metrics.timeToHireByStage} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="stage" type="category" width={150} />
-                    <Tooltip />
-                    <Bar dataKey="avgDays" fill="hsl(var(--primary))" name="Avg Days" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Offer Acceptance Rate</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-center h-[200px]">
-                    <div className="text-center">
-                      <div className="text-6xl font-bold text-primary">
-                        {metrics.offerAcceptanceRate}%
-                      </div>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Of offers are accepted
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recruiter Performance</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {metrics.recruiterPerformance.slice(0, 4).map((recruiter) => (
-                      <div key={recruiter.recruiterId} className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">{recruiter.name}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {recruiter.jobsFilled} jobs filled
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold">{recruiter.avgTimeToFill} days</p>
-                          <p className="text-xs text-muted-foreground">avg time</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+              </StandardChartCard>
             </div>
           </TabsContent>
         </Tabs>

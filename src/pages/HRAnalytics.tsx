@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import type { DateRange } from "react-day-picker";
@@ -205,12 +205,18 @@ export default function HRAnalytics() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Employees by Department</CardTitle>
-              <CardDescription>Distribution across departments</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <StandardChartCard
+            title="Employees by Department"
+            description="Distribution across departments"
+            showDatePicker={false}
+            onDownload={() => toast({ title: "Downloading department data..." })}
+            menuItems={[
+              { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "Filter Data", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          >
+            <div className="space-y-4">
               {Object.entries(analytics.byDepartment)
                 .sort((a, b) => b[1] - a[1])
                 .map(([dept, count]) => (
@@ -224,15 +230,20 @@ export default function HRAnalytics() {
                     <Progress value={(count / analytics.total) * 100} />
                   </div>
                 ))}
-            </CardContent>
-          </Card>
+            </div>
+          </StandardChartCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Employees by Location</CardTitle>
-              <CardDescription>Geographic distribution</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <StandardChartCard
+            title="Employees by Location"
+            description="Geographic distribution"
+            showDatePicker={false}
+            onDownload={() => toast({ title: "Downloading location data..." })}
+            menuItems={[
+              { label: "View Map", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          >
+            <div className="space-y-4">
               {Object.entries(analytics.byLocation)
                 .sort((a, b) => b[1] - a[1])
                 .map(([location, count]) => (
@@ -249,15 +260,20 @@ export default function HRAnalytics() {
                     <Progress value={(count / analytics.total) * 100} />
                   </div>
                 ))}
-            </CardContent>
-          </Card>
+            </div>
+          </StandardChartCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Employment Type Distribution</CardTitle>
-              <CardDescription>Breakdown by employment type</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <StandardChartCard
+            title="Employment Type Distribution"
+            description="Breakdown by employment type"
+            showDatePicker={false}
+            onDownload={() => toast({ title: "Downloading employment data..." })}
+            menuItems={[
+              { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          >
+            <div className="space-y-4">
               {Object.entries(analytics.byEmploymentType)
                 .sort((a, b) => b[1] - a[1])
                 .map(([type, count]) => (
@@ -268,15 +284,20 @@ export default function HRAnalytics() {
                     </Badge>
                   </div>
                 ))}
-            </CardContent>
-          </Card>
+            </div>
+          </StandardChartCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Skills</CardTitle>
-              <CardDescription>Most common skills in workforce</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
+          <StandardChartCard
+            title="Top Skills"
+            description="Most common skills in workforce"
+            showDatePicker={false}
+            onDownload={() => toast({ title: "Downloading skills data..." })}
+            menuItems={[
+              { label: "View All Skills", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+              { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          >
+            <div className="space-y-3">
               {analytics.topSkills.length > 0 ? (
                 analytics.topSkills.map(([skill, count]) => (
                   <div key={skill} className="flex items-center justify-between">
@@ -292,8 +313,8 @@ export default function HRAnalytics() {
                   No skills data available
                 </p>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </StandardChartCard>
         </div>
       </div>
     </DashboardPageLayout>

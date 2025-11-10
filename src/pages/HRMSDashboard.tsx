@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
@@ -11,7 +12,7 @@ import {
 } from "recharts";
 import { 
   Users, TrendingUp, TrendingDown, UserPlus, UserMinus, 
-  Clock, DollarSign, Award, Download, Building2
+  Clock, DollarSign, Award, Download, Building2, Eye, BarChart3, Calendar, Filter
 } from "lucide-react";
 import { getEmployees } from "@/lib/employeeStorage";
 import { Badge } from "@/components/ui/badge";
@@ -209,130 +210,157 @@ export default function HRMSDashboard() {
 
           <TabsContent value="headcount" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Headcount Trend</CardTitle>
-                  <CardDescription>Employee growth over time</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <AreaChart data={headcountTrends}>
-                      <defs>
-                        <linearGradient id="colorHeadcount" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Area 
-                        type="monotone" 
-                        dataKey="headcount" 
-                        stroke="#3b82f6" 
-                        fillOpacity={1}
-                        fill="url(#colorHeadcount)" 
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Headcount Trend"
+                description="Employee growth over time"
+                showDatePicker={true}
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                onDownload={() => toast({ title: "Downloading headcount trend..." })}
+                menuItems={[
+                  { label: "View Full Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={headcountTrends}>
+                    <defs>
+                      <linearGradient id="colorHeadcount" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Area 
+                      type="monotone" 
+                      dataKey="headcount" 
+                      stroke="#3b82f6" 
+                      fillOpacity={1}
+                      fill="url(#colorHeadcount)" 
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Hires vs Departures</CardTitle>
-                  <CardDescription>Monthly workforce changes</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={headcountTrends}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" />
-                      <YAxis />
-                      <Tooltip />
-                      <Legend />
-                      <Bar dataKey="hires" fill="#10b981" name="Hires" />
-                      <Bar dataKey="departures" fill="#ef4444" name="Departures" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Hires vs Departures"
+                description="Monthly workforce changes"
+                showDatePicker={true}
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                onDownload={() => toast({ title: "Downloading hiring data..." })}
+                menuItems={[
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={headcountTrends}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="hires" fill="#10b981" name="Hires" />
+                    <Bar dataKey="departures" fill="#ef4444" name="Departures" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Employee Tenure</CardTitle>
-                  <CardDescription>Distribution by years of service</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={tenureData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="range" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Employee Tenure"
+                description="Distribution by years of service"
+                showDatePicker={false}
+                onDownload={() => toast({ title: "Downloading tenure data..." })}
+                menuItems={[
+                  { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={tenureData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="range" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="#8b5cf6" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Location Breakdown</CardTitle>
-                  <CardDescription>Employees by office location</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={locationData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis dataKey="location" type="category" />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="#06b6d4" radius={[0, 8, 8, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Location Breakdown"
+                description="Employees by office location"
+                showDatePicker={false}
+                onDownload={() => toast({ title: "Downloading location data..." })}
+                menuItems={[
+                  { label: "View Map", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Filter by Location", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={locationData} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" />
+                    <YAxis dataKey="location" type="category" />
+                    <Tooltip />
+                    <Bar dataKey="count" fill="#06b6d4" radius={[0, 8, 8, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
             </div>
           </TabsContent>
 
           <TabsContent value="departments" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Department Distribution</CardTitle>
-                  <CardDescription>Headcount by department</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={350}>
-                    <PieChart>
-                      <Pie
-                        data={departmentData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={120}
-                        fill="#8884d8"
-                        dataKey="count"
-                      >
-                        {departmentData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+              <StandardChartCard
+                title="Department Distribution"
+                description="Headcount by department"
+                showDatePicker={false}
+                onDownload={() => toast({ title: "Downloading department data..." })}
+                menuItems={[
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Filter by Department", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+                ]}
+              >
+                <ResponsiveContainer width="100%" height={350}>
+                  <PieChart>
+                    <Pie
+                      data={departmentData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={120}
+                      fill="#8884d8"
+                      dataKey="count"
+                    >
+                      {departmentData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </StandardChartCard>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Department Sizes</CardTitle>
-                  <CardDescription>Employee count per department</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <StandardChartCard
+                title="Department Sizes"
+                description="Employee count per department"
+                showDatePicker={false}
+                onDownload={() => toast({ title: "Downloading department sizes..." })}
+                menuItems={[
+                  { label: "View All Departments", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+                ]}
+              >
+                <div className="space-y-4">
                   {departmentData.map((dept, index) => (
                     <div key={index} className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -361,148 +389,159 @@ export default function HRMSDashboard() {
                       </div>
                     </div>
                   ))}
-                </CardContent>
-              </Card>
+                </div>
+              </StandardChartCard>
             </div>
           </TabsContent>
 
           <TabsContent value="turnover" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Turnover Rate by Department</CardTitle>
-                <CardDescription>Actual vs industry benchmark</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={turnoverData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="department" />
-                    <YAxis label={{ value: 'Turnover Rate (%)', angle: -90, position: 'insideLeft' }} />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="rate" fill="#3b82f6" name="Actual Rate" />
-                    <Bar dataKey="benchmark" fill="#94a3b8" name="Industry Benchmark" />
-                  </BarChart>
-                </ResponsiveContainer>
+            <StandardChartCard
+              title="Turnover Rate by Department"
+              description="Actual vs industry benchmark"
+              showDatePicker={true}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              onDownload={() => toast({ title: "Downloading turnover data..." })}
+              menuItems={[
+                { label: "View Full Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                { label: "Set Benchmarks", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+              ]}
+            >
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={turnoverData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="department" />
+                  <YAxis label={{ value: 'Turnover Rate (%)', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="rate" fill="#3b82f6" name="Actual Rate" />
+                  <Bar dataKey="benchmark" fill="#94a3b8" name="Industry Benchmark" />
+                </BarChart>
+              </ResponsiveContainer>
 
-                <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                    <div>
-                      <div className="text-2xl font-bold text-green-500">9.8%</div>
-                      <div className="text-xs text-muted-foreground">Company Avg</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-blue-500">13.2%</div>
-                      <div className="text-xs text-muted-foreground">Industry Avg</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-purple-500">92</div>
-                      <div className="text-xs text-muted-foreground">Days Avg Tenure</div>
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold text-orange-500">87%</div>
-                      <div className="text-xs text-muted-foreground">Retention Rate</div>
-                    </div>
+              <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-green-500">9.8%</div>
+                    <div className="text-xs text-muted-foreground">Company Avg</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-blue-500">13.2%</div>
+                    <div className="text-xs text-muted-foreground">Industry Avg</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-500">92</div>
+                    <div className="text-xs text-muted-foreground">Days Avg Tenure</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-orange-500">87%</div>
+                    <div className="text-xs text-muted-foreground">Retention Rate</div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </StandardChartCard>
           </TabsContent>
 
           <TabsContent value="compensation" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Compensation Ranges by Level</CardTitle>
-                <CardDescription>Salary distribution across career levels</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={compensationData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="level" type="category" width={80} />
-                    <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
-                    <Legend />
-                    <Bar dataKey="min" fill="#94a3b8" name="Min" />
-                    <Bar dataKey="avg" fill="#3b82f6" name="Average" />
-                    <Bar dataKey="max" fill="#10b981" name="Max" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            <StandardChartCard
+              title="Compensation Ranges by Level"
+              description="Salary distribution across career levels"
+              showDatePicker={false}
+              onDownload={() => toast({ title: "Downloading compensation data..." })}
+              menuItems={[
+                { label: "View Analysis", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                { label: "Compare Market", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+              ]}
+            >
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={compensationData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="level" type="category" width={80} />
+                  <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
+                  <Legend />
+                  <Bar dataKey="min" fill="#94a3b8" name="Min" />
+                  <Bar dataKey="avg" fill="#3b82f6" name="Average" />
+                  <Bar dataKey="max" fill="#10b981" name="Max" />
+                </BarChart>
+              </ResponsiveContainer>
+            </StandardChartCard>
           </TabsContent>
 
           <TabsContent value="diversity" className="space-y-4">
-            <div className="grid gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Diversity & Inclusion Metrics</CardTitle>
-                  <CardDescription>Workforce demographic breakdown</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div className="space-y-4">
-                      <h4 className="font-semibold">Gender Distribution</h4>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Male</span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-48 bg-muted rounded-full h-2">
-                              <div className="h-2 bg-blue-500 rounded-full" style={{ width: '62%' }} />
-                            </div>
-                            <span className="text-sm font-medium w-12 text-right">62%</span>
-                          </div>
+            <StandardChartCard
+              title="Diversity & Inclusion Metrics"
+              description="Workforce demographic breakdown"
+              showDatePicker={false}
+              onDownload={() => toast({ title: "Downloading diversity data..." })}
+              menuItems={[
+                { label: "View Full Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+              ]}
+            >
+              <div className="grid gap-6 md:grid-cols-2">
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Gender Distribution</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Male</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-48 bg-muted rounded-full h-2">
+                          <div className="h-2 bg-blue-500 rounded-full" style={{ width: '62%' }} />
                         </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Female</span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-48 bg-muted rounded-full h-2">
-                              <div className="h-2 bg-pink-500 rounded-full" style={{ width: '35%' }} />
-                            </div>
-                            <span className="text-sm font-medium w-12 text-right">35%</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm">Non-Binary</span>
-                          <div className="flex items-center gap-2">
-                            <div className="w-48 bg-muted rounded-full h-2">
-                              <div className="h-2 bg-purple-500 rounded-full" style={{ width: '3%' }} />
-                            </div>
-                            <span className="text-sm font-medium w-12 text-right">3%</span>
-                          </div>
-                        </div>
+                        <span className="text-sm font-medium w-12 text-right">62%</span>
                       </div>
                     </div>
-
-                    <div className="space-y-4">
-                      <h4 className="font-semibold">Age Distribution</h4>
-                      <div className="space-y-3">
-                        {[
-                          { range: '18-25', percent: 18, color: '#3b82f6' },
-                          { range: '26-35', percent: 42, color: '#10b981' },
-                          { range: '36-45', percent: 28, color: '#f59e0b' },
-                          { range: '46-55', percent: 9, color: '#8b5cf6' },
-                          { range: '56+', percent: 3, color: '#ec4899' },
-                        ].map((item, index) => (
-                          <div key={index} className="flex items-center justify-between">
-                            <span className="text-sm">{item.range}</span>
-                            <div className="flex items-center gap-2">
-                              <div className="w-48 bg-muted rounded-full h-2">
-                                <div 
-                                  className="h-2 rounded-full" 
-                                  style={{ width: `${item.percent}%`, backgroundColor: item.color }} 
-                                />
-                              </div>
-                              <span className="text-sm font-medium w-12 text-right">{item.percent}%</span>
-                            </div>
-                          </div>
-                        ))}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Female</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-48 bg-muted rounded-full h-2">
+                          <div className="h-2 bg-pink-500 rounded-full" style={{ width: '35%' }} />
+                        </div>
+                        <span className="text-sm font-medium w-12 text-right">35%</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Non-Binary</span>
+                      <div className="flex items-center gap-2">
+                        <div className="w-48 bg-muted rounded-full h-2">
+                          <div className="h-2 bg-purple-500 rounded-full" style={{ width: '3%' }} />
+                        </div>
+                        <span className="text-sm font-medium w-12 text-right">3%</span>
                       </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="font-semibold">Age Distribution</h4>
+                  <div className="space-y-3">
+                    {[
+                      { range: '18-25', percent: 18, color: '#3b82f6' },
+                      { range: '26-35', percent: 42, color: '#10b981' },
+                      { range: '36-45', percent: 28, color: '#f59e0b' },
+                      { range: '46-55', percent: 9, color: '#8b5cf6' },
+                      { range: '56+', percent: 3, color: '#ec4899' },
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <span className="text-sm">{item.range}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-48 bg-muted rounded-full h-2">
+                            <div 
+                              className="h-2 rounded-full" 
+                              style={{ width: `${item.percent}%`, backgroundColor: item.color }} 
+                            />
+                          </div>
+                          <span className="text-sm font-medium w-12 text-right">{item.percent}%</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </StandardChartCard>
           </TabsContent>
         </Tabs>
       </div>
