@@ -7,6 +7,7 @@ import { RPOPlacementPipeline } from '@/components/rpo/RPOPlacementPipeline';
 import { RPOReportsGenerator } from '@/components/rpo/RPOReportsGenerator';
 import { RPONotifications } from '@/components/rpo/RPONotifications';
 import { RPOConsultantPerformanceDashboard } from '@/components/rpo/RPOConsultantPerformanceDashboard';
+import { RPOConsultantSkillMatrix } from '@/components/rpo/RPOConsultantSkillMatrix';
 import { LayoutDashboard } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -36,9 +37,10 @@ export default function RPODashboardPage() {
         </div>
 
         <Tabs defaultValue="notifications" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="skills">Skills</TabsTrigger>
             <TabsTrigger value="suggestions">AI Suggestions</TabsTrigger>
             <TabsTrigger value="renewals">Renewals</TabsTrigger>
             <TabsTrigger value="sla">SLA Tracking</TabsTrigger>
@@ -52,6 +54,10 @@ export default function RPODashboardPage() {
 
           <TabsContent value="performance" className="space-y-6">
             <RPOConsultantPerformanceDashboard />
+          </TabsContent>
+
+          <TabsContent value="skills" className="space-y-6">
+            <RPOConsultantSkillMatrix />
           </TabsContent>
 
           <TabsContent value="suggestions" className="space-y-6">
