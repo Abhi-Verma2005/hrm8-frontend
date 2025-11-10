@@ -47,7 +47,8 @@ export interface TeamWorkloadSummary {
 export interface ServiceTypeBreakdown {
   shortlisting: { count: number; hours: number; percentage: number };
   'full-service': { count: number; hours: number; percentage: number };
-  'executive-search': { count: number; hours: number; percentage: number };
+  'executive-search-under-100k': { count: number; hours: number; percentage: number };
+  'executive-search-over-100k': { count: number; hours: number; percentage: number };
   rpo: { count: number; hours: number; percentage: number };
   total: number;
   totalHours: number;
@@ -190,20 +191,36 @@ export function getServiceTypeDistribution(): ServiceTypeBreakdown {
   const counts = {
     shortlisting: 0,
     'full-service': 0,
-    'executive-search': 0,
+    'executive-search-under-100k': 0,
+    'executive-search-over-100k': 0,
     rpo: 0,
   };
 
   const hours = {
     shortlisting: 0,
     'full-service': 0,
-    'executive-search': 0,
+    'executive-search-under-100k': 0,
+    'executive-search-over-100k': 0,
     rpo: 0,
   };
 
   activeServices.forEach(service => {
-    counts[service.serviceType]++;
-    hours[service.serviceType] += getServiceProjectHours(service);
+    if (service.serviceType === 'executive-search') {
+      // Check job salary to categorize
+      const job = service.jobId ? getJobById(service.jobId) : null;
+      const salaryMax = job?.salaryMax || 0;
+      
+      if (salaryMax >= 100000) {
+        counts['executive-search-over-100k']++;
+        hours['executive-search-over-100k'] += getServiceProjectHours(service);
+      } else {
+        counts['executive-search-under-100k']++;
+        hours['executive-search-under-100k'] += getServiceProjectHours(service);
+      }
+    } else {
+      counts[service.serviceType]++;
+      hours[service.serviceType] += getServiceProjectHours(service);
+    }
   });
 
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
@@ -220,10 +237,15 @@ export function getServiceTypeDistribution(): ServiceTypeBreakdown {
       hours: hours['full-service'],
       percentage: total > 0 ? Math.round((counts['full-service'] / total) * 100) : 0,
     },
-    'executive-search': {
-      count: counts['executive-search'],
-      hours: hours['executive-search'],
-      percentage: total > 0 ? Math.round((counts['executive-search'] / total) * 100) : 0,
+    'executive-search-under-100k': {
+      count: counts['executive-search-under-100k'],
+      hours: hours['executive-search-under-100k'],
+      percentage: total > 0 ? Math.round((counts['executive-search-under-100k'] / total) * 100) : 0,
+    },
+    'executive-search-over-100k': {
+      count: counts['executive-search-over-100k'],
+      hours: hours['executive-search-over-100k'],
+      percentage: total > 0 ? Math.round((counts['executive-search-over-100k'] / total) * 100) : 0,
     },
     rpo: {
       count: counts.rpo,

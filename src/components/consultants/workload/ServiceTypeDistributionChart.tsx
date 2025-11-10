@@ -9,14 +9,16 @@ interface ServiceTypeDistributionChartProps {
 const SERVICE_COLORS = {
   shortlisting: 'hsl(var(--chart-1))',
   'full-service': 'hsl(var(--chart-2))',
-  'executive-search': 'hsl(var(--chart-3))',
-  rpo: 'hsl(var(--chart-4))',
+  'executive-search-under-100k': 'hsl(var(--chart-3))',
+  'executive-search-over-100k': 'hsl(var(--chart-4))',
+  rpo: 'hsl(var(--chart-5))',
 };
 
 const SERVICE_LABELS = {
   shortlisting: 'Shortlisting',
   'full-service': 'Full Service',
-  'executive-search': 'Executive Search',
+  'executive-search-under-100k': 'Executive Search <$100k',
+  'executive-search-over-100k': 'Executive Search >$100k',
   rpo: 'RPO',
 };
 
@@ -24,7 +26,8 @@ export function ServiceTypeDistributionChart({ data }: ServiceTypeDistributionCh
   const chartData = [
     { name: SERVICE_LABELS.shortlisting, value: data.shortlisting.count, hours: data.shortlisting.hours, percentage: data.shortlisting.percentage },
     { name: SERVICE_LABELS['full-service'], value: data['full-service'].count, hours: data['full-service'].hours, percentage: data['full-service'].percentage },
-    { name: SERVICE_LABELS['executive-search'], value: data['executive-search'].count, hours: data['executive-search'].hours, percentage: data['executive-search'].percentage },
+    { name: SERVICE_LABELS['executive-search-under-100k'], value: data['executive-search-under-100k'].count, hours: data['executive-search-under-100k'].hours, percentage: data['executive-search-under-100k'].percentage },
+    { name: SERVICE_LABELS['executive-search-over-100k'], value: data['executive-search-over-100k'].count, hours: data['executive-search-over-100k'].hours, percentage: data['executive-search-over-100k'].percentage },
   ].filter(item => item.value > 0);
 
   return (
