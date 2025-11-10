@@ -9,6 +9,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { CurrencyFormatToggle } from "@/components/CurrencyFormatToggle";
 import { ReactNode } from 'react';
 
 interface DashboardHeaderProps {
@@ -52,6 +53,7 @@ export function DashboardHeader({ breadcrumbActions }: DashboardHeaderProps = {}
           <HeaderQuickActions />
 
           <div className="flex items-center gap-2">
+            <CurrencyFormatToggle />
             <ThemeToggle />
             <NotificationsDropdown />
             <UserNav />
