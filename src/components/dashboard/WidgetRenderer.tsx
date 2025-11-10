@@ -29,7 +29,7 @@ import { SalaryExpectationsChart } from './charts/SalaryExpectationsChart';
 import { RecentActivityCard } from './RecentActivityCard';
 import { useNavigate } from 'react-router-dom';
 import type { DashboardWidget } from '@/lib/dashboard/types';
-import { getCardConfig } from '@/lib/dashboard/cardConfig';
+import { getCardActions } from '@/lib/dashboard/cardActions';
 
 const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
   EnhancedStatCard,
@@ -82,33 +82,32 @@ export function WidgetRenderer({ widget, dashboardType = 'jobs' }: WidgetRendere
     );
   }
   
-  // Add navigation and icons to stat cards using centralized card config
+  // Add navigation and icons to stat cards using cardActions config
   if (widget.component === 'EnhancedStatCard') {
-    const cardConfig = getCardConfig(widget.title);
+    const cardAction = getCardActions(widget.title, dashboardType);
     
-    if (!cardConfig) {
-      // Fallback if no card config found
+    if (!cardAction) {
+      // Fallback if no card action found
       return <Component {...widget.props} />;
     }
 
-    const Icon = cardConfig.icon;
+    const Icon = cardAction.icon;
     const icon = <Icon className="h-6 w-6" />;
 
     // Map card actions to menu items
-    const menuItems = cardConfig.actions?.map(action => ({
+    const menuItems = cardAction.actions?.map(action => ({
       label: action.label,
       icon: <action.icon className="h-4 w-4" />,
       onClick: action.path ? () => navigate(action.path) : action.action || (() => {}),
     }));
 
     // Use first action as primary action button
-    const primaryAction = cardConfig.actions?.[0];
+    const primaryAction = cardAction.actions?.[0];
 
     return (
       <Component
         {...widget.props}
         icon={icon}
-        variant={cardConfig.variant}
         showAction={!!primaryAction}
         actionLabel={primaryAction?.label || 'View'}
         onAction={primaryAction?.path ? () => navigate(primaryAction.path) : primaryAction?.action}

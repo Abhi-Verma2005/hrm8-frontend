@@ -4,22 +4,15 @@ import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { getRPODashboardMetrics } from '@/lib/rpoTrackingUtils';
 import { getRenewalAlertsSummary } from '@/lib/rpoRenewalUtils';
 import { getAllServiceProjects } from '@/lib/recruitmentServiceStorage';
-import { FileText, AlertTriangle, BarChart3, UserCog, FileBarChart } from 'lucide-react';
+import { FileText, AlertTriangle, BarChart3, UserCog, FileBarChart, Building2, Users, DollarSign, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RPOContractsTable } from '@/components/rpo/RPOContractsTable';
-import { useCardConfig } from '@/hooks/useCardConfig';
 
 export default function RPOOverviewPage() {
   const metrics = useMemo(() => getRPODashboardMetrics(), []);
   const renewalSummary = useMemo(() => getRenewalAlertsSummary(), []);
-  
-  // Get card configurations
-  const activeContractsConfig = useCardConfig('Active Contracts');
-  const dedicatedConsultantsConfig = useCardConfig('Dedicated Consultants');
-  const mrrConfig = useCardConfig('Monthly Recurring Revenue');
-  const expiringSoonConfig = useCardConfig('Expiring Soon');
 
   // Get actual RPO contracts from storage
   const rpoContracts = useMemo(() => {
@@ -73,14 +66,16 @@ export default function RPOOverviewPage() {
             value={metrics.totalActiveContracts.toString()}
             change="+12% vs last month"
             trend="up"
-            {...activeContractsConfig}
+            icon={<Building2 className="h-6 w-6" />}
+            variant="primary"
           />
           <EnhancedStatCard
             title="Dedicated Consultants"
             value={metrics.totalDedicatedConsultants.toString()}
             change="+8% vs last month"
             trend="up"
-            {...dedicatedConsultantsConfig}
+            icon={<Users className="h-6 w-6" />}
+            variant="success"
           />
           <EnhancedStatCard
             title="Monthly Recurring Revenue"
@@ -89,7 +84,8 @@ export default function RPOOverviewPage() {
             rawValue={metrics.totalMonthlyRecurringRevenue}
             change="+15% vs last month"
             trend="up"
-            {...mrrConfig}
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="primary"
           />
           <EnhancedStatCard
             title="Expiring Soon"
@@ -97,7 +93,7 @@ export default function RPOOverviewPage() {
             change={renewalSummary.critical > 0 ? `${renewalSummary.critical} critical within 30 days` : "All clear"}
             trend={renewalSummary.critical > 0 ? "down" : "up"}
             variant={renewalSummary.critical > 0 ? "warning" : "success"}
-            {...expiringSoonConfig}
+            icon={<Clock className="h-6 w-6" />}
           />
         </div>
 

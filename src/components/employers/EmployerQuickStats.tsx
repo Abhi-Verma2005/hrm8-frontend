@@ -1,6 +1,6 @@
 import { Employer } from "@/types/entities";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { useCardConfig } from "@/hooks/useCardConfig";
+import { Sparkles, Briefcase, DollarSign, Activity } from "lucide-react";
 
 interface EmployerMetrics {
   totalRevenue: number;
@@ -20,12 +20,6 @@ interface EmployerQuickStatsProps {
 }
 
 export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProps) {
-  // Get card configurations
-  const subscriptionConfig = useCardConfig('Subscription');
-  const capacityConfig = useCardConfig('Capacity');
-  const financialConfig = useCardConfig('Financial');
-  const activityConfig = useCardConfig('Activity');
-  
   const getTierLabel = (tier: string) => {
     const labels: Record<string, string> = {
       small: "Small Plan",
@@ -49,7 +43,8 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
         value={getTierLabel(employer.subscriptionTier)}
         change={employer.status.charAt(0).toUpperCase() + employer.status.slice(1)}
         trend={employer.status === 'active' ? 'up' : 'down'}
-        {...subscriptionConfig}
+        icon={<Sparkles className="h-6 w-6" />}
+        variant="primary"
       />
       
       <EnhancedStatCard
@@ -57,7 +52,8 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
         value={`${metrics.activeJobs}/${employer.totalJobsPosted || 0}`}
         change={`${employer.currentUsers}/${employer.maxUsers === Infinity ? '∞' : employer.maxUsers} Users`}
         trend={metrics.activeJobs > 0 ? 'up' : 'down'}
-        {...capacityConfig}
+        icon={<Briefcase className="h-6 w-6" />}
+        variant="neutral"
       />
       
       <EnhancedStatCard
@@ -67,7 +63,8 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
         isCurrency={true}
         rawValue={metrics.lifetimeValue}
         trend={metrics.lifetimeValue > 0 ? 'up' : 'down'}
-        {...financialConfig}
+        icon={<DollarSign className="h-6 w-6" />}
+        variant="success"
       />
       
       <EnhancedStatCard
@@ -77,7 +74,8 @@ export function EmployerQuickStats({ employer, metrics }: EmployerQuickStatsProp
           `${Math.floor(metrics.daysAsCustomer / 365)} years`}
         change={formatActivity()}
         trend="up"
-        {...activityConfig}
+        icon={<Activity className="h-6 w-6" />}
+        variant="neutral"
       />
     </div>
   );

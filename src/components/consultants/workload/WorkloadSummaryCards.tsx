@@ -1,17 +1,12 @@
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import type { TeamWorkloadSummary } from '@/lib/consultantWorkloadUtils';
-import { useCardConfig } from '@/hooks/useCardConfig';
+import { Users, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react';
 
 interface WorkloadSummaryCardsProps {
   summary: TeamWorkloadSummary;
 }
 
 export function WorkloadSummaryCards({ summary }: WorkloadSummaryCardsProps) {
-  // Get card configurations
-  const totalActiveConfig = useCardConfig('Total Active');
-  const atCapacityConfig = useCardConfig('At Capacity');
-  const availableConfig = useCardConfig('Available');
-  const overloadedConfig = useCardConfig('Overloaded');
   
   const atCapacityPercent = summary.totalActive > 0
     ? Math.round((summary.atCapacity / summary.totalActive) * 100) 
@@ -32,7 +27,8 @@ export function WorkloadSummaryCards({ summary }: WorkloadSummaryCardsProps) {
         value={summary.totalActive.toString()}
         change={`${avgHoursPerConsultant}h avg per consultant`}
         trend="up"
-        {...totalActiveConfig}
+        icon={<Users className="h-6 w-6" />}
+        variant="neutral"
       />
 
       <EnhancedStatCard
@@ -40,7 +36,8 @@ export function WorkloadSummaryCards({ summary }: WorkloadSummaryCardsProps) {
         value={summary.atCapacity.toString()}
         change={`${atCapacityPercent}% of team`}
         trend={summary.atCapacity > 0 ? "up" : "down"}
-        {...atCapacityConfig}
+        icon={<AlertCircle className="h-6 w-6" />}
+        variant="warning"
       />
 
       <EnhancedStatCard
@@ -48,7 +45,8 @@ export function WorkloadSummaryCards({ summary }: WorkloadSummaryCardsProps) {
         value={summary.available.toString()}
         change={`${availablePercent}% of team`}
         trend={summary.available > 0 ? "up" : "down"}
-        {...availableConfig}
+        icon={<CheckCircle className="h-6 w-6" />}
+        variant="success"
       />
 
       <EnhancedStatCard
@@ -56,7 +54,8 @@ export function WorkloadSummaryCards({ summary }: WorkloadSummaryCardsProps) {
         value={summary.overloaded.toString()}
         change="Requires attention"
         trend={summary.overloaded > 0 ? "up" : "down"}
-        {...overloadedConfig}
+        icon={<AlertTriangle className="h-6 w-6" />}
+        variant="warning"
       />
     </div>
   );
