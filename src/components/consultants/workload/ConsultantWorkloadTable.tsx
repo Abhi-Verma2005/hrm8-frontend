@@ -5,10 +5,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Eye, UserPlus } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Eye, CalendarOff } from 'lucide-react';
 import type { WorkloadData } from '@/lib/consultantWorkloadUtils';
 import { getCapacityBgColor } from '@/lib/consultantWorkloadUtils';
 import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 interface ConsultantWorkloadTableProps {
   data: WorkloadData[];
@@ -113,6 +115,21 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-sm">
                         <span className="font-medium">{consultant.hoursAssigned} / {consultant.monthlyHoursAvailable}h</span>
+                        {consultant.timeOffAdjustment && consultant.timeOffAdjustment.scheduledDaysOff > 0 && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <CalendarOff className="h-4 w-4 text-warning" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{consultant.timeOffAdjustment.scheduledDaysOff} days off this month</p>
+                                <p className="text-xs text-muted-foreground">
+                                  ({consultant.timeOffAdjustment.hoursOff}h reduced capacity)
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
                       </div>
                       <Progress 
                         value={consultant.utilizationPercent} 
@@ -168,37 +185,75 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
                 {expandedRow === consultant.consultantId && (
                   <tr>
                     <td colSpan={6} className="p-4 bg-muted/20">
-                      <div className="space-y-2">
-                        <p className="text-sm font-medium">Active Services:</p>
-                        {consultant.activeServices.length > 0 ? (
-                          <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-                            {consultant.activeServices.map((service) => (
-                              <div
-                                key={service.id}
-                                className="flex items-center justify-between p-3 bg-background rounded-lg border cursor-pointer hover:bg-accent"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  navigate(`/recruitment-services/${service.id}`);
-                                }}
-                              >
-                                <div className="flex-1">
-                                  <p className="text-sm font-medium">{service.name}</p>
-                                  <div className="flex items-center gap-2 mt-1">
+                      <div className="space-y-4">
+                        {/* Time Off Section */}
+                        {consultant.timeOffAdjustment && (
+                          consultant.timeOffAdjustment.scheduledDaysOff > 0 || 
+                          consultant.timeOffAdjustment.upcomingTimeOff.length > 0
+                        ) && (
+                          <div className="p-3 bg-warning/10 border border-warning/20 rounded-lg">
+                            <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                              <CalendarOff className="h-4 w-4" />
+                              Time Off & Availability
+                            </h4>
+                            {consultant.timeOffAdjustment.scheduledDaysOff > 0 && (
+                              <p className="text-sm text-muted-foreground mb-2">
+                                <span className="font-medium text-warning">
+                                  {consultant.timeOffAdjustment.scheduledDaysOff} days off
+                                </span>{' '}
+                                scheduled this month ({consultant.timeOffAdjustment.hoursOff}h reduced capacity)
+                              </p>
+                            )}
+                            {consultant.timeOffAdjustment.upcomingTimeOff.length > 0 && (
+                              <div className="space-y-1">
+                                <p className="text-xs font-medium text-muted-foreground">Upcoming:</p>
+                                {consultant.timeOffAdjustment.upcomingTimeOff.slice(0, 3).map(timeOff => (
+                                  <div key={timeOff.id} className="text-xs text-muted-foreground flex items-center gap-2">
                                     <Badge variant="outline" className="text-xs">
-                                      {SERVICE_TYPE_LABELS[service.type as keyof typeof SERVICE_TYPE_LABELS]}
+                                      {timeOff.type}
                                     </Badge>
-                                    <span className="text-xs text-muted-foreground">{service.hours}h</span>
+                                    {format(new Date(timeOff.startDate), 'MMM d')} - {format(new Date(timeOff.endDate), 'MMM d')}
+                                    <span className="text-muted-foreground">({timeOff.totalDays} days)</span>
                                   </div>
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    Est. completion: {new Date(service.expectedCompletion).toLocaleDateString()}
-                                  </p>
-                                </div>
+                                ))}
                               </div>
-                            ))}
+                            )}
                           </div>
-                        ) : (
-                          <p className="text-sm text-muted-foreground">No active services assigned</p>
                         )}
+
+                        {/* Active Services Section */}
+                        <div>
+                          <p className="text-sm font-medium mb-2">Active Services:</p>
+                          {consultant.activeServices.length > 0 ? (
+                            <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
+                              {consultant.activeServices.map((service) => (
+                                <div
+                                  key={service.id}
+                                  className="flex items-center justify-between p-3 bg-background rounded-lg border cursor-pointer hover:bg-accent"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/recruitment-services/${service.id}`);
+                                  }}
+                                >
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium">{service.name}</p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                      <Badge variant="outline" className="text-xs">
+                                        {SERVICE_TYPE_LABELS[service.type as keyof typeof SERVICE_TYPE_LABELS]}
+                                      </Badge>
+                                      <span className="text-xs text-muted-foreground">{service.hours}h</span>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      Est. completion: {new Date(service.expectedCompletion).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No active services assigned</p>
+                          )}
+                        </div>
                       </div>
                     </td>
                   </tr>

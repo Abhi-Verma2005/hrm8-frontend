@@ -4,6 +4,7 @@ import { getAllConsultants } from './consultantStorage';
 import { getAllServiceProjects } from './recruitmentServiceStorage';
 import { getJobById } from './mockJobStorage';
 import { getServiceHours, MONTHLY_HOURS_AVAILABLE } from './serviceHoursConfig';
+import { calculateAdjustedCapacity, type TimeOffAdjustment } from './timeoffCapacityUtils';
 
 export interface WorkloadData {
   consultantId: string;
@@ -29,6 +30,7 @@ export interface WorkloadData {
     hours: number;
     expectedCompletion: string;
   }>;
+  timeOffAdjustment?: TimeOffAdjustment;
 }
 
 export interface TeamWorkloadSummary {
@@ -77,6 +79,9 @@ export function calculateConsultantWorkload(consultantId: string): WorkloadData 
     throw new Error(`Consultant ${consultantId} not found`);
   }
 
+  // Calculate time off adjustments
+  const timeOffAdjustment = calculateAdjustedCapacity(consultantId);
+
   // Get all active service projects assigned to this consultant
   const allServices = getAllServiceProjects();
   const consultantServices = allServices.filter(
@@ -113,8 +118,11 @@ export function calculateConsultantWorkload(consultantId: string): WorkloadData 
   });
 
   const hoursAssigned = Object.values(serviceHoursBreakdown).reduce((sum, h) => sum + h, 0);
-  const hoursRemaining = Math.max(0, MONTHLY_HOURS_AVAILABLE - hoursAssigned);
-  const utilizationPercent = (hoursAssigned / MONTHLY_HOURS_AVAILABLE) * 100;
+  const adjustedCapacity = timeOffAdjustment.adjustedHoursAvailable;
+  const hoursRemaining = Math.max(0, adjustedCapacity - hoursAssigned);
+  const utilizationPercent = adjustedCapacity > 0 
+    ? (hoursAssigned / adjustedCapacity) * 100 
+    : 0;
 
   let status: WorkloadData['status'];
   if (utilizationPercent > 100) {
@@ -133,13 +141,14 @@ export function calculateConsultantWorkload(consultantId: string): WorkloadData 
     consultantType: consultant.type,
     consultantStatus: consultant.status,
     avatar: consultant.photo,
-    monthlyHoursAvailable: MONTHLY_HOURS_AVAILABLE,
+    monthlyHoursAvailable: adjustedCapacity,
     hoursAssigned,
     hoursRemaining,
     utilizationPercent: Math.round(utilizationPercent),
     status,
     serviceHoursBreakdown,
     activeServices,
+    timeOffAdjustment,
   };
 }
 
@@ -159,7 +168,7 @@ export function getTeamWorkloadSummary(): TeamWorkloadSummary {
     : 0;
 
   const totalHoursAssigned = workloadData.reduce((sum, w) => sum + w.hoursAssigned, 0);
-  const totalHoursAvailable = workloadData.length * MONTHLY_HOURS_AVAILABLE;
+  const totalHoursAvailable = workloadData.reduce((sum, w) => sum + w.monthlyHoursAvailable, 0);
 
   return {
     totalActive: activeConsultants.length,

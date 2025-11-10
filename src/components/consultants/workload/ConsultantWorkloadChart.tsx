@@ -2,6 +2,8 @@ import { Card } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import type { WorkloadData } from '@/lib/consultantWorkloadUtils';
 import { getCapacityColor } from '@/lib/consultantWorkloadUtils';
+import { CalendarOff } from 'lucide-react';
+import { MONTHLY_HOURS_AVAILABLE } from '@/lib/serviceHoursConfig';
 
 interface ConsultantWorkloadChartProps {
   data: WorkloadData[];
@@ -13,6 +15,9 @@ export function ConsultantWorkloadChart({ data }: ConsultantWorkloadChartProps) 
     assigned: item.hoursAssigned,
     available: item.hoursRemaining,
     utilizationPercent: item.utilizationPercent,
+    adjustedCapacity: item.monthlyHoursAvailable,
+    timeOffDays: item.timeOffAdjustment?.scheduledDaysOff || 0,
+    timeOffHours: item.timeOffAdjustment?.hoursOff || 0,
   }));
 
   return (
@@ -33,6 +38,8 @@ export function ConsultantWorkloadChart({ data }: ConsultantWorkloadChartProps) 
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 const data = payload[0].payload;
+                const hasTimeOff = data.timeOffDays > 0;
+                
                 return (
                   <div className="bg-popover border border-border rounded-lg p-3 shadow-lg">
                     <p className="font-semibold mb-2">{data.name}</p>
@@ -45,14 +52,31 @@ export function ConsultantWorkloadChart({ data }: ConsultantWorkloadChartProps) 
                         <span className="text-muted-foreground">Hours Available:</span>
                         <span className="font-medium">{data.available}h</span>
                       </p>
-                      <p className="flex justify-between gap-4">
-                        <span className="text-muted-foreground">Total Capacity:</span>
-                        <span className="font-medium">160h</span>
-                      </p>
-                      <p className="flex justify-between gap-4 pt-1 border-t mt-2">
-                        <span className="text-muted-foreground">Utilization:</span>
-                        <span className="font-semibold">{data.utilizationPercent}%</span>
-                      </p>
+                      {hasTimeOff && (
+                        <p className="flex justify-between gap-4 text-warning">
+                          <span className="flex items-center gap-1">
+                            <CalendarOff className="h-3 w-3" />
+                            Time Off:
+                          </span>
+                          <span className="font-medium">{data.timeOffDays}d ({data.timeOffHours}h)</span>
+                        </p>
+                      )}
+                      <div className="pt-1 border-t mt-2 space-y-1">
+                        <p className="flex justify-between gap-4">
+                          <span className="text-muted-foreground">Base Capacity:</span>
+                          <span className="font-medium">{MONTHLY_HOURS_AVAILABLE}h</span>
+                        </p>
+                        {hasTimeOff && (
+                          <p className="flex justify-between gap-4">
+                            <span className="text-muted-foreground">Adjusted Capacity:</span>
+                            <span className="font-medium">{data.adjustedCapacity}h</span>
+                          </p>
+                        )}
+                        <p className="flex justify-between gap-4 pt-1 border-t">
+                          <span className="text-muted-foreground">Utilization:</span>
+                          <span className="font-semibold">{data.utilizationPercent}%</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
                 );
