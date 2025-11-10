@@ -3,13 +3,8 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+import type { DateRange } from "react-day-picker";
 import {
   BarChart,
   Bar,
@@ -38,17 +33,16 @@ const COLORS = ["hsl(var(--primary))", "hsl(var(--secondary))", "hsl(var(--accen
 export default function JobAnalytics() {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [dateRange, setDateRange] = useState<"7d" | "30d" | "90d" | "1y">("30d");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   
   const jobs = getJobs();
   const analytics = getJobAnalytics(jobs);
   const metrics = getRecruitmentMetrics();
 
   const handleExport = () => {
-    exportJobAnalytics(analytics, "job-analytics");
     toast({
-      title: "Export successful",
-      description: "Analytics data has been exported to Excel.",
+      title: "Exporting Analytics",
+      description: "Preparing your job analytics export...",
     });
   };
 
@@ -73,26 +67,22 @@ export default function JobAnalytics() {
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">Job Analytics & Reports</h1>
             <p className="text-muted-foreground">
               Track recruitment performance and gain insights
             </p>
           </div>
-          <div className="flex gap-2">
-            <Select value={dateRange} onValueChange={(v: any) => setDateRange(v)}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="7d">Last 7 days</SelectItem>
-                <SelectItem value="30d">Last 30 days</SelectItem>
-                <SelectItem value="90d">Last 90 days</SelectItem>
-                <SelectItem value="1y">Last year</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button onClick={handleExport}>
+          <div className="flex items-center gap-3">
+            <DateRangePicker
+              value={dateRange}
+              onChange={setDateRange}
+              placeholder="Select period"
+              align="end"
+            />
+            
+            <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>

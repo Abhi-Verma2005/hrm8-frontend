@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card } from "@/components/ui/card";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/DataTable";
+import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+import type { DateRange } from "react-day-picker";
 import { TrendingUp, DollarSign, Target, Users, Award, Download, ArrowRight, Eye, Plus, Filter, BarChart3 } from "lucide-react";
 import { getSalesAgentStats } from "@/lib/salesAgentStorage";
 import { getAllOpportunities, getOpportunityStats } from "@/lib/salesOpportunityStorage";
@@ -17,6 +20,7 @@ import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 export default function SalesDashboardPage() {
   const { toast } = useToast();
   const { formatCurrency } = useCurrencyFormat();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const salesAgentStats = getSalesAgentStats();
   const opportunityStats = getOpportunityStats();
   const activityStats = getActivityStats();
@@ -54,10 +58,19 @@ export default function SalesDashboardPage() {
   return (
     <DashboardPageLayout
       breadcrumbActions={
-        <Button variant="outline" size="sm" onClick={handleExport}>
-          <Download className="h-4 w-4 mr-2" />
-          Export
-        </Button>
+        <div className="flex items-center gap-3">
+          <DateRangePicker
+            value={dateRange}
+            onChange={setDateRange}
+            placeholder="Select period"
+            align="end"
+          />
+          
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+        </div>
       }
     >
       <div className="p-6 space-y-6">

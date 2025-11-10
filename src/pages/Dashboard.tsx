@@ -14,13 +14,6 @@ import type { DashboardWidget } from '@/lib/dashboard/types';
 import type { DashboardType } from '@/lib/dashboard/dashboardTypes';
 import { Button } from "@/components/ui/button";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import type { DateRange } from "react-day-picker";
 import { Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -188,21 +181,8 @@ export default function Dashboard() {
                 align="end"
               />
               
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="All Departments" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
-                  <SelectItem value="engineering">Engineering</SelectItem>
-                  <SelectItem value="marketing">Marketing</SelectItem>
-                  <SelectItem value="sales">Sales</SelectItem>
-                  <SelectItem value="operations">Operations</SelectItem>
-                </SelectContent>
-              </Select>
-              
               <Button variant="secondary" size="sm">
-                <Download className="h-4 w-4" />
+                <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
             </div>

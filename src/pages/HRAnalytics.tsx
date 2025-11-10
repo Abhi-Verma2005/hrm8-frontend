@@ -1,6 +1,9 @@
-import { useMemo } from "react";
+import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+import type { DateRange } from "react-day-picker";
 import { getEmployees } from "@/lib/employeeStorage";
 import { Users, Briefcase, TrendingUp, DollarSign, MapPin, Award, Eye, Plus, Calendar, BarChart3, Download } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -8,11 +11,21 @@ import { Progress } from "@/components/ui/progress";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from "@/hooks/use-toast";
 
 export default function HRAnalytics() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { formatCurrency } = useCurrencyFormat();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const employees = getEmployees();
+
+  const handleExport = () => {
+    toast({
+      title: "Exporting Analytics",
+      description: "Preparing your HR analytics export...",
+    });
+  };
 
   const analytics = useMemo(() => {
     const total = employees.length;
@@ -64,11 +77,26 @@ export default function HRAnalytics() {
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">HR Analytics</h1>
-          <p className="text-muted-foreground">
-            Insights and statistics about your workforce
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold">HR Analytics</h1>
+            <p className="text-muted-foreground">
+              Insights and statistics about your workforce
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <DateRangePicker
+              value={dateRange}
+              onChange={setDateRange}
+              placeholder="Select period"
+              align="end"
+            />
+            
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+          </div>
         </div>
 
         {/* Key Metrics */}

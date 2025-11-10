@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+import type { DateRange } from "react-day-picker";
 import { 
   TrendingUp, 
   DollarSign, 
@@ -16,6 +19,7 @@ import {
   Filter
 } from "lucide-react";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
+import { useToast } from "@/hooks/use-toast";
 import {
   getSalesDashboardMetrics,
   getSalesFunnelData,
@@ -30,7 +34,9 @@ import { useNavigate } from "react-router-dom";
 
 export default function DashboardSalesPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { formatCurrency: formatCurrencyContext } = useCurrencyFormat();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const metrics = getSalesDashboardMetrics();
   const funnelData = getSalesFunnelData();
   const forecastData = getRevenueForecastData();
@@ -53,10 +59,32 @@ export default function DashboardSalesPage() {
     }).format(value);
   };
 
+  const handleExport = () => {
+    toast({
+      title: "Exporting Dashboard Data",
+      description: "Preparing your sales dashboard export...",
+    });
+  };
+
   return (
     <DashboardPageLayout
       title="Sales Dashboard"
       subtitle="Track sales opportunities, pipeline, and forecasts"
+      breadcrumbActions={
+        <div className="flex items-center gap-3">
+          <DateRangePicker
+            value={dateRange}
+            onChange={setDateRange}
+            placeholder="Select period"
+            align="end"
+          />
+          
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+        </div>
+      }
     >
       <div className="space-y-6">
         {/* Key Metrics */}

@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
+import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+import type { DateRange } from "react-day-picker";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { 
   Users, 
   DollarSign, 
@@ -31,7 +35,9 @@ import { useNavigate } from "react-router-dom";
 
 export default function DashboardRPOPage() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { formatCurrency: formatCurrencyContext } = useCurrencyFormat();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const metrics = getRPODashboardMetrics();
   const statusData = getContractStatusDistribution();
   const revenueData = getMonthlyRevenueProjection();
@@ -51,10 +57,32 @@ export default function DashboardRPOPage() {
     }).format(value);
   };
 
+  const handleExport = () => {
+    toast({
+      title: "Exporting Dashboard Data",
+      description: "Preparing your RPO dashboard export...",
+    });
+  };
+
   return (
     <DashboardPageLayout
       title="RPO Dashboard"
       subtitle="Recruitment Process Outsourcing operations overview"
+      breadcrumbActions={
+        <div className="flex items-center gap-3">
+          <DateRangePicker
+            value={dateRange}
+            onChange={setDateRange}
+            placeholder="Select period"
+            align="end"
+          />
+          
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+        </div>
+      }
     >
       <div className="space-y-6">
         {/* Key Metrics */}

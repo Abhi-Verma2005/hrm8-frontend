@@ -3,7 +3,8 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
+import type { DateRange } from "react-day-picker";
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell 
@@ -15,11 +16,20 @@ import {
 import { getEmployees } from "@/lib/employeeStorage";
 import { Badge } from "@/components/ui/badge";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
+import { useToast } from "@/hooks/use-toast";
 
 export default function HRMSDashboard() {
-  const [timeRange, setTimeRange] = useState("12m");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const employees = getEmployees();
   const { formatCurrency } = useCurrencyFormat();
+  const { toast } = useToast();
+
+  const handleExport = () => {
+    toast({
+      title: "Exporting Report",
+      description: "Preparing your HR analytics export...",
+    });
+  };
 
   // Calculate metrics
   const metrics = useMemo(() => {
@@ -111,20 +121,15 @@ export default function HRMSDashboard() {
               Workforce insights, headcount trends, and organizational metrics
             </p>
           </div>
-          <div className="flex gap-2">
-            <Select value={timeRange} onValueChange={setTimeRange}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="30d">Last 30 days</SelectItem>
-                <SelectItem value="90d">Last 90 days</SelectItem>
-                <SelectItem value="12m">Last 12 months</SelectItem>
-                <SelectItem value="ytd">Year to date</SelectItem>
-                <SelectItem value="all">All time</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline">
+          <div className="flex items-center gap-3">
+            <DateRangePicker
+              value={dateRange}
+              onChange={setDateRange}
+              placeholder="Select period"
+              align="end"
+            />
+            
+            <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="mr-2 h-4 w-4" />
               Export Report
             </Button>
