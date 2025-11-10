@@ -22,7 +22,7 @@ export function SalaryExpectationsChart() {
             <XAxis dataKey="level" className="text-xs" />
             <YAxis 
               className="text-xs" 
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
+              tickFormatter={(value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             />
             <Tooltip 
               contentStyle={{ 

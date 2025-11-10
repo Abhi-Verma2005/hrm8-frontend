@@ -89,27 +89,27 @@ export default function CommissionsPage() {
         <div className="grid gap-4 md:grid-cols-4">
           <StatsCard
             title="Total Earned"
-            value={`$${(stats.totalEarned / 1000).toFixed(1)}K`}
+            value={`$${stats.totalEarned.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={DollarSign}
             description={`${stats.paidCount} commissions paid`}
             trend={{ value: 12, isPositive: true }}
           />
           <StatsCard
             title="Pending"
-            value={`$${(stats.pending / 1000).toFixed(1)}K`}
+            value={`$${stats.pending.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={Clock}
             description={`${stats.pendingCount + stats.approvedCount} awaiting payment`}
           />
           <StatsCard
             title="Paid This Month"
-            value={`$${(stats.paidThisMonth / 1000).toFixed(1)}K`}
+            value={`$${stats.paidThisMonth.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={CheckCircle2}
             description="Current month payments"
             trend={{ value: 8, isPositive: true }}
           />
           <StatsCard
             title="Average Commission"
-            value={`$${(stats.averageCommission / 1000).toFixed(1)}K`}
+            value={`$${stats.averageCommission.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={TrendingUp}
             description="Per deal average"
             trend={{ value: 5, isPositive: true }}

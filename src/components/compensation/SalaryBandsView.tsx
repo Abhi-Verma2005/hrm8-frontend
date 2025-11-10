@@ -59,19 +59,19 @@ export function SalaryBandsView() {
                   <div className="p-3 bg-accent rounded-lg">
                     <p className="text-xs text-muted-foreground">Minimum</p>
                     <p className="text-lg font-bold">
-                      ${(band.minSalary / 1000).toFixed(0)}K
+                      ${band.minSalary.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </p>
                   </div>
                   <div className="p-3 bg-accent rounded-lg">
                     <p className="text-xs text-muted-foreground">Midpoint</p>
                     <p className="text-lg font-bold">
-                      ${(band.midSalary / 1000).toFixed(0)}K
+                      ${band.midSalary.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </p>
                   </div>
                   <div className="p-3 bg-accent rounded-lg">
                     <p className="text-xs text-muted-foreground">Maximum</p>
                     <p className="text-lg font-bold">
-                      ${(band.maxSalary / 1000).toFixed(0)}K
+                      ${band.maxSalary.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </p>
                   </div>
                 </div>

@@ -78,13 +78,7 @@ export function formatTenure(hireDate: string): string {
 }
 
 export function formatRevenue(amount: number): string {
-  if (amount >= 1000000) {
-    return `$${(amount / 1000000).toFixed(1)}M`;
-  }
-  if (amount >= 1000) {
-    return `$${(amount / 1000).toFixed(0)}K`;
-  }
-  return `$${amount.toLocaleString()}`;
+  return `$${amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
 export function getPerformanceRating(successRate: number): 'excellent' | 'good' | 'average' | 'poor' {

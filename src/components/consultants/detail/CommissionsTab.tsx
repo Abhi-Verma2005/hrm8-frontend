@@ -79,7 +79,7 @@ export function CommissionsTab({ consultantId, consultantName }: { consultantId:
                 <DollarSign className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${(stats.totalEarned / 1000).toFixed(0)}K</div>
+                <div className="text-2xl font-bold">${stats.totalEarned.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
                 <p className="text-xs text-muted-foreground">{stats.total} commissions</p>
               </CardContent>
             </Card>
@@ -90,7 +90,7 @@ export function CommissionsTab({ consultantId, consultantName }: { consultantId:
                 <Clock className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${(stats.pendingAmount / 1000).toFixed(0)}K</div>
+                <div className="text-2xl font-bold">${stats.pendingAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
                 <p className="text-xs text-muted-foreground">{stats.pending} commissions</p>
               </CardContent>
             </Card>
@@ -101,7 +101,7 @@ export function CommissionsTab({ consultantId, consultantName }: { consultantId:
                 <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${(stats.approvedAmount / 1000).toFixed(0)}K</div>
+                <div className="text-2xl font-bold">${stats.approvedAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
                 <p className="text-xs text-muted-foreground">{stats.approved} commissions</p>
               </CardContent>
             </Card>
@@ -112,7 +112,7 @@ export function CommissionsTab({ consultantId, consultantName }: { consultantId:
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">${(stats.paidAmount / 1000).toFixed(0)}K</div>
+                <div className="text-2xl font-bold">${stats.paidAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
                 <p className="text-xs text-muted-foreground">{stats.paid} commissions</p>
               </CardContent>
             </Card>

@@ -68,14 +68,14 @@ export default function SalesDashboardPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <StatsCard
             title="Total Revenue"
-            value={`$${(salesAgentStats.totalRevenue / 1000000).toFixed(2)}M`}
+            value={`$${salesAgentStats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={DollarSign}
             description="Year to date"
             trend={{ value: 12.5, isPositive: true }}
           />
           <StatsCard
             title="Pipeline Value"
-            value={`$${(opportunityStats.pipelineValue / 1000000).toFixed(2)}M`}
+            value={`$${opportunityStats.pipelineValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={TrendingUp}
             description={`${pipelineCoverage.toFixed(0)}% quota coverage`}
             trend={{ value: Number(pipelineCoverage) >= 300 ? 15 : -5, isPositive: Number(pipelineCoverage) >= 300 }}
@@ -102,7 +102,7 @@ export default function SalesDashboardPage() {
           />
           <StatsCard
             title="Avg Deal Size"
-            value={`$${(opportunityStats.avgDealSize / 1000).toFixed(0)}K`}
+            value={`$${opportunityStats.avgDealSize.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={DollarSign}
             description="Per closed deal"
             trend={{ value: 7, isPositive: true }}
@@ -116,7 +116,7 @@ export default function SalesDashboardPage() {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Prospecting</span>
-                <span className="font-medium">$250K</span>
+                <span className="font-medium">$250,000</span>
               </div>
               <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-blue-500" style={{ width: '20%' }} />
@@ -125,7 +125,7 @@ export default function SalesDashboardPage() {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Qualification</span>
-                <span className="font-medium">$350K</span>
+                <span className="font-medium">$350,000</span>
               </div>
               <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-blue-600" style={{ width: '30%' }} />
@@ -134,7 +134,7 @@ export default function SalesDashboardPage() {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Proposal</span>
-                <span className="font-medium">$420K</span>
+                <span className="font-medium">$420,000</span>
               </div>
               <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-blue-700" style={{ width: '40%' }} />
@@ -143,7 +143,7 @@ export default function SalesDashboardPage() {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span>Negotiation</span>
-                <span className="font-medium">$180K</span>
+                <span className="font-medium">$180,000</span>
               </div>
               <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
                 <div className="h-full bg-green-500" style={{ width: '15%' }} />

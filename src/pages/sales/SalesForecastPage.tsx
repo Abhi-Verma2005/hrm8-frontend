@@ -98,27 +98,27 @@ export default function SalesForecastPage() {
         <div className="grid gap-4 md:grid-cols-4">
           <StatsCard
             title="Total Pipeline"
-            value={`$${(forecastStats.totalPipeline / 1000000).toFixed(2)}M`}
+            value={`$${forecastStats.totalPipeline.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={TrendingUp}
             description={`${forecastStats.opportunityCount} active opportunities`}
           />
           <StatsCard
             title="Weighted Forecast"
-            value={`$${(forecastStats.weightedForecast / 1000000).toFixed(2)}M`}
+            value={`$${forecastStats.weightedForecast.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={Target}
             description="Most likely scenario"
             trend={{ value: 8, isPositive: true }}
           />
           <StatsCard
             title="Best Case"
-            value={`$${(forecastStats.bestCase / 1000000).toFixed(2)}M`}
+            value={`$${forecastStats.bestCase.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={TrendingUp}
             description="Optimistic scenario"
             trend={{ value: 30, isPositive: true }}
           />
           <StatsCard
             title="Quota Gap"
-            value={`$${(quotaGap / 1000000).toFixed(2)}M`}
+            value={`$${quotaGap.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={AlertCircle}
             description="Remaining to reach quota"
           />
@@ -162,7 +162,7 @@ export default function SalesForecastPage() {
               <div className="flex justify-between text-sm mb-2">
                 <span className="font-medium">Best Case Scenario</span>
                 <span className="text-green-600 font-semibold">
-                  ${(forecastStats.bestCase / 1000000).toFixed(2)}M
+                  ${forecastStats.bestCase.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
               </div>
               <div className="text-xs text-muted-foreground">
@@ -174,7 +174,7 @@ export default function SalesForecastPage() {
               <div className="flex justify-between text-sm mb-2">
                 <span className="font-medium">Most Likely</span>
                 <span className="text-blue-600 font-semibold">
-                  ${(forecastStats.weightedForecast / 1000000).toFixed(2)}M
+                  ${forecastStats.weightedForecast.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
               </div>
               <div className="text-xs text-muted-foreground">
@@ -186,7 +186,7 @@ export default function SalesForecastPage() {
               <div className="flex justify-between text-sm mb-2">
                 <span className="font-medium">Worst Case Scenario</span>
                 <span className="text-orange-600 font-semibold">
-                  ${(forecastStats.worstCase / 1000000).toFixed(2)}M
+                  ${forecastStats.worstCase.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </span>
               </div>
               <div className="text-xs text-muted-foreground">

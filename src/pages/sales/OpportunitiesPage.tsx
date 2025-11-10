@@ -76,13 +76,13 @@ export default function OpportunitiesPage() {
           />
           <StatsCard
             title="Open Value"
-            value={`$${(stats.pipelineValue / 1000).toFixed(0)}K`}
+            value={`$${stats.pipelineValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={DollarSign}
             description="Pipeline value"
           />
           <StatsCard
             title="Avg Deal Size"
-            value={`$${(stats.avgDealSize / 1000).toFixed(0)}K`}
+            value={`$${stats.avgDealSize.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={TrendingUp}
             description="Per opportunity"
           />

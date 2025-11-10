@@ -80,11 +80,11 @@ export function DisputeTrackingCard({ consultantId }: DisputeTrackingCardProps) 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <div className="text-muted-foreground">Total Disputed</div>
-                <div className="text-xl font-bold">${(stats.totalDisputed / 1000).toFixed(1)}K</div>
+                <div className="text-xl font-bold">${stats.totalDisputed.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
               </div>
               <div>
                 <div className="text-muted-foreground">Total Approved</div>
-                <div className="text-xl font-bold text-green-500">${(stats.totalResolved / 1000).toFixed(1)}K</div>
+                <div className="text-xl font-bold text-green-500">${stats.totalResolved.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
               </div>
             </div>
           </div>

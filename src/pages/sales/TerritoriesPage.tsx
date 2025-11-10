@@ -88,7 +88,7 @@ export default function TerritoriesPage() {
           />
           <StatsCard
             title="Total Revenue"
-            value={`$${(stats.totalRevenue / 1000).toFixed(0)}K`}
+            value={`$${stats.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={DollarSign}
             description="All territories"
           />

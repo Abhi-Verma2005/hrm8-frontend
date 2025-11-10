@@ -96,11 +96,11 @@ export function CommissionTrendsChart({ commissions, months = 6 }: CommissionTre
         <div className="flex gap-6 mt-4">
           <div>
             <p className="text-sm text-muted-foreground">Total Earned</p>
-            <p className="text-2xl font-bold">${(totalEarned / 1000).toFixed(1)}K</p>
+            <p className="text-2xl font-bold">${totalEarned.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Total Paid</p>
-            <p className="text-2xl font-bold">${(totalPaid / 1000).toFixed(1)}K</p>
+            <p className="text-2xl font-bold">${totalPaid.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
           </div>
         </div>
       </CardHeader>
@@ -126,7 +126,7 @@ export function CommissionTrendsChart({ commissions, months = 6 }: CommissionTre
             <YAxis 
               className="text-xs"
               tick={{ fill: 'hsl(var(--muted-foreground))' }}
-              tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+              tickFormatter={(value) => `$${value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             />
             <Tooltip
               content={({ active, payload }) => {

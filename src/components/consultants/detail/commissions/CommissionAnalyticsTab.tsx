@@ -84,7 +84,7 @@ export function CommissionAnalyticsTab({ consultantId, consultantName }: Commiss
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${(metrics.totalEarned / 1000).toFixed(1)}K</div>
+            <div className="text-2xl font-bold">${metrics.totalEarned.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             <p className="text-xs text-muted-foreground">
               {metrics.commissionCount} commissions
             </p>
@@ -97,7 +97,7 @@ export function CommissionAnalyticsTab({ consultantId, consultantName }: Commiss
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${(metrics.totalPaid / 1000).toFixed(1)}K</div>
+            <div className="text-2xl font-bold">${metrics.totalPaid.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             <p className="text-xs text-muted-foreground">
               {metrics.paymentRate.toFixed(0)}% payment rate
             </p>
@@ -110,7 +110,7 @@ export function CommissionAnalyticsTab({ consultantId, consultantName }: Commiss
             <Target className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${(metrics.totalPending / 1000).toFixed(1)}K</div>
+            <div className="text-2xl font-bold">${metrics.totalPending.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             <p className="text-xs text-muted-foreground">
               Awaiting payment
             </p>
@@ -123,7 +123,7 @@ export function CommissionAnalyticsTab({ consultantId, consultantName }: Commiss
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${(metrics.avgCommission / 1000).toFixed(1)}K</div>
+            <div className="text-2xl font-bold">${metrics.avgCommission.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             <p className="text-xs text-muted-foreground">
               Per commission
             </p>

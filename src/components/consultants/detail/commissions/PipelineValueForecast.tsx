@@ -92,7 +92,7 @@ export function PipelineValueForecast({ commissions, forecastMonths = 3 }: Pipel
         <div>
           <div className="flex items-baseline gap-2 mb-2">
             <span className="text-3xl font-bold">
-              ${(forecast.totalForecast / 1000).toFixed(1)}K
+              ${forecast.totalForecast.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </span>
             <span className="text-sm text-muted-foreground">
               projected by {format(forecast.forecastEndDate, 'MMM yyyy')}
@@ -121,7 +121,7 @@ export function PipelineValueForecast({ commissions, forecastMonths = 3 }: Pipel
             </div>
             <div className="text-right">
               <p className="text-xl font-bold">
-                ${(forecast.pendingValue / 1000).toFixed(1)}K
+                ${forecast.pendingValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </p>
               <p className="text-xs text-muted-foreground">
                 {forecast.pendingPercentage.toFixed(0)}% of forecast
@@ -143,7 +143,7 @@ export function PipelineValueForecast({ commissions, forecastMonths = 3 }: Pipel
               </div>
             </div>
             <p className="text-xl font-bold">
-              ${(forecast.dueInPeriod / 1000).toFixed(1)}K
+              ${forecast.dueInPeriod.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
           </div>
 
@@ -156,12 +156,12 @@ export function PipelineValueForecast({ commissions, forecastMonths = 3 }: Pipel
               <div>
                 <p className="font-medium">Historical Projection</p>
                 <p className="text-sm text-muted-foreground">
-                  Based on average of ${(forecast.monthlyAverage / 1000).toFixed(1)}K/month
+                  Based on average of ${forecast.monthlyAverage.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/month
                 </p>
               </div>
             </div>
             <p className="text-xl font-bold">
-              ${(forecast.projectedFromHistory / 1000).toFixed(1)}K
+              ${forecast.projectedFromHistory.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
             </p>
           </div>
         </div>

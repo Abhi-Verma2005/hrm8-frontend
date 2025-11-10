@@ -70,17 +70,17 @@ export function CommissionForecast({ consultantId }: CommissionForecastProps) {
           <div className="grid grid-cols-3 gap-2 text-center text-sm">
             <div className="p-2 border rounded-lg">
               <div className="text-xs text-muted-foreground mb-1">In Pipeline</div>
-              <div className="font-semibold">${(forecast.inPipeline / 1000).toFixed(0)}K</div>
+              <div className="font-semibold">${forecast.inPipeline.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
               <div className="text-xs text-muted-foreground">{forecast.pipelineCount} deals</div>
             </div>
             <div className="p-2 border rounded-lg">
               <div className="text-xs text-muted-foreground mb-1">Expected</div>
-              <div className="font-semibold">${(forecast.expected / 1000).toFixed(0)}K</div>
+              <div className="font-semibold">${forecast.expected.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
               <div className="text-xs text-muted-foreground">{forecast.expectedCount} deals</div>
             </div>
             <div className="p-2 border rounded-lg">
               <div className="text-xs text-muted-foreground mb-1">Stretch</div>
-              <div className="font-semibold">${(forecast.stretch / 1000).toFixed(0)}K</div>
+              <div className="font-semibold">${forecast.stretch.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
               <div className="text-xs text-muted-foreground">{forecast.stretchCount} deals</div>
             </div>
           </div>

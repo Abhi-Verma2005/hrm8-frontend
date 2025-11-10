@@ -63,7 +63,7 @@ export function QuickStatsPanel({ consultant, metrics }: QuickStatsPanelProps) {
         <StatCard
           title="This Month"
           value={metrics.currentMonthPlacements}
-          subtitle={`$${(metrics.currentMonthRevenue / 1000).toFixed(0)}K Revenue`}
+          subtitle={`$${metrics.currentMonthRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} Revenue`}
           icon={<Award className="h-5 w-5 text-primary" />}
           trend={{ value: '12% vs last month', positive: true }}
         />
@@ -71,7 +71,7 @@ export function QuickStatsPanel({ consultant, metrics }: QuickStatsPanelProps) {
         <StatCard
           title="This Quarter"
           value={quarterlyPlacements}
-          subtitle={`$${(quarterlyRevenue / 1000).toFixed(0)}K Revenue`}
+          subtitle={`$${quarterlyRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} Revenue`}
           icon={<TrendingUp className="h-5 w-5 text-primary" />}
           trend={{ value: '8% vs last quarter', positive: true }}
         />
@@ -85,8 +85,8 @@ export function QuickStatsPanel({ consultant, metrics }: QuickStatsPanelProps) {
         
         <StatCard
           title="Commission"
-          value={`$${(metrics.pendingCommissions / 1000).toFixed(1)}K`}
-          subtitle={`$${(metrics.lifetimeCommissions / 1000).toFixed(0)}K Paid YTD`}
+          value={`$${metrics.pendingCommissions.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
+          subtitle={`$${metrics.lifetimeCommissions.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} Paid YTD`}
           icon={<DollarSign className="h-5 w-5 text-primary" />}
         />
       </div>

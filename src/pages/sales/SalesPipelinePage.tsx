@@ -129,7 +129,7 @@ export default function SalesPipelinePage() {
           />
           <StatsCard
             title="Pipeline Value"
-            value={`$${(stats.pipelineValue / 1000).toFixed(0)}K`}
+            value={`$${stats.pipelineValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={DollarSign}
             description="Open opportunities"
           />
@@ -141,7 +141,7 @@ export default function SalesPipelinePage() {
           />
           <StatsCard
             title="Avg Deal Size"
-            value={`$${(stats.avgDealSize / 1000).toFixed(0)}K`}
+            value={`$${stats.avgDealSize.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`}
             icon={TrendingUp}
             description="Per closed deal"
           />
@@ -161,7 +161,7 @@ export default function SalesPipelinePage() {
                         {stage.replace('-', ' ')}
                       </h3>
                       <p className="text-sm text-muted-foreground mt-1">
-                        {stageOpps.length} opportunities • ${(stageValue / 1000).toFixed(0)}K
+                        {stageOpps.length} opportunities • ${stageValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                       </p>
                     </div>
                     <div className="p-2 space-y-2 max-h-[600px] overflow-y-auto">
@@ -175,7 +175,7 @@ export default function SalesPipelinePage() {
                             <h4 className="font-medium text-sm">{opp.name}</h4>
                             <p className="text-xs text-muted-foreground mt-1">{opp.employerName}</p>
                             <div className="flex justify-between items-center mt-2">
-                              <span className="text-sm font-semibold">${(opp.estimatedValue / 1000).toFixed(0)}K</span>
+                              <span className="text-sm font-semibold">${opp.estimatedValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                               <span className="text-xs text-muted-foreground">{opp.probability}%</span>
                             </div>
                             <p className="text-xs text-muted-foreground mt-1">{opp.salesAgentName}</p>
