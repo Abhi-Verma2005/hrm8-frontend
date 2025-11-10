@@ -1,72 +1,63 @@
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card } from "@/components/ui/card";
-import { TrendingUp, DollarSign, Target, Users, Award, TrendingDown } from "lucide-react";
+import { StatsCard } from "@/components/ui/stats-card";
+import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/tables/DataTable";
+import { TrendingUp, DollarSign, Target, Users, Award, Download, ArrowRight } from "lucide-react";
 import { getSalesAgentStats } from "@/lib/salesAgentStorage";
-import { getOpportunityStats } from "@/lib/salesOpportunityStorage";
-import { getActivityStats } from "@/lib/salesActivityStorage";
+import { getAllOpportunities, getOpportunityStats } from "@/lib/salesOpportunityStorage";
+import { getAllActivities, getActivityStats } from "@/lib/salesActivityStorage";
 import { getTerritoryStats } from "@/lib/salesTerritoryStorage";
+import { createTopDealsColumns } from "@/components/sales/TopDealsTableColumns";
+import { createActivityColumns } from "@/components/sales/SalesActivityTableColumns";
+import { useToast } from "@/hooks/use-toast";
+import { Link } from "react-router-dom";
 
 export default function SalesDashboardPage() {
+  const { toast } = useToast();
   const salesAgentStats = getSalesAgentStats();
   const opportunityStats = getOpportunityStats();
   const activityStats = getActivityStats();
   const territoryStats = getTerritoryStats();
 
+  const allOpportunities = getAllOpportunities();
+  const allActivities = getAllActivities();
+
+  // Get top opportunities by value
+  const topOpportunities = [...allOpportunities]
+    .filter(opp => opp.stage !== 'closed-lost')
+    .sort((a, b) => b.estimatedValue - a.estimatedValue)
+    .slice(0, 10);
+
+  // Get recent activities
+  const recentActivities = [...allActivities]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 10);
+
   const quotaAttainment = salesAgentStats.totalQuota > 0 
-    ? (salesAgentStats.totalRevenue / salesAgentStats.totalQuota * 100).toFixed(1)
+    ? (salesAgentStats.totalRevenue / salesAgentStats.totalQuota * 100)
     : 0;
 
   const pipelineCoverage = salesAgentStats.totalQuota > 0
-    ? (opportunityStats.pipelineValue / salesAgentStats.totalQuota * 100).toFixed(1)
+    ? (opportunityStats.pipelineValue / salesAgentStats.totalQuota * 100)
     : 0;
 
-  const stats = [
-    {
-      title: "Total Revenue",
-      value: `$${(salesAgentStats.totalRevenue / 1000000).toFixed(2)}M`,
-      change: "+12.5%",
-      isPositive: true,
-      icon: DollarSign,
-    },
-    {
-      title: "Pipeline Value",
-      value: `$${(opportunityStats.pipelineValue / 1000000).toFixed(2)}M`,
-      change: `${pipelineCoverage}% coverage`,
-      isPositive: Number(pipelineCoverage) >= 300,
-      icon: TrendingUp,
-    },
-    {
-      title: "Quota Attainment",
-      value: `${quotaAttainment}%`,
-      change: "vs target 100%",
-      isPositive: Number(quotaAttainment) >= 100,
-      icon: Target,
-    },
-    {
-      title: "Active Opportunities",
-      value: opportunityStats.active.toString(),
-      change: `${opportunityStats.conversionRate.toFixed(1)}% win rate`,
-      isPositive: opportunityStats.conversionRate >= 30,
-      icon: Award,
-    },
-    {
-      title: "Sales Team",
-      value: salesAgentStats.active.toString(),
-      change: `${salesAgentStats.total} total`,
-      isPositive: true,
-      icon: Users,
-    },
-    {
-      title: "Avg Deal Size",
-      value: `$${(opportunityStats.avgDealSize / 1000).toFixed(0)}K`,
-      change: "per closed deal",
-      isPositive: true,
-      icon: DollarSign,
-    },
-  ];
+  const handleExport = () => {
+    toast({
+      title: "Exporting Dashboard Data",
+      description: "Preparing your sales dashboard export...",
+    });
+  };
 
   return (
-    <DashboardPageLayout>
+    <DashboardPageLayout
+      breadcrumbActions={
+        <Button variant="outline" size="sm" onClick={handleExport}>
+          <Download className="h-4 w-4 mr-2" />
+          Export
+        </Button>
+      }
+    >
       <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Sales Dashboard</h1>
@@ -75,26 +66,47 @@ export default function SalesDashboardPage() {
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={index} className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                    <p className="text-2xl font-bold mt-2">{stat.value}</p>
-                    <p className={`text-sm mt-1 flex items-center gap-1 ${stat.isPositive ? 'text-green-600' : 'text-muted-foreground'}`}>
-                      {stat.isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                      {stat.change}
-                    </p>
-                  </div>
-                  <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Icon className="h-6 w-6 text-primary" />
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
+          <StatsCard
+            title="Total Revenue"
+            value={`$${(salesAgentStats.totalRevenue / 1000000).toFixed(2)}M`}
+            icon={DollarSign}
+            description="Year to date"
+            trend={{ value: 12.5, isPositive: true }}
+          />
+          <StatsCard
+            title="Pipeline Value"
+            value={`$${(opportunityStats.pipelineValue / 1000000).toFixed(2)}M`}
+            icon={TrendingUp}
+            description={`${pipelineCoverage.toFixed(0)}% quota coverage`}
+            trend={{ value: Number(pipelineCoverage) >= 300 ? 15 : -5, isPositive: Number(pipelineCoverage) >= 300 }}
+          />
+          <StatsCard
+            title="Quota Attainment"
+            value={`${quotaAttainment.toFixed(1)}%`}
+            icon={Target}
+            description="vs target 100%"
+            trend={{ value: Number(quotaAttainment) >= 100 ? 8 : -10, isPositive: Number(quotaAttainment) >= 100 }}
+          />
+          <StatsCard
+            title="Active Opportunities"
+            value={opportunityStats.active.toString()}
+            icon={Award}
+            description={`${opportunityStats.conversionRate.toFixed(1)}% win rate`}
+            trend={{ value: opportunityStats.conversionRate >= 30 ? 5 : -3, isPositive: opportunityStats.conversionRate >= 30 }}
+          />
+          <StatsCard
+            title="Sales Team"
+            value={salesAgentStats.active.toString()}
+            icon={Users}
+            description={`${salesAgentStats.total} total agents`}
+          />
+          <StatsCard
+            title="Avg Deal Size"
+            value={`$${(opportunityStats.avgDealSize / 1000).toFixed(0)}K`}
+            icon={DollarSign}
+            description="Per closed deal"
+            trend={{ value: 7, isPositive: true }}
+          />
         </div>
 
         {/* Sales Funnel */}
@@ -176,6 +188,43 @@ export default function SalesDashboardPage() {
                 <span className="font-semibold">{territoryStats.avgQuotaAttainment.toFixed(1)}%</span>
               </div>
             </div>
+          </Card>
+        </div>
+
+        {/* Data Tables */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Top Opportunities</h3>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/sales/opportunities">
+                  View All
+                  <ArrowRight className="ml-1 h-3 w-3" />
+                </Link>
+              </Button>
+            </div>
+            <DataTable
+              columns={createTopDealsColumns()}
+              data={topOpportunities}
+              searchable={false}
+            />
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Recent Activities</h3>
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/sales/activities">
+                  View All
+                  <ArrowRight className="ml-1 h-3 w-3" />
+                </Link>
+              </Button>
+            </div>
+            <DataTable
+              columns={createActivityColumns()}
+              data={recentActivities}
+              searchable={false}
+            />
           </Card>
         </div>
       </div>
