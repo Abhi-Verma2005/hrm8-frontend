@@ -12,11 +12,14 @@ import {
   TrendingUp, 
   AlertCircle,
   ExternalLink,
-  Building2
+  Building2,
+  UserPlus
 } from 'lucide-react';
-import { format, formatDistanceToNow } from 'date-fns';
+import { format } from 'date-fns';
 import type { RPOContractSummary } from '@/lib/rpoTrackingUtils';
 import { cn } from '@/lib/utils';
+import { RPOConsultantAssignmentDialog } from './RPOConsultantAssignmentDialog';
+import { getAllServiceProjects } from '@/lib/recruitmentServiceStorage';
 
 interface RPOContractsListProps {
   contracts: RPOContractSummary[];
@@ -25,6 +28,13 @@ interface RPOContractsListProps {
 export function RPOContractsList({ contracts }: RPOContractsListProps) {
   const navigate = useNavigate();
   const [expandedContract, setExpandedContract] = useState<string | null>(null);
+  const [assignmentDialogOpen, setAssignmentDialogOpen] = useState(false);
+  const [selectedContractId, setSelectedContractId] = useState<string | null>(null);
+  const [, setRefreshKey] = useState(0);
+
+  const selectedContract = selectedContractId 
+    ? getAllServiceProjects().find(p => p.id === selectedContractId)
+    : null;
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -91,17 +101,31 @@ export function RPOContractsList({ contracts }: RPOContractsListProps) {
                   </div>
                 </div>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/recruitment-services/${contract.id}`);
-                  }}
-                >
-                  <ExternalLink className="h-4 w-4 mr-1" />
-                  View
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedContractId(contract.id);
+                      setAssignmentDialogOpen(true);
+                    }}
+                  >
+                    <UserPlus className="h-4 w-4 mr-1" />
+                    Assign
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/recruitment-services/${contract.id}`);
+                    }}
+                  >
+                    <ExternalLink className="h-4 w-4 mr-1" />
+                    View
+                  </Button>
+                </div>
               </div>
 
               {/* Contract Metrics */}
@@ -275,6 +299,16 @@ export function RPOContractsList({ contracts }: RPOContractsListProps) {
           )}
         </div>
       </div>
+
+      {/* Assignment Dialog */}
+      {selectedContract && (
+        <RPOConsultantAssignmentDialog
+          open={assignmentDialogOpen}
+          onOpenChange={setAssignmentDialogOpen}
+          contract={selectedContract}
+          onAssignmentComplete={() => setRefreshKey(k => k + 1)}
+        />
+      )}
     </Card>
   );
 }
