@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { CurrencyFormatProvider } from "@/contexts/CurrencyFormatContext";
 import { useGlobalKeyboardShortcuts, useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { DashboardLayout } from "./components/layouts/DashboardLayout";
@@ -311,14 +312,16 @@ const App = () => (
   <ErrorBoundary showDetails={process.env.NODE_ENV === 'development'}>
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-            <ScrollToTop />
-            <AppContent />
-          </BrowserRouter>
-        </TooltipProvider>
+        <CurrencyFormatProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+              <ScrollToTop />
+              <AppContent />
+            </BrowserRouter>
+          </TooltipProvider>
+        </CurrencyFormatProvider>
       </QueryClientProvider>
     </HelmetProvider>
   </ErrorBoundary>
