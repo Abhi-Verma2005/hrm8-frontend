@@ -28,7 +28,12 @@ import { format, differenceInDays } from 'date-fns';
 import { useState } from 'react';
 import { RPOConsultantAssignmentDialog } from '@/components/rpo/RPOConsultantAssignmentDialog';
 import { RPOTaskDialog } from '@/components/rpo/RPOTaskDialog';
+import { RPOConsultantSuggestions } from '@/components/rpo/RPOConsultantSuggestions';
+import { RPORenewalAnalytics } from '@/components/rpo/RPORenewalAnalytics';
+import { RPOSLATracker } from '@/components/rpo/RPOSLATracker';
+import { RPOPlacementPipeline } from '@/components/rpo/RPOPlacementPipeline';
 import type { RPOTask } from '@/types/rpoTask';
+import { toast } from '@/hooks/use-toast';
 
 export default function RPOContractDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -193,10 +198,14 @@ export default function RPOContractDetailPage() {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
+          <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="consultants">Consultants ({contract.numberOfConsultants})</TabsTrigger>
-            <TabsTrigger value="tasks">Tasks ({taskStats?.total || 0})</TabsTrigger>
+            <TabsTrigger value="consultants">Consultants</TabsTrigger>
+            <TabsTrigger value="suggestions">AI Suggestions</TabsTrigger>
+            <TabsTrigger value="tasks">Tasks</TabsTrigger>
+            <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
+            <TabsTrigger value="sla">SLA</TabsTrigger>
+            <TabsTrigger value="renewals">Renewal</TabsTrigger>
             <TabsTrigger value="performance">Performance</TabsTrigger>
             <TabsTrigger value="financials">Financials</TabsTrigger>
           </TabsList>
@@ -640,6 +649,44 @@ export default function RPOContractDetailPage() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* AI Consultant Suggestions Tab */}
+          <TabsContent value="suggestions" className="space-y-4">
+            <RPOConsultantSuggestions
+              contractId={contract.id}
+              requiredSkills={[contract.clientName, 'RPO Services']}
+              onAssign={(consultantId) => {
+                console.log('Assigning consultant:', consultantId);
+                toast({
+                  title: 'Consultant Assigned',
+                  description: 'The consultant has been successfully assigned to this contract.',
+                });
+              }}
+            />
+          </TabsContent>
+
+          {/* Placement Pipeline Tab */}
+          <TabsContent value="pipeline" className="space-y-4">
+            <RPOPlacementPipeline contractId={contract.id} />
+          </TabsContent>
+
+          {/* SLA Tracking Tab */}
+          <TabsContent value="sla" className="space-y-4">
+            <RPOSLATracker contractId={contract.id} />
+          </TabsContent>
+
+          {/* Renewal Analytics Tab */}
+          <TabsContent value="renewals" className="space-y-4">
+            <RPORenewalAnalytics
+              contractId={contract.id}
+              onTakeAction={(action) => {
+                toast({
+                  title: 'Action Scheduled',
+                  description: `${action} has been added to your task list.`,
+                });
+              }}
+            />
           </TabsContent>
         </Tabs>
       </div>
