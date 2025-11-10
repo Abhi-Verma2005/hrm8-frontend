@@ -69,6 +69,8 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
         typeKey={'consultantType' as any}
         exportable
         exportFilename="consultant-workload"
+        columnCustomization
+        columnPreferenceKey="consultant-workload-columns"
         emptyMessage="No consultant workload data available"
       />
 
