@@ -331,7 +331,7 @@ export default function Finance() {
                         <span className="font-medium">{sub.tier}</span>
                         <div className="flex items-center gap-4">
                           <span className="text-muted-foreground">{sub.count} customers</span>
-                          <span className="font-semibold">${sub.revenue.toLocaleString()}/mo</span>
+                          <span className="font-semibold">${sub.revenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/mo</span>
                         </div>
                       </div>
                       <div className="h-2 bg-muted rounded-full overflow-hidden">
@@ -364,7 +364,7 @@ export default function Finance() {
                         <p className="text-sm text-muted-foreground">{tier.count} active subscriptions</p>
                       </div>
                       <div className="text-right">
-                        <div className="text-2xl font-bold">${tier.revenue.toLocaleString()}</div>
+                        <div className="text-2xl font-bold">${tier.revenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
                         <p className="text-xs text-muted-foreground">monthly revenue</p>
                       </div>
                     </div>

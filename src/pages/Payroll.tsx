@@ -44,7 +44,7 @@ export default function Payroll() {
               <DollarSign className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.totalPayrollBudget.toLocaleString()}</div>
+              <div className="text-2xl font-bold">${stats.totalPayrollBudget.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             </CardContent>
           </Card>
 
@@ -54,7 +54,7 @@ export default function Payroll() {
               <Wallet className="h-4 w-4 text-success" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.monthlyAverage.toLocaleString()}</div>
+              <div className="text-2xl font-bold">${stats.monthlyAverage.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             </CardContent>
           </Card>
 
@@ -64,7 +64,7 @@ export default function Payroll() {
               <Users className="h-4 w-4 text-warning" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.averageSalary.toLocaleString()}</div>
+              <div className="text-2xl font-bold">${stats.averageSalary.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             </CardContent>
           </Card>
 
@@ -119,7 +119,7 @@ export default function Payroll() {
                       <div className="flex items-center gap-6">
                         <div className="text-right">
                           <p className="text-sm text-muted-foreground">Net Pay</p>
-                          <p className="font-bold">${run.totalNetPay.toLocaleString()}</p>
+                          <p className="font-bold">${run.totalNetPay.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                         </div>
                         <div className="text-right">
                           <p className="text-sm text-muted-foreground">Employees</p>
@@ -158,11 +158,11 @@ export default function Payroll() {
                       <div className="flex items-center gap-6">
                         <div className="text-right text-sm">
                           <p className="text-muted-foreground">Gross</p>
-                          <p className="font-medium">${payslip.grossPay.toLocaleString()}</p>
+                          <p className="font-medium">${payslip.grossPay.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                         </div>
                         <div className="text-right text-sm">
                           <p className="text-muted-foreground">Net</p>
-                          <p className="font-bold text-primary">${payslip.netPay.toLocaleString()}</p>
+                          <p className="font-bold text-primary">${payslip.netPay.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                         </div>
                         <Badge variant="outline">{payslip.status}</Badge>
                         <Button size="sm" variant="ghost" onClick={() => handleViewDetails(payslip)}>

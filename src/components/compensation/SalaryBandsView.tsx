@@ -88,8 +88,8 @@ export function SalaryBandsView() {
                     className="h-2"
                   />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>${band.minSalary.toLocaleString()}</span>
-                    <span>${band.maxSalary.toLocaleString()}</span>
+                    <span>${band.minSalary.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                    <span>${band.maxSalary.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                   </div>
                 </div>
               </CardContent>

@@ -152,7 +152,7 @@ export default function RecruitmentIntegration() {
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Cost per Hire</p>
-                          <p className="text-lg font-semibold">${pipeline.costPerHire.toLocaleString()}</p>
+                          <p className="text-lg font-semibold">${pipeline.costPerHire.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                         </div>
                       </div>
                     </div>
@@ -186,7 +186,7 @@ export default function RecruitmentIntegration() {
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
                           <p className="text-xs text-muted-foreground">Service Fee</p>
-                          <p className="text-lg font-semibold">${roi.serviceFee.toLocaleString()}</p>
+                          <p className="text-lg font-semibold">${roi.serviceFee.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Placements</p>
@@ -204,7 +204,7 @@ export default function RecruitmentIntegration() {
                       <div className="mt-4 pt-4 border-t">
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-muted-foreground">Cost per Placement</span>
-                          <span className="font-semibold">${roi.costPerPlacement.toLocaleString()}</span>
+                          <span className="font-semibold">${roi.costPerPlacement.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                         </div>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-sm text-muted-foreground">Avg Retention</span>

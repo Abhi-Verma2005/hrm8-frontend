@@ -59,14 +59,14 @@ export function BillingHistoryCard({ employerId }: BillingHistoryCardProps) {
                 <DollarSign className="h-4 w-4 text-green-500" />
                 <p className="text-sm text-muted-foreground">Total Paid</p>
               </div>
-              <p className="text-2xl font-bold">${totalPaid.toLocaleString()}</p>
+              <p className="text-2xl font-bold">${totalPaid.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
             </div>
             <div className="border rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <DollarSign className="h-4 w-4 text-orange-500" />
                 <p className="text-sm text-muted-foreground">Outstanding</p>
               </div>
-              <p className="text-2xl font-bold">${totalOutstanding.toLocaleString()}</p>
+              <p className="text-2xl font-bold">${totalOutstanding.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
             </div>
           </div>
 
@@ -89,7 +89,7 @@ export function BillingHistoryCard({ employerId }: BillingHistoryCardProps) {
                     <TableCell className="font-medium">{invoice.invoiceNumber}</TableCell>
                     <TableCell>{invoice.issueDate.toLocaleDateString()}</TableCell>
                     <TableCell>{invoice.dueDate.toLocaleDateString()}</TableCell>
-                    <TableCell>${invoice.total.toLocaleString()}</TableCell>
+                    <TableCell>${invoice.total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</TableCell>
                     <TableCell>{getStatusBadge(invoice.status)}</TableCell>
                     <TableCell className="text-right space-x-2">
                       <Button

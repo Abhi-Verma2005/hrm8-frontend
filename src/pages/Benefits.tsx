@@ -54,7 +54,7 @@ export default function Benefits() {
               <DollarSign className="h-4 w-4 text-warning" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.employeeCost.toLocaleString()}</div>
+              <div className="text-2xl font-bold">${stats.employeeCost.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             </CardContent>
           </Card>
 
@@ -64,7 +64,7 @@ export default function Benefits() {
               <TrendingUp className="h-4 w-4 text-accent" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.employerCost.toLocaleString()}</div>
+              <div className="text-2xl font-bold">${stats.employerCost.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             </CardContent>
           </Card>
         </div>

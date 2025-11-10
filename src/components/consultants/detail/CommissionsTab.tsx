@@ -171,7 +171,7 @@ export function CommissionsTab({ consultantId, consultantName }: { consultantId:
                       </div>
                       <div className="flex items-center gap-4">
                         <div className="text-right">
-                          <div className="font-bold">${commission.commissionAmount.toLocaleString()}</div>
+                          <div className="font-bold">${commission.commissionAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
                           <div className="text-sm text-muted-foreground">{commission.commissionRate}%</div>
                         </div>
                         <div className="flex items-center gap-2">

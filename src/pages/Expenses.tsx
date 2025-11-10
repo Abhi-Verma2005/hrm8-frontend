@@ -65,7 +65,7 @@ export default function Expenses() {
               <Clock className="h-4 w-4 text-warning" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.pendingAmount.toLocaleString()}</div>
+              <div className="text-2xl font-bold">${stats.pendingAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             </CardContent>
           </Card>
 
@@ -75,7 +75,7 @@ export default function Expenses() {
               <CheckCircle className="h-4 w-4 text-success" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.approvedAmount.toLocaleString()}</div>
+              <div className="text-2xl font-bold">${stats.approvedAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             </CardContent>
           </Card>
 
@@ -85,7 +85,7 @@ export default function Expenses() {
               <DollarSign className="h-4 w-4 text-primary" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.reimbursedAmount.toLocaleString()}</div>
+              <div className="text-2xl font-bold">${stats.reimbursedAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             </CardContent>
           </Card>
 
@@ -95,7 +95,7 @@ export default function Expenses() {
               <XCircle className="h-4 w-4 text-destructive" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${stats.rejectedAmount.toLocaleString()}</div>
+              <div className="text-2xl font-bold">${stats.rejectedAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
             </CardContent>
           </Card>
         </div>
@@ -176,7 +176,7 @@ export default function Expenses() {
                           {expense.category}
                         </Badge>
                         <div className="text-right">
-                          <p className="font-bold">${expense.amount.toLocaleString()}</p>
+                          <p className="font-bold">${expense.amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                           <p className="text-xs text-muted-foreground">{expense.currency}</p>
                         </div>
                         <Badge
@@ -220,7 +220,7 @@ export default function Expenses() {
                           {expense.category}
                         </Badge>
                         <div className="text-right">
-                          <p className="font-bold">${expense.amount.toLocaleString()}</p>
+                          <p className="font-bold">${expense.amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                         </div>
                         <ExpenseApprovalActions expenseId={expense.id} onUpdate={handleRefresh} />
                       </div>

@@ -109,7 +109,7 @@ export function InvoiceDetailDialog({ open, onOpenChange, invoice }: InvoiceDeta
                       {item.quantity} × ${item.unitPrice.toFixed(2)}
                     </p>
                     <p className="font-semibold tabular-nums">
-                      ${item.total.toFixed(2)}
+                      ${item.total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </p>
                   </div>
                 </div>
@@ -123,16 +123,16 @@ export function InvoiceDetailDialog({ open, onOpenChange, invoice }: InvoiceDeta
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium tabular-nums">${invoice.subtotal.toFixed(2)}</span>
+              <span className="font-medium tabular-nums">${invoice.subtotal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Tax (10%)</span>
-              <span className="font-medium tabular-nums">${invoice.tax.toFixed(2)}</span>
+              <span className="font-medium tabular-nums">${invoice.tax.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             </div>
             <Separator />
             <div className="flex justify-between">
               <span className="font-bold text-lg">Total</span>
-              <span className="font-bold text-lg tabular-nums">${invoice.total.toFixed(2)}</span>
+              <span className="font-bold text-lg tabular-nums">${invoice.total.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             </div>
           </div>
 

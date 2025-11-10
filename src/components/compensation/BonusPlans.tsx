@@ -67,7 +67,7 @@ export function BonusPlans() {
                 <CardContent className="space-y-4">
                   <div>
                     <p className="text-2xl font-bold">
-                      ${plan.targetAmount.toLocaleString()}
+                      ${plan.targetAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                     </p>
                     <p className="text-sm text-muted-foreground">Target Amount</p>
                   </div>

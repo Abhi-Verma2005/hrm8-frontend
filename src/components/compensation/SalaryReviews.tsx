@@ -126,16 +126,16 @@ export function SalaryReviews() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                         <div>
                           <span className="text-muted-foreground">Current Salary: </span>
-                          <span className="font-medium">${review.currentSalary.toLocaleString()}</span>
+                          <span className="font-medium">${review.currentSalary.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                         </div>
                         <div>
                           <span className="text-muted-foreground">Proposed Salary: </span>
-                          <span className="font-medium">${review.proposedSalary.toLocaleString()}</span>
+                          <span className="font-medium">${review.proposedSalary.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                         </div>
                         <div>
                           <span className="text-muted-foreground">Increase: </span>
                           <span className="font-medium text-green-600">
-                            +{review.increasePercentage.toFixed(1)}% (${review.increaseAmount.toLocaleString()})
+                            +{review.increasePercentage.toFixed(1)}% (${review.increaseAmount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })})
                           </span>
                         </div>
                         <div>

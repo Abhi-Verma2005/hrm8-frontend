@@ -163,12 +163,12 @@ export default function RPOContractDetailPage() {
             <CardHeader className="pb-3">
               <CardDescription>Monthly Retainer</CardDescription>
               <CardTitle className="text-2xl">
-                ${contract.monthlyRetainer.toLocaleString()}
+                ${contract.monthlyRetainer.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Total: ${contract.totalContractValue.toLocaleString()}
+                Total: ${contract.totalContractValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
               </p>
             </CardContent>
           </Card>
@@ -298,7 +298,7 @@ export default function RPOContractDetailPage() {
                             {fee.type.replace('-', ' ')} {fee.frequency && `• ${fee.frequency}`}
                           </p>
                         </div>
-                        <p className="font-semibold">${fee.amount.toLocaleString()}</p>
+                        <p className="font-semibold">${fee.amount.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                       </div>
                     ))}
                   </div>
@@ -353,7 +353,7 @@ export default function RPOContractDetailPage() {
                             <div>
                               <p className="font-medium">{assignment.consultantName}</p>
                               <p className="text-sm text-muted-foreground">
-                                ${assignment.monthlyRate.toLocaleString()}/month
+                                ${assignment.monthlyRate.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/month
                               </p>
                             </div>
                           </div>
@@ -394,7 +394,7 @@ export default function RPOContractDetailPage() {
                         <div>
                           <CardTitle className="text-base">{assignment.consultantName}</CardTitle>
                           <CardDescription>
-                            ${assignment.monthlyRate.toLocaleString()}/month
+                            ${assignment.monthlyRate.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/month
                           </CardDescription>
                         </div>
                       </div>
@@ -593,7 +593,7 @@ export default function RPOContractDetailPage() {
                           <div>
                             <p className="font-medium">{assignment.consultantName}</p>
                             <p className="text-sm text-muted-foreground">
-                              ${assignment.monthlyRate.toLocaleString()}/month × {Math.round(months)} months
+                              ${assignment.monthlyRate.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}/month × {Math.round(months)} months
                             </p>
                           </div>
                         </div>

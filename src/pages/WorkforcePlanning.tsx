@@ -237,7 +237,7 @@ export default function WorkforcePlanning() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Cost per Hire</p>
-                  <p className="text-2xl font-bold">${demographics.costPerHire.toLocaleString()}</p>
+                  <p className="text-2xl font-bold">${demographics.costPerHire.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                 </div>
                 <DollarSign className="h-8 w-8 text-purple-500" />
               </div>
@@ -371,7 +371,7 @@ export default function WorkforcePlanning() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Cost per Hire</span>
-                      <Badge variant="outline">${demographics.costPerHire.toLocaleString()}</Badge>
+                      <Badge variant="outline">${demographics.costPerHire.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Badge>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Attrition Rate</span>

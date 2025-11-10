@@ -67,7 +67,7 @@ export function ConsultantEngagementPanel({ consultant }: ConsultantEngagementPa
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">Revenue</span>
               </div>
-              <span className="text-lg font-bold">${thisMonthStats.revenue.toLocaleString()}</span>
+              <span className="text-lg font-bold">${thisMonthStats.revenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
