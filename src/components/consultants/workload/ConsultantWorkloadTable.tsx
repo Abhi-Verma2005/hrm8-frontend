@@ -60,7 +60,7 @@ export function ConsultantWorkloadTable({ data }: ConsultantWorkloadTableProps) 
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden" data-workload-table>
       <div className="p-6 border-b">
         <h3 className="text-lg font-semibold">Detailed Consultant Workload</h3>
         <p className="text-sm text-muted-foreground">Click a row to view service details</p>

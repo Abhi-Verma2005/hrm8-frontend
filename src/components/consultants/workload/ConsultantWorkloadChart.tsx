@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
+import { Button } from '@/components/ui/button';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, LabelList } from 'recharts';
 import type { WorkloadData } from '@/lib/consultantWorkloadUtils';
 import { getCapacityColor } from '@/lib/consultantWorkloadUtils';
 import { CalendarOff } from 'lucide-react';
@@ -14,11 +15,32 @@ export function ConsultantWorkloadChart({ data }: ConsultantWorkloadChartProps) 
     name: item.consultantName,
     assigned: item.hoursAssigned,
     available: item.hoursRemaining,
+    blockout: item.timeOffAdjustment?.hoursOff || 0,
     utilizationPercent: item.utilizationPercent,
     adjustedCapacity: item.monthlyHoursAvailable,
     timeOffDays: item.timeOffAdjustment?.scheduledDaysOff || 0,
     timeOffHours: item.timeOffAdjustment?.hoursOff || 0,
   }));
+
+  const customLegend = (props: any) => {
+    const { payload } = props;
+    return (
+      <ul className="flex justify-center gap-6 mt-4">
+        <li className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(var(--chart-3))' }} />
+          <span className="text-sm">Hours Assigned</span>
+        </li>
+        <li className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(var(--chart-1))' }} />
+          <span className="text-sm">Hours Available</span>
+        </li>
+        <li className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-sm" style={{ backgroundColor: 'hsl(var(--muted))' }} />
+          <span className="text-sm">Blockout Hours</span>
+        </li>
+      </ul>
+    );
+  };
 
   return (
     <Card className="p-6">
@@ -27,6 +49,16 @@ export function ConsultantWorkloadChart({ data }: ConsultantWorkloadChartProps) 
           <h3 className="text-lg font-semibold">Team Workload Overview</h3>
           <p className="text-sm text-muted-foreground">Hours assigned vs. available (160h/month)</p>
         </div>
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={() => {
+            const tableElement = document.querySelector('[data-workload-table]');
+            tableElement?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }}
+        >
+          View All
+        </Button>
       </div>
       
       <ResponsiveContainer width="100%" height={400}>
@@ -61,6 +93,12 @@ export function ConsultantWorkloadChart({ data }: ConsultantWorkloadChartProps) 
                           <span className="font-medium">{data.timeOffDays}d ({data.timeOffHours}h)</span>
                         </p>
                       )}
+                      {data.blockout > 0 && (
+                        <p className="flex justify-between gap-4">
+                          <span className="text-muted-foreground">Blockout Hours:</span>
+                          <span className="font-medium">{data.blockout}h</span>
+                        </p>
+                      )}
                       <div className="pt-1 border-t mt-2 space-y-1">
                         <p className="flex justify-between gap-4">
                           <span className="text-muted-foreground">Base Capacity:</span>
@@ -84,13 +122,30 @@ export function ConsultantWorkloadChart({ data }: ConsultantWorkloadChartProps) 
               return null;
             }}
           />
-          <Legend />
+          <Legend content={customLegend} />
           <Bar dataKey="assigned" stackId="a" fill="hsl(var(--chart-3))" name="Hours Assigned" />
           <Bar dataKey="available" stackId="a" name="Hours Available">
             {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={getCapacityColor(entry.utilizationPercent)} opacity={0.4} />
             ))}
+            <LabelList 
+              dataKey="utilizationPercent" 
+              position="left"
+              formatter={(value: number) => `${value}%`}
+              style={{ 
+                fill: 'hsl(var(--foreground))', 
+                fontSize: '12px',
+                fontWeight: '600'
+              }}
+            />
           </Bar>
+          <Bar 
+            dataKey="blockout" 
+            stackId="a" 
+            fill="hsl(var(--muted))" 
+            name="Blockout Hours"
+            opacity={0.6}
+          />
         </BarChart>
       </ResponsiveContainer>
     </Card>
