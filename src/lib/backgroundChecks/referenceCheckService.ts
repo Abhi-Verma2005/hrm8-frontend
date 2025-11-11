@@ -6,8 +6,10 @@ import {
   getRefereeByToken as getRefereeByTokenStorage,
   getRefereesByBackgroundCheck
 } from './refereeStorage';
-import { updateBackgroundCheck } from '@/lib/mockBackgroundCheckStorage';
+import { updateBackgroundCheck, getBackgroundCheckById } from '@/lib/mockBackgroundCheckStorage';
 import { generateRefereeInvitationEmail } from './emailTemplates';
+import { createBackgroundCheckNotification } from './notificationService';
+import { sendBackgroundCheckEmail } from './emailNotificationService';
 
 export function generateRefereeToken(): string {
   return `referee_${uuidv4()}_${Date.now()}`;
@@ -54,6 +56,28 @@ export function inviteReferee(
     status: 'invited',
     invitedDate: new Date().toISOString()
   });
+
+  // Send email notification to referee
+  const backgroundCheck = getBackgroundCheckById(referee.backgroundCheckId);
+  if (backgroundCheck) {
+    sendBackgroundCheckEmail('referee_invited', {
+      candidateName: candidateName,
+      candidateEmail: '',
+      recruiterName: backgroundCheck.initiatedByName,
+      recruiterEmail: 'recruiter@example.com',
+      refereeName: referee.name,
+      refereeEmail: referee.email,
+      referenceLink: questionnaireUrl,
+      checkId: referee.backgroundCheckId,
+    });
+
+    // Create in-app notification for recruiter
+    createBackgroundCheckNotification('referee_invited', {
+      candidateName: candidateName,
+      checkId: referee.backgroundCheckId,
+      refereeName: referee.name,
+    });
+  }
 }
 
 export function validateRefereeToken(token: string): boolean {
@@ -123,6 +147,26 @@ export function submitReferenceResponse(
   
   // Check if all referees are completed
   checkAllRefereesCompleted(referee.backgroundCheckId);
+
+  // Send notifications
+  const backgroundCheck = getBackgroundCheckById(referee.backgroundCheckId);
+  if (backgroundCheck) {
+    sendBackgroundCheckEmail('referee_completed', {
+      candidateName: backgroundCheck.candidateName,
+      candidateEmail: '',
+      recruiterName: backgroundCheck.initiatedByName,
+      recruiterEmail: 'recruiter@example.com',
+      refereeName: referee.name,
+      checkId: referee.backgroundCheckId,
+      reportLink: `${window.location.origin}/background-checks/${referee.backgroundCheckId}`,
+    });
+
+    createBackgroundCheckNotification('referee_completed', {
+      candidateName: backgroundCheck.candidateName,
+      checkId: referee.backgroundCheckId,
+      refereeName: referee.name,
+    });
+  }
   
   console.log('✅ Reference response submitted:', referee.id);
 }
@@ -156,6 +200,24 @@ export function checkAllRefereesCompleted(backgroundCheckId: string): void {
       completedDate: new Date().toISOString(),
       results: completedResults
     });
+
+    // Send notifications
+    const backgroundCheck = getBackgroundCheckById(backgroundCheckId);
+    if (backgroundCheck) {
+      sendBackgroundCheckEmail('all_referees_completed', {
+        candidateName: backgroundCheck.candidateName,
+        candidateEmail: '',
+        recruiterName: backgroundCheck.initiatedByName,
+        recruiterEmail: 'recruiter@example.com',
+        checkId: backgroundCheckId,
+        reportLink: `${window.location.origin}/background-checks/${backgroundCheckId}`,
+      });
+
+      createBackgroundCheckNotification('all_referees_completed', {
+        candidateName: backgroundCheck.candidateName,
+        checkId: backgroundCheckId,
+      });
+    }
     
     console.log('✅ All referees completed for background check:', backgroundCheckId);
   }

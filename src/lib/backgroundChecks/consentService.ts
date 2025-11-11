@@ -11,6 +11,8 @@ import { updateBackgroundCheck } from '@/lib/mockBackgroundCheckStorage';
 import { generateConsentEmail } from './emailTemplates';
 import { LEGAL_DISCLOSURE_TEMPLATE, PRIVACY_POLICY_URL } from './legalTemplates';
 import { BACKGROUND_CHECK_PRICING } from './pricingConstants';
+import { createBackgroundCheckNotification } from './notificationService';
+import { sendBackgroundCheckEmail } from './emailNotificationService';
 
 export function generateConsentToken(): string {
   return `consent_${uuidv4()}_${Date.now()}`;
@@ -73,6 +75,23 @@ export function sendConsentEmail(consent: ConsentRequest): void {
   
   // Update status to sent
   updateConsent(consent.id, { status: 'sent' });
+
+  // Send email notification
+  sendBackgroundCheckEmail('consent_requested', {
+    candidateName: consent.candidateName,
+    candidateEmail: consent.candidateEmail,
+    recruiterName: 'Recruiter',
+    recruiterEmail: 'recruiter@example.com',
+    checkId: consent.backgroundCheckId,
+    consentLink: consentUrl,
+  });
+
+  // Create in-app notification for recruiter
+  createBackgroundCheckNotification('consent_requested', {
+    candidateName: consent.candidateName,
+    candidateEmail: consent.candidateEmail,
+    checkId: consent.backgroundCheckId,
+  });
 }
 
 export function getConsentByToken(token: string): ConsentRequest | undefined {
@@ -142,6 +161,21 @@ export function acceptConsent(
     consentGiven: true,
     consentDate: now
   });
+
+  // Send notifications
+  sendBackgroundCheckEmail('consent_given', {
+    candidateName: consent.candidateName,
+    candidateEmail: consent.candidateEmail,
+    recruiterName: 'Recruiter',
+    recruiterEmail: 'recruiter@example.com',
+    checkId: consent.backgroundCheckId,
+    reportLink: `${window.location.origin}/background-checks/${consent.backgroundCheckId}`,
+  });
+
+  createBackgroundCheckNotification('consent_given', {
+    candidateName: consent.candidateName,
+    checkId: consent.backgroundCheckId,
+  });
   
   console.log('✅ Consent accepted for background check:', consent.backgroundCheckId);
 }
@@ -173,6 +207,21 @@ export function declineConsent(
   // Update background check status
   updateBackgroundCheck(consent.backgroundCheckId, {
     status: 'cancelled'
+  });
+
+  // Send notifications
+  sendBackgroundCheckEmail('consent_declined', {
+    candidateName: consent.candidateName,
+    candidateEmail: consent.candidateEmail,
+    recruiterName: 'Recruiter',
+    recruiterEmail: 'recruiter@example.com',
+    checkId: consent.backgroundCheckId,
+    reportLink: `${window.location.origin}/background-checks/${consent.backgroundCheckId}`,
+  });
+
+  createBackgroundCheckNotification('consent_declined', {
+    candidateName: consent.candidateName,
+    checkId: consent.backgroundCheckId,
   });
   
   console.log('❌ Consent declined for background check:', consent.backgroundCheckId);

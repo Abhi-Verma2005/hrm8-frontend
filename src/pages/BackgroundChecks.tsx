@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
+import { BackgroundCheckNotificationBadge } from "@/components/backgroundChecks/BackgroundCheckNotificationBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Plus, FileText, Download, Settings } from "lucide-react";
@@ -193,6 +194,7 @@ export default function BackgroundChecks() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <BackgroundCheckNotificationBadge />
             <Button 
               variant="outline" 
               onClick={() => navigate('/questionnaire-templates')}
