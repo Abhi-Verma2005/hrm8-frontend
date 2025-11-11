@@ -7,7 +7,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { X, UserPlus, Tag, Mail, Calendar, Archive, Trash2 } from "lucide-react";
+import { X, UserPlus, Tag, Mail, Calendar, Archive, Trash2, ClipboardCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -31,6 +31,7 @@ interface CandidateBulkActionsToolbarProps {
   onBulkDelete: () => void;
   onBulkEmail: () => void;
   onBulkScheduleInterview: () => void;
+  onBulkAssessmentInvite: () => void;
 }
 
 export function CandidateBulkActionsToolbar({ 
@@ -43,6 +44,7 @@ export function CandidateBulkActionsToolbar({
   onBulkDelete,
   onBulkEmail,
   onBulkScheduleInterview,
+  onBulkAssessmentInvite,
 }: CandidateBulkActionsToolbarProps) {
   const { toast } = useToast();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -151,6 +153,15 @@ export function CandidateBulkActionsToolbar({
                 <SelectItem value="Full-Stack">Full-Stack</SelectItem>
               </SelectContent>
             </Select>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onBulkAssessmentInvite}
+            >
+              <ClipboardCheck className="h-4 w-4 mr-2" />
+              Invite to Assessment
+            </Button>
 
             <Button
               variant="outline"

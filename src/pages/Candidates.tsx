@@ -15,6 +15,7 @@ import { CandidateBulkActionsToolbar } from "@/components/candidates/bulk/Candid
 
 import { CandidateImportDialog } from "@/components/candidates/import-export/CandidateImportDialog";
 import { CandidateExportDialog } from "@/components/candidates/import-export/CandidateExportDialog";
+import { BulkAssessmentInvitationWizard } from "@/components/assessments/BulkAssessmentInvitationWizard";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -45,6 +46,7 @@ export default function Candidates() {
   const [showSearchPanel, setShowSearchPanel] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showBulkAssessmentWizard, setShowBulkAssessmentWizard] = useState(false);
   const [selectedCandidates, setSelectedCandidates] = useState<string[]>([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingCandidateId, setEditingCandidateId] = useState<string | null>(null);
@@ -333,6 +335,29 @@ export default function Candidates() {
     });
   };
 
+  const handleBulkAssessmentInvite = () => {
+    if (selectedCandidates.length === 0) {
+      toast({
+        title: "No candidates selected",
+        description: "Please select at least one candidate",
+        variant: "destructive",
+      });
+      return;
+    }
+    setShowBulkAssessmentWizard(true);
+  };
+
+  const selectedCandidatesData = useMemo(() => {
+    return selectedCandidates.map(id => {
+      const candidate = candidates.find(c => c.id === id);
+      return candidate ? {
+        id: candidate.id,
+        name: candidate.name,
+        email: candidate.email,
+      } : null;
+    }).filter(Boolean) as { id: string; name: string; email: string }[];
+  }, [selectedCandidates, candidates]);
+
   const handleImportCandidates = async (
     candidatesData: Partial<Candidate>[],
     duplicateAction: 'skip' | 'update' | 'create'
@@ -460,6 +485,7 @@ export default function Candidates() {
           onBulkDelete={handleBulkDelete}
           onBulkEmail={handleBulkEmail}
           onBulkScheduleInterview={handleBulkScheduleInterview}
+          onBulkAssessmentInvite={handleBulkAssessmentInvite}
         />
 
         <div className="flex gap-2">
@@ -543,6 +569,16 @@ export default function Candidates() {
         selectedCandidates={selectedCandidates.map(id => 
           filteredCandidates.find(c => c.id === id)!
         ).filter(Boolean)}
+      />
+
+      <BulkAssessmentInvitationWizard
+        open={showBulkAssessmentWizard}
+        onClose={() => setShowBulkAssessmentWizard(false)}
+        candidates={selectedCandidatesData}
+        onComplete={() => {
+          setSelectedCandidates([]);
+          setShowBulkAssessmentWizard(false);
+        }}
       />
 
       <FormDrawer
