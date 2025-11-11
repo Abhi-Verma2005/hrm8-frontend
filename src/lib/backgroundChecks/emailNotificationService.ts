@@ -2,9 +2,9 @@ import { BackgroundCheckNotificationEvent } from './notificationService';
 
 interface EmailNotificationContext {
   candidateName: string;
-  candidateEmail: string;
+  candidateEmail?: string;
   recruiterName?: string;
-  recruiterEmail: string;
+  recruiterEmail?: string;
   checkId: string;
   jobTitle?: string;
   refereeName?: string;
@@ -13,6 +13,8 @@ interface EmailNotificationContext {
   consentLink?: string;
   referenceLink?: string;
   reportLink?: string;
+  reminderNumber?: number;
+  questionnaireLink?: string;
 }
 
 /**

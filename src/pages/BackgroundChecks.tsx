@@ -4,6 +4,8 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
 import { BackgroundCheckNotificationBadge } from "@/components/backgroundChecks/BackgroundCheckNotificationBadge";
+import { ReminderStatusIndicator } from "@/components/backgroundChecks/ReminderStatusIndicator";
+import { useAutomatedReminders } from "@/hooks/useAutomatedReminders";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Plus, FileText, Download, Settings } from "lucide-react";
@@ -56,6 +58,15 @@ export default function BackgroundChecks() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
+
+  // Enable automated reminders
+  useAutomatedReminders({
+    enabled: true,
+    checkInterval: 60000, // Check every minute
+    onRemindersProcessed: (result) => {
+      console.log('Reminders processed:', result);
+    }
+  });
 
   useEffect(() => {
     loadChecks();
@@ -298,6 +309,9 @@ export default function BackgroundChecks() {
           onViewReview={() => {}}
           onViewIssues={() => {}}
         />
+
+        {/* Automated Reminders Status */}
+        <ReminderStatusIndicator />
 
         {/* Reference Check Overview */}
         <Card>

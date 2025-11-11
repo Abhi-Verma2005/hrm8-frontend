@@ -6,10 +6,12 @@ export type BackgroundCheckNotificationEvent =
   | 'consent_given'
   | 'consent_declined'
   | 'consent_expired'
+  | 'consent_reminder'
   | 'referee_invited'
   | 'referee_opened'
   | 'referee_completed'
   | 'referee_overdue'
+  | 'referee_reminder'
   | 'check_initiated'
   | 'check_completed'
   | 'check_requires_review'
@@ -25,6 +27,7 @@ interface NotificationContext {
   refereeName?: string;
   checkType?: string;
   recruiterEmail?: string;
+  reminderNumber?: number;
 }
 
 /**
@@ -95,6 +98,16 @@ function getNotificationConfig(
         actionType: 'review' as const,
       };
 
+    case 'consent_reminder':
+      return {
+        type: 'info' as const,
+        priority: 'low' as const,
+        title: `📧 Consent Reminder Sent - ${candidateName}`,
+        message: `Reminder #${context.reminderNumber || 1} sent to ${candidateName} for pending consent.`,
+        link: `/background-checks/${context.checkId}`,
+        actionType: 'view' as const,
+      };
+
     case 'referee_completed':
       return {
         type: 'success' as const,
@@ -113,6 +126,16 @@ function getNotificationConfig(
         message: `Reference check from ${refereeName || 'a referee'} for ${candidateName} is overdue. Consider sending a reminder.`,
         link: `/background-checks/${context.checkId}`,
         actionType: 'review' as const,
+      };
+
+    case 'referee_reminder':
+      return {
+        type: 'info' as const,
+        priority: 'low' as const,
+        title: `📧 Referee Reminder Sent`,
+        message: `Reminder #${context.reminderNumber || 1} sent to ${refereeName || 'referee'} for ${candidateName}.`,
+        link: `/background-checks/${context.checkId}`,
+        actionType: 'view' as const,
       };
 
     case 'all_referees_completed':
