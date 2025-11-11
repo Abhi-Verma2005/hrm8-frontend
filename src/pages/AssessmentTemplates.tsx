@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TemplateBuilderDialog } from '@/components/assessments/TemplateBuilderDialog';
+import { ProviderTemplateImportDialog } from '@/components/assessments/ProviderTemplateImportDialog';
 import { 
-  Plus, Search, Filter, Copy, Pencil, Trash2, 
+  Plus, Search, Filter, Copy, Pencil, Trash2, Download,
   Clock, FileText, Target, ToggleLeft, ToggleRight 
 } from 'lucide-react';
 import {
@@ -43,6 +44,7 @@ export default function AssessmentTemplates() {
   const [typeFilter, setTypeFilter] = useState<AssessmentType | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [showBuilder, setShowBuilder] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<AssessmentTemplate | undefined>();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState<string | null>(null);
@@ -164,13 +166,23 @@ export default function AssessmentTemplates() {
       title="Assessment Templates"
       subtitle="Create and manage reusable assessment templates"
       breadcrumbActions={
-        <Button onClick={() => {
-          setEditingTemplate(undefined);
-          setShowBuilder(true);
-        }}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Template
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowImportDialog(true)}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Import Templates
+          </Button>
+          <Button onClick={() => {
+            setEditingTemplate(undefined);
+            setShowBuilder(true);
+          }}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Template
+          </Button>
+        </div>
       }
     >
       <div className="space-y-6">
@@ -394,6 +406,13 @@ export default function AssessmentTemplates() {
         }}
         template={editingTemplate}
         onSave={handleSaveTemplate}
+      />
+
+      {/* Provider Import Dialog */}
+      <ProviderTemplateImportDialog
+        open={showImportDialog}
+        onClose={() => setShowImportDialog(false)}
+        onImportComplete={refreshTemplates}
       />
 
       {/* Delete Confirmation Dialog */}
