@@ -1,7 +1,7 @@
-import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, Target, Building2, TrendingUp, UserRound, type LucideIcon } from "lucide-react";
+import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, Target, Building2, TrendingUp, UserRound, ShieldCheck, type LucideIcon } from "lucide-react";
 import type { WidgetType } from "./widgetRegistry";
 
-export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting' | 'recruitment-services' | 'employers' | 'candidates' | 'sales' | 'rpo';
+export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting' | 'recruitment-services' | 'employers' | 'candidates' | 'sales' | 'rpo' | 'background-checks';
 
 export interface DashboardMetadata {
   id: DashboardType;
@@ -188,5 +188,13 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
       'chart-hiring-trends',
       'activity-feed'
     ]
+  },
+  'background-checks': {
+    id: 'background-checks',
+    name: 'Background Checks',
+    description: 'Monitor background check performance and compliance metrics',
+    icon: ShieldCheck,
+    defaultRoute: '/dashboard/background-checks',
+    availableWidgets: []
   }
 };

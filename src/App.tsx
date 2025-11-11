@@ -11,6 +11,7 @@ import { DashboardLayout } from "./components/layouts/DashboardLayout";
 import { GlobalSearch } from "./components/common/GlobalSearch";
 import Dashboard from "./pages/Dashboard";
 import CandidatesDashboard from "./pages/CandidatesDashboard";
+import BackgroundChecksDashboard from "./pages/dashboard/BackgroundChecksDashboard";
 import OverviewDashboardPage from "./pages/OverviewDashboardPage";
 import FinancialDashboardPage from "./pages/FinancialDashboardPage";
 import HRMSDashboardPage from "./pages/HRMSDashboardPage";
@@ -184,6 +185,7 @@ function AppContent() {
             
             <Route path="/dashboard/jobs" element={<JobsDashboard />} />
             <Route path="/dashboard/performance" element={<PerformanceDashboard />} />
+            <Route path="/dashboard/background-checks" element={<BackgroundChecksDashboard />} />
             <Route path="/notifications" element={<NotificationCenterPage />} />
             {/* ATS Module Routes */}
             <Route element={<ProtectedRoutes requiredModule="ats" moduleName="ATS (Applicant Tracking System)" />}>

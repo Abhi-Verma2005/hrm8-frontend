@@ -1053,6 +1053,15 @@ const DEFAULT_RPO_LAYOUT: DashboardLayout = {
   updatedAt: new Date()
 };
 
+const DEFAULT_BACKGROUND_CHECKS_LAYOUT: DashboardLayout = {
+  id: 'background-checks-default',
+  name: 'Background Checks Default Layout',
+  dashboardType: 'background-checks',
+  widgets: [],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
 export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   overview: DEFAULT_OVERVIEW_LAYOUT,
   jobs: DEFAULT_JOBS_LAYOUT,
@@ -1063,5 +1072,6 @@ export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   employers: DEFAULT_EMPLOYERS_LAYOUT,
   candidates: DEFAULT_CANDIDATES_LAYOUT,
   sales: DEFAULT_SALES_LAYOUT,
-  rpo: DEFAULT_RPO_LAYOUT
+  rpo: DEFAULT_RPO_LAYOUT,
+  'background-checks': DEFAULT_BACKGROUND_CHECKS_LAYOUT
 };
