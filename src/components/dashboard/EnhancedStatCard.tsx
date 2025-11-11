@@ -126,6 +126,7 @@ export function EnhancedStatCard({
         "transition-all duration-300 cursor-pointer group relative h-full flex flex-col justify-between overflow-hidden",
         "hover:scale-[1.02] active:scale-[0.98]",
         "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
+        "dark:before:via-white/20",
         "before:-translate-x-full before:transition-transform before:duration-700 hover:before:translate-x-full",
         "animate-fade-in",
         variantStyles[variant],
