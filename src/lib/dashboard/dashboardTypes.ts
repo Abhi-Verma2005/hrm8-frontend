@@ -1,7 +1,7 @@
 import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, Target, Building2, TrendingUp, UserRound, ShieldCheck, ClipboardCheck, type LucideIcon } from "lucide-react";
 import type { WidgetType } from "./widgetRegistry";
 
-export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting' | 'recruitment-services' | 'employers' | 'candidates' | 'sales' | 'rpo' | 'assessments' | 'background-checks' | 'comparative';
+export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting' | 'recruitment-services' | 'employers' | 'candidates' | 'sales' | 'rpo' | 'assessments' | 'background-checks';
 
 export interface DashboardMetadata {
   id: DashboardType;
@@ -203,14 +203,6 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
     description: 'Track background check revenue, client adoption, and business performance',
     icon: ShieldCheck,
     defaultRoute: '/dashboard/background-checks',
-    availableWidgets: []
-  },
-  'comparative': {
-    id: 'comparative',
-    name: 'Comparative Performance',
-    description: 'Compare Assessments and Background Checks module performance side-by-side',
-    icon: TrendingUp,
-    defaultRoute: '/dashboard/comparative',
     availableWidgets: []
   }
 };

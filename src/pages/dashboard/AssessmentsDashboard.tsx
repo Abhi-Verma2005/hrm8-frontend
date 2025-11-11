@@ -30,7 +30,6 @@ import { ClientLifetimeValueChart } from '@/components/dashboard/charts/ClientLi
 import { RetentionMetricsChart } from '@/components/dashboard/charts/RetentionMetricsChart';
 import { RevenueProjectionChart } from '@/components/dashboard/charts/RevenueProjectionChart';
 import { generateRevenueForecast } from '@/lib/forecasting/revenueForecast';
-import { BusinessAlertsPanel } from '@/components/alerts/BusinessAlertsPanel';
 
 export default function AssessmentsDashboard() {
   const navigate = useNavigate();
@@ -115,8 +114,6 @@ export default function AssessmentsDashboard() {
           />
         )}
 
-        {/* Business Alerts */}
-        <BusinessAlertsPanel module="assessments" showConfigButton={true} />
 
         {/* Key Revenue Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

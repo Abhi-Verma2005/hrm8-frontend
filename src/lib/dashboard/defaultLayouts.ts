@@ -1071,15 +1071,6 @@ const DEFAULT_BACKGROUND_CHECKS_LAYOUT: DashboardLayout = {
   updatedAt: new Date()
 };
 
-const DEFAULT_COMPARATIVE_LAYOUT: DashboardLayout = {
-  id: 'comparative-default',
-  name: 'Comparative Performance Default Layout',
-  dashboardType: 'comparative',
-  widgets: [],
-  createdAt: new Date(),
-  updatedAt: new Date()
-};
-
 export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   overview: DEFAULT_OVERVIEW_LAYOUT,
   jobs: DEFAULT_JOBS_LAYOUT,
@@ -1092,6 +1083,5 @@ export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   sales: DEFAULT_SALES_LAYOUT,
   rpo: DEFAULT_RPO_LAYOUT,
   assessments: DEFAULT_ASSESSMENTS_LAYOUT,
-  'background-checks': DEFAULT_BACKGROUND_CHECKS_LAYOUT,
-  comparative: DEFAULT_COMPARATIVE_LAYOUT
+  'background-checks': DEFAULT_BACKGROUND_CHECKS_LAYOUT
 };
