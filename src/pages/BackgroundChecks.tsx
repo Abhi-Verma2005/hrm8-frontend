@@ -6,7 +6,10 @@ import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndi
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, Plus, FileText, Download, Settings } from "lucide-react";
-import { getBackgroundChecks, saveBackgroundCheck } from "@/lib/mockBackgroundCheckStorage";
+import { getBackgroundChecks, saveBackgroundCheck, getBackgroundCheckById } from "@/lib/mockBackgroundCheckStorage";
+import { getConsentsByBackgroundCheck } from "@/lib/backgroundChecks/consentStorage";
+import { getRefereesByBackgroundCheck } from "@/lib/backgroundChecks/refereeStorage";
+import { exportBackgroundCheckPDF } from "@/lib/backgroundChecks/backgroundCheckExport";
 import { BackgroundCheck } from "@/types/backgroundCheck";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BackgroundCheckForm } from "@/components/backgroundChecks/BackgroundCheckForm";
@@ -120,6 +123,49 @@ export default function BackgroundChecks() {
     toast({
       title: "Exporting Data",
       description: "Your report is being generated...",
+    });
+  };
+
+  const handleDownloadReport = (checkId: string) => {
+    const check = getBackgroundCheckById(checkId);
+    if (!check) {
+      toast({
+        title: "Error",
+        description: "Background check not found.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const consents = getConsentsByBackgroundCheck(checkId);
+    const referees = getRefereesByBackgroundCheck(checkId);
+    
+    try {
+      exportBackgroundCheckPDF(check, consents, referees);
+      toast({
+        title: "Report Downloaded",
+        description: "Background check report has been downloaded successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Error",
+        description: "Failed to generate PDF report.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSendReminder = (checkId: string) => {
+    toast({
+      title: "Reminder Sent",
+      description: "Consent reminder has been sent to the candidate.",
+    });
+  };
+
+  const handleCancelCheck = (checkId: string) => {
+    toast({
+      title: "Check Cancelled",
+      description: "Background check has been cancelled successfully.",
     });
   };
 
@@ -403,12 +449,12 @@ export default function BackgroundChecks() {
           <CardContent>
             <BackgroundChecksTable
               checks={filteredChecks}
-              onViewDetails={(id) => console.log('View details:', id)}
+              onViewDetails={(id) => navigate(`/background-checks/${id}`)}
               onViewConsent={(id) => console.log('View consent:', id)}
               onViewReferees={(id) => console.log('View referees:', id)}
-              onDownloadReport={(id) => toast({ title: "Downloading Report", description: "Report is being downloaded..." })}
-              onSendReminder={(id) => toast({ title: "Reminder Sent", description: "Consent reminder has been sent." })}
-              onCancelCheck={(id) => toast({ title: "Check Cancelled", description: "Background check has been cancelled." })}
+              onDownloadReport={handleDownloadReport}
+              onSendReminder={handleSendReminder}
+              onCancelCheck={handleCancelCheck}
             />
           </CardContent>
         </Card>
