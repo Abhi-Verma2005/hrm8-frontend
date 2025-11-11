@@ -16,6 +16,7 @@ import { AssessmentType, AssessmentStatus } from '@/types/assessment';
 import { format } from 'date-fns';
 import { AssessmentPredictionCard } from '@/components/assessments/AssessmentPredictionCard';
 import { generatePrediction } from '@/lib/assessments/predictionService';
+import { AssessmentCollaboration } from '@/components/assessments/AssessmentCollaboration';
 
 const getStatusBadgeVariant = (status: AssessmentStatus) => {
   switch (status) {
@@ -390,6 +391,15 @@ export default function AssessmentDetail() {
         {assessment.status === 'completed' && assessment.overallScore && (
           <AssessmentPredictionCard prediction={generatePrediction(assessment)} />
         )}
+
+        {/* Collaboration - Comments, Ratings, Decisions */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <h3 className="text-lg font-semibold">Team Collaboration</h3>
+            <Badge variant="secondary">Beta</Badge>
+          </div>
+          <AssessmentCollaboration assessmentId={assessment.id} />
+        </div>
 
         {/* Timeline */}
         <Card className="p-6">
