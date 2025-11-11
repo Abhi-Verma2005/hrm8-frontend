@@ -72,6 +72,7 @@ const atsNavItems = [
     subItems: [
       { title: "All Assessments", url: "/assessments" },
       { title: "Templates", url: "/assessment-templates" },
+      { title: "Question Bank", url: "/question-bank" },
     ]
   },
   { title: "Background Checks", url: "/background-checks", icon: ShieldCheck },
