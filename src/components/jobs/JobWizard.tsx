@@ -44,6 +44,8 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   const [previewOpen, setPreviewOpen] = useState(false);
   const [showExternalPromotionDialog, setShowExternalPromotionDialog] = useState(false);
   const [savedJobData, setSavedJobData] = useState<Job | null>(null);
+  const [autoSaving, setAutoSaving] = useState(false);
+  const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
   
   const findScrollContainer = (): HTMLElement | null => {
     const scrollAreaViewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
@@ -118,6 +120,94 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   const isHRM8Service = currentServiceType !== 'self-managed';
   const totalSteps = isHRM8Service ? 1 : 6;
   const progress = (step / totalSteps) * 100;
+
+  // Auto-save functionality
+  const autoSaveDraft = async () => {
+    const formData = form.getValues();
+    
+    // Only auto-save if there's meaningful content (at least a title)
+    if (!formData.title || formData.title.trim().length === 0) {
+      return;
+    }
+
+    setAutoSaving(true);
+
+    try {
+      let employerData;
+      
+      if (formData.postAsHRM8) {
+        employerData = {
+          employerId: "hrm8-platform",
+          employerName: "HRM8",
+          employerLogo: "/logo-light.png",
+        };
+      } else if (formData.employerId) {
+        const selectedEmployer = getEmployerById(formData.employerId);
+        employerData = {
+          employerId: formData.employerId,
+          employerName: selectedEmployer?.name || "Unknown Employer",
+          employerLogo: selectedEmployer?.logo,
+        };
+      } else {
+        // No employer selected yet, skip auto-save
+        setAutoSaving(false);
+        return;
+      }
+
+      const draftJobData: Job = {
+        id: jobId || `job-${Date.now()}`,
+        ...formData,
+        ...employerData,
+        createdBy: "admin-user-id",
+        createdByName: "HRM8 Admin",
+        jobCode: generateJobCode(),
+        aiGeneratedDescription: false,
+        serviceType: formData.serviceType,
+        applicantsCount: 0,
+        viewsCount: 0,
+        postingDate: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        hasJobTargetPromotion: false,
+        jobTargetBudget: 0,
+        jobTargetBudgetRemaining: 0,
+        requiresPayment: false,
+        status: 'draft', // Always save as draft for auto-save
+        termsAccepted: formData.termsAccepted || false,
+        termsAcceptedAt: formData.termsAccepted ? new Date() : undefined,
+        termsAcceptedBy: formData.termsAccepted ? 'current-user-id' : undefined,
+      };
+
+      saveJob(draftJobData);
+      setLastAutoSave(new Date());
+    } catch (error) {
+      console.error('Auto-save failed:', error);
+    } finally {
+      setAutoSaving(false);
+    }
+  };
+
+  // Set up auto-save interval (every 30 seconds)
+  useEffect(() => {
+    const autoSaveInterval = setInterval(() => {
+      autoSaveDraft();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(autoSaveInterval);
+  }, [form]);
+
+  // Format last save time
+  const getLastSaveText = () => {
+    if (!lastAutoSave) return null;
+    
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - lastAutoSave.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'just now';
+    if (diffInSeconds < 120) return '1 minute ago';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    return lastAutoSave.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
   // Service type display configuration
   const serviceTypeConfig = {
@@ -332,6 +422,21 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {/* Auto-save indicator */}
+        <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
+          {autoSaving ? (
+            <>
+              <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+              <span>Saving draft...</span>
+            </>
+          ) : lastAutoSave ? (
+            <>
+              <div className="h-2 w-2 rounded-full bg-green-500" />
+              <span>Draft saved {getLastSaveText()}</span>
+            </>
+          ) : null}
+        </div>
+
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>Step {step} of {totalSteps}</span>
