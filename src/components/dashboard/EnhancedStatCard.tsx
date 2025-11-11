@@ -107,10 +107,10 @@ export function EnhancedStatCard({
   };
 
   const iconBgStyles = {
-    primary: "bg-blue-500 text-white shadow-lg shadow-blue-500/30",
-    success: "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30",
-    warning: "bg-orange-500 text-white shadow-lg shadow-orange-500/30",
-    neutral: "bg-purple-500 text-white shadow-lg shadow-purple-500/30",
+    primary: "bg-blue-500 text-white shadow-lg shadow-blue-500/30 dark:bg-blue-600 dark:shadow-blue-600/40",
+    success: "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 dark:bg-emerald-600 dark:shadow-emerald-600/40",
+    warning: "bg-orange-500 text-white shadow-lg shadow-orange-500/30 dark:bg-orange-600 dark:shadow-orange-600/40",
+    neutral: "bg-purple-500 text-white shadow-lg shadow-purple-500/30 dark:bg-purple-600 dark:shadow-purple-600/40",
   };
 
   const iconSizeStyles = {
