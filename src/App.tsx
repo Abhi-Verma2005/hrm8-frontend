@@ -185,6 +185,8 @@ function AppContent() {
             
             <Route path="/dashboard/jobs" element={<JobsDashboard />} />
             <Route path="/dashboard/performance" element={<PerformanceDashboard />} />
+            <Route path="/dashboard/sales" element={<SalesDashboardPage />} />
+            <Route path="/dashboard/rpo" element={<RPODashboardPage />} />
             <Route path="/dashboard/background-checks" element={<BackgroundChecksDashboard />} />
             <Route path="/notifications" element={<NotificationCenterPage />} />
             {/* ATS Module Routes */}
