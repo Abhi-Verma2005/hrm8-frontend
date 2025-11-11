@@ -2,7 +2,7 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
-import { Home, LayoutGrid, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building2, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare, Handshake, UserSquare, Server, Bell, Map, CircleDollarSign, LineChart, FileCheck, FileSignature, ShieldCheck, PieChart, MailPlus, Inbox, Award, HeartHandshake, Banknote, Settings2, ScrollText, UserRound, ChevronDown } from "lucide-react";
+import { Home, LayoutGrid, Users, Briefcase, FileText, BarChart3, Calendar, Settings, HelpCircle, Clock, Building2, UserCog, Mail, DollarSign, FileBarChart, Shield, Ticket, Heart, UsersRound, UserCheck, Target, Plug, CalendarDays, ClipboardList, Wallet, Gift, Receipt, FolderOpen, DollarSignIcon, UserMinus, GraduationCap, TrendingUp, User, Crown, CalendarClock, BarChart2, MessageSquare, Handshake, UserSquare, Server, Bell, Map, CircleDollarSign, LineChart, FileCheck, FileSignature, ShieldCheck, PieChart, MailPlus, Inbox, Award, HeartHandshake, Banknote, Settings2, ScrollText, UserRound, ChevronDown, ClipboardCheck } from "lucide-react";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, SidebarFooter, SidebarSeparator, useSidebar } from "@/components/ui/sidebar";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +65,7 @@ const atsNavItems = [
       { title: "Management", url: "/offers/manage" },
     ]
   },
+  { title: "Assessments", url: "/assessments", icon: ClipboardCheck },
   { title: "Background Checks", url: "/background-checks", icon: ShieldCheck },
 ];
 

@@ -11,6 +11,7 @@ import { DashboardLayout } from "./components/layouts/DashboardLayout";
 import { GlobalSearch } from "./components/common/GlobalSearch";
 import Dashboard from "./pages/Dashboard";
 import CandidatesDashboard from "./pages/CandidatesDashboard";
+import AssessmentsDashboard from "./pages/dashboard/AssessmentsDashboard";
 import BackgroundChecksDashboard from "./pages/dashboard/BackgroundChecksDashboard";
 import OverviewDashboardPage from "./pages/OverviewDashboardPage";
 import FinancialDashboardPage from "./pages/FinancialDashboardPage";
@@ -104,6 +105,7 @@ import NotificationPreferences from "./pages/NotificationPreferences";
 import VerifyCertificate from "./pages/VerifyCertificate";
 import ConsentForm from "./pages/ConsentForm";
 import ReferenceQuestionnaire from "./pages/ReferenceQuestionnaire";
+import TakeAssessment from "./pages/public/TakeAssessment";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import RecruitmentIntegration from "./pages/RecruitmentIntegration";
 import EnhancedLearning from "./pages/EnhancedLearning";
@@ -112,6 +114,7 @@ import Requisitions from "./pages/Requisitions";
 import RequisitionDetail from "./pages/RequisitionDetail";
 import Interviews from "./pages/Interviews";
 import Offers from "./pages/Offers";
+import Assessments from "./pages/Assessments";
 import BackgroundChecks from "./pages/BackgroundChecks";
 import BackgroundCheckDetail from "./pages/BackgroundCheckDetail";
 import InternalJobs from "./pages/InternalJobs";
@@ -187,6 +190,7 @@ function AppContent() {
             <Route path="/dashboard/performance" element={<PerformanceDashboard />} />
             <Route path="/dashboard/sales" element={<SalesDashboardPage />} />
             <Route path="/dashboard/rpo" element={<RPODashboardPage />} />
+            <Route path="/dashboard/assessments" element={<AssessmentsDashboard />} />
             <Route path="/dashboard/background-checks" element={<BackgroundChecksDashboard />} />
             <Route path="/notifications" element={<NotificationCenterPage />} />
             {/* ATS Module Routes */}
@@ -212,6 +216,7 @@ function AppContent() {
               <Route path="/requisitions/:id" element={<RequisitionDetail />} />
               <Route path="/interviews" element={<Interviews />} />
               <Route path="/offers" element={<Offers />} />
+              <Route path="/assessments" element={<Assessments />} />
               <Route path="/background-checks" element={<BackgroundChecks />} />
               <Route path="/background-checks/:id" element={<BackgroundCheckDetail />} />
               <Route path="/internal-jobs" element={<InternalJobs />} />
@@ -316,6 +321,7 @@ function AppContent() {
           <Route path="/verify/:code?" element={<VerifyCertificate />} />
           <Route path="/consent/:token" element={<ConsentForm />} />
           <Route path="/reference/:token" element={<ReferenceQuestionnaire />} />
+          <Route path="/assessment/:token" element={<TakeAssessment />} />
       
       {/* Public 360 Feedback Form - No authentication required */}
       <Route path="/feedback/:feedbackId/:providerId" element={<PublicFeedbackForm />} />

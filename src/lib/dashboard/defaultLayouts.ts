@@ -1053,6 +1053,15 @@ const DEFAULT_RPO_LAYOUT: DashboardLayout = {
   updatedAt: new Date()
 };
 
+const DEFAULT_ASSESSMENTS_LAYOUT: DashboardLayout = {
+  id: 'assessments-default',
+  name: 'Assessments Default Layout',
+  dashboardType: 'assessments',
+  widgets: [],
+  createdAt: new Date(),
+  updatedAt: new Date()
+};
+
 const DEFAULT_BACKGROUND_CHECKS_LAYOUT: DashboardLayout = {
   id: 'background-checks-default',
   name: 'Background Checks Default Layout',
@@ -1073,5 +1082,6 @@ export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   candidates: DEFAULT_CANDIDATES_LAYOUT,
   sales: DEFAULT_SALES_LAYOUT,
   rpo: DEFAULT_RPO_LAYOUT,
+  assessments: DEFAULT_ASSESSMENTS_LAYOUT,
   'background-checks': DEFAULT_BACKGROUND_CHECKS_LAYOUT
 };
