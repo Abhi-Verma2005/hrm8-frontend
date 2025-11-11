@@ -2,10 +2,13 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AssessmentInvitationWizard } from '@/components/assessments/AssessmentInvitationWizard';
+import { AssessmentScoreChart } from './AssessmentScoreChart';
+import { AssessmentComparison } from './AssessmentComparison';
 import { getAssessmentsByCandidate } from '@/lib/mockAssessmentStorage';
 import { ASSESSMENT_PRICING } from '@/lib/assessments/pricingConstants';
-import { ClipboardCheck, Calendar, Clock, Award, Eye, Bell, Download, XCircle } from 'lucide-react';
+import { ClipboardCheck, Calendar, Clock, Award, Eye, Bell, Download, XCircle, TrendingUp, Users } from 'lucide-react';
 import type { Assessment } from '@/types/assessment';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -84,6 +87,11 @@ export function AssessmentsTab({ candidateId, candidateName, candidateEmail }: A
     );
   }
 
+  // Get the most recent job ID from completed assessments
+  const recentJobId = assessments
+    .filter(a => a.jobId && a.status === 'completed')
+    .sort((a, b) => new Date(b.completedDate || 0).getTime() - new Date(a.completedDate || 0).getTime())[0]?.jobId;
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -99,8 +107,25 @@ export function AssessmentsTab({ candidateId, candidateName, candidateEmail }: A
         </Button>
       </div>
 
-      <div className="grid gap-4">
-        {assessments.map((assessment) => {
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">
+            <ClipboardCheck className="h-4 w-4 mr-2" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="performance">
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Performance
+          </TabsTrigger>
+          <TabsTrigger value="comparison">
+            <Users className="h-4 w-4 mr-2" />
+            Comparison
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid gap-4">
+            {assessments.map((assessment) => {
           const assessmentInfo = ASSESSMENT_PRICING[assessment.assessmentType];
           const Icon = assessmentInfo.icon;
 
@@ -229,9 +254,27 @@ export function AssessmentsTab({ candidateId, candidateName, candidateEmail }: A
                 </div>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
+            );
+          })}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="performance" className="space-y-4">
+          <AssessmentScoreChart
+            assessments={assessments}
+            candidateName={candidateName}
+            jobId={recentJobId}
+          />
+        </TabsContent>
+
+        <TabsContent value="comparison" className="space-y-4">
+          <AssessmentComparison
+            candidateId={candidateId}
+            candidateName={candidateName}
+            jobId={recentJobId}
+          />
+        </TabsContent>
+      </Tabs>
 
       <AssessmentInvitationWizard
         open={wizardOpen}
