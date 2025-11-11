@@ -18,12 +18,16 @@ import {
   getTopClientsByRevenue,
   getGeographicRevenueDistribution,
   getBackgroundCheckProfitability,
+  getClientLifetimeValues,
+  getRetentionMetrics,
 } from '@/lib/backgroundChecks/businessAnalytics';
 import { RevenueTrendsChart } from '@/components/dashboard/charts/RevenueTrendsChart';
 import { RevenueByTypeChart } from '@/components/dashboard/charts/RevenueByTypeChart';
 import { GeographicRevenueChart } from '@/components/dashboard/charts/GeographicRevenueChart';
 import { TopClientsChart } from '@/components/dashboard/charts/TopClientsChart';
 import { ProfitabilityChart } from '@/components/dashboard/charts/ProfitabilityChart';
+import { ClientLifetimeValueChart } from '@/components/dashboard/charts/ClientLifetimeValueChart';
+import { RetentionMetricsChart } from '@/components/dashboard/charts/RetentionMetricsChart';
 
 export default function BackgroundChecksDashboard() {
   const navigate = useNavigate();
@@ -52,6 +56,8 @@ export default function BackgroundChecksDashboard() {
   const revenueByType = useMemo(() => getRevenueByTypeDistribution(), []);
   const topClients = useMemo(() => getTopClientsByRevenue(10), []);
   const geographicRevenue = useMemo(() => getGeographicRevenueDistribution(), []);
+  const clvData = useMemo(() => getClientLifetimeValues(), []);
+  const retentionMetrics = useMemo(() => getRetentionMetrics(), []);
 
   const hasActiveFilters = dateRange !== undefined || country !== 'all' || region !== 'all';
 
@@ -204,6 +210,7 @@ export default function BackgroundChecksDashboard() {
                 <TabsTrigger value="geography">Geography</TabsTrigger>
                 <TabsTrigger value="clients">Top Clients</TabsTrigger>
                 <TabsTrigger value="profitability">Profitability</TabsTrigger>
+                <TabsTrigger value="clv">Client Lifetime Value</TabsTrigger>
               </TabsList>
 
               <TabsContent value="trends" className="space-y-4">
@@ -239,6 +246,22 @@ export default function BackgroundChecksDashboard() {
                   data={revenueByType}
                   description="Revenue vs costs analysis by type"
                 />
+              </TabsContent>
+
+              <TabsContent value="clv" className="space-y-4">
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <ClientLifetimeValueChart 
+                    data={clvData}
+                    title="Top Clients by Lifetime Value"
+                    description="Total revenue and growth trends per client"
+                    showPredictions={true}
+                  />
+                  <RetentionMetricsChart 
+                    data={retentionMetrics}
+                    title="Client Retention Overview"
+                    description="Client tenure and retention metrics"
+                  />
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>

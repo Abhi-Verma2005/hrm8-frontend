@@ -6,7 +6,9 @@ import type {
   TrendData,
   ClientRevenueData,
   GeographicData,
-  TypeDistribution
+  TypeDistribution,
+  ClientLifetimeValue,
+  RetentionMetrics
 } from '@/types/businessMetrics';
 
 // Background check pricing by type
@@ -344,4 +346,120 @@ export function getGeographicRevenueDistribution(): GeographicData[] {
   
   return Array.from(locationMap.values())
     .sort((a, b) => b.revenue - a.revenue);
+}
+
+export function getClientLifetimeValues(): ClientLifetimeValue[] {
+  const checks = getBackgroundChecks();
+  const clientMap = new Map<string, {
+    name: string;
+    revenue: number;
+    transactions: number;
+    firstDate: Date;
+    lastDate: Date;
+  }>();
+
+  // Group by client
+  checks.forEach((check) => {
+    const clientId = check.billedTo || 'unknown';
+    const clientName = check.billedToName || 'Unknown Client';
+    const revenue = check.status === 'completed' ? (check.cost || 0) : 0;
+    const date = new Date(check.createdAt);
+
+    if (!clientMap.has(clientId)) {
+      clientMap.set(clientId, {
+        name: clientName,
+        revenue: 0,
+        transactions: 0,
+        firstDate: date,
+        lastDate: date,
+      });
+    }
+
+    const client = clientMap.get(clientId)!;
+    client.revenue += revenue;
+    client.transactions += 1;
+    client.lastDate = date > client.lastDate ? date : client.lastDate;
+    client.firstDate = date < client.firstDate ? date : client.firstDate;
+  });
+
+  // Calculate CLV metrics
+  const clvData: ClientLifetimeValue[] = [];
+  clientMap.forEach((data, clientId) => {
+    const monthsActive = Math.max(1, 
+      Math.floor((data.lastDate.getTime() - data.firstDate.getTime()) / (1000 * 60 * 60 * 24 * 30))
+    );
+    const avgMonthlyRevenue = data.revenue / monthsActive;
+    const avgTransactionValue = data.revenue / data.transactions;
+    
+    // Simple prediction: average monthly revenue * growth factor
+    const growthFactor = data.transactions > 5 ? 1.1 : data.transactions > 2 ? 1.05 : 1.0;
+    const predictedNextMonth = avgMonthlyRevenue * growthFactor;
+    const predictedAnnual = predictedNextMonth * 12;
+    
+    // Retention probability based on recency and frequency
+    const daysSinceLastPurchase = Math.floor((Date.now() - data.lastDate.getTime()) / (1000 * 60 * 60 * 24));
+    const retentionProbability = Math.max(20, Math.min(95, 
+      100 - (daysSinceLastPurchase / 10) + (data.transactions * 2)
+    ));
+
+    // Determine trend
+    let trend: 'growing' | 'stable' | 'declining' = 'stable';
+    if (growthFactor > 1.05) trend = 'growing';
+    else if (daysSinceLastPurchase > 60) trend = 'declining';
+
+    clvData.push({
+      clientId,
+      clientName: data.name,
+      totalRevenue: data.revenue,
+      monthsActive,
+      averageMonthlyRevenue: avgMonthlyRevenue,
+      predictedNextMonthRevenue: predictedNextMonth,
+      predictedAnnualRevenue: predictedAnnual,
+      retentionProbability,
+      lastPurchaseDate: data.lastDate.toISOString(),
+      totalTransactions: data.transactions,
+      averageTransactionValue: avgTransactionValue,
+      trend,
+    });
+  });
+
+  return clvData.sort((a, b) => b.totalRevenue - a.totalRevenue);
+}
+
+export function getRetentionMetrics(): RetentionMetrics {
+  const clvData = getClientLifetimeValues();
+  const now = Date.now();
+  const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+
+  const activeClients = clvData.filter(c => 
+    new Date(c.lastPurchaseDate).getTime() > thirtyDaysAgo
+  ).length;
+
+  const churnedClients = clvData.length - activeClients;
+  const retentionRate = clvData.length > 0 ? (activeClients / clvData.length) * 100 : 0;
+  const avgLifespan = clvData.reduce((sum, c) => sum + c.monthsActive, 0) / clvData.length;
+
+  // Group by tenure
+  const tenureBuckets = {
+    '0-3 months': 0,
+    '3-6 months': 0,
+    '6-12 months': 0,
+    '12+ months': 0,
+  };
+
+  clvData.forEach(c => {
+    if (c.monthsActive <= 3) tenureBuckets['0-3 months']++;
+    else if (c.monthsActive <= 6) tenureBuckets['3-6 months']++;
+    else if (c.monthsActive <= 12) tenureBuckets['6-12 months']++;
+    else tenureBuckets['12+ months']++;
+  });
+
+  return {
+    totalClients: clvData.length,
+    activeClients,
+    churnedClients,
+    retentionRate,
+    averageClientLifespan: avgLifespan,
+    clientsByTenure: Object.entries(tenureBuckets).map(([tenure, count]) => ({ tenure, count })),
+  };
 }

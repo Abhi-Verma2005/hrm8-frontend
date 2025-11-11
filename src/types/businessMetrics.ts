@@ -59,3 +59,27 @@ export interface ConversionMetrics {
   conversionRate: number;
   revenuePerHire: number;
 }
+
+export interface ClientLifetimeValue {
+  clientId: string;
+  clientName: string;
+  totalRevenue: number;
+  monthsActive: number;
+  averageMonthlyRevenue: number;
+  predictedNextMonthRevenue: number;
+  predictedAnnualRevenue: number;
+  retentionProbability: number; // 0-100%
+  lastPurchaseDate: string;
+  totalTransactions: number;
+  averageTransactionValue: number;
+  trend: 'growing' | 'stable' | 'declining';
+}
+
+export interface RetentionMetrics {
+  totalClients: number;
+  activeClients: number;
+  churnedClients: number;
+  retentionRate: number; // percentage
+  averageClientLifespan: number; // months
+  clientsByTenure: { tenure: string; count: number }[];
+}
