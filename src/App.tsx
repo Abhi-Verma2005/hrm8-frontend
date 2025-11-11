@@ -145,6 +145,7 @@ import SalesActivitiesPage from "./pages/sales/SalesActivitiesPage";
 import CommissionsPage from "./pages/sales/CommissionsPage";
 import TerritoriesPage from "./pages/sales/TerritoriesPage";
 import SalesForecastPage from "./pages/sales/SalesForecastPage";
+import ComparativeBusinessDashboard from "./pages/dashboard/ComparativeBusinessDashboard";
 import { initializeMockFeedbackData } from './lib/mockFeedbackData';
 import { initializeMockTeamData } from './lib/mockTeamData';
 import { initializeMockTemplates } from './lib/mockTemplateData';
@@ -199,6 +200,7 @@ function AppContent() {
             <Route path="/dashboard/rpo" element={<RPODashboardPage />} />
             <Route path="/dashboard/assessments" element={<AssessmentsDashboard />} />
             <Route path="/dashboard/background-checks" element={<BackgroundChecksDashboard />} />
+            <Route path="/dashboard/comparative" element={<ComparativeBusinessDashboard />} />
             <Route path="/notifications" element={<NotificationCenterPage />} />
             {/* ATS Module Routes */}
             <Route element={<ProtectedRoutes requiredModule="ats" moduleName="ATS (Applicant Tracking System)" />}>
