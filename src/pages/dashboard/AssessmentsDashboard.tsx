@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { DashboardActionBar } from '@/components/dashboard/DashboardActionBar';
 import { ActiveFiltersIndicator } from '@/components/dashboard/ActiveFiltersIndicator';
+import { useAutomatedAssessmentReminders } from '@/hooks/useAutomatedAssessmentReminders';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { PendingActionsCard } from '@/components/assessments/PendingActionsCard';
 import { RecentActivityTimeline } from '@/components/assessments/RecentActivityTimeline';
@@ -23,6 +24,12 @@ export default function AssessmentsDashboard() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [country, setCountry] = useState('all');
   const [region, setRegion] = useState('all');
+
+  // Enable automated reminders with 30-second check interval
+  useAutomatedAssessmentReminders({
+    enabled: true,
+    checkInterval: 30000,
+  });
 
   const stats = useMemo(() => {
     if (dateRange?.from && dateRange?.to) {

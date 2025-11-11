@@ -19,6 +19,7 @@ import { MoreHorizontal, Eye, Bell, Download, XCircle } from 'lucide-react';
 import { useState } from 'react';
 import type { Assessment } from '@/types/assessment';
 import { format } from 'date-fns';
+import { ReminderStatusIndicator } from './ReminderStatusIndicator';
 
 interface AssessmentsTableProps {
   assessments: Assessment[];
@@ -163,7 +164,17 @@ export function AssessmentsTable({
                 <TableCell className="capitalize transition-colors duration-500">
                   {assessment.provider}
                 </TableCell>
-                <TableCell>{getStatusBadge(assessment.status)}</TableCell>
+                 <TableCell>
+                   <div className="space-y-1">
+                     {getStatusBadge(assessment.status)}
+                     <ReminderStatusIndicator
+                       remindersSent={assessment.remindersSent}
+                       lastReminderDate={assessment.lastReminderDate}
+                       invitedDate={assessment.invitedDate}
+                       status={assessment.status}
+                     />
+                   </div>
+                 </TableCell>
                 <TableCell>
                   {assessment.overallScore ? (
                     <div className="flex items-center gap-2">
