@@ -16,6 +16,9 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
+      borderWidth: {
+        '6': '6px',
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
