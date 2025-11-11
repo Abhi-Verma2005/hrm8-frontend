@@ -84,10 +84,10 @@ export function EnhancedStatCard({
   };
 
   const variantStyles = {
-    primary: showBorder ? "border-l-6 border-l-blue-500" : "",
-    success: showBorder ? "border-l-6 border-l-emerald-500" : "",
-    warning: showBorder ? "border-l-6 border-l-orange-500" : "",
-    neutral: showBorder ? "border-l-6 border-l-purple-500" : "",
+    primary: showBorder ? "border-l-6 border-l-blue-500 dark:border-l-blue-400" : "",
+    success: showBorder ? "border-l-6 border-l-emerald-500 dark:border-l-emerald-400" : "",
+    warning: showBorder ? "border-l-6 border-l-orange-500 dark:border-l-orange-400" : "",
+    neutral: showBorder ? "border-l-6 border-l-purple-500 dark:border-l-purple-400" : "",
   };
 
   // Base gradient that always shows with borders
