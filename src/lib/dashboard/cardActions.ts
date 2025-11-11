@@ -327,7 +327,7 @@ export const EMPLOYERS_DASHBOARD_ACTIONS: CardActionMap = {
     icon: Briefcase,
     actions: [
       { label: 'View jobs', icon: Eye, path: '/jobs?status=open' },
-      { label: 'Create job', icon: Plus, path: '/jobs?action=create' },
+      { label: 'Post job', icon: Plus, path: '/jobs?action=create' },
     ],
   },
   'Total Revenue': {

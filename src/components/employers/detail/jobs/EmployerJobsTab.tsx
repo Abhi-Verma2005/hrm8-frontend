@@ -72,7 +72,7 @@ export default function EmployerJobsTab({ employerId }: EmployerJobsTabProps) {
         <h3 className="text-lg font-semibold">All Jobs</h3>
         <Button onClick={() => navigate(`/jobs/create?employerId=${employerId}`)}>
           <Plus className="h-4 w-4 mr-2" />
-          Create Job
+          Post Job
         </Button>
       </div>
 

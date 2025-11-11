@@ -106,7 +106,7 @@ export default function JobAnalytics() {
                 onClick: () => navigate('/jobs')
               },
               {
-                label: "Create Job",
+                label: "Post Job",
                 icon: <Plus className="h-4 w-4" />,
                 onClick: () => navigate('/jobs/new')
               },

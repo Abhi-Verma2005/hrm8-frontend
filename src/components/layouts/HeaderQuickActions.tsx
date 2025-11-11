@@ -16,7 +16,7 @@ export function HeaderQuickActions() {
     <>
       <Separator orientation="vertical" className="h-6 mx-2" />
       
-      {/* Primary Action - Create Job */}
+      {/* Primary Action - Post Job */}
       <div className="hidden md:flex items-center">
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
@@ -30,11 +30,11 @@ export function HeaderQuickActions() {
               )}
             >
               <Plus className="h-4 w-4" />
-              <span className="hidden lg:inline font-semibold">Create Job</span>
+              <span className="hidden lg:inline font-semibold">Post Job</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent side="bottom" className="lg:hidden">
-            <p>Create Job</p>
+            <p>Post Job</p>
           </TooltipContent>
         </Tooltip>
       </div>

@@ -136,7 +136,7 @@ export default function EmployerDetail() {
                 className="bg-emerald-600 hover:bg-emerald-700"
               >
                 <Plus className="h-4 w-4 mr-1.5" />
-                Create Job
+                Post Job
               </Button>
               <Button 
                 variant="default"

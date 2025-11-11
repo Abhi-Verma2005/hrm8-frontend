@@ -555,7 +555,7 @@ export default function Jobs() {
             </Button>
             <Button onClick={handleCreateJob}>
               <Plus className="h-4 w-4 mr-2" />
-              Create Job
+              Post Job
             </Button>
             <Button variant="outline" asChild>
               <Link to="/dashboard/jobs">
@@ -591,7 +591,7 @@ export default function Jobs() {
             showMenu={true}
             menuItems={[
               { label: "View active jobs", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-              { label: "Create new job", icon: <Plus className="h-4 w-4" />, onClick: () => handleCreateJob() },
+              { label: "Post new job", icon: <Plus className="h-4 w-4" />, onClick: () => handleCreateJob() },
             ]}
           />
           <EnhancedStatCard
@@ -686,8 +686,8 @@ export default function Jobs() {
         <FormDrawer
           open={drawerOpen}
           onOpenChange={handleDrawerClose}
-          title={editingJobId ? "Edit Job" : "Create Job"}
-          description={editingJobId ? "Update the job posting details" : "Fill in the details to create a new job posting"}
+          title={editingJobId ? "Edit Job" : "Post Job"}
+          description={editingJobId ? "Update the job posting details" : "Fill in the details to post a new job"}
           width="2xl"
         >
           <JobWizard
