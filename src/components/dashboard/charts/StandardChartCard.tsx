@@ -41,7 +41,7 @@ export function StandardChartCard({
   className = "",
 }: StandardChartCardProps) {
   return (
-    <Card className={`shadow-md h-full flex flex-col ${className}`}>
+    <Card className={`shadow-md h-full flex flex-col transition-[background,border-color,box-shadow,color] duration-500 ${className}`}>
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4 flex-shrink-0">
         <div className="space-y-1">
           <CardTitle>{title}</CardTitle>

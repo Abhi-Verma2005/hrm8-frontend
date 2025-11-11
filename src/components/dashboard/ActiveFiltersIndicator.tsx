@@ -28,11 +28,11 @@ export function ActiveFiltersIndicator({
   }
 
   return (
-    <div className="flex items-center gap-2 flex-wrap bg-muted/50 px-4 py-2 rounded-lg border border-border/50">
+    <div className="flex items-center gap-2 flex-wrap bg-muted/50 px-4 py-2 rounded-lg border border-border/50 transition-[background,border-color,box-shadow,color] duration-500">
       <span className="text-sm text-muted-foreground font-medium">Active filters:</span>
       
       {selectedCountry !== "all" && (
-        <Badge variant="secondary" className="gap-2 pr-1">
+        <Badge variant="secondary" className="gap-2 pr-1 transition-[background,border-color,color] duration-500">
           <MapPin className="h-3 w-3" />
           <span>Country: {selectedCountry}</span>
           {onClearCountry && (
@@ -49,7 +49,7 @@ export function ActiveFiltersIndicator({
       )}
 
       {selectedRegion !== "all" && (
-        <Badge variant="secondary" className="gap-2 pr-1">
+        <Badge variant="secondary" className="gap-2 pr-1 transition-[background,border-color,color] duration-500">
           <Globe className="h-3 w-3" />
           <span>Region: {selectedRegion}</span>
           {onClearRegion && (
@@ -66,7 +66,7 @@ export function ActiveFiltersIndicator({
       )}
 
       {dateRange?.from && (
-        <Badge variant="secondary" className="gap-2 pr-1">
+        <Badge variant="secondary" className="gap-2 pr-1 transition-[background,border-color,color] duration-500">
           <span>
             Date: {format(dateRange.from, "MMM d, yyyy")}
             {dateRange.to && ` - ${format(dateRange.to, "MMM d, yyyy")}`}
