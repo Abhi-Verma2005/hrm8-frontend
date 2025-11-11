@@ -6,8 +6,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AssessmentInvitationWizard } from '@/components/assessments/AssessmentInvitationWizard';
 import { AssessmentScoreChart } from './AssessmentScoreChart';
 import { AssessmentComparison } from './AssessmentComparison';
+import { AssessmentPredictionCard } from '@/components/assessments/AssessmentPredictionCard';
 import { getAssessmentsByCandidate } from '@/lib/mockAssessmentStorage';
 import { ASSESSMENT_PRICING } from '@/lib/assessments/pricingConstants';
+import { generatePrediction } from '@/lib/assessments/predictionService';
 import { ClipboardCheck, Calendar, Clock, Award, Eye, Bell, Download, XCircle, TrendingUp, Users } from 'lucide-react';
 import type { Assessment } from '@/types/assessment';
 import { format } from 'date-fns';
@@ -265,6 +267,20 @@ export function AssessmentsTab({ candidateId, candidateName, candidateEmail }: A
             candidateName={candidateName}
             jobId={recentJobId}
           />
+          
+          {/* AI Performance Prediction for Most Recent Completed Assessment */}
+          {assessments.filter(a => a.status === 'completed' && a.overallScore).length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">AI Success Prediction</h3>
+              <AssessmentPredictionCard 
+                prediction={generatePrediction(
+                  assessments
+                    .filter(a => a.status === 'completed' && a.overallScore)
+                    .sort((a, b) => new Date(b.completedDate || 0).getTime() - new Date(a.completedDate || 0).getTime())[0]
+                )} 
+              />
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="comparison" className="space-y-4">

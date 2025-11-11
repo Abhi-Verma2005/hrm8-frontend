@@ -14,6 +14,8 @@ import {
 import { getAssessmentById, getAssessmentsByJob } from '@/lib/mockAssessmentStorage';
 import { AssessmentType, AssessmentStatus } from '@/types/assessment';
 import { format } from 'date-fns';
+import { AssessmentPredictionCard } from '@/components/assessments/AssessmentPredictionCard';
+import { generatePrediction } from '@/lib/assessments/predictionService';
 
 const getStatusBadgeVariant = (status: AssessmentStatus) => {
   switch (status) {
@@ -382,6 +384,11 @@ export default function AssessmentDetail() {
               )}
             </div>
           </Card>
+        )}
+
+        {/* AI Performance Prediction */}
+        {assessment.status === 'completed' && assessment.overallScore && (
+          <AssessmentPredictionCard prediction={generatePrediction(assessment)} />
         )}
 
         {/* Timeline */}
