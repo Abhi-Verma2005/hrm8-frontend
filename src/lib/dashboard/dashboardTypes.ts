@@ -192,7 +192,7 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
   'assessments': {
     id: 'assessments',
     name: 'Assessments',
-    description: 'Monitor candidate assessment performance and insights',
+    description: 'Monitor assessment revenue, usage patterns, and profitability metrics',
     icon: ClipboardCheck,
     defaultRoute: '/dashboard/assessments',
     availableWidgets: []
@@ -200,7 +200,7 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
   'background-checks': {
     id: 'background-checks',
     name: 'Background Checks',
-    description: 'Monitor background check performance and compliance metrics',
+    description: 'Track background check revenue, client adoption, and business performance',
     icon: ShieldCheck,
     defaultRoute: '/dashboard/background-checks',
     availableWidgets: []

@@ -1,376 +1,248 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
-import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
-import { EditModeToggle } from "@/components/dashboard/EditModeToggle";
-import { PendingActionsCard } from "@/components/backgroundChecks/PendingActionsCard";
-import { RecentActivityTimeline } from "@/components/backgroundChecks/RecentActivityTimeline";
-import { RefereeList } from "@/components/backgroundChecks/references/RefereeList";
-import { ReminderStatusIndicator } from "@/components/backgroundChecks/ReminderStatusIndicator";
-import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Shield, CheckCircle, Clock, Plus, FileText, BarChart3 } from "lucide-react";
-import { DateRange } from "react-day-picker";
-import { useToast } from "@/hooks/use-toast";
+import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { DashboardActionBar } from '@/components/dashboard/DashboardActionBar';
+import { ActiveFiltersIndicator } from '@/components/dashboard/ActiveFiltersIndicator';
+import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
+import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DollarSign, TrendingUp, PieChart, Users } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import type { DateRange } from 'react-day-picker';
 import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  PieChart,
-  Pie,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
-import {
-  getBackgroundCheckStats,
-  getCheckVolumeData,
-  getStatusDistributionData,
-  getCheckTypeDistribution,
-  getProviderUsageData,
-  getResultsOverview,
-  getRecentActivity,
-} from "@/lib/backgroundChecks/dashboardStats";
+  getBackgroundCheckRevenueMetrics,
+  getBackgroundCheckUsageMetrics,
+  getBackgroundCheckRevenueTrends,
+  getRevenueByTypeDistribution,
+  getTopClientsByRevenue,
+  getGeographicRevenueDistribution,
+  getBackgroundCheckProfitability,
+} from '@/lib/backgroundChecks/businessAnalytics';
+import { RevenueTrendsChart } from '@/components/dashboard/charts/RevenueTrendsChart';
+import { RevenueByTypeChart } from '@/components/dashboard/charts/RevenueByTypeChart';
+import { GeographicRevenueChart } from '@/components/dashboard/charts/GeographicRevenueChart';
+import { TopClientsChart } from '@/components/dashboard/charts/TopClientsChart';
+import { ProfitabilityChart } from '@/components/dashboard/charts/ProfitabilityChart';
 
 export default function BackgroundChecksDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isEditMode, setIsEditMode] = useState(false);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  const [selectedCountry, setSelectedCountry] = useState<string>("all");
-  const [selectedRegion, setSelectedRegion] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [country, setCountry] = useState('all');
+  const [region, setRegion] = useState('all');
 
-  const stats = getBackgroundCheckStats();
-  const checkVolumeData = getCheckVolumeData();
-  const statusDistribution = getStatusDistributionData();
-  const checkTypeDistribution = getCheckTypeDistribution();
-  const providerUsage = getProviderUsageData();
-  const resultsOverview = getResultsOverview();
-  const recentActivity = getRecentActivity();
+  const revenueMetrics = useMemo(() => {
+    const range = dateRange?.from && dateRange?.to ? { from: dateRange.from, to: dateRange.to } : undefined;
+    return getBackgroundCheckRevenueMetrics(range, country, region);
+  }, [dateRange, country, region]);
+
+  const usageMetrics = useMemo(() => {
+    const range = dateRange?.from && dateRange?.to ? { from: dateRange.from, to: dateRange.to } : undefined;
+    return getBackgroundCheckUsageMetrics(range, country, region);
+  }, [dateRange, country, region]);
+
+  const profitability = useMemo(() => {
+    const range = dateRange?.from && dateRange?.to ? { from: dateRange.from, to: dateRange.to } : undefined;
+    return getBackgroundCheckProfitability(range, country, region);
+  }, [dateRange, country, region]);
+
+  const revenueTrends = useMemo(() => getBackgroundCheckRevenueTrends(), []);
+  const revenueByType = useMemo(() => getRevenueByTypeDistribution(), []);
+  const topClients = useMemo(() => getTopClientsByRevenue(10), []);
+  const geographicRevenue = useMemo(() => getGeographicRevenueDistribution(), []);
+
+  const hasActiveFilters = dateRange !== undefined || country !== 'all' || region !== 'all';
+
+  const clearFilters = () => {
+    setDateRange(undefined);
+    setCountry('all');
+    setRegion('all');
+  };
 
   const handleExport = () => {
-    toast({
-      title: "Exporting Data",
-      description: "Your analytics report is being generated...",
-    });
+    toast({ title: "Exporting revenue report..." });
   };
-
-  const handleResetFilters = () => {
-    setDateRange(undefined);
-    setSelectedCountry("all");
-    setSelectedRegion("all");
-  };
-
-  const activeFiltersCount = [
-    dateRange?.from ? 1 : 0,
-    selectedCountry !== "all" ? 1 : 0,
-    selectedRegion !== "all" ? 1 : 0,
-  ].reduce((a, b) => a + b, 0);
 
   return (
     <DashboardPageLayout
-      dashboardActions={
-        <EditModeToggle
-          isEditMode={isEditMode}
-          onToggle={() => setIsEditMode(!isEditMode)}
-        />
-      }
+      dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
-      <div className="min-h-screen bg-background">
-        <div className="p-6 space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Background Checks Analytics</h1>
-              <p className="text-muted-foreground">
-                Monitor background check performance and compliance metrics
-              </p>
-            </div>
-            
-            {!isEditMode && (
-              <DashboardActionBar
-                dateRange={dateRange}
-                onDateRangeChange={setDateRange}
-                selectedCountry={selectedCountry}
-                selectedRegion={selectedRegion}
-                onCountryChange={setSelectedCountry}
-                onRegionChange={setSelectedRegion}
-                onExport={handleExport}
-                onResetFilters={handleResetFilters}
-                hasActiveFilters={activeFiltersCount > 0}
-              />
-            )}
+      <div className="min-h-screen bg-background p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight transition-colors duration-500">
+              Background Checks Business Performance
+            </h1>
+            <p className="text-muted-foreground transition-colors duration-500">
+              Track background check revenue, client adoption, and business performance
+            </p>
           </div>
+          {!isEditMode && (
+            <DashboardActionBar
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              selectedCountry={country}
+              selectedRegion={region}
+              onCountryChange={setCountry}
+              onRegionChange={setRegion}
+              onExport={handleExport}
+              onResetFilters={clearFilters}
+              hasActiveFilters={hasActiveFilters}
+            />
+          )}
+        </div>
 
-        {/* Active Filters */}
-        {activeFiltersCount > 0 && (
+        {hasActiveFilters && (
           <ActiveFiltersIndicator
             dateRange={dateRange}
-            selectedCountry={selectedCountry}
-            selectedRegion={selectedRegion}
+            selectedCountry={country}
+            selectedRegion={region}
+            onClearCountry={() => setCountry('all')}
+            onClearRegion={() => setRegion('all')}
             onClearDateRange={() => setDateRange(undefined)}
-            onClearCountry={() => setSelectedCountry("all")}
-            onClearRegion={() => setSelectedRegion("all")}
           />
         )}
 
-        {/* Key Metrics */}
+        {/* Key Revenue Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <EnhancedStatCard
-            title="Total Background Checks"
-            value={stats.total.toString()}
-            change={`+${stats.changeFromLastMonth.total}%`}
+            title="Total Revenue"
+            value={`$${revenueMetrics.totalRevenue.toLocaleString()}`}
+            icon={<DollarSign className="h-6 w-6" />}
+            change={`+${revenueMetrics.monthOverMonthGrowth}%`}
             trend="up"
-            icon={<Shield className="h-6 w-6" />}
+            showGradient={false}
+            showBorder={true}
+            elevation="sm"
             variant="neutral"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
-            iconPosition="left"
           />
           <EnhancedStatCard
-            title="Active Checks"
-            value={stats.active.toString()}
-            change={`${stats.changeFromLastMonth.active}%`}
-            trend="down"
-            icon={<Shield className="h-6 w-6" />}
-            variant="primary"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
-            iconPosition="left"
-          />
-          <EnhancedStatCard
-            title="Completion Rate"
-            value={`${stats.completionRate.toFixed(1)}%`}
-            change={`+${stats.changeFromLastMonth.completionRate}%`}
+            title="Check Volume"
+            value={usageMetrics.totalVolume.toString()}
+            icon={<TrendingUp className="h-6 w-6" />}
+            change="+22%"
             trend="up"
-            icon={<CheckCircle className="h-6 w-6" />}
-            variant="success"
             showGradient={false}
             showBorder={true}
             elevation="sm"
-            iconPosition="left"
+            variant="primary"
           />
           <EnhancedStatCard
-            title="Avg. Completion Time"
-            value={`${stats.avgCompletionTime} days`}
-            change={`${stats.changeFromLastMonth.avgCompletionTime}%`}
-            trend="down"
-            icon={<Clock className="h-6 w-6" />}
-            variant="warning"
+            title="Profit Margin"
+            value={`${revenueMetrics.profitMargin.toFixed(1)}%`}
+            icon={<PieChart className="h-6 w-6" />}
+            change="+4.1%"
+            trend="up"
             showGradient={false}
             showBorder={true}
             elevation="sm"
-            iconPosition="left"
+            variant="success"
+          />
+          <EnhancedStatCard
+            title="Revenue per Client"
+            value={`$${Math.round(revenueMetrics.revenuePerClient).toLocaleString()}`}
+            icon={<Users className="h-6 w-6" />}
+            change="+11.2%"
+            trend="up"
+            showGradient={false}
+            showBorder={true}
+            elevation="sm"
+            variant="warning"
           />
         </div>
 
-        {/* Pending Actions */}
-        <PendingActionsCard
-          pendingConsents={stats.pendingConsents}
-          overdueReferees={stats.overdueReferees}
-          requiresReview={stats.requiresReview}
-          issuesFound={stats.issuesFound}
-          onSendReminders={() => toast({ title: "Reminders Sent", description: "Consent reminders have been sent to all pending candidates." })}
-          onViewConsents={() => navigate('/background-checks')}
-          onViewReferees={() => navigate('/background-checks')}
-          onViewReview={() => navigate('/background-checks')}
-          onViewIssues={() => navigate('/background-checks')}
-        />
-
-        {/* Automated Reminders Status */}
-        <ReminderStatusIndicator />
-
-        {/* Reference Check Overview */}
-        <Card>
+        {/* Business Summary */}
+        <Card className="transition-[background,border-color,box-shadow,color] duration-500">
           <CardHeader>
-            <CardTitle>Reference Check Overview</CardTitle>
+            <CardTitle className="transition-colors duration-500">Business Performance Summary</CardTitle>
           </CardHeader>
           <CardContent>
-            <RefereeList 
-              backgroundCheckId="demo-bgc-1" 
-              candidateId="demo-candidate-1"
-            />
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-2">
+                <p className="text-sm font-medium transition-colors duration-500">Net Profit</p>
+                <p className="text-2xl font-bold transition-colors duration-500 text-green-600 dark:text-green-400">
+                  ${profitability.netProfit.toLocaleString()}
+                </p>
+                <p className="text-xs text-muted-foreground transition-colors duration-500">
+                  {profitability.marginPercentage.toFixed(1)}% margin
+                </p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm font-medium transition-colors duration-500">Client Adoption Rate</p>
+                <p className="text-2xl font-bold transition-colors duration-500">
+                  {usageMetrics.clientAdoptionRate.toFixed(1)}%
+                </p>
+                <p className="text-xs text-muted-foreground transition-colors duration-500">
+                  Active clients using background checks
+                </p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm font-medium transition-colors duration-500">Cost per Check</p>
+                <p className="text-2xl font-bold transition-colors duration-500">
+                  ${profitability.costPerUnit.toFixed(2)}
+                </p>
+                <p className="text-xs text-muted-foreground transition-colors duration-500">
+                  Average operational cost
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         {/* Charts & Analytics */}
-        <Card>
+        <Card className="transition-[background,border-color,box-shadow,color] duration-500">
           <CardHeader>
-            <CardTitle>Charts & Analytics</CardTitle>
+            <CardTitle className="transition-colors duration-500">Business Analytics</CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="trends" className="space-y-4">
               <TabsList>
-                <TabsTrigger value="trends">Trends</TabsTrigger>
-                <TabsTrigger value="breakdown">Breakdown</TabsTrigger>
-                <TabsTrigger value="performance">Performance</TabsTrigger>
-                <TabsTrigger value="quality">Quality</TabsTrigger>
+                <TabsTrigger value="trends">Revenue Trends</TabsTrigger>
+                <TabsTrigger value="breakdown">Type Breakdown</TabsTrigger>
+                <TabsTrigger value="geography">Geography</TabsTrigger>
+                <TabsTrigger value="clients">Top Clients</TabsTrigger>
+                <TabsTrigger value="profitability">Profitability</TabsTrigger>
               </TabsList>
 
               <TabsContent value="trends" className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <StandardChartCard title="Check Volume Over Time">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <AreaChart data={checkVolumeData}>
-                        <defs>
-                          <linearGradient id="colorInitiated" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                          </linearGradient>
-                          <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="hsl(var(--success))" stopOpacity={0.3}/>
-                            <stop offset="95%" stopColor="hsl(var(--success))" stopOpacity={0}/>
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis dataKey="month" className="text-xs" />
-                        <YAxis className="text-xs" />
-                        <Tooltip />
-                        <Area type="monotone" dataKey="initiated" stroke="hsl(var(--primary))" fill="url(#colorInitiated)" name="Initiated" />
-                        <Area type="monotone" dataKey="completed" stroke="hsl(var(--success))" fill="url(#colorCompleted)" name="Completed" />
-                      </AreaChart>
-                    </ResponsiveContainer>
-                  </StandardChartCard>
-                  <StandardChartCard title="Status Distribution">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={statusDistribution}>
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis dataKey="status" className="text-xs" />
-                        <YAxis className="text-xs" />
-                        <Tooltip />
-                        <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </StandardChartCard>
-                </div>
+                <RevenueTrendsChart 
+                  data={revenueTrends}
+                  description="6-month revenue, profit, and volume trends"
+                />
               </TabsContent>
 
               <TabsContent value="breakdown" className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <StandardChartCard title="Check Type Distribution">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={checkTypeDistribution}
-                          dataKey="count"
-                          nameKey="type"
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={100}
-                          label
-                        >
-                          {checkTypeDistribution.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={`hsl(var(--chart-${(index % 5) + 1}))`} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </StandardChartCard>
-                  <StandardChartCard title="Provider Usage">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={providerUsage}>
-                        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                        <XAxis dataKey="provider" className="text-xs" />
-                        <YAxis className="text-xs" />
-                        <Tooltip />
-                        <Bar dataKey="count" fill="hsl(var(--primary))" name="Count" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="successRate" fill="hsl(var(--success))" name="Success Rate %" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </StandardChartCard>
-                </div>
+                <RevenueByTypeChart 
+                  data={revenueByType}
+                  description="Revenue breakdown by check type"
+                />
               </TabsContent>
 
-              <TabsContent value="performance" className="space-y-4">
-                <StandardChartCard title="Completion Time Trend">
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={checkVolumeData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis dataKey="month" className="text-xs" />
-                      <YAxis className="text-xs" />
-                      <Tooltip />
-                      <Line type="monotone" dataKey="avgDays" stroke="hsl(var(--warning))" strokeWidth={2} name="Avg. Days" />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </StandardChartCard>
+              <TabsContent value="geography" className="space-y-4">
+                <GeographicRevenueChart 
+                  data={geographicRevenue}
+                  description="Revenue distribution by country/region"
+                />
               </TabsContent>
 
-              <TabsContent value="quality" className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <StandardChartCard title="Results Overview">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={resultsOverview}
-                          dataKey="count"
-                          nameKey="status"
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={100}
-                          label
-                        >
-                          {resultsOverview.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </StandardChartCard>
-                </div>
+              <TabsContent value="clients" className="space-y-4">
+                <TopClientsChart 
+                  data={topClients}
+                  description="Top 10 clients by total revenue"
+                />
+              </TabsContent>
+
+              <TabsContent value="profitability" className="space-y-4">
+                <ProfitabilityChart 
+                  data={revenueByType}
+                  description="Revenue vs costs analysis by type"
+                />
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
-
-        {/* Recent Activity */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RecentActivityTimeline activities={recentActivity} />
-          </CardContent>
-        </Card>
-
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Button onClick={() => navigate('/background-checks')} className="h-auto py-4">
-                <Plus className="h-5 w-5 mr-2" />
-                <div className="text-left">
-                  <div className="font-semibold">Initiate New Check</div>
-                  <div className="text-xs text-muted-foreground">Start background verification</div>
-                </div>
-              </Button>
-              <Button variant="outline" onClick={() => navigate('/questionnaire-templates')} className="h-auto py-4">
-                <FileText className="h-5 w-5 mr-2" />
-                <div className="text-left">
-                  <div className="font-semibold">Manage Templates</div>
-                  <div className="text-xs text-muted-foreground">Edit questionnaire templates</div>
-                </div>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        </div>
       </div>
     </DashboardPageLayout>
   );

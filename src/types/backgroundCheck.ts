@@ -52,6 +52,8 @@ export interface BackgroundCheck {
   billedTo?: string;
   billedToName?: string;
   paymentStatus?: 'pending' | 'paid' | 'failed';
+  country?: string;
+  region?: string;
   createdAt: string;
   updatedAt: string;
 }
