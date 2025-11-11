@@ -28,6 +28,8 @@ import { TopClientsChart } from '@/components/dashboard/charts/TopClientsChart';
 import { ProfitabilityChart } from '@/components/dashboard/charts/ProfitabilityChart';
 import { ClientLifetimeValueChart } from '@/components/dashboard/charts/ClientLifetimeValueChart';
 import { RetentionMetricsChart } from '@/components/dashboard/charts/RetentionMetricsChart';
+import { RevenueProjectionChart } from '@/components/dashboard/charts/RevenueProjectionChart';
+import { generateRevenueForecast } from '@/lib/forecasting/revenueForecast';
 
 export default function BackgroundChecksDashboard() {
   const navigate = useNavigate();
@@ -58,6 +60,7 @@ export default function BackgroundChecksDashboard() {
   const geographicRevenue = useMemo(() => getGeographicRevenueDistribution(), []);
   const clvData = useMemo(() => getClientLifetimeValues(), []);
   const retentionMetrics = useMemo(() => getRetentionMetrics(), []);
+  const revenueForecast = useMemo(() => generateRevenueForecast(revenueTrends, 6), [revenueTrends]);
 
   const hasActiveFilters = dateRange !== undefined || country !== 'all' || region !== 'all';
 
@@ -211,6 +214,7 @@ export default function BackgroundChecksDashboard() {
                 <TabsTrigger value="clients">Top Clients</TabsTrigger>
                 <TabsTrigger value="profitability">Profitability</TabsTrigger>
                 <TabsTrigger value="clv">Client Lifetime Value</TabsTrigger>
+                <TabsTrigger value="forecast">Revenue Forecast</TabsTrigger>
               </TabsList>
 
               <TabsContent value="trends" className="space-y-4">
@@ -262,6 +266,15 @@ export default function BackgroundChecksDashboard() {
                     description="Client tenure and retention metrics"
                   />
                 </div>
+              </TabsContent>
+
+              <TabsContent value="forecast" className="space-y-4">
+                <RevenueProjectionChart
+                  title="Background Check Revenue Forecast"
+                  description="6-month revenue projection based on historical trends with 95% confidence intervals"
+                  forecast={revenueForecast}
+                  onDownload={() => toast({ title: "Downloading forecast data..." })}
+                />
               </TabsContent>
             </Tabs>
           </CardContent>
