@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
-import { EmailStatsCard } from '@/components/emails/EmailStatsCard';
+import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { EmailLogsList } from '@/components/emails/EmailLogsList';
 import { ScheduledEmailsList } from '@/components/emails/ScheduledEmailsList';
 import { DraftEmailsList } from '@/components/emails/DraftEmailsList';
@@ -109,30 +109,55 @@ export default function EmailCenter() {
       <div className="space-y-6">
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-5">
-          <EmailStatsCard
+          <EnhancedStatCard
             title="Total Sent"
-            value={stats.totalSent}
-            icon={Mail}
+            value={stats.totalSent.toString()}
+            icon={<Mail className="h-6 w-6" />}
+            change=""
+            variant="neutral"
+            showGradient={false}
+            showBorder={true}
+            elevation="sm"
           />
-          <EmailStatsCard
+          <EnhancedStatCard
             title="Open Rate"
             value={`${stats.openRate.toFixed(1)}%`}
-            icon={Eye}
+            icon={<Eye className="h-6 w-6" />}
+            change=""
+            variant="primary"
+            showGradient={false}
+            showBorder={true}
+            elevation="sm"
           />
-          <EmailStatsCard
+          <EnhancedStatCard
             title="Click Rate"
             value={`${stats.clickRate.toFixed(1)}%`}
-            icon={MousePointerClick}
+            icon={<MousePointerClick className="h-6 w-6" />}
+            change=""
+            variant="success"
+            showGradient={false}
+            showBorder={true}
+            elevation="sm"
           />
-          <EmailStatsCard
+          <EnhancedStatCard
             title="Scheduled"
-            value={scheduledEmails.length}
-            icon={Clock}
+            value={scheduledEmails.length.toString()}
+            icon={<Clock className="h-6 w-6" />}
+            change=""
+            variant="warning"
+            showGradient={false}
+            showBorder={true}
+            elevation="sm"
           />
-          <EmailStatsCard
+          <EnhancedStatCard
             title="Drafts"
-            value={draftEmails.length}
-            icon={FileText}
+            value={draftEmails.length.toString()}
+            icon={<FileText className="h-6 w-6" />}
+            change=""
+            variant="neutral"
+            showGradient={false}
+            showBorder={true}
+            elevation="sm"
           />
         </div>
 
