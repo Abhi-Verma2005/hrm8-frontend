@@ -82,7 +82,6 @@ export default function Assessments() {
   return (
     <DashboardPageLayout
       title="Assessments"
-      description="Manage candidate assessments and evaluation tests"
       breadcrumbActions={
         <div className="flex items-center gap-2">
           <AssessmentNotificationBadge />
@@ -106,8 +105,9 @@ export default function Assessments() {
           <EnhancedStatCard
             title="Total Assessments"
             value={stats.total}
-            icon={ClipboardCheck}
-            trend={stats.changeFromLastMonth.total}
+            icon={<ClipboardCheck className="h-6 w-6" />}
+            change={`${Math.abs(stats.changeFromLastMonth.total)}%`}
+            trend={stats.changeFromLastMonth.total > 0 ? 'up' : 'down'}
             showGradient={false}
             showBorder={true}
             elevation="sm"
@@ -122,8 +122,9 @@ export default function Assessments() {
           <EnhancedStatCard
             title="Active Assessments"
             value={stats.active}
-            icon={TrendingUp}
-            trend={stats.changeFromLastMonth.active}
+            icon={<TrendingUp className="h-6 w-6" />}
+            change={`${Math.abs(stats.changeFromLastMonth.active)}%`}
+            trend={stats.changeFromLastMonth.active > 0 ? 'up' : 'down'}
             showGradient={false}
             showBorder={true}
             elevation="sm"
@@ -137,8 +138,9 @@ export default function Assessments() {
           <EnhancedStatCard
             title="Avg. Score"
             value={`${stats.avgScore}%`}
-            icon={Award}
-            trend={stats.changeFromLastMonth.avgScore}
+            icon={<Award className="h-6 w-6" />}
+            change={`${Math.abs(stats.changeFromLastMonth.avgScore)}%`}
+            trend={stats.changeFromLastMonth.avgScore > 0 ? 'up' : 'down'}
             showGradient={false}
             showBorder={true}
             elevation="sm"
@@ -152,8 +154,9 @@ export default function Assessments() {
           <EnhancedStatCard
             title="Pass Rate"
             value={`${stats.passRate}%`}
-            icon={Clock}
-            trend={stats.changeFromLastMonth.completed}
+            icon={<Clock className="h-6 w-6" />}
+            change={`${Math.abs(stats.changeFromLastMonth.completed)}%`}
+            trend={stats.changeFromLastMonth.completed > 0 ? 'up' : 'down'}
             showGradient={false}
             showBorder={true}
             elevation="sm"
