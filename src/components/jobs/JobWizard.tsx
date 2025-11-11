@@ -127,7 +127,12 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
     
     // Only auto-save if there's meaningful content (at least a title)
     if (!formData.title || formData.title.trim().length === 0) {
-      return;
+      toast({
+        title: "Cannot Save",
+        description: "Please add a job title before saving as draft",
+        variant: "destructive"
+      });
+      return false;
     }
 
     setAutoSaving(true);
@@ -151,7 +156,12 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
       } else {
         // No employer selected yet, skip auto-save
         setAutoSaving(false);
-        return;
+        toast({
+          title: "Cannot Save",
+          description: "Please select an employer before saving as draft",
+          variant: "destructive"
+        });
+        return false;
       }
 
       const draftJobData: Job = {
@@ -180,10 +190,28 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
 
       saveJob(draftJobData);
       setLastAutoSave(new Date());
+      return true;
     } catch (error) {
       console.error('Auto-save failed:', error);
+      toast({
+        title: "Save Failed",
+        description: "Failed to save draft. Please try again.",
+        variant: "destructive"
+      });
+      return false;
     } finally {
       setAutoSaving(false);
+    }
+  };
+
+  // Manual save draft handler
+  const handleManualSaveDraft = async () => {
+    const success = await autoSaveDraft();
+    if (success) {
+      toast({
+        title: "Draft Saved",
+        description: "Your job posting has been saved as a draft. You can publish it anytime from the Jobs page.",
+      });
     }
   };
 
@@ -522,11 +550,13 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
                 Preview Job Board
               </Button>
             )}
-            <Button type="button" variant="outline" onClick={() => {
-              form.setValue("status", "draft");
-              form.handleSubmit(onSubmit)();
-            }}>
-              Save as Draft
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={handleManualSaveDraft}
+              disabled={autoSaving}
+            >
+              {autoSaving ? "Saving..." : "Save Draft"}
             </Button>
             {step < totalSteps ? (
               <Button type="button" onClick={nextStep}>
