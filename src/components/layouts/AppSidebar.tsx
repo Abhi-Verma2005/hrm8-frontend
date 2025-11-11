@@ -65,7 +65,15 @@ const atsNavItems = [
       { title: "Management", url: "/offers/manage" },
     ]
   },
-  { title: "Assessments", url: "/assessments", icon: ClipboardCheck },
+  { 
+    title: "Assessments", 
+    url: "/assessments", 
+    icon: ClipboardCheck,
+    subItems: [
+      { title: "All Assessments", url: "/assessments" },
+      { title: "Templates", url: "/assessment-templates" },
+    ]
+  },
   { title: "Background Checks", url: "/background-checks", icon: ShieldCheck },
 ];
 

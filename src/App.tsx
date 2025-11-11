@@ -116,6 +116,7 @@ import Interviews from "./pages/Interviews";
 import Offers from "./pages/Offers";
 import Assessments from "./pages/Assessments";
 import AssessmentDetail from "./pages/AssessmentDetail";
+import AssessmentTemplates from "./pages/AssessmentTemplates";
 import BackgroundChecks from "./pages/BackgroundChecks";
 import BackgroundCheckDetail from "./pages/BackgroundCheckDetail";
 import InternalJobs from "./pages/InternalJobs";
@@ -219,6 +220,7 @@ function AppContent() {
               <Route path="/offers" element={<Offers />} />
               <Route path="/assessments" element={<Assessments />} />
               <Route path="/assessments/:id" element={<AssessmentDetail />} />
+              <Route path="/assessment-templates" element={<AssessmentTemplates />} />
               <Route path="/background-checks" element={<BackgroundChecks />} />
               <Route path="/background-checks/:id" element={<BackgroundCheckDetail />} />
               <Route path="/internal-jobs" element={<InternalJobs />} />
