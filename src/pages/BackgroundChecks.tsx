@@ -5,7 +5,7 @@ import { BackgroundCheckNotificationBadge } from "@/components/backgroundChecks/
 import { BackgroundChecksFilterBar } from "@/components/backgroundChecks/BackgroundChecksFilterBar";
 import { useAutomatedReminders } from "@/hooks/useAutomatedReminders";
 import { Button } from "@/components/ui/button";
-import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle } from "lucide-react";
+import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye } from "lucide-react";
 import { getBackgroundChecks, saveBackgroundCheck, getBackgroundCheckById } from "@/lib/mockBackgroundCheckStorage";
 import { getConsentsByBackgroundCheck } from "@/lib/backgroundChecks/consentStorage";
 import { getRefereesByBackgroundCheck } from "@/lib/backgroundChecks/refereeStorage";
@@ -238,6 +238,12 @@ export default function BackgroundChecks() {
             showBorder={true}
             elevation="sm"
             iconPosition="left"
+            showMenu={true}
+            menuItems={[
+              { label: "View all checks", icon: <Eye className="h-4 w-4" />, onClick: handleClearFilters },
+              { label: "View dashboard", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/dashboard/background-checks') },
+              { label: "Export data", icon: <Download className="h-4 w-4" />, onClick: handleExport },
+            ]}
           />
           <EnhancedStatCard
             title="Active Checks"
@@ -250,6 +256,11 @@ export default function BackgroundChecks() {
             showBorder={true}
             elevation="sm"
             iconPosition="left"
+            showMenu={true}
+            menuItems={[
+              { label: "View active checks", icon: <Eye className="h-4 w-4" />, onClick: () => { handleClearFilters(); setStatusFilter('in-progress'); } },
+              { label: "Initiate new check", icon: <Plus className="h-4 w-4" />, onClick: () => setIsFormOpen(true) },
+            ]}
           />
           <EnhancedStatCard
             title="Completion Rate"
@@ -262,6 +273,11 @@ export default function BackgroundChecks() {
             showBorder={true}
             elevation="sm"
             iconPosition="left"
+            showMenu={true}
+            menuItems={[
+              { label: "View completed checks", icon: <Eye className="h-4 w-4" />, onClick: () => { handleClearFilters(); setStatusFilter('completed'); } },
+              { label: "View dashboard", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/dashboard/background-checks') },
+            ]}
           />
           <EnhancedStatCard
             title="Avg. Completion Time"
@@ -274,6 +290,11 @@ export default function BackgroundChecks() {
             showBorder={true}
             elevation="sm"
             iconPosition="left"
+            showMenu={true}
+            menuItems={[
+              { label: "View in-progress checks", icon: <Eye className="h-4 w-4" />, onClick: () => { handleClearFilters(); setStatusFilter('in-progress'); } },
+              { label: "View performance metrics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/dashboard/background-checks') },
+            ]}
           />
         </div>
 
