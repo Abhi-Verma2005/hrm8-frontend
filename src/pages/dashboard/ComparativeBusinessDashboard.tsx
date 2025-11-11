@@ -7,6 +7,7 @@ import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
 import { ModuleComparisonChart } from '@/components/dashboard/charts/ModuleComparisonChart';
 import { GrowthComparisonChart } from '@/components/dashboard/charts/GrowthComparisonChart';
 import { ROIComparisonChart } from '@/components/dashboard/charts/ROIComparisonChart';
+import { BusinessAlertsPanel } from '@/components/alerts/BusinessAlertsPanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, DollarSign, Users, Target } from 'lucide-react';
 import type { DateRange } from 'react-day-picker';
@@ -106,6 +107,9 @@ export default function ComparativeBusinessDashboard() {
             onClearRegion={() => setSelectedRegion('all')}
           />
         )}
+
+        {/* Business Alerts - Overall */}
+        <BusinessAlertsPanel showConfigButton={true} />
 
         {/* Key Metrics - Overall Combined Stats */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

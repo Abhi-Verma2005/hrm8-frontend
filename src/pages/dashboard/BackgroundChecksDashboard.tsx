@@ -30,6 +30,7 @@ import { ClientLifetimeValueChart } from '@/components/dashboard/charts/ClientLi
 import { RetentionMetricsChart } from '@/components/dashboard/charts/RetentionMetricsChart';
 import { RevenueProjectionChart } from '@/components/dashboard/charts/RevenueProjectionChart';
 import { generateRevenueForecast } from '@/lib/forecasting/revenueForecast';
+import { BusinessAlertsPanel } from '@/components/alerts/BusinessAlertsPanel';
 
 export default function BackgroundChecksDashboard() {
   const navigate = useNavigate();
@@ -113,6 +114,9 @@ export default function BackgroundChecksDashboard() {
             onClearDateRange={() => setDateRange(undefined)}
           />
         )}
+
+        {/* Business Alerts */}
+        <BusinessAlertsPanel module="background-checks" showConfigButton={true} />
 
         {/* Key Revenue Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
