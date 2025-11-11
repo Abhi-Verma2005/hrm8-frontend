@@ -90,11 +90,20 @@ export function EnhancedStatCard({
     neutral: showBorder ? "border-l-6 border-l-purple-500" : "",
   };
 
-  const gradientStyles = {
-    primary: showGradient ? "bg-gradient-to-br from-blue-50/50 to-cyan-50/30" : "",
-    success: showGradient ? "bg-gradient-to-br from-emerald-50/50 to-green-50/30" : "",
-    warning: showGradient ? "bg-gradient-to-br from-orange-50/50 to-amber-50/30" : "",
-    neutral: showGradient ? "bg-gradient-to-br from-purple-50/50 to-indigo-50/30" : "",
+  // Base gradient that always shows with borders
+  const borderGradientStyles = {
+    primary: showBorder ? "bg-gradient-to-br from-blue-50/50 to-cyan-50/30" : "",
+    success: showBorder ? "bg-gradient-to-br from-emerald-50/50 to-green-50/30" : "",
+    warning: showBorder ? "bg-gradient-to-br from-orange-50/50 to-amber-50/30" : "",
+    neutral: showBorder ? "bg-gradient-to-br from-purple-50/50 to-indigo-50/30" : "",
+  };
+
+  // Additional gradient overlay (controlled by showGradient prop)
+  const overlayGradientStyles = {
+    primary: showGradient ? "bg-gradient-to-br from-blue-100/30 to-transparent" : "",
+    success: showGradient ? "bg-gradient-to-br from-emerald-100/30 to-transparent" : "",
+    warning: showGradient ? "bg-gradient-to-br from-orange-100/30 to-transparent" : "",
+    neutral: showGradient ? "bg-gradient-to-br from-purple-100/30 to-transparent" : "",
   };
 
   const iconBgStyles = {
@@ -120,7 +129,8 @@ export function EnhancedStatCard({
         "before:-translate-x-full before:transition-transform before:duration-700 hover:before:translate-x-full",
         "animate-fade-in",
         variantStyles[variant],
-        gradientStyles[variant],
+        borderGradientStyles[variant],
+        overlayGradientStyles[variant],
         elevation !== "none" && `${elevationStyles[elevation]} hover:-translate-y-1 hover:shadow-2xl`
       )}
     >
