@@ -4,6 +4,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
+import { EditModeToggle } from "@/components/dashboard/EditModeToggle";
 import { PendingActionsCard } from "@/components/backgroundChecks/PendingActionsCard";
 import { RecentActivityTimeline } from "@/components/backgroundChecks/RecentActivityTimeline";
 import { RefereeList } from "@/components/backgroundChecks/references/RefereeList";
@@ -44,6 +45,7 @@ import {
 export default function BackgroundChecksDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isEditMode, setIsEditMode] = useState(false);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
@@ -76,36 +78,39 @@ export default function BackgroundChecksDashboard() {
   ].reduce((a, b) => a + b, 0);
 
   return (
-    <DashboardPageLayout>
-      <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Background Checks Analytics</h1>
-            <p className="text-muted-foreground">
-              Monitor background check performance and compliance metrics
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => navigate('/background-checks')}>
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Manage Checks
-            </Button>
-          </div>
-        </div>
-
-        {/* Action Bar */}
-        <DashboardActionBar
-          onDateRangeChange={setDateRange}
-          onCountryChange={setSelectedCountry}
-          onRegionChange={setSelectedRegion}
-          onExport={handleExport}
-          onResetFilters={handleResetFilters}
-          selectedCountry={selectedCountry}
-          selectedRegion={selectedRegion}
-          dateRange={dateRange}
-          hasActiveFilters={activeFiltersCount > 0}
+    <DashboardPageLayout
+      dashboardActions={
+        <EditModeToggle
+          isEditMode={isEditMode}
+          onToggle={() => setIsEditMode(!isEditMode)}
         />
+      }
+    >
+      <div className="min-h-screen bg-background">
+        <div className="p-6 space-y-6">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Background Checks Analytics</h1>
+              <p className="text-muted-foreground">
+                Monitor background check performance and compliance metrics
+              </p>
+            </div>
+            
+            {!isEditMode && (
+              <DashboardActionBar
+                dateRange={dateRange}
+                onDateRangeChange={setDateRange}
+                selectedCountry={selectedCountry}
+                selectedRegion={selectedRegion}
+                onCountryChange={setSelectedCountry}
+                onRegionChange={setSelectedRegion}
+                onExport={handleExport}
+                onResetFilters={handleResetFilters}
+                hasActiveFilters={activeFiltersCount > 0}
+              />
+            )}
+          </div>
 
         {/* Active Filters */}
         {activeFiltersCount > 0 && (
@@ -365,6 +370,7 @@ export default function BackgroundChecksDashboard() {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </DashboardPageLayout>
   );
