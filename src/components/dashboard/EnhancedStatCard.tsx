@@ -92,18 +92,18 @@ export function EnhancedStatCard({
 
   // Base gradient that always shows with borders
   const borderGradientStyles = {
-    primary: showBorder ? "bg-gradient-to-br from-blue-50/50 to-cyan-50/30" : "",
-    success: showBorder ? "bg-gradient-to-br from-emerald-50/50 to-green-50/30" : "",
-    warning: showBorder ? "bg-gradient-to-br from-orange-50/50 to-amber-50/30" : "",
-    neutral: showBorder ? "bg-gradient-to-br from-purple-50/50 to-indigo-50/30" : "",
+    primary: showBorder ? "bg-gradient-to-br from-blue-50/50 to-cyan-50/30 dark:from-blue-950/30 dark:to-cyan-950/20" : "",
+    success: showBorder ? "bg-gradient-to-br from-emerald-50/50 to-green-50/30 dark:from-emerald-950/30 dark:to-green-950/20" : "",
+    warning: showBorder ? "bg-gradient-to-br from-orange-50/50 to-amber-50/30 dark:from-orange-950/30 dark:to-amber-950/20" : "",
+    neutral: showBorder ? "bg-gradient-to-br from-purple-50/50 to-indigo-50/30 dark:from-purple-950/30 dark:to-indigo-950/20" : "",
   };
 
   // Additional gradient overlay (controlled by showGradient prop)
   const overlayGradientStyles = {
-    primary: showGradient ? "bg-gradient-to-br from-blue-100/30 to-transparent" : "",
-    success: showGradient ? "bg-gradient-to-br from-emerald-100/30 to-transparent" : "",
-    warning: showGradient ? "bg-gradient-to-br from-orange-100/30 to-transparent" : "",
-    neutral: showGradient ? "bg-gradient-to-br from-purple-100/30 to-transparent" : "",
+    primary: showGradient ? "bg-gradient-to-br from-blue-100/30 to-transparent dark:from-blue-900/20 dark:to-transparent" : "",
+    success: showGradient ? "bg-gradient-to-br from-emerald-100/30 to-transparent dark:from-emerald-900/20 dark:to-transparent" : "",
+    warning: showGradient ? "bg-gradient-to-br from-orange-100/30 to-transparent dark:from-orange-900/20 dark:to-transparent" : "",
+    neutral: showGradient ? "bg-gradient-to-br from-purple-100/30 to-transparent dark:from-purple-900/20 dark:to-transparent" : "",
   };
 
   const iconBgStyles = {
