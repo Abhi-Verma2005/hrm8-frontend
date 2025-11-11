@@ -271,6 +271,19 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
 
     saveJob(jobData);
     
+    // Handle draft saves separately
+    if (data.status === 'draft') {
+      toast({
+        title: "Draft Saved",
+        description: "Your job posting has been saved as a draft. You can publish it anytime from the Jobs page.",
+      });
+      
+      if (onSuccess) {
+        onSuccess(jobData);
+      }
+      return;
+    }
+    
     // Store job data for external promotion dialog
     setSavedJobData(jobData);
     
