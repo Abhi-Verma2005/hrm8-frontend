@@ -302,7 +302,7 @@ function AppContent() {
             {/* Shared/General Routes */}
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/collaborative-feedback" element={<CollaborativeFeedback />} />
-            <Route path="/notifications" element={<NotificationCenter />} />
+            <Route path="/feedback-notifications" element={<NotificationCenter />} />
           <Route path="/feedback-templates" element={<FeedbackTemplates />} />
           <Route path="/questionnaire-templates" element={<QuestionnaireTemplates />} />
             <Route path="/feedback-dashboard" element={<FeedbackDashboard />} />

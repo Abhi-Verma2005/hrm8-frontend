@@ -18,6 +18,7 @@ export function useCurrentDashboard(): DashboardType | null {
   if (path.startsWith('/dashboard/rpo')) return 'rpo';
   if (path.startsWith('/dashboard/assessments')) return 'assessments';
   if (path.startsWith('/dashboard/background-checks')) return 'background-checks';
+  if (path.startsWith('/dashboard/comparative')) return 'comparative';
 
   return null;
 }
