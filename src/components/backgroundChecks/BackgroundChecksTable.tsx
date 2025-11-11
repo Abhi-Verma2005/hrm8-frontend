@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -40,6 +41,16 @@ export function BackgroundChecksTable({
   onSendReminder,
   onCancelCheck,
 }: BackgroundChecksTableProps) {
+  const navigate = useNavigate();
+  
+  const handleViewDetails = (checkId: string) => {
+    if (onViewDetails) {
+      onViewDetails(checkId);
+    } else {
+      navigate(`/background-checks/${checkId}`);
+    }
+  };
+  
   const getStatusBadge = (status: BackgroundCheck['status']) => {
     const variants: Record<BackgroundCheck['status'], any> = {
       'not-started': 'outline',
@@ -128,7 +139,7 @@ export function BackgroundChecksTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => onViewDetails?.(check.id)}>
+                      <DropdownMenuItem onClick={() => handleViewDetails(check.id)}>
                         <Eye className="h-4 w-4 mr-2" />
                         View Details
                       </DropdownMenuItem>

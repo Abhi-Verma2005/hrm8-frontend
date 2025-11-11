@@ -112,6 +112,7 @@ import RequisitionDetail from "./pages/RequisitionDetail";
 import Interviews from "./pages/Interviews";
 import Offers from "./pages/Offers";
 import BackgroundChecks from "./pages/BackgroundChecks";
+import BackgroundCheckDetail from "./pages/BackgroundCheckDetail";
 import InternalJobs from "./pages/InternalJobs";
 import Calendar from "./pages/Calendar";
 import CollaborativeFeedback from "./pages/CollaborativeFeedback";
@@ -208,6 +209,7 @@ function AppContent() {
               <Route path="/interviews" element={<Interviews />} />
               <Route path="/offers" element={<Offers />} />
               <Route path="/background-checks" element={<BackgroundChecks />} />
+              <Route path="/background-checks/:id" element={<BackgroundCheckDetail />} />
               <Route path="/internal-jobs" element={<InternalJobs />} />
             </Route>
             {/* Sales Module Routes */}
