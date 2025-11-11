@@ -12,6 +12,7 @@ import { NotesTab } from './NotesTab';
 import { HistoryTab } from './HistoryTab';
 import { DocumentManager } from './DocumentManager';
 import { BackgroundChecksTab } from './BackgroundChecksTab';
+import { AssessmentsTab } from './AssessmentsTab';
 import { Candidate } from '@/types/entities';
 import { 
   ArrowLeft, 
@@ -26,7 +27,8 @@ import {
   History,
   Star,
   FolderOpen,
-  ShieldCheck
+  ShieldCheck,
+  ClipboardCheck
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -161,6 +163,10 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
             <ShieldCheck className="h-4 w-4 mr-2" />
             Checks
           </TabsTrigger>
+          <TabsTrigger value="assessments">
+            <ClipboardCheck className="h-4 w-4 mr-2" />
+            Assessments
+          </TabsTrigger>
           <TabsTrigger value="documents">
             <FolderOpen className="h-4 w-4 mr-2" />
             Documents
@@ -240,6 +246,15 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
         {/* Background Checks Tab */}
         <TabsContent value="background-checks">
           <BackgroundChecksTab 
+            candidateId={candidate.id}
+            candidateName={candidate.name}
+            candidateEmail={candidate.email}
+          />
+        </TabsContent>
+
+        {/* Assessments Tab */}
+        <TabsContent value="assessments">
+          <AssessmentsTab 
             candidateId={candidate.id}
             candidateName={candidate.name}
             candidateEmail={candidate.email}
