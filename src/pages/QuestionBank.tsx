@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { Button } from '@/components/ui/button';
+import { QuestionBankPreviewDialog } from '@/components/assessments/QuestionBankPreviewDialog';
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -49,6 +50,7 @@ import {
   BarChart3,
   Award,
   X,
+  Eye,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -74,6 +76,7 @@ export default function QuestionBank() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [selectedType, setSelectedType] = useState<string>('all');
   const [selectedTag, setSelectedTag] = useState<string>('all');
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
 
   const stats = useMemo(() => getQuestionBankStats(), [questions]);
   const categories = useMemo(() => ['all', ...getAllCategories()], [questions]);
@@ -228,10 +231,20 @@ export default function QuestionBank() {
       title="Question Bank"
       subtitle="Create, organize, and reuse assessment questions with version control"
       actions={
-        <Button onClick={() => { setSelectedQuestion(undefined); setDialogOpen(true); }}>
-          <Plus className="h-4 w-4 mr-2" />
-          Create Question
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setPreviewDialogOpen(true)}
+            disabled={questions.length === 0}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            Preview Assessment
+          </Button>
+          <Button onClick={() => { setSelectedQuestion(undefined); setDialogOpen(true); }}>
+            <Plus className="h-4 w-4 mr-2" />
+            Create Question
+          </Button>
+        </div>
       }
     >
       <div className="space-y-6">
@@ -511,6 +524,12 @@ export default function QuestionBank() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <QuestionBankPreviewDialog
+        open={previewDialogOpen}
+        onOpenChange={setPreviewDialogOpen}
+        questions={filteredQuestions}
+      />
     </DashboardPageLayout>
   );
 }

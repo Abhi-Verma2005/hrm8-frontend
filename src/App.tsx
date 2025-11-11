@@ -120,6 +120,7 @@ import AssessmentTemplates from "./pages/AssessmentTemplates";
 import AssessmentComparisonPage from "./pages/AssessmentComparisonPage";
 import ScheduledAssessments from "./pages/ScheduledAssessments";
 import QuestionBank from "./pages/QuestionBank";
+import AssessmentPreview from "./pages/AssessmentPreview";
 import BackgroundChecks from "./pages/BackgroundChecks";
 import BackgroundCheckDetail from "./pages/BackgroundCheckDetail";
 import InternalJobs from "./pages/InternalJobs";
@@ -226,6 +227,7 @@ function AppContent() {
           <Route path="/assessments/compare" element={<AssessmentComparisonPage />} />
           <Route path="/assessment-templates" element={<AssessmentTemplates />} />
           <Route path="/question-bank" element={<QuestionBank />} />
+          <Route path="/assessment-preview" element={<AssessmentPreview />} />
           <Route path="/scheduled-assessments" element={<ScheduledAssessments />} />
               <Route path="/background-checks" element={<BackgroundChecks />} />
               <Route path="/background-checks/:id" element={<BackgroundCheckDetail />} />
