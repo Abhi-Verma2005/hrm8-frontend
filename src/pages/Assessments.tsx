@@ -6,7 +6,7 @@ import { AssessmentsFilterBar } from '@/components/assessments/AssessmentsFilter
 import { AssessmentsTable } from '@/components/assessments/AssessmentsTable';
 import { AssessmentInvitationWizard } from '@/components/assessments/AssessmentInvitationWizard';
 import { Button } from '@/components/ui/button';
-import { ClipboardCheck, TrendingUp, Award, Clock, LayoutDashboard, Settings, BarChart3 } from 'lucide-react';
+import { ClipboardCheck, TrendingUp, Award, Clock, LayoutDashboard, Settings, BarChart3, Calendar } from 'lucide-react';
 import { getAssessments } from '@/lib/mockAssessmentStorage';
 import { getAssessmentStats } from '@/lib/assessments/dashboardStats';
 import { useNavigate } from 'react-router-dom';
@@ -85,6 +85,10 @@ export default function Assessments() {
       breadcrumbActions={
         <div className="flex items-center gap-2">
           <AssessmentNotificationBadge />
+          <Button variant="outline" size="sm" onClick={() => navigate('/scheduled-assessments')}>
+            <Calendar className="h-4 w-4 mr-2" />
+            Scheduled
+          </Button>
           <Button variant="outline" size="sm" onClick={() => navigate('/assessments/compare')}>
             <BarChart3 className="h-4 w-4 mr-2" />
             Compare Results

@@ -118,6 +118,7 @@ import Assessments from "./pages/Assessments";
 import AssessmentDetail from "./pages/AssessmentDetail";
 import AssessmentTemplates from "./pages/AssessmentTemplates";
 import AssessmentComparisonPage from "./pages/AssessmentComparisonPage";
+import ScheduledAssessments from "./pages/ScheduledAssessments";
 import BackgroundChecks from "./pages/BackgroundChecks";
 import BackgroundCheckDetail from "./pages/BackgroundCheckDetail";
 import InternalJobs from "./pages/InternalJobs";
@@ -219,10 +220,11 @@ function AppContent() {
               <Route path="/requisitions/:id" element={<RequisitionDetail />} />
               <Route path="/interviews" element={<Interviews />} />
               <Route path="/offers" element={<Offers />} />
-              <Route path="/assessments" element={<Assessments />} />
-              <Route path="/assessments/:id" element={<AssessmentDetail />} />
-              <Route path="/assessments/compare" element={<AssessmentComparisonPage />} />
-              <Route path="/assessment-templates" element={<AssessmentTemplates />} />
+          <Route path="/assessments" element={<Assessments />} />
+          <Route path="/assessments/:id" element={<AssessmentDetail />} />
+          <Route path="/assessments/compare" element={<AssessmentComparisonPage />} />
+          <Route path="/assessment-templates" element={<AssessmentTemplates />} />
+          <Route path="/scheduled-assessments" element={<ScheduledAssessments />} />
               <Route path="/background-checks" element={<BackgroundChecks />} />
               <Route path="/background-checks/:id" element={<BackgroundCheckDetail />} />
               <Route path="/internal-jobs" element={<InternalJobs />} />
