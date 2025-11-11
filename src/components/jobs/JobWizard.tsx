@@ -281,7 +281,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
     }
     
     const successTitle = requiresPayment
-      ? "Payment Processed & Job Created"
+      ? "Payment Processed & Job Posted"
       : "Job Posted Successfully";
     
     const successDescription = requiresPayment
