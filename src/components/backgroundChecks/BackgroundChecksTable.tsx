@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -25,6 +25,7 @@ import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { getCheckTypeIcon, getCheckProgress } from '@/lib/backgroundChecks/checkTypeHelpers';
 import type { BackgroundCheck, BackgroundCheckType } from '@/types/backgroundCheck';
+import { EntityAvatar } from '@/components/tables/EntityAvatar';
 
 interface BackgroundChecksTableProps {
   checks: BackgroundCheck[];
@@ -328,20 +329,19 @@ export function BackgroundChecksTable({
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead className="w-[25%]">Candidate</TableHead>
-              <TableHead className="w-[20%]">Related To</TableHead>
+              <TableHead className="w-[35%]">Candidate</TableHead>
               <TableHead className="w-[18%]">Check Types</TableHead>
               <TableHead className="w-[10%]">Status</TableHead>
               <TableHead className="w-[10%]">Progress</TableHead>
               <TableHead className="w-[8%]">Result</TableHead>
               <TableHead className="w-[10%]">Initiated</TableHead>
-              <TableHead className="w-[50px]">Actions</TableHead>
+              <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {checks.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
                   <div className="flex flex-col items-center gap-2">
                     <FileText className="h-12 w-12 opacity-50" />
                     <p className="font-medium">No background checks found</p>
@@ -363,34 +363,33 @@ export function BackgroundChecksTable({
                     />
                   </TableCell>
                   <TableCell>
-                    <div>
-                      <p 
-                        className="font-medium text-primary hover:underline cursor-pointer" 
-                        onClick={() => navigate(`/candidates/${check.candidateId}`)}
-                      >
-                        {check.candidateName}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {check.jobTitle && check.employerName ? (
-                      <div className="space-y-0.5">
-                        <p 
-                          className="font-medium text-primary hover:underline cursor-pointer text-sm"
-                          onClick={() => navigate(`/jobs/${check.jobId}`)}
-                        >
-                          {check.jobTitle}
-                        </p>
-                        <p 
-                          className="text-xs text-muted-foreground hover:underline cursor-pointer"
-                          onClick={() => navigate(`/employers/${check.employerId}`)}
-                        >
-                          {check.employerName}
-                        </p>
+                    <div className="flex items-center gap-3">
+                      <EntityAvatar
+                        name={check.candidateName}
+                        type="person"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <Link to={`/candidates/${check.candidateId}`}>
+                          <p className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block transition-colors duration-500">
+                            {check.candidateName}
+                          </p>
+                        </Link>
+                        {check.jobTitle && (
+                          <Link to={`/jobs/${check.jobId}`}>
+                            <p className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors">
+                              {check.jobTitle}
+                            </p>
+                          </Link>
+                        )}
+                        {check.employerName && (
+                          <Link to={`/employers/${check.employerId}`}>
+                            <p className="text-xs text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors">
+                              {check.employerName}
+                            </p>
+                          </Link>
+                        )}
                       </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">

@@ -17,10 +17,11 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, Eye, Bell, Download, XCircle } from 'lucide-react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import type { Assessment } from '@/types/assessment';
 import { format } from 'date-fns';
 import { ReminderStatusIndicator } from './ReminderStatusIndicator';
+import { EntityAvatar } from '@/components/tables/EntityAvatar';
 
 interface AssessmentsTableProps {
   assessments: Assessment[];
@@ -43,7 +44,6 @@ export function AssessmentsTable({
   onBulkExport,
   onBulkCancel,
 }: AssessmentsTableProps) {
-  const navigate = useNavigate();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const toggleSelection = (id: string) => {
@@ -134,14 +134,13 @@ export function AssessmentsTable({
                   onCheckedChange={toggleAll}
                 />
               </TableHead>
-              <TableHead className="w-[20%]">Candidate</TableHead>
-              <TableHead className="w-[20%]">Related To</TableHead>
+              <TableHead className="w-[35%]">Candidate</TableHead>
               <TableHead className="w-[12%]">Type</TableHead>
               <TableHead className="w-[12%]">Provider</TableHead>
               <TableHead className="w-[10%]">Status</TableHead>
               <TableHead className="w-[8%]">Score</TableHead>
               <TableHead className="w-[12%]">Invited Date</TableHead>
-              <TableHead className="w-[50px]">Actions</TableHead>
+              <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -154,36 +153,33 @@ export function AssessmentsTable({
                   />
                 </TableCell>
                 <TableCell>
-                  <div>
-                    <p 
-                      className="font-medium text-primary hover:underline cursor-pointer transition-colors duration-500"
-                      onClick={() => navigate(`/candidates/${assessment.candidateId}`)}
-                    >
-                      {assessment.candidateName}
-                    </p>
-                  </div>
-                </TableCell>
-
-                {/* Related To Column */}
-                <TableCell>
-                  {assessment.jobTitle && assessment.employerName ? (
-                    <div className="space-y-0.5">
-                      <p 
-                        className="font-medium text-primary hover:underline cursor-pointer text-sm transition-colors duration-500"
-                        onClick={() => navigate(`/jobs/${assessment.jobId}`)}
-                      >
-                        {assessment.jobTitle}
-                      </p>
-                      <p 
-                        className="text-xs text-muted-foreground hover:underline cursor-pointer transition-colors duration-500"
-                        onClick={() => navigate(`/employers/${assessment.employerId}`)}
-                      >
-                        {assessment.employerName}
-                      </p>
+                  <div className="flex items-center gap-3">
+                    <EntityAvatar
+                      name={assessment.candidateName}
+                      type="person"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <Link to={`/candidates/${assessment.candidateId}`}>
+                        <p className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block transition-colors duration-500">
+                          {assessment.candidateName}
+                        </p>
+                      </Link>
+                      {assessment.jobTitle && (
+                        <Link to={`/jobs/${assessment.jobId}`}>
+                          <p className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors">
+                            {assessment.jobTitle}
+                          </p>
+                        </Link>
+                      )}
+                      {assessment.employerName && (
+                        <Link to={`/employers/${assessment.employerId}`}>
+                          <p className="text-xs text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors">
+                            {assessment.employerName}
+                          </p>
+                        </Link>
+                      )}
                     </div>
-                  ) : (
-                    <span className="text-xs text-muted-foreground transition-colors duration-500">—</span>
-                  )}
+                  </div>
                 </TableCell>
                 <TableCell className="capitalize transition-colors duration-500">
                   {assessment.assessmentType.replace('-', ' ')}
