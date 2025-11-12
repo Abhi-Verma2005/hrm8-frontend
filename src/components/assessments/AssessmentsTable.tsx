@@ -155,8 +155,9 @@ export function AssessmentsTable({
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <EntityAvatar
-                      name={assessment.candidateName}
-                      type="person"
+                      name={assessment.employerName || 'Unknown'}
+                      src={assessment.employerLogo}
+                      type="logo"
                     />
                     <div className="min-w-0 flex-1">
                       <Link to={`/candidates/${assessment.candidateId}`}>

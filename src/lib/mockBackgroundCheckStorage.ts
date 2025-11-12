@@ -2,7 +2,7 @@ import type { BackgroundCheck } from '@/types/backgroundCheck';
 
 const STORAGE_KEY = 'hrm8_background_checks';
 const VERSION_KEY = 'hrm8_background_checks_version';
-const CURRENT_VERSION = '1.2'; // Update this when mock data structure changes
+const CURRENT_VERSION = '1.3'; // Update this when mock data structure changes
 
 const mockBackgroundChecks: BackgroundCheck[] = [
   {
@@ -14,6 +14,7 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     jobTitle: 'Senior Software Engineer',
     employerId: 'emp-001',
     employerName: 'TechCorp Solutions',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=TechCorp',
     provider: 'checkr',
     checkTypes: [
       { type: 'reference', required: true },
@@ -48,6 +49,7 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     jobTitle: 'Product Manager',
     employerId: 'emp-002',
     employerName: 'InnovateCo',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=InnovateCo',
     provider: 'sterling',
     checkTypes: [
       { type: 'reference', required: true },
@@ -80,6 +82,7 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     jobTitle: 'Marketing Director',
     employerId: 'emp-003',
     employerName: 'BrandWorks Agency',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=BrandWorks',
     provider: 'hireright',
     checkTypes: [
       { type: 'criminal', required: true },
@@ -106,6 +109,7 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     jobTitle: 'Financial Analyst',
     employerId: 'emp-004',
     employerName: 'Global Finance Corp',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=GlobalFinance',
     provider: 'manual',
     checkTypes: [
       { type: 'reference', required: true },
@@ -138,6 +142,7 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     jobTitle: 'Operations Manager',
     employerId: 'emp-005',
     employerName: 'Logistics Pro',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=LogisticsPro',
     provider: 'checkr',
     checkTypes: [
       { type: 'criminal', required: true },
@@ -172,6 +177,7 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     jobTitle: 'Data Scientist',
     employerId: 'emp-006',
     employerName: 'DataVision Inc',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=DataVision',
     provider: 'sterling',
     checkTypes: [
       { type: 'reference', required: true },
@@ -201,6 +207,7 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     jobTitle: 'HR Business Partner',
     employerId: 'emp-007',
     employerName: 'People First Solutions',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=PeopleFirst',
     provider: 'hireright',
     checkTypes: [
       { type: 'identity', required: true },
@@ -227,6 +234,7 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     jobTitle: 'Sales Director',
     employerId: 'emp-008',
     employerName: 'Growth Ventures',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=GrowthVentures',
     provider: 'checkr',
     checkTypes: [
       { type: 'reference', required: true },
@@ -261,6 +269,7 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     jobTitle: 'Content Writer',
     employerId: 'emp-009',
     employerName: 'Creative Media Labs',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=CreativeMedia',
     provider: 'manual',
     checkTypes: [
       { type: 'reference', required: true }
@@ -289,6 +298,7 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     jobTitle: 'UX Designer',
     employerId: 'emp-010',
     employerName: 'DesignHub Studio',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=DesignHub',
     provider: 'sterling',
     checkTypes: [
       { type: 'criminal', required: true },

@@ -2,7 +2,7 @@ import type { Assessment } from '@/types/assessment';
 
 const STORAGE_KEY = 'hrm8_assessments';
 const VERSION_KEY = 'hrm8_assessments_version';
-const CURRENT_VERSION = '1.2'; // Update this when mock data structure changes
+const CURRENT_VERSION = '1.3'; // Update this when mock data structure changes
 
 const mockAssessments: Assessment[] = [
   {
@@ -14,6 +14,7 @@ const mockAssessments: Assessment[] = [
     jobTitle: 'Senior Software Engineer',
     employerId: 'emp-001',
     employerName: 'TechCorp Solutions',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=TechCorp',
     applicationId: 'app-001',
     assessmentType: 'technical-skills',
     provider: 'codility',
@@ -58,6 +59,7 @@ const mockAssessments: Assessment[] = [
     jobTitle: 'Marketing Manager',
     employerId: 'emp-002',
     employerName: 'InnovateCo',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=InnovateCo',
     applicationId: 'app-002',
     assessmentType: 'personality',
     provider: 'shl',
@@ -85,6 +87,7 @@ const mockAssessments: Assessment[] = [
     jobTitle: 'Data Analyst',
     employerId: 'emp-003',
     employerName: 'DataFlow Analytics',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=DataFlow',
     applicationId: 'app-003',
     assessmentType: 'cognitive',
     provider: 'criteria',
@@ -112,6 +115,7 @@ const mockAssessments: Assessment[] = [
     jobTitle: 'Sales Director',
     employerId: 'emp-004',
     employerName: 'Global Sales Inc',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=GlobalSales',
     applicationId: 'app-004',
     assessmentType: 'behavioral',
     provider: 'testgorilla',
@@ -156,6 +160,7 @@ const mockAssessments: Assessment[] = [
     jobTitle: 'Product Manager',
     employerId: 'emp-005',
     employerName: 'ProductVision Labs',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=ProductVision',
     applicationId: 'app-005',
     assessmentType: 'situational-judgment',
     provider: 'harver',
@@ -184,6 +189,7 @@ const mockAssessments: Assessment[] = [
     jobTitle: 'UX Designer',
     employerId: 'emp-006',
     employerName: 'DesignHub Studios',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=DesignHub',
     applicationId: 'app-006',
     assessmentType: 'culture-fit',
     provider: 'vervoe',
@@ -228,6 +234,7 @@ const mockAssessments: Assessment[] = [
     jobTitle: 'Financial Analyst',
     employerId: 'emp-007',
     employerName: 'FinancePro Group',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=FinancePro',
     assessmentType: 'cognitive',
     provider: 'criteria',
     status: 'pending-invitation',
@@ -254,6 +261,7 @@ const mockAssessments: Assessment[] = [
     jobTitle: 'DevOps Engineer',
     employerId: 'emp-008',
     employerName: 'CloudOps Solutions',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=CloudOps',
     applicationId: 'app-008',
     assessmentType: 'technical-skills',
     provider: 'codility',
@@ -298,6 +306,7 @@ const mockAssessments: Assessment[] = [
     jobTitle: 'Content Writer',
     employerId: 'emp-009',
     employerName: 'ContentCraft Media',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=ContentCraft',
     applicationId: 'app-009',
     assessmentType: 'custom',
     provider: 'internal',
@@ -325,6 +334,7 @@ const mockAssessments: Assessment[] = [
     jobTitle: 'Operations Manager',
     employerId: 'emp-010',
     employerName: 'OptiManage Corp',
+    employerLogo: 'https://api.dicebear.com/7.x/initials/svg?seed=OptiManage',
     applicationId: 'app-010',
     assessmentType: 'personality',
     provider: 'shl',

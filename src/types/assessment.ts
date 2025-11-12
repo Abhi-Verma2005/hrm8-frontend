@@ -50,6 +50,7 @@ export interface Assessment {
   jobTitle?: string;
   employerId?: string;
   employerName?: string;
+  employerLogo?: string;
   applicationId?: string;
   assessmentType: AssessmentType;
   provider: AssessmentProvider;

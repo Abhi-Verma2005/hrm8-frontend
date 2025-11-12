@@ -365,8 +365,9 @@ export function BackgroundChecksTable({
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <EntityAvatar
-                        name={check.candidateName}
-                        type="person"
+                        name={check.employerName || 'Unknown'}
+                        src={check.employerLogo}
+                        type="logo"
                       />
                       <div className="min-w-0 flex-1">
                         <Link to={`/candidates/${check.candidateId}`}>
