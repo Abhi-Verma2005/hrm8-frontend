@@ -24,6 +24,7 @@ export const createEmployerColumns = (): Column<Employer>[] => [
     key: "name",
     label: "Company",
     sortable: true,
+    width: "25%",
     render: (employer) => (
       <div className="flex items-center gap-3">
         <EmployerAvatar name={employer.name} logoUrl={employer.logo} size="sm" />
@@ -43,18 +44,21 @@ export const createEmployerColumns = (): Column<Employer>[] => [
     key: "accountType",
     label: "Account Type",
     sortable: true,
+    width: "12%",
     render: (employer) => <AccountTypeBadge accountType={employer.accountType} />,
   },
   {
     key: "subscriptionTier",
     label: "Subscription",
     sortable: true,
+    width: "10%",
     render: (employer) => <SubscriptionTierBadge tier={employer.subscriptionTier} />,
   },
   {
     key: "location",
     label: "Location",
     sortable: true,
+    width: "12%",
     render: (employer) => {
       const locationParts = employer.location.split(',').map(p => p.trim());
       const city = locationParts[0] || '';
@@ -73,6 +77,7 @@ export const createEmployerColumns = (): Column<Employer>[] => [
     key: "activeJobCount",
     label: "Active Jobs",
     sortable: true,
+    width: "10%",
     render: (employer) => (
       <div className="text-center">
         <span className="font-medium">{employer.activeJobCount}</span>
@@ -83,6 +88,7 @@ export const createEmployerColumns = (): Column<Employer>[] => [
     key: "revenue",
     label: "Monthly Revenue",
     sortable: true,
+    width: "10%",
     render: (employer) => {
       const revenue = employer.monthlySubscriptionFee || 0;
       return <span className="font-medium">{formatRevenue(revenue)}</span>;
@@ -92,6 +98,7 @@ export const createEmployerColumns = (): Column<Employer>[] => [
     key: "lastActivityAt",
     label: "Last Login",
     sortable: true,
+    width: "11%",
     render: (employer) => {
       const date = employer.lastActivityAt || employer.updatedAt;
       return (
@@ -108,6 +115,7 @@ export const createEmployerColumns = (): Column<Employer>[] => [
     key: "accountManagerName",
     label: "Account Manager",
     sortable: true,
+    width: "10%",
     render: (employer) => {
       const manager = employer.accountManagerName;
       if (!manager) return <span className="text-muted-foreground">—</span>;
@@ -127,6 +135,7 @@ export const createEmployerColumns = (): Column<Employer>[] => [
   {
     key: "actions",
     label: "Actions",
+    width: "60px",
     render: (employer) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
