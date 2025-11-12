@@ -367,7 +367,7 @@ export default function Jobs() {
       key: 'name',
       label: 'Job Title',
       sortable: true,
-      width: "35%",
+      width: "25%",
       render: (job) => (
         <div className="flex items-center gap-3">
           <EntityAvatar
