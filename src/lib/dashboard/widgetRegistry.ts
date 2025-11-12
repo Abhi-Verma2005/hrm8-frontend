@@ -1,7 +1,7 @@
 import { 
   Users, Briefcase, FileText, UserCheck, TrendingUp, BarChart3, PieChart, Target, Clock,
   UserCircle, Calendar, Percent, Building2, DollarSign, TrendingDown, Wallet, Receipt,
-  FolderKanban, Building, Gauge, Timer, CheckCircle
+  FolderKanban, Building, Gauge, Timer, CheckCircle, Shield, AlertCircle, Activity, FileCheck
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { DashboardType } from "./dashboardTypes";
@@ -69,6 +69,15 @@ export type WidgetType =
   | 'chart-salary-expectations'
   // Feedback widgets
   | 'feedback-dashboard'
+  // Background Checks widgets
+  | 'stat-total-checks'
+  | 'stat-active-checks'
+  | 'stat-completion-rate'
+  | 'stat-avg-completion-time'
+  | 'widget-pending-actions'
+  | 'chart-check-type-distribution'
+  | 'chart-status-distribution'
+  | 'widget-recent-activity'
   // Shared
   | 'activity-feed';
 
@@ -951,6 +960,112 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 6, h: 3 },
     minSize: { w: 4, h: 2 },
     allowedDashboards: ['overview', 'jobs', 'candidates'],
+  },
+
+  // ===== BACKGROUND CHECKS WIDGETS =====
+  'stat-total-checks': {
+    id: 'stat-total-checks',
+    name: 'Total Background Checks',
+    description: 'Total number of background checks',
+    category: 'stat',
+    component: 'TotalChecksWidget',
+    icon: Shield,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {},
+    allowedDashboards: ['overview', 'background-checks']
+  },
+  'stat-active-checks': {
+    id: 'stat-active-checks',
+    name: 'Active Checks',
+    description: 'Currently active background checks',
+    category: 'stat',
+    component: 'ActiveChecksWidget',
+    icon: Clock,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {},
+    allowedDashboards: ['overview', 'background-checks']
+  },
+  'stat-completion-rate': {
+    id: 'stat-completion-rate',
+    name: 'Completion Rate',
+    description: 'Background check completion rate',
+    category: 'stat',
+    component: 'CompletionRateWidget',
+    icon: CheckCircle,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {},
+    allowedDashboards: ['overview', 'background-checks']
+  },
+  'stat-avg-completion-time': {
+    id: 'stat-avg-completion-time',
+    name: 'Avg. Completion Time',
+    description: 'Average time to complete checks',
+    category: 'stat',
+    component: 'AvgCompletionTimeWidget',
+    icon: Timer,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {},
+    allowedDashboards: ['overview', 'background-checks']
+  },
+  'widget-pending-actions': {
+    id: 'widget-pending-actions',
+    name: 'Pending Actions',
+    description: 'Items requiring immediate attention',
+    category: 'stat',
+    component: 'PendingActionsWidget',
+    icon: AlertCircle,
+    defaultSize: { w: 3, h: 2 },
+    minSize: { w: 3, h: 2 },
+    maxSize: { w: 6, h: 3 },
+    defaultProps: {},
+    allowedDashboards: ['overview', 'background-checks']
+  },
+  'chart-check-type-distribution': {
+    id: 'chart-check-type-distribution',
+    name: 'Check Type Distribution',
+    description: 'Distribution of check types',
+    category: 'chart',
+    component: 'CheckTypeDistributionWidget',
+    icon: FileCheck,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 3 },
+    defaultProps: {},
+    allowedDashboards: ['overview', 'background-checks']
+  },
+  'chart-status-distribution': {
+    id: 'chart-status-distribution',
+    name: 'Status Distribution',
+    description: 'Check status breakdown',
+    category: 'chart',
+    component: 'StatusDistributionWidget',
+    icon: Activity,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 3 },
+    defaultProps: {},
+    allowedDashboards: ['overview', 'background-checks']
+  },
+  'widget-recent-activity': {
+    id: 'widget-recent-activity',
+    name: 'Recent Activity',
+    description: 'Latest background check activities',
+    category: 'activity',
+    component: 'RecentActivityWidget',
+    icon: Clock,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 3 },
+    defaultProps: {},
+    allowedDashboards: ['overview', 'background-checks']
   },
 
   // ===== SHARED WIDGETS =====

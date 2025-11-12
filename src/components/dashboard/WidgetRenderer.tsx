@@ -27,6 +27,14 @@ import { CandidatePlacementTrendsChart } from './charts/CandidatePlacementTrends
 import { TopSkillsDemandChart } from './charts/TopSkillsDemandChart';
 import { SalaryExpectationsChart } from './charts/SalaryExpectationsChart';
 import { RecentActivityCard } from './RecentActivityCard';
+import { TotalChecksWidget } from '@/components/backgroundChecks/widgets/TotalChecksWidget';
+import { ActiveChecksWidget } from '@/components/backgroundChecks/widgets/ActiveChecksWidget';
+import { CompletionRateWidget } from '@/components/backgroundChecks/widgets/CompletionRateWidget';
+import { AvgCompletionTimeWidget } from '@/components/backgroundChecks/widgets/AvgCompletionTimeWidget';
+import { PendingActionsWidget } from '@/components/backgroundChecks/widgets/PendingActionsWidget';
+import { CheckTypeDistributionWidget } from '@/components/backgroundChecks/widgets/CheckTypeDistributionWidget';
+import { StatusDistributionWidget } from '@/components/backgroundChecks/widgets/StatusDistributionWidget';
+import { RecentActivityWidget } from '@/components/backgroundChecks/widgets/RecentActivityWidget';
 import { useNavigate } from 'react-router-dom';
 import type { DashboardWidget } from '@/lib/dashboard/types';
 import { getCardActions } from '@/lib/dashboard/cardActions';
@@ -60,7 +68,15 @@ const COMPONENT_MAP: Record<string, React.ComponentType<any>> = {
   CandidatePlacementTrendsChart,
   TopSkillsDemandChart,
   SalaryExpectationsChart,
-  RecentActivityCard
+  RecentActivityCard,
+  TotalChecksWidget,
+  ActiveChecksWidget,
+  CompletionRateWidget,
+  AvgCompletionTimeWidget,
+  PendingActionsWidget,
+  CheckTypeDistributionWidget,
+  StatusDistributionWidget,
+  RecentActivityWidget,
 };
 
 interface WidgetRendererProps {

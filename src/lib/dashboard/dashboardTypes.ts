@@ -24,10 +24,15 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
       'stat-total-employees',
       'stat-total-revenue',
       'stat-active-projects',
+      'stat-total-checks',
+      'stat-active-checks',
+      'stat-completion-rate',
       'chart-hiring-trends',
       'chart-revenue-expense',
       'chart-employee-distribution',
       'chart-project-pipeline',
+      'chart-check-type-distribution',
+      'widget-pending-actions',
       'activity-feed'
     ]
   },
@@ -203,6 +208,16 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
     description: 'Track background check revenue, client adoption, and business performance',
     icon: ShieldCheck,
     defaultRoute: '/dashboard/background-checks',
-    availableWidgets: []
+    availableWidgets: [
+      'stat-total-checks',
+      'stat-active-checks',
+      'stat-completion-rate',
+      'stat-avg-completion-time',
+      'widget-pending-actions',
+      'chart-check-type-distribution',
+      'chart-status-distribution',
+      'widget-recent-activity',
+      'activity-feed'
+    ]
   }
 };
