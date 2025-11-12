@@ -132,6 +132,7 @@ import BackgroundCheckDetail from "./pages/BackgroundCheckDetail";
 import DigestSettingsPage from "./pages/DigestSettingsPage";
 import EscalationRulesPage from "./pages/EscalationRulesPage";
 import SLASettingsPage from "./pages/SLASettingsPage";
+import BackgroundChecksAnalytics from "./pages/BackgroundChecksAnalytics";
 import InternalJobs from "./pages/InternalJobs";
 import Calendar from "./pages/Calendar";
 import CollaborativeFeedback from "./pages/CollaborativeFeedback";
@@ -247,6 +248,7 @@ function AppContent() {
               <Route path="/background-checks/digest-settings" element={<DigestSettingsPage />} />
               <Route path="/background-checks/escalation-rules" element={<EscalationRulesPage />} />
               <Route path="/background-checks/sla-settings" element={<SLASettingsPage />} />
+              <Route path="/background-checks/analytics" element={<BackgroundChecksAnalytics />} />
               <Route path="/internal-jobs" element={<InternalJobs />} />
             </Route>
             {/* Sales Module Routes */}

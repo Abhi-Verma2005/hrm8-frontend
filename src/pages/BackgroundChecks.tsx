@@ -394,6 +394,11 @@ export default function BackgroundChecks() {
                   <TrendingUp className="h-4 w-4 mr-2" />
                   SLA Configuration
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/background-checks/analytics')}>
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  View Analytics
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             
