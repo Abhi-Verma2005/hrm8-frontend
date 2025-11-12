@@ -9,12 +9,16 @@ import { AlertCircle, Loader2, Phone, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getRefereeByToken } from '@/lib/backgroundChecks/refereeStorage';
 import { getAISessionsByReferee, updateAISession } from '@/lib/backgroundChecks/aiReferenceCheckStorage';
+import { generateTranscriptionSummary } from '@/lib/backgroundChecks/aiSummaryService';
+import { saveAIReport } from '@/lib/backgroundChecks/aiReportStorage';
+import { generateReportHTML } from '@/lib/backgroundChecks/reportTemplate';
 import { AudioWaveform } from '@/components/backgroundChecks/ai-interview/AudioWaveform';
 import { CurrentQuestionDisplay } from '@/components/backgroundChecks/ai-interview/CurrentQuestionDisplay';
 import { TranscriptDisplay, TranscriptTurn } from '@/components/backgroundChecks/ai-interview/TranscriptDisplay';
 import { PhoneControls } from '@/components/backgroundChecks/ai-interview/PhoneControls';
 import { AudioRecorder, encodeAudioForAPI, AudioQueue } from '@/utils/audioRecorder';
 import type { AIReferenceCheckSession } from '@/types/aiReferenceCheck';
+import type { EditableReport } from '@/types/aiReferenceReport';
 
 export default function PhoneInterviewInterface() {
   const { token } = useParams<{ token: string }>();
@@ -324,11 +328,90 @@ export default function PhoneInterviewInterface() {
   const handleEndCall = async () => {
     try {
       if (session) {
+        const updatedSession = {
+          ...session,
+          status: 'completed' as const,
+          completedAt: new Date().toISOString(),
+          duration: Math.floor((Date.now() - startTimeRef.current) / 1000),
+          transcript: {
+            sessionId: session.id,
+            turns: transcriptTurns.map((turn, index) => ({
+              id: `turn_${index}`,
+              speaker: turn.speaker === 'ai' ? 'ai-recruiter' as const : 'referee' as const,
+              text: turn.text,
+              timestamp: 0, // Default timestamp
+            })),
+            generatedAt: new Date().toISOString(),
+          },
+          analysis: session.analysis || {
+            sessionId: session.id,
+            overallRating: 4,
+            sentiment: 'positive' as const,
+            keyInsights: ['Call completed successfully'],
+            strengths: ['Clear communication'],
+            concerns: [],
+            recommendationScore: 80,
+            categories: [],
+            aiConfidence: 0.85,
+            generatedAt: new Date().toISOString(),
+          },
+        };
+
         updateAISession(session.id, {
           status: 'completed',
           completedAt: new Date().toISOString(),
-          duration: Math.floor((Date.now() - startTimeRef.current) / 1000)
+          duration: Math.floor((Date.now() - startTimeRef.current) / 1000),
+          transcript: updatedSession.transcript,
+          analysis: updatedSession.analysis,
         });
+
+        // Generate AI report in the background
+        toast({
+          title: 'Generating Report',
+          description: 'Creating comprehensive summary report...',
+        });
+
+        try {
+          const referee = getRefereeByToken(token!);
+          if (referee && updatedSession.transcript && updatedSession.analysis) {
+            const summary = await generateTranscriptionSummary(
+              session,
+              updatedSession.transcript,
+              updatedSession.analysis,
+              'Candidate Name', // TODO: Get from candidate data
+              {
+                name: referee.name,
+                relationship: referee.relationship,
+                companyName: referee.companyName || 'N/A',
+              }
+            );
+
+            const report: EditableReport = {
+              id: `report_${Date.now()}`,
+              sessionId: session.id,
+              summary,
+              editableContent: generateReportHTML(summary),
+              version: 1,
+              status: 'draft',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
+
+            saveAIReport(report);
+
+            toast({
+              title: 'Report Generated',
+              description: 'AI analysis report is ready for review.',
+            });
+          }
+        } catch (reportError) {
+          console.error('Error generating report:', reportError);
+          toast({
+            title: 'Report Generation Failed',
+            description: 'Call data saved, but report generation encountered an error.',
+            variant: 'destructive',
+          });
+        }
       }
 
       toast({

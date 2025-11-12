@@ -1,30 +1,43 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Download, Calendar, CheckCircle, XCircle, Clock, AlertTriangle, User, FileText, Shield, Mail } from 'lucide-react';
+import { ArrowLeft, Download, Calendar, CheckCircle, XCircle, Clock, AlertTriangle, User, FileText, Shield, Mail, Edit, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 import { getBackgroundCheckById } from '@/lib/mockBackgroundCheckStorage';
 import { getConsentsByBackgroundCheck, getConsentResponseByRequestId } from '@/lib/backgroundChecks/consentStorage';
 import { getRefereesByBackgroundCheck } from '@/lib/backgroundChecks/refereeStorage';
+import { getAISessionsByBackgroundCheck } from '@/lib/backgroundChecks/aiReferenceCheckStorage';
+import { getReportBySessionId, getReportsByCandidateId } from '@/lib/backgroundChecks/aiReportStorage';
 import { exportBackgroundCheckPDF } from '@/lib/backgroundChecks/backgroundCheckExport';
+import { exportAIReferencePDF } from '@/lib/backgroundChecks/aiReportExport';
 import type { BackgroundCheck } from '@/types/backgroundCheck';
 import type { ConsentRequest } from '@/types/consent';
 import type { RefereeDetails } from '@/types/referee';
+import type { EditableReport } from '@/types/aiReferenceReport';
+import type { AIReferenceCheckSession } from '@/types/aiReferenceCheck';
 import BackgroundCheckTimeline from '@/components/backgroundChecks/BackgroundCheckTimeline';
 import ConsentStatusSection from '@/components/backgroundChecks/ConsentStatusSection';
 import RefereeResponsesSection from '@/components/backgroundChecks/RefereeResponsesSection';
 import CheckResultsSection from '@/components/backgroundChecks/CheckResultsSection';
+import { AIReportEditor } from '@/components/backgroundChecks/ai-interview/AIReportEditor';
 
 export default function BackgroundCheckDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [check, setCheck] = useState<BackgroundCheck | null>(null);
   const [consents, setConsents] = useState<ConsentRequest[]>([]);
   const [referees, setReferees] = useState<RefereeDetails[]>([]);
+  const [aiSessions, setAiSessions] = useState<AIReferenceCheckSession[]>([]);
+  const [aiReports, setAiReports] = useState<EditableReport[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<EditableReport | null>(null);
+  const [selectedSession, setSelectedSession] = useState<AIReferenceCheckSession | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -32,7 +45,24 @@ export default function BackgroundCheckDetail() {
       if (checkData) {
         setCheck(checkData);
         setConsents(getConsentsByBackgroundCheck(id));
-        setReferees(getRefereesByBackgroundCheck(id));
+        const refereesData = getRefereesByBackgroundCheck(id);
+        setReferees(refereesData);
+        
+        // Load AI sessions and reports
+        const sessions = getAISessionsByBackgroundCheck(id);
+        setAiSessions(sessions);
+        
+        // Load reports for completed AI sessions
+        const reports: EditableReport[] = [];
+        sessions.forEach(session => {
+          if (session.status === 'completed') {
+            const report = getReportBySessionId(session.id);
+            if (report) {
+              reports.push(report);
+            }
+          }
+        });
+        setAiReports(reports);
       }
       setLoading(false);
     }
@@ -41,6 +71,65 @@ export default function BackgroundCheckDetail() {
   const handleExportPDF = () => {
     if (check) {
       exportBackgroundCheckPDF(check, consents, referees);
+    }
+  };
+
+  const handleViewReport = (report: EditableReport) => {
+    const session = aiSessions.find(s => s.id === report.sessionId);
+    if (session) {
+      setSelectedReport(report);
+      setSelectedSession(session);
+      setEditorOpen(true);
+    }
+  };
+
+  const handleExportAIPDF = (report: EditableReport, includeTranscript: boolean = false) => {
+    const session = aiSessions.find(s => s.id === report.sessionId);
+    if (session) {
+      try {
+        exportAIReferencePDF(report, session, {
+          includeTranscript,
+          includeMetadata: true,
+          includeSignature: true,
+        });
+        toast({
+          title: "PDF exported",
+          description: includeTranscript 
+            ? "AI report with full transcript downloaded successfully."
+            : "AI report downloaded successfully.",
+        });
+      } catch (error) {
+        console.error('Error exporting AI PDF:', error);
+        toast({
+          title: "Export failed",
+          description: "Failed to generate PDF report.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleSaveReport = (editedReport: EditableReport) => {
+    // Report saving is handled by AIReportEditor
+    setEditorOpen(false);
+    toast({
+      title: "Report saved",
+      description: "AI report has been saved successfully.",
+    });
+    
+    // Reload reports
+    if (id) {
+      const sessions = getAISessionsByBackgroundCheck(id);
+      const reports: EditableReport[] = [];
+      sessions.forEach(session => {
+        if (session.status === 'completed') {
+          const report = getReportBySessionId(session.id);
+          if (report) {
+            reports.push(report);
+          }
+        }
+      });
+      setAiReports(reports);
     }
   };
 
@@ -191,10 +280,18 @@ export default function BackgroundCheckDetail() {
           {/* Right Column - Detailed Information */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="results" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="results">Check Results</TabsTrigger>
                 <TabsTrigger value="consent">Consent Status</TabsTrigger>
                 <TabsTrigger value="referees">Referee Responses</TabsTrigger>
+                <TabsTrigger value="ai-reports">
+                  AI Reports
+                  {aiReports.length > 0 && (
+                    <Badge variant="secondary" className="ml-2">
+                      {aiReports.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="results" className="mt-6">
@@ -208,10 +305,115 @@ export default function BackgroundCheckDetail() {
               <TabsContent value="referees" className="mt-6">
                 <RefereeResponsesSection check={check} referees={referees} />
               </TabsContent>
+
+              <TabsContent value="ai-reports" className="mt-6">
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    AI Reference Check Reports
+                  </h3>
+                  
+                  {aiReports.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                      <p>No AI reports available yet.</p>
+                      <p className="text-sm mt-1">Reports will appear here once AI reference interviews are completed.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {aiReports.map((report) => {
+                        const session = aiSessions.find(s => s.id === report.sessionId);
+                        return (
+                          <Card key={report.id} className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-3 mb-2">
+                                  <div className="flex flex-col">
+                                    <h4 className="font-semibold">{report.summary.candidateName}</h4>
+                                    <p className="text-sm text-muted-foreground">
+                                      Referee: {report.summary.refereeInfo.name} ({report.summary.refereeInfo.relationship})
+                                    </p>
+                                  </div>
+                                  <Badge variant={
+                                    report.status === 'finalized' ? 'default' : 
+                                    report.status === 'reviewed' ? 'secondary' : 'outline'
+                                  }>
+                                    {report.status.charAt(0).toUpperCase() + report.status.slice(1)}
+                                  </Badge>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
+                                  <div>
+                                    <span className="text-muted-foreground">Interview Mode:</span>
+                                    <span className="ml-2 font-medium capitalize">{report.summary.sessionDetails.mode}</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-muted-foreground">Overall Score:</span>
+                                    <span className="ml-2 font-medium">{report.summary.recommendation.overallScore}/100</span>
+                                  </div>
+                                  <div>
+                                    <span className="text-muted-foreground">Recommendation:</span>
+                                    <Badge 
+                                      variant={
+                                        report.summary.recommendation.hiringRecommendation === 'strongly-recommend' ? 'default' :
+                                        report.summary.recommendation.hiringRecommendation === 'recommend' ? 'secondary' :
+                                        report.summary.recommendation.hiringRecommendation === 'neutral' ? 'outline' :
+                                        'destructive'
+                                      }
+                                      className="ml-2"
+                                    >
+                                      {report.summary.recommendation.hiringRecommendation.replace(/-/g, ' ')}
+                                    </Badge>
+                                  </div>
+                                  <div>
+                                    <span className="text-muted-foreground">Completed:</span>
+                                    <span className="ml-2">{new Date(report.summary.sessionDetails.completedAt).toLocaleDateString()}</span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-2 ml-4">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleViewReport(report)}
+                                >
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  View/Edit
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleExportAIPDF(report, false)}
+                                >
+                                  <Download className="h-4 w-4 mr-2" />
+                                  Export PDF
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  )}
+                </Card>
+              </TabsContent>
             </Tabs>
           </div>
         </div>
       </div>
+
+      {/* AI Report Editor Dialog */}
+      {editorOpen && selectedReport && selectedSession && (
+        <AIReportEditor
+          open={editorOpen}
+          session={selectedSession}
+          summary={selectedReport.summary}
+          existingReport={selectedReport}
+          onSave={handleSaveReport}
+          onCancel={() => setEditorOpen(false)}
+        />
+      )}
     </div>
   );
 }
