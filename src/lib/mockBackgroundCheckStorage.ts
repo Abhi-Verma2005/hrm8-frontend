@@ -2,7 +2,7 @@ import type { BackgroundCheck } from '@/types/backgroundCheck';
 
 const STORAGE_KEY = 'hrm8_background_checks';
 const VERSION_KEY = 'hrm8_background_checks_version';
-const CURRENT_VERSION = '1.1'; // Update this when mock data structure changes
+const CURRENT_VERSION = '1.2'; // Update this when mock data structure changes
 
 const mockBackgroundChecks: BackgroundCheck[] = [
   {
@@ -10,6 +10,10 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     candidateId: 'cand-001',
     candidateName: 'Sarah Johnson',
     applicationId: 'app-001',
+    jobId: 'job-001',
+    jobTitle: 'Senior Software Engineer',
+    employerId: 'emp-001',
+    employerName: 'TechCorp Solutions',
     provider: 'checkr',
     checkTypes: [
       { type: 'reference', required: true },
@@ -40,6 +44,10 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     candidateId: 'cand-002',
     candidateName: 'David Martinez',
     applicationId: 'app-002',
+    jobId: 'job-002',
+    jobTitle: 'Product Manager',
+    employerId: 'emp-002',
+    employerName: 'InnovateCo',
     provider: 'sterling',
     checkTypes: [
       { type: 'reference', required: true },
@@ -68,6 +76,10 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     candidateId: 'cand-003',
     candidateName: 'Jennifer Lee',
     applicationId: 'app-003',
+    jobId: 'job-003',
+    jobTitle: 'Marketing Director',
+    employerId: 'emp-003',
+    employerName: 'BrandWorks Agency',
     provider: 'hireright',
     checkTypes: [
       { type: 'criminal', required: true },
@@ -90,6 +102,10 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     candidateId: 'cand-004',
     candidateName: 'Robert Anderson',
     applicationId: 'app-004',
+    jobId: 'job-004',
+    jobTitle: 'Financial Analyst',
+    employerId: 'emp-004',
+    employerName: 'Global Finance Corp',
     provider: 'manual',
     checkTypes: [
       { type: 'reference', required: true },
@@ -118,6 +134,10 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     candidateId: 'cand-005',
     candidateName: 'Maria Garcia',
     applicationId: 'app-005',
+    jobId: 'job-005',
+    jobTitle: 'Operations Manager',
+    employerId: 'emp-005',
+    employerName: 'Logistics Pro',
     provider: 'checkr',
     checkTypes: [
       { type: 'criminal', required: true },
@@ -148,6 +168,10 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     candidateId: 'cand-006',
     candidateName: 'James Wilson',
     applicationId: 'app-006',
+    jobId: 'job-006',
+    jobTitle: 'Data Scientist',
+    employerId: 'emp-006',
+    employerName: 'DataVision Inc',
     provider: 'sterling',
     checkTypes: [
       { type: 'reference', required: true },
@@ -173,6 +197,10 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     id: 'bc-007',
     candidateId: 'cand-007',
     candidateName: 'Patricia Brown',
+    jobId: 'job-007',
+    jobTitle: 'HR Business Partner',
+    employerId: 'emp-007',
+    employerName: 'People First Solutions',
     provider: 'hireright',
     checkTypes: [
       { type: 'identity', required: true },
@@ -195,6 +223,10 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     candidateId: 'cand-008',
     candidateName: 'Michael Taylor',
     applicationId: 'app-008',
+    jobId: 'job-008',
+    jobTitle: 'Sales Director',
+    employerId: 'emp-008',
+    employerName: 'Growth Ventures',
     provider: 'checkr',
     checkTypes: [
       { type: 'reference', required: true },
@@ -225,6 +257,10 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     candidateId: 'cand-009',
     candidateName: 'Linda Davis',
     applicationId: 'app-009',
+    jobId: 'job-009',
+    jobTitle: 'Content Writer',
+    employerId: 'emp-009',
+    employerName: 'Creative Media Labs',
     provider: 'manual',
     checkTypes: [
       { type: 'reference', required: true }
@@ -249,6 +285,10 @@ const mockBackgroundChecks: BackgroundCheck[] = [
     candidateId: 'cand-010',
     candidateName: 'Christopher Moore',
     applicationId: 'app-010',
+    jobId: 'job-010',
+    jobTitle: 'UX Designer',
+    employerId: 'emp-010',
+    employerName: 'DesignHub Studio',
     provider: 'sterling',
     checkTypes: [
       { type: 'criminal', required: true },

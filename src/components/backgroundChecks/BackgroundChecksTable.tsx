@@ -328,19 +328,20 @@ export function BackgroundChecksTable({
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead className="w-[35%]">Candidate</TableHead>
-              <TableHead className="w-[20%]">Check Types</TableHead>
-              <TableHead className="w-[12%]">Status</TableHead>
-              <TableHead className="w-[12%]">Progress</TableHead>
-              <TableHead className="w-[10%]">Result</TableHead>
-              <TableHead className="w-[12%]">Initiated</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
+              <TableHead className="w-[25%]">Candidate</TableHead>
+              <TableHead className="w-[20%]">Related To</TableHead>
+              <TableHead className="w-[18%]">Check Types</TableHead>
+              <TableHead className="w-[10%]">Status</TableHead>
+              <TableHead className="w-[10%]">Progress</TableHead>
+              <TableHead className="w-[8%]">Result</TableHead>
+              <TableHead className="w-[10%]">Initiated</TableHead>
+              <TableHead className="w-[50px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {checks.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
                   <div className="flex flex-col items-center gap-2">
                     <FileText className="h-12 w-12 opacity-50" />
                     <p className="font-medium">No background checks found</p>
@@ -363,11 +364,33 @@ export function BackgroundChecksTable({
                   </TableCell>
                   <TableCell>
                     <div>
-                      <p className="font-medium hover:underline cursor-pointer" onClick={() => handleViewDetails(check.id)}>
+                      <p 
+                        className="font-medium text-primary hover:underline cursor-pointer" 
+                        onClick={() => navigate(`/candidates/${check.candidateId}`)}
+                      >
                         {check.candidateName}
                       </p>
-                      <p className="text-sm text-muted-foreground">ID: {check.candidateId}</p>
                     </div>
+                  </TableCell>
+                  <TableCell>
+                    {check.jobTitle && check.employerName ? (
+                      <div className="space-y-0.5">
+                        <p 
+                          className="font-medium text-primary hover:underline cursor-pointer text-sm"
+                          onClick={() => navigate(`/jobs/${check.jobId}`)}
+                        >
+                          {check.jobTitle}
+                        </p>
+                        <p 
+                          className="text-xs text-muted-foreground hover:underline cursor-pointer"
+                          onClick={() => navigate(`/employers/${check.employerId}`)}
+                        >
+                          {check.employerName}
+                        </p>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">

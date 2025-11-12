@@ -27,6 +27,10 @@ export interface BackgroundCheck {
   candidateName: string;
   applicationId?: string;
   offerLetterId?: string;
+  jobId?: string;
+  jobTitle?: string;
+  employerId?: string;
+  employerName?: string;
   provider: 'checkr' | 'sterling' | 'hireright' | 'manual';
   checkTypes: BackgroundCheckTypeConfig[];
   status: 'not-started' | 'pending-consent' | 'in-progress' | 'completed' | 'issues-found' | 'cancelled';
