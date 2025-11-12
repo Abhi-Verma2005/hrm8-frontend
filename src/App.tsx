@@ -107,6 +107,7 @@ import ConsentForm from "./pages/ConsentForm";
 import ReferenceQuestionnaire from "./pages/ReferenceQuestionnaire";
 import AIReferenceSession from "./pages/AIReferenceSession";
 import VideoInterviewInterface from "./pages/VideoInterviewInterface";
+import PhoneInterviewInterface from "./pages/PhoneInterviewInterface";
 import AIInterviewComplete from "./pages/AIInterviewComplete";
 import TakeAssessment from "./pages/public/TakeAssessment";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
@@ -342,6 +343,7 @@ function AppContent() {
           <Route path="/reference/:token" element={<ReferenceQuestionnaire />} />
           <Route path="/ai-reference/:token" element={<AIReferenceSession />} />
           <Route path="/ai-reference/:token/video" element={<VideoInterviewInterface />} />
+          <Route path="/ai-reference/:token/phone" element={<PhoneInterviewInterface />} />
           <Route path="/ai-reference/:token/complete" element={<AIInterviewComplete />} />
           <Route path="/assessment/:token" element={<TakeAssessment />} />
       
