@@ -62,46 +62,48 @@ export function AssessmentsFilterBar({
   ];
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="flex flex-col sm:flex-row gap-3">
       <SearchInput
         value={searchTerm}
         onChange={onSearchChange}
         placeholder="Search by candidate name or ID..."
-        className="w-full md:w-80"
+        className="flex-1"
       />
       
-      <FilterDropdown
-        label="Status"
-        options={statusOptions}
-        value={statusFilter}
-        onChange={onStatusChange}
-      />
+      <div className="flex gap-2 flex-wrap">
+        <FilterDropdown
+          label="Status"
+          options={statusOptions}
+          value={statusFilter}
+          onChange={onStatusChange}
+        />
 
-      <FilterDropdown
-        label="Type"
-        options={typeOptions}
-        value={typeFilter}
-        onChange={onTypeChange}
-      />
+        <FilterDropdown
+          label="Type"
+          options={typeOptions}
+          value={typeFilter}
+          onChange={onTypeChange}
+        />
 
-      <FilterDropdown
-        label="Provider"
-        options={providerOptions}
-        value={providerFilter}
-        onChange={onProviderChange}
-      />
+        <FilterDropdown
+          label="Provider"
+          options={providerOptions}
+          value={providerFilter}
+          onChange={onProviderChange}
+        />
 
-      {activeFilterCount > 0 && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onClearFilters}
-          className="gap-2"
-        >
-          <X className="h-4 w-4" />
-          Clear Filters ({activeFilterCount})
-        </Button>
-      )}
+        {activeFilterCount > 0 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClearFilters}
+            className="gap-2"
+          >
+            <X className="h-4 w-4" />
+            Clear Filters ({activeFilterCount})
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
