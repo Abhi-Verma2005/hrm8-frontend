@@ -56,21 +56,24 @@ export function RecruiterPerformanceTable({ data }: RecruiterPerformanceTablePro
           </TableHeader>
           <TableBody>
             {data.map((recruiter) => (
-              <TableRow 
-                key={recruiter.recruiterId}
-                onClick={() => handleRecruiterClick(recruiter.recruiterId, recruiter.recruiterName)}
-                className="cursor-pointer hover:bg-accent/50 transition-colors"
-              >
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="text-xs">
-                        {recruiter.recruiterName.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="font-medium">{recruiter.recruiterName}</span>
-                  </div>
-                </TableCell>
+            <TableRow 
+              key={recruiter.recruiterId}
+              onClick={() => handleRecruiterClick(recruiter.recruiterId, recruiter.recruiterName)}
+              className="cursor-pointer hover:bg-accent/50 transition-colors"
+            >
+              <TableCell onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/background-checks/recruiter/${recruiter.recruiterId}`);
+              }}>
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="text-xs">
+                      {recruiter.recruiterName.split(' ').map(n => n[0]).join('')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium hover:text-primary transition-colors">{recruiter.recruiterName}</span>
+                </div>
+              </TableCell>
                 <TableCell className="text-right font-medium">{recruiter.totalInitiated}</TableCell>
                 <TableCell className="text-right">{recruiter.avgCompletionTime} days</TableCell>
                 <TableCell>

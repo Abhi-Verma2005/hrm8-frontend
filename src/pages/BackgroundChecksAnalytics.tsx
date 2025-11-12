@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
-import { Download, Calendar } from 'lucide-react';
+import { Download, Calendar, RefreshCw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrendsChart } from '@/components/backgroundChecks/TrendsChart';
 import { CheckTypeComparisonChart } from '@/components/backgroundChecks/CheckTypeComparisonChart';
 import { RecruiterPerformanceTable } from '@/components/backgroundChecks/RecruiterPerformanceTable';
 import { BottleneckAnalysis } from '@/components/backgroundChecks/BottleneckAnalysis';
 import { PredictiveInsights } from '@/components/backgroundChecks/PredictiveInsights';
+import { DateRangeSelector } from '@/components/backgroundChecks/DateRangeSelector';
+import { PeriodComparisonCard } from '@/components/backgroundChecks/PeriodComparisonCard';
+import { toast } from '@/hooks/use-toast';
 import {
   getTrendsData,
   getCheckTypeComparison,
@@ -15,19 +18,79 @@ import {
   getBottleneckInsights,
   getPredictiveMetrics
 } from '@/lib/backgroundChecks/analyticsService';
+import { getPeriodComparison } from '@/lib/backgroundChecks/periodComparison';
+import { exportAnalyticsReport } from '@/lib/backgroundChecks/analyticsExport';
 
 export default function BackgroundChecksAnalytics() {
-  const [dateRange, setDateRange] = useState(30);
+  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+    from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    to: new Date(),
+  });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState(new Date());
   
-  const trendsData = getTrendsData(dateRange);
-  const checkTypeData = getCheckTypeComparison();
-  const recruiterData = getRecruiterPerformance();
-  const bottleneckData = getBottleneckInsights();
-  const predictiveData = getPredictiveMetrics();
+  const days = Math.floor((dateRange.to.getTime() - dateRange.from.getTime()) / (1000 * 60 * 60 * 24));
+  
+  const [trendsData, setTrendsData] = useState(getTrendsData(days));
+  const [checkTypeData, setCheckTypeData] = useState(getCheckTypeComparison());
+  const [recruiterData, setRecruiterData] = useState(getRecruiterPerformance());
+  const [bottleneckData, setBottleneckData] = useState(getBottleneckInsights());
+  const [predictiveData, setPredictiveData] = useState(getPredictiveMetrics());
+  const [comparisonData, setComparisonData] = useState(getPeriodComparison(dateRange.from, dateRange.to));
+
+  // Auto-refresh every 2 minutes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshData();
+    }, 120000); // 2 minutes
+
+    return () => clearInterval(interval);
+  }, [days, dateRange]);
+
+  const refreshData = () => {
+    setIsRefreshing(true);
+    
+    setTimeout(() => {
+      setTrendsData(getTrendsData(days));
+      setCheckTypeData(getCheckTypeComparison());
+      setRecruiterData(getRecruiterPerformance());
+      setBottleneckData(getBottleneckInsights());
+      setPredictiveData(getPredictiveMetrics());
+      setComparisonData(getPeriodComparison(dateRange.from, dateRange.to));
+      setLastRefresh(new Date());
+      setIsRefreshing(false);
+      
+      toast({
+        title: "Analytics Refreshed",
+        description: `Data updated at ${new Date().toLocaleTimeString()}`,
+      });
+    }, 1000);
+  };
+
+  const handleDateRangeChange = (range: { from: Date; to: Date } | undefined) => {
+    if (range) {
+      setDateRange(range);
+      const newDays = Math.floor((range.to.getTime() - range.from.getTime()) / (1000 * 60 * 60 * 24));
+      setTrendsData(getTrendsData(newDays));
+      setComparisonData(getPeriodComparison(range.from, range.to));
+    }
+  };
 
   const handleExport = () => {
-    // Mock export functionality
-    console.log('Exporting analytics data...');
+    const dateRangeStr = `${dateRange.from.toLocaleDateString()} - ${dateRange.to.toLocaleDateString()}`;
+    exportAnalyticsReport(
+      trendsData,
+      checkTypeData,
+      recruiterData,
+      bottleneckData,
+      predictiveData,
+      dateRangeStr
+    );
+    
+    toast({
+      title: "Report Exported",
+      description: "Analytics report has been downloaded as PDF",
+    });
   };
 
   return (
@@ -36,10 +99,22 @@ export default function BackgroundChecksAnalytics() {
       subtitle="Comprehensive insights into verification processes and performance"
       actions={
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setDateRange(dateRange === 30 ? 90 : 30)}>
-            <Calendar className="h-4 w-4 mr-2" />
-            Last {dateRange} Days
+          <span className="text-xs text-muted-foreground">
+            Last updated: {lastRefresh.toLocaleTimeString()}
+          </span>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={refreshData}
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Refresh
           </Button>
+          <DateRangeSelector 
+            dateRange={dateRange} 
+            onDateRangeChange={handleDateRangeChange}
+          />
           <Button variant="outline" size="sm" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
             Export Report
@@ -50,6 +125,9 @@ export default function BackgroundChecksAnalytics() {
       <div className="space-y-6">
         {/* Predictive Insights */}
         <PredictiveInsights metrics={predictiveData} />
+
+        {/* Period Comparison */}
+        <PeriodComparisonCard comparison={comparisonData} />
 
         {/* Tabs for different analysis views */}
         <Tabs defaultValue="trends" className="space-y-4">

@@ -133,6 +133,7 @@ import DigestSettingsPage from "./pages/DigestSettingsPage";
 import EscalationRulesPage from "./pages/EscalationRulesPage";
 import SLASettingsPage from "./pages/SLASettingsPage";
 import BackgroundChecksAnalytics from "./pages/BackgroundChecksAnalytics";
+import RecruiterAnalyticsDashboard from "./pages/RecruiterAnalyticsDashboard";
 import InternalJobs from "./pages/InternalJobs";
 import Calendar from "./pages/Calendar";
 import CollaborativeFeedback from "./pages/CollaborativeFeedback";
@@ -245,6 +246,7 @@ function AppContent() {
           <Route path="/scheduled-assessments" element={<ScheduledAssessments />} />
               <Route path="/background-checks" element={<BackgroundChecks />} />
               <Route path="/background-checks/:id" element={<BackgroundCheckDetail />} />
+              <Route path="/background-checks/recruiter/:recruiterId" element={<RecruiterAnalyticsDashboard />} />
               <Route path="/background-checks/digest-settings" element={<DigestSettingsPage />} />
               <Route path="/background-checks/escalation-rules" element={<EscalationRulesPage />} />
               <Route path="/background-checks/sla-settings" element={<SLASettingsPage />} />
