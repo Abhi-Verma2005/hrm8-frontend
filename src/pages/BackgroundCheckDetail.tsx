@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Download, Calendar, CheckCircle, XCircle, Clock, AlertTriangle, User, FileText, Shield, Mail, Edit, Eye } from 'lucide-react';
+import { ArrowLeft, Download, Calendar, CheckCircle, XCircle, Clock, AlertTriangle, User, FileText, Shield, Mail, Edit, Eye, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,6 +25,7 @@ import RefereeResponsesSection from '@/components/backgroundChecks/RefereeRespon
 import CheckResultsSection from '@/components/backgroundChecks/CheckResultsSection';
 import { AIReportEditor } from '@/components/backgroundChecks/ai-interview/AIReportEditor';
 import { EmailReportDialog } from '@/components/backgroundChecks/ai-interview/EmailReportDialog';
+import RefereeComparison from '@/components/backgroundChecks/ai-interview/RefereeComparison';
 
 export default function BackgroundCheckDetail() {
   const { id } = useParams<{ id: string }>();
@@ -40,6 +41,7 @@ export default function BackgroundCheckDetail() {
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<EditableReport | null>(null);
   const [selectedSession, setSelectedSession] = useState<AIReferenceCheckSession | null>(null);
+  const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -309,21 +311,53 @@ export default function BackgroundCheckDetail() {
               </TabsContent>
 
               <TabsContent value="ai-reports" className="mt-6">
-                <Card className="p-6">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
-                    AI Reference Check Reports
-                  </h3>
-                  
-                  {aiReports.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                      <p>No AI reports available yet.</p>
-                      <p className="text-sm mt-1">Reports will appear here once AI reference interviews are completed.</p>
+                {showComparison && aiReports.length >= 2 ? (
+                  <div className="space-y-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowComparison(false)}
+                      className="mb-4"
+                    >
+                      <ArrowLeft className="h-4 w-4 mr-2" />
+                      Back to Reports List
+                    </Button>
+                    <RefereeComparison
+                      reports={aiReports.map((r) => r.summary)}
+                      onExport={() => {
+                        toast({
+                          title: "Comparison exported",
+                          description: "Multi-referee comparison has been exported successfully.",
+                        });
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <Card className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <FileText className="h-5 w-5" />
+                        AI Reference Check Reports
+                      </h3>
+                      {aiReports.length >= 2 && (
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowComparison(true)}
+                        >
+                          <Users className="h-4 w-4 mr-2" />
+                          Compare {aiReports.length} Reports
+                        </Button>
+                      )}
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {aiReports.map((report) => {
+                    
+                    {aiReports.length === 0 ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                        <p>No AI reports available yet.</p>
+                        <p className="text-sm mt-1">Reports will appear here once AI reference interviews are completed.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {aiReports.map((report) => {
                         const session = aiSessions.find(s => s.id === report.sessionId);
                         return (
                           <Card key={report.id} className="p-4">
@@ -405,11 +439,12 @@ export default function BackgroundCheckDetail() {
                               </div>
                             </div>
                           </Card>
-                        );
-                      })}
-                    </div>
-                  )}
-                </Card>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </Card>
+                )}
               </TabsContent>
             </Tabs>
           </div>
