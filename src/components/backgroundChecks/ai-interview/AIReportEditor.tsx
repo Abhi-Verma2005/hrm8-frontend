@@ -13,12 +13,14 @@ import type { AITranscriptionSummary, EditableReport } from '@/types/aiReference
 import { TranscriptViewer } from './TranscriptViewer';
 import { SectionNavigation } from './SectionNavigation';
 import { generateReportHTML } from '@/lib/backgroundChecks/reportTemplate';
+import { exportAIReferencePDF } from '@/lib/backgroundChecks/aiReportExport';
 import { 
   Save, 
   X, 
   FileText, 
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  Download
 } from 'lucide-react';
 
 interface AIReportEditorProps {
@@ -133,6 +135,42 @@ export function AIReportEditor({
     });
   };
 
+  const handleExportPDF = (includeTranscript: boolean = false) => {
+    if (!editor) return;
+
+    const report: EditableReport = {
+      id: existingReport?.id || `report_${Date.now()}`,
+      sessionId: session.id,
+      summary,
+      editableContent: editor.getHTML(),
+      version: (existingReport?.version || 0) + 1,
+      status,
+      createdAt: existingReport?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    try {
+      exportAIReferencePDF(report, session, {
+        includeTranscript,
+        includeMetadata: true,
+        includeSignature: true,
+      });
+      toast({
+        title: "PDF exported",
+        description: includeTranscript 
+          ? "Report with full transcript downloaded successfully."
+          : "Report downloaded successfully.",
+      });
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast({
+        title: "Export failed",
+        description: "Failed to generate PDF report.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getTimeSinceLastSave = () => {
     if (!lastSaved) return 'Never';
     const seconds = Math.floor((Date.now() - lastSaved.getTime()) / 1000);
@@ -229,14 +267,37 @@ export function AIReportEditor({
         </div>
 
         <DialogFooter className="px-6 py-4 border-t border-border">
-          <Button variant="outline" onClick={onCancel}>
-            <X className="h-4 w-4 mr-2" />
-            Cancel
-          </Button>
-          <Button onClick={handleSave}>
-            <Save className="h-4 w-4 mr-2" />
-            Save Report
-          </Button>
+          <div className="flex items-center justify-between w-full">
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => handleExportPDF(false)}
+                size="sm"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export PDF
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => handleExportPDF(true)}
+                size="sm"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export with Transcript
+              </Button>
+            </div>
+            
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={onCancel}>
+                <X className="h-4 w-4 mr-2" />
+                Cancel
+              </Button>
+              <Button onClick={handleSave}>
+                <Save className="h-4 w-4 mr-2" />
+                Save Report
+              </Button>
+            </div>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>
