@@ -1,6 +1,8 @@
 import type { Assessment } from '@/types/assessment';
 
 const STORAGE_KEY = 'hrm8_assessments';
+const VERSION_KEY = 'hrm8_assessments_version';
+const CURRENT_VERSION = '1.1'; // Update this when mock data structure changes
 
 const mockAssessments: Assessment[] = [
   {
@@ -324,8 +326,15 @@ const mockAssessments: Assessment[] = [
 ];
 
 function initializeStorage() {
-  if (!localStorage.getItem(STORAGE_KEY)) {
+  const storedVersion = localStorage.getItem(VERSION_KEY);
+  
+  // Force reload if version mismatch or no data exists
+  if (storedVersion !== CURRENT_VERSION) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(mockAssessments));
+    localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
+  } else if (!localStorage.getItem(STORAGE_KEY)) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(mockAssessments));
+    localStorage.setItem(VERSION_KEY, CURRENT_VERSION);
   }
 }
 
