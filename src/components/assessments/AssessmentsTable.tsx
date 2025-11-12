@@ -15,7 +15,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Eye, Bell, Download, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { MoreVertical, Eye, Bell, Download, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Assessment } from '@/types/assessment';
@@ -281,7 +281,7 @@ export function AssessmentsTable({
                   </TableHead>
                 );
               })}
-              <TableHead className="w-[50px]"></TableHead>
+              <TableHead className="w-[80px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -361,7 +361,7 @@ export function AssessmentsTable({
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">
-                        <MoreHorizontal className="h-4 w-4" />
+                        <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">

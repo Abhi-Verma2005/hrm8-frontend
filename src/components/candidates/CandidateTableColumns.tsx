@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Edit, Mail, Trash2, Download } from "lucide-react";
+import { MoreVertical, Eye, Edit, Mail, Trash2, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export const candidateTableColumns: Column<Candidate>[] = [
@@ -91,12 +91,12 @@ export const candidateTableColumns: Column<Candidate>[] = [
     key: 'actions',
     label: 'Actions',
     sortable: false,
-    width: '60px',
+    width: '80px',
     render: (candidate) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon-sm">
-            <MoreHorizontal className="h-4 w-4" />
+          <Button variant="ghost" size="icon">
+            <MoreVertical className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

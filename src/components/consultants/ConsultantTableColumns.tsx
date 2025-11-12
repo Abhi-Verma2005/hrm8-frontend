@@ -4,6 +4,14 @@ import type { Column } from '@/components/tables/DataTable';
 import { ConsultantTypeBadge } from './ConsultantTypeBadge';
 import { ConsultantStatusBadge } from './ConsultantStatusBadge';
 import { getConsultantFullName, formatRevenue } from '@/lib/consultantUtils';
+import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { MoreVertical, Eye, Edit } from 'lucide-react';
 
 export const createConsultantColumns = (): Column<Consultant>[] => [
   {
@@ -83,6 +91,35 @@ export const createConsultantColumns = (): Column<Consultant>[] => [
     sortable: true,
     render: (consultant) => (
       <div className="text-right">{(consultant.successRate * 100).toFixed(1)}%</div>
+    ),
+  },
+  {
+    key: 'actions',
+    label: 'Actions',
+    width: "80px",
+    render: (consultant) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <span className="sr-only">Open menu</span>
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild>
+            <Link to={`/consultants/${consultant.id}`}>
+              <Eye className="mr-2 h-4 w-4" />
+              View Details
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to={`/consultants/${consultant.id}/edit`}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Consultant
+            </Link>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     ),
   },
 ];

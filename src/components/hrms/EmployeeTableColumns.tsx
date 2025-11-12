@@ -4,7 +4,7 @@ import { EmployeeStatusBadge } from "./EmployeeStatusBadge";
 import { EmploymentTypeBadge } from "./EmploymentTypeBadge";
 import { EntityAvatar } from "@/components/tables/EntityAvatar";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Eye, Edit } from "lucide-react";
+import { MoreVertical, Eye, Edit } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
@@ -82,12 +82,12 @@ export const createEmployeeColumns = (options?: EmployeeColumnsOptions): Column<
   {
     key: "actions",
     label: "Actions",
-    width: "60px",
+    width: "80px",
     render: (employee) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <MoreHorizontal className="h-4 w-4" />
+          <Button variant="ghost" size="icon">
+            <MoreVertical className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="bg-background">

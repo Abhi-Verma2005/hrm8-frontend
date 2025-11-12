@@ -470,7 +470,7 @@ export function BackgroundChecksTable({
                   </TableHead>
                 );
               })}
-              <TableHead className="w-[60px]">Actions</TableHead>
+              <TableHead className="w-[80px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
