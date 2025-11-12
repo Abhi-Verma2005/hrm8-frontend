@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Clock, Plus, Play, TrendingUp, Calendar, FileText, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Clock, Plus, Play, TrendingUp, Calendar, FileText, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
 import { getAccrualPolicies, getAccrualTransactions, processMonthlyAccruals, deleteAccrualPolicy } from "@/lib/accrualStorage";
 import { Badge } from "@/components/ui/badge";
@@ -88,11 +88,12 @@ export default function AccrualPolicies() {
     {
       key: "actions",
       label: "Actions",
+      width: "80px",
       render: (policy) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-background">

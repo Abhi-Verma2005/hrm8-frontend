@@ -1,5 +1,5 @@
 import { format, formatDistanceToNow } from "date-fns";
-import { MoreHorizontal, Edit, ListTodo, Eye, Archive } from "lucide-react";
+import { MoreVertical, Edit, ListTodo, Eye, Archive } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
@@ -153,12 +153,13 @@ export const createServiceProjectColumns = (
   {
     key: "actions",
     label: "Actions",
+    width: "80px",
     render: (project) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button variant="ghost" size="icon">
             <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
+            <MoreVertical className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">

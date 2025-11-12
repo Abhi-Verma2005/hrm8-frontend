@@ -3,7 +3,7 @@ import type { SalesAgent } from '@/types/salesAgent';
 import { SalesAgentAvatar } from './SalesAgentAvatar';
 import { SalesAgentStatusBadge } from './SalesAgentStatusBadge';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Eye, Mail, Edit } from 'lucide-react';
+import { MoreVertical, Eye, Mail, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -101,12 +101,13 @@ export function createSalesAgentColumns(): Column<SalesAgent>[] {
     },
     {
       key: 'actions',
-      label: '',
+      label: 'Actions',
+      width: '80px',
       render: (agent) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

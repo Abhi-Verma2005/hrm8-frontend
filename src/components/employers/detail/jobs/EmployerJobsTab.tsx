@@ -1,6 +1,12 @@
 import { DataTable, Column } from "@/components/tables/DataTable";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, MoreVertical, Eye } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
 import { getEmployerJobs, getEmployerJobStats } from "@/lib/employerJobService";
 import { Job } from "@/types/job";
@@ -51,15 +57,22 @@ export default function EmployerJobsTab({ employerId }: EmployerJobsTabProps) {
     },
     {
       key: "actions",
-      label: "",
+      label: "Actions",
+      width: "80px",
       render: (job) => (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => navigate(`/jobs/${job.id}`)}
-        >
-          View
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => navigate(`/jobs/${job.id}`)}>
+              <Eye className="mr-2 h-4 w-4" />
+              View Job
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       ),
     },
   ];

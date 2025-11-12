@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Mail, CheckCircle, XCircle } from "lucide-react";
+import { MoreVertical, Eye, Mail, CheckCircle, XCircle } from "lucide-react";
 import { format } from "date-fns";
 import { FileText } from "lucide-react";
 import type { Application, ApplicationStatus, ApplicationStage } from "@/types/application";
@@ -136,12 +136,13 @@ export function ApplicationListView({
     {
       key: "actions",
       label: "Actions",
+      width: "80px",
       render: (app) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" size="icon">
               <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

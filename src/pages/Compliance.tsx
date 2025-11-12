@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Shield, FileText, AlertTriangle, CheckCircle, History, Database, Plus, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Shield, FileText, AlertTriangle, CheckCircle, History, Database, Plus, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
 import { getAuditLogs, getPolicies, getPolicyAcknowledgments, getComplianceAlerts, getDataSubjectRequests, deletePolicy, deleteDataSubjectRequest } from "@/lib/complianceStorage";
 import { Badge } from "@/components/ui/badge";
@@ -106,11 +106,12 @@ export default function Compliance() {
     {
       key: "actions",
       label: "Actions",
+      width: "80px",
       render: (policy) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-background">
@@ -168,11 +169,12 @@ export default function Compliance() {
     {
       key: "actions",
       label: "Actions",
+      width: "80px",
       render: (dsr) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-background">

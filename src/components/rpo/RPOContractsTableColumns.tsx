@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { MoreHorizontal, Eye, Edit, Users, FileText, Trash2 } from 'lucide-react';
+import { MoreVertical, Eye, Edit, Users, FileText, Trash2 } from 'lucide-react';
 import { Column } from '@/components/tables/DataTable';
 import { ServiceProject } from '@/types/recruitmentService';
 import { Button } from '@/components/ui/button';
@@ -159,12 +159,13 @@ export function createRPOContractsColumns(): Column<ServiceProject>[] {
     },
     {
       key: 'actions',
-      label: '',
+      label: 'Actions',
+      width: '80px',
       render: (contract) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

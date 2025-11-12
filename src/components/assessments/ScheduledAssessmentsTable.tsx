@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { MoreHorizontal, Calendar, Clock, Mail, Trash2, X } from 'lucide-react';
+import { MoreVertical, Calendar, Clock, Mail, Trash2, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -123,8 +123,8 @@ export function ScheduledAssessmentsTable({ scheduledAssessments, onUpdate }: Sc
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <MoreHorizontal className="h-4 w-4" />
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">

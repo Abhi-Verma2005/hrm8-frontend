@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Heart, Plus, Calendar, AlertCircle, FileCheck, Users, DollarSign, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Heart, Plus, Calendar, AlertCircle, FileCheck, Users, DollarSign, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
 import { getEnrollmentPeriods, getLifeEvents, getCOBRAEvents, deleteEnrollmentPeriod, deleteLifeEvent, deleteCOBRAEvent } from "@/lib/benefitsEnhancedStorage";
 import { Badge } from "@/components/ui/badge";
@@ -171,11 +171,12 @@ export default function BenefitsAdmin() {
     {
       key: "actions",
       label: "Actions",
+      width: "80px",
       render: (period) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-background">
@@ -253,11 +254,12 @@ export default function BenefitsAdmin() {
     {
       key: "actions",
       label: "Actions",
+      width: "80px",
       render: (event) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-background">
@@ -334,11 +336,12 @@ export default function BenefitsAdmin() {
     {
       key: "actions",
       label: "Actions",
+      width: "80px",
       render: (cobra) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-background">

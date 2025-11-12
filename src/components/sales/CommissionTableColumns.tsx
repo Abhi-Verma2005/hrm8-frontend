@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Eye, Edit, CheckCircle, Trash2, Download } from 'lucide-react';
+import { MoreVertical, Eye, Edit, CheckCircle, Trash2, Download } from 'lucide-react';
 import { format } from 'date-fns';
 
 function formatCurrency(amount: number): string {
@@ -99,12 +99,13 @@ export function createCommissionColumns(): Column<SalesCommission>[] {
     },
     {
       key: 'actions',
-      label: '',
+      label: 'Actions',
+      width: '80px',
       render: (commission) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="icon">
-              <MoreHorizontal className="h-4 w-4" />
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

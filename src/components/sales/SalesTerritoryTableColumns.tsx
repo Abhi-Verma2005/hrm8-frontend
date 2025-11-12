@@ -2,7 +2,7 @@ import { Column } from '@/components/tables/DataTable';
 import type { SalesTerritory } from '@/types/salesTerritory';
 import { TerritoryRegionBadge } from './TerritoryRegionBadge';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, MoreHorizontal, Eye, Edit, Users, Trash2 } from 'lucide-react';
+import { MapPin, MoreVertical, Eye, Edit, Users, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -96,12 +96,13 @@ export function createTerritoryColumns(): Column<SalesTerritory>[] {
     },
     {
       key: 'actions',
-      label: '',
+      label: 'Actions',
+      width: '80px',
       render: (territory) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

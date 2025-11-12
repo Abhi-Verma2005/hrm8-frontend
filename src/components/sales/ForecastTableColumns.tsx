@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Eye, Edit, TrendingUp, Mail } from 'lucide-react';
+import { MoreVertical, Eye, Edit, TrendingUp, Mail } from 'lucide-react';
 import { format } from 'date-fns';
 
 function formatCurrency(amount: number): string {
@@ -121,12 +121,13 @@ export function createForecastColumns(): Column<ForecastItem>[] {
     },
     {
       key: 'actions',
-      label: '',
+      label: 'Actions',
+      width: '80px',
       render: (item) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
             <Button variant="ghost" size="icon">
-              <MoreHorizontal className="h-4 w-4" />
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

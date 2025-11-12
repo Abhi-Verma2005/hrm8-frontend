@@ -2,7 +2,7 @@ import { Column } from '@/components/tables/DataTable';
 import type { SalesActivity } from '@/types/salesActivity';
 import { ActivityTypeBadge } from './ActivityTypeBadge';
 import { ActivityOutcomeBadge } from './ActivityOutcomeBadge';
-import { Phone, Mail, Users, Presentation, MoreHorizontal, Eye, Edit, CheckCircle, Trash2 } from 'lucide-react';
+import { Phone, Mail, Users, Presentation, MoreVertical, Eye, Edit, CheckCircle, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -87,12 +87,13 @@ export function createActivityColumns(): Column<SalesActivity>[] {
     },
     {
       key: 'actions',
-      label: '',
+      label: 'Actions',
+      width: '80px',
       render: (activity) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

@@ -2,7 +2,7 @@ import { Column } from '@/components/tables/DataTable';
 import { SalesOpportunity } from '@/types/salesOpportunity';
 import { SalesAgentAvatar } from './SalesAgentAvatar';
 import { OpportunityStageBadge } from './OpportunityStageBadge';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, MoreVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 function formatCurrency(amount: number): string {
@@ -73,11 +73,11 @@ export function createTopDealsColumns(): Column<SalesOpportunity>[] {
     },
     {
       key: 'actions',
-      label: '',
+      label: 'Actions',
+      width: '80px',
       render: () => (
-        <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()}>
-          View
-          <ArrowRight className="ml-1 h-3 w-3" />
+        <Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}>
+          <MoreVertical className="h-4 w-4" />
         </Button>
       ),
     },

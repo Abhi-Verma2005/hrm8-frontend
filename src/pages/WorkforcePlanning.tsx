@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Users, Plus, TrendingUp, DollarSign, Building2, MapPin, BarChart3, MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { Users, Plus, TrendingUp, DollarSign, Building2, MapPin, BarChart3, MoreVertical, Edit, Trash2 } from "lucide-react";
 import { useRBAC } from "@/hooks/useRBAC";
 import { getHeadcountPlans, getWorkforceDemographics, deleteHeadcountPlan } from "@/lib/workforcePlanningStorage";
 import { Badge } from "@/components/ui/badge";
@@ -123,11 +123,12 @@ export default function WorkforcePlanning() {
     {
       key: "actions",
       label: "Actions",
+      width: "80px",
       render: (plan) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <MoreHorizontal className="h-4 w-4" />
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-background">
