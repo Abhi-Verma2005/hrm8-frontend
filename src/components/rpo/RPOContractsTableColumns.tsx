@@ -3,6 +3,7 @@ import { MoreVertical, Eye, Edit, Users, FileText, Trash2 } from 'lucide-react';
 import { Column } from '@/components/tables/DataTable';
 import { ServiceProject } from '@/types/recruitmentService';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,8 +53,18 @@ export function createRPOContractsColumns(): Column<ServiceProject>[] {
             )}
           </div>
           <div>
-            <div className="font-medium">{contract.name}</div>
-            <div className="text-sm text-muted-foreground">{contract.clientName}</div>
+            <Link 
+              to={`/rpo/${contract.id}`}
+              className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+            >
+              {contract.name}
+            </Link>
+            <Link
+              to={`/employers/${contract.clientId}`}
+              className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors"
+            >
+              {contract.clientName}
+            </Link>
           </div>
         </div>
       ),
@@ -61,6 +72,7 @@ export function createRPOContractsColumns(): Column<ServiceProject>[] {
     {
       key: 'status',
       label: 'Status',
+      width: '140px',
       sortable: true,
       render: (contract) => (
         <Badge variant="outline" className={cn('capitalize', getStatusColor(contract.status))}>
@@ -71,6 +83,7 @@ export function createRPOContractsColumns(): Column<ServiceProject>[] {
     {
       key: 'location',
       label: 'Location',
+      width: '160px',
       sortable: true,
       render: (contract) => (
         <div className="text-sm">
@@ -112,6 +125,7 @@ export function createRPOContractsColumns(): Column<ServiceProject>[] {
     {
       key: 'rpoMonthlyRetainer',
       label: 'Monthly Fee',
+      width: '140px',
       sortable: true,
       render: (contract) => (
         <span className="font-medium">
@@ -124,6 +138,7 @@ export function createRPOContractsColumns(): Column<ServiceProject>[] {
     {
       key: 'startDate',
       label: 'Contract Period',
+      width: '180px',
       sortable: true,
       render: (contract) => (
         <div className="text-sm">
@@ -137,6 +152,7 @@ export function createRPOContractsColumns(): Column<ServiceProject>[] {
     {
       key: 'progress',
       label: 'Progress',
+      width: '180px',
       sortable: true,
       render: (contract) => {
         if (!contract.targetPlacements) {
@@ -169,24 +185,26 @@ export function createRPOContractsColumns(): Column<ServiceProject>[] {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Eye className="h-4 w-4 mr-2" />
-              View Details
+            <DropdownMenuItem asChild>
+              <Link to={`/rpo/${contract.id}`}>
+                <Eye className="h-4 w-4 mr-2" />
+                View Details
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Edit contract', contract.id)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Contract
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Assign consultants', contract.id)}>
               <Users className="h-4 w-4 mr-2" />
               Assign Consultants
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Generate report', contract.id)}>
               <FileText className="h-4 w-4 mr-2" />
               Generate Report
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="text-destructive" onClick={() => console.log('Cancel contract', contract.id)}>
               <Trash2 className="h-4 w-4 mr-2" />
               Cancel Contract
             </DropdownMenuItem>

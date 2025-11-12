@@ -4,6 +4,7 @@ import { ActivityTypeBadge } from './ActivityTypeBadge';
 import { ActivityOutcomeBadge } from './ActivityOutcomeBadge';
 import { Phone, Mail, Users, Presentation, MoreVertical, Eye, Edit, CheckCircle, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,8 +38,18 @@ export function createActivityColumns(): Column<SalesActivity>[] {
               <Icon className="h-5 w-5 text-muted-foreground" />
             </div>
             <div>
-              <div className="font-medium">{activity.subject}</div>
-              <div className="text-sm text-muted-foreground">{activity.salesAgentName}</div>
+              <Link 
+                to={`/sales/activities/${activity.id}`}
+                className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+              >
+                {activity.subject}
+              </Link>
+              <Link
+                to={`/sales/team/${activity.salesAgentId}`}
+                className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors"
+              >
+                {activity.salesAgentName}
+              </Link>
             </div>
           </div>
         );
@@ -47,26 +58,37 @@ export function createActivityColumns(): Column<SalesActivity>[] {
     {
       key: 'employerName',
       label: 'Employer',
+      width: '160px',
       sortable: true,
-      render: (activity) => (
-        <span className="text-sm">{activity.employerName || '-'}</span>
+      render: (activity) => activity.employerId ? (
+        <Link
+          to={`/employers/${activity.employerId}`}
+          className="text-sm hover:text-foreground hover:underline transition-colors"
+        >
+          {activity.employerName}
+        </Link>
+      ) : (
+        <span className="text-sm text-muted-foreground">-</span>
       ),
     },
     {
       key: 'activityType',
       label: 'Type',
+      width: '140px',
       sortable: true,
       render: (activity) => <ActivityTypeBadge type={activity.activityType as any} />,
     },
     {
       key: 'outcome',
       label: 'Outcome',
+      width: '140px',
       sortable: true,
       render: (activity) => <ActivityOutcomeBadge outcome={activity.outcome as any} />,
     },
     {
       key: 'scheduledAt',
       label: 'Date',
+      width: '140px',
       sortable: true,
       render: (activity) => (
         <span className="text-sm">
@@ -80,6 +102,7 @@ export function createActivityColumns(): Column<SalesActivity>[] {
     {
       key: 'duration',
       label: 'Duration',
+      width: '120px',
       sortable: true,
       render: (activity) => (
         <span className="text-sm">{activity.duration ? `${activity.duration} min` : '-'}</span>
@@ -97,20 +120,22 @@ export function createActivityColumns(): Column<SalesActivity>[] {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Eye className="h-4 w-4 mr-2" />
-              View Details
+            <DropdownMenuItem asChild>
+              <Link to={`/sales/activities/${activity.id}`}>
+                <Eye className="h-4 w-4 mr-2" />
+                View Details
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Edit activity', activity.id)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Activity
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Mark complete', activity.id)}>
               <CheckCircle className="h-4 w-4 mr-2" />
               Mark Complete
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="text-destructive" onClick={() => console.log('Delete activity', activity.id)}>
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </DropdownMenuItem>

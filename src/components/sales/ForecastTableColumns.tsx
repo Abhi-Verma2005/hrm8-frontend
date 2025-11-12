@@ -3,6 +3,7 @@ import { ForecastItem } from '@/lib/salesForecastUtils';
 import { SalesAgentAvatar } from './SalesAgentAvatar';
 import { OpportunityStageBadge } from './OpportunityStageBadge';
 import { ForecastConfidenceBadge } from './ForecastConfidenceBadge';
+import { Link } from 'react-router-dom';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -31,8 +32,18 @@ export function createForecastColumns(): Column<ForecastItem>[] {
           <div className="flex items-center gap-3">
             <SalesAgentAvatar firstName={firstName} lastName={lastName} />
             <div>
-              <div className="font-medium">{item.name}</div>
-              <div className="text-sm text-muted-foreground">{item.employerName}</div>
+              <Link 
+                to={`/sales/opportunities/${item.id}`}
+                className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+              >
+                {item.name}
+              </Link>
+              <Link
+                to={`/employers/${item.employerId}`}
+                className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors"
+              >
+                {item.employerName}
+              </Link>
             </div>
           </div>
         );
@@ -41,26 +52,29 @@ export function createForecastColumns(): Column<ForecastItem>[] {
     {
       key: 'salesAgent',
       label: 'Sales Agent',
+      width: '180px',
       sortable: true,
       render: (item) => {
         const [firstName = 'Unknown', lastName = ''] = item.salesAgentName.split(' ');
         return (
-          <div className="flex items-center gap-2">
+          <Link to={`/sales/team/${item.salesAgentId}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <SalesAgentAvatar firstName={firstName} lastName={lastName} className="h-8 w-8" />
-            <span>{item.salesAgentName}</span>
-          </div>
+            <span className="hover:underline">{item.salesAgentName}</span>
+          </Link>
         );
       },
     },
     {
       key: 'stage',
       label: 'Stage',
+      width: '160px',
       sortable: true,
       render: (item) => <OpportunityStageBadge stage={item.stage} />,
     },
     {
       key: 'dealValue',
       label: 'Deal Value',
+      width: '140px',
       sortable: true,
       render: (item) => (
         <span className="font-medium">{formatCurrency(item.estimatedValue)}</span>
@@ -69,6 +83,7 @@ export function createForecastColumns(): Column<ForecastItem>[] {
     {
       key: 'weightedValue',
       label: 'Weighted Value',
+      width: '160px',
       sortable: true,
       render: (item) => (
         <span className="font-semibold text-primary">
@@ -79,6 +94,7 @@ export function createForecastColumns(): Column<ForecastItem>[] {
     {
       key: 'probability',
       label: 'Probability',
+      width: '160px',
       sortable: true,
       render: (item) => (
         <div className="flex items-center gap-2">
@@ -95,6 +111,7 @@ export function createForecastColumns(): Column<ForecastItem>[] {
     {
       key: 'expectedClose',
       label: 'Expected Close',
+      width: '140px',
       sortable: true,
       render: (item) => {
         try {
@@ -116,6 +133,7 @@ export function createForecastColumns(): Column<ForecastItem>[] {
     {
       key: 'confidence',
       label: 'Confidence',
+      width: '140px',
       sortable: true,
       render: (item) => <ForecastConfidenceBadge level={item.confidenceLevel} />,
     },
@@ -133,19 +151,21 @@ export function createForecastColumns(): Column<ForecastItem>[] {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Eye className="mr-2 h-4 w-4" />
-              View Opportunity
+            <DropdownMenuItem asChild>
+              <Link to={`/sales/opportunities/${item.id}`}>
+                <Eye className="mr-2 h-4 w-4" />
+                View Opportunity
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Adjust forecast', item.id)}>
               <Edit className="mr-2 h-4 w-4" />
               Adjust Forecast
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('View analytics', item.id)}>
               <TrendingUp className="mr-2 h-4 w-4" />
               View Analytics
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Send report', item.id)}>
               <Mail className="mr-2 h-4 w-4" />
               Send Report
             </DropdownMenuItem>

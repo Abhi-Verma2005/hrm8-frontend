@@ -4,6 +4,7 @@ import { TerritoryRegionBadge } from './TerritoryRegionBadge';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, MoreVertical, Eye, Edit, Users, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +35,12 @@ export function createTerritoryColumns(): Column<SalesTerritory>[] {
             <MapPin className="h-5 w-5 text-muted-foreground" />
           </div>
           <div>
-            <div className="font-medium">{territory.name}</div>
+            <Link 
+              to={`/sales/territories/${territory.id}`}
+              className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+            >
+              {territory.name}
+            </Link>
             <div className="text-sm text-muted-foreground">
               <TerritoryRegionBadge region={territory.region} />
             </div>
@@ -45,26 +51,37 @@ export function createTerritoryColumns(): Column<SalesTerritory>[] {
     {
       key: 'primarySalesAgentName',
       label: 'Primary Agent',
+      width: '160px',
       sortable: true,
-      render: (territory) => (
-        <span className="text-sm">{territory.primarySalesAgentName || 'Unassigned'}</span>
+      render: (territory) => territory.primarySalesAgentId ? (
+        <Link
+          to={`/sales/team/${territory.primarySalesAgentId}`}
+          className="text-sm hover:text-foreground hover:underline transition-colors"
+        >
+          {territory.primarySalesAgentName}
+        </Link>
+      ) : (
+        <span className="text-sm text-muted-foreground">Unassigned</span>
       ),
     },
     {
       key: 'activeEmployers',
       label: 'Active Employers',
+      width: '120px',
       sortable: true,
       render: (territory) => <span className="text-sm font-medium">{territory.activeEmployers}</span>,
     },
     {
       key: 'totalEmployers',
       label: 'Total Employers',
+      width: '120px',
       sortable: true,
       render: (territory) => <span className="text-sm">{territory.totalEmployers}</span>,
     },
     {
       key: 'annualRevenue',
       label: 'Revenue',
+      width: '140px',
       sortable: true,
       render: (territory) => (
         <span className="font-medium">{formatRevenue(territory.annualRevenue)}</span>
@@ -73,6 +90,7 @@ export function createTerritoryColumns(): Column<SalesTerritory>[] {
     {
       key: 'quota',
       label: 'Quota Attainment',
+      width: '140px',
       sortable: true,
       render: (territory) => {
         const attainment = (territory.annualRevenue / territory.quota * 100);
@@ -87,6 +105,7 @@ export function createTerritoryColumns(): Column<SalesTerritory>[] {
     {
       key: 'isActive',
       label: 'Status',
+      width: '120px',
       sortable: true,
       render: (territory) => (
         <Badge variant={territory.isActive ? 'success' : 'neutral'}>
@@ -106,20 +125,22 @@ export function createTerritoryColumns(): Column<SalesTerritory>[] {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Eye className="h-4 w-4 mr-2" />
-              View Details
+            <DropdownMenuItem asChild>
+              <Link to={`/sales/territories/${territory.id}`}>
+                <Eye className="h-4 w-4 mr-2" />
+                View Details
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Edit territory', territory.id)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Territory
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Assign agents', territory.id)}>
               <Users className="h-4 w-4 mr-2" />
               Assign Agents
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="text-destructive" onClick={() => console.log('Delete territory', territory.id)}>
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </DropdownMenuItem>

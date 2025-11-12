@@ -5,6 +5,7 @@ import { SalesAgentStatusBadge } from './SalesAgentStatusBadge';
 import { Badge } from '@/components/ui/badge';
 import { MoreVertical, Eye, Mail, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,7 +38,12 @@ export function createSalesAgentColumns(): Column<SalesAgent>[] {
             className="h-10 w-10"
           />
           <div>
-            <div className="font-medium">{agent.firstName} {agent.lastName}</div>
+            <Link 
+              to={`/sales/team/${agent.id}`}
+              className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+            >
+              {agent.firstName} {agent.lastName}
+            </Link>
             <div className="text-sm text-muted-foreground">{agent.email}</div>
           </div>
         </div>
@@ -46,6 +52,7 @@ export function createSalesAgentColumns(): Column<SalesAgent>[] {
     {
       key: 'salesRole',
       label: 'Role',
+      width: '160px',
       sortable: true,
       render: (agent) => {
         const roleLabels = {
@@ -60,6 +67,7 @@ export function createSalesAgentColumns(): Column<SalesAgent>[] {
     {
       key: 'salesType',
       label: 'Type',
+      width: '160px',
       sortable: true,
       render: (agent) => {
         const typeLabels = {
@@ -74,12 +82,14 @@ export function createSalesAgentColumns(): Column<SalesAgent>[] {
     {
       key: 'status',
       label: 'Status',
+      width: '120px',
       sortable: true,
       render: (agent) => <SalesAgentStatusBadge status={agent.status} />,
     },
     {
       key: 'currentRevenue',
       label: 'Revenue',
+      width: '140px',
       sortable: true,
       render: (agent) => (
         <span className="font-medium">{formatRevenue(agent.currentRevenue)}</span>
@@ -88,12 +98,14 @@ export function createSalesAgentColumns(): Column<SalesAgent>[] {
     {
       key: 'closedDeals',
       label: 'Closed Deals',
+      width: '120px',
       sortable: true,
       render: (agent) => <span className="text-sm">{agent.closedDeals}</span>,
     },
     {
       key: 'conversionRate',
       label: 'Win Rate',
+      width: '120px',
       sortable: true,
       render: (agent) => (
         <span className="text-sm font-medium">{agent.conversionRate.toFixed(1)}%</span>
@@ -111,15 +123,17 @@ export function createSalesAgentColumns(): Column<SalesAgent>[] {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Eye className="h-4 w-4 mr-2" />
-              View Details
+            <DropdownMenuItem asChild>
+              <Link to={`/sales/team/${agent.id}`}>
+                <Eye className="h-4 w-4 mr-2" />
+                View Details
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Edit agent', agent.id)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Agent
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Send email', agent.email)}>
               <Mail className="h-4 w-4 mr-2" />
               Send Email
             </DropdownMenuItem>

@@ -4,6 +4,7 @@ import { OpportunityStageBadge } from './OpportunityStageBadge';
 import { OpportunityTypeBadge } from './OpportunityTypeBadge';
 import { Building2, MoreVertical, Eye, Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,8 +30,18 @@ export function createOpportunityColumns(): Column<SalesOpportunity>[] {
             <Building2 className="h-5 w-5 text-muted-foreground" />
           </div>
           <div>
-            <div className="font-medium">{opp.name}</div>
-            <div className="text-sm text-muted-foreground">{opp.employerName}</div>
+            <Link 
+              to={`/sales/opportunities/${opp.id}`}
+              className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+            >
+              {opp.name}
+            </Link>
+            <Link
+              to={`/employers/${opp.employerId}`}
+              className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors"
+            >
+              {opp.employerName}
+            </Link>
           </div>
         </div>
       ),
@@ -38,24 +49,35 @@ export function createOpportunityColumns(): Column<SalesOpportunity>[] {
     {
       key: 'salesAgentName',
       label: 'Sales Agent',
+      width: '160px',
       sortable: true,
-      render: (opp) => <span className="text-sm">{opp.salesAgentName}</span>,
+      render: (opp) => (
+        <Link
+          to={`/sales/team/${opp.salesAgentId}`}
+          className="text-sm hover:text-foreground hover:underline transition-colors"
+        >
+          {opp.salesAgentName}
+        </Link>
+      ),
     },
     {
       key: 'type',
       label: 'Type',
+      width: '140px',
       sortable: true,
       render: (opp) => <OpportunityTypeBadge type={opp.type} />,
     },
     {
       key: 'stage',
       label: 'Stage',
+      width: '160px',
       sortable: true,
       render: (opp) => <OpportunityStageBadge stage={opp.stage} />,
     },
     {
       key: 'estimatedValue',
       label: 'Value',
+      width: '140px',
       sortable: true,
       render: (opp) => (
         <span className="font-medium">{formatRevenue(opp.estimatedValue)}</span>
@@ -64,6 +86,7 @@ export function createOpportunityColumns(): Column<SalesOpportunity>[] {
     {
       key: 'probability',
       label: 'Probability',
+      width: '120px',
       sortable: true,
       render: (opp) => (
         <span className="text-sm">{opp.probability}%</span>
@@ -72,6 +95,7 @@ export function createOpportunityColumns(): Column<SalesOpportunity>[] {
     {
       key: 'expectedCloseDate',
       label: 'Expected Close',
+      width: '140px',
       sortable: true,
       render: (opp) => {
         try {
@@ -97,16 +121,18 @@ export function createOpportunityColumns(): Column<SalesOpportunity>[] {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <Eye className="h-4 w-4 mr-2" />
-              View Details
+            <DropdownMenuItem asChild>
+              <Link to={`/sales/opportunities/${opp.id}`}>
+                <Eye className="h-4 w-4 mr-2" />
+                View Details
+              </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => console.log('Edit opportunity', opp.id)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Opportunity
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="text-destructive" onClick={() => console.log('Delete opportunity', opp.id)}>
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </DropdownMenuItem>
