@@ -23,7 +23,8 @@ import { MoreVertical, Eye, FileText, Mail, Ban, Download, X, Send, FileDown, Ed
 import { formatDistanceToNow } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import type { BackgroundCheck } from '@/types/backgroundCheck';
+import { getCheckTypeIcon, getCheckProgress } from '@/lib/backgroundChecks/checkTypeHelpers';
+import type { BackgroundCheck, BackgroundCheckType } from '@/types/backgroundCheck';
 
 interface BackgroundChecksTableProps {
   checks: BackgroundCheck[];
@@ -195,15 +196,43 @@ export function BackgroundChecksTable({
       'issues-found': 'destructive',
       'cancelled': 'outline',
     };
-    return <Badge variant={variants[status]}>{status.replace(/-/g, ' ')}</Badge>;
+
+    const colors: Record<BackgroundCheck['status'], string> = {
+      'not-started': '',
+      'pending-consent': 'bg-yellow-500 text-yellow-50',
+      'in-progress': 'bg-blue-500 text-blue-50',
+      'completed': 'bg-green-600 text-green-50',
+      'issues-found': '',
+      'cancelled': '',
+    };
+
+    return (
+      <Badge variant={variants[status]} className={colors[status]}>
+        {status.replace(/-/g, ' ')}
+      </Badge>
+    );
   };
 
-  const getProgress = (check: BackgroundCheck): number => {
-    if (check.status === 'completed') return 100;
-    if (check.status === 'in-progress') return 60;
-    if (check.status === 'pending-consent') return 25;
-    if (check.status === 'cancelled') return 0;
-    return 10;
+  const getOverallResultBadge = (result?: string) => {
+    if (!result) return null;
+
+    const variants: Record<string, any> = {
+      clear: 'default',
+      conditional: 'secondary',
+      'not-clear': 'destructive',
+    };
+
+    const colors: Record<string, string> = {
+      clear: 'bg-green-600 text-green-50',
+      conditional: 'bg-yellow-500 text-yellow-50',
+      'not-clear': 'bg-red-600 text-red-50',
+    };
+
+    return (
+      <Badge variant={variants[result]} className={colors[result]}>
+        {result === 'clear' ? 'Clear' : result === 'conditional' ? 'Conditional' : 'Not Clear'}
+      </Badge>
+    );
   };
 
   const selectedCount = selectedRows.length;
@@ -299,20 +328,24 @@ export function BackgroundChecksTable({
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead>Candidate</TableHead>
-              <TableHead>Check Types</TableHead>
-              <TableHead>Provider</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Progress</TableHead>
-              <TableHead>Initiated</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="w-[35%]">Candidate</TableHead>
+              <TableHead className="w-[20%]">Check Types</TableHead>
+              <TableHead className="w-[12%]">Status</TableHead>
+              <TableHead className="w-[12%]">Progress</TableHead>
+              <TableHead className="w-[10%]">Result</TableHead>
+              <TableHead className="w-[12%]">Initiated</TableHead>
+              <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {checks.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                  No background checks found
+                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
+                  <div className="flex flex-col items-center gap-2">
+                    <FileText className="h-12 w-12 opacity-50" />
+                    <p className="font-medium">No background checks found</p>
+                    <p className="text-sm">Try adjusting your filters or initiate a new check</p>
+                  </div>
                 </TableCell>
               </TableRow>
             ) : (
@@ -329,42 +362,54 @@ export function BackgroundChecksTable({
                     />
                   </TableCell>
                   <TableCell>
-                  <div>
-                    <p className="font-medium">{check.candidateName}</p>
-                    <p className="text-sm text-muted-foreground">{check.candidateId}</p>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {check.checkTypes.slice(0, 2).map((ct, idx) => (
-                      <Badge key={idx} variant="outline" className="text-xs">
-                        {ct.type.split('-')[0]}
-                      </Badge>
-                    ))}
-                    {check.checkTypes.length > 2 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{check.checkTypes.length - 2}
-                      </Badge>
+                    <div>
+                      <p className="font-medium hover:underline cursor-pointer" onClick={() => handleViewDetails(check.id)}>
+                        {check.candidateName}
+                      </p>
+                      <p className="text-sm text-muted-foreground">ID: {check.candidateId}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {check.checkTypes.map((ct, idx) => {
+                        const CheckIcon = getCheckTypeIcon(ct.type as BackgroundCheckType);
+                        return (
+                          <Badge key={idx} variant="outline" className="text-xs gap-1">
+                            <CheckIcon className="h-3 w-3" />
+                            {ct.type === 'reference' ? 'Reference' :
+                             ct.type === 'criminal' ? 'Criminal' :
+                             ct.type === 'identity' ? 'Identity' :
+                             ct.type === 'education' ? 'Qualification' :
+                             ct.type.charAt(0).toUpperCase() + ct.type.slice(1)}
+                          </Badge>
+                        );
+                      })}
+                    </div>
+                  </TableCell>
+                  <TableCell>{getStatusBadge(check.status)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Progress value={getCheckProgress(check)} className="h-2 w-20" />
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">
+                        {getCheckProgress(check)}%
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {check.status === 'completed' && getOverallResultBadge(check.overallStatus)}
+                    {check.status !== 'completed' && (
+                      <span className="text-xs text-muted-foreground">Pending</span>
                     )}
-                  </div>
-                </TableCell>
-                <TableCell className="capitalize">{check.provider}</TableCell>
-                <TableCell>{getStatusBadge(check.status)}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Progress value={getProgress(check)} className="h-2 w-20" />
-                    <span className="text-xs text-muted-foreground">{getProgress(check)}%</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div>
-                    <p className="text-sm">{check.initiatedByName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(check.initiatedDate), { addSuffix: true })}
-                    </p>
-                  </div>
-                </TableCell>
-                <TableCell className="text-right">
+                  </TableCell>
+                  <TableCell>
+                    <div>
+                      <p className="text-sm">{check.initiatedByName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(new Date(check.initiatedDate), { addSuffix: true })}
+                      </p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="icon">

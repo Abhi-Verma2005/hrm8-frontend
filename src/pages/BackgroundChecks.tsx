@@ -36,7 +36,7 @@ export default function BackgroundChecks() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [checkTypeFilter, setCheckTypeFilter] = useState<string>("all");
-  const [providerFilter, setProviderFilter] = useState<string>("all");
+  const [resultFilter, setResultFilter] = useState<string>("all");
 
   // Enable automated reminders
   useAutomatedReminders({
@@ -82,13 +82,17 @@ export default function BackgroundChecks() {
       );
     }
 
-    // Provider filter
-    if (providerFilter !== "all") {
-      filtered = filtered.filter(check => check.provider === providerFilter);
+    // Result filter
+    if (resultFilter !== "all") {
+      if (resultFilter === "pending") {
+        filtered = filtered.filter(check => !check.overallStatus);
+      } else {
+        filtered = filtered.filter(check => check.overallStatus === resultFilter);
+      }
     }
 
     return filtered;
-  }, [checks, searchTerm, statusFilter, checkTypeFilter, providerFilter]);
+  }, [checks, searchTerm, statusFilter, checkTypeFilter, resultFilter]);
 
   const handleInitiateCheck = (data: any) => {
     const newCheck: BackgroundCheck = {
@@ -313,14 +317,14 @@ export default function BackgroundChecks() {
     setSearchTerm("");
     setStatusFilter("all");
     setCheckTypeFilter("all");
-    setProviderFilter("all");
+    setResultFilter("all");
   };
 
   const activeFilterCount = [
     searchTerm ? 1 : 0,
     statusFilter !== "all" ? 1 : 0,
     checkTypeFilter !== "all" ? 1 : 0,
-    providerFilter !== "all" ? 1 : 0,
+    resultFilter !== "all" ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
   return (
@@ -465,8 +469,8 @@ export default function BackgroundChecks() {
           onStatusChange={setStatusFilter}
           checkTypeFilter={checkTypeFilter}
           onCheckTypeChange={setCheckTypeFilter}
-          providerFilter={providerFilter}
-          onProviderChange={setProviderFilter}
+          resultFilter={resultFilter}
+          onResultChange={setResultFilter}
           onClearFilters={handleClearFilters}
           activeFilterCount={activeFilterCount}
         />

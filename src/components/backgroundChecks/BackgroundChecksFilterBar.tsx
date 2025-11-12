@@ -10,8 +10,8 @@ interface BackgroundChecksFilterBarProps {
   onStatusChange: (value: string) => void;
   checkTypeFilter: string;
   onCheckTypeChange: (value: string) => void;
-  providerFilter: string;
-  onProviderChange: (value: string) => void;
+  resultFilter?: string;
+  onResultChange?: (value: string) => void;
   onClearFilters: () => void;
   activeFilterCount: number;
 }
@@ -23,12 +23,13 @@ export function BackgroundChecksFilterBar({
   onStatusChange,
   checkTypeFilter,
   onCheckTypeChange,
-  providerFilter,
-  onProviderChange,
+  resultFilter = 'all',
+  onResultChange,
   onClearFilters,
   activeFilterCount,
 }: BackgroundChecksFilterBarProps) {
   const statusOptions = [
+    { label: "All Statuses", value: "all" },
     { label: "Not Started", value: "not-started" },
     { label: "Pending Consent", value: "pending-consent" },
     { label: "In Progress", value: "in-progress" },
@@ -38,21 +39,19 @@ export function BackgroundChecksFilterBar({
   ];
 
   const checkTypeOptions = [
-    { label: "Criminal Record", value: "criminal" },
-    { label: "Employment Verification", value: "employment" },
-    { label: "Education Verification", value: "education" },
-    { label: "Credit Check", value: "credit" },
-    { label: "Drug Screen", value: "drug-screen" },
+    { label: "All Types", value: "all" },
     { label: "Reference Check", value: "reference" },
+    { label: "Criminal Record Check", value: "criminal" },
     { label: "Identity Verification", value: "identity" },
-    { label: "Professional License", value: "professional-license" },
+    { label: "Qualification Verification", value: "education" },
   ];
 
-  const providerOptions = [
-    { label: "Checkr", value: "checkr" },
-    { label: "Sterling", value: "sterling" },
-    { label: "HireRight", value: "hireright" },
-    { label: "Manual", value: "manual" },
+  const resultOptions = [
+    { label: "All Results", value: "all" },
+    { label: "Clear", value: "clear" },
+    { label: "Conditional", value: "conditional" },
+    { label: "Not Clear", value: "not-clear" },
+    { label: "Pending Review", value: "pending" },
   ];
 
   return (
@@ -78,13 +77,15 @@ export function BackgroundChecksFilterBar({
           onChange={onCheckTypeChange}
           options={checkTypeOptions}
         />
-        
-        <FilterDropdown
-          label="Provider"
-          value={providerFilter}
-          onChange={onProviderChange}
-          options={providerOptions}
-        />
+
+        {onResultChange && (
+          <FilterDropdown
+            label="Overall Result"
+            value={resultFilter}
+            onChange={onResultChange}
+            options={resultOptions}
+          />
+        )}
         
         {activeFilterCount > 0 && (
           <Button
