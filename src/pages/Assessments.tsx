@@ -134,34 +134,34 @@ export default function Assessments() {
         </>
       }
     >
-      <div className="space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Assessments</h1>
             <p className="text-muted-foreground">
               Evaluate candidates through scientifically validated tests
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex gap-2">
             <AssessmentNotificationBadge />
-            <Button variant="outline" size="sm" onClick={() => navigate('/scheduled-assessments')}>
+            <Button variant="outline" onClick={() => navigate('/scheduled-assessments')}>
               <Calendar className="h-4 w-4 mr-2" />
               Scheduled
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/assessments/compare')}>
+            <Button variant="outline" onClick={() => navigate('/assessments/compare')}>
               <BarChart3 className="h-4 w-4 mr-2" />
               Compare Results
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/assessment-templates')}>
+            <Button variant="outline" onClick={() => navigate('/assessment-templates')}>
               <Settings className="h-4 w-4 mr-2" />
               Manage Templates
             </Button>
-            <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/assessments')}>
+            <Button variant="outline" onClick={() => navigate('/dashboard/assessments')}>
               <LayoutDashboard className="h-4 w-4 mr-2" />
               View Dashboard
             </Button>
-            <Button size="sm" onClick={() => setWizardOpen(true)}>
+            <Button onClick={() => setWizardOpen(true)}>
               <ClipboardCheck className="h-4 w-4 mr-2" />
               Invite Candidate
             </Button>
