@@ -26,7 +26,7 @@ export function FilterDropdown({ label, value, onChange, options }: FilterDropdo
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           <Filter className="h-4 w-4 mr-2" />
           {label}
         </Button>
