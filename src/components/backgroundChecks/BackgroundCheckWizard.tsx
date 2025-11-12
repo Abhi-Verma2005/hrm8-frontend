@@ -6,6 +6,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { SelectChecksStep, BackgroundCheckWizardFormData } from './wizard/SelectChecksStep';
+import { SelectInterviewModeStep } from './wizard/SelectInterviewModeStep';
+import { ConfigureAIQuestionsStep } from './wizard/ConfigureAIQuestionsStep';
 import { ConfigureRefereesStep } from './wizard/ConfigureRefereesStep';
 import { ConsentReviewStep } from './wizard/ConsentReviewStep';
 import { CostSummaryStep } from './wizard/CostSummaryStep';
@@ -18,6 +20,7 @@ import { createReferee, inviteReferee } from '@/lib/backgroundChecks/referenceCh
 import { getDefaultTemplate } from '@/lib/backgroundChecks/questionnaireTemplateStorage';
 import { calculateTotalCost, getCostBreakdown } from '@/lib/backgroundChecks/pricingConstants';
 import type { BackgroundCheck } from '@/types/backgroundCheck';
+import type { InterviewMode, QuestionSource } from '@/types/aiReferenceCheck';
 
 interface BackgroundCheckWizardProps {
   open: boolean;
@@ -54,6 +57,15 @@ export function BackgroundCheckWizard({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
+  // AI Interview Configuration State
+  const [interviewMode, setInterviewMode] = useState<InterviewMode>('video');
+  const [questionSource, setQuestionSource] = useState<QuestionSource>('template');
+  const [customPrompt, setCustomPrompt] = useState('');
+  const [focusAreas, setFocusAreas] = useState<string[]>(['Performance & Results', 'Communication', 'Teamwork & Collaboration']);
+  const [adaptiveMode, setAdaptiveMode] = useState(true);
+  const [maxQuestions, setMaxQuestions] = useState(10);
+  const [estimatedDuration, setEstimatedDuration] = useState(12);
+
   const form = useForm<BackgroundCheckWizardFormData>({
     resolver: zodResolver(wizardSchema),
     defaultValues: {
@@ -66,6 +78,7 @@ export function BackgroundCheckWizard({
   const selectedChecks = form.watch('checkTypes') || [];
   const hasReferenceCheck = selectedChecks.includes('reference' as any);
   const referees = form.watch('referees') || [];
+  const isAIMode = interviewMode === 'video' || interviewMode === 'phone';
 
   const steps = [
     {
@@ -73,11 +86,23 @@ export function BackgroundCheckWizard({
       component: SelectChecksStep,
       canProceed: () => selectedChecks.length > 0
     },
-    ...(hasReferenceCheck ? [{
-      title: 'Add Referees',
-      component: ConfigureRefereesStep,
-      canProceed: () => referees.length >= 2
-    }] : []),
+    ...(hasReferenceCheck ? [
+      {
+        title: 'Interview Mode',
+        component: null, // Handled separately
+        canProceed: () => true
+      },
+      ...(isAIMode ? [{
+        title: 'Configure AI Questions',
+        component: null, // Handled separately
+        canProceed: () => focusAreas.length > 0
+      }] : []),
+      {
+        title: 'Add Referees',
+        component: ConfigureRefereesStep,
+        canProceed: () => referees.length >= 2
+      }
+    ] : []),
     {
       title: 'Review Consent',
       component: ConsentReviewStep,
@@ -218,10 +243,32 @@ export function BackgroundCheckWizard({
 
           {/* Step Content */}
           <div className="py-4">
-            <CurrentStepComponent
-              form={form}
-              {...(currentStep >= steps.length - 2 ? { candidateName, candidateEmail } : {})}
-            />
+            {steps[currentStep].title === 'Interview Mode' ? (
+              <SelectInterviewModeStep
+                selectedMode={interviewMode}
+                onModeChange={setInterviewMode}
+              />
+            ) : steps[currentStep].title === 'Configure AI Questions' ? (
+              <ConfigureAIQuestionsStep
+                questionSource={questionSource}
+                onQuestionSourceChange={setQuestionSource}
+                customPrompt={customPrompt}
+                onCustomPromptChange={setCustomPrompt}
+                focusAreas={focusAreas}
+                onFocusAreasChange={setFocusAreas}
+                adaptiveMode={adaptiveMode}
+                onAdaptiveModeChange={setAdaptiveMode}
+                maxQuestions={maxQuestions}
+                onMaxQuestionsChange={setMaxQuestions}
+                estimatedDuration={estimatedDuration}
+                onEstimatedDurationChange={setEstimatedDuration}
+              />
+            ) : CurrentStepComponent ? (
+              <CurrentStepComponent
+                form={form}
+                {...(currentStep >= steps.length - 2 ? { candidateName, candidateEmail } : {})}
+              />
+            ) : null}
           </div>
 
           {/* Navigation */}
