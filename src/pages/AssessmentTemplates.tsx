@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,6 +40,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function AssessmentTemplates() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [templates, setTemplates] = useState<AssessmentTemplate[]>(getAssessmentTemplates());
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<AssessmentType | 'all'>('all');
@@ -167,6 +169,14 @@ export default function AssessmentTemplates() {
       subtitle="Create and manage reusable assessment templates"
       breadcrumbActions={
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/assessment-templates/builder/new')}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Build Questionnaire
+          </Button>
           <Button
             variant="outline"
             size="sm"
@@ -354,15 +364,22 @@ export default function AssessmentTemplates() {
                     </div>
                   </div>
 
-                  <div className="flex gap-2 pt-4 border-t">
+                   <div className="flex gap-2 pt-4 border-t">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => navigate(`/assessment-templates/builder/${template.id}`)}
+                      className="flex-1"
+                    >
+                      <FileText className="h-3 w-3 mr-1" />
+                      Build Questions
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleEditTemplate(template)}
-                      className="flex-1"
                     >
-                      <Pencil className="h-3 w-3 mr-1" />
-                      Edit
+                      <Pencil className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="outline"

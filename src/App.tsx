@@ -121,6 +121,7 @@ import Offers from "./pages/Offers";
 import Assessments from "./pages/Assessments";
 import AssessmentDetail from "./pages/AssessmentDetail";
 import AssessmentTemplates from "./pages/AssessmentTemplates";
+import QuestionnaireBuilder from "./pages/QuestionnaireBuilder";
 import AssessmentComparisonPage from "./pages/AssessmentComparisonPage";
 import ScheduledAssessments from "./pages/ScheduledAssessments";
 import QuestionBank from "./pages/QuestionBank";
@@ -233,6 +234,7 @@ function AppContent() {
           <Route path="/assessments/:id" element={<AssessmentDetail />} />
           <Route path="/assessments/compare" element={<AssessmentComparisonPage />} />
           <Route path="/assessment-templates" element={<AssessmentTemplates />} />
+          <Route path="/assessment-templates/builder/:id" element={<QuestionnaireBuilder />} />
           <Route path="/question-bank" element={<QuestionBank />} />
           <Route path="/assessment-preview" element={<AssessmentPreview />} />
           <Route path="/assessment-analytics" element={<AssessmentAnalytics />} />
