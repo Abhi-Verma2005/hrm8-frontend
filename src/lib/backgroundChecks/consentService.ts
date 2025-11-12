@@ -13,6 +13,7 @@ import { LEGAL_DISCLOSURE_TEMPLATE, PRIVACY_POLICY_URL } from './legalTemplates'
 import { BACKGROUND_CHECK_PRICING } from './pricingConstants';
 import { createBackgroundCheckNotification } from './notificationService';
 import { sendBackgroundCheckEmail } from './emailNotificationService';
+import { handleConsentReceived } from './statusUpdateService';
 
 export function generateConsentToken(): string {
   return `consent_${uuidv4()}_${Date.now()}`;
@@ -155,14 +156,10 @@ export function acceptConsent(
     respondedDate: now
   });
   
-  // Update background check status
-  updateBackgroundCheck(consent.backgroundCheckId, {
-    status: 'in-progress',
-    consentGiven: true,
-    consentDate: now
-  });
+  // Trigger automated status update and notifications
+  handleConsentReceived(consent.backgroundCheckId);
 
-  // Send notifications
+  // Send additional email notifications
   sendBackgroundCheckEmail('consent_given', {
     candidateName: consent.candidateName,
     candidateEmail: consent.candidateEmail,
@@ -170,11 +167,6 @@ export function acceptConsent(
     recruiterEmail: 'recruiter@example.com',
     checkId: consent.backgroundCheckId,
     reportLink: `${window.location.origin}/background-checks/${consent.backgroundCheckId}`,
-  });
-
-  createBackgroundCheckNotification('consent_given', {
-    candidateName: consent.candidateName,
-    checkId: consent.backgroundCheckId,
   });
   
   console.log('✅ Consent accepted for background check:', consent.backgroundCheckId);

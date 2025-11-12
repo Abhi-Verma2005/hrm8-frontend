@@ -36,6 +36,12 @@ export function updateBackgroundCheck(id: string, updates: Partial<BackgroundChe
   if (index !== -1) {
     checks[index] = { ...checks[index], ...updates, updatedAt: new Date().toISOString() };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(checks));
+    
+    // Import and call auto-update after storage is updated
+    // This ensures status transitions happen automatically
+    import('./backgroundChecks/statusUpdateService').then(({ autoUpdateCheckStatus }) => {
+      autoUpdateCheckStatus(id);
+    });
   }
 }
 
