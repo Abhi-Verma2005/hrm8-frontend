@@ -3,6 +3,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 import type { RecruiterPerformance } from '@/lib/backgroundChecks/analyticsService';
 
 interface RecruiterPerformanceTableProps {
@@ -10,6 +12,8 @@ interface RecruiterPerformanceTableProps {
 }
 
 export function RecruiterPerformanceTable({ data }: RecruiterPerformanceTableProps) {
+  const navigate = useNavigate();
+
   const getPerformanceBadge = (score: number) => {
     if (score >= 90) return <Badge className="bg-green-500">Excellent</Badge>;
     if (score >= 75) return <Badge className="bg-blue-500">Good</Badge>;
@@ -17,11 +21,25 @@ export function RecruiterPerformanceTable({ data }: RecruiterPerformanceTablePro
     return <Badge variant="destructive">Needs Improvement</Badge>;
   };
 
+  const handleRecruiterClick = (recruiterId: string, recruiterName: string) => {
+    // Navigate to main page with recruiter filter
+    const params = new URLSearchParams({
+      initiatedBy: recruiterId,
+    });
+    
+    navigate(`/background-checks?${params.toString()}`);
+    
+    toast({
+      title: "Filters Applied",
+      description: `Viewing checks initiated by ${recruiterName}`,
+    });
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Recruiter Performance</CardTitle>
-        <CardDescription>Individual performance metrics for all recruiters</CardDescription>
+        <CardDescription>Individual performance metrics for all recruiters. Click on any row to view that recruiter's checks.</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -38,7 +56,11 @@ export function RecruiterPerformanceTable({ data }: RecruiterPerformanceTablePro
           </TableHeader>
           <TableBody>
             {data.map((recruiter) => (
-              <TableRow key={recruiter.recruiterId}>
+              <TableRow 
+                key={recruiter.recruiterId}
+                onClick={() => handleRecruiterClick(recruiter.recruiterId, recruiter.recruiterName)}
+                className="cursor-pointer hover:bg-accent/50 transition-colors"
+              >
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar className="h-8 w-8">

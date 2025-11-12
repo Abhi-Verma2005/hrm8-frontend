@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { BackgroundCheckNotificationBadge } from "@/components/backgroundChecks/BackgroundCheckNotificationBadge";
 import { BackgroundChecksFilterBar } from "@/components/backgroundChecks/BackgroundChecksFilterBar";
 import { useAutomatedReminders } from "@/hooks/useAutomatedReminders";
 import { Button } from "@/components/ui/button";
-import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye, TestTube, Mail, Settings, Bell, TrendingUp } from "lucide-react";
+import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye, TestTube, Mail, Settings, Bell, TrendingUp, X } from "lucide-react";
 import { getBackgroundChecks, saveBackgroundCheck, getBackgroundCheckById } from "@/lib/mockBackgroundCheckStorage";
 import { getConsentsByBackgroundCheck } from "@/lib/backgroundChecks/consentStorage";
 import { getRefereesByBackgroundCheck } from "@/lib/backgroundChecks/refereeStorage";
@@ -23,9 +23,11 @@ import { toast } from "@/hooks/use-toast";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { BackgroundChecksTable } from "@/components/backgroundChecks/BackgroundChecksTable";
 import { getBackgroundCheckStats } from "@/lib/backgroundChecks/dashboardStats";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function BackgroundChecks() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [checks, setChecks] = useState<BackgroundCheck[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
@@ -38,6 +40,12 @@ export default function BackgroundChecks() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [checkTypeFilter, setCheckTypeFilter] = useState<string>("all");
   const [resultFilter, setResultFilter] = useState<string>("all");
+  const [dateFromFilter, setDateFromFilter] = useState<string>("");
+  const [dateToFilter, setDateToFilter] = useState<string>("");
+  const [initiatedByFilter, setInitiatedByFilter] = useState<string>("");
+
+  // Track if filters came from analytics
+  const [analyticsFilterApplied, setAnalyticsFilterApplied] = useState(false);
 
   // Enable automated reminders
   useAutomatedReminders({
@@ -50,7 +58,24 @@ export default function BackgroundChecks() {
 
   useEffect(() => {
     loadChecks();
-  }, []);
+    
+    // Apply filters from URL params (from analytics drill-down)
+    const dateFrom = searchParams.get('dateFrom');
+    const dateTo = searchParams.get('dateTo');
+    const checkType = searchParams.get('checkType');
+    const initiatedBy = searchParams.get('initiatedBy');
+    const status = searchParams.get('status');
+    
+    if (dateFrom || dateTo || checkType || initiatedBy || status) {
+      setAnalyticsFilterApplied(true);
+      
+      if (dateFrom) setDateFromFilter(dateFrom);
+      if (dateTo) setDateToFilter(dateTo);
+      if (checkType) setCheckTypeFilter(checkType);
+      if (initiatedBy) setInitiatedByFilter(initiatedBy);
+      if (status) setStatusFilter(status);
+    }
+  }, [searchParams]);
 
   const loadChecks = () => {
     setChecks(getBackgroundChecks());
@@ -92,8 +117,28 @@ export default function BackgroundChecks() {
       }
     }
 
+    // Date range filter
+    if (dateFromFilter) {
+      filtered = filtered.filter(check => {
+        const checkDate = new Date(check.initiatedDate).toISOString().split('T')[0];
+        return checkDate >= dateFromFilter;
+      });
+    }
+
+    if (dateToFilter) {
+      filtered = filtered.filter(check => {
+        const checkDate = new Date(check.initiatedDate).toISOString().split('T')[0];
+        return checkDate <= dateToFilter;
+      });
+    }
+
+    // Initiated by filter
+    if (initiatedByFilter) {
+      filtered = filtered.filter(check => check.initiatedBy === initiatedByFilter);
+    }
+
     return filtered;
-  }, [checks, searchTerm, statusFilter, checkTypeFilter, resultFilter]);
+  }, [checks, searchTerm, statusFilter, checkTypeFilter, resultFilter, dateFromFilter, dateToFilter, initiatedByFilter]);
 
   const handleInitiateCheck = (data: any) => {
     const newCheck: BackgroundCheck = {
@@ -319,6 +364,26 @@ export default function BackgroundChecks() {
     setStatusFilter("all");
     setCheckTypeFilter("all");
     setResultFilter("all");
+    setDateFromFilter("");
+    setDateToFilter("");
+    setInitiatedByFilter("");
+    setAnalyticsFilterApplied(false);
+    setSearchParams(new URLSearchParams());
+  };
+
+  const handleClearAnalyticsFilters = () => {
+    setDateFromFilter("");
+    setDateToFilter("");
+    setCheckTypeFilter("all");
+    setInitiatedByFilter("");
+    setStatusFilter("all");
+    setAnalyticsFilterApplied(false);
+    setSearchParams(new URLSearchParams());
+    
+    toast({
+      title: "Analytics Filters Cleared",
+      description: "Showing all background checks",
+    });
   };
 
   const activeFilterCount = [
@@ -326,6 +391,9 @@ export default function BackgroundChecks() {
     statusFilter !== "all" ? 1 : 0,
     checkTypeFilter !== "all" ? 1 : 0,
     resultFilter !== "all" ? 1 : 0,
+    dateFromFilter ? 1 : 0,
+    dateToFilter ? 1 : 0,
+    initiatedByFilter ? 1 : 0,
   ].reduce((a, b) => a + b, 0);
 
   return (
@@ -497,6 +565,31 @@ export default function BackgroundChecks() {
             ]}
           />
         </div>
+
+        {/* Analytics Filter Alert */}
+        {analyticsFilterApplied && (
+          <Alert className="border-primary/50 bg-primary/5">
+            <BarChart3 className="h-4 w-4 text-primary" />
+            <AlertDescription className="flex items-center justify-between">
+              <span className="text-sm">
+                Viewing filtered results from analytics drill-down.
+                {dateFromFilter && ` Date: ${new Date(dateFromFilter).toLocaleDateString()}`}
+                {checkTypeFilter !== 'all' && ` • Type: ${checkTypeFilter}`}
+                {initiatedByFilter && ` • Recruiter filter applied`}
+                {statusFilter !== 'all' && ` • Status: ${statusFilter}`}
+              </span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleClearAnalyticsFilters}
+                className="h-6 px-2 text-xs"
+              >
+                <X className="h-3 w-3 mr-1" />
+                Clear Filters
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Filters */}
         <BackgroundChecksFilterBar

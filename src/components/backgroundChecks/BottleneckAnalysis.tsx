@@ -1,6 +1,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Clock, TrendingDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AlertTriangle, Clock, TrendingDown, ExternalLink } from "lucide-react";
+import { useNavigate } from 'react-router-dom';
+import { toast } from '@/hooks/use-toast';
 import type { BottleneckInsight } from '@/lib/backgroundChecks/analyticsService';
 
 interface BottleneckAnalysisProps {
@@ -8,6 +11,8 @@ interface BottleneckAnalysisProps {
 }
 
 export function BottleneckAnalysis({ insights }: BottleneckAnalysisProps) {
+  const navigate = useNavigate();
+
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'high':
@@ -34,11 +39,34 @@ export function BottleneckAnalysis({ insights }: BottleneckAnalysisProps) {
     }
   };
 
+  const handleViewAffectedChecks = (stage: string) => {
+    let statusFilter = '';
+    
+    // Map stage to status filter
+    if (stage.toLowerCase().includes('consent')) {
+      statusFilter = 'pending-consent';
+    } else if (stage.toLowerCase().includes('verification') || stage.toLowerCase().includes('process')) {
+      statusFilter = 'in-progress';
+    } else if (stage.toLowerCase().includes('review')) {
+      statusFilter = 'issues-found';
+    }
+    
+    if (statusFilter) {
+      const params = new URLSearchParams({ status: statusFilter });
+      navigate(`/background-checks?${params.toString()}`);
+      
+      toast({
+        title: "Filters Applied",
+        description: `Viewing checks in ${stage} stage`,
+      });
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Bottleneck Analysis</CardTitle>
-        <CardDescription>Identified delays and recommendations for improvement</CardDescription>
+        <CardDescription>Identified delays and recommendations for improvement. Click to view affected checks.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
@@ -48,16 +76,26 @@ export function BottleneckAnalysis({ insights }: BottleneckAnalysisProps) {
               className="border border-border rounded-lg p-4 space-y-3 transition-colors hover:bg-accent/50"
             >
               <div className="flex items-start justify-between gap-4">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-1">
                   {getSeverityIcon(insight.severity)}
-                  <div>
+                  <div className="flex-1">
                     <h4 className="font-semibold">{insight.stage}</h4>
                     <p className="text-sm text-muted-foreground">
                       Average Duration: <span className="font-medium text-foreground">{insight.avgDuration} days</span>
                     </p>
                   </div>
                 </div>
-                {getSeverityBadge(insight.severity)}
+                <div className="flex items-center gap-2">
+                  {getSeverityBadge(insight.severity)}
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleViewAffectedChecks(insight.stage)}
+                  >
+                    <ExternalLink className="h-3 w-3 mr-1" />
+                    View Checks
+                  </Button>
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-4 text-sm">
