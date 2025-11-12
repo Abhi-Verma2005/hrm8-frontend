@@ -5,8 +5,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import type { AITranscriptionSummary } from '@/types/aiReferenceReport';
 import { compareAIReports, type ComparisonResult } from '@/lib/backgroundChecks/reportComparison';
+import { exportComparisonPDF } from '@/lib/backgroundChecks/comparisonReportPDF';
 import { CheckCircle2, AlertTriangle, Info, TrendingUp, Users, Download } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import {
   RadarChart,
   PolarGrid,
@@ -25,13 +27,37 @@ import {
 
 interface RefereeComparisonProps {
   reports: AITranscriptionSummary[];
-  onExport?: () => void;
+  candidateName?: string;
+  candidateId?: string;
 }
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
-export default function RefereeComparison({ reports, onExport }: RefereeComparisonProps) {
+export default function RefereeComparison({ reports, candidateName, candidateId }: RefereeComparisonProps) {
+  const { toast } = useToast();
   const comparison: ComparisonResult = compareAIReports(reports);
+
+  const handleExportPDF = () => {
+    try {
+      exportComparisonPDF(comparison, reports, {
+        candidateName: candidateName || reports[0]?.candidateName || 'Unknown Candidate',
+        candidateId: candidateId || reports[0]?.candidateId || 'N/A',
+        includeCharts: true,
+        includeEvidence: true,
+      });
+      toast({
+        title: "Export successful",
+        description: "Multi-referee comparison report has been downloaded as PDF.",
+      });
+    } catch (error) {
+      console.error('Error exporting comparison PDF:', error);
+      toast({
+        title: "Export failed",
+        description: "Failed to generate comparison PDF. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   // Prepare radar chart data
   const radarData = comparison.categoryComparisons.map((cat) => {
@@ -103,12 +129,10 @@ export default function RefereeComparison({ reports, onExport }: RefereeComparis
             {comparison.aggregateRecommendation.summary}
           </p>
         </div>
-        {onExport && (
-          <Button onClick={onExport} variant="outline">
-            <Download className="h-4 w-4 mr-2" />
-            Export Comparison
-          </Button>
-        )}
+        <Button onClick={handleExportPDF} variant="outline">
+          <Download className="h-4 w-4 mr-2" />
+          Export as PDF
+        </Button>
       </div>
 
       {/* Aggregate Score Card */}

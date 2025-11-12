@@ -323,12 +323,8 @@ export default function BackgroundCheckDetail() {
                     </Button>
                     <RefereeComparison
                       reports={aiReports.map((r) => r.summary)}
-                      onExport={() => {
-                        toast({
-                          title: "Comparison exported",
-                          description: "Multi-referee comparison has been exported successfully.",
-                        });
-                      }}
+                      candidateName={check.candidateName}
+                      candidateId={check.candidateId}
                     />
                   </div>
                 ) : (
