@@ -5,12 +5,17 @@ import { BackgroundCheckNotificationBadge } from "@/components/backgroundChecks/
 import { BackgroundChecksFilterBar } from "@/components/backgroundChecks/BackgroundChecksFilterBar";
 import { useAutomatedReminders } from "@/hooks/useAutomatedReminders";
 import { Button } from "@/components/ui/button";
-import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye } from "lucide-react";
+import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye, TestTube } from "lucide-react";
 import { getBackgroundChecks, saveBackgroundCheck, getBackgroundCheckById } from "@/lib/mockBackgroundCheckStorage";
 import { getConsentsByBackgroundCheck } from "@/lib/backgroundChecks/consentStorage";
 import { getRefereesByBackgroundCheck } from "@/lib/backgroundChecks/refereeStorage";
 import { exportBackgroundCheckPDF } from "@/lib/backgroundChecks/backgroundCheckExport";
+import { generateMockAIReport } from "@/lib/backgroundChecks/mockAIReportData";
+import { saveAIReport } from "@/lib/backgroundChecks/aiReportStorage";
+import { saveAISession } from "@/lib/backgroundChecks/aiReferenceCheckStorage";
+import { AIReportEditor } from "@/components/backgroundChecks/ai-interview/AIReportEditor";
 import { BackgroundCheck } from "@/types/backgroundCheck";
+import type { AIReferenceCheckSession, InterviewTranscript, AIAnalysis } from "@/types/aiReferenceCheck";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BackgroundCheckForm } from "@/components/backgroundChecks/BackgroundCheckForm";
 import { toast } from "@/hooks/use-toast";
@@ -23,6 +28,9 @@ export default function BackgroundChecks() {
   const [checks, setChecks] = useState<BackgroundCheck[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [testEditorOpen, setTestEditorOpen] = useState(false);
+  const [testSession, setTestSession] = useState<AIReferenceCheckSession | null>(null);
+  const [testReport, setTestReport] = useState<any>(null);
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -162,6 +170,145 @@ export default function BackgroundChecks() {
     });
   };
 
+  const handleTestAIReport = () => {
+    // Generate mock AI session
+    const mockSessionId = `test_session_${Date.now()}`;
+    const mockCandidateId = `test_candidate_${Date.now()}`;
+    const mockRefereeId = `test_referee_${Date.now()}`;
+    const mockBackgroundCheckId = checks.length > 0 ? checks[0].id : `test_check_${Date.now()}`;
+
+    // Create comprehensive mock transcript
+    const mockTranscript: InterviewTranscript = {
+      sessionId: mockSessionId,
+      turns: [
+        {
+          id: 'turn_1',
+          speaker: 'ai-recruiter',
+          text: 'Hello! Thank you for taking the time to speak with me today. I\'m conducting a reference check for Sarah Johnson who has applied for a Senior Software Engineer position. Can you please confirm your name and relationship to Sarah?',
+          timestamp: 5,
+        },
+        {
+          id: 'turn_2',
+          speaker: 'referee',
+          text: 'Yes, my name is Michael Chen. I was Sarah\'s direct manager at TechCorp for about three years. She reported to me in the engineering department.',
+          timestamp: 18,
+        },
+        {
+          id: 'turn_3',
+          speaker: 'ai-recruiter',
+          text: 'Thank you, Michael. Can you describe Sarah\'s primary responsibilities in her role at TechCorp?',
+          timestamp: 28,
+        },
+        {
+          id: 'turn_4',
+          speaker: 'referee',
+          text: 'Sarah was a senior full-stack developer on my team. She led multiple high-priority projects, mentored junior developers, and was responsible for architectural decisions on our main product platform. She also collaborated closely with product and design teams.',
+          timestamp: 42,
+        },
+        {
+          id: 'turn_5',
+          speaker: 'ai-recruiter',
+          text: 'How would you rate Sarah\'s technical skills and expertise?',
+          timestamp: 58,
+        },
+        {
+          id: 'turn_6',
+          speaker: 'referee',
+          text: 'Exceptional. Sarah has deep expertise across the full stack - React, TypeScript, Node.js, and cloud architecture. She consistently produced high-quality, maintainable code and was always up to date with the latest technologies. I\'d say she was one of our top technical contributors.',
+          timestamp: 72,
+        },
+      ],
+      summary: 'Comprehensive reference interview discussing technical skills, leadership, and work performance.',
+      generatedAt: new Date().toISOString(),
+    };
+
+    // Create mock analysis
+    const mockAnalysis: AIAnalysis = {
+      sessionId: mockSessionId,
+      overallRating: 5,
+      sentiment: 'positive',
+      keyInsights: [
+        'Exceptional technical capabilities across the full stack',
+        'Strong leadership and mentoring abilities',
+        'Highly collaborative and effective communicator',
+        'Consistently exceeded expectations',
+      ],
+      strengths: [
+        'Deep technical expertise in React, TypeScript, and Node.js',
+        'Natural leadership and mentoring skills',
+        'Strong project management abilities',
+        'Excellent communication with cross-functional teams',
+      ],
+      concerns: [
+        'Tendency to overcommit occasionally',
+        'Could improve delegation skills',
+      ],
+      recommendationScore: 92,
+      categories: [
+        {
+          category: 'Technical Skills',
+          score: 5,
+          evidence: ['Deep expertise across full stack', 'High-quality maintainable code'],
+        },
+        {
+          category: 'Leadership',
+          score: 4,
+          evidence: ['Mentored junior developers', 'Led high-priority projects'],
+        },
+        {
+          category: 'Communication',
+          score: 5,
+          evidence: ['Collaborated with cross-functional teams', 'Clear and effective presenter'],
+        },
+      ],
+      aiConfidence: 0.95,
+      generatedAt: new Date().toISOString(),
+    };
+
+    // Create mock session
+    const mockSession: AIReferenceCheckSession = {
+      id: mockSessionId,
+      refereeId: mockRefereeId,
+      candidateId: mockCandidateId,
+      backgroundCheckId: mockBackgroundCheckId,
+      mode: 'video',
+      status: 'completed',
+      completedAt: new Date().toISOString(),
+      duration: 1245,
+      questionSource: 'template',
+      transcript: mockTranscript,
+      analysis: mockAnalysis,
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Save session to storage
+    saveAISession(mockSession);
+
+    // Generate and save mock report
+    const mockReport = generateMockAIReport(mockSessionId, mockCandidateId);
+    saveAIReport(mockReport);
+
+    // Set state and open editor
+    setTestSession(mockSession);
+    setTestReport(mockReport);
+    setTestEditorOpen(true);
+
+    toast({
+      title: "Test Report Generated",
+      description: "Mock AI session and report created. Opening editor for testing...",
+    });
+  };
+
+  const handleSaveTestReport = (editedReport: any) => {
+    saveAIReport(editedReport);
+    setTestEditorOpen(false);
+    toast({
+      title: "Test Report Saved",
+      description: "The test report has been saved successfully.",
+    });
+  };
+
   const handleClearFilters = () => {
     setSearchTerm("");
     setStatusFilter("all");
@@ -202,6 +349,18 @@ export default function BackgroundChecks() {
           </div>
           <div className="flex items-center gap-3">
             <BackgroundCheckNotificationBadge />
+            
+            {/* Test Button (Development) */}
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={handleTestAIReport}
+              className="gap-2 border-dashed border-2"
+            >
+              <TestTube className="h-4 w-4" />
+              Test AI Report
+            </Button>
+            
             <Button 
               variant="outline" 
               onClick={() => navigate('/questionnaire-templates')}
@@ -334,6 +493,18 @@ export default function BackgroundChecks() {
             />
           </DialogContent>
         </Dialog>
+
+        {/* Test AI Report Editor */}
+        {testEditorOpen && testSession && testReport && (
+          <AIReportEditor
+            open={testEditorOpen}
+            session={testSession}
+            summary={testReport.summary}
+            existingReport={testReport}
+            onSave={handleSaveTestReport}
+            onCancel={() => setTestEditorOpen(false)}
+          />
+        )}
       </div>
     </DashboardPageLayout>
   );
