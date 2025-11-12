@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Upload, Download, Image as ImageIcon, Users, UserCheck, UserX, UserPlus, BarChart3, List, Kanban, Search, Filter, Eye } from "lucide-react";
+import { Plus, Upload, Download, Image as ImageIcon, Users, UserCheck, UserX, UserPlus, BarChart3, List, LayoutGrid, Search, Filter, Eye } from "lucide-react";
 import { DataTable } from "@/components/tables/DataTable";
 import { createEmployeeColumns } from "@/components/hrms/EmployeeTableColumns";
 import { EmployeesFilterBar } from "@/components/hrms/EmployeesFilterBar";
@@ -14,7 +14,7 @@ import { BulkEditDialog } from "@/components/hrms/BulkEditDialog";
 import { EmployeesBulkActionsToolbar } from "@/components/hrms/EmployeesBulkActionsToolbar";
 import { EmployeesKanbanBoard } from "@/components/hrms/EmployeesKanbanBoard";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+
 import { Employee } from "@/types/employee";
 import { getEmployees } from "@/lib/employeeStorage";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -239,14 +239,24 @@ export default function HRMS() {
             </p>
           </div>
           <div className="flex gap-2">
-            <ToggleGroup type="single" value={viewMode} onValueChange={(v) => v && setViewMode(v as 'list' | 'kanban')}>
-              <ToggleGroupItem value="list" aria-label="List view">
-                <List className="h-4 w-4" />
-              </ToggleGroupItem>
-              <ToggleGroupItem value="kanban" aria-label="Kanban view">
-                <Kanban className="h-4 w-4" />
-              </ToggleGroupItem>
-            </ToggleGroup>
+            <div className="flex items-center border rounded-lg p-1 gap-1">
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="h-4 w-4 mr-2" />
+                Table
+              </Button>
+              <Button
+                variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('kanban')}
+              >
+                <LayoutGrid className="h-4 w-4 mr-2" />
+                Kanban
+              </Button>
+            </div>
             <Button asChild>
               <Link to="/hrms/employees/new">
                 <Plus className="mr-2 h-4 w-4" />

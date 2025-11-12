@@ -17,7 +17,7 @@ import { InterviewAnalyticsDashboard } from "@/components/interviews/InterviewAn
 import { InterviewTemplateManager } from "@/components/interviews/InterviewTemplateManager";
 import { InterviewCalibrationReport } from "@/components/interviews/InterviewCalibrationReport";
 import { CalibrationSessionManager } from "@/components/interviews/CalibrationSessionManager";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { toast } from "@/hooks/use-toast";
 
 export default function Interviews() {
@@ -137,38 +137,71 @@ export default function Interviews() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
-              <TabsList>
-                <TabsTrigger value="kanban">
-                  <LayoutGrid className="h-4 w-4 mr-2" />
-                  Board
-                </TabsTrigger>
-                <TabsTrigger value="calendar">
-                  <CalendarDays className="h-4 w-4 mr-2" />
-                  Calendar
-                </TabsTrigger>
-                <TabsTrigger value="list">
-                  <List className="h-4 w-4 mr-2" />
-                  List
-                </TabsTrigger>
-                <TabsTrigger value="analytics">
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Analytics
-                </TabsTrigger>
-                <TabsTrigger value="templates">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Templates
-                </TabsTrigger>
-                <TabsTrigger value="calibration">
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Reports
-                </TabsTrigger>
-                <TabsTrigger value="sessions">
-                  <Users className="h-4 w-4 mr-2" />
-                  Sessions
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="flex items-center border rounded-lg p-1 gap-1 overflow-x-auto max-w-full">
+              <Button
+                variant={viewMode === 'kanban' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('kanban')}
+                className="flex-shrink-0"
+              >
+                <LayoutGrid className="h-4 w-4 mr-2" />
+                Board
+              </Button>
+              <Button
+                variant={viewMode === 'calendar' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('calendar')}
+                className="flex-shrink-0"
+              >
+                <CalendarDays className="h-4 w-4 mr-2" />
+                Calendar
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+                className="flex-shrink-0"
+              >
+                <List className="h-4 w-4 mr-2" />
+                List
+              </Button>
+              <Button
+                variant={viewMode === 'analytics' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('analytics')}
+                className="flex-shrink-0"
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
+              </Button>
+              <Button
+                variant={viewMode === 'templates' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('templates')}
+                className="flex-shrink-0"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Templates
+              </Button>
+              <Button
+                variant={viewMode === 'calibration' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('calibration')}
+                className="flex-shrink-0"
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Reports
+              </Button>
+              <Button
+                variant={viewMode === 'sessions' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('sessions')}
+                className="flex-shrink-0"
+              >
+                <Users className="h-4 w-4 mr-2" />
+                Sessions
+              </Button>
+            </div>
             <Button onClick={() => setIsSchedulerOpen(true)}>
               <CalendarIcon className="h-4 w-4 mr-2" />
               Schedule Interview

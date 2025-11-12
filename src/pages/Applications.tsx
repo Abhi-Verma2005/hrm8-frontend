@@ -20,7 +20,7 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { performFuzzySearch } from "@/lib/advancedSearchService";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 import { useToast } from "@/hooks/use-toast";
 
 export default function Applications() {
@@ -269,18 +269,24 @@ export default function Applications() {
               <Filter className="mr-2 h-4 w-4" />
               Advanced Filters
             </Button>
-            <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as any)}>
-              <TabsList>
-                <TabsTrigger value="pipeline">
-                  <LayoutGrid className="h-4 w-4 mr-2" />
-                  Pipeline
-                </TabsTrigger>
-                <TabsTrigger value="list">
-                  <List className="h-4 w-4 mr-2" />
-                  List
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="flex items-center border rounded-lg p-1 gap-1">
+              <Button
+                variant={viewMode === 'pipeline' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('pipeline')}
+              >
+                <LayoutGrid className="h-4 w-4 mr-2" />
+                Pipeline
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="h-4 w-4 mr-2" />
+                List
+              </Button>
+            </div>
           </div>
         </div>
 
