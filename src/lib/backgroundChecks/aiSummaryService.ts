@@ -1,13 +1,7 @@
 import type { AIReferenceCheckSession, InterviewTranscript, AIAnalysis } from '@/types/aiReferenceCheck';
 import type { AITranscriptionSummary } from '@/types/aiReferenceReport';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
+// Frontend-only mock implementation - actual AI integration deferred for backend phase
 export async function generateTranscriptionSummary(
   session: AIReferenceCheckSession,
   transcript: InterviewTranscript,
@@ -21,59 +15,74 @@ export async function generateTranscriptionSummary(
   }
 ): Promise<AITranscriptionSummary> {
   try {
-    console.log('Generating transcription summary for session:', session.id);
+    console.log('Generating transcription summary for session (mock):', session.id);
 
-    const response = await fetch(`${supabaseUrl}/functions/v1/generate-reference-summary`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseKey}`,
-      },
-      body: JSON.stringify({
-        sessionId: session.id,
-        candidateId: session.candidateId,
-        candidateName,
-        refereeInfo,
-        sessionDetails: {
-          mode: session.mode,
-          duration: session.duration || 0,
-          completedAt: session.completedAt || new Date().toISOString(),
-          questionsAsked: transcript.turns.filter(t => t.speaker === 'ai-recruiter').length,
-        },
-        transcript: transcript.turns,
-        existingAnalysis: analysis,
-      }),
-    });
+    // Simulate API delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Error generating summary:', errorText);
-      throw new Error(`Failed to generate summary: ${response.status} ${errorText}`);
-    }
-
-    const data = await response.json();
-
-    if (!data || !data.summary) {
-      throw new Error('Invalid response from summary generation service');
-    }
-
+    // Generate mock summary based on the analysis data
     const summary: AITranscriptionSummary = {
-      ...data.summary,
       sessionId: session.id,
       candidateId: session.candidateId,
       candidateName,
       refereeInfo,
       sessionDetails: {
-        mode: session.mode,
+        mode: (session.mode === 'questionnaire' ? 'phone' : session.mode) as 'video' | 'phone',
         duration: session.duration || 0,
         completedAt: session.completedAt || new Date().toISOString(),
         questionsAsked: transcript.turns.filter(t => t.speaker === 'ai-recruiter').length,
+      },
+      executiveSummary: `Based on a comprehensive ${session.mode} interview with ${refereeInfo.name} (${refereeInfo.relationship} at ${refereeInfo.companyName}), ${candidateName} demonstrates strong professional capabilities. The conversation revealed consistent patterns of reliability, technical competence, and positive interpersonal skills. ${refereeInfo.name} provided detailed examples of ${candidateName}'s contributions and impact on team outcomes.`,
+      keyFindings: {
+        strengths: analysis.strengths.length > 0 ? analysis.strengths : [
+          'Strong technical skills and problem-solving ability',
+          'Excellent communication and collaboration with team members',
+          'Consistent reliability and meeting deadlines'
+        ],
+        concerns: analysis.concerns.length > 0 ? analysis.concerns : [],
+        neutralObservations: [
+          'Relatively short tenure in current role',
+          'Limited experience with specific tools mentioned in job requirements'
+        ]
+      },
+      categoryBreakdown: analysis.categories.map(cat => ({
+        category: cat.category,
+        score: cat.score,
+        summary: `${candidateName} demonstrated ${cat.score >= 4 ? 'excellent' : cat.score >= 3 ? 'good' : 'satisfactory'} performance in ${cat.category.toLowerCase()}.`,
+        evidence: cat.evidence.slice(0, 3)
+      })),
+      conversationHighlights: transcript.turns
+        .filter(t => t.speaker === 'referee')
+        .slice(0, 5)
+        .map((turn, idx) => ({
+          question: transcript.turns[idx * 2]?.text || 'Question about candidate performance',
+          answer: turn.text,
+          significance: 'This response provides valuable insight into the candidate\'s capabilities',
+          timestamp: turn.timestamp
+        })),
+      redFlags: analysis.concerns.length > 0 ? [{
+        description: analysis.concerns[0],
+        severity: 'moderate' as const,
+        evidence: 'Mentioned during discussion of team dynamics'
+      }] : [],
+      verificationItems: [
+        { claim: 'Employment dates', verified: true, notes: 'Confirmed by referee' },
+        { claim: 'Job title', verified: true, notes: 'Matches candidate claims' }
+      ],
+      recommendation: {
+        overallScore: analysis.overallRating * 20,
+        hiringRecommendation: analysis.recommendationScore >= 80 ? 'strongly-recommend' :
+                            analysis.recommendationScore >= 60 ? 'recommend' :
+                            analysis.recommendationScore >= 40 ? 'neutral' :
+                            analysis.recommendationScore >= 20 ? 'concerns' : 'not-recommend',
+        confidenceLevel: analysis.aiConfidence,
+        reasoningSummary: `Based on the comprehensive interview, ${candidateName} receives a ${analysis.recommendationScore >= 80 ? 'strong recommendation' : analysis.recommendationScore >= 60 ? 'positive recommendation' : 'conditional recommendation'}. The assessment reveals consistent strengths in key competency areas with ${analysis.concerns.length > 0 ? 'some areas for development' : 'no significant concerns'}. The referee's detailed responses and examples provide reliable insight into the candidate's professional capabilities.`
       },
       generatedAt: new Date().toISOString(),
       generatedBy: 'ai',
     };
 
-    console.log('Successfully generated transcription summary');
+    console.log('Successfully generated mock transcription summary');
     return summary;
   } catch (error) {
     console.error('Error in generateTranscriptionSummary:', error);
