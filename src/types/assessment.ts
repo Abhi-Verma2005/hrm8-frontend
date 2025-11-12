@@ -48,6 +48,8 @@ export interface Assessment {
   candidateEmail: string;
   jobId?: string;
   jobTitle?: string;
+  employerId?: string;
+  employerName?: string;
   applicationId?: string;
   assessmentType: AssessmentType;
   provider: AssessmentProvider;

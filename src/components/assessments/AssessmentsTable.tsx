@@ -17,6 +17,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, Eye, Bell, Download, XCircle } from 'lucide-react';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { Assessment } from '@/types/assessment';
 import { format } from 'date-fns';
 import { ReminderStatusIndicator } from './ReminderStatusIndicator';
@@ -42,6 +43,7 @@ export function AssessmentsTable({
   onBulkExport,
   onBulkCancel,
 }: AssessmentsTableProps) {
+  const navigate = useNavigate();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const toggleSelection = (id: string) => {
@@ -132,13 +134,14 @@ export function AssessmentsTable({
                   onCheckedChange={toggleAll}
                 />
               </TableHead>
-              <TableHead>Candidate</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Provider</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Score</TableHead>
-              <TableHead>Invited Date</TableHead>
-              <TableHead className="w-12"></TableHead>
+              <TableHead className="w-[20%]">Candidate</TableHead>
+              <TableHead className="w-[20%]">Related To</TableHead>
+              <TableHead className="w-[12%]">Type</TableHead>
+              <TableHead className="w-[12%]">Provider</TableHead>
+              <TableHead className="w-[10%]">Status</TableHead>
+              <TableHead className="w-[8%]">Score</TableHead>
+              <TableHead className="w-[12%]">Invited Date</TableHead>
+              <TableHead className="w-[50px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -152,11 +155,35 @@ export function AssessmentsTable({
                 </TableCell>
                 <TableCell>
                   <div>
-                    <p className="font-medium transition-colors duration-500">{assessment.candidateName}</p>
-                    <p className="text-xs text-muted-foreground transition-colors duration-500">
-                      {assessment.candidateEmail}
+                    <p 
+                      className="font-medium text-primary hover:underline cursor-pointer transition-colors duration-500"
+                      onClick={() => navigate(`/candidates/${assessment.candidateId}`)}
+                    >
+                      {assessment.candidateName}
                     </p>
                   </div>
+                </TableCell>
+
+                {/* Related To Column */}
+                <TableCell>
+                  {assessment.jobTitle && assessment.employerName ? (
+                    <div className="space-y-0.5">
+                      <p 
+                        className="font-medium text-primary hover:underline cursor-pointer text-sm transition-colors duration-500"
+                        onClick={() => navigate(`/jobs/${assessment.jobId}`)}
+                      >
+                        {assessment.jobTitle}
+                      </p>
+                      <p 
+                        className="text-xs text-muted-foreground hover:underline cursor-pointer transition-colors duration-500"
+                        onClick={() => navigate(`/employers/${assessment.employerId}`)}
+                      >
+                        {assessment.employerName}
+                      </p>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground transition-colors duration-500">—</span>
+                  )}
                 </TableCell>
                 <TableCell className="capitalize transition-colors duration-500">
                   {assessment.assessmentType.replace('-', ' ')}

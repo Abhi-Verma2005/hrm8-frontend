@@ -2,7 +2,7 @@ import type { Assessment } from '@/types/assessment';
 
 const STORAGE_KEY = 'hrm8_assessments';
 const VERSION_KEY = 'hrm8_assessments_version';
-const CURRENT_VERSION = '1.1'; // Update this when mock data structure changes
+const CURRENT_VERSION = '1.2'; // Update this when mock data structure changes
 
 const mockAssessments: Assessment[] = [
   {
@@ -12,6 +12,8 @@ const mockAssessments: Assessment[] = [
     candidateEmail: 'sarah.johnson@example.com',
     jobId: 'job-001',
     jobTitle: 'Senior Software Engineer',
+    employerId: 'emp-001',
+    employerName: 'TechCorp Solutions',
     applicationId: 'app-001',
     assessmentType: 'technical-skills',
     provider: 'codility',
@@ -54,6 +56,8 @@ const mockAssessments: Assessment[] = [
     candidateEmail: 'david.martinez@example.com',
     jobId: 'job-002',
     jobTitle: 'Marketing Manager',
+    employerId: 'emp-002',
+    employerName: 'InnovateCo',
     applicationId: 'app-002',
     assessmentType: 'personality',
     provider: 'shl',
@@ -79,6 +83,8 @@ const mockAssessments: Assessment[] = [
     candidateEmail: 'jennifer.lee@example.com',
     jobId: 'job-003',
     jobTitle: 'Data Analyst',
+    employerId: 'emp-003',
+    employerName: 'DataFlow Analytics',
     applicationId: 'app-003',
     assessmentType: 'cognitive',
     provider: 'criteria',
@@ -104,6 +110,8 @@ const mockAssessments: Assessment[] = [
     candidateEmail: 'robert.anderson@example.com',
     jobId: 'job-004',
     jobTitle: 'Sales Director',
+    employerId: 'emp-004',
+    employerName: 'Global Sales Inc',
     applicationId: 'app-004',
     assessmentType: 'behavioral',
     provider: 'testgorilla',
@@ -146,6 +154,8 @@ const mockAssessments: Assessment[] = [
     candidateEmail: 'maria.garcia@example.com',
     jobId: 'job-005',
     jobTitle: 'Product Manager',
+    employerId: 'emp-005',
+    employerName: 'ProductVision Labs',
     applicationId: 'app-005',
     assessmentType: 'situational-judgment',
     provider: 'harver',
@@ -172,6 +182,8 @@ const mockAssessments: Assessment[] = [
     candidateEmail: 'james.wilson@example.com',
     jobId: 'job-006',
     jobTitle: 'UX Designer',
+    employerId: 'emp-006',
+    employerName: 'DesignHub Studios',
     applicationId: 'app-006',
     assessmentType: 'culture-fit',
     provider: 'vervoe',
@@ -214,6 +226,8 @@ const mockAssessments: Assessment[] = [
     candidateEmail: 'patricia.brown@example.com',
     jobId: 'job-007',
     jobTitle: 'Financial Analyst',
+    employerId: 'emp-007',
+    employerName: 'FinancePro Group',
     assessmentType: 'cognitive',
     provider: 'criteria',
     status: 'pending-invitation',
@@ -238,6 +252,8 @@ const mockAssessments: Assessment[] = [
     candidateEmail: 'michael.taylor@example.com',
     jobId: 'job-008',
     jobTitle: 'DevOps Engineer',
+    employerId: 'emp-008',
+    employerName: 'CloudOps Solutions',
     applicationId: 'app-008',
     assessmentType: 'technical-skills',
     provider: 'codility',
@@ -280,6 +296,8 @@ const mockAssessments: Assessment[] = [
     candidateEmail: 'linda.davis@example.com',
     jobId: 'job-009',
     jobTitle: 'Content Writer',
+    employerId: 'emp-009',
+    employerName: 'ContentCraft Media',
     applicationId: 'app-009',
     assessmentType: 'custom',
     provider: 'internal',
@@ -305,6 +323,8 @@ const mockAssessments: Assessment[] = [
     candidateEmail: 'christopher.moore@example.com',
     jobId: 'job-010',
     jobTitle: 'Operations Manager',
+    employerId: 'emp-010',
+    employerName: 'OptiManage Corp',
     applicationId: 'app-010',
     assessmentType: 'personality',
     provider: 'shl',
