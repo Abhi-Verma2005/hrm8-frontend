@@ -14,13 +14,15 @@ import { TranscriptViewer } from './TranscriptViewer';
 import { SectionNavigation } from './SectionNavigation';
 import { generateReportHTML } from '@/lib/backgroundChecks/reportTemplate';
 import { exportAIReferencePDF } from '@/lib/backgroundChecks/aiReportExport';
+import { EmailReportDialog } from './EmailReportDialog';
 import { 
   Save, 
   X, 
   FileText, 
   Clock,
   CheckCircle2,
-  Download
+  Download,
+  Mail
 } from 'lucide-react';
 
 interface AIReportEditorProps {
@@ -50,6 +52,7 @@ export function AIReportEditor({
     existingReport ? new Date(existingReport.updatedAt) : null
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
 
   const editor = useEditor({
     extensions: [
@@ -285,6 +288,14 @@ export function AIReportEditor({
                 <Download className="h-4 w-4 mr-2" />
                 Export with Transcript
               </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setEmailDialogOpen(true)}
+                size="sm"
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                Email Report
+              </Button>
             </div>
             
             <div className="flex gap-2">
@@ -300,6 +311,13 @@ export function AIReportEditor({
           </div>
         </DialogFooter>
       </DialogContent>
+
+      {/* Email Report Dialog */}
+      <EmailReportDialog
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        report={existingReport || null}
+      />
     </Dialog>
   );
 }

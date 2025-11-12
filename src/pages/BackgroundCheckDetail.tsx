@@ -24,6 +24,7 @@ import ConsentStatusSection from '@/components/backgroundChecks/ConsentStatusSec
 import RefereeResponsesSection from '@/components/backgroundChecks/RefereeResponsesSection';
 import CheckResultsSection from '@/components/backgroundChecks/CheckResultsSection';
 import { AIReportEditor } from '@/components/backgroundChecks/ai-interview/AIReportEditor';
+import { EmailReportDialog } from '@/components/backgroundChecks/ai-interview/EmailReportDialog';
 
 export default function BackgroundCheckDetail() {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +37,7 @@ export default function BackgroundCheckDetail() {
   const [aiReports, setAiReports] = useState<EditableReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [selectedReport, setSelectedReport] = useState<EditableReport | null>(null);
   const [selectedSession, setSelectedSession] = useState<AIReferenceCheckSession | null>(null);
 
@@ -389,6 +391,17 @@ export default function BackgroundCheckDetail() {
                                   <Download className="h-4 w-4 mr-2" />
                                   Export PDF
                                 </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedReport(report);
+                                    setEmailDialogOpen(true);
+                                  }}
+                                >
+                                  <Mail className="h-4 w-4 mr-2" />
+                                  Email
+                                </Button>
                               </div>
                             </div>
                           </Card>
@@ -414,6 +427,13 @@ export default function BackgroundCheckDetail() {
           onCancel={() => setEditorOpen(false)}
         />
       )}
+
+      {/* Email Report Dialog */}
+      <EmailReportDialog
+        open={emailDialogOpen}
+        onOpenChange={setEmailDialogOpen}
+        report={selectedReport}
+      />
     </div>
   );
 }
