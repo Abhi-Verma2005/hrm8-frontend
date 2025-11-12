@@ -1,3 +1,5 @@
+import type { InterviewMode, AvailableSlot } from './aiReferenceCheck';
+
 export interface RefereeDetails {
   id: string;
   candidateId: string;
@@ -15,6 +17,11 @@ export interface RefereeDetails {
   lastReminderDate?: string;
   completedDate?: string;
   response?: ReferenceResponse;
+  // AI Reference Check fields
+  preferredMode?: InterviewMode;
+  aiSessionId?: string;
+  timezone?: string;
+  availableSlots?: AvailableSlot[];
   createdAt: string;
   updatedAt: string;
 }
