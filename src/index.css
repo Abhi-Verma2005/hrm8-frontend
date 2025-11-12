@@ -340,3 +340,149 @@ All colors MUST be HSL.
 .animate-shake {
   animation: shake 0.3s ease-in-out;
 }
+
+/* AI Report Editor Styles */
+.prose {
+  color: hsl(var(--foreground));
+}
+
+.prose h1 {
+  color: hsl(var(--foreground));
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid hsl(var(--border));
+  padding-bottom: 0.5rem;
+}
+
+.prose h2 {
+  color: hsl(var(--foreground));
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+}
+
+.prose h3 {
+  color: hsl(var(--foreground));
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose h4 {
+  color: hsl(var(--foreground));
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose p {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+}
+
+.prose ul {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+}
+
+.prose li {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose strong {
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.prose em {
+  font-style: italic;
+  color: hsl(var(--muted-foreground));
+}
+
+.prose .metadata {
+  background: hsl(var(--muted));
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+}
+
+.prose .metadata p {
+  margin: 0.25rem 0;
+}
+
+.prose .category-section,
+.prose .highlight-section,
+.prose .red-flag-section,
+.prose .verification-item,
+.prose .recommendation-section {
+  background: hsl(var(--muted));
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem 0;
+  border-left: 4px solid hsl(var(--primary));
+}
+
+.prose .red-flag-section.severity-critical {
+  border-left-color: hsl(var(--destructive));
+  background: hsl(var(--destructive-light));
+}
+
+.prose .red-flag-section.severity-moderate {
+  border-left-color: hsl(var(--warning));
+  background: hsl(var(--warning-light));
+}
+
+.prose .red-flag-section.severity-minor {
+  border-left-color: hsl(38 92% 50%);
+  background: hsl(38 92% 96%);
+}
+
+.prose .recommendation-section {
+  border-left-color: hsl(var(--success));
+  background: hsl(var(--success-light));
+}
+
+/* Dark mode prose styles */
+.dark .prose {
+  color: hsl(var(--foreground));
+}
+
+.dark .prose h1,
+.dark .prose h2,
+.dark .prose h3,
+.dark .prose h4 {
+  color: hsl(var(--foreground));
+}
+
+.dark .prose .metadata,
+.dark .prose .category-section,
+.dark .prose .highlight-section,
+.dark .prose .red-flag-section,
+.dark .prose .verification-item,
+.dark .prose .recommendation-section {
+  background: hsl(var(--muted) / 0.5);
+}
+
+.dark .prose .red-flag-section.severity-critical {
+  background: hsl(var(--destructive) / 0.1);
+}
+
+.dark .prose .red-flag-section.severity-moderate {
+  background: hsl(var(--warning) / 0.1);
+}
+
+.dark .prose .red-flag-section.severity-minor {
+  background: hsl(38 92% 50% / 0.1);
+}
+
+.dark .prose .recommendation-section {
+  background: hsl(var(--success) / 0.1);
+}
