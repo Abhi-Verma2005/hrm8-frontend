@@ -26,6 +26,8 @@ import { useToast } from '@/hooks/use-toast';
 import { getCheckTypeIcon, getCheckProgress } from '@/lib/backgroundChecks/checkTypeHelpers';
 import type { BackgroundCheck, BackgroundCheckType } from '@/types/backgroundCheck';
 import { EntityAvatar } from '@/components/tables/EntityAvatar';
+import { useColumnResize } from '@/hooks/useColumnResize';
+import { ResizeHandle } from '@/components/tables/ResizeHandle';
 
 type SortColumn = 'candidateName' | 'status' | 'progress' | 'result' | 'initiatedDate';
 type SortDirection = 'asc' | 'desc' | null;
@@ -54,6 +56,35 @@ export function BackgroundChecksTable({
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+
+  // Column resizing
+  const {
+    columnWidths,
+    getColumnWidth,
+    handleResizeStart: onResizeStart,
+    resetWidths,
+  } = useColumnResize({
+    tableId: 'background-checks',
+    defaultWidths: {
+      candidateName: 300,
+      checkTypes: 192,
+      status: 132,
+      progress: 144,
+      result: 120,
+      initiatedDate: 150,
+    },
+    minWidth: 80,
+    maxWidth: 600,
+  });
+
+  const columns = [
+    { key: 'candidateName', label: 'Candidate', sortable: true },
+    { key: 'checkTypes', label: 'Check Types', sortable: false },
+    { key: 'status', label: 'Status', sortable: true },
+    { key: 'progress', label: 'Progress', sortable: true },
+    { key: 'result', label: 'Result', sortable: true },
+    { key: 'initiatedDate', label: 'Initiated', sortable: true },
+  ];
   
   const handleViewDetails = (checkId: string) => {
     if (onViewDetails) {
@@ -353,6 +384,13 @@ export function BackgroundChecksTable({
             >
               <FileDown className="h-4 w-4" />
               Export Reports
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetWidths}
+            >
+              Reset Widths
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

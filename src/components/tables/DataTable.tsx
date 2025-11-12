@@ -19,6 +19,8 @@ import { EditableCell, EditableFieldType, SelectOption } from "./EditableCell";
 import { GroupConfig, GroupHeader, groupData, calculateAggregates, GroupedData } from "./TableGrouping";
 import { PivotTable, PivotConfig } from "./PivotTable";
 import { cn } from "@/lib/utils";
+import { useColumnResize } from "@/hooks/useColumnResize";
+import { ResizeHandle } from "./ResizeHandle";
 
 export interface Column<T> {
   key: string;
@@ -69,6 +71,9 @@ interface DataTableProps<T> {
   onPivotConfigChange?: (config: PivotConfig) => void;
   // Row click handler
   onRowClick?: (item: T) => void;
+  // Column resizing
+  tableId?: string;
+  resizable?: boolean;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -103,6 +108,8 @@ export function DataTable<T extends { id: string }>({
   pivotConfig,
   onPivotConfigChange,
   onRowClick,
+  tableId = "default-table",
+  resizable = true,
 }: DataTableProps<T>) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -119,6 +126,34 @@ export function DataTable<T extends { id: string }>({
   const [expandedGroups, setExpandedGroups] = useState<Set<any>>(() => 
     defaultGroupsExpanded ? new Set(['__all__']) : new Set()
   );
+
+  // Column resizing
+  const defaultWidths = useMemo(() => {
+    const widths: { [key: string]: number } = {};
+    columns.forEach((col) => {
+      if (col.width) {
+        // Parse width string (e.g., "25%" or "200px") to pixels
+        const match = col.width.match(/(\d+)(px|%)?/);
+        if (match) {
+          const value = parseInt(match[1]);
+          widths[col.key] = match[2] === '%' ? (value / 100) * 1200 : value;
+        }
+      }
+    });
+    return widths;
+  }, [columns]);
+
+  const {
+    columnWidths,
+    getColumnWidth,
+    handleResizeStart: onResizeStart,
+    resetWidths,
+  } = useColumnResize({
+    tableId,
+    defaultWidths,
+    minWidth: 80,
+    maxWidth: 600,
+  });
   
   // Advanced filtering state
   const [dateRangeFilters, setDateRangeFilters] = useState<DateRangeFilter[]>(initialDateRangeFilters);
@@ -507,6 +542,16 @@ export function DataTable<T extends { id: string }>({
           )}
         </div>
         <div className="flex items-center gap-2">
+          {resizable && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={resetWidths}
+              className="gap-2"
+            >
+              Reset Column Widths
+            </Button>
+          )}
           {columnCustomization && (
             <ColumnCustomization
               columns={columns}
@@ -590,22 +635,41 @@ export function DataTable<T extends { id: string }>({
                   />
                 </TableHead>
               )}
-              {displayColumns.map((column) => (
-                <TableHead key={column.key} style={{ width: column.width }}>
-                  {column.sortable ? (
-                    <Button
-                      variant="ghost"
-                      onClick={() => handleSort(column.key)}
-                      className="-ml-4 h-8 data-[state=open]:bg-accent"
-                    >
-                      {column.label}
-                      {getSortIcon(column.key)}
-                    </Button>
-                  ) : (
-                    column.label
-                  )}
-                </TableHead>
-              ))}
+              {displayColumns.map((column, index) => {
+                const width = resizable ? getColumnWidth(column.key) : undefined;
+                return (
+                  <TableHead 
+                    key={column.key} 
+                    style={{ 
+                      width: width ? `${width}px` : column.width,
+                      position: 'relative',
+                    }}
+                  >
+                    {column.sortable ? (
+                      <Button
+                        variant="ghost"
+                        onClick={() => handleSort(column.key)}
+                        className="-ml-4 h-8 data-[state=open]:bg-accent"
+                      >
+                        {column.label}
+                        {getSortIcon(column.key)}
+                      </Button>
+                    ) : (
+                      column.label
+                    )}
+                    {resizable && index < displayColumns.length - 1 && (
+                      <ResizeHandle
+                        onResizeStart={(e) => {
+                          e.preventDefault();
+                          const th = e.currentTarget.parentElement;
+                          const currentWidth = th?.offsetWidth || width || 150;
+                          onResizeStart(column.key, e.clientX, currentWidth);
+                        }}
+                      />
+                    )}
+                  </TableHead>
+                );
+              })}
             </TableRow>
           </TableHeader>
           <TableBody>

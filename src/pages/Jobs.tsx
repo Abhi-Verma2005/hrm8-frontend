@@ -674,6 +674,7 @@ export default function Jobs() {
           selectable
           onSelectedRowsChange={setSelectedJobs}
           emptyMessage="No jobs found"
+          tableId="jobs"
         />
 
         <FormDrawer

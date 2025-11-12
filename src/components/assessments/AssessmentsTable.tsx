@@ -22,6 +22,8 @@ import type { Assessment } from '@/types/assessment';
 import { format } from 'date-fns';
 import { ReminderStatusIndicator } from './ReminderStatusIndicator';
 import { EntityAvatar } from '@/components/tables/EntityAvatar';
+import { useColumnResize } from '@/hooks/useColumnResize';
+import { ResizeHandle } from '@/components/tables/ResizeHandle';
 
 type SortColumn = 'candidateName' | 'assessmentType' | 'provider' | 'status' | 'score' | 'invitedDate';
 type SortDirection = 'asc' | 'desc' | null;
@@ -50,6 +52,35 @@ export function AssessmentsTable({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
+
+  // Column resizing
+  const {
+    columnWidths,
+    getColumnWidth,
+    handleResizeStart: onResizeStart,
+    resetWidths,
+  } = useColumnResize({
+    tableId: 'assessments',
+    defaultWidths: {
+      candidateName: 300,
+      assessmentType: 120,
+      provider: 144,
+      status: 132,
+      score: 120,
+      invitedDate: 156,
+    },
+    minWidth: 80,
+    maxWidth: 600,
+  });
+
+  const columns = [
+    { key: 'candidateName', label: 'Candidate', sortable: true },
+    { key: 'assessmentType', label: 'Type', sortable: true },
+    { key: 'provider', label: 'Provider', sortable: true },
+    { key: 'status', label: 'Status', sortable: true },
+    { key: 'score', label: 'Score', sortable: true },
+    { key: 'invitedDate', label: 'Invited Date', sortable: true },
+  ];
 
   const toggleSelection = (id: string) => {
     setSelectedIds(prev =>
@@ -194,6 +225,15 @@ export function AssessmentsTable({
               Cancel Selected
             </Button>
           )}
+          <div className="ml-auto">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetWidths}
+            >
+              Reset Widths
+            </Button>
+          </div>
         </div>
       )}
 
