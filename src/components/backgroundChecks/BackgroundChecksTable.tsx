@@ -436,53 +436,41 @@ export function BackgroundChecksTable({
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead className="w-[25%]">
-                <button 
-                  onClick={() => handleSort('candidateName')}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  Candidate
-                  {getSortIcon('candidateName')}
-                </button>
-              </TableHead>
-              <TableHead className="w-[16%]">Check Types</TableHead>
-              <TableHead className="w-[11%]">
-                <button 
-                  onClick={() => handleSort('status')}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  Status
-                  {getSortIcon('status')}
-                </button>
-              </TableHead>
-              <TableHead className="w-[12%]">
-                <button 
-                  onClick={() => handleSort('progress')}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  Progress
-                  {getSortIcon('progress')}
-                </button>
-              </TableHead>
-              <TableHead className="w-[10%]">
-                <button 
-                  onClick={() => handleSort('result')}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  Result
-                  {getSortIcon('result')}
-                </button>
-              </TableHead>
-              <TableHead className="w-[12%]">
-                <button 
-                  onClick={() => handleSort('initiatedDate')}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  Initiated
-                  {getSortIcon('initiatedDate')}
-                </button>
-              </TableHead>
-              <TableHead className="w-[50px]"></TableHead>
+              {columns.map((column, index) => {
+                const width = getColumnWidth(column.key);
+                return (
+                  <TableHead 
+                    key={column.key}
+                    style={{
+                      width: width ? `${width}px` : undefined,
+                      position: 'relative',
+                    }}
+                  >
+                    {column.sortable ? (
+                      <button 
+                        onClick={() => handleSort(column.key as SortColumn)}
+                        className="flex items-center hover:text-foreground transition-colors font-medium"
+                      >
+                        {column.label}
+                        {getSortIcon(column.key as SortColumn)}
+                      </button>
+                    ) : (
+                      <span className="font-medium">{column.label}</span>
+                    )}
+                    {index < columns.length - 1 && (
+                      <ResizeHandle
+                        onResizeStart={(e) => {
+                          e.preventDefault();
+                          const th = e.currentTarget.parentElement;
+                          const currentWidth = th?.offsetWidth || width || 150;
+                          onResizeStart(column.key, e.clientX, currentWidth);
+                        }}
+                      />
+                    )}
+                  </TableHead>
+                );
+              })}
+              <TableHead className="w-[60px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

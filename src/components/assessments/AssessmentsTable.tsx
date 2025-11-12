@@ -247,60 +247,40 @@ export function AssessmentsTable({
                   onCheckedChange={toggleAll}
                 />
               </TableHead>
-              <TableHead className="w-[25%]">
-                <button 
-                  onClick={() => handleSort('candidateName')}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  Candidate
-                  {getSortIcon('candidateName')}
-                </button>
-              </TableHead>
-              <TableHead className="w-[10%]">
-                <button 
-                  onClick={() => handleSort('assessmentType')}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  Type
-                  {getSortIcon('assessmentType')}
-                </button>
-              </TableHead>
-              <TableHead className="w-[12%]">
-                <button 
-                  onClick={() => handleSort('provider')}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  Provider
-                  {getSortIcon('provider')}
-                </button>
-              </TableHead>
-              <TableHead className="w-[12%]">
-                <button 
-                  onClick={() => handleSort('status')}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  Status
-                  {getSortIcon('status')}
-                </button>
-              </TableHead>
-              <TableHead className="w-[10%]">
-                <button 
-                  onClick={() => handleSort('score')}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  Score
-                  {getSortIcon('score')}
-                </button>
-              </TableHead>
-              <TableHead className="w-[13%]">
-                <button 
-                  onClick={() => handleSort('invitedDate')}
-                  className="flex items-center hover:text-foreground transition-colors font-medium"
-                >
-                  Invited Date
-                  {getSortIcon('invitedDate')}
-                </button>
-              </TableHead>
+              {columns.map((column, index) => {
+                const width = getColumnWidth(column.key);
+                return (
+                  <TableHead 
+                    key={column.key}
+                    style={{
+                      width: width ? `${width}px` : undefined,
+                      position: 'relative',
+                    }}
+                  >
+                    {column.sortable ? (
+                      <button 
+                        onClick={() => handleSort(column.key as SortColumn)}
+                        className="flex items-center hover:text-foreground transition-colors font-medium"
+                      >
+                        {column.label}
+                        {getSortIcon(column.key as SortColumn)}
+                      </button>
+                    ) : (
+                      <span className="font-medium">{column.label}</span>
+                    )}
+                    {index < columns.length - 1 && (
+                      <ResizeHandle
+                        onResizeStart={(e) => {
+                          e.preventDefault();
+                          const th = e.currentTarget.parentElement;
+                          const currentWidth = th?.offsetWidth || width || 150;
+                          onResizeStart(column.key, e.clientX, currentWidth);
+                        }}
+                      />
+                    )}
+                  </TableHead>
+                );
+              })}
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
