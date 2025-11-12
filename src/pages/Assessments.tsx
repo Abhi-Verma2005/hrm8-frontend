@@ -6,9 +6,16 @@ import { AssessmentsFilterBar } from '@/components/assessments/AssessmentsFilter
 import { AssessmentsTable } from '@/components/assessments/AssessmentsTable';
 import { AssessmentInvitationWizard } from '@/components/assessments/AssessmentInvitationWizard';
 import { Button } from '@/components/ui/button';
-import { ClipboardCheck, TrendingUp, Award, Clock, LayoutDashboard, Settings, BarChart3, Calendar, Upload, Download } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ClipboardCheck, TrendingUp, Award, Clock, LayoutDashboard, Settings, BarChart3, Calendar, Upload, Download, ChevronDown } from 'lucide-react';
 import { getAssessments } from '@/lib/mockAssessmentStorage';
 import { getAssessmentStats } from '@/lib/assessments/dashboardStats';
+import { exportAssessments } from '@/lib/assessments/exportAssessments';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -83,8 +90,20 @@ export default function Assessments() {
     toast({ title: "Import functionality coming soon" });
   };
 
-  const handleExport = () => {
-    toast({ title: "Exporting assessment data..." });
+  const handleExport = (format: 'csv' | 'excel') => {
+    try {
+      const result = exportAssessments(filteredAssessments, { format });
+      toast({
+        title: "Export successful",
+        description: `Exported ${result.recordCount} assessment${result.recordCount !== 1 ? 's' : ''} to ${result.filename}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: "There was an error exporting the data",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -95,10 +114,23 @@ export default function Assessments() {
             <Upload className="mr-2 h-4 w-4" />
             Import
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Download className="mr-2 h-4 w-4" />
+                Export
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleExport('excel')}>
+                Export as Excel (.xlsx)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleExport('csv')}>
+                Export as CSV (.csv)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </>
       }
     >
