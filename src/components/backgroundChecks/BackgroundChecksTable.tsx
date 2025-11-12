@@ -1,36 +1,20 @@
-import { useState, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Send, FileDown, Edit, X } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical, Eye, FileText, Mail, Ban, Download, X, Send, FileDown, Edit, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { Progress } from '@/components/ui/progress';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
-import { getCheckTypeIcon, getCheckProgress } from '@/lib/backgroundChecks/checkTypeHelpers';
-import type { BackgroundCheck, BackgroundCheckType } from '@/types/backgroundCheck';
-import { EntityAvatar } from '@/components/tables/EntityAvatar';
-import { useColumnResize } from '@/hooks/useColumnResize';
-import { ResizeHandle } from '@/components/tables/ResizeHandle';
-
-type SortColumn = 'candidateName' | 'status' | 'progress' | 'result' | 'initiatedDate';
-type SortDirection = 'asc' | 'desc' | null;
+import type { BackgroundCheck } from '@/types/backgroundCheck';
+import { DataTable } from '@/components/tables/DataTable';
+import { createBackgroundCheckTableColumns } from './BackgroundCheckTableColumns';
 
 interface BackgroundChecksTableProps {
   checks: BackgroundCheck[];
@@ -54,38 +38,7 @@ export function BackgroundChecksTable({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
-  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
-  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
-  // Column resizing
-  const {
-    columnWidths,
-    getColumnWidth,
-    handleResizeStart: onResizeStart,
-    resetWidths,
-  } = useColumnResize({
-    tableId: 'background-checks',
-    defaultWidths: {
-      candidateName: 300,
-      checkTypes: 192,
-      status: 132,
-      progress: 144,
-      result: 120,
-      initiatedDate: 150,
-    },
-    minWidth: 80,
-    maxWidth: 600,
-  });
-
-  const columns = [
-    { key: 'candidateName', label: 'Candidate', sortable: true },
-    { key: 'checkTypes', label: 'Check Types', sortable: false },
-    { key: 'status', label: 'Status', sortable: true },
-    { key: 'progress', label: 'Progress', sortable: true },
-    { key: 'result', label: 'Result', sortable: true },
-    { key: 'initiatedDate', label: 'Initiated', sortable: true },
-  ];
-  
   const handleViewDetails = (checkId: string) => {
     if (onViewDetails) {
       onViewDetails(checkId);
@@ -94,20 +47,17 @@ export function BackgroundChecksTable({
     }
   };
 
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedRows(checks.map(c => c.id));
-    } else {
-      setSelectedRows([]);
-    }
-  };
+  const columns = createBackgroundCheckTableColumns(
+    handleViewDetails,
+    onViewConsent,
+    onViewReferees,
+    onDownloadReport,
+    onSendReminder,
+    onCancelCheck
+  );
 
-  const handleSelectRow = (checkId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedRows([...selectedRows, checkId]);
-    } else {
-      setSelectedRows(selectedRows.filter(id => id !== checkId));
-    }
+  const handleSelectedRowsChange = (ids: string[]) => {
+    setSelectedRows(ids);
   };
 
   const handleBulkSendReminders = () => {
@@ -124,7 +74,6 @@ export function BackgroundChecksTable({
       return;
     }
 
-    // Simulate sending reminders
     pendingChecks.forEach(check => {
       if (onSendReminder) {
         onSendReminder(check.id);
@@ -153,7 +102,6 @@ export function BackgroundChecksTable({
       return;
     }
 
-    // Simulate bulk export
     toast({
       title: "Export started",
       description: `Preparing to download ${completedChecks.length} report(s)...`,
@@ -184,7 +132,6 @@ export function BackgroundChecksTable({
       return;
     }
 
-    // Simulate bulk cancel
     eligibleChecks.forEach(check => {
       if (onCancelCheck) {
         onCancelCheck(check.id);
@@ -211,7 +158,6 @@ export function BackgroundChecksTable({
       return;
     }
 
-    // Simulate bulk status update
     toast({
       title: "Status updated",
       description: `Updated status for ${eligibleChecks.length} check(s) to '${newStatus}'.`,
@@ -224,132 +170,24 @@ export function BackgroundChecksTable({
     setSelectedRows([]);
   };
 
-  const handleSort = (column: SortColumn) => {
-    if (sortColumn === column) {
-      if (sortDirection === 'asc') {
-        setSortDirection('desc');
-      } else if (sortDirection === 'desc') {
-        setSortColumn(null);
-        setSortDirection(null);
-      } else {
-        setSortDirection('asc');
-      }
-    } else {
-      setSortColumn(column);
-      setSortDirection('asc');
-    }
-  };
-
-  const getSortIcon = (column: SortColumn) => {
-    if (sortColumn !== column) {
-      return <ArrowUpDown className="h-4 w-4 ml-1 opacity-40" />;
-    }
-    if (sortDirection === 'asc') {
-      return <ArrowUp className="h-4 w-4 ml-1" />;
-    }
-    return <ArrowDown className="h-4 w-4 ml-1" />;
-  };
-
-  const sortedChecks = useMemo(() => {
-    if (!sortColumn || !sortDirection) return checks;
-
-    return [...checks].sort((a, b) => {
-      let aValue: any;
-      let bValue: any;
-
-      switch (sortColumn) {
-        case 'candidateName':
-          aValue = a.candidateName.toLowerCase();
-          bValue = b.candidateName.toLowerCase();
-          break;
-        case 'status':
-          aValue = a.status;
-          bValue = b.status;
-          break;
-        case 'progress':
-          aValue = getCheckProgress(a);
-          bValue = getCheckProgress(b);
-          break;
-        case 'result':
-          aValue = a.overallStatus ?? '';
-          bValue = b.overallStatus ?? '';
-          break;
-        case 'initiatedDate':
-          aValue = new Date(a.initiatedDate).getTime();
-          bValue = new Date(b.initiatedDate).getTime();
-          break;
-        default:
-          return 0;
-      }
-
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
-    });
-  }, [checks, sortColumn, sortDirection]);
-  
-  const getStatusBadge = (status: BackgroundCheck['status']) => {
-    const variants: Record<BackgroundCheck['status'], any> = {
-      'not-started': 'outline',
-      'pending-consent': 'secondary',
-      'in-progress': 'default',
-      'completed': 'default',
-      'issues-found': 'destructive',
-      'cancelled': 'outline',
-    };
-
-    const colors: Record<BackgroundCheck['status'], string> = {
-      'not-started': '',
-      'pending-consent': 'bg-yellow-500 text-yellow-50',
-      'in-progress': 'bg-blue-500 text-blue-50',
-      'completed': 'bg-green-600 text-green-50',
-      'issues-found': '',
-      'cancelled': '',
-    };
-
-    return (
-      <Badge variant={variants[status]} className={colors[status]}>
-        {status.replace(/-/g, ' ')}
-      </Badge>
-    );
-  };
-
-  const getOverallResultBadge = (result?: string) => {
-    if (!result) return null;
-
-    const variants: Record<string, any> = {
-      clear: 'default',
-      conditional: 'secondary',
-      'not-clear': 'destructive',
-    };
-
-    const colors: Record<string, string> = {
-      clear: 'bg-green-600 text-green-50',
-      conditional: 'bg-yellow-500 text-yellow-50',
-      'not-clear': 'bg-red-600 text-red-50',
-    };
-
-    return (
-      <Badge variant={variants[result]} className={colors[result]}>
-        {result === 'clear' ? 'Clear' : result === 'conditional' ? 'Conditional' : 'Not Clear'}
-      </Badge>
-    );
-  };
-
   const selectedCount = selectedRows.length;
   const allSelected = checks.length > 0 && selectedRows.length === checks.length;
-  const someSelected = selectedRows.length > 0 && selectedRows.length < checks.length;
 
   return (
     <div className="space-y-4">
-      {/* Bulk Actions Toolbar */}
       {selectedCount > 0 && (
         <div className="flex items-center justify-between p-4 bg-primary/5 border rounded-lg">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Checkbox
                 checked={allSelected}
-                onCheckedChange={handleSelectAll}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setSelectedRows(checks.map(c => c.id));
+                  } else {
+                    setSelectedRows([]);
+                  }
+                }}
               />
               <span className="text-sm font-medium">
                 {selectedCount} {selectedCount === 1 ? 'check' : 'checks'} selected
@@ -385,13 +223,6 @@ export function BackgroundChecksTable({
               <FileDown className="h-4 w-4" />
               Export Reports
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={resetWidths}
-            >
-              Reset Widths
-            </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-2">
@@ -424,205 +255,16 @@ export function BackgroundChecksTable({
         </div>
       )}
 
-      {/* Table */}
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-12">
-                <Checkbox
-                  checked={allSelected}
-                  onCheckedChange={handleSelectAll}
-                  aria-label="Select all"
-                />
-              </TableHead>
-              {columns.map((column, index) => {
-                const width = getColumnWidth(column.key);
-                return (
-                  <TableHead 
-                    key={column.key}
-                    style={{
-                      width: width ? `${width}px` : undefined,
-                      position: 'relative',
-                    }}
-                  >
-                    {column.sortable ? (
-                      <button 
-                        onClick={() => handleSort(column.key as SortColumn)}
-                        className="flex items-center hover:text-foreground transition-colors font-medium"
-                      >
-                        {column.label}
-                        {getSortIcon(column.key as SortColumn)}
-                      </button>
-                    ) : (
-                      <span className="font-medium">{column.label}</span>
-                    )}
-                    {index < columns.length - 1 && (
-                      <ResizeHandle
-                        onResizeStart={(e) => {
-                          e.preventDefault();
-                          const th = e.currentTarget.parentElement;
-                          const currentWidth = th?.offsetWidth || width || 150;
-                          onResizeStart(column.key, e.clientX, currentWidth);
-                        }}
-                      />
-                    )}
-                  </TableHead>
-                );
-              })}
-              <TableHead className="w-[80px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {checks.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-12 text-muted-foreground">
-                  <div className="flex flex-col items-center gap-2">
-                    <FileText className="h-12 w-12 opacity-50" />
-                    <p className="font-medium">No background checks found</p>
-                    <p className="text-sm">Try adjusting your filters or initiate a new check</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              sortedChecks.map((check) => (
-                <TableRow
-                  key={check.id}
-                  className={selectedRows.includes(check.id) ? 'bg-muted/50' : ''}
-                >
-                  <TableCell>
-                    <Checkbox
-                      checked={selectedRows.includes(check.id)}
-                      onCheckedChange={(checked) => handleSelectRow(check.id, checked as boolean)}
-                      aria-label={`Select ${check.candidateName}`}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <EntityAvatar
-                        name={check.employerName || 'Unknown'}
-                        src={check.employerLogo}
-                        type="logo"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <Link to={`/candidates/${check.candidateId}`}>
-                          <p className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block transition-colors duration-500">
-                            {check.candidateName}
-                          </p>
-                        </Link>
-                        {check.jobTitle && (
-                          <Link to={`/jobs/${check.jobId}`}>
-                            <p className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors">
-                              {check.jobTitle}
-                            </p>
-                          </Link>
-                        )}
-                        {check.employerName && (
-                          <Link to={`/employers/${check.employerId}`}>
-                            <p className="text-xs text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors">
-                              {check.employerName}
-                            </p>
-                          </Link>
-                        )}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {check.checkTypes.map((ct, idx) => {
-                        const CheckIcon = getCheckTypeIcon(ct.type as BackgroundCheckType);
-                        return (
-                          <Badge key={idx} variant="outline" className="text-xs gap-1">
-                            <CheckIcon className="h-3 w-3" />
-                            {ct.type === 'reference' ? 'Reference' :
-                             ct.type === 'criminal' ? 'Criminal' :
-                             ct.type === 'identity' ? 'Identity' :
-                             ct.type === 'education' ? 'Qualification' :
-                             ct.type.charAt(0).toUpperCase() + ct.type.slice(1)}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(check.status)}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Progress value={getCheckProgress(check)} className="h-2 w-20" />
-                      <span className="text-xs text-muted-foreground whitespace-nowrap">
-                        {getCheckProgress(check)}%
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {check.status === 'completed' && getOverallResultBadge(check.overallStatus)}
-                    {check.status !== 'completed' && (
-                      <span className="text-xs text-muted-foreground">Pending</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="text-sm">{check.initiatedByName}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(check.initiatedDate), { addSuffix: true })}
-                      </p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onClick={() => handleViewDetails(check.id)}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Details
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onViewConsent?.(check.id)}>
-                        <FileText className="h-4 w-4 mr-2" />
-                        View Consent
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onViewReferees?.(check.id)}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        View Referees
-                      </DropdownMenuItem>
-                      {check.status === 'completed' && (
-                        <DropdownMenuItem onClick={() => onDownloadReport?.(check.id)}>
-                          <Download className="h-4 w-4 mr-2" />
-                          Download Report
-                        </DropdownMenuItem>
-                      )}
-                      {check.status === 'pending-consent' && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => onSendReminder?.(check.id)}>
-                            <Mail className="h-4 w-4 mr-2" />
-                            Send Reminder
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                      {check.status !== 'completed' && check.status !== 'cancelled' && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => onCancelCheck?.(check.id)}
-                            className="text-destructive"
-                          >
-                            <Ban className="h-4 w-4 mr-2" />
-                            Cancel Check
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <DataTable
+        data={checks}
+        columns={columns}
+        selectable
+        searchable={false}
+        onSelectedRowsChange={handleSelectedRowsChange}
+        emptyMessage="No background checks found matching your criteria"
+        tableId="background-checks"
+        resizable
+      />
     </div>
   );
 }
