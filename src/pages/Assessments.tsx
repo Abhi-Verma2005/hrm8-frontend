@@ -6,7 +6,7 @@ import { AssessmentsFilterBar } from '@/components/assessments/AssessmentsFilter
 import { AssessmentsTable } from '@/components/assessments/AssessmentsTable';
 import { AssessmentInvitationWizard } from '@/components/assessments/AssessmentInvitationWizard';
 import { Button } from '@/components/ui/button';
-import { ClipboardCheck, TrendingUp, Award, Clock, LayoutDashboard, Settings, BarChart3, Calendar } from 'lucide-react';
+import { ClipboardCheck, TrendingUp, Award, Clock, LayoutDashboard, Settings, BarChart3, Calendar, Upload, Download } from 'lucide-react';
 import { getAssessments } from '@/lib/mockAssessmentStorage';
 import { getAssessmentStats } from '@/lib/assessments/dashboardStats';
 import { useNavigate } from 'react-router-dom';
@@ -79,36 +79,62 @@ export default function Assessments() {
     toast({ title: "Assessment cancelled" });
   };
 
+  const handleImport = () => {
+    toast({ title: "Import functionality coming soon" });
+  };
+
+  const handleExport = () => {
+    toast({ title: "Exporting assessment data..." });
+  };
+
   return (
     <DashboardPageLayout
-      title="Assessments"
       breadcrumbActions={
-        <div className="flex items-center gap-2">
-          <AssessmentNotificationBadge />
-          <Button variant="outline" size="sm" onClick={() => navigate('/scheduled-assessments')}>
-            <Calendar className="h-4 w-4 mr-2" />
-            Scheduled
+        <>
+          <Button variant="outline" size="sm" onClick={handleImport}>
+            <Upload className="mr-2 h-4 w-4" />
+            Import
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/assessments/compare')}>
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Compare Results
+          <Button variant="outline" size="sm" onClick={handleExport}>
+            <Download className="mr-2 h-4 w-4" />
+            Export
           </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/assessment-templates')}>
-            <Settings className="h-4 w-4 mr-2" />
-            Manage Templates
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/assessments')}>
-            <LayoutDashboard className="h-4 w-4 mr-2" />
-            View Dashboard
-          </Button>
-          <Button size="sm" onClick={() => setWizardOpen(true)}>
-            <ClipboardCheck className="h-4 w-4 mr-2" />
-            Invite Candidate
-          </Button>
-        </div>
+        </>
       }
     >
       <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Assessments</h1>
+            <p className="text-muted-foreground">
+              Evaluate candidates through scientifically validated tests
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <AssessmentNotificationBadge />
+            <Button variant="outline" size="sm" onClick={() => navigate('/scheduled-assessments')}>
+              <Calendar className="h-4 w-4 mr-2" />
+              Scheduled
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate('/assessments/compare')}>
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Compare Results
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate('/assessment-templates')}>
+              <Settings className="h-4 w-4 mr-2" />
+              Manage Templates
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => navigate('/dashboard/assessments')}>
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              View Dashboard
+            </Button>
+            <Button size="sm" onClick={() => setWizardOpen(true)}>
+              <ClipboardCheck className="h-4 w-4 mr-2" />
+              Invite Candidate
+            </Button>
+          </div>
+        </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <EnhancedStatCard
             title="Total Assessments"
