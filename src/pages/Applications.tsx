@@ -1,7 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Upload, Download, LayoutGrid, List, Filter, FileDown } from "lucide-react";
+import { Upload, Download, LayoutGrid, List, Filter, X } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
 import { ApplicationListView } from "@/components/applications/ApplicationListView";
 import { ApplicationDetailPanel } from "@/components/applications/ApplicationDetailPanel";
@@ -20,6 +24,8 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { performFuzzySearch } from "@/lib/advancedSearchService";
+import { mockJobs } from "@/data/mockTableData";
+import { FileText, UserCheck, Clock, Sparkles } from "lucide-react";
 
 import { useToast } from "@/hooks/use-toast";
 
@@ -38,6 +44,8 @@ export default function Applications() {
   const [importDialogOpen, setImportDialogOpen] = useState(false);
   const [bulkScheduleOpen, setBulkScheduleOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<FilterType>({});
+  const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
+  const [showUnreadOnly, setShowUnreadOnly] = useState(true);
 
   useEffect(() => {
     loadApplications();
@@ -218,6 +226,16 @@ export default function Applications() {
   };
 
   const filteredApplications = applications.filter((app) => {
+    // Filter by selected job if one is selected
+    if (selectedJobId && selectedJobId !== "all" && selectedJobId !== "unread") {
+      if (app.jobId !== selectedJobId) return false;
+    }
+
+    // Filter by unread status if "unread" is selected or showUnreadOnly is true with no job selected
+    if (selectedJobId === "unread" || (showUnreadOnly && !selectedJobId)) {
+      if (app.isRead) return false;
+    }
+
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       if (
@@ -240,6 +258,41 @@ export default function Applications() {
     return true;
   });
 
+  // Calculate stats
+  const stats = useMemo(() => {
+    const unreadCount = applications.filter(app => !app.isRead).length;
+    const avgAIMatch = applications.filter(app => app.aiMatchScore).length > 0
+      ? Math.round(applications.filter(app => app.aiMatchScore).reduce((sum, app) => sum + (app.aiMatchScore || 0), 0) / applications.filter(app => app.aiMatchScore).length)
+      : 0;
+    const needsActionCount = applications.filter(app => 
+      app.stage === 'New Application' || app.stage === 'Resume Review'
+    ).length;
+
+    return {
+      total: applications.length,
+      unread: unreadCount,
+      avgAIMatch,
+      needsAction: needsActionCount,
+    };
+  }, [applications]);
+
+  const handleJobSelect = (value: string) => {
+    if (value === "all") {
+      setSelectedJobId(null);
+      setShowUnreadOnly(false);
+    } else if (value === "unread") {
+      setSelectedJobId("unread");
+      setShowUnreadOnly(true);
+    } else {
+      setSelectedJobId(value);
+      setShowUnreadOnly(false);
+    }
+  };
+
+  const selectedJob = selectedJobId && selectedJobId !== "all" && selectedJobId !== "unread"
+    ? mockJobs.find(j => j.id === selectedJobId)
+    : null;
+
   return (
     <DashboardPageLayout
       breadcrumbActions={
@@ -258,7 +311,7 @@ export default function Applications() {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Applications</h1>
+            <h1 className="text-3xl font-bold tracking-tight">Applications</h1>
             <p className="text-muted-foreground">
               Review and process {applications.length} applications
             </p>
@@ -289,6 +342,78 @@ export default function Applications() {
             </div>
           </div>
         </div>
+
+        {/* Stat Cards */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <EnhancedStatCard
+            title="Total Applications"
+            value={stats.total.toString()}
+            change=""
+            icon={<FileText />}
+            variant="neutral"
+            showBorder
+            elevation="sm"
+          />
+          <EnhancedStatCard
+            title="New/Unread"
+            value={stats.unread.toString()}
+            change=""
+            icon={<UserCheck />}
+            variant="primary"
+            showBorder
+            elevation="sm"
+          />
+          <EnhancedStatCard
+            title="Avg AI Match"
+            value={`${stats.avgAIMatch}%`}
+            change=""
+            icon={<Sparkles />}
+            variant="success"
+            showBorder
+            elevation="sm"
+          />
+          <EnhancedStatCard
+            title="Needs Action"
+            value={stats.needsAction.toString()}
+            change=""
+            icon={<Clock />}
+            variant="warning"
+            showBorder
+            elevation="sm"
+          />
+        </div>
+
+        {/* Job Selection Filter */}
+        <Card className="p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 flex-1">
+              <Label className="text-sm font-medium whitespace-nowrap">Filter by Job:</Label>
+              <Select value={selectedJobId || "unread"} onValueChange={handleJobSelect}>
+                <SelectTrigger className="w-full max-w-md">
+                  <SelectValue placeholder="Select a job or view unread" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unread">📬 New/Unread Applications</SelectItem>
+                  <SelectItem value="all">All Jobs</SelectItem>
+                  <SelectSeparator />
+                  {mockJobs.slice(0, 20).map(job => (
+                    <SelectItem key={job.id} value={job.id}>
+                      {job.title} - {job.employer}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedJob && (
+                <Button variant="ghost" size="sm" onClick={() => handleJobSelect("unread")}>
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            <div className="text-sm text-muted-foreground whitespace-nowrap">
+              {filteredApplications.length} application(s)
+            </div>
+          </div>
+        </Card>
 
         {/* Smart Filters */}
         <SmartFiltersBar onFilterSelect={handleSmartFilterSelect} />

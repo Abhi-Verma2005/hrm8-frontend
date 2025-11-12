@@ -92,19 +92,19 @@ export function ApplicationPipeline({ jobId, applications: providedApplications 
   return (
     <>
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        <div className="flex gap-3 overflow-x-auto pb-4">
           {pipelineStages.map((stageConfig) => {
             const stageApplications = applications.filter((app) => app.stage === stageConfig.stage);
             return (
-              <div key={stageConfig.stage} className="flex-shrink-0 w-80">
+              <div key={stageConfig.stage} className="flex-shrink-0 w-64">
                 <Card className={`${stageConfig.color} border-2`}>
-                  <div className="p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold">{stageConfig.label}</h3>
-                      <Badge variant="secondary">{stageApplications.length}</Badge>
+                  <div className="p-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-sm">{stageConfig.label}</h3>
+                      <Badge variant="secondary" className="text-xs">{stageApplications.length}</Badge>
                     </div>
                     <SortableContext items={stageApplications.map((app) => app.id)} strategy={verticalListSortingStrategy}>
-                      <div className="space-y-2 min-h-[200px]">
+                      <div className="space-y-1.5 min-h-[150px]">
                         {stageApplications.map((application) => (
                           <ApplicationCard
                             key={application.id}

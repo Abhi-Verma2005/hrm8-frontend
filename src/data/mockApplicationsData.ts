@@ -28,6 +28,15 @@ for (let i = 0; i < 200; i++) {
   const appliedDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
   const createdAt = appliedDate;
   const updatedAt = new Date(appliedDate.getTime() + (i % 10) * 24 * 60 * 60 * 1000);
+  
+  // AI Match Score: 45-98 range for variety
+  const aiMatchScore = 45 + Math.floor(Math.random() * 54);
+  
+  // New applications (last 2 days)
+  const isNew = daysAgo <= 2;
+  
+  // 30% of applications are unread
+  const isRead = Math.random() > 0.3;
 
   const application: Application = {
     id: `app-${i + 1}`,
@@ -62,6 +71,9 @@ for (let i = 0; i < 200; i++) {
     
     score: i % 3 === 0 ? 60 + Math.floor(Math.random() * 40) : undefined,
     rating: i % 4 === 0 ? Math.floor(Math.random() * 3) + 3 : undefined,
+    aiMatchScore,
+    isRead,
+    isNew,
     
     notes: [],
     activities: [

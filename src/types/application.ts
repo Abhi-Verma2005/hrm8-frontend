@@ -93,6 +93,11 @@ export interface Application {
   // Scoring & Rating
   score?: number; // 0-100 fit score
   rating?: number; // 1-5 stars
+  aiMatchScore?: number; // 0-100 AI-generated match percentage
+  
+  // Read Status
+  isRead?: boolean; // Track if application has been viewed
+  isNew?: boolean; // Track if application is newly submitted
   
   // Notes & Activities
   notes: ApplicationNote[];

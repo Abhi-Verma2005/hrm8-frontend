@@ -3,6 +3,7 @@ import { DataTable, Column } from "@/components/tables/DataTable";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { AIMatchBadge } from "./AIMatchBadge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -61,14 +62,21 @@ export function ApplicationListView({
       sortable: true,
       render: (app) => (
         <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={app.candidatePhoto} />
-            <AvatarFallback>
-              {app.candidateName.split(' ').map(n => n[0]).join('')}
-            </AvatarFallback>
-          </Avatar>
+          <div className="relative">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={app.candidatePhoto} />
+              <AvatarFallback>
+                {app.candidateName.split(' ').map(n => n[0]).join('')}
+              </AvatarFallback>
+            </Avatar>
+            {(app.isNew || !app.isRead) && (
+              <div className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 bg-blue-500 rounded-full border-2 border-background" />
+            )}
+          </div>
           <div className="flex flex-col">
-            <span className="font-medium">{app.candidateName}</span>
+            <span className={`font-medium ${!app.isRead ? 'font-semibold' : ''}`}>
+              {app.candidateName}
+            </span>
             <span className="text-xs text-muted-foreground">{app.candidateEmail}</span>
           </div>
         </div>
@@ -84,6 +92,16 @@ export function ApplicationListView({
           <span className="text-xs text-muted-foreground">{app.employerName}</span>
         </div>
       ),
+    },
+    {
+      key: "aiMatchScore",
+      label: "AI Match",
+      sortable: true,
+      width: "120px",
+      render: (app) => {
+        if (!app.aiMatchScore) return <span className="text-muted-foreground text-sm">-</span>;
+        return <AIMatchBadge score={app.aiMatchScore} size="sm" />;
+      },
     },
     {
       key: "status",
