@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { BackgroundCheckNotificationBadge } from "@/components/backgroundChecks/BackgroundCheckNotificationBadge";
 import { BackgroundChecksFilterBar } from "@/components/backgroundChecks/BackgroundChecksFilterBar";
+import { BackgroundChecksBulkActionsToolbar } from "@/components/backgroundChecks/BackgroundChecksBulkActionsToolbar";
 import { useAutomatedReminders } from "@/hooks/useAutomatedReminders";
 import { Button } from "@/components/ui/button";
 import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye, TestTube, Mail, Settings, Bell, TrendingUp, X, Send, FileDown, Edit } from "lucide-react";
@@ -47,6 +48,9 @@ export default function BackgroundChecks() {
 
   // Track if filters came from analytics
   const [analyticsFilterApplied, setAnalyticsFilterApplied] = useState(false);
+  
+  // Selected checks for bulk actions
+  const [selectedChecks, setSelectedChecks] = useState<string[]>([]);
 
   // Enable automated reminders
   useAutomatedReminders({
@@ -602,6 +606,61 @@ export default function BackgroundChecks() {
           activeFilterCount={activeFilterCount}
         />
 
+        {/* Background Checks Bulk Actions Toolbar */}
+        <BackgroundChecksBulkActionsToolbar
+          selectedCount={selectedChecks.length}
+          onSendReminders={() => {
+            const pendingChecks = filteredChecks.filter(
+              c => selectedChecks.includes(c.id) && c.status === 'pending-consent'
+            );
+            if (pendingChecks.length === 0) {
+              toast({
+                title: "No eligible checks",
+                description: "Selected checks must be in 'pending consent' status.",
+                variant: "destructive",
+              });
+              return;
+            }
+            toast({
+              title: "Reminders sent",
+              description: `Successfully sent ${pendingChecks.length} reminder(s).`,
+            });
+          }}
+          onExportReports={() => {
+            const completedChecks = filteredChecks.filter(
+              c => selectedChecks.includes(c.id) && c.status === 'completed'
+            );
+            if (completedChecks.length === 0) {
+              toast({
+                title: "No completed checks",
+                description: "Only completed checks can be exported.",
+                variant: "destructive",
+              });
+              return;
+            }
+            toast({
+              title: "Export started",
+              description: `Preparing ${completedChecks.length} report(s)...`,
+            });
+          }}
+          onUpdateStatus={(status) => {
+            toast({ title: "Status updated", description: `Updated ${selectedChecks.length} check(s) to ${status}` });
+          }}
+          onCancel={() => {
+            const eligibleChecks = filteredChecks.filter(
+              c => selectedChecks.includes(c.id) && 
+              c.status !== 'completed' && 
+              c.status !== 'cancelled'
+            );
+            toast({
+              title: "Checks cancelled",
+              description: `Cancelled ${eligibleChecks.length} check(s).`,
+            });
+            setSelectedChecks([]);
+          }}
+          onClearSelection={() => setSelectedChecks([])}
+        />
+
         {/* Background Checks Table */}
         <DataTable
           data={filteredChecks}
@@ -615,97 +674,10 @@ export default function BackgroundChecks() {
           )}
           selectable
           searchable={false}
+          onSelectedRowsChange={setSelectedChecks}
           emptyMessage="No background checks found matching your criteria"
           tableId="background-checks"
           resizable
-          renderBulkActions={(selectedIds) => (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  const pendingChecks = filteredChecks.filter(
-                    c => selectedIds.includes(c.id) && c.status === 'pending-consent'
-                  );
-                  if (pendingChecks.length === 0) {
-                    toast({
-                      title: "No eligible checks",
-                      description: "Selected checks must be in 'pending consent' status.",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
-                  toast({
-                    title: "Reminders sent",
-                    description: `Successfully sent ${pendingChecks.length} reminder(s).`,
-                  });
-                }}
-              >
-                <Send className="h-4 w-4 mr-2" />
-                Send Reminders
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => {
-                  const completedChecks = filteredChecks.filter(
-                    c => selectedIds.includes(c.id) && c.status === 'completed'
-                  );
-                  if (completedChecks.length === 0) {
-                    toast({
-                      title: "No completed checks",
-                      description: "Only completed checks can be exported.",
-                      variant: "destructive",
-                    });
-                    return;
-                  }
-                  toast({
-                    title: "Export started",
-                    description: `Preparing ${completedChecks.length} report(s)...`,
-                  });
-                }}
-              >
-                <FileDown className="h-4 w-4 mr-2" />
-                Export Reports
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="sm" variant="outline">
-                    <Edit className="h-4 w-4 mr-2" />
-                    Update Status
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => toast({ title: "Status updated" })}>
-                    In Progress
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => toast({ title: "Status updated" })}>
-                    Completed
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => toast({ title: "Status updated" })}>
-                    Issues Found
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => {
-                      const eligibleChecks = filteredChecks.filter(
-                        c => selectedIds.includes(c.id) && 
-                        c.status !== 'completed' && 
-                        c.status !== 'cancelled'
-                      );
-                      toast({
-                        title: "Checks cancelled",
-                        description: `Cancelled ${eligibleChecks.length} check(s).`,
-                      });
-                    }}
-                    className="text-destructive"
-                  >
-                    Cancel Selected
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          )}
         />
 
         {/* Initiate Check Dialog */}

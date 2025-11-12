@@ -5,6 +5,7 @@ import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { AssessmentNotificationBadge } from '@/components/assessments/AssessmentNotificationBadge';
 import { AssessmentsFilterBar } from '@/components/assessments/AssessmentsFilterBar';
 import { AssessmentInvitationWizard } from '@/components/assessments/AssessmentInvitationWizard';
+import { AssessmentsBulkActionsToolbar } from '@/components/assessments/AssessmentsBulkActionsToolbar';
 import { createAssessmentTableColumns } from '@/components/assessments/AssessmentTableColumns';
 import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ export default function Assessments() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [providerFilter, setProviderFilter] = useState('all');
+  const [selectedAssessments, setSelectedAssessments] = useState<string[]>([]);
 
   const stats = getAssessmentStats();
   const allAssessments = getAssessments();
@@ -251,6 +253,21 @@ export default function Assessments() {
           activeFilterCount={activeFilterCount}
         />
 
+        <AssessmentsBulkActionsToolbar
+          selectedCount={selectedAssessments.length}
+          onSendReminders={() => {
+            toast({ title: `Reminders sent to ${selectedAssessments.length} candidates` });
+          }}
+          onExportReports={() => {
+            toast({ title: `Exporting ${selectedAssessments.length} reports` });
+          }}
+          onCancelAssessments={() => {
+            toast({ title: `Cancelled ${selectedAssessments.length} assessments` });
+            setSelectedAssessments([]);
+          }}
+          onClearSelection={() => setSelectedAssessments([])}
+        />
+
         <DataTable
           data={filteredAssessments}
           columns={createAssessmentTableColumns(
@@ -261,37 +278,10 @@ export default function Assessments() {
           )}
           selectable
           searchable={false}
+          onSelectedRowsChange={setSelectedAssessments}
           emptyMessage="No assessments found matching your criteria"
           tableId="assessments"
           resizable
-          renderBulkActions={(selectedIds) => (
-            <>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => toast({ title: `Reminders sent to ${selectedIds.length} candidates` })}
-              >
-                <Bell className="h-4 w-4 mr-2" />
-                Send Reminders
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => toast({ title: `Exporting ${selectedIds.length} reports` })}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Export Reports
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => toast({ title: `Cancelled ${selectedIds.length} assessments` })}
-              >
-                <XCircle className="h-4 w-4 mr-2" />
-                Cancel Selected
-              </Button>
-            </>
-          )}
         />
 
         <AssessmentInvitationWizard
