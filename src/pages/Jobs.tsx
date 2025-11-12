@@ -367,7 +367,6 @@ export default function Jobs() {
       key: 'name',
       label: 'Job Title',
       sortable: true,
-      width: "25%",
       render: (job) => (
         <div className="flex items-center gap-3">
           <EntityAvatar
@@ -396,7 +395,6 @@ export default function Jobs() {
       key: 'location',
       label: 'Location',
       sortable: true,
-      width: "15%",
       render: (job) => {
         if (job.location.toLowerCase() === 'remote') {
           return (
@@ -431,21 +429,18 @@ export default function Jobs() {
       key: 'employmentType',
       label: 'Type',
       sortable: true,
-      width: "12%",
       render: (job) => <EmploymentTypeBadge type={job.employmentType} />
     },
     {
       key: 'status',
       label: 'Status',
       sortable: true,
-      width: "10%",
       render: (job) => <JobStatusBadge status={job.status} />
     },
     {
       key: 'applicants',
       label: 'Applicants',
       sortable: true,
-      width: "10%",
       render: (job) => (
         <Link 
           to={`/jobs/${job.id}?tab=applicants`}
@@ -465,14 +460,12 @@ export default function Jobs() {
     {
       key: 'serviceType',
       label: 'Service',
-      width: "12%",
       render: (job) => <ServiceTypeBadge type={job.serviceType} />
     },
     {
       key: 'postedDate',
       label: 'Posted',
       sortable: true,
-      width: "10%",
       render: (job) => (
         <span className="text-sm text-muted-foreground">
           {formatRelativeDate(job.postingDate)}

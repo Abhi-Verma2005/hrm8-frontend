@@ -18,7 +18,6 @@ export const candidateTableColumns: Column<Candidate>[] = [
     key: 'name',
     label: 'Candidate',
     sortable: true,
-    width: "25%",
     render: (candidate) => (
       <div className="flex items-center gap-3">
         <CandidateAvatar 
@@ -42,7 +41,6 @@ export const candidateTableColumns: Column<Candidate>[] = [
     key: 'location',
     label: 'Location',
     sortable: true,
-    width: "12%",
     render: (candidate) => {
       if (!candidate.location) return <span className="text-muted-foreground">—</span>;
       
@@ -58,25 +56,21 @@ export const candidateTableColumns: Column<Candidate>[] = [
     key: 'phone',
     label: 'Phone',
     sortable: false,
-    width: "10%",
   },
   {
     key: 'position',
     label: 'Position',
     sortable: true,
-    width: "12%",
   },
   {
     key: 'experience',
     label: 'Experience',
     sortable: true,
-    width: "8%",
   },
   {
     key: 'skills',
     label: 'Skills',
     sortable: false,
-    width: "12%",
     render: (candidate) => (
       <SkillsBadgeGroup skills={candidate.skills} maxVisible={2} />
     ),
@@ -85,14 +79,12 @@ export const candidateTableColumns: Column<Candidate>[] = [
     key: 'status',
     label: 'Status',
     sortable: true,
-    width: "9%",
     render: (candidate) => <CandidateStatusBadge status={candidate.status} />,
   },
   {
     key: 'appliedDate',
     label: 'Applied Date',
     sortable: true,
-    width: "10%",
     render: (candidate) => candidate.appliedDate.toLocaleDateString(),
   },
   {

@@ -18,7 +18,6 @@ export const createEmployeeColumns = (options?: EmployeeColumnsOptions): Column<
     key: "name",
     label: "Name",
     sortable: true,
-    width: "25%",
     render: (employee) => (
       <div className="flex items-center gap-3">
         <EntityAvatar
@@ -43,7 +42,6 @@ export const createEmployeeColumns = (options?: EmployeeColumnsOptions): Column<
     key: "employeeId",
     label: "Employee ID",
     sortable: true,
-    width: "10%",
     render: (employee) => (
       <span className="font-mono text-sm">{employee.employeeId}</span>
     ),
@@ -52,39 +50,33 @@ export const createEmployeeColumns = (options?: EmployeeColumnsOptions): Column<
     key: "jobTitle",
     label: "Job Title",
     sortable: true,
-    width: "15%",
   },
   {
     key: "department",
     label: "Department",
     sortable: true,
-    width: "12%",
   },
   {
     key: "location",
     label: "Location",
     sortable: true,
-    width: "10%",
   },
   {
     key: "employmentType",
     label: "Type",
     sortable: true,
-    width: "10%",
     render: (employee) => <EmploymentTypeBadge type={employee.employmentType} />,
   },
   {
     key: "status",
     label: "Status",
     sortable: true,
-    width: "10%",
     render: (employee) => <EmployeeStatusBadge status={employee.status} />,
   },
   {
     key: "hireDate",
     label: "Hire Date",
     sortable: true,
-    width: "10%",
     render: (employee) => format(new Date(employee.hireDate), "MMM d, yyyy"),
   },
   {
