@@ -105,6 +105,7 @@ import NotificationPreferences from "./pages/NotificationPreferences";
 import VerifyCertificate from "./pages/VerifyCertificate";
 import ConsentForm from "./pages/ConsentForm";
 import ReferenceQuestionnaire from "./pages/ReferenceQuestionnaire";
+import AIReferenceSession from "./pages/AIReferenceSession";
 import TakeAssessment from "./pages/public/TakeAssessment";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import RecruitmentIntegration from "./pages/RecruitmentIntegration";
@@ -150,6 +151,7 @@ import { initializeMockTeamData } from './lib/mockTeamData';
 import { initializeMockTemplates } from './lib/mockTemplateData';
 import { initializeMockAutomationRules } from './lib/mockAutomationData';
 import { initializeMockAlertRules } from './data/mockAlertRules';
+import { initializeAISessionTestData } from './lib/backgroundChecks/initializeAISessionData';
 import { useEffect } from 'react';
 import { ProtectedRoutes } from './components/common/ProtectedRoutes';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
@@ -166,6 +168,7 @@ function AppContent() {
     initializeMockTemplates();
     initializeMockAutomationRules();
     initializeMockAlertRules();
+    initializeAISessionTestData();
   }, []);
 
   return (
@@ -335,6 +338,7 @@ function AppContent() {
           <Route path="/verify/:code?" element={<VerifyCertificate />} />
           <Route path="/consent/:token" element={<ConsentForm />} />
           <Route path="/reference/:token" element={<ReferenceQuestionnaire />} />
+          <Route path="/ai-reference/:token" element={<AIReferenceSession />} />
           <Route path="/assessment/:token" element={<TakeAssessment />} />
       
       {/* Public 360 Feedback Form - No authentication required */}
