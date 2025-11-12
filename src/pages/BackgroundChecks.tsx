@@ -5,7 +5,7 @@ import { BackgroundCheckNotificationBadge } from "@/components/backgroundChecks/
 import { BackgroundChecksFilterBar } from "@/components/backgroundChecks/BackgroundChecksFilterBar";
 import { useAutomatedReminders } from "@/hooks/useAutomatedReminders";
 import { Button } from "@/components/ui/button";
-import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye, TestTube } from "lucide-react";
+import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye, TestTube, Mail } from "lucide-react";
 import { getBackgroundChecks, saveBackgroundCheck, getBackgroundCheckById } from "@/lib/mockBackgroundCheckStorage";
 import { getConsentsByBackgroundCheck } from "@/lib/backgroundChecks/consentStorage";
 import { getRefereesByBackgroundCheck } from "@/lib/backgroundChecks/refereeStorage";
@@ -365,6 +365,13 @@ export default function BackgroundChecks() {
               Test AI Report
             </Button>
             
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/background-checks/digest-settings')}
+            >
+              <Mail className="h-4 w-4 mr-2" />
+              Configure Digest
+            </Button>
             <Button 
               variant="outline" 
               onClick={() => navigate('/questionnaire-templates')}

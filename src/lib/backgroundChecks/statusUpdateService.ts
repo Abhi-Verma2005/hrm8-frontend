@@ -1,6 +1,7 @@
 import type { BackgroundCheck } from '@/types/backgroundCheck';
 import { updateBackgroundCheck, getBackgroundCheckById } from '../mockBackgroundCheckStorage';
 import { createNotification } from '@/lib/notificationStorage';
+import { logStatusChange } from './digestService';
 
 type StatusTransition = {
   from: BackgroundCheck['status'];
@@ -52,6 +53,8 @@ export function autoUpdateCheckStatus(checkId: string): void {
   const check = getBackgroundCheckById(checkId);
   if (!check) return;
 
+  const currentStatus = check.status;
+
   // Find applicable transition
   const transition = statusTransitions.find(t => 
     t.from === check.status && t.condition(check)
@@ -74,6 +77,15 @@ export function autoUpdateCheckStatus(checkId: string): void {
     }
 
     updateBackgroundCheck(checkId, updates);
+
+    // Log status change for digest
+    logStatusChange({
+      checkId: check.id,
+      candidateName: check.candidateName,
+      previousStatus: currentStatus,
+      newStatus: transition.to,
+      changedAt: new Date().toISOString()
+    });
 
     // Send notification to initiator
     sendStatusChangeNotification(check, transition.to, transition.notificationMessage(check));

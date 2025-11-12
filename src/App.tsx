@@ -129,6 +129,7 @@ import AssessmentPreview from "./pages/AssessmentPreview";
 import AssessmentAnalytics from "./pages/AssessmentAnalytics";
 import BackgroundChecks from "./pages/BackgroundChecks";
 import BackgroundCheckDetail from "./pages/BackgroundCheckDetail";
+import DigestSettingsPage from "./pages/DigestSettingsPage";
 import InternalJobs from "./pages/InternalJobs";
 import Calendar from "./pages/Calendar";
 import CollaborativeFeedback from "./pages/CollaborativeFeedback";
@@ -241,6 +242,7 @@ function AppContent() {
           <Route path="/scheduled-assessments" element={<ScheduledAssessments />} />
               <Route path="/background-checks" element={<BackgroundChecks />} />
               <Route path="/background-checks/:id" element={<BackgroundCheckDetail />} />
+              <Route path="/background-checks/digest-settings" element={<DigestSettingsPage />} />
               <Route path="/internal-jobs" element={<InternalJobs />} />
             </Route>
             {/* Sales Module Routes */}
