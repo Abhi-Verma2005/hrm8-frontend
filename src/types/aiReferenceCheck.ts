@@ -1,3 +1,5 @@
+import type { AITranscriptionSummary, EditableReport } from './aiReferenceReport';
+
 export type InterviewMode = 'video' | 'phone' | 'questionnaire';
 export type SessionStatus = 'scheduled' | 'in-progress' | 'completed' | 'failed' | 'cancelled';
 export type QuestionSource = 'pre-written' | 'ai-derived' | 'template' | 'dynamic';
@@ -19,6 +21,8 @@ export interface AIReferenceCheckSession {
   transcript?: InterviewTranscript;
   recording?: SessionRecording;
   analysis?: AIAnalysis;
+  transcriptionSummary?: AITranscriptionSummary;
+  report?: EditableReport;
   createdAt: string;
   updatedAt: string;
 }

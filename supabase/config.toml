@@ -12,3 +12,6 @@ verify_jwt = false
 
 [functions.score-candidate]
 verify_jwt = false
+
+[functions.generate-reference-summary]
+verify_jwt = false
