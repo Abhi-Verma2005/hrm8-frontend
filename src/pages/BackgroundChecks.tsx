@@ -5,7 +5,7 @@ import { BackgroundCheckNotificationBadge } from "@/components/backgroundChecks/
 import { BackgroundChecksFilterBar } from "@/components/backgroundChecks/BackgroundChecksFilterBar";
 import { useAutomatedReminders } from "@/hooks/useAutomatedReminders";
 import { Button } from "@/components/ui/button";
-import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye, TestTube, Mail } from "lucide-react";
+import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye, TestTube, Mail, Settings, Bell, TrendingUp } from "lucide-react";
 import { getBackgroundChecks, saveBackgroundCheck, getBackgroundCheckById } from "@/lib/mockBackgroundCheckStorage";
 import { getConsentsByBackgroundCheck } from "@/lib/backgroundChecks/consentStorage";
 import { getRefereesByBackgroundCheck } from "@/lib/backgroundChecks/refereeStorage";
@@ -17,6 +17,7 @@ import { AIReportEditor } from "@/components/backgroundChecks/ai-interview/AIRep
 import { BackgroundCheck } from "@/types/backgroundCheck";
 import type { AIReferenceCheckSession, InterviewTranscript, AIAnalysis } from "@/types/aiReferenceCheck";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { BackgroundCheckForm } from "@/components/backgroundChecks/BackgroundCheckForm";
 import { toast } from "@/hooks/use-toast";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
@@ -372,6 +373,30 @@ export default function BackgroundChecks() {
               <Mail className="h-4 w-4 mr-2" />
               Configure Digest
             </Button>
+            
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate('/background-checks/digest-settings')}>
+                  <Mail className="h-4 w-4 mr-2" />
+                  Email Digest Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/background-checks/escalation-rules')}>
+                  <Bell className="h-4 w-4 mr-2" />
+                  Escalation Rules
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/background-checks/sla-settings')}>
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  SLA Configuration
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
             <Button 
               variant="outline" 
               onClick={() => navigate('/questionnaire-templates')}

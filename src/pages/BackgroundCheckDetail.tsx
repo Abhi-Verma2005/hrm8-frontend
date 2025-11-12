@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Download, Calendar, CheckCircle, XCircle, Clock, AlertTriangle, User, FileText, Shield, Mail, Edit, Eye, Users } from 'lucide-react';
+import { ArrowLeft, Download, Calendar, CheckCircle, XCircle, Clock, AlertTriangle, User, FileText, Shield, Mail, Edit, Eye, Users, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,7 @@ import { getAISessionsByBackgroundCheck } from '@/lib/backgroundChecks/aiReferen
 import { getReportBySessionId, getReportsByCandidateId } from '@/lib/backgroundChecks/aiReportStorage';
 import { exportBackgroundCheckPDF } from '@/lib/backgroundChecks/backgroundCheckExport';
 import { exportAIReferencePDF } from '@/lib/backgroundChecks/aiReportExport';
+import { calculateSLAStatus } from '@/lib/backgroundChecks/slaService';
 import type { BackgroundCheck } from '@/types/backgroundCheck';
 import type { ConsentRequest } from '@/types/consent';
 import type { RefereeDetails } from '@/types/referee';
@@ -26,6 +27,8 @@ import CheckResultsSection from '@/components/backgroundChecks/CheckResultsSecti
 import { AIReportEditor } from '@/components/backgroundChecks/ai-interview/AIReportEditor';
 import { EmailReportDialog } from '@/components/backgroundChecks/ai-interview/EmailReportDialog';
 import RefereeComparison from '@/components/backgroundChecks/ai-interview/RefereeComparison';
+import { StatusHistoryTimeline } from '@/components/backgroundChecks/StatusHistoryTimeline';
+import { SLAIndicator } from '@/components/backgroundChecks/SLAIndicator';
 
 export default function BackgroundCheckDetail() {
   const { id } = useParams<{ id: string }>();
@@ -215,6 +218,13 @@ export default function BackgroundCheckDetail() {
                   <StatusIcon className="h-3.5 w-3.5" />
                   {currentStatus.label}
                 </Badge>
+                
+                {/* SLA Indicator */}
+                {(() => {
+                  const slaStatus = calculateSLAStatus(check);
+                  return slaStatus ? <SLAIndicator slaStatus={slaStatus} /> : null;
+                })()}
+                
                 <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                   <Calendar className="h-4 w-4" />
                   Initiated on {new Date(check.initiatedDate).toLocaleDateString()}
@@ -284,7 +294,7 @@ export default function BackgroundCheckDetail() {
           {/* Right Column - Detailed Information */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="results" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="results">Check Results</TabsTrigger>
                 <TabsTrigger value="consent">Consent Status</TabsTrigger>
                 <TabsTrigger value="referees">Referee Responses</TabsTrigger>
@@ -295,6 +305,10 @@ export default function BackgroundCheckDetail() {
                       {aiReports.length}
                     </Badge>
                   )}
+                </TabsTrigger>
+                <TabsTrigger value="history">
+                  <History className="h-4 w-4 mr-1.5" />
+                  History
                 </TabsTrigger>
               </TabsList>
 
@@ -441,6 +455,10 @@ export default function BackgroundCheckDetail() {
                     )}
                   </Card>
                 )}
+              </TabsContent>
+              
+              <TabsContent value="history" className="mt-6">
+                <StatusHistoryTimeline checkId={check.id} />
               </TabsContent>
             </Tabs>
           </div>

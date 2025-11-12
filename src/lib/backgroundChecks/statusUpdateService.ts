@@ -2,6 +2,7 @@ import type { BackgroundCheck } from '@/types/backgroundCheck';
 import { updateBackgroundCheck, getBackgroundCheckById } from '../mockBackgroundCheckStorage';
 import { createNotification } from '@/lib/notificationStorage';
 import { logStatusChange } from './digestService';
+import { recordStatusChange } from './statusHistoryService';
 
 type StatusTransition = {
   from: BackgroundCheck['status'];
@@ -86,6 +87,20 @@ export function autoUpdateCheckStatus(checkId: string): void {
       newStatus: transition.to,
       changedAt: new Date().toISOString()
     });
+
+    // Record status change history
+    recordStatusChange(
+      check.id,
+      check.candidateId,
+      check.candidateName,
+      currentStatus,
+      transition.to,
+      'system',
+      'Automated System',
+      'Automated status transition',
+      undefined,
+      true
+    );
 
     // Send notification to initiator
     sendStatusChangeNotification(check, transition.to, transition.notificationMessage(check));

@@ -4,6 +4,8 @@ import {
   markOverdueReferees,
   getReminderStats 
 } from '@/lib/backgroundChecks/reminderScheduler';
+import { processEscalations } from '@/lib/backgroundChecks/escalationService';
+import { processSLANotifications } from '@/lib/backgroundChecks/slaService';
 import { useToast } from '@/hooks/use-toast';
 
 interface ReminderStats {
@@ -45,7 +47,7 @@ export function useAutomatedReminders(options: UseAutomatedRemindersOptions = {}
       }
     }
 
-    console.log('🔄 Processing automated reminders...');
+    console.log('🔄 Processing automated reminders, escalations, and SLA checks...');
     
     try {
       // Process reminders
@@ -54,21 +56,28 @@ export function useAutomatedReminders(options: UseAutomatedRemindersOptions = {}
       // Mark overdue referees
       markOverdueReferees();
       
+      // Process escalations
+      processEscalations();
+      
+      // Process SLA notifications
+      processSLANotifications();
+      
       lastCheckRef.current = now;
 
       // Log results
       if (result.refereeReminders > 0 || result.consentReminders > 0) {
         console.log(`✅ Sent ${result.refereeReminders} referee reminders and ${result.consentReminders} consent reminders`);
+        console.log(`✅ Processed escalations and SLA checks`);
         
         toast({
-          title: "Reminders Sent",
-          description: `Sent ${result.refereeReminders} referee reminders and ${result.consentReminders} consent reminders`,
+          title: "Automated Checks Complete",
+          description: `Sent ${result.refereeReminders} referee reminders and ${result.consentReminders} consent reminders. Escalations and SLAs processed.`,
         });
 
         onRemindersProcessed?.(result);
       }
     } catch (error) {
-      console.error('❌ Error processing reminders:', error);
+      console.error('❌ Error processing automated checks:', error);
     }
   }, [toast, onRemindersProcessed]);
 
