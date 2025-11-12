@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
   Table,
@@ -19,13 +19,16 @@ import {
   DropdownMenuTrigger,
   DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical, Eye, FileText, Mail, Ban, Download, X, Send, FileDown, Edit } from 'lucide-react';
+import { MoreVertical, Eye, FileText, Mail, Ban, Download, X, Send, FileDown, Edit, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { getCheckTypeIcon, getCheckProgress } from '@/lib/backgroundChecks/checkTypeHelpers';
 import type { BackgroundCheck, BackgroundCheckType } from '@/types/backgroundCheck';
 import { EntityAvatar } from '@/components/tables/EntityAvatar';
+
+type SortColumn = 'candidateName' | 'status' | 'progress' | 'result' | 'initiatedDate';
+type SortDirection = 'asc' | 'desc' | null;
 
 interface BackgroundChecksTableProps {
   checks: BackgroundCheck[];
@@ -49,6 +52,8 @@ export function BackgroundChecksTable({
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
   
   const handleViewDetails = (checkId: string) => {
     if (onViewDetails) {
@@ -187,6 +192,70 @@ export function BackgroundChecksTable({
   const clearSelection = () => {
     setSelectedRows([]);
   };
+
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else if (sortDirection === 'desc') {
+        setSortColumn(null);
+        setSortDirection(null);
+      } else {
+        setSortDirection('asc');
+      }
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (column: SortColumn) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="h-4 w-4 ml-1 opacity-40" />;
+    }
+    if (sortDirection === 'asc') {
+      return <ArrowUp className="h-4 w-4 ml-1" />;
+    }
+    return <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  const sortedChecks = useMemo(() => {
+    if (!sortColumn || !sortDirection) return checks;
+
+    return [...checks].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortColumn) {
+        case 'candidateName':
+          aValue = a.candidateName.toLowerCase();
+          bValue = b.candidateName.toLowerCase();
+          break;
+        case 'status':
+          aValue = a.status;
+          bValue = b.status;
+          break;
+        case 'progress':
+          aValue = getCheckProgress(a);
+          bValue = getCheckProgress(b);
+          break;
+        case 'result':
+          aValue = a.overallStatus ?? '';
+          bValue = b.overallStatus ?? '';
+          break;
+        case 'initiatedDate':
+          aValue = new Date(a.initiatedDate).getTime();
+          bValue = new Date(b.initiatedDate).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [checks, sortColumn, sortDirection]);
   
   const getStatusBadge = (status: BackgroundCheck['status']) => {
     const variants: Record<BackgroundCheck['status'], any> = {
@@ -329,12 +398,52 @@ export function BackgroundChecksTable({
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead className="w-[35%]">Candidate</TableHead>
+              <TableHead className="w-[35%]">
+                <button 
+                  onClick={() => handleSort('candidateName')}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  Candidate
+                  {getSortIcon('candidateName')}
+                </button>
+              </TableHead>
               <TableHead className="w-[18%]">Check Types</TableHead>
-              <TableHead className="w-[10%]">Status</TableHead>
-              <TableHead className="w-[10%]">Progress</TableHead>
-              <TableHead className="w-[8%]">Result</TableHead>
-              <TableHead className="w-[10%]">Initiated</TableHead>
+              <TableHead className="w-[10%]">
+                <button 
+                  onClick={() => handleSort('status')}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  Status
+                  {getSortIcon('status')}
+                </button>
+              </TableHead>
+              <TableHead className="w-[10%]">
+                <button 
+                  onClick={() => handleSort('progress')}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  Progress
+                  {getSortIcon('progress')}
+                </button>
+              </TableHead>
+              <TableHead className="w-[8%]">
+                <button 
+                  onClick={() => handleSort('result')}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  Result
+                  {getSortIcon('result')}
+                </button>
+              </TableHead>
+              <TableHead className="w-[10%]">
+                <button 
+                  onClick={() => handleSort('initiatedDate')}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  Initiated
+                  {getSortIcon('initiatedDate')}
+                </button>
+              </TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
@@ -350,8 +459,8 @@ export function BackgroundChecksTable({
                 </TableCell>
               </TableRow>
             ) : (
-              checks.map((check) => (
-                <TableRow 
+              sortedChecks.map((check) => (
+                <TableRow
                   key={check.id}
                   className={selectedRows.includes(check.id) ? 'bg-muted/50' : ''}
                 >

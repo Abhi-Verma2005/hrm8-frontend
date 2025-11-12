@@ -15,13 +15,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Eye, Bell, Download, XCircle } from 'lucide-react';
-import { useState } from 'react';
+import { MoreHorizontal, Eye, Bell, Download, XCircle, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import type { Assessment } from '@/types/assessment';
 import { format } from 'date-fns';
 import { ReminderStatusIndicator } from './ReminderStatusIndicator';
 import { EntityAvatar } from '@/components/tables/EntityAvatar';
+
+type SortColumn = 'candidateName' | 'assessmentType' | 'provider' | 'status' | 'score' | 'invitedDate';
+type SortDirection = 'asc' | 'desc' | null;
 
 interface AssessmentsTableProps {
   assessments: Assessment[];
@@ -45,6 +48,8 @@ export function AssessmentsTable({
   onBulkCancel,
 }: AssessmentsTableProps) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>(null);
 
   const toggleSelection = (id: string) => {
     setSelectedIds(prev =>
@@ -59,6 +64,74 @@ export function AssessmentsTable({
         : assessments.map(a => a.id)
     );
   };
+
+  const handleSort = (column: SortColumn) => {
+    if (sortColumn === column) {
+      if (sortDirection === 'asc') {
+        setSortDirection('desc');
+      } else if (sortDirection === 'desc') {
+        setSortColumn(null);
+        setSortDirection(null);
+      } else {
+        setSortDirection('asc');
+      }
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (column: SortColumn) => {
+    if (sortColumn !== column) {
+      return <ArrowUpDown className="h-4 w-4 ml-1 opacity-40" />;
+    }
+    if (sortDirection === 'asc') {
+      return <ArrowUp className="h-4 w-4 ml-1" />;
+    }
+    return <ArrowDown className="h-4 w-4 ml-1" />;
+  };
+
+  const sortedAssessments = useMemo(() => {
+    if (!sortColumn || !sortDirection) return assessments;
+
+    return [...assessments].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortColumn) {
+        case 'candidateName':
+          aValue = a.candidateName.toLowerCase();
+          bValue = b.candidateName.toLowerCase();
+          break;
+        case 'assessmentType':
+          aValue = a.assessmentType;
+          bValue = b.assessmentType;
+          break;
+        case 'provider':
+          aValue = a.provider;
+          bValue = b.provider;
+          break;
+        case 'status':
+          aValue = a.status;
+          bValue = b.status;
+          break;
+        case 'score':
+          aValue = a.overallScore ?? -1;
+          bValue = b.overallScore ?? -1;
+          break;
+        case 'invitedDate':
+          aValue = new Date(a.invitedDate).getTime();
+          bValue = new Date(b.invitedDate).getTime();
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [assessments, sortColumn, sortDirection]);
 
   const getStatusBadge = (status: Assessment['status']) => {
     const variants: Record<Assessment['status'], { variant: any; label: string }> = {
@@ -134,17 +207,65 @@ export function AssessmentsTable({
                   onCheckedChange={toggleAll}
                 />
               </TableHead>
-              <TableHead className="w-[35%]">Candidate</TableHead>
-              <TableHead className="w-[12%]">Type</TableHead>
-              <TableHead className="w-[12%]">Provider</TableHead>
-              <TableHead className="w-[10%]">Status</TableHead>
-              <TableHead className="w-[8%]">Score</TableHead>
-              <TableHead className="w-[12%]">Invited Date</TableHead>
+              <TableHead className="w-[35%]">
+                <button 
+                  onClick={() => handleSort('candidateName')}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  Candidate
+                  {getSortIcon('candidateName')}
+                </button>
+              </TableHead>
+              <TableHead className="w-[12%]">
+                <button 
+                  onClick={() => handleSort('assessmentType')}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  Type
+                  {getSortIcon('assessmentType')}
+                </button>
+              </TableHead>
+              <TableHead className="w-[12%]">
+                <button 
+                  onClick={() => handleSort('provider')}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  Provider
+                  {getSortIcon('provider')}
+                </button>
+              </TableHead>
+              <TableHead className="w-[10%]">
+                <button 
+                  onClick={() => handleSort('status')}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  Status
+                  {getSortIcon('status')}
+                </button>
+              </TableHead>
+              <TableHead className="w-[8%]">
+                <button 
+                  onClick={() => handleSort('score')}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  Score
+                  {getSortIcon('score')}
+                </button>
+              </TableHead>
+              <TableHead className="w-[12%]">
+                <button 
+                  onClick={() => handleSort('invitedDate')}
+                  className="flex items-center hover:text-foreground transition-colors font-medium"
+                >
+                  Invited Date
+                  {getSortIcon('invitedDate')}
+                </button>
+              </TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {assessments.map((assessment) => (
+            {sortedAssessments.map((assessment) => (
               <TableRow key={assessment.id}>
                 <TableCell>
                   <Checkbox
