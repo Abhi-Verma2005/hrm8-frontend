@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { AssessmentNotificationBadge } from '@/components/assessments/AssessmentNotificationBadge';
@@ -12,11 +13,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ClipboardCheck, TrendingUp, Award, Clock, LayoutDashboard, Settings, BarChart3, Calendar, Upload, Download, ChevronDown } from 'lucide-react';
+import { ClipboardCheck, TrendingUp, Award, Clock, Settings, BarChart3, Calendar, Upload, Download, ChevronDown } from 'lucide-react';
 import { getAssessments } from '@/lib/mockAssessmentStorage';
 import { getAssessmentStats } from '@/lib/assessments/dashboardStats';
 import { exportAssessments } from '@/lib/assessments/exportAssessments';
-import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 export default function Assessments() {
@@ -157,13 +157,15 @@ export default function Assessments() {
               <Settings className="h-4 w-4 mr-2" />
               Manage Templates
             </Button>
-            <Button variant="outline" onClick={() => navigate('/dashboard/assessments')}>
-              <LayoutDashboard className="h-4 w-4 mr-2" />
-              View Dashboard
-            </Button>
             <Button onClick={() => setWizardOpen(true)}>
               <ClipboardCheck className="h-4 w-4 mr-2" />
               Invite Candidate
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/assessments">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Dashboard
+              </Link>
             </Button>
           </div>
         </div>

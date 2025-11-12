@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/DataTable";
-import { Plus, ListChecks, Calendar, AlertCircle, CheckCircle, Eye, Download } from "lucide-react";
+import { Plus, ListChecks, Calendar, AlertCircle, CheckCircle, Eye, Download, BarChart3 } from "lucide-react";
 import { getAllActivities, getActivityStats } from "@/lib/salesActivityStorage";
 import type { SalesActivity } from "@/types/salesActivity";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
@@ -62,6 +63,12 @@ export default function SalesActivitiesPage() {
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             Log Activity
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/dashboard/sales">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              View Dashboard
+            </Link>
           </Button>
         </div>
 

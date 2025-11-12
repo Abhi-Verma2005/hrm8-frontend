@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/DataTable";
@@ -68,6 +68,12 @@ export default function SalesTeamPage() {
           <Button onClick={() => navigate("/sales/team/new")}>
             <Plus className="h-4 w-4 mr-2" />
             Add Sales Agent
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/dashboard/sales">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              View Dashboard
+            </Link>
           </Button>
         </div>
 

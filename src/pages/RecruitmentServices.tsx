@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Building, DollarSign, FileText, Eye } from 'lucide-react';
+import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Building, DollarSign, FileText, Eye, BarChart3 } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
@@ -102,6 +102,7 @@ export default function RecruitmentServices() {
             </Button>
             <Button variant="outline" asChild>
               <Link to="/dashboard/recruitment-services">
+                <BarChart3 className="mr-2 h-4 w-4" />
                 View Dashboard
               </Link>
             </Button>

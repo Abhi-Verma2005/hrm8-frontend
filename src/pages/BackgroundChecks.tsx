@@ -476,18 +476,15 @@ export default function BackgroundChecks() {
               <FileText className="h-4 w-4 mr-2" />
               Manage Templates
             </Button>
-            <Button 
-              variant="outline" 
-              asChild
-            >
-              <Link to="/dashboard/background-checks">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                View Dashboard
-              </Link>
-            </Button>
             <Button onClick={() => setIsFormOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Initiate Check
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/background-checks">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Dashboard
+              </Link>
             </Button>
           </div>
         </div>

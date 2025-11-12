@@ -3,7 +3,7 @@ import { RPOContractsTable } from '@/components/rpo/RPOContractsTable';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { Building2, Users, DollarSign, Clock, TrendingUp, FileText, BarChart3, Eye, Plus, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ServiceProject } from '@/types/recruitmentService';
 import { useCurrencyFormat } from '@/contexts/CurrencyFormatContext';
 
@@ -144,16 +144,18 @@ export default function RPOManagementPage() {
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              View Analytics
-            </Button>
-            <Button variant="outline">
               <Users className="h-4 w-4 mr-2" />
               Manage Consultants
             </Button>
             <Button>
               <FileText className="h-4 w-4 mr-2" />
               Generate Report
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/rpo">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Dashboard
+              </Link>
             </Button>
           </div>
         </div>

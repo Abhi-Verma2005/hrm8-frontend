@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
@@ -102,9 +103,17 @@ export default function SalesForecastPage() {
       }
     >
       <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Sales Forecasting</h1>
-          <p className="text-muted-foreground mt-2">Revenue projections and sales forecasts</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Sales Forecasting</h1>
+            <p className="text-muted-foreground mt-2">Revenue projections and sales forecasts</p>
+          </div>
+          <Button variant="outline" asChild>
+            <Link to="/dashboard/sales">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              View Dashboard
+            </Link>
+          </Button>
         </div>
 
         <div className="grid gap-4 md:grid-cols-4">
