@@ -107,6 +107,7 @@ import ConsentForm from "./pages/ConsentForm";
 import ReferenceQuestionnaire from "./pages/ReferenceQuestionnaire";
 import AIReferenceSession from "./pages/AIReferenceSession";
 import VideoInterviewInterface from "./pages/VideoInterviewInterface";
+import AIInterviewComplete from "./pages/AIInterviewComplete";
 import TakeAssessment from "./pages/public/TakeAssessment";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 import RecruitmentIntegration from "./pages/RecruitmentIntegration";
@@ -341,6 +342,7 @@ function AppContent() {
           <Route path="/reference/:token" element={<ReferenceQuestionnaire />} />
           <Route path="/ai-reference/:token" element={<AIReferenceSession />} />
           <Route path="/ai-reference/:token/video" element={<VideoInterviewInterface />} />
+          <Route path="/ai-reference/:token/complete" element={<AIInterviewComplete />} />
           <Route path="/assessment/:token" element={<TakeAssessment />} />
       
       {/* Public 360 Feedback Form - No authentication required */}
