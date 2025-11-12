@@ -460,6 +460,7 @@ export default function Jobs() {
     {
       key: 'serviceType',
       label: 'Service',
+      sortable: true,
       render: (job) => <ServiceTypeBadge type={job.serviceType} />
     },
     {
@@ -474,8 +475,8 @@ export default function Jobs() {
     },
     {
       key: 'actions',
-      label: '',
-      width: "60px",
+      label: 'Actions',
+      width: "80px",
       render: (job) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
