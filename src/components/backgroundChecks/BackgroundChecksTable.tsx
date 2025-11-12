@@ -398,7 +398,7 @@ export function BackgroundChecksTable({
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead className="w-[35%]">
+              <TableHead className="w-[25%]">
                 <button 
                   onClick={() => handleSort('candidateName')}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
@@ -407,8 +407,8 @@ export function BackgroundChecksTable({
                   {getSortIcon('candidateName')}
                 </button>
               </TableHead>
-              <TableHead className="w-[18%]">Check Types</TableHead>
-              <TableHead className="w-[10%]">
+              <TableHead className="w-[16%]">Check Types</TableHead>
+              <TableHead className="w-[11%]">
                 <button 
                   onClick={() => handleSort('status')}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
@@ -417,7 +417,7 @@ export function BackgroundChecksTable({
                   {getSortIcon('status')}
                 </button>
               </TableHead>
-              <TableHead className="w-[10%]">
+              <TableHead className="w-[12%]">
                 <button 
                   onClick={() => handleSort('progress')}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
@@ -426,7 +426,7 @@ export function BackgroundChecksTable({
                   {getSortIcon('progress')}
                 </button>
               </TableHead>
-              <TableHead className="w-[8%]">
+              <TableHead className="w-[10%]">
                 <button 
                   onClick={() => handleSort('result')}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
@@ -435,7 +435,7 @@ export function BackgroundChecksTable({
                   {getSortIcon('result')}
                 </button>
               </TableHead>
-              <TableHead className="w-[10%]">
+              <TableHead className="w-[12%]">
                 <button 
                   onClick={() => handleSort('initiatedDate')}
                   className="flex items-center hover:text-foreground transition-colors font-medium"

@@ -207,7 +207,7 @@ export function AssessmentsTable({
                   onCheckedChange={toggleAll}
                 />
               </TableHead>
-              <TableHead className="w-[35%]">
+              <TableHead className="w-[25%]">
                 <button 
                   onClick={() => handleSort('candidateName')}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
@@ -216,7 +216,7 @@ export function AssessmentsTable({
                   {getSortIcon('candidateName')}
                 </button>
               </TableHead>
-              <TableHead className="w-[12%]">
+              <TableHead className="w-[10%]">
                 <button 
                   onClick={() => handleSort('assessmentType')}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
@@ -234,7 +234,7 @@ export function AssessmentsTable({
                   {getSortIcon('provider')}
                 </button>
               </TableHead>
-              <TableHead className="w-[10%]">
+              <TableHead className="w-[12%]">
                 <button 
                   onClick={() => handleSort('status')}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
@@ -243,7 +243,7 @@ export function AssessmentsTable({
                   {getSortIcon('status')}
                 </button>
               </TableHead>
-              <TableHead className="w-[8%]">
+              <TableHead className="w-[10%]">
                 <button 
                   onClick={() => handleSort('score')}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
@@ -252,7 +252,7 @@ export function AssessmentsTable({
                   {getSortIcon('score')}
                 </button>
               </TableHead>
-              <TableHead className="w-[12%]">
+              <TableHead className="w-[13%]">
                 <button 
                   onClick={() => handleSort('invitedDate')}
                   className="flex items-center hover:text-foreground transition-colors font-medium"
