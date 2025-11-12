@@ -4,8 +4,9 @@ import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { AssessmentNotificationBadge } from '@/components/assessments/AssessmentNotificationBadge';
 import { AssessmentsFilterBar } from '@/components/assessments/AssessmentsFilterBar';
-import { AssessmentsTable } from '@/components/assessments/AssessmentsTable';
 import { AssessmentInvitationWizard } from '@/components/assessments/AssessmentInvitationWizard';
+import { createAssessmentTableColumns } from '@/components/assessments/AssessmentTableColumns';
+import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -13,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ClipboardCheck, TrendingUp, Award, Clock, Settings, BarChart3, Calendar, Upload, Download, ChevronDown } from 'lucide-react';
+import { ClipboardCheck, TrendingUp, Award, Clock, Settings, BarChart3, Calendar, Upload, Download, ChevronDown, Bell, XCircle } from 'lucide-react';
 import { getAssessments } from '@/lib/mockAssessmentStorage';
 import { getAssessmentStats } from '@/lib/assessments/dashboardStats';
 import { exportAssessments } from '@/lib/assessments/exportAssessments';
@@ -250,15 +251,47 @@ export default function Assessments() {
           activeFilterCount={activeFilterCount}
         />
 
-        <AssessmentsTable
-          assessments={filteredAssessments}
-          onViewDetails={handleViewDetails}
-          onSendReminder={handleSendReminder}
-          onDownloadReport={handleDownloadReport}
-          onCancelAssessment={handleCancelAssessment}
-          onBulkSendReminders={(ids) => toast({ title: `Reminders sent to ${ids.length} candidates` })}
-          onBulkExport={(ids) => toast({ title: `Exporting ${ids.length} reports` })}
-          onBulkCancel={(ids) => toast({ title: `Cancelled ${ids.length} assessments` })}
+        <DataTable
+          data={filteredAssessments}
+          columns={createAssessmentTableColumns(
+            handleViewDetails,
+            handleSendReminder,
+            handleDownloadReport,
+            handleCancelAssessment
+          )}
+          selectable
+          searchable={false}
+          emptyMessage="No assessments found matching your criteria"
+          tableId="assessments"
+          resizable
+          renderBulkActions={(selectedIds) => (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => toast({ title: `Reminders sent to ${selectedIds.length} candidates` })}
+              >
+                <Bell className="h-4 w-4 mr-2" />
+                Send Reminders
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => toast({ title: `Exporting ${selectedIds.length} reports` })}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export Reports
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => toast({ title: `Cancelled ${selectedIds.length} assessments` })}
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                Cancel Selected
+              </Button>
+            </>
+          )}
         />
 
         <AssessmentInvitationWizard

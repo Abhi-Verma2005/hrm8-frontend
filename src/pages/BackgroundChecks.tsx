@@ -5,7 +5,7 @@ import { BackgroundCheckNotificationBadge } from "@/components/backgroundChecks/
 import { BackgroundChecksFilterBar } from "@/components/backgroundChecks/BackgroundChecksFilterBar";
 import { useAutomatedReminders } from "@/hooks/useAutomatedReminders";
 import { Button } from "@/components/ui/button";
-import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye, TestTube, Mail, Settings, Bell, TrendingUp, X } from "lucide-react";
+import { Shield, Plus, FileText, Download, Upload, BarChart3, CheckCircle, Clock, AlertCircle, Eye, TestTube, Mail, Settings, Bell, TrendingUp, X, Send, FileDown, Edit } from "lucide-react";
 import { getBackgroundChecks, saveBackgroundCheck, getBackgroundCheckById } from "@/lib/mockBackgroundCheckStorage";
 import { getConsentsByBackgroundCheck } from "@/lib/backgroundChecks/consentStorage";
 import { getRefereesByBackgroundCheck } from "@/lib/backgroundChecks/refereeStorage";
@@ -21,7 +21,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { BackgroundCheckForm } from "@/components/backgroundChecks/BackgroundCheckForm";
 import { toast } from "@/hooks/use-toast";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { BackgroundChecksTable } from "@/components/backgroundChecks/BackgroundChecksTable";
+import { createBackgroundCheckTableColumns } from "@/components/backgroundChecks/BackgroundCheckTableColumns";
+import { DataTable } from "@/components/tables/DataTable";
 import { getBackgroundCheckStats } from "@/lib/backgroundChecks/dashboardStats";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -602,12 +603,109 @@ export default function BackgroundChecks() {
         />
 
         {/* Background Checks Table */}
-        <BackgroundChecksTable
-          checks={filteredChecks}
-          onDownloadReport={handleDownloadReport}
-          onSendReminder={handleSendReminder}
-          onCancelCheck={handleCancelCheck}
-          onViewDetails={(checkId) => navigate(`/background-checks/${checkId}`)}
+        <DataTable
+          data={filteredChecks}
+          columns={createBackgroundCheckTableColumns(
+            (checkId) => navigate(`/background-checks/${checkId}`),
+            undefined,
+            undefined,
+            handleDownloadReport,
+            handleSendReminder,
+            handleCancelCheck
+          )}
+          selectable
+          searchable={false}
+          emptyMessage="No background checks found matching your criteria"
+          tableId="background-checks"
+          resizable
+          renderBulkActions={(selectedIds) => (
+            <>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const pendingChecks = filteredChecks.filter(
+                    c => selectedIds.includes(c.id) && c.status === 'pending-consent'
+                  );
+                  if (pendingChecks.length === 0) {
+                    toast({
+                      title: "No eligible checks",
+                      description: "Selected checks must be in 'pending consent' status.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  toast({
+                    title: "Reminders sent",
+                    description: `Successfully sent ${pendingChecks.length} reminder(s).`,
+                  });
+                }}
+              >
+                <Send className="h-4 w-4 mr-2" />
+                Send Reminders
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  const completedChecks = filteredChecks.filter(
+                    c => selectedIds.includes(c.id) && c.status === 'completed'
+                  );
+                  if (completedChecks.length === 0) {
+                    toast({
+                      title: "No completed checks",
+                      description: "Only completed checks can be exported.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  toast({
+                    title: "Export started",
+                    description: `Preparing ${completedChecks.length} report(s)...`,
+                  });
+                }}
+              >
+                <FileDown className="h-4 w-4 mr-2" />
+                Export Reports
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="sm" variant="outline">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Update Status
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => toast({ title: "Status updated" })}>
+                    In Progress
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => toast({ title: "Status updated" })}>
+                    Completed
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => toast({ title: "Status updated" })}>
+                    Issues Found
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      const eligibleChecks = filteredChecks.filter(
+                        c => selectedIds.includes(c.id) && 
+                        c.status !== 'completed' && 
+                        c.status !== 'cancelled'
+                      );
+                      toast({
+                        title: "Checks cancelled",
+                        description: `Cancelled ${eligibleChecks.length} check(s).`,
+                      });
+                    }}
+                    className="text-destructive"
+                  >
+                    Cancel Selected
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
         />
 
         {/* Initiate Check Dialog */}
