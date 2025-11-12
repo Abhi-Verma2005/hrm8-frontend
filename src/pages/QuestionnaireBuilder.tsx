@@ -12,12 +12,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Plus, Save, Eye, Library } from 'lucide-react';
+import { ArrowLeft, Plus, Save, Eye, Library, Upload } from 'lucide-react';
 import type { QuestionnaireTemplate, QuestionnaireQuestion, QuestionType } from '@/types/questionnaireBuilder';
 import { getQuestionnaireTemplateById, saveQuestionnaireTemplate } from '@/lib/assessments/questionnaireTemplateStorage';
 import QuestionEditor from '@/components/assessments/questionnaire-builder/QuestionEditor';
 import QuestionnairePreview from '@/components/assessments/questionnaire-builder/QuestionnairePreview';
 import QuestionTemplatesLibrary from '@/components/assessments/questionnaire-builder/QuestionTemplatesLibrary';
+import { BulkImportDialog } from '@/components/assessments/questionnaire-builder/BulkImportDialog';
 
 interface SortableQuestionProps {
   question: QuestionnaireQuestion;
@@ -67,6 +68,7 @@ export default function QuestionnaireBuilder() {
   const [activeTab, setActiveTab] = useState('edit');
   const [autoSaving, setAutoSaving] = useState(false);
   const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
+  const [showImportDialog, setShowImportDialog] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -147,6 +149,19 @@ export default function QuestionnaireBuilder() {
     });
   };
 
+  const handleImportQuestions = (importedQuestions: QuestionnaireQuestion[]) => {
+    // Adjust order numbers for imported questions
+    const adjustedQuestions = importedQuestions.map((q, idx) => ({
+      ...q,
+      order: template.questions.length + idx,
+    }));
+    
+    setTemplate(prev => ({
+      ...prev,
+      questions: [...prev.questions, ...adjustedQuestions],
+    }));
+  };
+
   const handleUpdateQuestion = (updatedQuestion: QuestionnaireQuestion) => {
     const updatedQuestions = template.questions.map((q) =>
       q.id === updatedQuestion.id ? updatedQuestion : q
@@ -204,6 +219,10 @@ export default function QuestionnaireBuilder() {
               >
                 <Library className="h-4 w-4 mr-2" />
                 {showTemplateLibrary ? 'Hide' : 'Show'} Templates
+              </Button>
+              <Button variant="outline" onClick={() => setShowImportDialog(true)}>
+                <Upload className="h-4 w-4 mr-2" />
+                Import Questions
               </Button>
               <Button variant="outline" onClick={() => setActiveTab(activeTab === 'edit' ? 'preview' : 'edit')}>
                 <Eye className="h-4 w-4 mr-2" />
@@ -393,6 +412,13 @@ export default function QuestionnaireBuilder() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <BulkImportDialog
+        open={showImportDialog}
+        onOpenChange={setShowImportDialog}
+        onImport={handleImportQuestions}
+        existingQuestions={template.questions}
+      />
     </div>
   );
 }
