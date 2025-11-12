@@ -12,11 +12,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Plus, Save, Eye } from 'lucide-react';
+import { ArrowLeft, Plus, Save, Eye, Library } from 'lucide-react';
 import type { QuestionnaireTemplate, QuestionnaireQuestion, QuestionType } from '@/types/questionnaireBuilder';
 import { getQuestionnaireTemplateById, saveQuestionnaireTemplate } from '@/lib/assessments/questionnaireTemplateStorage';
 import QuestionEditor from '@/components/assessments/questionnaire-builder/QuestionEditor';
 import QuestionnairePreview from '@/components/assessments/questionnaire-builder/QuestionnairePreview';
+import QuestionTemplatesLibrary from '@/components/assessments/questionnaire-builder/QuestionTemplatesLibrary';
 
 interface SortableQuestionProps {
   question: QuestionnaireQuestion;
@@ -65,6 +66,7 @@ export default function QuestionnaireBuilder() {
   });
   const [activeTab, setActiveTab] = useState('edit');
   const [autoSaving, setAutoSaving] = useState(false);
+  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -134,6 +136,17 @@ export default function QuestionnaireBuilder() {
     });
   };
 
+  const handleAddQuestionFromTemplate = (question: QuestionnaireQuestion) => {
+    setTemplate({
+      ...template,
+      questions: [...template.questions, question],
+    });
+    toast({
+      title: "Question added",
+      description: "Template question has been added to your questionnaire.",
+    });
+  };
+
   const handleUpdateQuestion = (updatedQuestion: QuestionnaireQuestion) => {
     const updatedQuestions = template.questions.map((q) =>
       q.id === updatedQuestion.id ? updatedQuestion : q
@@ -185,6 +198,13 @@ export default function QuestionnaireBuilder() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowTemplateLibrary(!showTemplateLibrary)}
+              >
+                <Library className="h-4 w-4 mr-2" />
+                {showTemplateLibrary ? 'Hide' : 'Show'} Templates
+              </Button>
               <Button variant="outline" onClick={() => setActiveTab(activeTab === 'edit' ? 'preview' : 'edit')}>
                 <Eye className="h-4 w-4 mr-2" />
                 {activeTab === 'edit' ? 'Preview' : 'Edit'}
@@ -207,7 +227,7 @@ export default function QuestionnaireBuilder() {
           </TabsList>
 
           <TabsContent value="edit" className="space-y-6">
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-6" style={{ gridTemplateColumns: showTemplateLibrary ? '1fr 2fr 1fr' : '1fr 2fr' }}>
               {/* Left Panel - Template Settings */}
               <Card className="lg:col-span-1">
                 <CardHeader>
@@ -306,8 +326,8 @@ export default function QuestionnaireBuilder() {
                 </CardContent>
               </Card>
 
-              {/* Right Panel - Questions List */}
-              <div className="lg:col-span-2">
+              {/* Middle Panel - Questions List */}
+              <div>
                 <Card>
                   <CardHeader>
                     <div className="flex items-center justify-between">
@@ -351,6 +371,16 @@ export default function QuestionnaireBuilder() {
                   </CardContent>
                 </Card>
               </div>
+
+              {/* Right Panel - Templates Library */}
+              {showTemplateLibrary && (
+                <div>
+                  <QuestionTemplatesLibrary
+                    onAddQuestion={handleAddQuestionFromTemplate}
+                    currentQuestionCount={template.questions.length}
+                  />
+                </div>
+              )}
             </div>
           </TabsContent>
 
