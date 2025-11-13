@@ -114,6 +114,9 @@ export interface Application {
   rejectionReason?: string;
   rejectionDate?: Date;
   
+  // Tags
+  tags?: string[];
+  
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
@@ -130,4 +133,5 @@ export interface ApplicationFilters {
   dateTo?: Date;
   minScore?: number;
   maxScore?: number;
+  tags?: string[];
 }

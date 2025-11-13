@@ -9,6 +9,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { AIMatchBadge } from "./AIMatchBadge";
+import { TagManager } from "./TagManager";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -185,6 +186,16 @@ export function ApplicationCard({
                 </div>
               )}
             </div>
+
+            {/* Tags */}
+            {!isCompareMode && (
+              <div className="mt-1.5">
+                <TagManager
+                  applicationId={application.id}
+                  tags={application.tags || []}
+                />
+              </div>
+            )}
           </div>
         </div>
       </Card>

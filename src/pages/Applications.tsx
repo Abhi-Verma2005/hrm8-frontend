@@ -12,6 +12,7 @@ import { ApplicationListView } from "@/components/applications/ApplicationListVi
 import { CandidateRecommendations } from "@/components/applications/CandidateRecommendations";
 import { CandidateComparison } from "@/components/applications/CandidateComparison";
 import { BulkAIScoringDialog } from "@/components/applications/BulkAIScoringDialog";
+import { BulkTaggingDialog } from "@/components/applications/BulkTaggingDialog";
 import { ApplicationDetailPanel } from "@/components/applications/ApplicationDetailPanel";
 import { ApplicationFilters } from "@/components/applications/ApplicationFilters";
 import { ApplicationBulkActionsToolbar } from "@/components/applications/ApplicationBulkActionsToolbar";
@@ -21,6 +22,7 @@ import { AdvancedExportDialog } from "@/components/applications/AdvancedExportDi
 import { ImportDialog } from "@/components/applications/ImportDialog";
 import { BulkScheduleInterviewDialog } from "@/components/applications/BulkScheduleInterviewDialog";
 import { getApplications, updateApplication, saveApplication } from "@/lib/mockApplicationStorage";
+import { filterApplicationsByTags } from "@/lib/applicationTags";
 import { Application, ApplicationStage, ApplicationStatus } from "@/types/application";
 import { ApplicationFilters as FilterType } from "@/types/filterPreset";
 import { exportToCSV } from "@/utils/exportHelpers";
@@ -29,7 +31,7 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { performFuzzySearch } from "@/lib/advancedSearchService";
 import { mockJobs } from "@/data/mockTableData";
-import { FileText, UserCheck, Clock, Sparkles } from "lucide-react";
+import { FileText, UserCheck, Clock, Sparkles, Tags } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { useToast } from "@/hooks/use-toast";
@@ -55,6 +57,8 @@ export default function Applications() {
   const [selectedForComparison, setSelectedForComparison] = useState<string[]>([]);
   const [showComparison, setShowComparison] = useState(false);
   const [showBulkScoring, setShowBulkScoring] = useState(false);
+  const [showBulkTagging, setShowBulkTagging] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   useEffect(() => {
     loadApplications();
@@ -74,6 +78,7 @@ export default function Applications() {
     setSearchQuery("");
     setSelectedStages([]);
     setSelectedStatuses([]);
+    setSelectedTags([]);
   };
 
   // Bulk action handlers
@@ -234,38 +239,47 @@ export default function Applications() {
     setBulkScheduleOpen(false);
   };
 
-  const filteredApplications = applications.filter((app) => {
-    // Filter by selected job if one is selected
-    if (selectedJobId && selectedJobId !== "all" && selectedJobId !== "unread") {
-      if (app.jobId !== selectedJobId) return false;
-    }
+  const filteredApplications = useMemo(() => {
+    let filtered = applications.filter((app) => {
+      // Filter by selected job if one is selected
+      if (selectedJobId && selectedJobId !== "all" && selectedJobId !== "unread") {
+        if (app.jobId !== selectedJobId) return false;
+      }
 
-    // Filter by unread status if "unread" is selected or showUnreadOnly is true with no job selected
-    if (selectedJobId === "unread" || (showUnreadOnly && !selectedJobId)) {
-      if (app.isRead) return false;
-    }
+      // Filter by unread status if "unread" is selected or showUnreadOnly is true with no job selected
+      if (selectedJobId === "unread" || (showUnreadOnly && !selectedJobId)) {
+        if (app.isRead) return false;
+      }
 
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      if (
-        !app.candidateName.toLowerCase().includes(query) &&
-        !app.candidateEmail.toLowerCase().includes(query) &&
-        !app.jobTitle.toLowerCase().includes(query)
-      ) {
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        if (
+          !app.candidateName.toLowerCase().includes(query) &&
+          !app.candidateEmail.toLowerCase().includes(query) &&
+          !app.jobTitle.toLowerCase().includes(query)
+        ) {
+          return false;
+        }
+      }
+
+      if (selectedStages.length > 0 && !selectedStages.includes(app.stage)) {
         return false;
       }
+
+      if (selectedStatuses.length > 0 && !selectedStatuses.includes(app.status)) {
+        return false;
+      }
+
+      return true;
+    });
+
+    // Filter by tags
+    if (selectedTags.length > 0) {
+      filtered = filterApplicationsByTags(filtered, selectedTags);
     }
 
-    if (selectedStages.length > 0 && !selectedStages.includes(app.stage)) {
-      return false;
-    }
-
-    if (selectedStatuses.length > 0 && !selectedStatuses.includes(app.status)) {
-      return false;
-    }
-
-    return true;
-  });
+    return filtered;
+  }, [applications, selectedJobId, showUnreadOnly, searchQuery, selectedStages, selectedStatuses, selectedTags]);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -488,7 +502,11 @@ export default function Applications() {
                       )}
                       <Button size="sm" onClick={() => setShowBulkScoring(true)} variant="secondary">
                         <SparklesIcon className="h-4 w-4 mr-2" />
-                        Re-score {selectedForComparison.length}
+                        Re-score
+                      </Button>
+                      <Button size="sm" onClick={() => setShowBulkTagging(true)} variant="secondary">
+                        <Tags className="h-4 w-4 mr-2" />
+                        Tag
                       </Button>
                     </div>
                   )}
@@ -506,6 +524,8 @@ export default function Applications() {
               onStagesChange={setSelectedStages}
               selectedStatuses={selectedStatuses}
               onStatusesChange={setSelectedStatuses}
+              selectedTags={selectedTags}
+              onTagsChange={setSelectedTags}
               onClearFilters={handleClearFilters}
             />
 
@@ -599,6 +619,15 @@ export default function Applications() {
           onComplete={() => {
             setIsCompareMode(false);
             setSelectedForComparison([]);
+            loadApplications();
+          }}
+        />
+
+        <BulkTaggingDialog
+          open={showBulkTagging}
+          onOpenChange={setShowBulkTagging}
+          selectedApplicationIds={selectedForComparison}
+          onComplete={() => {
             loadApplications();
           }}
         />

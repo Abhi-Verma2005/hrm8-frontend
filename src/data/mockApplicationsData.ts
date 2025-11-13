@@ -37,6 +37,19 @@ for (let i = 0; i < 200; i++) {
   
   // 30% of applications are unread
   const isRead = Math.random() > 0.3;
+  
+  // Generate sample tags based on application characteristics
+  const tags: string[] = [];
+  if (aiMatchScore >= 90) tags.push('High Potential');
+  if (aiMatchScore >= 85 && aiMatchScore < 90) tags.push('Technical Expert');
+  if (i % 3 === 0) tags.push('Culture Fit');
+  if (i % 5 === 0) tags.push('Leadership Material');
+  if (candidate.workArrangement === 'remote') tags.push('Remote Ready');
+  if (stage === 'Final Round' || stage === 'Offer Extended') tags.push('Quick Learner');
+  if (i % 7 === 0) tags.push('Team Player');
+  if (daysAgo <= 5) tags.push('Immediate Start');
+  if (i % 11 === 0) tags.push('Internal Referral');
+  if (i % 13 === 0) tags.push('Diverse Candidate');
 
   const application: Application = {
     id: `app-${i + 1}`,
@@ -74,6 +87,7 @@ for (let i = 0; i < 200; i++) {
     aiMatchScore,
     isRead,
     isNew,
+    tags,
     
     notes: [],
     activities: [

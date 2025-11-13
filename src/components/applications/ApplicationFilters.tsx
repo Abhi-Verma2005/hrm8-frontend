@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Filter, X } from "lucide-react";
+import { Search, Filter, X, Tags } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ApplicationStage, ApplicationStatus } from "@/types/application";
+import { getAllTags } from "@/lib/applicationTags";
 
 interface ApplicationFiltersProps {
   searchQuery: string;
@@ -19,6 +20,8 @@ interface ApplicationFiltersProps {
   onStagesChange: (stages: ApplicationStage[]) => void;
   selectedStatuses: ApplicationStatus[];
   onStatusesChange: (statuses: ApplicationStatus[]) => void;
+  selectedTags?: string[];
+  onTagsChange?: (tags: string[]) => void;
   onClearFilters: () => void;
 }
 
@@ -53,9 +56,12 @@ export function ApplicationFilters({
   onStagesChange,
   selectedStatuses,
   onStatusesChange,
+  selectedTags = [],
+  onTagsChange,
   onClearFilters,
 }: ApplicationFiltersProps) {
-  const activeFiltersCount = selectedStages.length + selectedStatuses.length;
+  const activeFiltersCount = selectedStages.length + selectedStatuses.length + selectedTags.length;
+  const allTags = getAllTags();
 
   const toggleStage = (stage: ApplicationStage) => {
     if (selectedStages.includes(stage)) {
@@ -70,6 +76,15 @@ export function ApplicationFilters({
       onStatusesChange(selectedStatuses.filter((s) => s !== status));
     } else {
       onStatusesChange([...selectedStatuses, status]);
+    }
+  };
+
+  const toggleTag = (tag: string) => {
+    if (!onTagsChange) return;
+    if (selectedTags.includes(tag)) {
+      onTagsChange(selectedTags.filter((t) => t !== tag));
+    } else {
+      onTagsChange([...selectedTags, tag]);
     }
   };
 
@@ -122,6 +137,34 @@ export function ApplicationFilters({
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
+
+      {onTagsChange && allTags.length > 0 && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm">
+              <Tags className="h-4 w-4 mr-2" />
+              Tags
+              {selectedTags.length > 0 && (
+                <Badge variant="secondary" className="ml-2">
+                  {selectedTags.length}
+                </Badge>
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>Filter by Tags</DropdownMenuLabel>
+            {allTags.map((tag) => (
+              <DropdownMenuCheckboxItem
+                key={tag}
+                checked={selectedTags.includes(tag)}
+                onCheckedChange={() => toggleTag(tag)}
+              >
+                {tag}
+              </DropdownMenuCheckboxItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       {activeFiltersCount > 0 && (
         <Button variant="ghost" size="sm" onClick={onClearFilters}>
