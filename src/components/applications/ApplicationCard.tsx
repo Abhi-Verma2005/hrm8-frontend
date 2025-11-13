@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Star, Calendar, FileText, MoreVertical, Mail, Phone, Sparkles } from "lucide-react";
+import { Star, Calendar, FileText, MoreVertical, Mail, Phone, Sparkles, MessageSquare, Users } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -17,9 +17,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AIInterviewQuestionDialog } from "./AIInterviewQuestionDialog";
 import { generateQuestionsFromApplication } from "@/lib/aiInterviewQuestions";
+import { ApplicationReviewDialog } from "./ApplicationReviewDialog";
+import { ApplicationReviewPanel } from "./ApplicationReviewPanel";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { getConsensusMetrics } from "@/lib/applications/collaborativeReview";
 
 interface ApplicationCardProps {
   application: Application;
@@ -38,6 +42,22 @@ export function ApplicationCard({
 }: ApplicationCardProps) {
   const [showQuestionDialog, setShowQuestionDialog] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState<ReturnType<typeof generateQuestionsFromApplication>>([]);
+  const [showReviewDialog, setShowReviewDialog] = useState(false);
+  const [showReviewPanel, setShowReviewPanel] = useState(false);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [voteCount, setVoteCount] = useState(0);
+
+  useEffect(() => {
+    const metrics = getConsensusMetrics(application.id);
+    setReviewCount(metrics.totalReviews);
+    setVoteCount(metrics.totalVotes);
+  }, [application.id]);
+
+  const handleReviewAdded = () => {
+    const metrics = getConsensusMetrics(application.id);
+    setReviewCount(metrics.totalReviews);
+    setVoteCount(metrics.totalVotes);
+  };
 
   const {
     attributes,
@@ -112,6 +132,16 @@ export function ApplicationCard({
                 <Sparkles className="mr-2 h-3.5 w-3.5" />
                 Generate Interview Questions
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setShowReviewDialog(true); }}>
+                <MessageSquare className="mr-2 h-3.5 w-3.5" />
+                Add Review
+              </DropdownMenuItem>
+              {(reviewCount > 0 || voteCount > 0) && (
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setShowReviewPanel(true); }}>
+                  <Users className="mr-2 h-3.5 w-3.5" />
+                  View Team Reviews ({reviewCount})
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <Mail className="mr-2 h-3.5 w-3.5" />
@@ -196,9 +226,49 @@ export function ApplicationCard({
                 />
               </div>
             )}
+
+            {/* Team Review Indicator */}
+            {!isCompareMode && (reviewCount > 0 || voteCount > 0) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-5 px-1.5 mt-1.5 text-[10px] w-full"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowReviewPanel(true);
+                }}
+              >
+                <Users className="h-2.5 w-2.5 mr-1" />
+                {reviewCount} {reviewCount === 1 ? 'Review' : 'Reviews'}
+                {voteCount > 0 && ` • ${voteCount} votes`}
+              </Button>
+            )}
           </div>
         </div>
       </Card>
+
+      <ApplicationReviewDialog
+        applicationId={application.id}
+        candidateName={application.candidateName}
+        open={showReviewDialog}
+        onOpenChange={setShowReviewDialog}
+        onReviewAdded={handleReviewAdded}
+      />
+
+      <Dialog open={showReviewPanel} onOpenChange={setShowReviewPanel}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Team Reviews - {application.candidateName}</DialogTitle>
+          </DialogHeader>
+          <ApplicationReviewPanel
+            applicationId={application.id}
+            onReviewClick={() => {
+              setShowReviewPanel(false);
+              setShowReviewDialog(true);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
 
       <AIInterviewQuestionDialog
         open={showQuestionDialog}
