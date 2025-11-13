@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSe
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
 import { ApplicationListView } from "@/components/applications/ApplicationListView";
+import { CandidateRecommendations } from "@/components/applications/CandidateRecommendations";
 import { ApplicationDetailPanel } from "@/components/applications/ApplicationDetailPanel";
 import { ApplicationFilters } from "@/components/applications/ApplicationFilters";
 import { ApplicationBulkActionsToolbar } from "@/components/applications/ApplicationBulkActionsToolbar";
@@ -343,48 +344,51 @@ export default function Applications() {
           </div>
         </div>
 
-        {/* Stat Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <EnhancedStatCard
-            title="Total Applications"
-            value={stats.total.toString()}
-            change=""
-            icon={<FileText />}
-            variant="neutral"
-            showBorder
-            elevation="sm"
-          />
-          <EnhancedStatCard
-            title="New/Unread"
-            value={stats.unread.toString()}
-            change=""
-            icon={<UserCheck />}
-            variant="primary"
-            showBorder
-            elevation="sm"
-          />
-          <EnhancedStatCard
-            title="Avg AI Match"
-            value={`${stats.avgAIMatch}%`}
-            change=""
-            icon={<Sparkles />}
-            variant="success"
-            showBorder
-            elevation="sm"
-          />
-          <EnhancedStatCard
-            title="Needs Action"
-            value={stats.needsAction.toString()}
-            change=""
-            icon={<Clock />}
-            variant="warning"
-            showBorder
-            elevation="sm"
-          />
-        </div>
+        {/* Main Content with Recommendations Sidebar */}
+        <div className="grid gap-4 lg:grid-cols-[1fr_350px]">
+          <div className="space-y-4">
+            {/* Stat Cards */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <EnhancedStatCard
+                title="Total Applications"
+                value={stats.total.toString()}
+                change=""
+                icon={<FileText />}
+                variant="neutral"
+                showBorder
+                elevation="sm"
+              />
+              <EnhancedStatCard
+                title="New/Unread"
+                value={stats.unread.toString()}
+                change=""
+                icon={<UserCheck />}
+                variant="primary"
+                showBorder
+                elevation="sm"
+              />
+              <EnhancedStatCard
+                title="Avg AI Match"
+                value={`${stats.avgAIMatch}%`}
+                change=""
+                icon={<Sparkles />}
+                variant="success"
+                showBorder
+                elevation="sm"
+              />
+              <EnhancedStatCard
+                title="Needs Action"
+                value={stats.needsAction.toString()}
+                change=""
+                icon={<Clock />}
+                variant="warning"
+                showBorder
+                elevation="sm"
+              />
+            </div>
 
-        {/* Job Selection Filter */}
-        <Card className="p-4">
+            {/* Job Selection Filter */}
+            <Card className="p-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 flex-1">
               <Label className="text-sm font-medium whitespace-nowrap">Filter by Job:</Label>
@@ -412,44 +416,55 @@ export default function Applications() {
             <div className="text-sm text-muted-foreground whitespace-nowrap">
               {filteredApplications.length} application(s)
             </div>
+              </div>
+            </Card>
+
+            {/* Smart Filters */}
+            <SmartFiltersBar onFilterSelect={handleSmartFilterSelect} />
+
+            <ApplicationFilters
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              selectedStages={selectedStages}
+              onStagesChange={setSelectedStages}
+              selectedStatuses={selectedStatuses}
+              onStatusesChange={setSelectedStatuses}
+              onClearFilters={handleClearFilters}
+            />
+
+            {viewMode === "list" && (
+              <ApplicationBulkActionsToolbar
+                selectedCount={selectedApplicationIds.length}
+                onClearSelection={() => setSelectedApplicationIds([])}
+                onBulkStatusUpdate={handleBulkStatusUpdate}
+                onBulkAssignRecruiter={handleBulkAssignRecruiter}
+                onBulkEmail={handleBulkEmail}
+                onBulkScheduleInterview={handleBulkScheduleInterview}
+                onBulkReject={handleBulkReject}
+              />
+            )}
+
+            {viewMode === "pipeline" ? (
+              <ApplicationPipeline applications={filteredApplications} />
+            ) : (
+              <ApplicationListView
+                applications={filteredApplications}
+                onApplicationClick={handleApplicationClick}
+                selectable
+                onSelectedRowsChange={setSelectedApplicationIds}
+              />
+            )}
           </div>
-        </Card>
 
-        {/* Smart Filters */}
-        <SmartFiltersBar onFilterSelect={handleSmartFilterSelect} />
-
-        <ApplicationFilters
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          selectedStages={selectedStages}
-          onStagesChange={setSelectedStages}
-          selectedStatuses={selectedStatuses}
-          onStatusesChange={setSelectedStatuses}
-          onClearFilters={handleClearFilters}
-        />
-
-        {viewMode === "list" && (
-          <ApplicationBulkActionsToolbar
-            selectedCount={selectedApplicationIds.length}
-            onClearSelection={() => setSelectedApplicationIds([])}
-            onBulkStatusUpdate={handleBulkStatusUpdate}
-            onBulkAssignRecruiter={handleBulkAssignRecruiter}
-            onBulkEmail={handleBulkEmail}
-            onBulkScheduleInterview={handleBulkScheduleInterview}
-            onBulkReject={handleBulkReject}
-          />
-        )}
-
-        {viewMode === "pipeline" ? (
-          <ApplicationPipeline applications={filteredApplications} />
-        ) : (
-          <ApplicationListView
-            applications={filteredApplications}
-            onApplicationClick={handleApplicationClick}
-            selectable
-            onSelectedRowsChange={setSelectedApplicationIds}
-          />
-        )}
+          {/* AI Recommendations Sidebar */}
+          <div className="lg:sticky lg:top-6 lg:self-start">
+            <CandidateRecommendations 
+              applications={applications}
+              jobId={selectedJobId && selectedJobId !== "all" && selectedJobId !== "unread" ? selectedJobId : undefined}
+              maxRecommendations={5}
+            />
+          </div>
+        </div>
 
         <ApplicationDetailPanel
           application={selectedApplication}
