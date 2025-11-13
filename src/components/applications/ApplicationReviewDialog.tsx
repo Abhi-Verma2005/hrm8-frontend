@@ -9,10 +9,12 @@ import { Star, MessageSquare, ThumbsUp, ThumbsDown, Minus } from 'lucide-react';
 import { addReview, addVote, type ApplicationReview } from '@/lib/applications/collaborativeReview';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { notifyReviewAdded, notifyVoteAdded, followApplication } from '@/lib/applications/notifications';
 
 interface ApplicationReviewDialogProps {
   applicationId: string;
   candidateName: string;
+  jobTitle: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onReviewAdded?: () => void;
@@ -21,6 +23,7 @@ interface ApplicationReviewDialogProps {
 export function ApplicationReviewDialog({
   applicationId,
   candidateName,
+  jobTitle,
   open,
   onOpenChange,
   onReviewAdded,
@@ -66,6 +69,18 @@ export function ApplicationReviewDialog({
       recommendation,
     });
 
+    // Auto-follow application when reviewing
+    followApplication('current-user-id', applicationId);
+
+    // Notify followers
+    notifyReviewAdded(
+      applicationId,
+      candidateName,
+      jobTitle,
+      'current-user-id',
+      'Current User'
+    );
+
     toast({
       title: 'Review submitted',
       description: 'Your review has been added successfully',
@@ -93,6 +108,19 @@ export function ApplicationReviewDialog({
       decision: voteDecision,
       reasoning: voteReasoning,
     });
+
+    // Auto-follow application when voting
+    followApplication('current-user-id', applicationId);
+
+    // Notify followers
+    notifyVoteAdded(
+      applicationId,
+      candidateName,
+      jobTitle,
+      'current-user-id',
+      'Current User',
+      voteDecision
+    );
 
     toast({
       title: 'Vote submitted',

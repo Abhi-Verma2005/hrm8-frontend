@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Star, Calendar, FileText, MoreVertical, Mail, Phone, Sparkles, MessageSquare, Users } from "lucide-react";
+import { Star, Calendar, FileText, MoreVertical, Mail, Phone, Sparkles, MessageSquare, Users, Bell } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -24,6 +24,7 @@ import { ApplicationReviewDialog } from "./ApplicationReviewDialog";
 import { ApplicationReviewPanel } from "./ApplicationReviewPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getConsensusMetrics } from "@/lib/applications/collaborativeReview";
+import { isFollowing, followApplication, unfollowApplication } from "@/lib/applications/notifications";
 
 interface ApplicationCardProps {
   application: Application;
@@ -46,17 +47,31 @@ export function ApplicationCard({
   const [showReviewPanel, setShowReviewPanel] = useState(false);
   const [reviewCount, setReviewCount] = useState(0);
   const [voteCount, setVoteCount] = useState(0);
+  const [following, setFollowing] = useState(false);
 
   useEffect(() => {
     const metrics = getConsensusMetrics(application.id);
     setReviewCount(metrics.totalReviews);
     setVoteCount(metrics.totalVotes);
+    setFollowing(isFollowing('current-user-id', application.id));
   }, [application.id]);
 
   const handleReviewAdded = () => {
     const metrics = getConsensusMetrics(application.id);
     setReviewCount(metrics.totalReviews);
     setVoteCount(metrics.totalVotes);
+  };
+
+  const handleToggleFollow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const userId = 'current-user-id';
+    if (following) {
+      unfollowApplication(userId, application.id);
+      setFollowing(false);
+    } else {
+      followApplication(userId, application.id);
+      setFollowing(true);
+    }
   };
 
   const {
@@ -142,6 +157,11 @@ export function ApplicationCard({
                   View Team Reviews ({reviewCount})
                 </DropdownMenuItem>
               )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleToggleFollow}>
+                <Bell className="mr-2 h-3.5 w-3.5" />
+                {following ? 'Unfollow Application' : 'Follow Application'}
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <Mail className="mr-2 h-3.5 w-3.5" />
@@ -250,6 +270,7 @@ export function ApplicationCard({
       <ApplicationReviewDialog
         applicationId={application.id}
         candidateName={application.candidateName}
+        jobTitle={application.jobTitle}
         open={showReviewDialog}
         onOpenChange={setShowReviewDialog}
         onReviewAdded={handleReviewAdded}
@@ -262,6 +283,8 @@ export function ApplicationCard({
           </DialogHeader>
           <ApplicationReviewPanel
             applicationId={application.id}
+            candidateName={application.candidateName}
+            jobTitle={application.jobTitle}
             onReviewClick={() => {
               setShowReviewPanel(false);
               setShowReviewDialog(true);

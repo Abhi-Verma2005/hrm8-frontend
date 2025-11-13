@@ -17,13 +17,16 @@ import {
   type ApplicationComment,
 } from '@/lib/applications/collaborativeReview';
 import { formatDistanceToNow } from 'date-fns';
+import { notifyCommentAdded, followApplication } from '@/lib/applications/notifications';
 
 interface ApplicationReviewPanelProps {
   applicationId: string;
+  candidateName: string;
+  jobTitle: string;
   onReviewClick: () => void;
 }
 
-export function ApplicationReviewPanel({ applicationId, onReviewClick }: ApplicationReviewPanelProps) {
+export function ApplicationReviewPanel({ applicationId, candidateName, jobTitle, onReviewClick }: ApplicationReviewPanelProps) {
   const [reviews, setReviews] = useState<ApplicationReview[]>([]);
   const [votes, setVotes] = useState<ApplicationVote[]>([]);
   const [comments, setComments] = useState<ApplicationComment[]>([]);
@@ -52,6 +55,20 @@ export function ApplicationReviewPanel({ applicationId, onReviewClick }: Applica
       content: newComment,
       parentId: replyTo || undefined,
     });
+
+    // Auto-follow application when commenting
+    followApplication('current-user-id', applicationId);
+
+    // Notify followers
+    notifyCommentAdded(
+      applicationId,
+      candidateName,
+      jobTitle,
+      'current-user-id',
+      'Current User',
+      newComment,
+      !!replyTo
+    );
 
     setNewComment('');
     setReplyTo(null);

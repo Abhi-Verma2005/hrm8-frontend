@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Command } from "lucide-react";
 import { UserNav } from "./UserNav";
 import { NotificationsDropdown } from "./NotificationsDropdown";
+import { NotificationPanel } from "@/components/applications/NotificationPanel";
 import { HeaderQuickActions } from "./HeaderQuickActions";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -55,6 +56,7 @@ export function DashboardHeader({ breadcrumbActions }: DashboardHeaderProps = {}
           <div className="flex items-center gap-2">
             <CurrencyFormatToggle />
             <ThemeToggle />
+            <NotificationPanel />
             <NotificationsDropdown />
             <UserNav />
           </div>
