@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Upload, Download, LayoutGrid, List, Filter, X } from "lucide-react";
+import { Upload, Download, LayoutGrid, List, Filter, X, GitCompare } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
@@ -9,6 +9,7 @@ import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
 import { ApplicationListView } from "@/components/applications/ApplicationListView";
 import { CandidateRecommendations } from "@/components/applications/CandidateRecommendations";
+import { CandidateComparison } from "@/components/applications/CandidateComparison";
 import { ApplicationDetailPanel } from "@/components/applications/ApplicationDetailPanel";
 import { ApplicationFilters } from "@/components/applications/ApplicationFilters";
 import { ApplicationBulkActionsToolbar } from "@/components/applications/ApplicationBulkActionsToolbar";
@@ -27,6 +28,7 @@ import autoTable from 'jspdf-autotable';
 import { performFuzzySearch } from "@/lib/advancedSearchService";
 import { mockJobs } from "@/data/mockTableData";
 import { FileText, UserCheck, Clock, Sparkles } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { useToast } from "@/hooks/use-toast";
 
@@ -47,6 +49,9 @@ export default function Applications() {
   const [appliedFilters, setAppliedFilters] = useState<FilterType>({});
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [showUnreadOnly, setShowUnreadOnly] = useState(true);
+  const [isCompareMode, setIsCompareMode] = useState(false);
+  const [selectedForComparison, setSelectedForComparison] = useState<string[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
 
   useEffect(() => {
     loadApplications();
@@ -294,6 +299,36 @@ export default function Applications() {
     ? mockJobs.find(j => j.id === selectedJobId)
     : null;
 
+  const handleToggleCompareMode = () => {
+    setIsCompareMode(!isCompareMode);
+    setSelectedForComparison([]);
+  };
+
+  const handleToggleSelect = (applicationId: string) => {
+    setSelectedForComparison(prev => 
+      prev.includes(applicationId)
+        ? prev.filter(id => id !== applicationId)
+        : [...prev, applicationId]
+    );
+  };
+
+  const handleCompare = () => {
+    if (selectedForComparison.length >= 2) {
+      setShowComparison(true);
+    }
+  };
+
+  const handleRemoveFromComparison = (applicationId: string) => {
+    setSelectedForComparison(prev => prev.filter(id => id !== applicationId));
+    if (selectedForComparison.length <= 2) {
+      setShowComparison(false);
+    }
+  };
+
+  const applicationsToCompare = applications.filter(app => 
+    selectedForComparison.includes(app.id)
+  );
+
   return (
     <DashboardPageLayout
       breadcrumbActions={
@@ -319,6 +354,14 @@ export default function Applications() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Button 
+              variant={isCompareMode ? "default" : "outline"} 
+              size="sm"
+              onClick={handleToggleCompareMode}
+            >
+              <GitCompare className="mr-2 h-4 w-4" />
+              {isCompareMode ? 'Exit Compare' : 'Compare'}
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setAdvancedFiltersOpen(true)}>
               <Filter className="mr-2 h-4 w-4" />
               Advanced Filters
@@ -419,6 +462,23 @@ export default function Applications() {
               </div>
             </Card>
 
+            {/* Compare Mode Alert */}
+            {isCompareMode && (
+              <Alert>
+                <GitCompare className="h-4 w-4" />
+                <AlertDescription className="flex items-center justify-between">
+                  <span>
+                    Select candidates to compare ({selectedForComparison.length} selected)
+                  </span>
+                  {selectedForComparison.length >= 2 && (
+                    <Button size="sm" onClick={handleCompare}>
+                      Compare {selectedForComparison.length} Candidates
+                    </Button>
+                  )}
+                </AlertDescription>
+              </Alert>
+            )}
+
             {/* Smart Filters */}
             <SmartFiltersBar onFilterSelect={handleSmartFilterSelect} />
 
@@ -445,7 +505,12 @@ export default function Applications() {
             )}
 
             {viewMode === "pipeline" ? (
-              <ApplicationPipeline applications={filteredApplications} />
+              <ApplicationPipeline 
+                applications={filteredApplications}
+                isCompareMode={isCompareMode}
+                selectedForComparison={selectedForComparison}
+                onToggleSelect={handleToggleSelect}
+              />
             ) : (
               <ApplicationListView
                 applications={filteredApplications}
@@ -471,6 +536,13 @@ export default function Applications() {
           open={detailPanelOpen}
           onOpenChange={setDetailPanelOpen}
           onRefresh={loadApplications}
+        />
+
+        <CandidateComparison
+          applications={applicationsToCompare}
+          open={showComparison}
+          onOpenChange={setShowComparison}
+          onRemoveCandidate={handleRemoveFromComparison}
         />
 
         {/* Dialogs */}

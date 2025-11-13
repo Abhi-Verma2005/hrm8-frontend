@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Star, Calendar, FileText, MoreVertical, Mail, Phone, Sparkles } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useSortable } from "@dnd-kit/sortable";
@@ -22,9 +23,18 @@ import { generateQuestionsFromApplication } from "@/lib/aiInterviewQuestions";
 interface ApplicationCardProps {
   application: Application;
   onClick?: () => void;
+  isCompareMode?: boolean;
+  isSelected?: boolean;
+  onToggleSelect?: (applicationId: string) => void;
 }
 
-export function ApplicationCard({ application, onClick }: ApplicationCardProps) {
+export function ApplicationCard({ 
+  application, 
+  onClick,
+  isCompareMode = false,
+  isSelected = false,
+  onToggleSelect
+}: ApplicationCardProps) {
   const [showQuestionDialog, setShowQuestionDialog] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState<ReturnType<typeof generateQuestionsFromApplication>>([]);
 
@@ -70,9 +80,19 @@ export function ApplicationCard({ application, onClick }: ApplicationCardProps) 
         style={style}
         {...attributes}
         {...listeners}
-        className="p-2.5 cursor-pointer hover:shadow-md transition-all relative group"
+        className={`p-2.5 cursor-pointer hover:shadow-md transition-all relative group ${isSelected ? 'ring-2 ring-primary' : ''}`}
         onClick={onClick}
       >
+        {/* Comparison Checkbox */}
+        {isCompareMode && (
+          <div className="absolute top-2 left-2 z-10" onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={isSelected}
+              onCheckedChange={() => onToggleSelect?.(application.id)}
+              className="bg-background"
+            />
+          </div>
+        )}
         {/* New/Unread Indicator */}
         {(application.isNew || !application.isRead) && (
           <div className="absolute top-2 right-2 h-2 w-2 bg-blue-500 rounded-full animate-pulse" />

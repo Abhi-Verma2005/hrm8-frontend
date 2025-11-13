@@ -12,6 +12,9 @@ import { ApplicationDetailPanel } from "./ApplicationDetailPanel";
 interface ApplicationPipelineProps {
   jobId?: string;
   applications?: Application[];
+  isCompareMode?: boolean;
+  selectedForComparison?: string[];
+  onToggleSelect?: (applicationId: string) => void;
 }
 
 const pipelineStages: { stage: ApplicationStage; label: string; color: string }[] = [
@@ -24,7 +27,13 @@ const pipelineStages: { stage: ApplicationStage; label: string; color: string }[
   { stage: "Rejected", label: "Rejected", color: "bg-red-50 dark:bg-red-950/30" },
 ];
 
-export function ApplicationPipeline({ jobId, applications: providedApplications }: ApplicationPipelineProps) {
+export function ApplicationPipeline({ 
+  jobId, 
+  applications: providedApplications,
+  isCompareMode = false,
+  selectedForComparison = [],
+  onToggleSelect
+}: ApplicationPipelineProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
@@ -110,6 +119,9 @@ export function ApplicationPipeline({ jobId, applications: providedApplications 
                             key={application.id}
                             application={application}
                             onClick={() => handleApplicationClick(application)}
+                            isCompareMode={isCompareMode}
+                            isSelected={selectedForComparison.includes(application.id)}
+                            onToggleSelect={onToggleSelect}
                           />
                         ))}
                       </div>
