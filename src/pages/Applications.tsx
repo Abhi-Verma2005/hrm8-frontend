@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Upload, Download, LayoutGrid, List, Filter, X, GitCompare } from "lucide-react";
+import { Upload, Download, LayoutGrid, List, Filter, X, GitCompare, Sparkles as SparklesIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
@@ -10,6 +10,7 @@ import { ApplicationPipeline } from "@/components/applications/ApplicationPipeli
 import { ApplicationListView } from "@/components/applications/ApplicationListView";
 import { CandidateRecommendations } from "@/components/applications/CandidateRecommendations";
 import { CandidateComparison } from "@/components/applications/CandidateComparison";
+import { BulkAIScoringDialog } from "@/components/applications/BulkAIScoringDialog";
 import { ApplicationDetailPanel } from "@/components/applications/ApplicationDetailPanel";
 import { ApplicationFilters } from "@/components/applications/ApplicationFilters";
 import { ApplicationBulkActionsToolbar } from "@/components/applications/ApplicationBulkActionsToolbar";
@@ -52,6 +53,7 @@ export default function Applications() {
   const [isCompareMode, setIsCompareMode] = useState(false);
   const [selectedForComparison, setSelectedForComparison] = useState<string[]>([]);
   const [showComparison, setShowComparison] = useState(false);
+  const [showBulkScoring, setShowBulkScoring] = useState(false);
 
   useEffect(() => {
     loadApplications();
@@ -470,10 +472,18 @@ export default function Applications() {
                   <span>
                     Select candidates to compare ({selectedForComparison.length} selected)
                   </span>
-                  {selectedForComparison.length >= 2 && (
-                    <Button size="sm" onClick={handleCompare}>
-                      Compare {selectedForComparison.length} Candidates
-                    </Button>
+                  {selectedForComparison.length >= 1 && (
+                    <div className="flex gap-2">
+                      {selectedForComparison.length >= 2 && (
+                        <Button size="sm" onClick={handleCompare} variant="default">
+                          Compare {selectedForComparison.length} Candidates
+                        </Button>
+                      )}
+                      <Button size="sm" onClick={() => setShowBulkScoring(true)} variant="secondary">
+                        <SparklesIcon className="h-4 w-4 mr-2" />
+                        Re-score {selectedForComparison.length}
+                      </Button>
+                    </div>
                   )}
                 </AlertDescription>
               </Alert>
@@ -573,6 +583,17 @@ export default function Applications() {
           onOpenChange={setBulkScheduleOpen}
           selectedCount={selectedApplicationIds.length}
           onSchedule={handleBulkSchedule}
+        />
+
+        <BulkAIScoringDialog
+          open={showBulkScoring}
+          onOpenChange={setShowBulkScoring}
+          applications={applicationsToCompare}
+          onComplete={() => {
+            setIsCompareMode(false);
+            setSelectedForComparison([]);
+            loadApplications();
+          }}
         />
       </div>
     </DashboardPageLayout>
