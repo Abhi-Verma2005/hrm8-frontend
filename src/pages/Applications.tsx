@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
-import { Upload, Download, LayoutGrid, List, Filter, X, GitCompare, Sparkles as SparklesIcon } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Upload, Download, LayoutGrid, List, Filter, X, GitCompare, Sparkles as SparklesIcon, BarChart3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
@@ -367,6 +368,12 @@ export default function Applications() {
             <Button variant="outline" size="sm" onClick={() => setAdvancedFiltersOpen(true)}>
               <Filter className="mr-2 h-4 w-4" />
               Advanced Filters
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/dashboard/applications">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Dashboard
+              </Link>
             </Button>
             <div className="flex items-center border rounded-lg p-1 gap-1">
               <Button

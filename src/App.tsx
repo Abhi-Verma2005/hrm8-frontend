@@ -36,6 +36,7 @@ import EmailTemplates from "./pages/EmailTemplates";
 import EmailCenter from "./pages/EmailCenter";
 import ImportExport from "./pages/ImportExport";
 import Applications from "./pages/Applications";
+import ApplicationAnalyticsDashboard from "./pages/ApplicationAnalyticsDashboard";
 import Analytics from "./pages/Analytics";
 import Settings from "./pages/Settings";
 import Help from "./pages/Help";
@@ -211,6 +212,7 @@ function AppContent() {
             <Route path="/dashboard/rpo" element={<RPODashboardPage />} />
             <Route path="/dashboard/assessments" element={<AssessmentsDashboard />} />
             <Route path="/dashboard/background-checks" element={<BackgroundChecksDashboard />} />
+            <Route path="/dashboard/applications" element={<ApplicationAnalyticsDashboard />} />
             <Route path="/notifications" element={<NotificationCenterPage />} />
             {/* ATS Module Routes */}
             <Route element={<ProtectedRoutes requiredModule="ats" moduleName="ATS (Applicant Tracking System)" />}>
