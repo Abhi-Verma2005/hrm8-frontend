@@ -55,8 +55,9 @@ const onRenderCallback: ProfilerOnRenderCallback = (
     );
   }
 
-  // Log milestone renders
-  if (metrics.renderCount === 1 || metrics.renderCount % 10 === 0) {
+  // Log milestone renders (reduced frequency)
+  const shouldLog = process.env.VITE_PERF_LOGS !== 'false';
+  if (shouldLog && (metrics.renderCount === 1 || metrics.renderCount % 25 === 0)) {
     console.log(
       `📊 Performance metrics for ${id}:`,
       `\n  Total renders: ${metrics.renderCount}`,

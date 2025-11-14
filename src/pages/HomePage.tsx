@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
@@ -58,16 +58,17 @@ export default function HomePage() {
     };
   }, [integrations]);
 
-  const getPriorityColor = (priority: SupportTicket['priority']) => {
+  // Memoized helper functions
+  const getPriorityColor = useCallback((priority: SupportTicket['priority']) => {
     switch (priority) {
       case 'critical': return 'text-red-600 bg-red-50 border-red-200';
       case 'high': return 'text-orange-600 bg-orange-50 border-orange-200';
       case 'medium': return 'text-yellow-600 bg-yellow-50 border-yellow-200';
       case 'low': return 'text-blue-600 bg-blue-50 border-blue-200';
     }
-  };
+  }, []);
 
-  const getActivityIcon = (type: PlatformActivity['type']) => {
+  const getActivityIcon = useCallback((type: PlatformActivity['type']) => {
     switch (type) {
       case 'user-signup': return Users;
       case 'job-posted': return Briefcase;
@@ -77,7 +78,7 @@ export default function HomePage() {
       case 'integration-connected': return Plug;
       default: return Activity;
     }
-  };
+  }, []);
 
   return (
     <DashboardPageLayout>

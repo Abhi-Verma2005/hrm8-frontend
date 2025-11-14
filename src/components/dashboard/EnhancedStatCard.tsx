@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, MoreVertical } from "lucide-react";
@@ -37,7 +38,7 @@ interface EnhancedStatCardProps {
   iconPosition?: "left" | "right" | "top";
 }
 
-export function EnhancedStatCard({
+export const EnhancedStatCard = memo(function EnhancedStatCard({
   title,
   value,
   change,
@@ -221,4 +222,4 @@ export function EnhancedStatCard({
       )}
     </Card>
   );
-}
+});
