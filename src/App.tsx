@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { CurrencyFormatProvider } from "@/contexts/CurrencyFormatContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import { useGlobalKeyboardShortcuts, useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { DashboardLayout } from "./components/layouts/DashboardLayout";
@@ -397,14 +398,16 @@ const App = () => (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <CurrencyFormatProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-              <ScrollToTop />
-              <AppContent />
-            </BrowserRouter>
-          </TooltipProvider>
+          <NotificationProvider>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+                <ScrollToTop />
+                <AppContent />
+              </BrowserRouter>
+            </TooltipProvider>
+          </NotificationProvider>
         </CurrencyFormatProvider>
       </QueryClientProvider>
     </HelmetProvider>
