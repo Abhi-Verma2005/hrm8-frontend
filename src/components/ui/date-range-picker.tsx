@@ -1,13 +1,14 @@
 import * as React from 'react';
-import { Calendar as CalendarIcon, Save, Trash2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Save, Trash2, Edit } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { format, subDays, subMonths, startOfQuarter, startOfYear } from 'date-fns';
-import { getCustomPresets, saveCustomPreset, deleteCustomPreset } from '@/lib/dateRangePresetStorage';
+import { getCustomPresets, saveCustomPreset, updateCustomPreset, deleteCustomPreset } from '@/lib/dateRangePresetStorage';
 import { useToast } from '@/hooks/use-toast';
 
 export interface DateRangePickerProps {
@@ -23,6 +24,9 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
   const [customPresets, setCustomPresets] = React.useState(getCustomPresets());
   const [presetName, setPresetName] = React.useState('');
+  const [editingPreset, setEditingPreset] = React.useState<{ id: string; name: string } | null>(null);
+  const [editName, setEditName] = React.useState('');
+  const [updateRange, setUpdateRange] = React.useState(false);
   const { toast } = useToast();
 
   const defaultPresets = [
@@ -70,6 +74,45 @@ export function DateRangePicker({
     toast({
       title: "Preset saved",
       description: `"${presetName}" has been saved successfully`,
+    });
+  };
+
+  const handleEditPreset = (id: string, name: string) => {
+    setEditingPreset({ id, name });
+    setEditName(name);
+    setUpdateRange(false);
+  };
+
+  const handleUpdatePreset = () => {
+    if (!editingPreset) return;
+
+    if (!editName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter a name for this preset",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (updateRange && (!date?.from || !date?.to)) {
+      toast({
+        title: "Date range required",
+        description: "Please select a date range to update",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updateCustomPreset(editingPreset.id, editName, updateRange ? date : undefined);
+    setCustomPresets(getCustomPresets());
+    setEditingPreset(null);
+    setEditName('');
+    setUpdateRange(false);
+
+    toast({
+      title: "Preset updated",
+      description: `"${editName}" has been updated successfully`,
     });
   };
 
@@ -148,6 +191,14 @@ export function DateRangePicker({
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0"
+                          onClick={() => handleEditPreset(preset.id, preset.name)}
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
                           onClick={() => handleDeletePreset(preset.id, preset.name)}
                         >
                           <Trash2 className="h-3 w-3" />
@@ -190,6 +241,45 @@ export function DateRangePicker({
           </div>
         </PopoverContent>
       </Popover>
+
+      <Dialog open={!!editingPreset} onOpenChange={(open) => !open && setEditingPreset(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Preset</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Preset Name</label>
+              <Input
+                placeholder="Preset name..."
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleUpdatePreset()}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="update-range"
+                checked={updateRange}
+                onChange={(e) => setUpdateRange(e.target.checked)}
+                className="rounded border-border"
+              />
+              <label htmlFor="update-range" className="text-sm">
+                Update date range to current selection
+              </label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingPreset(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdatePreset}>
+              Update Preset
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
