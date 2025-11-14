@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import logoDark from "@/assets/logo-dark.png";
 import iconMark from "@/assets/icon-mark.png";
@@ -200,14 +200,15 @@ export function AppSidebar() {
   const { sections, toggleSection } = useSidebarSections();
   const [isHovering, setIsHovering] = useState(false);
   
-  // Check module access
-  const hasATS = user.modules.atsEnabled;
-  const hasHRMS = user.modules.hrmsEnabled;
+  // Check module access (memoized to prevent unnecessary recalculations)
+  const hasATS = useMemo(() => user.modules.atsEnabled, [user.modules.atsEnabled]);
+  const hasHRMS = useMemo(() => user.modules.hrmsEnabled, [user.modules.hrmsEnabled]);
   
   // Compute visual state: show expanded when permanently open OR temporarily hovering
   const isExpanded = open || (!open && isHovering);
   
-  const isActive = (path: string) => {
+  // Memoized isActive function to prevent recreation on every render
+  const isActive = useCallback((path: string) => {
     // Exact match first
     if (location.pathname === path) return true;
     
@@ -218,13 +219,30 @@ export function AppSidebar() {
     }
     
     return false;
-  };
+  }, [location.pathname]);
+  
+  // Memoize formatted recent records to prevent recalculating on every render
+  const formattedRecentRecords = useMemo(() => {
+    return recentRecords.map(record => ({
+      ...record,
+      timeAgo: formatDistanceToNow(new Date(record.timestamp), { addSuffix: true })
+    }));
+  }, [recentRecords]);
+  
+  // Memoized hover handlers
+  const handleMouseEnter = useCallback(() => {
+    if (!open) setIsHovering(true);
+  }, [open]);
+  
+  const handleMouseLeave = useCallback(() => {
+    if (!open) setIsHovering(false);
+  }, [open]);
   
   return <Sidebar 
     collapsible="icon"
     data-hover-expand={!open && isHovering}
-    onMouseEnter={() => !open && setIsHovering(true)}
-    onMouseLeave={() => !open && setIsHovering(false)}
+    onMouseEnter={handleMouseEnter}
+    onMouseLeave={handleMouseLeave}
   >
       <SidebarHeader className="border-b border-sidebar-border p-4 bg-gradient-to-b from-sidebar-accent/30 to-transparent">
           <NavLink 
