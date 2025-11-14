@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, X, FileText, Users, Calendar, ClipboardCheck, MessageSquare, Activity, Briefcase } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, FileText, Users, Calendar, ClipboardCheck, MessageSquare, Activity, Briefcase, Vote, GitCompare, Highlighter } from "lucide-react";
 import { Application } from "@/types/application";
 import { CandidateProfileHeader } from "./CandidateProfileHeader";
 import { AIMatchScoreCard } from "./AIMatchScoreCard";
@@ -17,6 +17,9 @@ import { ScorecardsTab } from "./tabs/ScorecardsTab";
 import { InterviewsTab } from "./tabs/InterviewsTab";
 import { TeamReviewsTab } from "./tabs/TeamReviewsTab";
 import { ActivityTimelineTab } from "./tabs/ActivityTimelineTab";
+import { VotingTab } from "./tabs/VotingTab";
+import { ComparisonTab } from "./tabs/ComparisonTab";
+import { ResumeAnnotationsTab } from "./tabs/ResumeAnnotationsTab";
 import { useActivityNotifications } from "@/hooks/useActivityNotifications";
 import { useCandidatePresence } from "@/hooks/useCandidatePresence";
 import { CandidatePresenceIndicator } from "./CandidatePresenceIndicator";
@@ -160,6 +163,18 @@ export function CandidateAssessmentView({
                       <Users className="h-4 w-4" />
                       Team Reviews
                     </TabsTrigger>
+                    <TabsTrigger value="voting" className="gap-2">
+                      <Vote className="h-4 w-4" />
+                      Voting
+                    </TabsTrigger>
+                    <TabsTrigger value="comparison" className="gap-2">
+                      <GitCompare className="h-4 w-4" />
+                      Compare
+                    </TabsTrigger>
+                    <TabsTrigger value="annotations" className="gap-2">
+                      <Highlighter className="h-4 w-4" />
+                      Annotations
+                    </TabsTrigger>
                     <TabsTrigger value="activity" className="gap-2">
                       <Activity className="h-4 w-4" />
                       Activity
@@ -199,13 +214,28 @@ export function CandidateAssessmentView({
                     <InterviewsTab application={application} />
                   </TabsContent>
 
-                  <TabsContent value="reviews" className="mt-0">
-                    <TeamReviewsTab application={application} />
-                  </TabsContent>
+          <TabsContent value="reviews" className="mt-0">
+            <TeamReviewsTab application={application} />
+          </TabsContent>
 
-                  <TabsContent value="activity" className="mt-0">
-                    <ActivityTimelineTab application={application} />
-                  </TabsContent>
+          <TabsContent value="voting" className="mt-0">
+            <VotingTab 
+              candidateId={application.id}
+              candidateName={application.candidateName}
+            />
+          </TabsContent>
+
+          <TabsContent value="comparison" className="mt-0">
+            <ComparisonTab />
+          </TabsContent>
+
+          <TabsContent value="annotations" className="mt-0">
+            <ResumeAnnotationsTab candidateId={application.id} />
+          </TabsContent>
+
+          <TabsContent value="activity" className="mt-0">
+            <ActivityTimelineTab application={application} />
+          </TabsContent>
                 </div>
               </ScrollArea>
             </Tabs>
