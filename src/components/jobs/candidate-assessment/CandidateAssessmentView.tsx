@@ -8,6 +8,8 @@ import { Application } from "@/types/application";
 import { CandidateProfileHeader } from "./CandidateProfileHeader";
 import { AIMatchScoreCard } from "./AIMatchScoreCard";
 import { QuickActionsToolbar } from "./QuickActionsToolbar";
+import { OverviewTab } from "./tabs/OverviewTab";
+import { ApplicationDetailsTab } from "./tabs/ApplicationDetailsTab";
 
 interface CandidateAssessmentViewProps {
   application: Application;
@@ -135,22 +137,11 @@ export function CandidateAssessmentView({
               <ScrollArea className="flex-1">
                 <div className="p-6">
                   <TabsContent value="overview" className="mt-0">
-                    <div className="grid gap-6 lg:grid-cols-3">
-                      <div className="lg:col-span-2 space-y-6">
-                        <div className="text-center py-12 text-muted-foreground">
-                          Overview tab content will be implemented in Phase 2
-                        </div>
-                      </div>
-                      <div>
-                        <AIMatchScoreCard application={application} />
-                      </div>
-                    </div>
+                    <OverviewTab application={application} />
                   </TabsContent>
 
                   <TabsContent value="application" className="mt-0">
-                    <div className="text-center py-12 text-muted-foreground">
-                      Application details tab will be implemented in Phase 2
-                    </div>
+                    <ApplicationDetailsTab application={application} />
                   </TabsContent>
 
                   <TabsContent value="resume" className="mt-0">
