@@ -15,6 +15,8 @@ import { HistoryTab } from './HistoryTab';
 import { DocumentManager } from './DocumentManager';
 import { BackgroundChecksTab } from './BackgroundChecksTab';
 import { AssessmentsTab } from './AssessmentsTab';
+import { CandidateMatchingPanel } from './CandidateMatchingPanel';
+import { EmailCommunicationCenter } from '@/components/email/EmailCommunicationCenter';
 import { Candidate } from '@/types/entities';
 import { 
   ArrowLeft, 
@@ -31,7 +33,9 @@ import {
   FolderOpen,
   ShieldCheck,
   ClipboardCheck,
-  Video
+  Video,
+  Sparkles,
+  Send
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -159,10 +163,14 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
 
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-8">
+        <TabsList className="grid w-full grid-cols-10">
           <TabsTrigger value="overview">
             <User className="h-4 w-4 mr-2" />
             Overview
+          </TabsTrigger>
+          <TabsTrigger value="matching">
+            <Sparkles className="h-4 w-4 mr-2" />
+            Job Matches
           </TabsTrigger>
           <TabsTrigger value="ai-interviews">
             <Video className="h-4 w-4 mr-2" />
@@ -175,6 +183,10 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
           <TabsTrigger value="applications">
             <Briefcase className="h-4 w-4 mr-2" />
             Applications
+          </TabsTrigger>
+          <TabsTrigger value="email">
+            <Send className="h-4 w-4 mr-2" />
+            Email
           </TabsTrigger>
           <TabsTrigger value="background-checks">
             <ShieldCheck className="h-4 w-4 mr-2" />
@@ -247,6 +259,14 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
           )}
         </TabsContent>
 
+        {/* Job Matching Tab */}
+        <TabsContent value="matching">
+          <CandidateMatchingPanel 
+            candidate={candidate}
+            onMatchSelect={(jobId) => window.open(`/jobs/${jobId}`, '_blank')}
+          />
+        </TabsContent>
+
         {/* AI Interviews Tab */}
         <TabsContent value="ai-interviews">
           <AIInterviewsTab 
@@ -267,6 +287,11 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
         {/* Applications Tab */}
         <TabsContent value="applications">
           <ApplicationsTab candidateId={candidate.id} />
+        </TabsContent>
+
+        {/* Email Communication Tab */}
+        <TabsContent value="email">
+          <EmailCommunicationCenter />
         </TabsContent>
 
         {/* Background Checks Tab */}

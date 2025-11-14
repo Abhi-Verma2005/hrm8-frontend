@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { DataTable } from "@/components/tables/DataTable";
 import { candidateTableColumns } from "@/components/candidates/CandidateTableColumns";
 import { CandidatesFilterBar } from "@/components/candidates/CandidatesFilterBar";
@@ -174,7 +175,10 @@ export default function Candidates() {
     return (
       <DashboardPageLayout>
         <div className="p-6">
-          <CandidateDetailView candidate={candidate} />
+          <Breadcrumbs />
+          <div className="mt-4">
+            <CandidateDetailView candidate={candidate} />
+          </div>
         </div>
       </DashboardPageLayout>
     );
