@@ -66,7 +66,18 @@ const atsNavItems = [
     ]
   },
   { 
-    title: "Assessments", 
+    title: "AI Interviews", 
+    url: "/ai-interviews", 
+    icon: MessageSquare,
+    subItems: [
+      { title: "All Interviews", url: "/ai-interviews" },
+      { title: "Schedule New", url: "/ai-interviews/schedule" },
+      { title: "Reports", url: "/ai-interviews/reports" },
+      { title: "Analytics", url: "/ai-interviews/analytics" },
+    ]
+  },
+  { 
+    title: "Assessments",
     url: "/assessments", 
     icon: ClipboardCheck,
     subItems: [
