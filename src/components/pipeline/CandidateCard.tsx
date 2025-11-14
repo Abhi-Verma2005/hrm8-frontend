@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PipelineCandidate } from "@/lib/pipelineService";
+import { getAIInterviewsByCandidate } from "@/lib/aiInterview/aiInterviewStorage";
 import {
   Mail,
   Phone,
@@ -19,6 +20,8 @@ import {
   Trash2,
   Flag,
   Sparkles,
+  TrendingUp,
+  Video
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -49,6 +52,20 @@ export function CandidateCard({
     high: 'text-red-600 bg-red-50 dark:bg-red-950/20',
     medium: 'text-orange-600 bg-orange-50 dark:bg-orange-950/20',
     low: 'text-blue-600 bg-blue-50 dark:bg-blue-950/20',
+  };
+
+  // Get AI Interview score if available
+  const aiInterviews = getAIInterviewsByCandidate(candidate.id);
+  const completedInterviews = aiInterviews.filter(i => i.status === 'completed' && i.analysis);
+  const latestAIScore = completedInterviews.length > 0 
+    ? completedInterviews[completedInterviews.length - 1].analysis?.overallScore 
+    : null;
+
+  const getScoreColor = (score: number) => {
+    if (score >= 85) return 'text-green-600';
+    if (score >= 70) return 'text-blue-600';
+    if (score >= 60) return 'text-yellow-600';
+    return 'text-red-600';
   };
 
   return (
@@ -91,6 +108,10 @@ export function CandidateCard({
               <Sparkles className="h-4 w-4 mr-2 text-primary" />
               AI Score
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => window.location.href = `/ai-interviews/schedule?candidateId=${candidate.id}`}>
+              <Video className="h-4 w-4 mr-2 text-primary" />
+              Schedule AI Interview
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => onPriorityChange?.('high')}>
               <Flag className="h-4 w-4 mr-2 text-red-600" />
@@ -118,6 +139,17 @@ export function CandidateCard({
         <div className="flex items-center gap-1 mb-2">
           <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />
           <span className="text-xs font-medium">{candidate.matchScore}% match</span>
+        </div>
+      )}
+
+      {/* AI Interview Score */}
+      {latestAIScore !== null && (
+        <div className="flex items-center gap-1 mb-2 bg-primary/10 rounded px-2 py-1">
+          <Video className="h-3 w-3 text-primary" />
+          <span className="text-xs font-medium">AI Interview:</span>
+          <span className={`text-xs font-bold ${getScoreColor(latestAIScore)}`}>
+            {latestAIScore}
+          </span>
         </div>
       )}
 
