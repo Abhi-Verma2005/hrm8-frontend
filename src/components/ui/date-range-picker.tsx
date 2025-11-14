@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { format } from 'date-fns';
+import { format, subDays, subMonths, startOfQuarter, startOfYear } from 'date-fns';
 
 export interface DateRangePickerProps {
   date?: DateRange;
@@ -18,6 +18,25 @@ export function DateRangePicker({
   onDateChange,
   className,
 }: DateRangePickerProps) {
+  const presets = [
+    {
+      label: 'Last 7 days',
+      range: { from: subDays(new Date(), 6), to: new Date() },
+    },
+    {
+      label: 'Last 30 days',
+      range: { from: subDays(new Date(), 29), to: new Date() },
+    },
+    {
+      label: 'Last quarter',
+      range: { from: startOfQuarter(subMonths(new Date(), 3)), to: new Date() },
+    },
+    {
+      label: 'Last year',
+      range: { from: startOfYear(subMonths(new Date(), 12)), to: new Date() },
+    },
+  ];
+
   return (
     <div className={cn('grid gap-2', className)}>
       <Popover>
@@ -46,14 +65,30 @@ export function DateRangePicker({
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
-          <Calendar
-            initialFocus
-            mode="range"
-            defaultMonth={date?.from}
-            selected={date}
-            onSelect={onDateChange}
-            numberOfMonths={2}
-          />
+          <div className="flex">
+            <div className="border-r border-border p-3 space-y-2">
+              <div className="text-sm font-medium mb-2">Quick Select</div>
+              {presets.map((preset) => (
+                <Button
+                  key={preset.label}
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-left font-normal"
+                  onClick={() => onDateChange(preset.range)}
+                >
+                  {preset.label}
+                </Button>
+              ))}
+            </div>
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={date?.from}
+              selected={date}
+              onSelect={onDateChange}
+              numberOfMonths={2}
+            />
+          </div>
         </PopoverContent>
       </Popover>
     </div>
