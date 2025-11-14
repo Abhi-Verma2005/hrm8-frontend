@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { LiveCommentThread } from "../LiveCommentThread";
 import { LiveActivityFeed } from "../LiveActivityFeed";
+import { CollaborativeEditor } from "../CollaborativeEditor";
 
 interface TeamReviewsTabProps {
   application: Application;
@@ -353,6 +354,26 @@ export function TeamReviewsTab({ application }: TeamReviewsTabProps) {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Collaborative Editor */}
+      <div className="mt-6">
+        <CollaborativeEditor
+          documentId={`interview-notes-${application.id}`}
+          candidateName={application.candidateName}
+          initialContent="## Technical Interview Notes
+
+**Candidate:** Technical skills assessment
+
+### Strengths:
+- Strong problem-solving abilities
+- Good communication skills
+
+### Areas to explore:
+- System design experience
+- Leadership potential
+"
+        />
       </div>
 
       {/* Live Activity Feed and Comment Thread */}
