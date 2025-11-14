@@ -121,7 +121,15 @@ const operationsNavItems = [
       { title: "Revenue Forecast", url: "/rpo/forecast" },
     ]
   },
-  { title: "Analytics", url: "/analytics", icon: PieChart },
+  { 
+    title: "Analytics", 
+    url: "/analytics", 
+    icon: PieChart,
+    subItems: [
+      { title: "Overview", url: "/analytics" },
+      { title: "Recruitment Analytics", url: "/recruitment-analytics" },
+    ]
+  },
   { title: "Calendar", url: "/calendar", icon: Calendar },
   { title: "Internal Jobs", url: "/internal-jobs", icon: UserSquare },
   { title: "Email Templates", url: "/email-templates", icon: MailPlus },

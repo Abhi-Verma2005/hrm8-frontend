@@ -46,6 +46,7 @@ const ImportExport = lazy(() => import("./pages/ImportExport"));
 const Applications = lazy(() => import("./pages/Applications"));
 const ApplicationAnalyticsDashboard = lazy(() => import("./pages/ApplicationAnalyticsDashboard"));
 const Analytics = lazy(() => import("./pages/Analytics"));
+const RecruitmentAnalytics = lazy(() => import("./pages/RecruitmentAnalytics"));
 const Settings = lazy(() => import("./pages/Settings"));
 const Help = lazy(() => import("./pages/Help"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -248,6 +249,7 @@ function AppContent() {
               <Route path="/interviews/schedule" element={<InterviewScheduling />} />
               <Route path="/offers/manage" element={<OfferManagement />} />
               <Route path="/applications" element={<Applications />} />
+              <Route path="/recruitment-analytics" element={<RecruitmentAnalytics />} />
               <Route path="/requisitions" element={<Requisitions />} />
               <Route path="/requisitions/:id" element={<RequisitionDetail />} />
               <Route path="/interviews" element={<Interviews />} />
