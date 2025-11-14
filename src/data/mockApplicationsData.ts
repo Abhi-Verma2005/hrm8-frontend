@@ -348,6 +348,124 @@ for (let i = 0; i < 200; i++) {
       },
     ] : [],
     
+    // Add scorecards for candidates in interview or later stages
+    scorecards: (status === 'interview' || status === 'offer' || status === 'hired') && i % 2 === 0 ? [
+      {
+        id: `scorecard-${i}-1`,
+        evaluatorId: 'eval-1',
+        evaluatorName: 'Sarah Johnson',
+        evaluatorRole: 'Engineering Manager',
+        evaluatorPhoto: `https://i.pravatar.cc/150?u=eval1${i}`,
+        template: 'Technical Interview',
+        criteria: [
+          {
+            id: `crit-${i}-1`,
+            name: 'Technical Skills',
+            description: 'Proficiency in required technologies and problem-solving ability',
+            rating: 4 + Math.random(),
+            weight: 35,
+            notes: 'Demonstrated strong understanding of core concepts. Solved coding challenges efficiently with clean, well-structured code.'
+          },
+          {
+            id: `crit-${i}-2`,
+            name: 'System Design',
+            description: 'Ability to architect scalable systems',
+            rating: 3.5 + Math.random() * 1.5,
+            weight: 25,
+            notes: 'Good grasp of distributed systems concepts. Could improve on considering edge cases in design discussions.'
+          },
+          {
+            id: `crit-${i}-3`,
+            name: 'Communication',
+            description: 'Clarity in explaining technical concepts',
+            rating: 4 + Math.random(),
+            weight: 20,
+            notes: 'Excellent communicator. Explained complex ideas clearly and asked thoughtful questions.'
+          },
+          {
+            id: `crit-${i}-4`,
+            name: 'Problem Solving',
+            description: 'Analytical thinking and debugging skills',
+            rating: 3.8 + Math.random() * 1.2,
+            weight: 20,
+            notes: 'Approached problems methodically. Strong debugging skills when encountering issues.'
+          }
+        ],
+        overallScore: 4.1 + Math.random() * 0.7,
+        recommendation: Math.random() > 0.3 ? 'hire' : 'strong-hire',
+        strengths: [
+          'Excellent technical foundation and coding skills',
+          'Strong problem-solving approach with clear methodology',
+          'Great communication and collaboration abilities',
+          'Quick learner who adapts to new concepts easily'
+        ],
+        concerns: [
+          'Limited experience with some specific technologies in our stack',
+          'Could benefit from more exposure to large-scale system architecture'
+        ],
+        overallFeedback: `${candidate.name} is a strong technical candidate with solid fundamentals and excellent problem-solving skills. They demonstrated deep knowledge in their areas of expertise and showed strong potential for growth. Their communication style is clear and collaborative, which would make them a great addition to the team. While they have some gaps in specific technologies we use, their learning ability and strong foundation suggest they would ramp up quickly.`,
+        notes: 'Would recommend moving forward to next round. Consider pairing with senior engineer for mentorship.',
+        status: 'completed',
+        completedAt: new Date(appliedDate.getTime() + 10 * 24 * 60 * 60 * 1000),
+        createdAt: new Date(appliedDate.getTime() + 9 * 24 * 60 * 60 * 1000)
+      },
+      {
+        id: `scorecard-${i}-2`,
+        evaluatorId: 'eval-2',
+        evaluatorName: 'Michael Chen',
+        evaluatorRole: 'Senior Software Engineer',
+        evaluatorPhoto: `https://i.pravatar.cc/150?u=eval2${i}`,
+        template: 'Culture Fit',
+        criteria: [
+          {
+            id: `crit-${i}-5`,
+            name: 'Team Collaboration',
+            description: 'Ability to work effectively with others',
+            rating: 4.2 + Math.random() * 0.8,
+            weight: 30,
+            notes: 'Shows strong collaborative mindset. Values team input and is receptive to feedback.'
+          },
+          {
+            id: `crit-${i}-6`,
+            name: 'Cultural Alignment',
+            description: 'Fit with company values and culture',
+            rating: 4 + Math.random(),
+            weight: 30,
+            notes: 'Aligns well with our values of continuous learning and innovation. Demonstrated growth mindset.'
+          },
+          {
+            id: `crit-${i}-7`,
+            name: 'Initiative & Ownership',
+            description: 'Self-motivation and accountability',
+            rating: 3.8 + Math.random() * 1.2,
+            weight: 25,
+            notes: 'Takes ownership of tasks and shows initiative. Several examples of going above and beyond in previous roles.'
+          },
+          {
+            id: `crit-${i}-8`,
+            name: 'Adaptability',
+            description: 'Comfort with change and learning',
+            rating: 4.3 + Math.random() * 0.7,
+            weight: 15,
+            notes: 'Very adaptable. Comfortable with ambiguity and embraces new challenges.'
+          }
+        ],
+        overallScore: 4.0 + Math.random() * 0.8,
+        recommendation: Math.random() > 0.4 ? 'hire' : 'strong-hire',
+        strengths: [
+          'Excellent team player with strong collaboration skills',
+          'Growth mindset and enthusiasm for learning',
+          'Values align well with company culture',
+          'Positive attitude and professional demeanor'
+        ],
+        concerns: [],
+        overallFeedback: `${candidate.name} would be a great cultural fit for our team. They demonstrate strong collaboration skills, a growth mindset, and values that align well with our company culture. Their enthusiasm for the role and the company is evident, and they show genuine interest in our mission. I believe they would integrate smoothly into the team and contribute positively to our culture.`,
+        status: 'completed',
+        completedAt: new Date(appliedDate.getTime() + 12 * 24 * 60 * 60 * 1000),
+        createdAt: new Date(appliedDate.getTime() + 11 * 24 * 60 * 60 * 1000)
+      }
+    ] : undefined,
+    
     assignedTo: i % 3 === 0 ? 'recruiter-1' : i % 3 === 1 ? 'recruiter-2' : undefined,
     assignedToName: i % 3 === 0 ? 'John Recruiter' : i % 3 === 1 ? 'Jane Recruiter' : undefined,
     
