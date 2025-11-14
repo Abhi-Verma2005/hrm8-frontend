@@ -24,7 +24,7 @@ const onRenderCallback: ProfilerOnRenderCallback = (
   commitTime
 ) => {
   // Only track in development mode
-  if (process.env.NODE_ENV !== 'development') return;
+  if (import.meta.env.MODE !== 'development') return;
 
   // Initialize metrics if first render
   if (!performanceMetrics[id]) {
@@ -56,7 +56,7 @@ const onRenderCallback: ProfilerOnRenderCallback = (
   }
 
   // Log milestone renders (reduced frequency)
-  const shouldLog = process.env.VITE_PERF_LOGS !== 'false';
+  const shouldLog = import.meta.env.VITE_PERF_LOGS !== 'false';
   if (shouldLog && (metrics.renderCount === 1 || metrics.renderCount % 25 === 0)) {
     console.log(
       `📊 Performance metrics for ${id}:`,
@@ -81,7 +81,7 @@ const onRenderCallback: ProfilerOnRenderCallback = (
  */
 export function PerformanceMonitor({ id, children, enabled = true }: PerformanceMonitorProps) {
   // Skip profiling in production or when disabled
-  if (process.env.NODE_ENV !== 'development' || !enabled) {
+  if (import.meta.env.MODE !== 'development' || !enabled) {
     return <>{children}</>;
   }
 
@@ -114,7 +114,7 @@ export function clearPerformanceMetrics() {
 }
 
 // Expose utilities to window in development
-if (process.env.NODE_ENV === 'development') {
+if (import.meta.env.MODE === 'development') {
   (window as any).getSidebarMetrics = getPerformanceMetrics;
   (window as any).clearSidebarMetrics = clearPerformanceMetrics;
 }
