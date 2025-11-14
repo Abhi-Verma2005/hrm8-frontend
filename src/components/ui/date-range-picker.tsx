@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Calendar as CalendarIcon, Save, Trash2, Edit, Copy } from 'lucide-react';
+import { Calendar as CalendarIcon, Save, Trash2, Edit, Copy, GripVertical } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -8,13 +8,103 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { format, subDays, subMonths, startOfQuarter, startOfYear } from 'date-fns';
-import { getCustomPresets, saveCustomPreset, updateCustomPreset, deleteCustomPreset, duplicateCustomPreset } from '@/lib/dateRangePresetStorage';
+import { getCustomPresets, saveCustomPreset, updateCustomPreset, deleteCustomPreset, duplicateCustomPreset, reorderCustomPresets } from '@/lib/dateRangePresetStorage';
 import { useToast } from '@/hooks/use-toast';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 export interface DateRangePickerProps {
   date?: DateRange;
   onDateChange: (date: DateRange | undefined) => void;
   className?: string;
+}
+
+interface SortablePresetItemProps {
+  preset: { id: string; name: string; range: DateRange };
+  onSelect: () => void;
+  onDuplicate: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+function SortablePresetItem({ preset, onSelect, onDuplicate, onEdit, onDelete }: SortablePresetItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: preset.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="flex items-center gap-1"
+    >
+      <div
+        {...attributes}
+        {...listeners}
+        className="cursor-grab active:cursor-grabbing p-1 hover:bg-accent rounded"
+      >
+        <GripVertical className="h-3 w-3 text-muted-foreground" />
+      </div>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="flex-1 justify-start text-left font-normal"
+        onClick={onSelect}
+      >
+        {preset.name}
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 p-0"
+        onClick={onDuplicate}
+      >
+        <Copy className="h-3 w-3" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 p-0"
+        onClick={onEdit}
+      >
+        <Edit className="h-3 w-3" />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 p-0"
+        onClick={onDelete}
+      >
+        <Trash2 className="h-3 w-3" />
+      </Button>
+    </div>
+  );
 }
 
 export function DateRangePicker({
@@ -30,6 +120,13 @@ export function DateRangePicker({
   const [duplicatingPreset, setDuplicatingPreset] = React.useState<{ id: string; name: string } | null>(null);
   const [duplicateName, setDuplicateName] = React.useState('');
   const { toast } = useToast();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const defaultPresets = [
     {
@@ -165,6 +262,24 @@ export function DateRangePicker({
     }
   };
 
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = customPresets.findIndex((p) => p.id === active.id);
+      const newIndex = customPresets.findIndex((p) => p.id === over.id);
+
+      const reordered = arrayMove(customPresets, oldIndex, newIndex);
+      setCustomPresets(reordered);
+      reorderCustomPresets(reordered);
+
+      toast({
+        title: "Presets reordered",
+        description: "Custom preset order has been updated",
+      });
+    }
+  };
+
   return (
     <div className={cn('grid gap-2', className)}>
       <Popover>
@@ -215,44 +330,29 @@ export function DateRangePicker({
               {customPresets.length > 0 && (
                 <div>
                   <div className="text-sm font-medium mb-2">Custom Presets</div>
-                  <div className="space-y-1">
-                    {customPresets.map((preset) => (
-                      <div key={preset.id} className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="flex-1 justify-start text-left font-normal"
-                          onClick={() => onDateChange(preset.range)}
-                        >
-                          {preset.name}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={() => handleDuplicatePreset(preset.id, preset.name)}
-                        >
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={() => handleEditPreset(preset.id, preset.name)}
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={() => handleDeletePreset(preset.id, preset.name)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={customPresets.map(p => p.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <div className="space-y-1">
+                        {customPresets.map((preset) => (
+                          <SortablePresetItem
+                            key={preset.id}
+                            preset={preset}
+                            onSelect={() => onDateChange(preset.range)}
+                            onDuplicate={() => handleDuplicatePreset(preset.id, preset.name)}
+                            onEdit={() => handleEditPreset(preset.id, preset.name)}
+                            onDelete={() => handleDeletePreset(preset.id, preset.name)}
+                          />
+                        ))}
                       </div>
-                    ))}
-                  </div>
+                    </SortableContext>
+                  </DndContext>
                 </div>
               )}
 

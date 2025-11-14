@@ -68,3 +68,7 @@ export function duplicateCustomPreset(id: string, newName: string): CustomDateRa
   
   return newPreset;
 }
+
+export function reorderCustomPresets(presets: CustomDateRangePreset[]): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+}
