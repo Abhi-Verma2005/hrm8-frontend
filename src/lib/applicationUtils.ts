@@ -122,7 +122,7 @@ export function groupApplicationsByJob(applications: Application[]): GroupedAppl
 
 export interface TimelineEvent {
   id: string;
-  type: 'status_change' | 'note_added' | 'email_sent' | 'interview_scheduled' | 'document_uploaded' | 'rating_changed';
+  type: 'status_change' | 'note_added' | 'email_sent' | 'interview_scheduled' | 'document_uploaded' | 'rating_changed' | 'application_viewed';
   title: string;
   description: string;
   date: Date;

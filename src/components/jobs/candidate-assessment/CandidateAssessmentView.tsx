@@ -15,6 +15,7 @@ import { QuestionnaireResponsesTab } from "./tabs/QuestionnaireResponsesTab";
 import { ScorecardsTab } from "./tabs/ScorecardsTab";
 import { InterviewsTab } from "./tabs/InterviewsTab";
 import { TeamReviewsTab } from "./tabs/TeamReviewsTab";
+import { ActivityTimelineTab } from "./tabs/ActivityTimelineTab";
 
 interface CandidateAssessmentViewProps {
   application: Application;
@@ -170,9 +171,7 @@ export function CandidateAssessmentView({
                   </TabsContent>
 
                   <TabsContent value="activity" className="mt-0">
-                    <div className="text-center py-12 text-muted-foreground">
-                      Activity timeline tab will be implemented in Phase 4
-                    </div>
+                    <ActivityTimelineTab application={application} />
                   </TabsContent>
                 </div>
               </ScrollArea>
