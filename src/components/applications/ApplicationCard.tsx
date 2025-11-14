@@ -9,6 +9,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { AIMatchBadge } from "./AIMatchBadge";
+import { AIInterviewScoreBadge } from "./AIInterviewScoreBadge";
 import { TagManager } from "./TagManager";
 import {
   DropdownMenu,
@@ -18,7 +19,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { AIInterviewQuestionDialog } from "./AIInterviewQuestionDialog";
+import { AutoScheduleAIInterviewDialog } from "./AutoScheduleAIInterviewDialog";
 import { generateQuestionsFromApplication } from "@/lib/aiInterviewQuestions";
 import { ApplicationReviewDialog } from "./ApplicationReviewDialog";
 import { ApplicationReviewPanel } from "./ApplicationReviewPanel";
@@ -41,7 +44,9 @@ export function ApplicationCard({
   isSelected = false,
   onToggleSelect
 }: ApplicationCardProps) {
+  const navigate = useNavigate();
   const [showQuestionDialog, setShowQuestionDialog] = useState(false);
+  const [showScheduleAIInterview, setShowScheduleAIInterview] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState<ReturnType<typeof generateQuestionsFromApplication>>([]);
   const [showReviewDialog, setShowReviewDialog] = useState(false);
   const [showReviewPanel, setShowReviewPanel] = useState(false);
@@ -147,6 +152,10 @@ export function ApplicationCard({
                 <Sparkles className="mr-2 h-3.5 w-3.5" />
                 Generate Interview Questions
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setShowScheduleAIInterview(true); }}>
+                <Sparkles className="mr-2 h-3.5 w-3.5 text-primary" />
+                Schedule AI Interview
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={(e) => { e.stopPropagation(); setShowReviewDialog(true); }}>
                 <MessageSquare className="mr-2 h-3.5 w-3.5" />
                 Add Review
@@ -219,6 +228,7 @@ export function ApplicationCard({
                   {application.score}% fit
                 </Badge>
               )}
+              <AIInterviewScoreBadge candidateId={application.candidateId} variant="compact" />
             </div>
 
             {/* Compact Metadata */}
@@ -299,6 +309,12 @@ export function ApplicationCard({
         questions={generatedQuestions}
         candidateName={application.candidateName}
         jobTitle={application.jobTitle}
+      />
+
+      <AutoScheduleAIInterviewDialog
+        application={application}
+        open={showScheduleAIInterview}
+        onOpenChange={setShowScheduleAIInterview}
       />
     </>
   );

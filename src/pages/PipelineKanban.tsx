@@ -113,10 +113,33 @@ export default function PipelineKanban() {
           candidate.jobTitle
         );
 
-        toast({
-          title: "Candidate moved",
-          description: `${candidate.name} moved to ${toStage?.name}`,
-        });
+        // Check if moving to interview stage and prompt for AI interview
+        const interviewStages = ['phone-screen', 'technical', 'final'];
+        if (interviewStages.includes(toStageId)) {
+          import('@/lib/aiInterview/aiInterviewStorage').then(({ getAIInterviewsByCandidate }) => {
+            const aiInterviews = getAIInterviewsByCandidate(candidate.id);
+            const hasScheduledInterview = aiInterviews.some(
+              i => i.status === 'scheduled' || i.status === 'in-progress'
+            );
+            
+            if (!hasScheduledInterview) {
+              toast({
+                title: "Moved to Interview Stage",
+                description: `${candidate.name} moved to ${toStage?.name}. Consider scheduling an AI interview.`,
+              });
+            } else {
+              toast({
+                title: "Candidate moved",
+                description: `${candidate.name} moved to ${toStage?.name}`,
+              });
+            }
+          });
+        } else {
+          toast({
+            title: "Candidate moved",
+            description: `${candidate.name} moved to ${toStage?.name}`,
+          });
+        }
 
         setRefreshKey((k) => k + 1);
       }

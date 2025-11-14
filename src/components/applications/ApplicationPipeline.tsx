@@ -86,7 +86,28 @@ export function ApplicationPipeline({
 
         updateApplicationStatus(application.id, statusMap[targetStage], targetStage);
         loadApplications();
-        toast.success(`Moved to ${targetStage}`);
+        
+        // Auto-trigger AI interview notification for interview stages
+        const interviewStages: ApplicationStage[] = ['Technical Interview', 'Manager Interview', 'Final Round'];
+        if (interviewStages.includes(targetStage)) {
+          // Dynamically import to check for existing interviews
+          import('@/lib/aiInterview/aiInterviewStorage').then(({ getAIInterviewsByCandidate }) => {
+            const existingInterviews = getAIInterviewsByCandidate(application.candidateId);
+            const hasScheduledInterview = existingInterviews.some(
+              i => i.jobId === application.jobId && (i.status === 'scheduled' || i.status === 'in-progress' || i.status === 'completed')
+            );
+            
+            if (!hasScheduledInterview) {
+              toast.success(`Moved to ${targetStage}`, {
+                description: 'Consider scheduling an AI interview for automated screening'
+              });
+            } else {
+              toast.success(`Moved to ${targetStage}`);
+            }
+          });
+        } else {
+          toast.success(`Moved to ${targetStage}`);
+        }
       }
     }
 
