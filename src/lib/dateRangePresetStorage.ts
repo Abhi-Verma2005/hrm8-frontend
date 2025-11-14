@@ -30,6 +30,20 @@ export function saveCustomPreset(name: string, range: DateRange): CustomDateRang
   return newPreset;
 }
 
+export function updateCustomPreset(id: string, name: string, range?: DateRange): void {
+  const presets = getCustomPresets();
+  const index = presets.findIndex(preset => preset.id === id);
+  
+  if (index !== -1) {
+    presets[index] = {
+      ...presets[index],
+      name,
+      ...(range && { range }),
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+  }
+}
+
 export function deleteCustomPreset(id: string): void {
   const presets = getCustomPresets();
   const filtered = presets.filter(preset => preset.id !== id);
