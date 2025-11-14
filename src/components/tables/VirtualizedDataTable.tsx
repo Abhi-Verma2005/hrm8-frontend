@@ -491,7 +491,10 @@ export function VirtualizedDataTable<T extends { id: string }>({
                     {resizable && index < displayColumns.length - 1 && (
                       <div
                         className="absolute right-0 top-0 bottom-0 w-1 cursor-col-resize hover:bg-primary/20"
-                        onMouseDown={(e) => onResizeStart(column.key, e)}
+                        onMouseDown={(e) => {
+                          const currentWidth = getColumnWidth(column.key) || 150;
+                          onResizeStart(column.key, e.clientX, currentWidth);
+                        }}
                       />
                     )}
                   </TableHead>
