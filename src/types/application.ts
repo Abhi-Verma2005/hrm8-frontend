@@ -1,3 +1,5 @@
+import { TeamMemberFeedback } from './collaborativeFeedback';
+
 export type ApplicationStatus = 
   | 'applied' 
   | 'screening' 
@@ -145,6 +147,9 @@ export interface Application {
   
   // Scorecards
   scorecards?: Scorecard[];
+  
+  // Team Reviews
+  teamReviews?: TeamMemberFeedback[];
   
   // Assignment
   assignedTo?: string; // Recruiter ID

@@ -14,6 +14,7 @@ import { ResumeWorkHistoryTab } from "./tabs/ResumeWorkHistoryTab";
 import { QuestionnaireResponsesTab } from "./tabs/QuestionnaireResponsesTab";
 import { ScorecardsTab } from "./tabs/ScorecardsTab";
 import { InterviewsTab } from "./tabs/InterviewsTab";
+import { TeamReviewsTab } from "./tabs/TeamReviewsTab";
 
 interface CandidateAssessmentViewProps {
   application: Application;
@@ -165,9 +166,7 @@ export function CandidateAssessmentView({
                   </TabsContent>
 
                   <TabsContent value="reviews" className="mt-0">
-                    <div className="text-center py-12 text-muted-foreground">
-                      Team Reviews tab will be implemented in Phase 4
-                    </div>
+                    <TeamReviewsTab application={application} />
                   </TabsContent>
 
                   <TabsContent value="activity" className="mt-0">
