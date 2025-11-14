@@ -91,6 +91,9 @@ export interface Application {
   // Parsed Resume Data
   parsedResume?: ParsedResume;
   
+  // Questionnaire responses
+  questionnaireData?: QuestionnaireData;
+  
   // Custom Responses
   customAnswers: ApplicationAnswer[];
   
@@ -184,6 +187,35 @@ export interface ParsedResume {
   certifications: Certification[];
   summary?: string;
   parsedAt: Date;
+}
+
+export interface QuestionnaireQuestion {
+  id: string;
+  question: string;
+  type: 'text' | 'multiple-choice' | 'yes-no' | 'rating' | 'file';
+  required: boolean;
+  category?: string;
+}
+
+export interface QuestionnaireResponse {
+  questionId: string;
+  question: string;
+  answer: string;
+  type: QuestionnaireQuestion['type'];
+  aiAnalysis?: {
+    sentiment: 'positive' | 'neutral' | 'negative';
+    qualityScore: number; // 0-100
+    keyInsights: string[];
+    concerns?: string[];
+    strengths?: string[];
+  };
+}
+
+export interface QuestionnaireData {
+  responses: QuestionnaireResponse[];
+  overallScore?: number;
+  completionRate: number;
+  timeSpent?: number; // minutes
 }
 
 export interface ApplicationFilters {
