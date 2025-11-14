@@ -6,7 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CandidateAvatar } from './CandidateAvatar';
 import { CandidateStatusBadge } from './CandidateStatusBadge';
+import { AIInterviewScoreBadge } from './AIInterviewScoreBadge';
 import { CandidateFeedbackTab } from './CandidateFeedbackTab';
+import { AIInterviewsTab } from './AIInterviewsTab';
 import { ApplicationsTab } from './ApplicationsTab';
 import { NotesTab } from './NotesTab';
 import { HistoryTab } from './HistoryTab';
@@ -28,7 +30,8 @@ import {
   Star,
   FolderOpen,
   ShieldCheck,
-  ClipboardCheck
+  ClipboardCheck,
+  Video
 } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -69,8 +72,9 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
               <div className="text-center md:text-left">
                 <h1 className="text-3xl font-bold">{candidate.name}</h1>
                 <p className="text-lg text-muted-foreground">{candidate.position}</p>
-                <div className="mt-2">
+                <div className="mt-2 flex items-center gap-2 flex-wrap">
                   <CandidateStatusBadge status={candidate.status} />
+                  <AIInterviewScoreBadge candidateId={candidate.id} />
                 </div>
               </div>
             </div>
@@ -131,9 +135,18 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
                 <Mail className="h-4 w-4 mr-2" />
                 Send Email
               </Button>
-              <Button variant="outline">
-                <Calendar className="h-4 w-4 mr-2" />
-                Schedule Interview
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/ai-interviews/schedule', { 
+                  state: { 
+                    candidateId: candidate.id,
+                    candidateName: candidate.name,
+                    candidateEmail: candidate.email
+                  } 
+                })}
+              >
+                <Video className="h-4 w-4 mr-2" />
+                Schedule AI Interview
               </Button>
               <Button variant="outline">
                 <FileText className="h-4 w-4 mr-2" />
@@ -146,10 +159,14 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
 
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="overview">
             <User className="h-4 w-4 mr-2" />
             Overview
+          </TabsTrigger>
+          <TabsTrigger value="ai-interviews">
+            <Video className="h-4 w-4 mr-2" />
+            AI Interviews
           </TabsTrigger>
           <TabsTrigger value="feedback">
             <MessageSquare className="h-4 w-4 mr-2" />
@@ -228,6 +245,15 @@ export function CandidateDetailView({ candidate }: CandidateDetailViewProps) {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        {/* AI Interviews Tab */}
+        <TabsContent value="ai-interviews">
+          <AIInterviewsTab 
+            candidateId={candidate.id}
+            candidateName={candidate.name}
+            candidateEmail={candidate.email}
+          />
         </TabsContent>
 
         {/* Feedback Tab */}
