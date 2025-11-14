@@ -11,6 +11,9 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { DashboardLayout } from "./components/layouts/DashboardLayout";
 import { GlobalSearch } from "./components/common/GlobalSearch";
 import { PageLoader } from "./components/common/PageLoader";
+import { DashboardErrorBoundary } from "./components/common/DashboardErrorBoundary";
+import { AIInterviewErrorBoundary } from "./components/common/AIInterviewErrorBoundary";
+import { FormsErrorBoundary } from "./components/common/FormsErrorBoundary";
 
 // Lazy load all pages for code splitting
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -205,39 +208,39 @@ function AppContent() {
             <Route path="/dashboard" element={<Navigate to="/dashboard/overview" replace />} />
             
             {/* Standalone Dashboard Pages */}
-            <Route path="/dashboard/overview" element={<OverviewDashboardPage />} />
-            <Route path="/dashboard/financial" element={<FinancialDashboardPage />} />
-            <Route path="/dashboard/consulting" element={<ConsultingDashboardPage />} />
-            <Route path="/dashboard/recruitment-services" element={<RecruitmentServicesDashboardPage />} />
-            <Route path="/dashboard/employers" element={<EmployersDashboardPage />} />
-            <Route path="/dashboard/candidates" element={<CandidatesDashboard />} />
+            <Route path="/dashboard/overview" element={<DashboardErrorBoundary><OverviewDashboardPage /></DashboardErrorBoundary>} />
+            <Route path="/dashboard/financial" element={<DashboardErrorBoundary><FinancialDashboardPage /></DashboardErrorBoundary>} />
+            <Route path="/dashboard/consulting" element={<DashboardErrorBoundary><ConsultingDashboardPage /></DashboardErrorBoundary>} />
+            <Route path="/dashboard/recruitment-services" element={<DashboardErrorBoundary><RecruitmentServicesDashboardPage /></DashboardErrorBoundary>} />
+            <Route path="/dashboard/employers" element={<DashboardErrorBoundary><EmployersDashboardPage /></DashboardErrorBoundary>} />
+            <Route path="/dashboard/candidates" element={<DashboardErrorBoundary><CandidatesDashboard /></DashboardErrorBoundary>} />
             
             {/* HRMS Dashboard - Protected */}
             <Route element={<ProtectedRoutes requiredModule="hrms" moduleName="HRMS Dashboard" />}>
-              <Route path="/dashboard/hrms" element={<HRMSDashboardPage />} />
+              <Route path="/dashboard/hrms" element={<DashboardErrorBoundary><HRMSDashboardPage /></DashboardErrorBoundary>} />
             </Route>
             
-            <Route path="/dashboard/jobs" element={<JobsDashboard />} />
-            <Route path="/dashboard/performance" element={<PerformanceDashboard />} />
-            <Route path="/dashboard/sales" element={<SalesDashboardPage />} />
-            <Route path="/dashboard/rpo" element={<RPODashboardPage />} />
-            <Route path="/dashboard/assessments" element={<AssessmentsDashboard />} />
-            <Route path="/dashboard/background-checks" element={<BackgroundChecksDashboard />} />
-            <Route path="/dashboard/applications" element={<ApplicationAnalyticsDashboard />} />
+            <Route path="/dashboard/jobs" element={<DashboardErrorBoundary><JobsDashboard /></DashboardErrorBoundary>} />
+            <Route path="/dashboard/performance" element={<DashboardErrorBoundary><PerformanceDashboard /></DashboardErrorBoundary>} />
+            <Route path="/dashboard/sales" element={<DashboardErrorBoundary><SalesDashboardPage /></DashboardErrorBoundary>} />
+            <Route path="/dashboard/rpo" element={<DashboardErrorBoundary><RPODashboardPage /></DashboardErrorBoundary>} />
+            <Route path="/dashboard/assessments" element={<DashboardErrorBoundary><AssessmentsDashboard /></DashboardErrorBoundary>} />
+            <Route path="/dashboard/background-checks" element={<DashboardErrorBoundary><BackgroundChecksDashboard /></DashboardErrorBoundary>} />
+            <Route path="/dashboard/applications" element={<DashboardErrorBoundary><ApplicationAnalyticsDashboard /></DashboardErrorBoundary>} />
             <Route path="/notifications" element={<NotificationCenterPage />} />
             {/* ATS Module Routes */}
             <Route element={<ProtectedRoutes requiredModule="ats" moduleName="ATS (Applicant Tracking System)" />}>
               <Route path="/candidates" element={<Candidates />} />
               <Route path="/candidates/:candidateId" element={<Candidates />} />
-              <Route path="/candidates/:candidateId/edit" element={<Candidates />} />
+              <Route path="/candidates/:candidateId/edit" element={<FormsErrorBoundary><Candidates /></FormsErrorBoundary>} />
               <Route path="/candidates/pipeline" element={<PipelineKanban />} />
               <Route path="/jobs" element={<Jobs />} />
-              <Route path="/jobs/new" element={<JobCreate />} />
+              <Route path="/jobs/new" element={<FormsErrorBoundary><JobCreate /></FormsErrorBoundary>} />
               <Route path="/jobs/templates" element={<JobTemplates />} />
               <Route path="/jobs/automation" element={<JobAutomationSettings />} />
               <Route path="/jobs/analytics" element={<JobAnalytics />} />
               <Route path="/jobs/:jobId" element={<JobDetail />} />
-              <Route path="/jobs/:jobId/edit" element={<JobEdit />} />
+              <Route path="/jobs/:jobId/edit" element={<FormsErrorBoundary><JobEdit /></FormsErrorBoundary>} />
               <Route path="/email-templates" element={<EmailTemplates />} />
               <Route path="/email-center" element={<EmailCenter />} />
               <Route path="/import-export" element={<ImportExport />} />
@@ -252,7 +255,7 @@ function AppContent() {
           <Route path="/assessments/:id" element={<AssessmentDetail />} />
           <Route path="/assessments/compare" element={<AssessmentComparisonPage />} />
           <Route path="/assessment-templates" element={<AssessmentTemplates />} />
-          <Route path="/assessment-templates/builder/:id" element={<QuestionnaireBuilder />} />
+          <Route path="/assessment-templates/builder/:id" element={<FormsErrorBoundary><QuestionnaireBuilder /></FormsErrorBoundary>} />
           <Route path="/question-bank" element={<QuestionBank />} />
           <Route path="/assessment-preview" element={<AssessmentPreview />} />
           <Route path="/assessment-analytics" element={<AssessmentAnalytics />} />
@@ -267,13 +270,13 @@ function AppContent() {
               <Route path="/internal-jobs" element={<InternalJobs />} />
               
               {/* AI Interview Routes */}
-              <Route path="/ai-interviews" element={<AIInterviews />} />
-              <Route path="/ai-interviews/schedule" element={<AIInterviewWizard />} />
-              <Route path="/ai-interviews/:id" element={<AIInterviewDetail />} />
-              <Route path="/ai-interviews/session/:token" element={<AIInterviewSession />} />
-              <Route path="/ai-interviews/reports" element={<AIInterviewReports />} />
-              <Route path="/ai-interviews/reports/:id" element={<AIInterviewReportDetail />} />
-              <Route path="/ai-interviews/analytics" element={<AIInterviewAnalytics />} />
+              <Route path="/ai-interviews" element={<AIInterviewErrorBoundary><AIInterviews /></AIInterviewErrorBoundary>} />
+              <Route path="/ai-interviews/schedule" element={<AIInterviewErrorBoundary><AIInterviewWizard /></AIInterviewErrorBoundary>} />
+              <Route path="/ai-interviews/:id" element={<AIInterviewErrorBoundary><AIInterviewDetail /></AIInterviewErrorBoundary>} />
+              <Route path="/ai-interviews/session/:token" element={<AIInterviewErrorBoundary><AIInterviewSession /></AIInterviewErrorBoundary>} />
+              <Route path="/ai-interviews/reports" element={<AIInterviewErrorBoundary><AIInterviewReports /></AIInterviewErrorBoundary>} />
+              <Route path="/ai-interviews/reports/:id" element={<AIInterviewErrorBoundary><AIInterviewReportDetail /></AIInterviewErrorBoundary>} />
+              <Route path="/ai-interviews/analytics" element={<AIInterviewErrorBoundary><AIInterviewAnalytics /></AIInterviewErrorBoundary>} />
             </Route>
             {/* Sales Module Routes */}
             <Route path="/sales/dashboard" element={<SalesDashboardPage />} />
@@ -307,18 +310,18 @@ function AppContent() {
             {/* HRMS Module Routes */}
             <Route element={<ProtectedRoutes requiredModule="hrms" moduleName="HRMS (Human Resource Management System)" />}>
               <Route path="/hrms" element={<HRMS />} />
-              <Route path="/hrms/employees/new" element={<EmployeeCreate />} />
+              <Route path="/hrms/employees/new" element={<FormsErrorBoundary><EmployeeCreate /></FormsErrorBoundary>} />
               <Route path="/hrms/employees/:id" element={<EmployeeDetail />} />
               <Route path="/hrms/analytics" element={<HRAnalytics />} />
               <Route path="/hrms/org-chart" element={<OrgChart />} />
               <Route path="/leave" element={<LeaveManagement />} />
-              <Route path="/leave/new" element={<LeaveRequestCreate />} />
+              <Route path="/leave/new" element={<FormsErrorBoundary><LeaveRequestCreate /></FormsErrorBoundary>} />
               <Route path="/performance" element={<Performance />} />
-              <Route path="/performance/goals/new" element={<GoalCreate />} />
+              <Route path="/performance/goals/new" element={<FormsErrorBoundary><GoalCreate /></FormsErrorBoundary>} />
               <Route path="/performance/goals/:id" element={<GoalDetail />} />
-              <Route path="/performance/reviews/new" element={<ReviewCreate />} />
+              <Route path="/performance/reviews/new" element={<FormsErrorBoundary><ReviewCreate /></FormsErrorBoundary>} />
               <Route path="/performance/reviews/:id" element={<ReviewDetail />} />
-              <Route path="/performance/feedback/new" element={<FeedbackRequestCreate />} />
+              <Route path="/performance/feedback/new" element={<FormsErrorBoundary><FeedbackRequestCreate /></FormsErrorBoundary>} />
               <Route path="/performance/feedback/:id" element={<FeedbackDetail />} />
               <Route path="/talent-development" element={<TalentDevelopment />} />
               <Route path="/talent-development/learning-paths/:id" element={<LearningPathDetail />} />
