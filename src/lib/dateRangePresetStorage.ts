@@ -4,6 +4,7 @@ export interface CustomDateRangePreset {
   id: string;
   name: string;
   range: DateRange;
+  category?: string;
   createdAt: string;
 }
 
@@ -14,13 +15,14 @@ export function getCustomPresets(): CustomDateRangePreset[] {
   return stored ? JSON.parse(stored) : [];
 }
 
-export function saveCustomPreset(name: string, range: DateRange): CustomDateRangePreset {
+export function saveCustomPreset(name: string, range: DateRange, category?: string): CustomDateRangePreset {
   const presets = getCustomPresets();
   
   const newPreset: CustomDateRangePreset = {
     id: Date.now().toString(),
     name,
     range,
+    category: category?.trim() || undefined,
     createdAt: new Date().toISOString(),
   };
   
@@ -30,7 +32,7 @@ export function saveCustomPreset(name: string, range: DateRange): CustomDateRang
   return newPreset;
 }
 
-export function updateCustomPreset(id: string, name: string, range?: DateRange): void {
+export function updateCustomPreset(id: string, name: string, range?: DateRange, category?: string): void {
   const presets = getCustomPresets();
   const index = presets.findIndex(preset => preset.id === id);
   
@@ -39,6 +41,7 @@ export function updateCustomPreset(id: string, name: string, range?: DateRange):
       ...presets[index],
       name,
       ...(range && { range }),
+      category: category?.trim() || undefined,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
   }
@@ -50,7 +53,7 @@ export function deleteCustomPreset(id: string): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
 }
 
-export function duplicateCustomPreset(id: string, newName: string): CustomDateRangePreset | null {
+export function duplicateCustomPreset(id: string, newName: string, category?: string): CustomDateRangePreset | null {
   const presets = getCustomPresets();
   const preset = presets.find(p => p.id === id);
   
@@ -60,6 +63,7 @@ export function duplicateCustomPreset(id: string, newName: string): CustomDateRa
     id: Date.now().toString(),
     name: newName,
     range: preset.range,
+    category: category?.trim() || undefined,
     createdAt: new Date().toISOString(),
   };
   
@@ -71,4 +75,17 @@ export function duplicateCustomPreset(id: string, newName: string): CustomDateRa
 
 export function reorderCustomPresets(presets: CustomDateRangePreset[]): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+}
+
+export function getCategories(): string[] {
+  const presets = getCustomPresets();
+  const categories = new Set<string>();
+  
+  presets.forEach(preset => {
+    if (preset.category) {
+      categories.add(preset.category);
+    }
+  });
+  
+  return Array.from(categories).sort();
 }

@@ -8,8 +8,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { format, subDays, subMonths, startOfQuarter, startOfYear } from 'date-fns';
-import { getCustomPresets, saveCustomPreset, updateCustomPreset, deleteCustomPreset, duplicateCustomPreset, reorderCustomPresets } from '@/lib/dateRangePresetStorage';
+import { getCustomPresets, saveCustomPreset, updateCustomPreset, deleteCustomPreset, duplicateCustomPreset, reorderCustomPresets, getCategories } from '@/lib/dateRangePresetStorage';
 import { useToast } from '@/hooks/use-toast';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown } from 'lucide-react';
 import {
   DndContext,
   closestCenter,
@@ -114,11 +116,15 @@ export function DateRangePicker({
 }: DateRangePickerProps) {
   const [customPresets, setCustomPresets] = React.useState(getCustomPresets());
   const [presetName, setPresetName] = React.useState('');
-  const [editingPreset, setEditingPreset] = React.useState<{ id: string; name: string } | null>(null);
+  const [presetCategory, setPresetCategory] = React.useState('');
+  const [editingPreset, setEditingPreset] = React.useState<{ id: string; name: string; category?: string } | null>(null);
   const [editName, setEditName] = React.useState('');
+  const [editCategory, setEditCategory] = React.useState('');
   const [updateRange, setUpdateRange] = React.useState(false);
-  const [duplicatingPreset, setDuplicatingPreset] = React.useState<{ id: string; name: string } | null>(null);
+  const [duplicatingPreset, setDuplicatingPreset] = React.useState<{ id: string; name: string; category?: string } | null>(null);
   const [duplicateName, setDuplicateName] = React.useState('');
+  const [duplicateCategory, setDuplicateCategory] = React.useState('');
+  const [openCategories, setOpenCategories] = React.useState<Record<string, boolean>>({});
   const { toast } = useToast();
 
   const sensors = useSensors(
@@ -127,6 +133,34 @@ export function DateRangePicker({
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const categories = React.useMemo(() => getCategories(), [customPresets]);
+  
+  const groupedPresets = React.useMemo(() => {
+    const groups: Record<string, typeof customPresets> = {};
+    const uncategorized: typeof customPresets = [];
+    
+    customPresets.forEach(preset => {
+      if (preset.category) {
+        if (!groups[preset.category]) {
+          groups[preset.category] = [];
+        }
+        groups[preset.category].push(preset);
+      } else {
+        uncategorized.push(preset);
+      }
+    });
+    
+    return { groups, uncategorized };
+  }, [customPresets]);
+
+  React.useEffect(() => {
+    const initialOpen: Record<string, boolean> = {};
+    Object.keys(groupedPresets.groups).forEach(cat => {
+      initialOpen[cat] = true;
+    });
+    setOpenCategories(prev => ({ ...initialOpen, ...prev }));
+  }, []);
 
   const defaultPresets = [
     {
@@ -166,9 +200,10 @@ export function DateRangePicker({
       return;
     }
 
-    saveCustomPreset(presetName, date);
+    saveCustomPreset(presetName, date, presetCategory);
     setCustomPresets(getCustomPresets());
     setPresetName('');
+    setPresetCategory('');
     
     toast({
       title: "Preset saved",
@@ -176,9 +211,10 @@ export function DateRangePicker({
     });
   };
 
-  const handleEditPreset = (id: string, name: string) => {
-    setEditingPreset({ id, name });
+  const handleEditPreset = (id: string, name: string, category?: string) => {
+    setEditingPreset({ id, name, category });
     setEditName(name);
+    setEditCategory(category || '');
     setUpdateRange(false);
   };
 
@@ -203,10 +239,11 @@ export function DateRangePicker({
       return;
     }
 
-    updateCustomPreset(editingPreset.id, editName, updateRange ? date : undefined);
+    updateCustomPreset(editingPreset.id, editName, updateRange ? date : undefined, editCategory);
     setCustomPresets(getCustomPresets());
     setEditingPreset(null);
     setEditName('');
+    setEditCategory('');
     setUpdateRange(false);
 
     toast({
@@ -225,9 +262,10 @@ export function DateRangePicker({
     });
   };
 
-  const handleDuplicatePreset = (id: string, name: string) => {
-    setDuplicatingPreset({ id, name });
+  const handleDuplicatePreset = (id: string, name: string, category?: string) => {
+    setDuplicatingPreset({ id, name, category });
     setDuplicateName(`${name} (copy)`);
+    setDuplicateCategory(category || '');
   };
 
   const handleSaveDuplicate = () => {
@@ -242,12 +280,13 @@ export function DateRangePicker({
       return;
     }
 
-    const result = duplicateCustomPreset(duplicatingPreset.id, duplicateName);
+    const result = duplicateCustomPreset(duplicatingPreset.id, duplicateName, duplicateCategory);
     
     if (result) {
       setCustomPresets(getCustomPresets());
       setDuplicatingPreset(null);
       setDuplicateName('');
+      setDuplicateCategory('');
 
       toast({
         title: "Preset duplicated",
@@ -330,29 +369,81 @@ export function DateRangePicker({
               {customPresets.length > 0 && (
                 <div>
                   <div className="text-sm font-medium mb-2">Custom Presets</div>
-                  <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                  >
-                    <SortableContext
-                      items={customPresets.map(p => p.id)}
-                      strategy={verticalListSortingStrategy}
-                    >
+                  <div className="space-y-2">
+                    {Object.entries(groupedPresets.groups).map(([category, presets]) => (
+                      <Collapsible
+                        key={category}
+                        open={openCategories[category]}
+                        onOpenChange={(open) => setOpenCategories(prev => ({ ...prev, [category]: open }))}
+                      >
+                        <CollapsibleTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full justify-between text-left font-medium"
+                          >
+                            <span className="text-xs text-muted-foreground">{category}</span>
+                            <ChevronDown className={cn(
+                              "h-3 w-3 transition-transform",
+                              openCategories[category] && "rotate-180"
+                            )} />
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="space-y-1 mt-1">
+                          <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                          >
+                            <SortableContext
+                              items={presets.map(p => p.id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              {presets.map((preset) => (
+                                <SortablePresetItem
+                                  key={preset.id}
+                                  preset={preset}
+                                  onSelect={() => onDateChange(preset.range)}
+                                  onDuplicate={() => handleDuplicatePreset(preset.id, preset.name, preset.category)}
+                                  onEdit={() => handleEditPreset(preset.id, preset.name, preset.category)}
+                                  onDelete={() => handleDeletePreset(preset.id, preset.name)}
+                                />
+                              ))}
+                            </SortableContext>
+                          </DndContext>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ))}
+                    
+                    {groupedPresets.uncategorized.length > 0 && (
                       <div className="space-y-1">
-                        {customPresets.map((preset) => (
-                          <SortablePresetItem
-                            key={preset.id}
-                            preset={preset}
-                            onSelect={() => onDateChange(preset.range)}
-                            onDuplicate={() => handleDuplicatePreset(preset.id, preset.name)}
-                            onEdit={() => handleEditPreset(preset.id, preset.name)}
-                            onDelete={() => handleDeletePreset(preset.id, preset.name)}
-                          />
-                        ))}
+                        {Object.keys(groupedPresets.groups).length > 0 && (
+                          <div className="text-xs text-muted-foreground font-medium px-2 py-1">Uncategorized</div>
+                        )}
+                        <DndContext
+                          sensors={sensors}
+                          collisionDetection={closestCenter}
+                          onDragEnd={handleDragEnd}
+                        >
+                          <SortableContext
+                            items={groupedPresets.uncategorized.map(p => p.id)}
+                            strategy={verticalListSortingStrategy}
+                          >
+                            {groupedPresets.uncategorized.map((preset) => (
+                              <SortablePresetItem
+                                key={preset.id}
+                                preset={preset}
+                                onSelect={() => onDateChange(preset.range)}
+                                onDuplicate={() => handleDuplicatePreset(preset.id, preset.name, preset.category)}
+                                onEdit={() => handleEditPreset(preset.id, preset.name, preset.category)}
+                                onDelete={() => handleDeletePreset(preset.id, preset.name)}
+                              />
+                            ))}
+                          </SortableContext>
+                        </DndContext>
                       </div>
-                    </SortableContext>
-                  </DndContext>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -363,9 +454,22 @@ export function DateRangePicker({
                     placeholder="Preset name..."
                     value={presetName}
                     onChange={(e) => setPresetName(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleSavePreset()}
+                    onKeyDown={(e) => e.key === 'Enter' && !presetCategory && handleSavePreset()}
                     className="h-8 text-sm"
                   />
+                  <Input
+                    placeholder="Category (optional)..."
+                    value={presetCategory}
+                    onChange={(e) => setPresetCategory(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSavePreset()}
+                    className="h-8 text-sm"
+                    list="categories-datalist"
+                  />
+                  <datalist id="categories-datalist">
+                    {categories.map(cat => (
+                      <option key={cat} value={cat} />
+                    ))}
+                  </datalist>
                   <Button
                     size="sm"
                     className="w-full"
@@ -401,8 +505,21 @@ export function DateRangePicker({
                 placeholder="Preset name..."
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleUpdatePreset()}
               />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Category (optional)</label>
+              <Input
+                placeholder="Category..."
+                value={editCategory}
+                onChange={(e) => setEditCategory(e.target.value)}
+                list="edit-categories-datalist"
+              />
+              <datalist id="edit-categories-datalist">
+                {categories.map(cat => (
+                  <option key={cat} value={cat} />
+                ))}
+              </datalist>
             </div>
             <div className="flex items-center gap-2">
               <input
@@ -440,8 +557,21 @@ export function DateRangePicker({
                 placeholder="Preset name..."
                 value={duplicateName}
                 onChange={(e) => setDuplicateName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSaveDuplicate()}
               />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Category (optional)</label>
+              <Input
+                placeholder="Category..."
+                value={duplicateCategory}
+                onChange={(e) => setDuplicateCategory(e.target.value)}
+                list="duplicate-categories-datalist"
+              />
+              <datalist id="duplicate-categories-datalist">
+                {categories.map(cat => (
+                  <option key={cat} value={cat} />
+                ))}
+              </datalist>
             </div>
           </div>
           <DialogFooter>
