@@ -83,6 +83,16 @@ export interface Job {
   
   // Requisition Link
   requisitionId?: string;
+  
+  // AI Interview Configuration
+  aiInterviewConfig?: {
+    defaultMode: 'video' | 'phone' | 'text';
+    questionSource: 'predefined' | 'ai-generated' | 'hybrid';
+    defaultQuestions?: Array<{
+      question: string;
+      category: 'technical' | 'behavioral' | 'situational' | 'cultural' | 'experience';
+    }>;
+  };
 }
 
 export interface JobTemplate {

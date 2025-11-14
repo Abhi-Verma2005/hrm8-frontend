@@ -20,7 +20,8 @@ import {
   Globe,
   MoreVertical,
   Megaphone,
-  Sparkles
+  Sparkles,
+  Video
 } from "lucide-react";
 import { getJobById } from "@/lib/mockJobStorage";
 import { mockJobActivities } from "@/data/mockJobsData";
@@ -45,6 +46,7 @@ import { JobCollaborationPanel } from "@/components/jobs/collaboration/JobCollab
 import { JobVersionHistory } from "@/components/jobs/history/JobVersionHistory";
 import { JobBudgetTracker } from "@/components/jobs/budget/JobBudgetTracker";
 import { CandidateMatchingPanel } from "@/components/jobs/matching/CandidateMatchingPanel";
+import { JobAIInterviewsTab } from "@/components/jobs/aiInterview/JobAIInterviewsTab";
 import { useToast } from "@/hooks/use-toast";
 
 export default function JobDetail() {
@@ -223,6 +225,10 @@ export default function JobDetail() {
               <Sparkles className="h-4 w-4 mr-2" />
               Matching
             </TabsTrigger>
+            <TabsTrigger value="ai-interviews">
+              <Video className="h-4 w-4 mr-2" />
+              AI Interviews
+            </TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
             <TabsTrigger value="collaboration">Collaboration</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
@@ -391,6 +397,11 @@ export default function JobDetail() {
           {/* Matching Tab */}
           <TabsContent value="matching">
             <CandidateMatchingPanel job={job} />
+          </TabsContent>
+
+          {/* AI Interviews Tab */}
+          <TabsContent value="ai-interviews">
+            <JobAIInterviewsTab job={job} />
           </TabsContent>
 
           {/* Analytics Tab */}
