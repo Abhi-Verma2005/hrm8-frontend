@@ -57,6 +57,34 @@ export interface Interview {
   rating?: number;
 }
 
+export interface ScorecardCriterion {
+  id: string;
+  name: string;
+  description?: string;
+  rating: number; // 1-5
+  weight: number; // percentage
+  notes?: string;
+}
+
+export interface Scorecard {
+  id: string;
+  evaluatorId: string;
+  evaluatorName: string;
+  evaluatorRole: string;
+  evaluatorPhoto?: string;
+  template: string; // e.g., 'Technical Interview', 'Culture Fit', 'Leadership'
+  criteria: ScorecardCriterion[];
+  overallScore: number; // calculated weighted average
+  recommendation: 'strong-hire' | 'hire' | 'neutral' | 'no-hire' | 'strong-no-hire';
+  strengths?: string[];
+  concerns?: string[];
+  overallFeedback?: string;
+  notes?: string;
+  status: 'draft' | 'completed';
+  completedAt: Date;
+  createdAt: Date;
+}
+
 export interface Application {
   id: string;
   candidateId: string;
@@ -112,6 +140,9 @@ export interface Application {
   
   // Interviews
   interviews: Interview[];
+  
+  // Scorecards
+  scorecards?: Scorecard[];
   
   // Assignment
   assignedTo?: string; // Recruiter ID
