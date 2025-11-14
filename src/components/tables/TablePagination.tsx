@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface TablePaginationProps {
   currentPage: number;
@@ -22,6 +23,8 @@ interface TablePaginationProps {
   totalItems: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
+  pageSizeOptions?: number[];
+  showTotalPages?: boolean;
 }
 
 export function TablePagination({
@@ -30,10 +33,21 @@ export function TablePagination({
   pageSize,
   totalItems,
   onPageChange,
-  onPageSizeChange
+  onPageSizeChange,
+  pageSizeOptions = [25, 50, 100, 200, 500],
+  showTotalPages = true,
 }: TablePaginationProps) {
-  const startItem = (currentPage - 1) * pageSize + 1;
+  const startItem = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const endItem = Math.min(currentPage * pageSize, totalItems);
+  
+  // Keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft' && currentPage > 1) {
+      onPageChange(currentPage - 1);
+    } else if (e.key === 'ArrowRight' && currentPage < totalPages) {
+      onPageChange(currentPage + 1);
+    }
+  };
 
   const getPageNumbers = (): (number | 'ellipsis')[] => {
     const pages: (number | 'ellipsis')[] = [];
@@ -80,61 +94,98 @@ export function TablePagination({
   };
 
   return (
-    <div className="flex items-center justify-between gap-2 sm:gap-4 mt-4">
-      {/* Items per page selector */}
-      <div className="flex items-center gap-1 sm:gap-2">
-        <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Rows:</span>
+    <div 
+      className="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 mt-4 pt-4 border-t"
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+    >
+      {/* Left: Items per page selector */}
+      <div className="flex items-center gap-2">
+        <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">Rows per page:</span>
         <Select
           value={pageSize.toString()}
           onValueChange={(value) => onPageSizeChange(Number(value))}
         >
-          <SelectTrigger className="w-[60px] sm:w-[70px] h-8">
+          <SelectTrigger className="w-[70px] sm:w-[80px] h-8">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="25">25</SelectItem>
-            <SelectItem value="50">50</SelectItem>
-            <SelectItem value="100">100</SelectItem>
+            {pageSizeOptions.map(size => (
+              <SelectItem key={size} value={size.toString()}>
+                {size}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Page info - hidden on mobile */}
-      <div className="hidden lg:block text-sm text-muted-foreground whitespace-nowrap">
-        Showing {startItem}-{endItem} of {totalItems}
+      {/* Center: Page info */}
+      <div className="flex items-center gap-3">
+        <div className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+          {totalItems === 0 ? (
+            <span>No items</span>
+          ) : (
+            <>
+              <span className="font-medium text-foreground">{startItem}-{endItem}</span>
+              {' '}of{' '}
+              <span className="font-medium text-foreground">{totalItems.toLocaleString()}</span>
+              {showTotalPages && totalPages > 1 && (
+                <span className="hidden sm:inline">
+                  {' '}• Page <span className="font-medium text-foreground">{currentPage}</span> of <span className="font-medium text-foreground">{totalPages}</span>
+                </span>
+              )}
+            </>
+          )}
+        </div>
       </div>
 
-      {/* Pagination controls */}
+      {/* Right: Pagination controls */}
       <Pagination>
         <PaginationContent>
           <PaginationItem>
             <PaginationPrevious
               onClick={() => currentPage > 1 && onPageChange(currentPage - 1)}
-              className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              className={cn(
+                currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer hover:bg-accent',
+                'transition-colors'
+              )}
+              aria-label="Previous page"
             />
           </PaginationItem>
 
-          {getPageNumbers().map((page, index) => (
-            <PaginationItem key={index}>
-              {page === 'ellipsis' ? (
-                <PaginationEllipsis />
-              ) : (
-                <PaginationLink
-                  onClick={() => onPageChange(page)}
-                  isActive={currentPage === page}
-                  className="cursor-pointer"
-                >
-                  {page}
-                </PaginationLink>
-              )}
-            </PaginationItem>
-          ))}
+          <div className="hidden sm:flex">
+            {getPageNumbers().map((page, index) => (
+              <PaginationItem key={index}>
+                {page === 'ellipsis' ? (
+                  <PaginationEllipsis />
+                ) : (
+                  <PaginationLink
+                    onClick={() => onPageChange(page)}
+                    isActive={currentPage === page}
+                    className="cursor-pointer transition-colors"
+                    aria-label={`Go to page ${page}`}
+                    aria-current={currentPage === page ? 'page' : undefined}
+                  >
+                    {page}
+                  </PaginationLink>
+                )}
+              </PaginationItem>
+            ))}
+          </div>
+
+          {/* Mobile: Show only current page */}
+          <div className="sm:hidden px-2 text-sm font-medium">
+            {currentPage}/{totalPages}
+          </div>
 
           <PaginationItem>
             <PaginationNext
               onClick={() => currentPage < totalPages && onPageChange(currentPage + 1)}
-              className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              className={cn(
+                currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer hover:bg-accent',
+                'transition-colors'
+              )}
+              aria-label="Next page"
             />
           </PaginationItem>
         </PaginationContent>
