@@ -15,6 +15,7 @@ import {
   ThumbsDown,
   Minus
 } from "lucide-react";
+import { LiveCommentThread } from "../LiveCommentThread";
 
 interface TeamReviewsTabProps {
   application: Application;
@@ -351,6 +352,15 @@ export function TeamReviewsTab({ application }: TeamReviewsTabProps) {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Live Comment Thread */}
+      <div className="mt-6">
+        <LiveCommentThread
+          candidateId={application.id}
+          currentUserId="current-user"
+          currentUserName="Current User"
+        />
       </div>
     </div>
   );
