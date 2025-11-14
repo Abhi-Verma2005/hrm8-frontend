@@ -86,6 +86,10 @@ export interface Application {
   resumeUrl?: string;
   coverLetterUrl?: string;
   portfolioUrl?: string;
+  linkedInUrl?: string;
+  
+  // Parsed Resume Data
+  parsedResume?: ParsedResume;
   
   // Custom Responses
   customAnswers: ApplicationAnswer[];
@@ -120,6 +124,66 @@ export interface Application {
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface WorkExperience {
+  id: string;
+  company: string;
+  companyLogo?: string;
+  title: string;
+  startDate: Date;
+  endDate?: Date;
+  current: boolean;
+  location: string;
+  employmentType?: 'full-time' | 'part-time' | 'contract' | 'internship';
+  responsibilities: string[];
+  achievements: string[];
+  technologies: string[];
+  reasonForLeaving?: string;
+}
+
+export interface Education {
+  id: string;
+  institution: string;
+  institutionLogo?: string;
+  degree: string;
+  field: string;
+  startDate: Date;
+  endDate: Date;
+  gpa?: number;
+  maxGpa?: number;
+  honors?: string;
+  relevantCoursework?: string[];
+  thesisTitle?: string;
+}
+
+export interface Skill {
+  name: string;
+  category: string;
+  proficiency: 'beginner' | 'intermediate' | 'advanced' | 'expert';
+  yearsExperience?: number;
+  lastUsed?: Date;
+  endorsements?: number;
+}
+
+export interface Certification {
+  id: string;
+  name: string;
+  issuer: string;
+  issueDate: Date;
+  expiryDate?: Date;
+  credentialId?: string;
+  verificationUrl?: string;
+  description?: string;
+}
+
+export interface ParsedResume {
+  workHistory: WorkExperience[];
+  education: Education[];
+  skills: Skill[];
+  certifications: Certification[];
+  summary?: string;
+  parsedAt: Date;
 }
 
 export interface ApplicationFilters {
