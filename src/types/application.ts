@@ -38,7 +38,7 @@ export interface ApplicationNote {
 
 export interface ApplicationActivity {
   id: string;
-  type: 'status_change' | 'note_added' | 'email_sent' | 'interview_scheduled' | 'document_uploaded' | 'rating_changed';
+  type: 'status_change' | 'note_added' | 'email_sent' | 'interview_scheduled' | 'document_uploaded' | 'rating_changed' | 'application_viewed';
   description: string;
   userId?: string;
   userName?: string;
