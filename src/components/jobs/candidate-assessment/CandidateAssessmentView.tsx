@@ -10,6 +10,7 @@ import { AIMatchScoreCard } from "./AIMatchScoreCard";
 import { QuickActionsToolbar } from "./QuickActionsToolbar";
 import { OverviewTab } from "./tabs/OverviewTab";
 import { ApplicationDetailsTab } from "./tabs/ApplicationDetailsTab";
+import { ResumeWorkHistoryTab } from "./tabs/ResumeWorkHistoryTab";
 
 interface CandidateAssessmentViewProps {
   application: Application;
@@ -145,9 +146,7 @@ export function CandidateAssessmentView({
                   </TabsContent>
 
                   <TabsContent value="resume" className="mt-0">
-                    <div className="text-center py-12 text-muted-foreground">
-                      Resume & Work History tab will be implemented in Phase 2
-                    </div>
+                    <ResumeWorkHistoryTab application={application} />
                   </TabsContent>
 
                   <TabsContent value="questionnaire" className="mt-0">
