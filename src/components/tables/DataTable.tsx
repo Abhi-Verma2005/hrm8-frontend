@@ -74,6 +74,10 @@ interface DataTableProps<T> {
   // Column resizing
   tableId?: string;
   resizable?: boolean;
+  // Pagination configuration
+  defaultPageSize?: number;
+  pageSizeOptions?: number[];
+  persistPageSize?: boolean;
 }
 
 export function DataTable<T extends { id: string }>({
@@ -110,6 +114,9 @@ export function DataTable<T extends { id: string }>({
   onRowClick,
   tableId = "default-table",
   resizable = true,
+  defaultPageSize = 25,
+  pageSizeOptions = [25, 50, 100, 200, 500],
+  persistPageSize = true,
 }: DataTableProps<T>) {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
@@ -117,7 +124,17 @@ export function DataTable<T extends { id: string }>({
   const [statusFilterValue, setStatusFilterValue] = useState("all");
   const [typeFilterValue, setTypeFilterValue] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  
+  // Initialize page size with localStorage persistence
+  const [pageSize, setPageSize] = useState(() => {
+    if (!persistPageSize) return defaultPageSize;
+    try {
+      const stored = localStorage.getItem(`${tableId}-page-size`);
+      return stored ? Number(stored) : defaultPageSize;
+    } catch {
+      return defaultPageSize;
+    }
+  });
   
   // Inline editing state
   const [editingCell, setEditingCell] = useState<{ rowId: string; columnKey: string } | null>(null);
@@ -808,7 +825,15 @@ export function DataTable<T extends { id: string }>({
           onPageSizeChange={(size) => {
             setPageSize(size);
             setCurrentPage(1);
+            if (persistPageSize) {
+              try {
+                localStorage.setItem(`${tableId}-page-size`, size.toString());
+              } catch (error) {
+                console.error('Failed to save page size preference:', error);
+              }
+            }
           }}
+          pageSizeOptions={pageSizeOptions}
         />
       )}
     </div>
