@@ -156,6 +156,13 @@ import SalesActivitiesPage from "./pages/sales/SalesActivitiesPage";
 import CommissionsPage from "./pages/sales/CommissionsPage";
 import TerritoriesPage from "./pages/sales/TerritoriesPage";
 import SalesForecastPage from "./pages/sales/SalesForecastPage";
+import AIInterviews from "./pages/AIInterviews";
+import AIInterviewDetail from "./pages/AIInterviewDetail";
+import AIInterviewSession from "./pages/AIInterviewSession";
+import AIInterviewReports from "./pages/AIInterviewReports";
+import AIInterviewReportDetail from "./pages/AIInterviewReportDetail";
+import AIInterviewAnalytics from "./pages/AIInterviewAnalytics";
+import { AIInterviewWizard } from "./components/aiInterview/wizard/AIInterviewWizard";
 import { initializeMockFeedbackData } from './lib/mockFeedbackData';
 import { initializeMockTeamData } from './lib/mockTeamData';
 import { initializeMockTemplates } from './lib/mockTemplateData';
@@ -254,6 +261,15 @@ function AppContent() {
               <Route path="/background-checks/sla-settings" element={<SLASettingsPage />} />
               <Route path="/background-checks/analytics" element={<BackgroundChecksAnalytics />} />
               <Route path="/internal-jobs" element={<InternalJobs />} />
+              
+              {/* AI Interview Routes */}
+              <Route path="/ai-interviews" element={<AIInterviews />} />
+              <Route path="/ai-interviews/schedule" element={<AIInterviewWizard />} />
+              <Route path="/ai-interviews/:id" element={<AIInterviewDetail />} />
+              <Route path="/ai-interviews/session/:token" element={<AIInterviewSession />} />
+              <Route path="/ai-interviews/reports" element={<AIInterviewReports />} />
+              <Route path="/ai-interviews/reports/:id" element={<AIInterviewReportDetail />} />
+              <Route path="/ai-interviews/analytics" element={<AIInterviewAnalytics />} />
             </Route>
             {/* Sales Module Routes */}
             <Route path="/sales/dashboard" element={<SalesDashboardPage />} />
