@@ -29,8 +29,11 @@ import {
 import { DateRangePicker } from '@/components/ui/date-range-picker';
 import { DateRange } from 'react-day-picker';
 import { subMonths, isWithinInterval } from 'date-fns';
+import { exportAnalyticsPDF } from '@/lib/analytics/exportAnalyticsPDF';
+import { useToast } from '@/hooks/use-toast';
 
 export default function RecruitmentAnalytics() {
+  const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: subMonths(new Date(), 6),
     to: new Date(),
@@ -88,8 +91,31 @@ export default function RecruitmentAnalytics() {
   );
 
   const handleExportReport = () => {
-    // TODO: Implement PDF export
-    console.log('Exporting analytics report...');
+    try {
+      exportAnalyticsPDF({
+        overallMetrics,
+        funnelMetrics,
+        timeToHireMetrics,
+        sourceMetrics,
+        teamMetrics,
+        dateRange: dateRange?.from && dateRange?.to ? {
+          from: dateRange.from,
+          to: dateRange.to,
+        } : undefined,
+        selectedJob,
+      });
+      
+      toast({
+        title: 'Report Exported',
+        description: 'Analytics report has been downloaded successfully.',
+      });
+    } catch (error) {
+      toast({
+        title: 'Export Failed',
+        description: 'Failed to export analytics report. Please try again.',
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
