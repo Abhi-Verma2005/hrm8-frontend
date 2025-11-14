@@ -1,7 +1,7 @@
 import { 
   Users, Briefcase, FileText, UserCheck, TrendingUp, BarChart3, PieChart, Target, Clock,
   UserCircle, Calendar, Percent, Building2, DollarSign, TrendingDown, Wallet, Receipt,
-  FolderKanban, Building, Gauge, Timer, CheckCircle, Shield, AlertCircle, Activity, FileCheck
+  FolderKanban, Building, Gauge, Timer, CheckCircle, Shield, AlertCircle, Activity, FileCheck, Video
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { DashboardType } from "./dashboardTypes";
@@ -69,6 +69,12 @@ export type WidgetType =
   | 'chart-salary-expectations'
   // Feedback widgets
   | 'feedback-dashboard'
+  // AI Interview widgets
+  | 'stat-ai-interview-total'
+  | 'stat-ai-interview-completion'
+  | 'stat-ai-interview-avg-score'
+  | 'stat-ai-interview-avg-duration'
+  | 'chart-ai-interview-performance'
   // Background Checks widgets
   | 'stat-total-checks'
   | 'stat-active-checks'
@@ -960,6 +966,80 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     defaultSize: { w: 6, h: 3 },
     minSize: { w: 4, h: 2 },
     allowedDashboards: ['overview', 'jobs', 'candidates'],
+  },
+
+  // ===== AI INTERVIEW WIDGETS =====
+  'stat-ai-interview-total': {
+    id: 'stat-ai-interview-total',
+    name: 'Total AI Interviews',
+    description: 'Total number of AI interviews conducted',
+    category: 'stat',
+    component: 'AIInterviewStatsWidget',
+    icon: Video,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      metric: 'total'
+    },
+    allowedDashboards: ['overview', 'jobs', 'candidates']
+  },
+  'stat-ai-interview-completion': {
+    id: 'stat-ai-interview-completion',
+    name: 'AI Interview Completion Rate',
+    description: 'Percentage of completed AI interviews',
+    category: 'stat',
+    component: 'AIInterviewStatsWidget',
+    icon: CheckCircle,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      metric: 'completion-rate'
+    },
+    allowedDashboards: ['overview', 'jobs', 'candidates']
+  },
+  'stat-ai-interview-avg-score': {
+    id: 'stat-ai-interview-avg-score',
+    name: 'Average AI Interview Score',
+    description: 'Average score across all interviews',
+    category: 'stat',
+    component: 'AIInterviewStatsWidget',
+    icon: TrendingUp,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      metric: 'avg-score'
+    },
+    allowedDashboards: ['overview', 'jobs', 'candidates']
+  },
+  'stat-ai-interview-avg-duration': {
+    id: 'stat-ai-interview-avg-duration',
+    name: 'Average Interview Duration',
+    description: 'Average duration of interviews',
+    category: 'stat',
+    component: 'AIInterviewStatsWidget',
+    icon: Clock,
+    defaultSize: { w: 3, h: 1 },
+    minSize: { w: 2, h: 1 },
+    maxSize: { w: 6, h: 1 },
+    defaultProps: {
+      metric: 'avg-duration'
+    },
+    allowedDashboards: ['overview', 'jobs', 'candidates']
+  },
+  'chart-ai-interview-performance': {
+    id: 'chart-ai-interview-performance',
+    name: 'AI Interview Performance',
+    description: 'Performance distribution chart',
+    category: 'chart',
+    component: 'AIInterviewPerformanceChart',
+    icon: BarChart3,
+    defaultSize: { w: 6, h: 2 },
+    minSize: { w: 4, h: 2 },
+    maxSize: { w: 12, h: 3 },
+    allowedDashboards: ['overview', 'jobs', 'candidates']
   },
 
   // ===== BACKGROUND CHECKS WIDGETS =====
