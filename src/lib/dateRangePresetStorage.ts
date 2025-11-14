@@ -49,3 +49,22 @@ export function deleteCustomPreset(id: string): void {
   const filtered = presets.filter(preset => preset.id !== id);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
 }
+
+export function duplicateCustomPreset(id: string, newName: string): CustomDateRangePreset | null {
+  const presets = getCustomPresets();
+  const preset = presets.find(p => p.id === id);
+  
+  if (!preset) return null;
+  
+  const newPreset: CustomDateRangePreset = {
+    id: Date.now().toString(),
+    name: newName,
+    range: preset.range,
+    createdAt: new Date().toISOString(),
+  };
+  
+  presets.push(newPreset);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(presets));
+  
+  return newPreset;
+}
