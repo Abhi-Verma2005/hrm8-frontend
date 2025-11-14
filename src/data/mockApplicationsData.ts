@@ -331,6 +331,7 @@ for (let i = 0; i < 200; i++) {
         userId: 'user-1',
         userName: 'System',
         createdAt: appliedDate,
+        isRead: true,
       },
       ...(isRead ? [{
         id: `activity-${i}-2`,
@@ -339,6 +340,7 @@ for (let i = 0; i < 200; i++) {
         userId: 'recruiter-1',
         userName: i % 3 === 0 ? 'John Recruiter' : 'Jane Recruiter',
         createdAt: new Date(appliedDate.getTime() + 1 * 24 * 60 * 60 * 1000),
+        isRead: true,
       }] : []),
       ...(status !== 'applied' ? [{
         id: `activity-${i}-3`,
@@ -347,6 +349,7 @@ for (let i = 0; i < 200; i++) {
         userId: 'recruiter-1',
         userName: i % 3 === 0 ? 'John Recruiter' : 'Jane Recruiter',
         createdAt: new Date(appliedDate.getTime() + 2 * 24 * 60 * 60 * 1000),
+        isRead: daysAgo > 3,
       }] : []),
       ...(i % 2 === 0 ? [{
         id: `activity-${i}-4`,
@@ -355,6 +358,7 @@ for (let i = 0; i < 200; i++) {
         userId: 'system',
         userName: 'System',
         createdAt: new Date(appliedDate.getTime() + 0.5 * 60 * 60 * 1000),
+        isRead: true,
       }] : []),
       ...(status === 'screening' || status === 'interview' || status === 'offer' || status === 'hired' ? [{
         id: `activity-${i}-5`,
@@ -363,6 +367,7 @@ for (let i = 0; i < 200; i++) {
         userId: 'recruiter-1',
         userName: i % 3 === 0 ? 'John Recruiter' : 'Jane Recruiter',
         createdAt: new Date(appliedDate.getTime() + 2.5 * 24 * 60 * 60 * 1000),
+        isRead: daysAgo > 5,
       }] : []),
       ...(status === 'interview' || status === 'offer' || status === 'hired' ? [{
         id: `activity-${i}-6`,
@@ -371,6 +376,7 @@ for (let i = 0; i < 200; i++) {
         userId: 'recruiter-1',
         userName: i % 3 === 0 ? 'John Recruiter' : 'Jane Recruiter',
         createdAt: new Date(appliedDate.getTime() + 3 * 24 * 60 * 60 * 1000),
+        isRead: daysAgo > 7,
       }] : []),
       ...(i % 3 === 0 && (status === 'interview' || status === 'offer' || status === 'hired') ? [{
         id: `activity-${i}-7`,
@@ -379,6 +385,7 @@ for (let i = 0; i < 200; i++) {
         userId: 'recruiter-1',
         userName: i % 3 === 0 ? 'John Recruiter' : 'Jane Recruiter',
         createdAt: new Date(appliedDate.getTime() + 5 * 24 * 60 * 60 * 1000),
+        isRead: daysAgo > 10,
       }] : []),
       ...(status === 'rejected' ? [{
         id: `activity-${i}-8`,
@@ -387,6 +394,7 @@ for (let i = 0; i < 200; i++) {
         userId: 'recruiter-1',
         userName: i % 3 === 0 ? 'John Recruiter' : 'Jane Recruiter',
         createdAt: updatedAt,
+        isRead: false,
       }] : []),
       ...(status === 'offer' || status === 'hired' ? [{
         id: `activity-${i}-9`,
@@ -395,6 +403,7 @@ for (let i = 0; i < 200; i++) {
         userId: 'recruiter-1',
         userName: i % 3 === 0 ? 'John Recruiter' : 'Jane Recruiter',
         createdAt: new Date(appliedDate.getTime() + 14 * 24 * 60 * 60 * 1000),
+        isRead: false,
       }] : []),
     ],
     

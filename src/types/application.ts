@@ -44,6 +44,7 @@ export interface ApplicationActivity {
   userName?: string;
   metadata?: Record<string, any>;
   createdAt: Date;
+  isRead?: boolean;
 }
 
 export interface Interview {

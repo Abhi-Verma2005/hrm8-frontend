@@ -3,8 +3,10 @@ import { toast } from "@/hooks/use-toast";
 import { Application } from "@/types/application";
 
 export function useActivityNotifications(application: Application) {
-  const [unreadCount, setUnreadCount] = useState(0);
   const [lastActivityId, setLastActivityId] = useState<string | null>(null);
+
+  // Calculate unread count from activities
+  const unreadCount = application.activities.filter(a => !a.isRead).length;
 
   useEffect(() => {
     if (!application.activities || application.activities.length === 0) {
@@ -22,19 +24,12 @@ export function useActivityNotifications(application: Application) {
         title: "New Activity",
         description: `${latestActivity.userName || 'Someone'} ${activityType}: ${latestActivity.description}`,
       });
-      
-      setUnreadCount(prev => prev + 1);
     }
     
     setLastActivityId(latestActivity.id);
   }, [application.activities, lastActivityId]);
 
-  const clearUnreadCount = () => {
-    setUnreadCount(0);
-  };
-
   return {
     unreadCount,
-    clearUnreadCount,
   };
 }
