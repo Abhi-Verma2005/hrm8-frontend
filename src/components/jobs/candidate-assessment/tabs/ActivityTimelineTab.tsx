@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { toast } from "@/hooks/use-toast";
 import { 
   Clock, 
   Search,
@@ -23,12 +24,16 @@ import {
   ClipboardCheck,
   Upload,
   Eye,
-  EyeOff
+  EyeOff,
+  Download
 } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuCheckboxItem,
+  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -239,6 +244,87 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
     setShowUnreadOnly(false);
   };
 
+  const exportToCSV = () => {
+    const csvData = filteredActivities.map(activity => ({
+      Date: activity.timestamp.toLocaleDateString(),
+      Time: activity.timestamp.toLocaleTimeString(),
+      Type: activity.type.replace(/_/g, ' '),
+      Title: activity.title,
+      Description: activity.description,
+      User: activity.userName || 'System',
+      Status: activity.isRead ? 'Read' : 'Unread'
+    }));
+
+    const headers = Object.keys(csvData[0]);
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => 
+        headers.map(header => `"${row[header as keyof typeof row]}"`).join(',')
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `activity-timeline-${application.candidateName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    
+    toast({
+      title: "Export Successful",
+      description: `Activity timeline exported as CSV (${filteredActivities.length} activities)`,
+    });
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.text('Activity Timeline Report', 14, 20);
+    
+    // Add candidate info
+    doc.setFontSize(12);
+    doc.text(`Candidate: ${application.candidateName}`, 14, 30);
+    doc.text(`Position: ${application.jobTitle}`, 14, 37);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 44);
+    
+    // Add activities table
+    const tableData = filteredActivities.map(activity => [
+      activity.timestamp.toLocaleDateString(),
+      activity.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      activity.type.replace(/_/g, ' '),
+      activity.title,
+      activity.description,
+      activity.userName || 'System',
+      activity.isRead ? 'Read' : 'Unread'
+    ]);
+
+    autoTable(doc, {
+      head: [['Date', 'Time', 'Type', 'Title', 'Description', 'User', 'Status']],
+      body: tableData,
+      startY: 52,
+      styles: { fontSize: 8, cellPadding: 2 },
+      headStyles: { fillColor: [59, 130, 246], textColor: 255 },
+      alternateRowStyles: { fillColor: [249, 250, 251] },
+      columnStyles: {
+        0: { cellWidth: 22 },
+        1: { cellWidth: 18 },
+        2: { cellWidth: 22 },
+        3: { cellWidth: 30 },
+        4: { cellWidth: 60 },
+        5: { cellWidth: 25 },
+        6: { cellWidth: 15 }
+      }
+    });
+
+    doc.save(`activity-timeline-${application.candidateName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`);
+    
+    toast({
+      title: "Export Successful",
+      description: `Activity timeline exported as PDF (${filteredActivities.length} activities)`,
+    });
+  };
+
   const getActivityIcon = (type: ActivityType) => {
     switch (type) {
       case 'status_change':
@@ -327,10 +413,30 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
       {/* Search and Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Activity Timeline
-          </CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Activity Timeline
+            </CardTitle>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Download className="h-4 w-4" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={exportToPDF}>
+                  Export as PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportToCSV}>
+                  Export as CSV
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col md:flex-row gap-3">
