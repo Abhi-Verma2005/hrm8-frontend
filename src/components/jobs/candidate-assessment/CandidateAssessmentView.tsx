@@ -20,6 +20,8 @@ import { ActivityTimelineTab } from "./tabs/ActivityTimelineTab";
 import { useActivityNotifications } from "@/hooks/useActivityNotifications";
 import { useCandidatePresence } from "@/hooks/useCandidatePresence";
 import { CandidatePresenceIndicator } from "./CandidatePresenceIndicator";
+import { useCursorTracking } from "@/hooks/useCursorTracking";
+import { CursorOverlay } from "./CursorIndicator";
 
 interface CandidateAssessmentViewProps {
   application: Application;
@@ -51,6 +53,11 @@ export function CandidateAssessmentView({
     currentUserRole: 'Hiring Manager',
     currentTab: activeTab,
   });
+  const { cursors, containerRef } = useCursorTracking({
+    applicationId: application.id,
+    currentUserId: 'current-user',
+    enabled: open,
+  });
 
   // Keyboard shortcuts
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -69,7 +76,8 @@ export function CandidateAssessmentView({
         className="max-w-[95vw] h-[95vh] p-0 gap-0"
         onKeyDown={handleKeyDown}
       >
-        <div className="flex flex-col h-full">
+        <div ref={containerRef} className="flex flex-col h-full relative">
+          <CursorOverlay cursors={cursors} />
           {/* Header */}
           <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex items-center justify-between p-4">
