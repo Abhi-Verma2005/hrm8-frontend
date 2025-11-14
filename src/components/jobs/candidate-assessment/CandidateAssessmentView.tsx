@@ -22,6 +22,7 @@ import { useCandidatePresence } from "@/hooks/useCandidatePresence";
 import { CandidatePresenceIndicator } from "./CandidatePresenceIndicator";
 import { useCursorTracking } from "@/hooks/useCursorTracking";
 import { CursorOverlay } from "./CursorIndicator";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 
 interface CandidateAssessmentViewProps {
   application: Application;
@@ -109,6 +110,7 @@ export function CandidateAssessmentView({
                   activeUsers={activeUsers}
                   currentUserId="current-user"
                 />
+                <NotificationCenter userId="current-user" />
                 <Button
                   variant="ghost"
                   size="icon"
