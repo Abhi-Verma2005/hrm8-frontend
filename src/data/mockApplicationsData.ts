@@ -333,19 +333,76 @@ for (let i = 0; i < 200; i++) {
       },
     ],
     
-    interviews: status === 'interview' || status === 'offer' ? [
+    interviews: status === 'interview' || status === 'offer' || status === 'hired' ? [
+      // Completed phone screen
       {
         id: `interview-${i}-1`,
-        type: i % 2 === 0 ? 'phone' : 'video',
+        type: 'phone',
+        scheduledDate: new Date(appliedDate.getTime() + 3 * 24 * 60 * 60 * 1000),
+        duration: 30,
+        interviewers: ['Sarah Smith - Recruiter'],
+        status: 'completed',
+        feedback: 'Initial phone screen went well. Candidate shows strong communication skills and genuine interest in the role. Good culture fit potential. Recommended for technical interview.',
+        rating: 4,
+        notes: 'Candidate asked thoughtful questions about team structure and growth opportunities.',
+      },
+      // Completed technical interview
+      {
+        id: `interview-${i}-2`,
+        type: 'technical',
         scheduledDate: new Date(appliedDate.getTime() + 7 * 24 * 60 * 60 * 1000),
-        duration: 60,
+        duration: 90,
         interviewers: ['John Manager', 'Jane Tech Lead'],
         location: i % 2 === 0 ? undefined : 'Conference Room A',
         meetingLink: i % 2 === 0 ? 'https://zoom.us/j/123456789' : undefined,
         status: 'completed',
-        feedback: 'Strong candidate with excellent technical skills.',
+        feedback: 'Strong technical performance. Candidate demonstrated solid problem-solving skills and clean coding practices. Completed all coding challenges within the time limit with optimal solutions. Good understanding of system design principles.',
         rating: 4,
+        recordingUrl: 'https://example.com/recordings/interview-123',
+        notes: 'Impressed by their approach to debugging and optimization. Would be a great addition to the team.',
       },
+      // Upcoming/Today's behavioral interview (only if status is 'interview')
+      ...(status === 'interview' ? [{
+        id: `interview-${i}-3`,
+        type: 'behavioral' as const,
+        scheduledDate: i % 3 === 0 
+          ? new Date(Date.now() + 2 * 60 * 60 * 1000) // Today, in 2 hours
+          : new Date(Date.now() + (3 + i % 5) * 24 * 60 * 60 * 1000), // Future
+        duration: 60,
+        interviewers: ['Michael Chen - Senior Engineer', 'Lisa Park - Product Manager'],
+        meetingLink: 'https://zoom.us/j/987654321',
+        status: 'scheduled' as const,
+        notes: 'Focus on collaboration examples and problem-solving approach.',
+      }] : []),
+      // Final round interview (only for offer status)
+      ...(status === 'offer' || status === 'hired' ? [{
+        id: `interview-${i}-4`,
+        type: 'onsite' as const,
+        scheduledDate: new Date(appliedDate.getTime() + 14 * 24 * 60 * 60 * 1000),
+        duration: 180,
+        interviewers: [
+          'David Kim - VP Engineering',
+          'Emily Wong - CTO',
+          'Alex Johnson - Team Lead'
+        ],
+        location: 'Main Office - 5th Floor',
+        status: 'completed' as const,
+        feedback: 'Exceptional final round performance. Candidate impressed all panel members with their technical depth, leadership potential, and cultural fit. Strong recommendation to proceed with offer. Team consensus on hire.',
+        rating: 5,
+        recordingUrl: 'https://example.com/recordings/final-round-456',
+        notes: 'All interviewers gave unanimous strong hire recommendation. Candidate would be an excellent addition.',
+      }] : []),
+      // Occasional cancelled interview
+      ...(i % 7 === 0 ? [{
+        id: `interview-${i}-5`,
+        type: 'video' as const,
+        scheduledDate: new Date(appliedDate.getTime() + 5 * 24 * 60 * 60 * 1000),
+        duration: 45,
+        interviewers: ['Tom Brown - Engineering Manager'],
+        meetingLink: 'https://zoom.us/j/cancelled',
+        status: 'cancelled' as const,
+        notes: 'Rescheduled due to interviewer availability conflict.',
+      }] : []),
     ] : [],
     
     // Add scorecards for candidates in interview or later stages
