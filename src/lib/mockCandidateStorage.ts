@@ -1,5 +1,6 @@
 import type { Candidate, CandidateNote, CandidateDocument } from '@/types/entities';
 import { mockCandidatesData, mockCandidateNotes } from '@/data/mockCandidatesData';
+import { notifyCandidateStatusChange } from '@/lib/notifications/notificationService';
 
 const STORAGE_KEY = 'hrm8_candidates';
 const NOTES_STORAGE_KEY = 'hrm8_candidate_notes';
@@ -63,12 +64,24 @@ export function updateCandidate(id: string, updates: Partial<Candidate>): void {
   const candidates = getCandidates();
   const index = candidates.findIndex(c => c.id === id);
   if (index !== -1) {
+    const candidate = candidates[index];
+    const oldStatus = candidate.status;
+    
     candidates[index] = {
-      ...candidates[index],
+      ...candidate,
       ...updates,
       updatedAt: new Date(),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(candidates));
+    
+    // Trigger notification if status changed
+    if (updates.status && updates.status !== oldStatus) {
+      notifyCandidateStatusChange(
+        candidate.name,
+        updates.status,
+        candidate.id
+      );
+    }
   }
 }
 
