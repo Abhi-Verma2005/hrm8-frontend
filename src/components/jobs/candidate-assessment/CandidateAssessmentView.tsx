@@ -18,6 +18,8 @@ import { InterviewsTab } from "./tabs/InterviewsTab";
 import { TeamReviewsTab } from "./tabs/TeamReviewsTab";
 import { ActivityTimelineTab } from "./tabs/ActivityTimelineTab";
 import { useActivityNotifications } from "@/hooks/useActivityNotifications";
+import { useCandidatePresence } from "@/hooks/useCandidatePresence";
+import { CandidatePresenceIndicator } from "./CandidatePresenceIndicator";
 
 interface CandidateAssessmentViewProps {
   application: Application;
@@ -42,6 +44,13 @@ export function CandidateAssessmentView({
 }: CandidateAssessmentViewProps) {
   const [activeTab, setActiveTab] = useState("overview");
   const { unreadCount } = useActivityNotifications(application);
+  const { activeUsers } = useCandidatePresence({
+    applicationId: application.id,
+    currentUserId: 'current-user',
+    currentUserName: 'You',
+    currentUserRole: 'Hiring Manager',
+    currentTab: activeTab,
+  });
 
   // Keyboard shortcuts
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -87,14 +96,20 @@ export function CandidateAssessmentView({
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onOpenChange(false)}
-                className="h-8 w-8"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-3">
+                <CandidatePresenceIndicator 
+                  activeUsers={activeUsers}
+                  currentUserId="current-user"
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => onOpenChange(false)}
+                  className="h-8 w-8"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
 
             <CandidateProfileHeader application={application} jobTitle={jobTitle} />
