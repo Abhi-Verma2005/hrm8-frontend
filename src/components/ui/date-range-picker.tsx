@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Calendar as CalendarIcon, Save, Trash2, Edit } from 'lucide-react';
+import { Calendar as CalendarIcon, Save, Trash2, Edit, Copy } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { format, subDays, subMonths, startOfQuarter, startOfYear } from 'date-fns';
-import { getCustomPresets, saveCustomPreset, updateCustomPreset, deleteCustomPreset } from '@/lib/dateRangePresetStorage';
+import { getCustomPresets, saveCustomPreset, updateCustomPreset, deleteCustomPreset, duplicateCustomPreset } from '@/lib/dateRangePresetStorage';
 import { useToast } from '@/hooks/use-toast';
 
 export interface DateRangePickerProps {
@@ -27,6 +27,8 @@ export function DateRangePicker({
   const [editingPreset, setEditingPreset] = React.useState<{ id: string; name: string } | null>(null);
   const [editName, setEditName] = React.useState('');
   const [updateRange, setUpdateRange] = React.useState(false);
+  const [duplicatingPreset, setDuplicatingPreset] = React.useState<{ id: string; name: string } | null>(null);
+  const [duplicateName, setDuplicateName] = React.useState('');
   const { toast } = useToast();
 
   const defaultPresets = [
@@ -126,6 +128,43 @@ export function DateRangePicker({
     });
   };
 
+  const handleDuplicatePreset = (id: string, name: string) => {
+    setDuplicatingPreset({ id, name });
+    setDuplicateName(`${name} (copy)`);
+  };
+
+  const handleSaveDuplicate = () => {
+    if (!duplicatingPreset) return;
+
+    if (!duplicateName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter a name for the duplicate preset",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const result = duplicateCustomPreset(duplicatingPreset.id, duplicateName);
+    
+    if (result) {
+      setCustomPresets(getCustomPresets());
+      setDuplicatingPreset(null);
+      setDuplicateName('');
+
+      toast({
+        title: "Preset duplicated",
+        description: `"${duplicateName}" has been created successfully`,
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to duplicate preset",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className={cn('grid gap-2', className)}>
       <Popover>
@@ -186,6 +225,14 @@ export function DateRangePicker({
                           onClick={() => onDateChange(preset.range)}
                         >
                           {preset.name}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => handleDuplicatePreset(preset.id, preset.name)}
+                        >
+                          <Copy className="h-3 w-3" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -276,6 +323,34 @@ export function DateRangePicker({
             </Button>
             <Button onClick={handleUpdatePreset}>
               Update Preset
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!duplicatingPreset} onOpenChange={(open) => !open && setDuplicatingPreset(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Duplicate Preset</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">New Preset Name</label>
+              <Input
+                placeholder="Preset name..."
+                value={duplicateName}
+                onChange={(e) => setDuplicateName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveDuplicate()}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDuplicatingPreset(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveDuplicate}>
+              <Copy className="h-4 w-4 mr-2" />
+              Duplicate
             </Button>
           </DialogFooter>
         </DialogContent>
