@@ -55,6 +55,8 @@ export interface Interview {
   status: 'scheduled' | 'completed' | 'cancelled' | 'no_show';
   feedback?: string;
   rating?: number;
+  recordingUrl?: string;
+  notes?: string;
 }
 
 export interface ScorecardCriterion {
