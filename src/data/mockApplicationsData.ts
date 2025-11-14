@@ -1,6 +1,7 @@
 import type { Application, ApplicationStatus, ApplicationStage, ParsedResume } from '@/types/application';
 import { mockCandidatesData } from './mockCandidatesData';
 import { mockJobs } from './mockTableData';
+import { TeamMemberFeedback } from '@/types/collaborativeFeedback';
 
 const statuses: ApplicationStatus[] = ['applied', 'screening', 'interview', 'offer', 'hired', 'rejected', 'withdrawn'];
 
@@ -521,6 +522,127 @@ for (let i = 0; i < 200; i++) {
         completedAt: new Date(appliedDate.getTime() + 12 * 24 * 60 * 60 * 1000),
         createdAt: new Date(appliedDate.getTime() + 11 * 24 * 60 * 60 * 1000)
       }
+    ] : undefined,
+    
+    // Team Reviews (add for interview, offer, or hired status)
+    teamReviews: (status === 'interview' || status === 'offer' || status === 'hired') ? [
+      {
+        id: `review-${i}-1`,
+        candidateId: candidate.id,
+        applicationId: `app-${i + 1}`,
+        reviewerId: 'user-1',
+        reviewerName: 'Sarah Johnson',
+        reviewerRole: 'Senior Engineer',
+        ratings: [
+          { criterionId: '1', value: 8 + Math.floor(Math.random() * 2), confidence: 4, notes: 'Strong technical foundation with deep understanding' },
+          { criterionId: '2', value: 7 + Math.floor(Math.random() * 2), confidence: 4, notes: 'Excellent problem-solving approach' },
+          { criterionId: '3', value: 8, confidence: 3, notes: 'Good communication skills' },
+          { criterionId: '4', value: 7 + Math.floor(Math.random() * 2), confidence: 4, notes: 'Great cultural fit' },
+          { criterionId: '5', value: 7, confidence: 3, notes: 'Shows leadership potential' },
+          { criterionId: '6', value: 8 + Math.floor(Math.random() * 2), confidence: 5, notes: 'Very eager to learn' },
+        ],
+        comments: [
+          {
+            id: `c-${i}-1`,
+            type: 'strength',
+            category: 'Technical',
+            content: 'Demonstrated deep understanding of system design patterns and best practices',
+            importance: 'high',
+            createdAt: new Date(appliedDate.getTime() + 8 * 24 * 60 * 60 * 1000).toISOString(),
+          },
+          {
+            id: `c-${i}-2`,
+            type: 'strength',
+            category: 'Problem Solving',
+            content: 'Approached coding challenges methodically with clear reasoning',
+            importance: 'high',
+            createdAt: new Date(appliedDate.getTime() + 8 * 24 * 60 * 60 * 1000).toISOString(),
+          },
+        ],
+        overallScore: 78 + Math.floor(Math.random() * 10),
+        recommendation: Math.random() > 0.3 ? 'hire' : 'strong-hire',
+        confidence: 4,
+        submittedAt: new Date(appliedDate.getTime() + 8 * 24 * 60 * 60 * 1000).toISOString(),
+        updatedAt: new Date(appliedDate.getTime() + 8 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+      {
+        id: `review-${i}-2`,
+        candidateId: candidate.id,
+        applicationId: `app-${i + 1}`,
+        reviewerId: 'user-2',
+        reviewerName: 'Michael Chen',
+        reviewerRole: 'Engineering Manager',
+        ratings: [
+          { criterionId: '1', value: 7 + Math.floor(Math.random() * 2), confidence: 5, notes: 'Solid technical foundation' },
+          { criterionId: '2', value: 8 + Math.floor(Math.random() * 2), confidence: 4, notes: 'Excellent analytical skills' },
+          { criterionId: '3', value: 8, confidence: 4, notes: 'Communicates clearly and effectively' },
+          { criterionId: '4', value: 8 + Math.floor(Math.random() * 2), confidence: 5, notes: 'Perfect fit for our team culture' },
+          { criterionId: '5', value: 7 + Math.floor(Math.random() * 2), confidence: 4, notes: 'Natural leadership qualities' },
+          { criterionId: '6', value: 8, confidence: 4, notes: 'Growth oriented mindset' },
+        ],
+        comments: [
+          {
+            id: `c-${i}-3`,
+            type: 'strength',
+            category: 'Leadership',
+            content: 'Led successful projects demonstrating strong project management skills',
+            importance: 'high',
+            createdAt: new Date(appliedDate.getTime() + 9 * 24 * 60 * 60 * 1000).toISOString(),
+          },
+          {
+            id: `c-${i}-4`,
+            type: 'observation',
+            category: 'Communication',
+            content: 'Could improve presentation skills slightly for executive audiences',
+            importance: 'low',
+            createdAt: new Date(appliedDate.getTime() + 9 * 24 * 60 * 60 * 1000).toISOString(),
+          },
+        ],
+        overallScore: 80 + Math.floor(Math.random() * 12),
+        recommendation: Math.random() > 0.2 ? 'strong-hire' : 'hire',
+        confidence: 5,
+        submittedAt: new Date(appliedDate.getTime() + 9 * 24 * 60 * 60 * 1000).toISOString(),
+        updatedAt: new Date(appliedDate.getTime() + 9 * 24 * 60 * 60 * 1000).toISOString(),
+      },
+      {
+        id: `review-${i}-3`,
+        candidateId: candidate.id,
+        applicationId: `app-${i + 1}`,
+        reviewerId: 'user-3',
+        reviewerName: 'Emily Rodriguez',
+        reviewerRole: 'HR Manager',
+        ratings: [
+          { criterionId: '1', value: 7, confidence: 3, notes: 'Adequate technical skills for the role' },
+          { criterionId: '2', value: 7 + Math.floor(Math.random() * 2), confidence: 3, notes: 'Good problem solver with practical approach' },
+          { criterionId: '3', value: 8 + Math.floor(Math.random() * 2), confidence: 5, notes: 'Excellent communicator and listener' },
+          { criterionId: '4', value: 8, confidence: 4, notes: 'Strong cultural alignment with company values' },
+          { criterionId: '5', value: 7, confidence: 3, notes: 'Some leadership experience with room to grow' },
+          { criterionId: '6', value: 8, confidence: 4, notes: 'Eager to develop skills and take on challenges' },
+        ],
+        comments: [
+          {
+            id: `c-${i}-5`,
+            type: 'strength',
+            category: 'Communication',
+            content: 'Outstanding communication and interpersonal skills',
+            importance: 'high',
+            createdAt: new Date(appliedDate.getTime() + 9 * 24 * 60 * 60 * 1000).toISOString(),
+          },
+          {
+            id: `c-${i}-6`,
+            type: 'strength',
+            category: 'Cultural Fit',
+            content: 'Values align perfectly with our company culture and mission',
+            importance: 'medium',
+            createdAt: new Date(appliedDate.getTime() + 9 * 24 * 60 * 60 * 1000).toISOString(),
+          },
+        ],
+        overallScore: 75 + Math.floor(Math.random() * 10),
+        recommendation: 'hire',
+        confidence: 4,
+        submittedAt: new Date(appliedDate.getTime() + 9 * 24 * 60 * 60 * 1000).toISOString(),
+        updatedAt: new Date(appliedDate.getTime() + 9 * 24 * 60 * 60 * 1000).toISOString(),
+      },
     ] : undefined,
     
     assignedTo: i % 3 === 0 ? 'recruiter-1' : i % 3 === 1 ? 'recruiter-2' : undefined,
