@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import { 
   Users, 
   TrendingUp, 
@@ -13,11 +14,14 @@ import {
   Star,
   ThumbsUp,
   ThumbsDown,
-  Minus
+  Minus,
+  History
 } from "lucide-react";
 import { LiveCommentThread } from "../LiveCommentThread";
 import { LiveActivityFeed } from "../LiveActivityFeed";
 import { CollaborativeEditor } from "../CollaborativeEditor";
+import { VersionHistory } from "../VersionHistory";
+import { useState } from "react";
 
 interface TeamReviewsTabProps {
   application: Application;
@@ -25,6 +29,7 @@ interface TeamReviewsTabProps {
 
 export function TeamReviewsTab({ application }: TeamReviewsTabProps) {
   const reviews = application.teamReviews || [];
+  const [editorContent, setEditorContent] = useState('');
 
   // Calculate consensus metrics
   const totalReviews = reviews.length;
@@ -356,24 +361,22 @@ export function TeamReviewsTab({ application }: TeamReviewsTabProps) {
         ))}
       </div>
 
-      {/* Collaborative Editor */}
-      <div className="mt-6">
-        <CollaborativeEditor
-          documentId={`interview-notes-${application.id}`}
-          candidateName={application.candidateName}
-          initialContent="## Technical Interview Notes
-
-**Candidate:** Technical skills assessment
-
-### Strengths:
-- Strong problem-solving abilities
-- Good communication skills
-
-### Areas to explore:
-- System design experience
-- Leadership potential
-"
-        />
+      {/* Collaborative Editor and Version History */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        <div className="lg:col-span-2">
+          <CollaborativeEditor
+            documentId={`interview-notes-${application.id}`}
+            candidateName={application.candidateName}
+            initialContent={editorContent}
+          />
+        </div>
+        <div>
+          <VersionHistory
+            documentId={`interview-notes-${application.id}`}
+            currentContent={editorContent}
+            onRestore={setEditorContent}
+          />
+        </div>
       </div>
 
       {/* Live Activity Feed and Comment Thread */}
