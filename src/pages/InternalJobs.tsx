@@ -32,6 +32,8 @@ export default function InternalJobs() {
   };
 
   const handleSubmitApplication = (data: any) => {
+    // In a real implementation, this would save the internal application
+    // using the shared saveApplication function with isInternalCandidate flag
     setIsApplicationOpen(false);
     toast({
       title: "Application Submitted",

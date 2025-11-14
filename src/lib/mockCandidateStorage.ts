@@ -43,6 +43,11 @@ export function getCandidateById(id: string): Candidate | undefined {
   return candidates.find(c => c.id === id);
 }
 
+export function getCandidateByEmail(email: string): Candidate | undefined {
+  const candidates = getCandidates();
+  return candidates.find(c => c.email.toLowerCase() === email.toLowerCase());
+}
+
 export function saveCandidate(candidate: Candidate): void {
   const candidates = getCandidates();
   const newCandidate = {

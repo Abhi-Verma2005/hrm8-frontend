@@ -21,6 +21,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
 import { OfferForm } from "@/components/offers/OfferForm";
 import { getTemplateById } from "@/lib/mockTemplateStorage";
+import { AIInterviewScheduleDialog } from "@/components/applications/AIInterviewScheduleDialog";
+import { Video } from "lucide-react";
 
 interface ApplicationDetailPanelProps {
   application: Application | null;
@@ -33,6 +35,7 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
   const [newNote, setNewNote] = useState("");
   const [isInterviewDialogOpen, setIsInterviewDialogOpen] = useState(false);
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
+  const [isAIInterviewDialogOpen, setIsAIInterviewDialogOpen] = useState(false);
 
   if (!application) return null;
 
