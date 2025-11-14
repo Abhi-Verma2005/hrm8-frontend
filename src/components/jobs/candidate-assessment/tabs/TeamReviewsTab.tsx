@@ -358,6 +358,7 @@ export function TeamReviewsTab({ application }: TeamReviewsTabProps) {
       <div className="mt-6">
         <LiveCommentThread
           candidateId={application.id}
+          candidateName={application.candidateName}
           currentUserId="current-user"
           currentUserName="Current User"
         />

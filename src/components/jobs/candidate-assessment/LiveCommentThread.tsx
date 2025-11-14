@@ -8,6 +8,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageSquare, Send, Reply, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useTypingIndicator } from '@/hooks/useTypingIndicator';
+import { createNotification } from '@/lib/notificationStorage';
+import { useToast } from '@/hooks/use-toast';
 
 interface Comment {
   id: string;
@@ -24,12 +26,14 @@ interface Comment {
 
 interface LiveCommentThreadProps {
   candidateId: string;
+  candidateName: string;
   currentUserId: string;
   currentUserName: string;
 }
 
 export const LiveCommentThread: React.FC<LiveCommentThreadProps> = ({
   candidateId,
+  candidateName,
   currentUserId,
   currentUserName,
 }) => {
@@ -76,6 +80,7 @@ export const LiveCommentThread: React.FC<LiveCommentThreadProps> = ({
     candidateId,
     currentUserId,
   });
+  const { toast } = useToast();
 
   const teamMembers = [
     { id: 'user-1', name: 'Sarah Johnson', role: 'Senior Recruiter' },
@@ -149,6 +154,49 @@ export const LiveCommentThread: React.FC<LiveCommentThreadProps> = ({
       createdAt: new Date(),
       replies: [],
     };
+
+    // Send notifications for mentions
+    mentions.forEach(mentionedName => {
+      createNotification({
+        userId: 'user-mentioned', // In real app, lookup user ID by name
+        type: 'info',
+        category: 'system',
+        priority: 'medium',
+        title: 'You were mentioned',
+        message: `${currentUserName} mentioned you in a comment`,
+        metadata: {
+          candidateId,
+          candidateName,
+          commentId: comment.id,
+        },
+        read: false,
+        archived: false,
+      });
+
+      toast({
+        title: 'Mention notification sent',
+        description: `Notified ${mentionedName}`,
+      });
+    });
+
+    // Send notification for new comment
+    if (!replyingTo) {
+      createNotification({
+        userId: 'team-member', // In real app, notify relevant team members
+        type: 'info',
+        category: 'system',
+        priority: 'low',
+        title: 'New comment added',
+        message: `${currentUserName} added a comment about ${candidateName}`,
+        metadata: {
+          candidateId,
+          candidateName,
+          commentId: comment.id,
+        },
+        read: false,
+        archived: false,
+      });
+    }
 
     if (replyingTo) {
       setComments(prevComments => 
