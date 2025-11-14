@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { CandidateAvatar } from "./CandidateAvatar";
 import { CandidateStatusBadge } from "./CandidateStatusBadge";
+import { AIInterviewScoreBadge } from "./AIInterviewScoreBadge";
 import { SkillsBadgeGroup } from "./SkillsBadgeGroup";
 import { Button } from "@/components/ui/button";
 import { Mail, Phone, MapPin } from "lucide-react";
@@ -28,6 +29,9 @@ export function CandidateCard({ candidate }: CandidateCardProps) {
               <div>
                 <h3 className="font-semibold">{candidate.name}</h3>
                 <p className="text-sm text-muted-foreground">{candidate.position}</p>
+                <div className="mt-1">
+                  <AIInterviewScoreBadge candidateId={candidate.id} variant="compact" />
+                </div>
               </div>
             </div>
             <CandidateStatusBadge status={candidate.status} />

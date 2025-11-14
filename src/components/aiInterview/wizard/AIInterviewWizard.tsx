@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
@@ -27,8 +27,12 @@ interface WizardData {
 
 export function AIInterviewWizard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentStep, setCurrentStep] = useState(0);
-  const [wizardData, setWizardData] = useState<WizardData>({});
+  
+  // Pre-populate with data from location state if available
+  const prefilledData = location.state as Partial<WizardData> | null;
+  const [wizardData, setWizardData] = useState<WizardData>(prefilledData || {});
 
   const steps = [
     { title: 'Select Candidate', description: 'Choose who to interview' },
