@@ -127,12 +127,12 @@ export function createOpportunityColumns(): Column<SalesOpportunity>[] {
                 View Details
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log('Edit opportunity', opp.id)}>
+            <DropdownMenuItem onClick={() => {}}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Opportunity
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive" onClick={() => console.log('Delete opportunity', opp.id)}>
+            <DropdownMenuItem className="text-destructive" onClick={() => {}}>
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </DropdownMenuItem>

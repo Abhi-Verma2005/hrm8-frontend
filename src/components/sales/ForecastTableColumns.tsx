@@ -157,15 +157,15 @@ export function createForecastColumns(): Column<ForecastItem>[] {
                 View Opportunity
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log('Adjust forecast', item.id)}>
+            <DropdownMenuItem onClick={() => {}}>
               <Edit className="mr-2 h-4 w-4" />
               Adjust Forecast
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log('View analytics', item.id)}>
+            <DropdownMenuItem onClick={() => {}}>
               <TrendingUp className="mr-2 h-4 w-4" />
               View Analytics
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log('Send report', item.id)}>
+            <DropdownMenuItem onClick={() => {}}>
               <Mail className="mr-2 h-4 w-4" />
               Send Report
             </DropdownMenuItem>

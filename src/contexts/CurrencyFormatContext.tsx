@@ -54,7 +54,6 @@ export function CurrencyFormatProvider({ children }: { children: React.ReactNode
           });
         }
       } catch (error) {
-        console.log('Using fallback exchange rates');
         // Keep using fallback rates
       }
     };
