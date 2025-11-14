@@ -16,6 +16,7 @@ import {
   Minus
 } from "lucide-react";
 import { LiveCommentThread } from "../LiveCommentThread";
+import { LiveActivityFeed } from "../LiveActivityFeed";
 
 interface TeamReviewsTabProps {
   application: Application;
@@ -354,13 +355,18 @@ export function TeamReviewsTab({ application }: TeamReviewsTabProps) {
         ))}
       </div>
 
-      {/* Live Comment Thread */}
-      <div className="mt-6">
+      {/* Live Activity Feed and Comment Thread */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         <LiveCommentThread
           candidateId={application.id}
           candidateName={application.candidateName}
           currentUserId="current-user"
           currentUserName="Current User"
+        />
+        
+        <LiveActivityFeed
+          candidateId={application.id}
+          maxHeight="600px"
         />
       </div>
     </div>
