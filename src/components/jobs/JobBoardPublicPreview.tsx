@@ -17,7 +17,7 @@ import { EmploymentTypeBadge } from "./EmploymentTypeBadge";
 import { formatSalaryRange, formatExperienceLevel } from "@/lib/jobUtils";
 
 interface JobBoardPublicPreviewProps {
-  formData: Partial<JobFormData> & { id?: string };
+  formData: Partial<JobFormData>;
 }
 
 export function JobBoardPublicPreview({ formData }: JobBoardPublicPreviewProps) {
@@ -235,22 +235,9 @@ export function JobBoardPublicPreview({ formData }: JobBoardPublicPreviewProps) 
                 Submit your application to be considered for this role
               </p>
             </div>
-            <Button 
-              size="lg"
-              onClick={() => {
-                if (formData.id) {
-                  window.open(`/apply/${formData.id}`, '_blank');
-                }
-              }}
-              disabled={!formData.id}
-            >
+            <Button size="lg" disabled>
               Apply Now
             </Button>
-            {!formData.id && (
-              <p className="text-xs text-muted-foreground mt-2">
-                (Save job to enable applications)
-              </p>
-            )}
           </div>
         </CardContent>
       </Card>

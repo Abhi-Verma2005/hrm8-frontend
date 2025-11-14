@@ -21,7 +21,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
 import { OfferForm } from "@/components/offers/OfferForm";
 import { getTemplateById } from "@/lib/mockTemplateStorage";
-import { AIInterviewScheduleDialog } from "@/components/applications/AIInterviewScheduleDialog";
 
 interface ApplicationDetailPanelProps {
   application: Application | null;
@@ -34,7 +33,6 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
   const [newNote, setNewNote] = useState("");
   const [isInterviewDialogOpen, setIsInterviewDialogOpen] = useState(false);
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
-  const [isAIInterviewDialogOpen, setIsAIInterviewDialogOpen] = useState(false);
 
   if (!application) return null;
 
@@ -110,20 +108,16 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" size="sm">
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" className="flex-1">
               <Mail className="h-4 w-4 mr-2" />
               Email
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setIsInterviewDialogOpen(true)}>
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => setIsInterviewDialogOpen(true)}>
               <Video className="h-4 w-4 mr-2" />
               Schedule Interview
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setIsAIInterviewDialogOpen(true)}>
-              <Video className="h-4 w-4 mr-2" />
-              AI Interview
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setIsOfferDialogOpen(true)}>
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => setIsOfferDialogOpen(true)}>
               <Send className="h-4 w-4 mr-2" />
               Send Offer
             </Button>
@@ -301,16 +295,6 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
             />
           </DialogContent>
         </Dialog>
-
-        {/* AI Interview Schedule Dialog */}
-        <AIInterviewScheduleDialog
-          open={isAIInterviewDialogOpen}
-          onOpenChange={setIsAIInterviewDialogOpen}
-          application={application}
-          onScheduled={() => {
-            onRefresh();
-          }}
-        />
       </SheetContent>
     </Sheet>
   );

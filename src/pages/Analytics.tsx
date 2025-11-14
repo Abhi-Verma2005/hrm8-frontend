@@ -21,7 +21,7 @@ import {
 } from "@/lib/analyticsService";
 import { MetricsOverview } from "@/components/analytics/MetricsOverview";
 import { PipelineFunnelChart } from "@/components/analytics/PipelineFunnelChart";
-import { RecruitmentSourceChart } from "@/components/analytics/RecruitmentSourceChart";
+import { SourceEffectivenessChart } from "@/components/analytics/SourceEffectivenessChart";
 import { TimeToHireTrendChart } from "@/components/analytics/TimeToHireTrendChart";
 import { CandidateTrendChart } from "@/components/analytics/CandidateTrendChart";
 import { PipelineStageMetrics } from "@/components/analytics/PipelineStageMetrics";
@@ -113,7 +113,7 @@ export default function Analytics() {
               <PipelineStageMetrics data={pipelineMetrics} />
               <PipelineFunnelChart data={conversionFunnel} />
             </div>
-            <RecruitmentSourceChart data={sourceEffectiveness} />
+            <SourceEffectivenessChart data={sourceEffectiveness} />
           </TabsContent>
 
           <TabsContent value="pipeline" className="space-y-4">
@@ -122,7 +122,7 @@ export default function Analytics() {
           </TabsContent>
 
           <TabsContent value="sources" className="space-y-4">
-            <RecruitmentSourceChart data={sourceEffectiveness} />
+            <SourceEffectivenessChart data={sourceEffectiveness} />
             <div className="grid gap-4 md:grid-cols-3">
               {sourceEffectiveness.slice(0, 3).map((source) => (
                 <div key={source.source} className="p-6 border rounded-lg bg-card">

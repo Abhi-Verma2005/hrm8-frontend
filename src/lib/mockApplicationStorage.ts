@@ -1,11 +1,5 @@
 import type { Application, ApplicationStatus, ApplicationStage } from '@/types/application';
 import { mockApplicationsData } from '@/data/mockApplicationsData';
-import { 
-  notifyNewApplication, 
-  notifyApplicationStatusChange,
-  notifyInterviewScheduled,
-  notifyOfferSent
-} from '@/lib/notifications/notificationService';
 
 const STORAGE_KEY = 'hrm8_applications';
 
@@ -70,14 +64,6 @@ export function saveApplication(application: Application): void {
   };
   applications.push(newApplication);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(applications));
-  
-  // Trigger notification for new application
-  notifyNewApplication(
-    application.candidateName,
-    application.jobTitle,
-    application.id,
-    application.jobId
-  );
 }
 
 export function updateApplication(id: string, updates: Partial<Application>): void {
@@ -98,9 +84,6 @@ export function updateApplicationStatus(id: string, status: ApplicationStatus, s
   const index = applications.findIndex(a => a.id === id);
   if (index !== -1) {
     const application = applications[index];
-    const oldStatus = application.status;
-    const oldStage = application.stage;
-    
     application.status = status;
     if (stage) {
       application.stage = stage;
@@ -114,29 +97,8 @@ export function updateApplicationStatus(id: string, status: ApplicationStatus, s
       description: `Status changed to ${status}${stage ? ` (${stage})` : ''}`,
       createdAt: new Date(),
     });
-    
+
     localStorage.setItem(STORAGE_KEY, JSON.stringify(applications));
-    
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(applications));
-    
-    // Trigger notification for status change
-    if (oldStatus !== status || oldStage !== stage) {
-      notifyApplicationStatusChange(
-        application.candidateName,
-        application.jobTitle,
-        stage || status,
-        application.id
-      );
-    }
-    
-    // Trigger specific notifications for important events
-    if (status === 'offer' && oldStatus !== 'offer') {
-      notifyOfferSent(
-        application.candidateName,
-        application.jobTitle,
-        application.id
-      );
-    }
   }
 }
 

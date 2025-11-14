@@ -129,11 +129,11 @@ export function createSalesAgentColumns(): Column<SalesAgent>[] {
                 View Details
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {}}>
+            <DropdownMenuItem onClick={() => console.log('Edit agent', agent.id)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Agent
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {}}>
+            <DropdownMenuItem onClick={() => console.log('Send email', agent.email)}>
               <Mail className="h-4 w-4 mr-2" />
               Send Email
             </DropdownMenuItem>

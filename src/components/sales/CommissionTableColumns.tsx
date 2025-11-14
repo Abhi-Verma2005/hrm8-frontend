@@ -128,32 +128,32 @@ export function createCommissionColumns(): Column<SalesCommission>[] {
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => {}}>
+            <DropdownMenuItem onClick={() => console.log('View commission', commission.id)}>
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {}}>
+            <DropdownMenuItem onClick={() => console.log('Edit commission', commission.id)}>
               <Edit className="mr-2 h-4 w-4" />
               Edit Commission
             </DropdownMenuItem>
             {commission.status === 'pending' && (
-              <DropdownMenuItem onClick={() => {}}>
+              <DropdownMenuItem onClick={() => console.log('Approve commission', commission.id)}>
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Approve
               </DropdownMenuItem>
             )}
             {commission.status === 'approved' && (
-              <DropdownMenuItem onClick={() => {}}>
+              <DropdownMenuItem onClick={() => console.log('Mark as paid', commission.id)}>
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Mark as Paid
               </DropdownMenuItem>
             )}
-            <DropdownMenuItem onClick={() => {}}>
+            <DropdownMenuItem onClick={() => console.log('Download receipt', commission.id)}>
               <Download className="mr-2 h-4 w-4" />
               Download Receipt
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive" onClick={() => {}}>
+            <DropdownMenuItem className="text-destructive" onClick={() => console.log('Delete commission', commission.id)}>
               <Trash2 className="mr-2 h-4 w-4" />
               Delete
             </DropdownMenuItem>

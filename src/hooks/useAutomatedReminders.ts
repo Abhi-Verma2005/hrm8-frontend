@@ -46,6 +46,8 @@ export function useAutomatedReminders(options: UseAutomatedRemindersOptions = {}
         return;
       }
     }
+
+    console.log('🔄 Processing automated reminders, escalations, and SLA checks...');
     
     try {
       // Process reminders
@@ -64,6 +66,9 @@ export function useAutomatedReminders(options: UseAutomatedRemindersOptions = {}
 
       // Log results
       if (result.refereeReminders > 0 || result.consentReminders > 0) {
+        console.log(`✅ Sent ${result.refereeReminders} referee reminders and ${result.consentReminders} consent reminders`);
+        console.log(`✅ Processed escalations and SLA checks`);
+        
         toast({
           title: "Automated Checks Complete",
           description: `Sent ${result.refereeReminders} referee reminders and ${result.consentReminders} consent reminders. Escalations and SLAs processed.`,

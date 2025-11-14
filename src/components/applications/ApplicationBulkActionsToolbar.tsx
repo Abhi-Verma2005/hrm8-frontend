@@ -195,6 +195,7 @@ export function ApplicationBulkActionsToolbar({
         onSend={(subject, body) => {
           onBulkEmail();
           // In the future, this will pass subject and body to the backend
+          console.log('Email to send:', { subject, body });
         }}
       />
     </>

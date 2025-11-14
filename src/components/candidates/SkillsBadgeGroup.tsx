@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { X } from "lucide-react";
@@ -11,7 +10,7 @@ interface SkillsBadgeGroupProps {
   editable?: boolean;
 }
 
-export const SkillsBadgeGroup = memo(function SkillsBadgeGroup({ 
+export function SkillsBadgeGroup({ 
   skills, 
   maxVisible = 3, 
   onRemove,
@@ -62,4 +61,4 @@ export const SkillsBadgeGroup = memo(function SkillsBadgeGroup({
       )}
     </div>
   );
-});
+}

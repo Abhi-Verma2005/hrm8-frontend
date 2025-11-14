@@ -126,16 +126,16 @@ export function createActivityColumns(): Column<SalesActivity>[] {
                 View Details
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {}}>
+            <DropdownMenuItem onClick={() => console.log('Edit activity', activity.id)}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Activity
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => {}}>
+            <DropdownMenuItem onClick={() => console.log('Mark complete', activity.id)}>
               <CheckCircle className="h-4 w-4 mr-2" />
               Mark Complete
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive" onClick={() => {}}>
+            <DropdownMenuItem className="text-destructive" onClick={() => console.log('Delete activity', activity.id)}>
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </DropdownMenuItem>

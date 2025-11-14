@@ -3,7 +3,6 @@ import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { getServiceProjectById } from '@/lib/recruitmentServiceStorage';
-import { TaskManagementPanel } from '@/components/recruitment-services/TaskManagementPanel';
 
 export default function ServiceProjectDetail() {
   const { id } = useParams();
@@ -39,8 +38,21 @@ export default function ServiceProjectDetail() {
           </div>
         </div>
 
-        {/* Task Management */}
-        <TaskManagementPanel project={project} />
+        {/* Placeholder Content */}
+        <div className="bg-muted/50 rounded-lg p-12 text-center">
+          <h2 className="text-xl font-semibold mb-2">Service Project Detail Page</h2>
+          <p className="text-muted-foreground">
+            This detailed view is coming soon and will include:
+          </p>
+          <ul className="mt-4 space-y-2 text-sm text-muted-foreground max-w-md mx-auto text-left">
+            <li>• Project overview and timeline</li>
+            <li>• Team members and assignments</li>
+            <li>• Candidate pipeline and progress</li>
+            <li>• Tasks and milestones</li>
+            <li>• Activity history</li>
+            <li>• Documents and communications</li>
+          </ul>
+        </div>
 
         {/* Debug Info */}
         <div className="bg-muted/30 rounded-lg p-4">

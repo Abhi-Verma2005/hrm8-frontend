@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Upload, Download, LayoutGrid, List, Filter, X, GitCompare, Sparkles as SparklesIcon, BarChart3, Building2 } from "lucide-react";
+import { Upload, Download, LayoutGrid, List, Filter, X, GitCompare, Sparkles as SparklesIcon, BarChart3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue, SelectSeparator } from "@/components/ui/select";
@@ -59,7 +59,6 @@ export default function Applications() {
   const [showBulkScoring, setShowBulkScoring] = useState(false);
   const [showBulkTagging, setShowBulkTagging] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [showInternalOnly, setShowInternalOnly] = useState(false);
 
   useEffect(() => {
     loadApplications();
@@ -242,11 +241,6 @@ export default function Applications() {
 
   const filteredApplications = useMemo(() => {
     let filtered = applications.filter((app) => {
-      // Filter by internal/external if enabled
-      if (showInternalOnly && !app.isInternalCandidate) {
-        return false;
-      }
-      
       // Filter by selected job if one is selected
       if (selectedJobId && selectedJobId !== "all" && selectedJobId !== "unread") {
         if (app.jobId !== selectedJobId) return false;
@@ -384,14 +378,6 @@ export default function Applications() {
             >
               <GitCompare className="mr-2 h-4 w-4" />
               {isCompareMode ? 'Exit Compare' : 'Compare'}
-            </Button>
-            <Button 
-              variant={showInternalOnly ? "default" : "outline"} 
-              size="sm"
-              onClick={() => setShowInternalOnly(!showInternalOnly)}
-            >
-              <Building2 className="mr-2 h-4 w-4" />
-              {showInternalOnly ? 'All Applications' : 'Internal Only'}
             </Button>
             <Button variant="outline" size="sm" onClick={() => setAdvancedFiltersOpen(true)}>
               <Filter className="mr-2 h-4 w-4" />

@@ -1,11 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3, Filter, X, Zap, Eye } from "lucide-react";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { DataTableWithVirtualization as DataTable, Column } from "@/components/tables/DataTableWithVirtualization";
+import { DataTable, Column } from "@/components/tables/DataTable";
 import { getJobs, deleteJob, getJobById } from "@/lib/mockJobStorage";
 import { Job } from "@/types/job";
 import { FormDrawer } from "@/components/ui/form-drawer";

@@ -34,15 +34,15 @@ export default function RecruitmentServices() {
   }, []);
 
   const handleView = (id: string) => {
-    navigate(`/recruitment-services/${id}`);
+    toast.info('Project detail view coming soon!');
   };
 
   const handleEdit = (id: string) => {
-    navigate(`/recruitment-services/${id}`);
+    toast.info('Edit project coming soon!');
   };
 
   const handleViewTasks = (id: string) => {
-    navigate(`/recruitment-services/${id}`);
+    toast.info('Task management coming soon!');
   };
 
   const handleArchive = (id: string) => {
