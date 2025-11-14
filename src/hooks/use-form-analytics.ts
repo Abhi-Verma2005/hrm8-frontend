@@ -116,9 +116,6 @@ export function useFormAnalytics<TFieldValues extends FieldValues>({
       
       onSubmitSuccess?.();
       
-      // Log analytics (in production, send to analytics service)
-      console.log('Form Analytics:', analyticsRef.current);
-      
       // Identify problematic fields
       const problematicFields = Object.values(analyticsRef.current.fields)
         .filter((field) => field.errorCount > 2 || field.timeSpent > 30)
@@ -177,7 +174,7 @@ export function useFormAnalytics<TFieldValues extends FieldValues>({
 
       // Send final analytics
       if (enabled && analyticsRef.current.submissionAttempts > 0) {
-        console.log('Final Form Analytics:', getAnalyticsSummary());
+        // Analytics could be sent to analytics service here
       }
     };
   }, [enabled]);

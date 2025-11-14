@@ -194,7 +194,6 @@ export function BackgroundCheckWizard({
           });
 
           // Note: We don't send referee invitations until consent is given
-          console.log('Referee created, will invite after consent:', referee.id);
         }
       }
 

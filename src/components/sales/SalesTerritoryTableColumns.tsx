@@ -131,16 +131,16 @@ export function createTerritoryColumns(): Column<SalesTerritory>[] {
                 View Details
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log('Edit territory', territory.id)}>
+            <DropdownMenuItem onClick={() => {}}>
               <Edit className="h-4 w-4 mr-2" />
               Edit Territory
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => console.log('Assign agents', territory.id)}>
+            <DropdownMenuItem onClick={() => {}}>
               <Users className="h-4 w-4 mr-2" />
               Assign Agents
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive" onClick={() => console.log('Delete territory', territory.id)}>
+            <DropdownMenuItem className="text-destructive" onClick={() => {}}>
               <Trash2 className="h-4 w-4 mr-2" />
               Delete
             </DropdownMenuItem>
