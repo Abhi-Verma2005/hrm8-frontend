@@ -11,6 +11,7 @@ import { useRecentRecords } from "@/hooks/useRecentRecords";
 import { useSidebarSections } from "@/hooks/useSidebarSections";
 import { formatDistanceToNow } from "date-fns";
 import { usePermissions } from "@/hooks/usePermissions";
+import { PerformanceMonitor } from "./sidebar/PerformanceMonitor";
 
 // Lazy load section components for better performance
 const ATSSection = lazy(() => import("./sidebar/ATSSection").then(m => ({ default: m.ATSSection })));
@@ -184,77 +185,91 @@ export function AppSidebar() {
 
         {/* ATS Section - Only show if ATS module is enabled */}
         {hasATS && (
-          <Suspense fallback={<SectionSkeleton />}>
-            <ATSSection 
-              isExpanded={isExpanded}
-              isActive={isActive}
-              sectionOpen={sections.ats}
-              onToggleSection={() => toggleSection('ats')}
-            />
-          </Suspense>
+          <PerformanceMonitor id="ATSSection">
+            <Suspense fallback={<SectionSkeleton />}>
+              <ATSSection 
+                isExpanded={isExpanded}
+                isActive={isActive}
+                sectionOpen={sections.ats}
+                onToggleSection={() => toggleSection('ats')}
+              />
+            </Suspense>
+          </PerformanceMonitor>
         )}
 
         {/* SALES Section */}
-        <Suspense fallback={<SectionSkeleton />}>
-          <SalesSection 
-            isExpanded={isExpanded}
-            isActive={isActive}
-            sectionOpen={sections.sales}
-            onToggleSection={() => toggleSection('sales')}
-          />
-        </Suspense>
+        <PerformanceMonitor id="SalesSection">
+          <Suspense fallback={<SectionSkeleton />}>
+            <SalesSection 
+              isExpanded={isExpanded}
+              isActive={isActive}
+              sectionOpen={sections.sales}
+              onToggleSection={() => toggleSection('sales')}
+            />
+          </Suspense>
+        </PerformanceMonitor>
 
         {/* OPERATIONS Section */}
-        <Suspense fallback={<SectionSkeleton />}>
-          <OperationsSection 
-            isExpanded={isExpanded}
-            isActive={isActive}
-            sectionOpen={sections.operations}
-            onToggleSection={() => toggleSection('operations')}
-          />
-        </Suspense>
+        <PerformanceMonitor id="OperationsSection">
+          <Suspense fallback={<SectionSkeleton />}>
+            <OperationsSection 
+              isExpanded={isExpanded}
+              isActive={isActive}
+              sectionOpen={sections.operations}
+              onToggleSection={() => toggleSection('operations')}
+            />
+          </Suspense>
+        </PerformanceMonitor>
 
         {/* HR MANAGEMENT Section - Only show if HRMS module is enabled */}
         {hasHRMS && (
-          <Suspense fallback={<SectionSkeleton />}>
-            <HRManagementSection 
-              isExpanded={isExpanded}
-              isActive={isActive}
-              sectionOpen={sections.hrManagement}
-              onToggleSection={() => toggleSection('hrManagement')}
-            />
-          </Suspense>
+          <PerformanceMonitor id="HRManagementSection">
+            <Suspense fallback={<SectionSkeleton />}>
+              <HRManagementSection 
+                isExpanded={isExpanded}
+                isActive={isActive}
+                sectionOpen={sections.hrManagement}
+                onToggleSection={() => toggleSection('hrManagement')}
+              />
+            </Suspense>
+          </PerformanceMonitor>
         )}
 
         {/* MANAGEMENT Section */}
-        <Suspense fallback={<SectionSkeleton />}>
-          <ManagementSection 
-            isExpanded={isExpanded}
-            isActive={isActive}
-            sectionOpen={sections.management}
-            onToggleSection={() => toggleSection('management')}
-          />
-        </Suspense>
+        <PerformanceMonitor id="ManagementSection">
+          <Suspense fallback={<SectionSkeleton />}>
+            <ManagementSection 
+              isExpanded={isExpanded}
+              isActive={isActive}
+              sectionOpen={sections.management}
+              onToggleSection={() => toggleSection('management')}
+            />
+          </Suspense>
+        </PerformanceMonitor>
 
         {/* INTEGRATIONS Section */}
-        <Suspense fallback={<SectionSkeleton />}>
-          <IntegrationsSection 
-            isExpanded={isExpanded}
-            isActive={isActive}
-            sectionOpen={sections.integrations}
-            onToggleSection={() => toggleSection('integrations')}
-          />
-        </Suspense>
+        <PerformanceMonitor id="IntegrationsSection">
+          <Suspense fallback={<SectionSkeleton />}>
+            <IntegrationsSection 
+              isExpanded={isExpanded}
+              isActive={isActive}
+              sectionOpen={sections.integrations}
+              onToggleSection={() => toggleSection('integrations')}
+            />
+          </Suspense>
+        </PerformanceMonitor>
 
         {/* SYSTEM Section */}
-        <Suspense fallback={<SectionSkeleton />}>
-          <SystemSection 
-            isExpanded={isExpanded}
-            isActive={isActive}
-            sectionOpen={sections.system}
-            onToggleSection={() => toggleSection('system')}
-          />
-        </Suspense>
+        <PerformanceMonitor id="SystemSection">
+          <Suspense fallback={<SectionSkeleton />}>
+            <SystemSection 
+              isExpanded={isExpanded}
+              isActive={isActive}
+              sectionOpen={sections.system}
+              onToggleSection={() => toggleSection('system')}
+            />
+          </Suspense>
+        </PerformanceMonitor>
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-4 bg-gradient-to-t from-sidebar-accent/30 to-transparent">
