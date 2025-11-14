@@ -7,10 +7,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { updateApplicationStatus, getApplications } from "@/lib/mockApplicationStorage";
 import { toast } from "sonner";
-import { ApplicationDetailPanel } from "./ApplicationDetailPanel";
+import { CandidateAssessmentView } from "../jobs/candidate-assessment/CandidateAssessmentView";
 
 interface ApplicationPipelineProps {
   jobId?: string;
+  jobTitle?: string;
   applications?: Application[];
   isCompareMode?: boolean;
   selectedForComparison?: string[];
@@ -28,7 +29,8 @@ const pipelineStages: { stage: ApplicationStage; label: string; color: string }[
 ];
 
 export function ApplicationPipeline({ 
-  jobId, 
+  jobId,
+  jobTitle = "Position",
   applications: providedApplications,
   isCompareMode = false,
   selectedForComparison = [],
@@ -96,6 +98,28 @@ export function ApplicationPipeline({
     setDetailPanelOpen(true);
   };
 
+  const handleNext = () => {
+    if (!selectedApplication) return;
+    const currentIndex = applications.findIndex(app => app.id === selectedApplication.id);
+    if (currentIndex < applications.length - 1) {
+      setSelectedApplication(applications[currentIndex + 1]);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (!selectedApplication) return;
+    const currentIndex = applications.findIndex(app => app.id === selectedApplication.id);
+    if (currentIndex > 0) {
+      setSelectedApplication(applications[currentIndex - 1]);
+    }
+  };
+
+  const currentIndex = selectedApplication 
+    ? applications.findIndex(app => app.id === selectedApplication.id)
+    : -1;
+  const hasNext = currentIndex < applications.length - 1;
+  const hasPrevious = currentIndex > 0;
+
   const activeApplication = activeId ? applications.find((app) => app.id === activeId) : null;
 
   return (
@@ -138,12 +162,18 @@ export function ApplicationPipeline({
         </DragOverlay>
       </DndContext>
 
-      <ApplicationDetailPanel
-        application={selectedApplication}
-        open={detailPanelOpen}
-        onOpenChange={setDetailPanelOpen}
-        onRefresh={loadApplications}
-      />
+      {selectedApplication && (
+        <CandidateAssessmentView
+          application={selectedApplication}
+          open={detailPanelOpen}
+          onOpenChange={setDetailPanelOpen}
+          jobTitle={jobTitle}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          hasNext={hasNext}
+          hasPrevious={hasPrevious}
+        />
+      )}
     </>
   );
 }

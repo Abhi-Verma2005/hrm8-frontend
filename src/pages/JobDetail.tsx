@@ -385,7 +385,7 @@ export default function JobDetail() {
 
           {/* Applicants Tab */}
           <TabsContent value="applicants">
-            <ApplicationPipeline jobId={job.id} />
+            <ApplicationPipeline jobId={job.id} jobTitle={job.title} />
           </TabsContent>
 
           {/* Matching Tab */}
