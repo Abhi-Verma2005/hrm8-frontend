@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Application } from "@/types/application";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -56,11 +56,24 @@ interface TimelineActivity {
   userName?: string;
   timestamp: Date;
   metadata?: Record<string, any>;
+  isRead?: boolean;
 }
 
 export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilters, setSelectedFilters] = useState<ActivityType[]>([]);
+  const [showUnreadOnly, setShowUnreadOnly] = useState(false);
+  const [readActivities, setReadActivities] = useState<Set<string>>(new Set());
+
+  // Mark all activities as read when tab is opened
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const activityIds = application.activities.map(a => a.id);
+      setReadActivities(new Set(activityIds));
+    }, 500); // Small delay to simulate viewing
+
+    return () => clearTimeout(timer);
+  }, [application.activities]);
 
   // Compile all activities from different sources
   const allActivities = useMemo(() => {
@@ -77,6 +90,7 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
         userName: activity.userName,
         timestamp: activity.createdAt,
         metadata: activity.metadata,
+        isRead: activity.isRead || readActivities.has(activity.id),
       });
     });
 
@@ -143,6 +157,11 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
   const filteredActivities = useMemo(() => {
     let filtered = allActivities;
 
+    // Apply unread filter
+    if (showUnreadOnly) {
+      filtered = filtered.filter(activity => !activity.isRead);
+    }
+
     // Apply type filters
     if (selectedFilters.length > 0) {
       filtered = filtered.filter(activity => selectedFilters.includes(activity.type));
@@ -159,7 +178,7 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
     }
 
     return filtered;
-  }, [allActivities, selectedFilters, searchQuery]);
+  }, [allActivities, selectedFilters, searchQuery, showUnreadOnly]);
 
   // Group activities by date
   const groupedActivities = useMemo(() => {
@@ -192,6 +211,7 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
   const clearFilters = () => {
     setSelectedFilters([]);
     setSearchQuery("");
+    setShowUnreadOnly(false);
   };
 
   const getActivityIcon = (type: ActivityType) => {
@@ -324,7 +344,15 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            {(selectedFilters.length > 0 || searchQuery) && (
+            <Button 
+              variant={showUnreadOnly ? "default" : "outline"} 
+              onClick={() => setShowUnreadOnly(!showUnreadOnly)}
+              className="gap-2"
+            >
+              <Badge variant={showUnreadOnly ? "secondary" : "outline"} className="h-2 w-2 rounded-full p-0" />
+              Unread Only
+            </Button>
+            {(selectedFilters.length > 0 || searchQuery || showUnreadOnly) && (
               <Button variant="ghost" onClick={clearFilters}>
                 Clear
               </Button>
@@ -382,12 +410,15 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
                       {getActivityIcon(activity.type)}
                     </div>
 
-                    <Card>
+                    <Card className={!activity.isRead ? "border-primary/50 bg-primary/5" : ""}>
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex-1 space-y-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="font-semibold text-sm">
+                              <h4 className="font-semibold text-sm flex items-center gap-2">
+                                {!activity.isRead && (
+                                  <Badge variant="default" className="h-2 w-2 rounded-full p-0" />
+                                )}
                                 {activity.title}
                               </h4>
                               <Badge variant="outline" className={`text-xs ${getActivityColor(activity.type)}`}>

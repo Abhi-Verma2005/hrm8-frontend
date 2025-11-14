@@ -3,6 +3,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, X, FileText, Users, Calendar, ClipboardCheck, MessageSquare, Activity, Briefcase } from "lucide-react";
 import { Application } from "@/types/application";
 import { CandidateProfileHeader } from "./CandidateProfileHeader";
@@ -16,6 +17,7 @@ import { ScorecardsTab } from "./tabs/ScorecardsTab";
 import { InterviewsTab } from "./tabs/InterviewsTab";
 import { TeamReviewsTab } from "./tabs/TeamReviewsTab";
 import { ActivityTimelineTab } from "./tabs/ActivityTimelineTab";
+import { useActivityNotifications } from "@/hooks/useActivityNotifications";
 
 interface CandidateAssessmentViewProps {
   application: Application;
@@ -39,6 +41,7 @@ export function CandidateAssessmentView({
   jobTitle,
 }: CandidateAssessmentViewProps) {
   const [activeTab, setActiveTab] = useState("overview");
+  const { unreadCount } = useActivityNotifications(application);
 
   // Keyboard shortcuts
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -135,6 +138,11 @@ export function CandidateAssessmentView({
                     <TabsTrigger value="activity" className="gap-2">
                       <Activity className="h-4 w-4" />
                       Activity
+                      {unreadCount > 0 && (
+                        <Badge variant="destructive" className="ml-1 h-5 min-w-5 rounded-full px-1 text-xs">
+                          {unreadCount}
+                        </Badge>
+                      )}
                     </TabsTrigger>
                   </TabsList>
                 </ScrollArea>
