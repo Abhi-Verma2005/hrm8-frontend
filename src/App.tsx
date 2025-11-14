@@ -123,7 +123,6 @@ const PivotDemo = lazy(() => import("./pages/PivotDemo"));
 const Requisitions = lazy(() => import("./pages/Requisitions"));
 const RequisitionDetail = lazy(() => import("./pages/RequisitionDetail"));
 const Interviews = lazy(() => import("./pages/Interviews"));
-const Offers = lazy(() => import("./pages/Offers"));
 const Assessments = lazy(() => import("./pages/Assessments"));
 const AssessmentDetail = lazy(() => import("./pages/AssessmentDetail"));
 const AssessmentTemplates = lazy(() => import("./pages/AssessmentTemplates"));
@@ -167,6 +166,7 @@ const AIInterviewSession = lazy(() => import("./pages/AIInterviewSession"));
 const AIInterviewReports = lazy(() => import("./pages/AIInterviewReports"));
 const AIInterviewReportDetail = lazy(() => import("./pages/AIInterviewReportDetail"));
 const AIInterviewAnalytics = lazy(() => import("./pages/AIInterviewAnalytics"));
+const ApplyToJob = lazy(() => import("./pages/public/ApplyToJob"));
 
 import { AIInterviewWizard } from "./components/aiInterview/wizard/AIInterviewWizard";
 import { initializeMockFeedbackData } from './lib/mockFeedbackData';
@@ -250,7 +250,6 @@ function AppContent() {
               <Route path="/requisitions" element={<Requisitions />} />
               <Route path="/requisitions/:id" element={<RequisitionDetail />} />
               <Route path="/interviews" element={<Interviews />} />
-              <Route path="/offers" element={<Offers />} />
           <Route path="/assessments" element={<Assessments />} />
           <Route path="/assessments/:id" element={<AssessmentDetail />} />
           <Route path="/assessments/compare" element={<AssessmentComparisonPage />} />

@@ -235,7 +235,10 @@ export function JobBoardPublicPreview({ formData }: JobBoardPublicPreviewProps) 
                 Submit your application to be considered for this role
               </p>
             </div>
-            <Button size="lg" disabled>
+            <Button 
+              size="lg"
+              onClick={() => window.open(`/apply/${formData.id || 'preview'}`, '_blank')}
+            >
               Apply Now
             </Button>
           </div>
