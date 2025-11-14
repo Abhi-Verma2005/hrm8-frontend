@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Clock, 
   Search,
@@ -20,7 +21,9 @@ import {
   XCircle,
   Users,
   ClipboardCheck,
-  Upload
+  Upload,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -74,6 +77,23 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
 
     return () => clearTimeout(timer);
   }, [application.activities]);
+
+  const toggleActivityRead = (activityId: string) => {
+    setReadActivities(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(activityId)) {
+        newSet.delete(activityId);
+      } else {
+        newSet.add(activityId);
+      }
+      return newSet;
+    });
+  };
+
+  const markAllAsRead = () => {
+    const allActivityIds = allActivities.map(a => a.id);
+    setReadActivities(new Set(allActivityIds));
+  };
 
   // Compile all activities from different sources
   const allActivities = useMemo(() => {
@@ -179,6 +199,11 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
 
     return filtered;
   }, [allActivities, selectedFilters, searchQuery, showUnreadOnly]);
+
+  // Calculate unread count
+  const unreadCount = useMemo(() => {
+    return allActivities.filter(activity => !activity.isRead).length;
+  }, [allActivities]);
 
   // Group activities by date
   const groupedActivities = useMemo(() => {
@@ -352,6 +377,16 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
               <Badge variant={showUnreadOnly ? "secondary" : "outline"} className="h-2 w-2 rounded-full p-0" />
               Unread Only
             </Button>
+            {unreadCount > 0 && (
+              <Button 
+                variant="outline" 
+                onClick={markAllAsRead}
+                className="gap-2"
+              >
+                <CheckCircle2 className="h-4 w-4" />
+                Mark All Read
+              </Button>
+            )}
             {(selectedFilters.length > 0 || searchQuery || showUnreadOnly) && (
               <Button variant="ghost" onClick={clearFilters}>
                 Clear
@@ -435,11 +470,34 @@ export function ActivityTimelineTab({ application }: ActivityTimelineTabProps) {
                               </div>
                             )}
                           </div>
-                          <div className="text-xs text-muted-foreground whitespace-nowrap">
-                            {activity.timestamp.toLocaleTimeString('en-US', {
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
+                          <div className="flex items-center gap-2">
+                            <div className="text-xs text-muted-foreground whitespace-nowrap">
+                              {activity.timestamp.toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </div>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7"
+                                    onClick={() => toggleActivityRead(activity.id)}
+                                  >
+                                    {activity.isRead ? (
+                                      <Eye className="h-4 w-4 text-muted-foreground" />
+                                    ) : (
+                                      <EyeOff className="h-4 w-4 text-primary" />
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{activity.isRead ? "Mark as unread" : "Mark as read"}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
                         </div>
                       </CardContent>
