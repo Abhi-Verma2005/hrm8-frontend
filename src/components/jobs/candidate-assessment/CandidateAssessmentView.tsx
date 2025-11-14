@@ -11,6 +11,7 @@ import { QuickActionsToolbar } from "./QuickActionsToolbar";
 import { OverviewTab } from "./tabs/OverviewTab";
 import { ApplicationDetailsTab } from "./tabs/ApplicationDetailsTab";
 import { ResumeWorkHistoryTab } from "./tabs/ResumeWorkHistoryTab";
+import { QuestionnaireResponsesTab } from "./tabs/QuestionnaireResponsesTab";
 
 interface CandidateAssessmentViewProps {
   application: Application;
@@ -150,9 +151,7 @@ export function CandidateAssessmentView({
                   </TabsContent>
 
                   <TabsContent value="questionnaire" className="mt-0">
-                    <div className="text-center py-12 text-muted-foreground">
-                      Questionnaire responses tab will be implemented in Phase 2
-                    </div>
+                    <QuestionnaireResponsesTab application={application} />
                   </TabsContent>
 
                   <TabsContent value="scorecards" className="mt-0">

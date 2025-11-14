@@ -205,6 +205,115 @@ for (let i = 0; i < 200; i++) {
       },
     ],
     
+    // Add questionnaire data for some applications
+    questionnaireData: i % 2 === 0 ? {
+      responses: [
+        {
+          questionId: 'qq1',
+          question: 'What interests you most about this position?',
+          answer: `I'm particularly drawn to this role because it offers the opportunity to work on cutting-edge technologies and contribute to meaningful projects. My ${candidate.experienceYears} years of experience in ${candidate.skills.slice(0, 2).join(' and ')} have prepared me well for the challenges this position presents. I'm excited about the prospect of working with a talented team and continuing to grow professionally.`,
+          type: 'text',
+          aiAnalysis: {
+            sentiment: 'positive',
+            qualityScore: 85 + Math.floor(Math.random() * 10),
+            keyInsights: [
+              'Demonstrates genuine interest in the role and company',
+              'Shows clear understanding of position requirements',
+              'Connects personal experience to job needs'
+            ],
+            strengths: [
+              'Well-articulated response with specific details',
+              'Positive and enthusiastic tone',
+              'Mentions relevant experience and skills'
+            ]
+          }
+        },
+        {
+          questionId: 'qq2',
+          question: 'Describe a challenging project you led and how you overcame obstacles.',
+          answer: `In my previous role at ${i % 2 === 0 ? 'TechCorp' : 'Digital Solutions'}, I led a critical project to migrate our legacy system to a modern architecture. We faced significant challenges including tight deadlines, limited resources, and resistance to change from stakeholders. I addressed these by breaking the project into smaller milestones, implementing a phased rollout strategy, and conducting regular stakeholder meetings to address concerns. The project was completed 2 weeks ahead of schedule and resulted in a 40% improvement in system performance.`,
+          type: 'text',
+          aiAnalysis: {
+            sentiment: 'positive',
+            qualityScore: 90 + Math.floor(Math.random() * 8),
+            keyInsights: [
+              'Demonstrates strong leadership and problem-solving skills',
+              'Uses specific metrics to quantify success',
+              'Shows ability to manage stakeholder relationships'
+            ],
+            strengths: [
+              'Structured response following STAR method',
+              'Includes concrete outcomes and metrics',
+              'Shows proactive approach to challenges'
+            ]
+          }
+        },
+        {
+          questionId: 'qq3',
+          question: 'How do you stay current with technology trends?',
+          answer: `I maintain my technical edge through multiple channels: I regularly attend industry conferences and meetups, contribute to open-source projects on GitHub, and dedicate time each week to online courses and tutorials. I'm an active member of several tech communities and enjoy sharing knowledge through blog posts and presentations. Recently, I completed certifications in ${candidate.skills[0]} and have been experimenting with ${candidate.skills[1]} in personal projects.`,
+          type: 'text',
+          aiAnalysis: {
+            sentiment: 'positive',
+            qualityScore: 88 + Math.floor(Math.random() * 7),
+            keyInsights: [
+              'Shows commitment to continuous learning',
+              'Demonstrates active engagement with tech community',
+              'Balances theoretical knowledge with practical application'
+            ],
+            strengths: [
+              'Multiple learning methods mentioned',
+              'Provides specific examples of recent learning',
+              'Shows initiative beyond job requirements'
+            ]
+          }
+        },
+        {
+          questionId: 'qq4',
+          question: 'What is your preferred work environment and why?',
+          answer: candidate.workArrangement === 'remote' 
+            ? 'I thrive in remote work environments where I can focus deeply on complex problems while maintaining flexibility. I value the autonomy remote work provides and have developed strong communication practices to stay connected with my team through regular video calls, Slack channels, and project management tools.'
+            : 'I prefer collaborative office environments where I can easily brainstorm with teammates and build strong working relationships. I find that in-person interactions often lead to more creative solutions and faster problem-solving. However, I also appreciate flexibility for focused work when needed.',
+          type: 'text',
+          aiAnalysis: {
+            sentiment: 'neutral',
+            qualityScore: 75 + Math.floor(Math.random() * 10),
+            keyInsights: [
+              'Clear understanding of personal work preferences',
+              'Demonstrates awareness of communication needs',
+              'Shows adaptability to different work styles'
+            ],
+            concerns: [
+              'May need to verify alignment with company work culture'
+            ]
+          }
+        },
+        {
+          questionId: 'qq5',
+          question: 'How would you handle disagreement with a team member about technical approach?',
+          answer: 'I believe healthy technical debates lead to better solutions. I would start by actively listening to understand their perspective and the reasoning behind their approach. Then I would present my viewpoint with supporting data or examples. If we still disagree, I would suggest we prototype both approaches or consult with other team members for additional input. Ultimately, I respect that the team needs to move forward, and I would support the final decision even if it differs from my initial preference.',
+          type: 'text',
+          aiAnalysis: {
+            sentiment: 'positive',
+            qualityScore: 92 + Math.floor(Math.random() * 6),
+            keyInsights: [
+              'Shows emotional intelligence and conflict resolution skills',
+              'Demonstrates collaborative problem-solving approach',
+              'Values both individual input and team consensus'
+            ],
+            strengths: [
+              'Structured approach to handling disagreements',
+              'Emphasizes data-driven decision making',
+              'Shows flexibility and team orientation'
+            ]
+          }
+        }
+      ],
+      overallScore: 82 + Math.floor(Math.random() * 15),
+      completionRate: 100,
+      timeSpent: 15 + Math.floor(Math.random() * 10)
+    } : undefined,
+    
     score: i % 3 === 0 ? 60 + Math.floor(Math.random() * 40) : undefined,
     rating: i % 4 === 0 ? Math.floor(Math.random() * 3) + 3 : undefined,
     aiMatchScore,
