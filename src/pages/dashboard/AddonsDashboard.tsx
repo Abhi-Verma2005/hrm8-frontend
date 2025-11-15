@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { DashboardActionBar } from '@/components/dashboard/DashboardActionBar';
+import { ActiveFiltersIndicator } from '@/components/dashboard/ActiveFiltersIndicator';
+import type { DateRange } from 'react-day-picker';
+import { useToast } from '@/hooks/use-toast';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { CombinedRevenueChart } from '@/components/dashboard/addons/CombinedRevenueChart';
 import { ServiceMixChart } from '@/components/dashboard/addons/ServiceMixChart';
@@ -42,13 +46,30 @@ import {
 export default function AddonsDashboard() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { formatCurrency } = useCurrencyFormat();
   const activeTab = searchParams.get('tab') || 'overview';
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
   
   const combinedMetrics = getCombinedAddonMetrics();
   const aiStats = getAIInterviewStats();
   const assessmentStats = getAssessmentStats();
   const checkStats = getBackgroundCheckStats();
+
+  const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
+
+  const handleExport = () => {
+    toast({ title: "Exporting Add-ons data..." });
+  };
+
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setSelectedCountry("all");
+    setSelectedRegion("all");
+    toast({ title: "Filters reset" });
+  };
 
   const handleTabChange = (value: string) => {
     setSearchParams({ tab: value });
@@ -58,7 +79,32 @@ export default function AddonsDashboard() {
     <DashboardPageLayout
       title="Add-ons Dashboard"
       subtitle="AI Interviews, Assessments, and Background Checks"
+      breadcrumbActions={
+        <DashboardActionBar
+          dateRange={dateRange}
+          onDateRangeChange={setDateRange}
+          selectedCountry={selectedCountry}
+          selectedRegion={selectedRegion}
+          onCountryChange={setSelectedCountry}
+          onRegionChange={setSelectedRegion}
+          onExport={handleExport}
+          onResetFilters={handleResetFilters}
+          hasActiveFilters={hasActiveFilters}
+        />
+      }
     >
+      {/* Active Filters Indicator */}
+      {hasActiveFilters && (
+        <ActiveFiltersIndicator
+          selectedCountry={selectedCountry}
+          selectedRegion={selectedRegion}
+          dateRange={dateRange}
+          onClearCountry={() => setSelectedCountry("all")}
+          onClearRegion={() => setSelectedRegion("all")}
+          onClearDateRange={() => setDateRange(undefined)}
+        />
+      )}
+
       {/* Top-level MRR Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <MRRMetricsCards />

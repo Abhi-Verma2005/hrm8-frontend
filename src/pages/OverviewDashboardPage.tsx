@@ -162,36 +162,29 @@ export default function OverviewDashboardPage() {
 
   return (
     <DashboardPageLayout
+      title="Overview Dashboard"
+      subtitle="Comprehensive view of your organization's key metrics"
+      breadcrumbActions={
+        !isEditMode ? (
+          <DashboardActionBar
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            selectedCountry={selectedCountry}
+            selectedRegion={selectedRegion}
+            onCountryChange={setSelectedCountry}
+            onRegionChange={setSelectedRegion}
+            onExport={handleExport}
+            onResetFilters={handleResetFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
+        ) : undefined
+      }
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
       <div className="min-h-screen bg-background">
         <div className="p-6 space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Overview Dashboard</h1>
-              <p className="text-muted-foreground">
-                Comprehensive view of your organization's key metrics
-              </p>
-            </div>
-            
-            {!isEditMode && (
-              <DashboardActionBar
-                dateRange={dateRange}
-                onDateRangeChange={setDateRange}
-                selectedCountry={selectedCountry}
-                selectedRegion={selectedRegion}
-                onCountryChange={setSelectedCountry}
-                onRegionChange={setSelectedRegion}
-                onExport={handleExport}
-                onResetFilters={handleResetFilters}
-                hasActiveFilters={hasActiveFilters}
-              />
-          )}
-        </div>
-
-        {/* Active Filters Indicator */}
-        <ActiveFiltersIndicator
+          {/* Active Filters */}
+          <ActiveFiltersIndicator
           selectedCountry={selectedCountry}
           selectedRegion={selectedRegion}
           dateRange={dateRange}
