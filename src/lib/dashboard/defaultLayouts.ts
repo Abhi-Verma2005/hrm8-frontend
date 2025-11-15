@@ -1053,93 +1053,11 @@ const DEFAULT_RPO_LAYOUT: DashboardLayout = {
   updatedAt: new Date()
 };
 
-const DEFAULT_ASSESSMENTS_LAYOUT: DashboardLayout = {
-  id: 'assessments-default',
-  name: 'Assessments Default Layout',
-  dashboardType: 'assessments',
+const DEFAULT_ADDONS_LAYOUT: DashboardLayout = {
+  id: 'addons-default',
+  name: 'Add-ons Dashboard',
+  dashboardType: 'addons',
   widgets: [],
-  createdAt: new Date(),
-  updatedAt: new Date()
-};
-
-const DEFAULT_BACKGROUND_CHECKS_LAYOUT: DashboardLayout = {
-  id: 'background-checks-default',
-  name: 'Background Checks Default Layout',
-  dashboardType: 'background-checks',
-  widgets: [
-    {
-      id: 'bgc-total',
-      type: 'stat',
-      component: 'TotalChecksWidget',
-      title: 'Total Background Checks',
-      gridArea: { x: 0, y: 0, w: 3, h: 1 },
-      props: {},
-      isVisible: true,
-    },
-    {
-      id: 'bgc-active',
-      type: 'stat',
-      component: 'ActiveChecksWidget',
-      title: 'Active Checks',
-      gridArea: { x: 3, y: 0, w: 3, h: 1 },
-      props: {},
-      isVisible: true,
-    },
-    {
-      id: 'bgc-completion',
-      type: 'stat',
-      component: 'CompletionRateWidget',
-      title: 'Completion Rate',
-      gridArea: { x: 6, y: 0, w: 3, h: 1 },
-      props: {},
-      isVisible: true,
-    },
-    {
-      id: 'bgc-avg-time',
-      type: 'stat',
-      component: 'AvgCompletionTimeWidget',
-      title: 'Avg. Completion Time',
-      gridArea: { x: 9, y: 0, w: 3, h: 1 },
-      props: {},
-      isVisible: true,
-    },
-    {
-      id: 'bgc-pending',
-      type: 'stat',
-      component: 'PendingActionsWidget',
-      title: 'Pending Actions',
-      gridArea: { x: 0, y: 1, w: 3, h: 2 },
-      props: {},
-      isVisible: true,
-    },
-    {
-      id: 'bgc-type-dist',
-      type: 'chart',
-      component: 'CheckTypeDistributionWidget',
-      title: 'Check Type Distribution',
-      gridArea: { x: 3, y: 1, w: 6, h: 2 },
-      props: {},
-      isVisible: true,
-    },
-    {
-      id: 'bgc-status-dist',
-      type: 'chart',
-      component: 'StatusDistributionWidget',
-      title: 'Status Distribution',
-      gridArea: { x: 9, y: 1, w: 3, h: 2 },
-      props: {},
-      isVisible: true,
-    },
-    {
-      id: 'bgc-activity',
-      type: 'activity',
-      component: 'RecentActivityWidget',
-      title: 'Recent Activity',
-      gridArea: { x: 0, y: 3, w: 6, h: 2 },
-      props: {},
-      isVisible: true,
-    },
-  ],
   createdAt: new Date(),
   updatedAt: new Date()
 };
@@ -1155,6 +1073,5 @@ export const DEFAULT_LAYOUTS: Record<DashboardType, DashboardLayout> = {
   candidates: DEFAULT_CANDIDATES_LAYOUT,
   sales: DEFAULT_SALES_LAYOUT,
   rpo: DEFAULT_RPO_LAYOUT,
-  assessments: DEFAULT_ASSESSMENTS_LAYOUT,
-  'background-checks': DEFAULT_BACKGROUND_CHECKS_LAYOUT
+  addons: DEFAULT_ADDONS_LAYOUT
 };

@@ -11,8 +11,7 @@ import { DashboardLayout } from "./components/layouts/DashboardLayout";
 import { GlobalSearch } from "./components/common/GlobalSearch";
 import Dashboard from "./pages/Dashboard";
 import CandidatesDashboard from "./pages/CandidatesDashboard";
-import AssessmentsDashboard from "./pages/dashboard/AssessmentsDashboard";
-import BackgroundChecksDashboard from "./pages/dashboard/BackgroundChecksDashboard";
+import AddonsDashboard from "./pages/dashboard/AddonsDashboard";
 import OverviewDashboardPage from "./pages/OverviewDashboardPage";
 import FinancialDashboardPage from "./pages/FinancialDashboardPage";
 import HRMSDashboardPage from "./pages/HRMSDashboardPage";
@@ -219,8 +218,7 @@ function AppContent() {
             <Route path="/dashboard/performance" element={<PerformanceDashboard />} />
             <Route path="/dashboard/sales" element={<SalesDashboardPage />} />
             <Route path="/dashboard/rpo" element={<RPODashboardPage />} />
-            <Route path="/dashboard/assessments" element={<AssessmentsDashboard />} />
-            <Route path="/dashboard/background-checks" element={<BackgroundChecksDashboard />} />
+            <Route path="/dashboard/addons" element={<AddonsDashboard />} />
             <Route path="/dashboard/applications" element={<ApplicationAnalyticsDashboard />} />
             <Route path="/notifications" element={<NotificationCenterPage />} />
             {/* ATS Module Routes */}

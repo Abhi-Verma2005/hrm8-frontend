@@ -1,7 +1,7 @@
-import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, Target, Building2, TrendingUp, UserRound, ShieldCheck, ClipboardCheck, type LucideIcon } from "lucide-react";
+import { Briefcase, Users, DollarSign, Handshake, LayoutGrid, UserCheck, Target, Building2, TrendingUp, UserRound, Package, type LucideIcon } from "lucide-react";
 import type { WidgetType } from "./widgetRegistry";
 
-export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting' | 'recruitment-services' | 'employers' | 'candidates' | 'sales' | 'rpo' | 'assessments' | 'background-checks';
+export type DashboardType = 'overview' | 'jobs' | 'hrms' | 'financial' | 'consulting' | 'recruitment-services' | 'employers' | 'candidates' | 'sales' | 'rpo' | 'addons';
 
 export interface DashboardMetadata {
   id: DashboardType;
@@ -206,21 +206,18 @@ export const DASHBOARD_METADATA: Record<DashboardType, DashboardMetadata> = {
       'activity-feed'
     ]
   },
-  'assessments': {
-    id: 'assessments',
-    name: 'Assessments',
-    description: 'Monitor assessment revenue, usage patterns, and profitability metrics',
-    icon: ClipboardCheck,
-    defaultRoute: '/dashboard/assessments',
-    availableWidgets: []
-  },
-  'background-checks': {
-    id: 'background-checks',
-    name: 'Background Checks',
-    description: 'Track background check revenue, client adoption, and business performance',
-    icon: ShieldCheck,
-    defaultRoute: '/dashboard/background-checks',
+  'addons': {
+    id: 'addons',
+    name: 'Add-ons',
+    description: 'AI Interviews, Assessments, and Background Checks revenue and performance',
+    icon: Package,
+    defaultRoute: '/dashboard/addons',
     availableWidgets: [
+      'stat-ai-interview-total',
+      'stat-ai-interview-completion',
+      'stat-ai-interview-avg-score',
+      'stat-ai-interview-avg-duration',
+      'chart-ai-interview-performance',
       'stat-total-checks',
       'stat-active-checks',
       'stat-completion-rate',

@@ -1054,7 +1054,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     minSize: { w: 2, h: 1 },
     maxSize: { w: 6, h: 1 },
     defaultProps: {},
-    allowedDashboards: ['overview', 'background-checks']
+    allowedDashboards: ['overview', 'addons']
   },
   'stat-active-checks': {
     id: 'stat-active-checks',
@@ -1067,7 +1067,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     minSize: { w: 2, h: 1 },
     maxSize: { w: 6, h: 1 },
     defaultProps: {},
-    allowedDashboards: ['overview', 'background-checks']
+    allowedDashboards: ['overview', 'addons']
   },
   'stat-completion-rate': {
     id: 'stat-completion-rate',
@@ -1080,7 +1080,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     minSize: { w: 2, h: 1 },
     maxSize: { w: 6, h: 1 },
     defaultProps: {},
-    allowedDashboards: ['overview', 'background-checks']
+    allowedDashboards: ['overview', 'addons']
   },
   'stat-avg-completion-time': {
     id: 'stat-avg-completion-time',
@@ -1093,7 +1093,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     minSize: { w: 2, h: 1 },
     maxSize: { w: 6, h: 1 },
     defaultProps: {},
-    allowedDashboards: ['overview', 'background-checks']
+    allowedDashboards: ['overview', 'addons']
   },
   'widget-pending-actions': {
     id: 'widget-pending-actions',
@@ -1106,7 +1106,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     minSize: { w: 3, h: 2 },
     maxSize: { w: 6, h: 3 },
     defaultProps: {},
-    allowedDashboards: ['overview', 'background-checks']
+    allowedDashboards: ['overview', 'addons']
   },
   'chart-check-type-distribution': {
     id: 'chart-check-type-distribution',
@@ -1119,7 +1119,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 3 },
     defaultProps: {},
-    allowedDashboards: ['overview', 'background-checks']
+    allowedDashboards: ['overview', 'addons']
   },
   'chart-status-distribution': {
     id: 'chart-status-distribution',
@@ -1132,7 +1132,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 3 },
     defaultProps: {},
-    allowedDashboards: ['overview', 'background-checks']
+    allowedDashboards: ['overview', 'addons']
   },
   'widget-recent-activity': {
     id: 'widget-recent-activity',
@@ -1145,7 +1145,7 @@ export const WIDGET_REGISTRY: Record<WidgetType, WidgetDefinition> = {
     minSize: { w: 4, h: 2 },
     maxSize: { w: 12, h: 3 },
     defaultProps: {},
-    allowedDashboards: ['overview', 'background-checks']
+    allowedDashboards: ['overview', 'addons']
   },
 
   // ===== SHARED WIDGETS =====

@@ -486,7 +486,7 @@ export default function BackgroundChecks() {
               Initiate Check
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/dashboard/background-checks">
+              <Link to="/dashboard/addons?tab=background-checks">
                 <BarChart3 className="mr-2 h-4 w-4" />
                 View Dashboard
               </Link>
@@ -510,7 +510,7 @@ export default function BackgroundChecks() {
             showMenu={true}
             menuItems={[
               { label: "View all checks", icon: <Eye className="h-4 w-4" />, onClick: handleClearFilters },
-              { label: "View dashboard", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/dashboard/background-checks') },
+              { label: "View dashboard", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/dashboard/addons?tab=background-checks') },
               { label: "Export data", icon: <Download className="h-4 w-4" />, onClick: handleExport },
             ]}
           />
@@ -545,7 +545,7 @@ export default function BackgroundChecks() {
             showMenu={true}
             menuItems={[
               { label: "View completed checks", icon: <Eye className="h-4 w-4" />, onClick: () => { handleClearFilters(); setStatusFilter('completed'); } },
-              { label: "View dashboard", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/dashboard/background-checks') },
+              { label: "View dashboard", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/dashboard/addons?tab=background-checks') },
             ]}
           />
           <EnhancedStatCard
@@ -562,7 +562,7 @@ export default function BackgroundChecks() {
             showMenu={true}
             menuItems={[
               { label: "View in-progress checks", icon: <Eye className="h-4 w-4" />, onClick: () => { handleClearFilters(); setStatusFilter('in-progress'); } },
-              { label: "View performance metrics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/dashboard/background-checks') },
+              { label: "View performance metrics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => navigate('/dashboard/addons?tab=background-checks') },
             ]}
           />
         </div>

@@ -165,7 +165,7 @@ export default function Assessments() {
               Invite Candidate
             </Button>
             <Button variant="outline" asChild>
-              <Link to="/dashboard/assessments">
+              <Link to="/dashboard/addons?tab=assessments">
                 <BarChart3 className="mr-2 h-4 w-4" />
                 View Dashboard
               </Link>
