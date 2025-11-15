@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Calendar as CalendarIcon, X } from "lucide-react";
-import { format, subDays, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subYears } from "date-fns";
+import { format, subDays, startOfMonth, endOfMonth, startOfYear, endOfYear, subMonths, subYears, startOfQuarter, endOfQuarter, subQuarters } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { DateRange } from "react-day-picker";
 
-type PresetValue = "last-7" | "last-14" | "last-30" | "this-month" | "last-month" | "this-year" | "last-year" | "all-time" | "custom";
+type PresetValue = "last-7" | "last-14" | "last-30" | "this-month" | "last-month" | "this-quarter" | "last-quarter" | "this-year" | "last-year" | "all-time" | "custom";
 
 interface Preset {
   label: string;
@@ -31,9 +31,9 @@ const COMPACT_PRESETS: Preset[] = [
     getRange: () => ({ from: subDays(new Date(), 29), to: new Date() })
   },
   {
-    label: "This month",
-    value: "this-month",
-    getRange: () => ({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) })
+    label: "This quarter",
+    value: "this-quarter",
+    getRange: () => ({ from: startOfQuarter(new Date()), to: endOfQuarter(new Date()) })
   },
   {
     label: "This year",
@@ -67,6 +67,16 @@ const FULL_PRESETS: Preset[] = [
     label: "Last month",
     value: "last-month",
     getRange: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) })
+  },
+  {
+    label: "This quarter",
+    value: "this-quarter",
+    getRange: () => ({ from: startOfQuarter(new Date()), to: endOfQuarter(new Date()) })
+  },
+  {
+    label: "Last quarter",
+    value: "last-quarter",
+    getRange: () => ({ from: startOfQuarter(subQuarters(new Date(), 1)), to: endOfQuarter(subQuarters(new Date(), 1)) })
   },
   {
     label: "This year",
