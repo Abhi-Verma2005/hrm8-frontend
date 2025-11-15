@@ -172,6 +172,8 @@ import { initializeAISessionTestData } from './lib/backgroundChecks/initializeAI
 import { useEffect } from 'react';
 import { ProtectedRoutes } from './components/common/ProtectedRoutes';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+// Development utilities - only loaded in dev mode
+import './lib/aiInterview/devUtils';
 
 const queryClient = new QueryClient();
 

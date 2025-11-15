@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '@/components/common/PageHeader';
 import { useInterviewReports } from '@/hooks/useInterviewReports';
@@ -6,12 +6,19 @@ import { ReportSummaryCard } from '@/components/aiInterview/reports/ReportSummar
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search } from 'lucide-react';
+import { initializeAIInterviewMockData } from '@/lib/aiInterview/initializeMockData';
+import { DataResetButton } from '@/components/dev/DataResetButton';
 
 export default function AIInterviewReports() {
   const navigate = useNavigate();
   const { reports, loading } = useInterviewReports();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  useEffect(() => {
+    // Ensure mock data is initialized
+    initializeAIInterviewMockData();
+  }, []);
 
   const filteredReports = reports.filter(report => {
     const matchesSearch = report.candidateName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -25,6 +32,7 @@ export default function AIInterviewReports() {
       <PageHeader
         title="Interview Reports"
         description="View and manage AI interview reports"
+        actions={<DataResetButton />}
       />
 
       <div className="flex gap-4">
