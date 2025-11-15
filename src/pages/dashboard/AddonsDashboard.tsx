@@ -9,6 +9,11 @@ import { MRRBreakdownChart } from '@/components/dashboard/addons/MRRBreakdownCha
 import { YoYComparisonChart } from '@/components/dashboard/addons/YoYComparisonChart';
 import { RevenueForecastChart } from '@/components/dashboard/addons/RevenueForecastChart';
 import { MRRMetricsCards } from '@/components/dashboard/addons/MRRMetricsCards';
+import { CohortRetentionMatrix } from '@/components/dashboard/addons/CohortRetentionMatrix';
+import { LTVByServiceChart } from '@/components/dashboard/addons/LTVByServiceChart';
+import { ChurnTrackingChart } from '@/components/dashboard/addons/ChurnTrackingChart';
+import { RevenueRetentionChart } from '@/components/dashboard/addons/RevenueRetentionChart';
+import { CohortMetricsCards } from '@/components/dashboard/addons/CohortMetricsCards';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,8 +54,9 @@ export default function AddonsDashboard() {
 
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="cohorts">Cohorts & LTV</TabsTrigger>
           <TabsTrigger value="ai-interviews">AI Interviews</TabsTrigger>
           <TabsTrigger value="assessments">Assessments</TabsTrigger>
           <TabsTrigger value="background-checks">Background Checks</TabsTrigger>
@@ -126,6 +132,26 @@ export default function AddonsDashboard() {
               </Button>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Cohorts & LTV Tab */}
+        <TabsContent value="cohorts" className="space-y-6">
+          {/* Cohort Metrics */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <CohortMetricsCards />
+          </div>
+
+          {/* Cohort Retention Matrix */}
+          <CohortRetentionMatrix />
+
+          {/* LTV and Churn Analysis */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <LTVByServiceChart />
+            <div className="space-y-6">
+              <ChurnTrackingChart />
+              <RevenueRetentionChart />
+            </div>
+          </div>
         </TabsContent>
 
         {/* AI Interviews Tab */}
