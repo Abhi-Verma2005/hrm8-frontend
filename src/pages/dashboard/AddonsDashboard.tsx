@@ -14,6 +14,12 @@ import { LTVByServiceChart } from '@/components/dashboard/addons/LTVByServiceCha
 import { ChurnTrackingChart } from '@/components/dashboard/addons/ChurnTrackingChart';
 import { RevenueRetentionChart } from '@/components/dashboard/addons/RevenueRetentionChart';
 import { CohortMetricsCards } from '@/components/dashboard/addons/CohortMetricsCards';
+import { ChurnRiskMetricsCards } from '@/components/dashboard/addons/ChurnRiskMetricsCards';
+import { AtRiskCustomersTable } from '@/components/dashboard/addons/AtRiskCustomersTable';
+import { ChurnFactorsChart } from '@/components/dashboard/addons/ChurnFactorsChart';
+import { InterventionStrategiesCard } from '@/components/dashboard/addons/InterventionStrategiesCard';
+import { EngagementTrendsChart } from '@/components/dashboard/addons/EngagementTrendsChart';
+import { ChurnRiskDistributionChart } from '@/components/dashboard/addons/ChurnRiskDistributionChart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,9 +60,10 @@ export default function AddonsDashboard() {
 
       {/* Tabbed Content */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="cohorts">Cohorts & LTV</TabsTrigger>
+          <TabsTrigger value="churn">Churn Prevention</TabsTrigger>
           <TabsTrigger value="ai-interviews">AI Interviews</TabsTrigger>
           <TabsTrigger value="assessments">Assessments</TabsTrigger>
           <TabsTrigger value="background-checks">Background Checks</TabsTrigger>
@@ -151,6 +158,24 @@ export default function AddonsDashboard() {
               <ChurnTrackingChart />
               <RevenueRetentionChart />
             </div>
+          </div>
+        </TabsContent>
+
+        {/* Churn Prevention Tab */}
+        <TabsContent value="churn" className="space-y-6">
+          <ChurnRiskMetricsCards />
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AtRiskCustomersTable />
+            <div className="space-y-6">
+              <ChurnRiskDistributionChart />
+              <ChurnFactorsChart />
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <EngagementTrendsChart />
+            <InterventionStrategiesCard />
           </div>
         </TabsContent>
 
