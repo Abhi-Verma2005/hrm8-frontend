@@ -5,6 +5,10 @@ import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { CombinedRevenueChart } from '@/components/dashboard/addons/CombinedRevenueChart';
 import { ServiceMixChart } from '@/components/dashboard/addons/ServiceMixChart';
 import { ClientAdoptionChart } from '@/components/dashboard/addons/ClientAdoptionChart';
+import { MRRBreakdownChart } from '@/components/dashboard/addons/MRRBreakdownChart';
+import { YoYComparisonChart } from '@/components/dashboard/addons/YoYComparisonChart';
+import { RevenueForecastChart } from '@/components/dashboard/addons/RevenueForecastChart';
+import { MRRMetricsCards } from '@/components/dashboard/addons/MRRMetricsCards';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -38,40 +42,9 @@ export default function AddonsDashboard() {
       title="Add-ons Dashboard"
       subtitle="AI Interviews, Assessments, and Background Checks"
     >
-      {/* Top-level Combined Metrics */}
+      {/* Top-level MRR Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <EnhancedStatCard
-          title="Total Add-on Revenue"
-          icon={<TrendingUp />}
-          value={formatCurrency(combinedMetrics.totalRevenue)}
-          change="+18%"
-          trend="up"
-          variant="success"
-        />
-        <EnhancedStatCard
-          title="Services Provided"
-          icon={<Target />}
-          value={combinedMetrics.totalServices.toString()}
-          change="+24%"
-          trend="up"
-          variant="primary"
-        />
-        <EnhancedStatCard
-          title="Avg Profit Margin"
-          icon={<Percent />}
-          value={`${combinedMetrics.avgMargin}%`}
-          change="+3%"
-          trend="up"
-          variant="warning"
-        />
-        <EnhancedStatCard
-          title="Client Adoption"
-          icon={<Users />}
-          value={`${Math.round(combinedMetrics.clientAdoptionRate)}%`}
-          change="+12%"
-          trend="up"
-          variant="neutral"
-        />
+        <MRRMetricsCards />
       </div>
 
       {/* Tabbed Content */}
@@ -85,12 +58,19 @@ export default function AddonsDashboard() {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-6">
+          {/* Revenue Analytics Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <MRRBreakdownChart />
+            <YoYComparisonChart />
+          </div>
+
+          {/* Forecast and Distribution */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="lg:col-span-2">
-              <CombinedRevenueChart />
+            <RevenueForecastChart />
+            <div className="space-y-6">
+              <ServiceMixChart />
+              <ClientAdoptionChart />
             </div>
-            <ServiceMixChart />
-            <ClientAdoptionChart />
           </div>
 
           {/* Quick Actions */}
