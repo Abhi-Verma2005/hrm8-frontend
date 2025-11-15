@@ -49,7 +49,11 @@ export function generateMockTranscript(): TranscriptEntry[] {
   ];
 }
 
+// Note: This function is kept for backwards compatibility
+// The main initialization now happens in initializeMockData.ts
 export function generateMockSessions(): AIInterviewSession[] {
+  // Return just 3 basic sessions for initial testing
+  // Full initialization is handled by initializeAIInterviewMockData()
   return [
     {
       id: 'ai-int-1',
@@ -94,22 +98,16 @@ export function generateMockSessions(): AIInterviewSession[] {
             quote: 'I implemented query batching and caching, which reduced response time to under 500ms',
             context: 'Discussing technical problem-solving',
             sentiment: 'positive'
-          },
-          {
-            quote: 'The query optimization gave us the best ROI',
-            context: 'Evaluating alternative solutions',
-            sentiment: 'positive'
           }
         ],
         recommendation: 'recommend',
         confidenceScore: 88,
-        summary: 'Strong technical candidate with excellent problem-solving skills and communication abilities. Demonstrates practical experience and cost-conscious decision making.'
+        summary: 'Strong candidate with excellent technical skills and communication abilities. Demonstrated practical problem-solving experience with measurable results.'
       },
-      reportId: 'report-1',
-      invitationToken: 'token-123',
+      invitationToken: 'token-1',
       createdAt: new Date(Date.now() - 172800000).toISOString(),
-      updatedAt: new Date(Date.now() - 79200000).toISOString(),
-      createdBy: 'user-1'
+      updatedAt: new Date().toISOString(),
+      createdBy: 'admin'
     },
     {
       id: 'ai-int-2',
@@ -119,120 +117,36 @@ export function generateMockSessions(): AIInterviewSession[] {
       jobId: 'job-2',
       jobTitle: 'Product Manager',
       status: 'scheduled',
-      scheduledDate: new Date(Date.now() + 86400000).toISOString(),
+      scheduledDate: new Date(Date.now() + 172800000).toISOString(),
       interviewMode: 'video',
-      questionSource: 'predefined',
+      questionSource: 'ai-generated',
       questions: generateQuestionsForJob('Product Manager', 8),
       currentQuestionIndex: 0,
       transcript: [],
-      invitationToken: 'token-456',
-      createdAt: new Date(Date.now() - 43200000).toISOString(),
-      updatedAt: new Date(Date.now() - 43200000).toISOString(),
-      createdBy: 'user-1'
+      invitationToken: 'token-2',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: 'admin'
     },
     {
       id: 'ai-int-3',
       candidateId: 'cand-3',
       candidateName: 'Emily Rodriguez',
       candidateEmail: 'emily.r@email.com',
-      jobId: 'job-1',
-      jobTitle: 'Senior Software Engineer',
+      jobId: 'job-3',
+      jobTitle: 'UX Designer',
       status: 'in-progress',
-      scheduledDate: new Date(Date.now() - 1800000).toISOString(),
-      startedAt: new Date(Date.now() - 900000).toISOString(),
-      interviewMode: 'text',
-      questionSource: 'ai-generated',
-      questions: generateQuestionsForJob('Senior Software Engineer', 10),
+      scheduledDate: new Date(Date.now() - 3600000).toISOString(),
+      startedAt: new Date(Date.now() - 1800000).toISOString(),
+      interviewMode: 'phone',
+      questionSource: 'predefined',
+      questions: generateQuestionsForJob('UX Designer', 8),
       currentQuestionIndex: 4,
       transcript: generateMockTranscript().slice(0, 4),
-      invitationToken: 'token-789',
-      createdAt: new Date(Date.now() - 259200000).toISOString(),
-      updatedAt: new Date(Date.now() - 900000).toISOString(),
-      createdBy: 'user-2'
-    }
-  ];
-}
-
-export function generateMockReports(): InterviewReport[] {
-  return [
-    {
-      id: 'report-1',
-      sessionId: 'ai-int-1',
-      candidateId: 'cand-1',
-      candidateName: 'Sarah Johnson',
-      jobId: 'job-1',
-      jobTitle: 'Senior Software Engineer',
-      status: 'finalized',
-      version: 2,
-      executiveSummary: 'Sarah demonstrated strong technical capabilities and excellent communication skills throughout the interview. Her experience in performance optimization and practical problem-solving approach makes her a strong candidate for the Senior Software Engineer position.',
-      analysis: {
-        overallScore: 85,
-        categoryScores: {
-          technical: 88,
-          communication: 90,
-          culturalFit: 82,
-          experience: 85,
-          problemSolving: 87
-        },
-        strengths: [
-          'Strong technical problem-solving skills',
-          'Excellent communication and articulation',
-          'Proven experience with performance optimization'
-        ],
-        concerns: ['Limited experience with distributed systems'],
-        redFlags: [],
-        keyHighlights: [],
-        recommendation: 'recommend',
-        confidenceScore: 88,
-        summary: 'Strong technical candidate with excellent problem-solving skills.'
-      },
-      recommendations: 'Move forward to technical panel interview. Focus on distributed systems architecture in next round.',
-      nextSteps: 'Schedule technical panel interview with senior engineers. Prepare system design scenarios.',
-      isShared: true,
-      sharedWith: ['user-2', 'user-3'],
-      permissions: [
-        {
-          userId: 'user-2',
-          userName: 'John Smith',
-          level: 'comment',
-          grantedAt: new Date(Date.now() - 43200000).toISOString(),
-          grantedBy: 'user-1'
-        }
-      ],
-      createdAt: new Date(Date.now() - 79200000).toISOString(),
-      updatedAt: new Date(Date.now() - 36000000).toISOString(),
-      createdBy: 'user-1',
-      finalizedAt: new Date(Date.now() - 36000000).toISOString(),
-      finalizedBy: 'user-1'
-    }
-  ];
-}
-
-export function generateMockComments(): ReportComment[] {
-  return [
-    {
-      id: 'comment-1',
-      reportId: 'report-1',
-      userId: 'user-2',
-      userName: 'John Smith',
-      content: 'Great interview! I agree with the recommendation. @JaneD we should move quickly on this candidate.',
-      mentions: ['user-3'],
-      replies: [
-        {
-          id: 'comment-2',
-          reportId: 'report-1',
-          userId: 'user-3',
-          userName: 'Jane Doe',
-          content: 'Agreed! I\'ll schedule the panel interview for next week.',
-          mentions: [],
-          parentId: 'comment-1',
-          replies: [],
-          createdAt: new Date(Date.now() - 28800000).toISOString(),
-          isEdited: false
-        }
-      ],
-      createdAt: new Date(Date.now() - 36000000).toISOString(),
-      isEdited: false
+      invitationToken: 'token-3',
+      createdAt: new Date(Date.now() - 86400000).toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: 'admin'
     }
   ];
 }

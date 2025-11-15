@@ -1,24 +1,38 @@
+import { useMemo } from 'react';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { getCandidates } from '@/lib/mockCandidateStorage';
+import { getJobs } from '@/lib/mockJobStorage';
 
 interface SelectCandidateStepProps {
   data: any;
   onUpdate: (data: any) => void;
 }
 
-const mockCandidates = [
+// Fallback data if storage is empty
+const fallbackCandidates = [
   { id: '1', name: 'Sarah Johnson', email: 'sarah.j@email.com' },
   { id: '2', name: 'Michael Chen', email: 'michael.c@email.com' },
   { id: '3', name: 'Emily Rodriguez', email: 'emily.r@email.com' },
 ];
 
-const mockJobs = [
+const fallbackJobs = [
   { id: '1', title: 'Senior Software Engineer' },
   { id: '2', title: 'Product Manager' },
   { id: '3', title: 'UX Designer' },
 ];
 
 export function SelectCandidateStep({ data, onUpdate }: SelectCandidateStepProps) {
+  // Fetch real data from storage, fallback to mock if empty
+  const candidates = useMemo(() => {
+    const stored = getCandidates();
+    return stored.length > 0 ? stored : fallbackCandidates;
+  }, []);
+
+  const jobs = useMemo(() => {
+    const stored = getJobs();
+    return stored.length > 0 ? stored : fallbackJobs;
+  }, []);
   return (
     <div className="space-y-6">
       <div className="space-y-2">
@@ -26,7 +40,7 @@ export function SelectCandidateStep({ data, onUpdate }: SelectCandidateStepProps
         <Select 
           value={data.candidateId} 
           onValueChange={(value) => {
-            const candidate = mockCandidates.find(c => c.id === value);
+            const candidate = candidates.find(c => c.id === value);
             onUpdate({ 
               candidateId: value,
               candidateName: candidate?.name,
@@ -38,7 +52,7 @@ export function SelectCandidateStep({ data, onUpdate }: SelectCandidateStepProps
             <SelectValue placeholder="Choose a candidate" />
           </SelectTrigger>
           <SelectContent>
-            {mockCandidates.map(candidate => (
+            {candidates.map(candidate => (
               <SelectItem key={candidate.id} value={candidate.id}>
                 {candidate.name} ({candidate.email})
               </SelectItem>
@@ -52,7 +66,7 @@ export function SelectCandidateStep({ data, onUpdate }: SelectCandidateStepProps
         <Select 
           value={data.jobId} 
           onValueChange={(value) => {
-            const job = mockJobs.find(j => j.id === value);
+            const job = jobs.find(j => j.id === value);
             onUpdate({ jobId: value, jobTitle: job?.title });
           }}
         >
@@ -60,7 +74,7 @@ export function SelectCandidateStep({ data, onUpdate }: SelectCandidateStepProps
             <SelectValue placeholder="Choose a job position" />
           </SelectTrigger>
           <SelectContent>
-            {mockJobs.map(job => (
+            {jobs.map(job => (
               <SelectItem key={job.id} value={job.id}>
                 {job.title}
               </SelectItem>

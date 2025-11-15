@@ -4,18 +4,17 @@ import { PageHeader } from '@/components/common/PageHeader';
 import { AIInterviewList } from '@/components/aiInterview/common/AIInterviewList';
 import { Button } from '@/components/ui/button';
 import { Plus, BarChart3 } from 'lucide-react';
-import { getAIInterviewSessions, saveAIInterviewSession } from '@/lib/aiInterview/aiInterviewStorage';
-import { generateMockSessions } from '@/lib/aiInterview/mockData';
+import { getAIInterviewSessions } from '@/lib/aiInterview/aiInterviewStorage';
+import { initializeAIInterviewMockData } from '@/lib/aiInterview/initializeMockData';
+import { DataResetButton } from '@/components/dev/DataResetButton';
 import type { AIInterviewSession } from '@/types/aiInterview';
 
 export default function AIInterviews() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const sessions = getAIInterviewSessions();
-    if (sessions.length === 0) {
-      generateMockSessions().forEach(saveAIInterviewSession);
-    }
+    // Initialize comprehensive mock data on first load
+    initializeAIInterviewMockData();
   }, []);
 
   const sessions = getAIInterviewSessions();
@@ -34,7 +33,8 @@ export default function AIInterviews() {
         title="AI Interviews"
         description="AI-powered interviews for efficient candidate screening"
         actions={
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <DataResetButton />
             <Button variant="outline" onClick={() => navigate('/ai-interviews/analytics')}>
               <BarChart3 className="h-4 w-4 mr-2" />
               Analytics
