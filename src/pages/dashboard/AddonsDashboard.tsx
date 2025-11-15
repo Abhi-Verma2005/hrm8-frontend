@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { DashboardActionBar } from '@/components/dashboard/DashboardActionBar';
 import { ActiveFiltersIndicator } from '@/components/dashboard/ActiveFiltersIndicator';
+import { DateRangeComparison } from '@/components/dashboard/DateRangeComparison';
 import type { DateRange } from 'react-day-picker';
 import { useToast } from '@/hooks/use-toast';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
@@ -52,6 +53,8 @@ export default function AddonsDashboard() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [comparisonRange, setComparisonRange] = useState<DateRange | undefined>();
   
   const combinedMetrics = getCombinedAddonMetrics();
   const aiStats = getAIInterviewStats();
@@ -69,6 +72,18 @@ export default function AddonsDashboard() {
     setSelectedCountry("all");
     setSelectedRegion("all");
     toast({ title: "Filters reset" });
+  };
+
+  const handleToggleComparison = () => {
+    setComparisonMode(!comparisonMode);
+    if (!comparisonMode) {
+      setComparisonRange(undefined);
+    }
+  };
+
+  const handleDisableComparison = () => {
+    setComparisonMode(false);
+    setComparisonRange(undefined);
   };
 
   const handleTabChange = (value: string) => {
@@ -90,6 +105,8 @@ export default function AddonsDashboard() {
           onExport={handleExport}
           onResetFilters={handleResetFilters}
           hasActiveFilters={hasActiveFilters}
+          comparisonMode={comparisonMode}
+          onToggleComparison={handleToggleComparison}
         />
       }
     >
@@ -102,6 +119,16 @@ export default function AddonsDashboard() {
           onClearCountry={() => setSelectedCountry("all")}
           onClearRegion={() => setSelectedRegion("all")}
           onClearDateRange={() => setDateRange(undefined)}
+        />
+      )}
+
+      {comparisonMode && (
+        <DateRangeComparison
+          primaryRange={dateRange}
+          comparisonRange={comparisonRange}
+          onPrimaryRangeChange={setDateRange}
+          onComparisonRangeChange={setComparisonRange}
+          onDisableComparison={handleDisableComparison}
         />
       )}
 

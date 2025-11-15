@@ -4,6 +4,9 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
+import { ComparisonStatCard } from "@/components/dashboard/ComparisonStatCard";
+import { DateRangeComparison } from "@/components/dashboard/DateRangeComparison";
+import { filterDataByDateRange, formatComparisonLabel, getComparisonMetrics } from "@/lib/comparisonUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +30,8 @@ export default function JobsDashboard() {
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [isEditMode, setIsEditMode] = useState(false);
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [comparisonRange, setComparisonRange] = useState<DateRange | undefined>();
   const { toast } = useToast();
   const navigate = useNavigate();
   const jobs = getJobs();
@@ -39,6 +44,18 @@ export default function JobsDashboard() {
     setDateRange(undefined);
     setSelectedCountry("all");
     setSelectedRegion("all");
+  };
+
+  const handleToggleComparison = () => {
+    setComparisonMode(!comparisonMode);
+    if (!comparisonMode) {
+      setComparisonRange(undefined);
+    }
+  };
+
+  const handleDisableComparison = () => {
+    setComparisonMode(false);
+    setComparisonRange(undefined);
   };
 
   const hasActiveFilters = 
@@ -152,6 +169,8 @@ export default function JobsDashboard() {
             onExport={handleExport}
             onResetFilters={handleResetFilters}
             hasActiveFilters={hasActiveFilters}
+            comparisonMode={comparisonMode}
+            onToggleComparison={handleToggleComparison}
           />
         ) : undefined
       }

@@ -2,10 +2,13 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
+import { ComparisonStatCard } from "@/components/dashboard/ComparisonStatCard";
+import { DateRangeComparison } from "@/components/dashboard/DateRangeComparison";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
+import { filterDataByDateRange, formatComparisonLabel, getComparisonMetrics } from "@/lib/comparisonUtils";
 import { 
   DollarSign, TrendingUp, TrendingDown, CreditCard, Download, Eye, Filter as FilterIcon, 
   BarChart3, PieChart as PieChartIcon, Wallet
@@ -60,6 +63,8 @@ export default function FinancialDashboardPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [comparisonRange, setComparisonRange] = useState<DateRange | undefined>();
 
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
@@ -136,6 +141,18 @@ export default function FinancialDashboardPage() {
     toast({ title: "Filters reset" });
   };
 
+  const handleToggleComparison = () => {
+    setComparisonMode(!comparisonMode);
+    if (!comparisonMode) {
+      setComparisonRange(undefined);
+    }
+  };
+
+  const handleDisableComparison = () => {
+    setComparisonMode(false);
+    setComparisonRange(undefined);
+  };
+
   return (
     <DashboardPageLayout
       title="Financial Dashboard"
@@ -152,6 +169,8 @@ export default function FinancialDashboardPage() {
             onExport={handleExport}
             onResetFilters={handleResetFilters}
             hasActiveFilters={hasActiveFilters}
+            comparisonMode={comparisonMode}
+            onToggleComparison={handleToggleComparison}
           />
         ) : undefined
       }
