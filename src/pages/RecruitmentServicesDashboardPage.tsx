@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
+import { DateRangeComparison } from "@/components/dashboard/DateRangeComparison";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
@@ -68,6 +69,8 @@ export default function RecruitmentServicesDashboardPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [comparisonRange, setComparisonRange] = useState<DateRange | undefined>();
 
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
@@ -137,6 +140,18 @@ export default function RecruitmentServicesDashboardPage() {
     toast({ title: "Filters reset" });
   };
 
+  const handleToggleComparison = () => {
+    setComparisonMode(!comparisonMode);
+    if (!comparisonMode) {
+      setComparisonRange(undefined);
+    }
+  };
+
+  const handleDisableComparison = () => {
+    setComparisonMode(false);
+    setComparisonRange(undefined);
+  };
+
   return (
     <DashboardPageLayout
       title="Recruitment Services Dashboard"
@@ -153,6 +168,8 @@ export default function RecruitmentServicesDashboardPage() {
             onExport={handleExport}
             onResetFilters={handleResetFilters}
             hasActiveFilters={hasActiveFilters}
+            comparisonMode={comparisonMode}
+            onToggleComparison={handleToggleComparison}
           />
         ) : undefined
       }
@@ -169,6 +186,16 @@ export default function RecruitmentServicesDashboardPage() {
           onClearRegion={() => setSelectedRegion("all")}
           onClearDateRange={() => setDateRange(undefined)}
         />
+
+        {comparisonMode && (
+          <DateRangeComparison
+            primaryRange={dateRange}
+            comparisonRange={comparisonRange}
+            onPrimaryRangeChange={setDateRange}
+            onComparisonRangeChange={setComparisonRange}
+            onDisableComparison={handleDisableComparison}
+          />
+        )}
 
         {/* Key Metrics */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

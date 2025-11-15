@@ -3,6 +3,7 @@ import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
 import { RPOOverviewCards } from '@/components/rpo/RPOOverviewCards';
 import { DashboardActionBar } from '@/components/dashboard/DashboardActionBar';
 import { ActiveFiltersIndicator } from '@/components/dashboard/ActiveFiltersIndicator';
+import { DateRangeComparison } from '@/components/dashboard/DateRangeComparison';
 import { RPOContractsList } from '@/components/rpo/RPOContractsList';
 import { RPORevenueForecastChart } from '@/components/rpo/RPORevenueForecastChart';
 import { RPOConsultantAvailabilityTracker } from '@/components/rpo/RPOConsultantAvailabilityTracker';
@@ -30,6 +31,8 @@ export default function RPODashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [comparisonRange, setComparisonRange] = useState<DateRange | undefined>();
 
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
@@ -42,6 +45,18 @@ export default function RPODashboardPage() {
     setSelectedCountry("all");
     setSelectedRegion("all");
     toast({ title: "Filters reset" });
+  };
+
+  const handleToggleComparison = () => {
+    setComparisonMode(!comparisonMode);
+    if (!comparisonMode) {
+      setComparisonRange(undefined);
+    }
+  };
+
+  const handleDisableComparison = () => {
+    setComparisonMode(false);
+    setComparisonRange(undefined);
   };
 
   const metrics = useMemo(() => getRPODashboardMetrics(), []);
@@ -82,6 +97,8 @@ export default function RPODashboardPage() {
           onExport={handleExport}
           onResetFilters={handleResetFilters}
           hasActiveFilters={hasActiveFilters}
+          comparisonMode={comparisonMode}
+          onToggleComparison={handleToggleComparison}
         />
       }
     >
@@ -95,6 +112,16 @@ export default function RPODashboardPage() {
         onClearRegion={() => setSelectedRegion("all")}
         onClearDateRange={() => setDateRange(undefined)}
       />
+
+      {comparisonMode && (
+        <DateRangeComparison
+          primaryRange={dateRange}
+          comparisonRange={comparisonRange}
+          onPrimaryRangeChange={setDateRange}
+          onComparisonRangeChange={setComparisonRange}
+          onDisableComparison={handleDisableComparison}
+        />
+      )}
 
       <RPOOverviewCards metrics={filteredMetrics} />
 
