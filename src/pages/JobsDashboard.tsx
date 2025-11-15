@@ -138,34 +138,27 @@ export default function JobsDashboard() {
 
   return (
     <DashboardPageLayout
+      title="Jobs Analytics"
+      subtitle="Job posting performance, hiring metrics, and recruitment efficiency"
+      breadcrumbActions={
+        !isEditMode ? (
+          <DashboardActionBar
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            selectedCountry={selectedCountry}
+            selectedRegion={selectedRegion}
+            onCountryChange={setSelectedCountry}
+            onRegionChange={setSelectedRegion}
+            onExport={handleExport}
+            onResetFilters={handleResetFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
+        ) : undefined
+      }
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
       <div className="min-h-screen bg-background">
         <div className="p-6 space-y-6">
-        {/* Header Section */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Jobs Analytics</h1>
-            <p className="text-muted-foreground">
-              Job posting performance, hiring metrics, and recruitment efficiency
-            </p>
-          </div>
-          
-          {!isEditMode && (
-            <DashboardActionBar
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
-              selectedCountry={selectedCountry}
-              onCountryChange={setSelectedCountry}
-              selectedRegion={selectedRegion}
-              onRegionChange={setSelectedRegion}
-              onExport={handleExport}
-              onResetFilters={handleResetFilters}
-              hasActiveFilters={hasActiveFilters}
-            />
-          )}
-        </div>
-
         {/* Active Filters */}
         {!isEditMode && (
           <ActiveFiltersIndicator

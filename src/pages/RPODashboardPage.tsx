@@ -69,6 +69,8 @@ export default function RPODashboardPage() {
 
   return (
     <DashboardPageLayout
+      title="RPO Contracts Dashboard"
+      subtitle="Track dedicated consultants, monthly retainers, and contract timelines for all RPO services"
       breadcrumbActions={
         <DashboardActionBar
           dateRange={dateRange}
@@ -84,17 +86,7 @@ export default function RPODashboardPage() {
       }
     >
       <div className="p-6 space-y-6">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <FileText className="h-6 w-6" />
-            <h1 className="text-3xl font-bold">RPO Contracts Dashboard</h1>
-          </div>
-          <p className="text-muted-foreground">
-          Track dedicated consultants, monthly retainers, and contract timelines for all RPO services
-        </p>
-      </div>
-
-      {/* Active Filters Indicator */}
+        {/* Active Filters Indicator */}
       <ActiveFiltersIndicator
         selectedCountry={selectedCountry}
         selectedRegion={selectedRegion}

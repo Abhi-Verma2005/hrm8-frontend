@@ -95,6 +95,8 @@ export default function SalesDashboardPage() {
 
   return (
     <DashboardPageLayout
+      title="Sales Dashboard"
+      subtitle="Monitor sales performance, pipeline, and team activity"
       breadcrumbActions={
         <DashboardActionBar
           dateRange={dateRange}
@@ -110,11 +112,6 @@ export default function SalesDashboardPage() {
       }
     >
       <div className="p-6 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Sales Dashboard</h1>
-          <p className="text-muted-foreground mt-2">Monitor sales performance, pipeline, and team activity</p>
-        </div>
-
         {/* Active Filters Indicator */}
         <ActiveFiltersIndicator
           selectedCountry={selectedCountry}

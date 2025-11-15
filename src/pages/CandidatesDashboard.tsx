@@ -133,43 +133,38 @@ export default function CandidatesDashboard() {
 
   return (
     <DashboardPageLayout
+      title="Candidates Analytics"
+      subtitle="Track recruitment metrics and candidate pipeline performance"
+      breadcrumbActions={
+        !isEditMode ? (
+          <DashboardActionBar
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            selectedCountry={selectedCountry}
+            selectedRegion={selectedRegion}
+            onCountryChange={setSelectedCountry}
+            onRegionChange={setSelectedRegion}
+            onExport={handleExport}
+            onResetFilters={handleResetFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
+        ) : undefined
+      }
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
       <div className="min-h-screen bg-background">
         <div className="p-6 space-y-6">
-        {/* Header Section */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Candidates Analytics</h1>
-            <p className="text-muted-foreground">
-              Track recruitment metrics and candidate pipeline performance
-            </p>
-          </div>
-          
-          {!isEditMode && (
-            <DashboardActionBar
-              dateRange={dateRange}
-              onDateRangeChange={setDateRange}
-              selectedCountry={selectedCountry}
-              selectedRegion={selectedRegion}
-              onCountryChange={setSelectedCountry}
-              onRegionChange={setSelectedRegion}
-              onExport={handleExport}
-              onResetFilters={handleResetFilters}
-              hasActiveFilters={hasActiveFilters}
-            />
-          )}
-        </div>
-
-        {/* Active Filters Indicator */}
-        <ActiveFiltersIndicator
-          selectedCountry={selectedCountry}
-          selectedRegion={selectedRegion}
-          dateRange={dateRange}
-          onClearCountry={() => setSelectedCountry("all")}
-          onClearRegion={() => setSelectedRegion("all")}
-          onClearDateRange={() => setDateRange(undefined)}
-        />
+        {/* Active Filters */}
+        {!isEditMode && (
+          <ActiveFiltersIndicator
+            selectedCountry={selectedCountry}
+            selectedRegion={selectedRegion}
+            dateRange={dateRange}
+            onClearCountry={() => setSelectedCountry("all")}
+            onClearRegion={() => setSelectedRegion("all")}
+            onClearDateRange={() => setDateRange(undefined)}
+          />
+        )}
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

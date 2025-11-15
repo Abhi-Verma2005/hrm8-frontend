@@ -124,36 +124,29 @@ export default function EmployersDashboardPage() {
 
   return (
     <DashboardPageLayout
+      title="Employers Dashboard"
+      subtitle="Client relationships, projects, and financial performance"
+      breadcrumbActions={
+        !isEditMode ? (
+          <DashboardActionBar
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            selectedCountry={selectedCountry}
+            selectedRegion={selectedRegion}
+            onCountryChange={setSelectedCountry}
+            onRegionChange={setSelectedRegion}
+            onExport={handleExport}
+            onResetFilters={handleResetFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
+        ) : undefined
+      }
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
       <div className="min-h-screen bg-background">
         <div className="p-6 space-y-6">
-          {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Employers Dashboard</h1>
-              <p className="text-muted-foreground">
-                Client relationships, projects, and financial performance
-              </p>
-            </div>
-            
-            {!isEditMode && (
-              <DashboardActionBar
-                dateRange={dateRange}
-                onDateRangeChange={setDateRange}
-                selectedCountry={selectedCountry}
-                selectedRegion={selectedRegion}
-                onCountryChange={setSelectedCountry}
-                onRegionChange={setSelectedRegion}
-                onExport={handleExport}
-                onResetFilters={handleResetFilters}
-                hasActiveFilters={hasActiveFilters}
-              />
-          )}
-        </div>
-
-        {/* Active Filters Indicator */}
-        <ActiveFiltersIndicator
+          {/* Active Filters Indicator */}
+          <ActiveFiltersIndicator
           selectedCountry={selectedCountry}
           selectedRegion={selectedRegion}
           dateRange={dateRange}
