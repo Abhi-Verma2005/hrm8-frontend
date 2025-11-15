@@ -35,6 +35,10 @@ export default function AIInterviews() {
         actions={
           <div className="flex gap-2 items-center">
             <DataResetButton />
+            <Button variant="outline" onClick={() => navigate('/dashboard/addons?tab=ai-interviews')}>
+              <BarChart3 className="h-4 w-4 mr-2" />
+              View Dashboard
+            </Button>
             <Button variant="outline" onClick={() => navigate('/ai-interviews/analytics')}>
               <BarChart3 className="h-4 w-4 mr-2" />
               Analytics

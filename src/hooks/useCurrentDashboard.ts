@@ -16,8 +16,7 @@ export function useCurrentDashboard(): DashboardType | null {
   if (path.startsWith('/dashboard/candidates')) return 'candidates';
   if (path.startsWith('/dashboard/sales')) return 'sales';
   if (path.startsWith('/dashboard/rpo')) return 'rpo';
-  if (path.startsWith('/dashboard/assessments')) return 'assessments';
-  if (path.startsWith('/dashboard/background-checks')) return 'background-checks';
+  if (path.startsWith('/dashboard/addons')) return 'addons';
 
   return null;
 }
