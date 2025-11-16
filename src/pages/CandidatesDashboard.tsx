@@ -152,8 +152,7 @@ export default function CandidatesDashboard() {
       }
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
-      <div className="min-h-screen bg-background">
-        <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Active Filters */}
         {!isEditMode && (
           <ActiveFiltersIndicator
@@ -527,7 +526,6 @@ export default function CandidatesDashboard() {
             </StandardChartCard>
           </TabsContent>
         </Tabs>
-        </div>
       </div>
     </DashboardPageLayout>
   );

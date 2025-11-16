@@ -93,7 +93,8 @@ export default function AddonsDashboard() {
         />
       }
     >
-      {/* Active Filters Indicator */}
+      <div className="px-6 pb-6 space-y-6">
+        {/* Active Filters Indicator */}
       {hasActiveFilters && (
         <ActiveFiltersIndicator
           selectedCountry={selectedCountry}
@@ -389,7 +390,8 @@ export default function AddonsDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
+        </Tabs>
+      </div>
     </DashboardPageLayout>
   );
 }
