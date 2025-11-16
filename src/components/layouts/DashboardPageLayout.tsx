@@ -41,20 +41,16 @@ export function DashboardPageLayout({
       )}
       
       <div className="flex-1">
-        {(title || subtitle || actions) && (
-          <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="w-full px-6 py-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  {title && <h1 className="text-3xl font-bold tracking-tight">{title}</h1>}
-                  {subtitle && <p className="text-muted-foreground mt-2">{subtitle}</p>}
-                </div>
-                {actions && <div>{actions}</div>}
+        <div className={fullWidth ? "w-full px-6 py-6 space-y-6" : "container py-6 space-y-6"}>
+          {(title || subtitle || actions) && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                {title && <h1 className="text-3xl font-bold">{title}</h1>}
+                {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
               </div>
+              {actions && <div className="flex items-center gap-2">{actions}</div>}
             </div>
-          </div>
-        )}
-        <div className={fullWidth ? "w-full px-6 py-6" : "container py-6"}>
+          )}
           {children}
         </div>
       </div>
