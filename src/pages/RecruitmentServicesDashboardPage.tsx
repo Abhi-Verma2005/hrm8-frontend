@@ -158,8 +158,7 @@ export default function RecruitmentServicesDashboardPage() {
       }
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
-      <div className="min-h-screen bg-background">
-        <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6">
           {/* Active Filters Indicator */}
           <ActiveFiltersIndicator
           selectedCountry={selectedCountry}
@@ -356,7 +355,6 @@ export default function RecruitmentServicesDashboardPage() {
               </ResponsiveContainer>
             </StandardChartCard>
           </div>
-        </div>
       </div>
     </DashboardPageLayout>
   );

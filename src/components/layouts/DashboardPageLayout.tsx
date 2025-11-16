@@ -41,8 +41,8 @@ export function DashboardPageLayout({
       )}
       
       <div className="flex-1">
-        <div className={fullWidth ? "w-full px-6 py-6 space-y-6" : "container py-6 space-y-6"}>
-          {(title || subtitle || actions) && (
+        {(title || subtitle || actions) && (
+          <div className="p-6 pb-0">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 {title && <h1 className="text-3xl font-bold">{title}</h1>}
@@ -50,7 +50,9 @@ export function DashboardPageLayout({
               </div>
               {actions && <div className="flex items-center gap-2">{actions}</div>}
             </div>
-          )}
+          </div>
+        )}
+        <div className={fullWidth ? "w-full" : "container"}>
           {children}
         </div>
       </div>
