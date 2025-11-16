@@ -1,7 +1,6 @@
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
-import { DateRangePresets } from "@/components/dashboard/DateRangePresets";
 import { Button } from "@/components/ui/button";
-import { Download, Filter as FilterIcon, RotateCcw, ArrowLeftRight } from "lucide-react";
+import { Download, Filter as FilterIcon, RotateCcw } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import {
   Dialog,
@@ -11,11 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { REGION_COUNTRY_MAP } from "@/lib/countryRegions";
@@ -30,9 +24,6 @@ interface DashboardActionBarProps {
   onExport: () => void;
   onResetFilters: () => void;
   hasActiveFilters: boolean;
-  // Comparison mode props
-  comparisonMode?: boolean;
-  onToggleComparison?: () => void;
 }
 
 const COUNTRIES = [
@@ -65,8 +56,6 @@ export function DashboardActionBar({
   onExport,
   onResetFilters,
   hasActiveFilters,
-  comparisonMode = false,
-  onToggleComparison,
 }: DashboardActionBarProps) {
   const activeFilterCount = [
     dateRange?.from,
@@ -75,41 +64,14 @@ export function DashboardActionBar({
   ].filter(Boolean).length;
 
   return (
-    <div className="flex items-center gap-3 flex-wrap">
-      {/* Date Range Picker with Presets Popover */}
-      {!comparisonMode && (
-        <Popover>
-          <PopoverTrigger asChild>
-            <div>
-              <DateRangePicker
-                value={dateRange}
-                onChange={onDateRangeChange}
-                placeholder="Select period"
-                align="end"
-                size="sm"
-              />
-            </div>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-3" align="end">
-            <DateRangePresets
-              onSelectPreset={onDateRangeChange}
-              currentRange={dateRange}
-            />
-          </PopoverContent>
-        </Popover>
-      )}
-
-      {/* Comparison Mode Toggle */}
-      {onToggleComparison && (
-        <Button
-          variant={comparisonMode ? "default" : "outline"}
-          size="sm"
-          onClick={onToggleComparison}
-        >
-          <ArrowLeftRight className="h-4 w-4 mr-2" />
-          Compare
-        </Button>
-      )}
+    <div className="flex items-center gap-3">
+      <DateRangePicker
+        value={dateRange}
+        onChange={onDateRangeChange}
+        placeholder="Select period"
+        align="end"
+        size="sm"
+      />
 
       <Dialog>
         <DialogTrigger asChild>

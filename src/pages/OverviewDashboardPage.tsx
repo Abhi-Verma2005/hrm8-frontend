@@ -2,8 +2,6 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { ComparisonStatCard } from "@/components/dashboard/ComparisonStatCard";
-import { DateRangeComparison } from "@/components/dashboard/DateRangeComparison";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
@@ -26,8 +24,6 @@ import {
   clientsByLocation,
   projectsByLocation
 } from "@/lib/mockDataWithLocations";
-import { getComparisonMetrics, formatComparisonLabel, filterDataByDateRange } from "@/lib/comparisonUtils";
-import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 
 const hiringTrends = [
   { month: 'Jan', hires: 45, applications: 320, interviews: 128 },
@@ -67,19 +63,14 @@ const projectPipeline = [
 export default function OverviewDashboardPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { formatCurrency } = useCurrencyFormat();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
-  
-  // Comparison mode state
-  const [comparisonMode, setComparisonMode] = useState(false);
-  const [comparisonRange, setComparisonRange] = useState<DateRange | undefined>();
 
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
-  // Calculate filtered metrics for primary period
+  // Calculate filtered metrics
   const filteredTotalEmployees = useMemo(() => 
     applyLocationFilterToMetric(394, selectedCountry, selectedRegion),
     [selectedCountry, selectedRegion]
@@ -98,27 +89,6 @@ export default function OverviewDashboardPage() {
   const filteredTotalClients = useMemo(() => 
     getTotalByLocationFilter(clientsByLocation, selectedCountry, selectedRegion, 'count'),
     [selectedCountry, selectedRegion]
-  );
-
-  // Calculate metrics for comparison period
-  const comparisonEmployees = useMemo(() => 
-    comparisonMode ? applyLocationFilterToMetric(382, selectedCountry, selectedRegion) : 0,
-    [comparisonMode, selectedCountry, selectedRegion]
-  );
-
-  const comparisonProjects = useMemo(() => 
-    comparisonMode ? getTotalByLocationFilter(projectsByLocation, selectedCountry, selectedRegion, 'active') - 3 : 0,
-    [comparisonMode, selectedCountry, selectedRegion]
-  );
-
-  const comparisonRevenue = useMemo(() => 
-    comparisonMode ? applyLocationFilterToMetric(334000, selectedCountry, selectedRegion) : 0,
-    [comparisonMode, selectedCountry, selectedRegion]
-  );
-
-  const comparisonClients = useMemo(() => 
-    comparisonMode ? getTotalByLocationFilter(clientsByLocation, selectedCountry, selectedRegion, 'count') - 5 : 0,
-    [comparisonMode, selectedCountry, selectedRegion]
   );
 
   // Filter data based on date range and location
@@ -190,13 +160,6 @@ export default function OverviewDashboardPage() {
     toast({ title: "Filters reset" });
   };
 
-  const handleToggleComparison = () => {
-    setComparisonMode(!comparisonMode);
-    if (!comparisonMode) {
-      toast({ title: "Comparison mode enabled", description: "Select two periods to compare metrics" });
-    }
-  };
-
   return (
     <DashboardPageLayout
       title="Overview Dashboard"
@@ -213,8 +176,6 @@ export default function OverviewDashboardPage() {
             onExport={handleExport}
             onResetFilters={handleResetFilters}
             hasActiveFilters={hasActiveFilters}
-            comparisonMode={comparisonMode}
-            onToggleComparison={handleToggleComparison}
           />
         ) : undefined
       }
@@ -224,82 +185,16 @@ export default function OverviewDashboardPage() {
         <div className="p-6 space-y-6">
           {/* Active Filters */}
           <ActiveFiltersIndicator
-            selectedCountry={selectedCountry}
-            selectedRegion={selectedRegion}
-            dateRange={dateRange}
-            onClearCountry={() => setSelectedCountry("all")}
-            onClearRegion={() => setSelectedRegion("all")}
-            onClearDateRange={() => setDateRange(undefined)}
-          />
-
-          {/* Comparison Mode Card */}
-          {comparisonMode && (
-            <DateRangeComparison
-              primaryRange={dateRange}
-              comparisonRange={comparisonRange}
-              onPrimaryRangeChange={setDateRange}
-              onComparisonRangeChange={setComparisonRange}
-              onDisableComparison={() => {
-                setComparisonMode(false);
-                setComparisonRange(undefined);
-              }}
-            />
-          )}
+          selectedCountry={selectedCountry}
+          selectedRegion={selectedRegion}
+          dateRange={dateRange}
+          onClearCountry={() => setSelectedCountry("all")}
+          onClearRegion={() => setSelectedRegion("all")}
+          onClearDateRange={() => setDateRange(undefined)}
+        />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {comparisonMode ? (
-            <>
-              {/* Comparison Stat Cards */}
-              <ComparisonStatCard
-                title="Total Employees"
-                icon={<Users className="h-6 w-6" />}
-                primaryValue={filteredTotalEmployees.toString()}
-                primaryLabel={formatComparisonLabel(dateRange) || "Period A"}
-                comparisonValue={comparisonEmployees.toString()}
-                comparisonLabel={formatComparisonLabel(comparisonRange) || "Period B"}
-                change={getComparisonMetrics(filteredTotalEmployees, comparisonEmployees).change}
-                trend={getComparisonMetrics(filteredTotalEmployees, comparisonEmployees).trend}
-                changeLabel="vs previous period"
-              />
-              <ComparisonStatCard
-                title="Active Projects"
-                icon={<Briefcase className="h-6 w-6" />}
-                primaryValue={filteredActiveProjects.toString()}
-                primaryLabel={formatComparisonLabel(dateRange) || "Period A"}
-                comparisonValue={comparisonProjects.toString()}
-                comparisonLabel={formatComparisonLabel(comparisonRange) || "Period B"}
-                change={getComparisonMetrics(filteredActiveProjects, comparisonProjects).change}
-                trend={getComparisonMetrics(filteredActiveProjects, comparisonProjects).trend}
-                changeLabel="vs previous period"
-              />
-              <ComparisonStatCard
-                title="Monthly Revenue"
-                icon={<DollarSign className="h-6 w-6" />}
-                primaryValue={filteredMonthlyRevenue.toString()}
-                primaryLabel={formatComparisonLabel(dateRange) || "Period A"}
-                comparisonValue={comparisonRevenue.toString()}
-                comparisonLabel={formatComparisonLabel(comparisonRange) || "Period B"}
-                change={getComparisonMetrics(filteredMonthlyRevenue, comparisonRevenue).change}
-                trend={getComparisonMetrics(filteredMonthlyRevenue, comparisonRevenue).trend}
-                changeLabel="vs previous period"
-                formatValue={(v) => formatCurrency(Number(v))}
-              />
-              <ComparisonStatCard
-                title="Total Clients"
-                icon={<Building2 className="h-6 w-6" />}
-                primaryValue={filteredTotalClients.toString()}
-                primaryLabel={formatComparisonLabel(dateRange) || "Period A"}
-                comparisonValue={comparisonClients.toString()}
-                comparisonLabel={formatComparisonLabel(comparisonRange) || "Period B"}
-                change={getComparisonMetrics(filteredTotalClients, comparisonClients).change}
-                trend={getComparisonMetrics(filteredTotalClients, comparisonClients).trend}
-                changeLabel="vs previous period"
-              />
-            </>
-          ) : (
-            <>
-              {/* Regular Stat Cards */}
-              <EnhancedStatCard
+            <EnhancedStatCard
               title="Total Employees"
               value={filteredTotalEmployees.toString()}
               change="+12.5%"
@@ -349,20 +244,18 @@ export default function OverviewDashboardPage() {
             <EnhancedStatCard
               title="Total Clients"
               value={filteredTotalClients.toString()}
-              change="+11.7%"
+              change="+5.7%"
               trend="up"
               icon={<Building2 className="h-6 w-6" />}
-              variant="success"
+              variant="neutral"
               showMenu={true}
               menuItems={[
                 { label: "View Clients", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/employers') },
-                { label: "Retention", icon: <CheckCircle className="h-4 w-4" />, onClick: () => {} },
+                { label: "Analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
                 { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             />
-            </>
-          )}
-        </div>
+          </div>
 
           {/* Charts */}
           <div className="grid gap-4 md:grid-cols-2">

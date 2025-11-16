@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
-import { DateRangeComparison } from "@/components/dashboard/DateRangeComparison";
 import { Card } from "@/components/ui/card";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
@@ -30,8 +29,6 @@ export default function SalesDashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
-  const [comparisonMode, setComparisonMode] = useState(false);
-  const [comparisonRange, setComparisonRange] = useState<DateRange | undefined>();
   
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
   const salesAgentStats = getSalesAgentStats();
@@ -96,18 +93,6 @@ export default function SalesDashboardPage() {
     toast({ title: "Filters reset" });
   };
 
-  const handleToggleComparison = () => {
-    setComparisonMode(!comparisonMode);
-    if (!comparisonMode) {
-      setComparisonRange(undefined);
-    }
-  };
-
-  const handleDisableComparison = () => {
-    setComparisonMode(false);
-    setComparisonRange(undefined);
-  };
-
   return (
     <DashboardPageLayout
       title="Sales Dashboard"
@@ -123,8 +108,6 @@ export default function SalesDashboardPage() {
           onExport={handleExport}
           onResetFilters={handleResetFilters}
           hasActiveFilters={hasActiveFilters}
-          comparisonMode={comparisonMode}
-          onToggleComparison={handleToggleComparison}
         />
       }
     >
@@ -138,16 +121,6 @@ export default function SalesDashboardPage() {
           onClearRegion={() => setSelectedRegion("all")}
           onClearDateRange={() => setDateRange(undefined)}
         />
-
-        {comparisonMode && (
-          <DateRangeComparison
-            primaryRange={dateRange}
-            comparisonRange={comparisonRange}
-            onPrimaryRangeChange={setDateRange}
-            onComparisonRangeChange={setComparisonRange}
-            onDisableComparison={handleDisableComparison}
-          />
-        )}
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

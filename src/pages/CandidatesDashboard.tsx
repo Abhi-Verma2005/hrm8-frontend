@@ -2,11 +2,8 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { ComparisonStatCard } from "@/components/dashboard/ComparisonStatCard";
-import { DateRangeComparison } from "@/components/dashboard/DateRangeComparison";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
-import { filterDataByDateRange, formatComparisonLabel, getComparisonMetrics } from "@/lib/comparisonUtils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
@@ -29,8 +26,6 @@ export default function CandidatesDashboard() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
-  const [comparisonMode, setComparisonMode] = useState(false);
-  const [comparisonRange, setComparisonRange] = useState<DateRange | undefined>();
   const { toast } = useToast();
   const navigate = useNavigate();
   const candidates = getCandidates();
@@ -46,18 +41,6 @@ export default function CandidatesDashboard() {
     setSelectedCountry("all");
     setSelectedRegion("all");
     toast({ title: "Filters reset" });
-  };
-
-  const handleToggleComparison = () => {
-    setComparisonMode(!comparisonMode);
-    if (!comparisonMode) {
-      setComparisonRange(undefined);
-    }
-  };
-
-  const handleDisableComparison = () => {
-    setComparisonMode(false);
-    setComparisonRange(undefined);
   };
 
   // Calculate metrics with location filtering
@@ -164,8 +147,6 @@ export default function CandidatesDashboard() {
             onExport={handleExport}
             onResetFilters={handleResetFilters}
             hasActiveFilters={hasActiveFilters}
-            comparisonMode={comparisonMode}
-            onToggleComparison={handleToggleComparison}
           />
         ) : undefined
       }
