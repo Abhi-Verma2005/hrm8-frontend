@@ -97,7 +97,7 @@ export function ResumeWorkHistoryTab({ application }: ResumeWorkHistoryTabProps)
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-6 space-y-6">
+      <div className="p-12 space-y-6">
         {/* Resume Document Section */}
         <Card>
           <CardHeader>

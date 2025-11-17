@@ -34,7 +34,7 @@ export function AssessmentPredictionCard({ prediction }: AssessmentPredictionCar
 
   return (
     <Card className="border-l-4 border-l-primary">
-      <div className="p-6 space-y-6">
+      <div className="p-12 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="space-y-2">

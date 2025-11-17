@@ -156,7 +156,6 @@ export default function Dashboard() {
         />
       }
     >
-      <div className="min-h-screen bg-background">
         {/* Edit Mode Toolbar - Only shows in edit mode */}
         {isEditMode && (
           <EditModeToolbar
@@ -174,7 +173,7 @@ export default function Dashboard() {
         )}
         
         {/* Main Dashboard Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-12 space-y-6">
         {/* Header Section */}
         <div className="flex items-center justify-between">
           <div>
@@ -220,7 +219,6 @@ export default function Dashboard() {
           onAddWidget={handleAddWidget}
           dashboardType={dashboardType}
         />
-      </div>
-    </DashboardPageLayout>
+      </DashboardPageLayout>
   );
 }
