@@ -39,6 +39,16 @@ export interface RegisterCompanyResponse {
   message: string;
 }
 
+export interface VerifyCompanyRequest {
+  token: string;
+  companyId: string;
+}
+
+export interface VerifyCompanyResponse {
+  message: string;
+  email?: string;
+}
+
 class AuthService {
   async login(credentials: LoginRequest) {
     return apiClient.post<LoginResponse>('/api/auth/login', credentials);
@@ -54,6 +64,10 @@ class AuthService {
 
   async getCurrentUser() {
     return apiClient.get<{ user: User }>('/api/auth/me');
+  }
+
+  async verifyCompany(data: VerifyCompanyRequest) {
+    return apiClient.post<VerifyCompanyResponse>('/api/auth/verify-company', data);
   }
 }
 

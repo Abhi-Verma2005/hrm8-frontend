@@ -1,5 +1,6 @@
 import { Route } from "react-router-dom";
 import VerifyCertificate from "@/pages/VerifyCertificate";
+import VerifyCompany from "@/pages/VerifyCompany";
 import ConsentForm from "@/pages/ConsentForm";
 import ReferenceQuestionnaire from "@/pages/ReferenceQuestionnaire";
 import AIReferenceSession from "@/pages/AIReferenceSession";
@@ -12,6 +13,7 @@ import PublicFeedbackForm from "@/pages/PublicFeedbackForm";
 export const publicRoutes = (
   <>
     <Route path="/verify/:code?" element={<VerifyCertificate />} />
+    <Route path="/verify-company" element={<VerifyCompany />} />
     <Route path="/consent/:token" element={<ConsentForm />} />
     <Route path="/reference/:token" element={<ReferenceQuestionnaire />} />
     <Route path="/ai-reference/:token" element={<AIReferenceSession />} />
