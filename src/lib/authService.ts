@@ -49,6 +49,13 @@ export interface VerifyCompanyResponse {
   email?: string;
 }
 
+export interface ResendVerificationResponse {
+  message: string;
+  email?: string;
+  companyId?: string;
+  expiresAt?: string;
+}
+
 class AuthService {
   async login(credentials: LoginRequest) {
     return apiClient.post<LoginResponse>('/api/auth/login', credentials);
@@ -68,6 +75,10 @@ class AuthService {
 
   async verifyCompany(data: VerifyCompanyRequest) {
     return apiClient.post<VerifyCompanyResponse>('/api/auth/verify-company', data);
+  }
+
+  async resendVerification(email: string) {
+    return apiClient.post<ResendVerificationResponse>('/api/auth/resend-verification', { email });
   }
 }
 

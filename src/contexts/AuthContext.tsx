@@ -8,11 +8,17 @@ import { useNavigate } from 'react-router-dom';
 import { authService, User } from '@/lib/authService';
 import { useToast } from '@/hooks/use-toast';
 
+const PENDING_VERIFICATION_KEY = 'hrm8PendingVerification';
+const LAST_VERIFICATION_KEY = 'hrm8LastVerification';
+
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; pendingVerification?: { email: string; companyId?: string } }>;
   logout: () => Promise<void>;
   registerCompany: (data: {
     companyName: string;
@@ -52,7 +58,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+const login = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; pendingVerification?: { email: string; companyId?: string } }> => {
     try {
       setIsLoading(true);
       const response = await authService.login({ email, password });
@@ -64,14 +73,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           description: `Logged in as ${response.data.user.email}`,
         });
         navigate('/home');
-        return true;
+        return { success: true };
       } else {
+        const pendingDetails =
+          response.details?.code === 'PENDING_VERIFICATION'
+            ? {
+                email: (response.details.email as string) || email,
+                companyId: response.details.companyId as string | undefined,
+              }
+            : null;
+
+        if (pendingDetails) {
+          toast({
+            title: 'Verify your email',
+            description: 'Please check your inbox for the verification link we just sent.',
+          });
+          return { success: false, pendingVerification: pendingDetails };
+        }
+
         toast({
           title: 'Login failed',
           description: response.error || 'Invalid email or password',
           variant: 'destructive',
         });
-        return false;
+        return { success: false };
       }
     } catch (error) {
       toast({
@@ -79,7 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: error instanceof Error ? error.message : 'An error occurred',
         variant: 'destructive',
       });
-      return false;
+      return { success: false };
     } finally {
       setIsLoading(false);
     }
@@ -116,10 +141,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Check if verification is required
         if (response.data.verificationRequired) {
           // Store credentials temporarily for auto-login after verification
-          sessionStorage.setItem('pendingVerification', JSON.stringify({
+          const pendingPayload = JSON.stringify({
             email: data.adminEmail,
             password: data.password,
-          }));
+          });
+          sessionStorage.setItem(PENDING_VERIFICATION_KEY, pendingPayload);
+          localStorage.setItem(PENDING_VERIFICATION_KEY, pendingPayload);
 
           toast({
             title: 'Verification email sent!',
@@ -137,8 +164,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             title: 'Company registered!',
             description: response.data.message || 'Company registered and verified successfully',
           });
-          const loginSuccess = await login(data.adminEmail, data.password);
-          return { success: loginSuccess };
+          const loginResult = await login(data.adminEmail, data.password);
+          return { success: loginResult.success };
         }
       } else {
         toast({
@@ -179,15 +206,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Try to auto-login if we have credentials
         if (email && password) {
-          const loginSuccess = await login(email, password);
+          const loginResult = await login(email, password);
           
           // Clear stored credentials
-          sessionStorage.removeItem('pendingVerification');
+          sessionStorage.removeItem(PENDING_VERIFICATION_KEY);
+          localStorage.removeItem(PENDING_VERIFICATION_KEY);
+          localStorage.setItem(
+            LAST_VERIFICATION_KEY,
+            JSON.stringify({
+              email: verifiedEmail,
+              timestamp: new Date().toISOString(),
+            })
+          );
           
-          return { success: loginSuccess, email: verifiedEmail };
+          if (loginResult.success) {
+            return { success: true, email: verifiedEmail };
+          }
+
+          return { success: true, email: verifiedEmail, needsPassword: true };
         } else {
           // No credentials available, return email for manual login
-          sessionStorage.removeItem('pendingVerification');
+          sessionStorage.removeItem(PENDING_VERIFICATION_KEY);
+          localStorage.removeItem(PENDING_VERIFICATION_KEY);
+          localStorage.setItem(
+            LAST_VERIFICATION_KEY,
+            JSON.stringify({
+              email: verifiedEmail,
+              timestamp: new Date().toISOString(),
+            })
+          );
           return { success: true, email: verifiedEmail, needsPassword: true };
         }
       } else {
@@ -227,6 +274,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
