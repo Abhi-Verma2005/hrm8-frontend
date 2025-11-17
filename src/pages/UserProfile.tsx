@@ -112,7 +112,7 @@ export default function UserProfile() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-12 space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>

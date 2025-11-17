@@ -65,7 +65,7 @@ export default function JobAnalytics() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-12 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>

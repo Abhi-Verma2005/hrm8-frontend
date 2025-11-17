@@ -76,7 +76,7 @@ export default function EmployerDetail() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-12 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <Button variant="ghost" size="icon" asChild>

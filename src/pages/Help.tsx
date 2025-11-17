@@ -5,7 +5,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 export default function Help() {
   return (
     <DashboardPageLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-12 space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Help & Support</h1>
           <p className="text-muted-foreground">Get assistance and learn how to use the platform</p>
