@@ -7,10 +7,10 @@ import { NotificationsDropdown } from "./NotificationsDropdown";
 import { NotificationPanel } from "@/components/applications/NotificationPanel";
 import { HeaderQuickActions } from "./HeaderQuickActions";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { Breadcrumbs } from "@/components/common/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { CurrencyFormatToggle } from "@/components/CurrencyFormatToggle";
+import { ThemeToggle } from "@/components/common/ThemeToggle";
+import { CurrencyFormatToggle } from "@/components/common/CurrencyFormatToggle";
 import { ReactNode } from 'react';
 
 interface DashboardHeaderProps {

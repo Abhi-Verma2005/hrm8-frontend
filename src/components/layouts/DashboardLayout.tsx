@@ -1,8 +1,8 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
-import { CommandPalette } from "@/components/CommandPalette";
-import { KeyboardShortcutsDialog } from "@/components/KeyboardShortcutsDialog";
+import { CommandPalette } from "@/components/common/CommandPalette";
+import { KeyboardShortcutsDialog } from "@/components/dialogs/KeyboardShortcutsDialog";
 import { useNavigationShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useSidebarState } from "@/hooks/useSidebarState";
 
