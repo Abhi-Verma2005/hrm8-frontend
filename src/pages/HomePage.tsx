@@ -193,58 +193,58 @@ export default function HomePage() {
         </div>
 
         {/* Priority Action Items */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-red-500" 
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow h-full" 
                 onClick={() => navigate('/support-tickets')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-red-600" />
+                  <AlertCircle className="h-4 w-4 text-muted-foreground" />
                   Critical Tickets
                 </span>
                 <Badge variant="destructive">{stats.criticalTickets}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats.openTickets}</div>
+              <div className="text-2xl font-bold">{stats.openTickets}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 Open tickets requiring attention
               </p>
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-orange-500"
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow h-full"
                 onClick={() => navigate('/recruitment-services')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Target className="h-4 w-4 text-orange-600" />
+                  <Target className="h-4 w-4 text-muted-foreground" />
                   Pending Services
                 </span>
                 <Badge variant="secondary">{stats.pendingServices}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-orange-600">{recruitmentQueue.length}</div>
+              <div className="text-2xl font-bold">{recruitmentQueue.length}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 Recruitment services in queue
               </p>
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-blue-500"
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow h-full"
                 onClick={() => navigate('/employers')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
                 <span className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-blue-600" />
+                  <Users className="h-4 w-4 text-muted-foreground" />
                   New Sign-ups
                 </span>
                 <Badge variant="secondary">{metrics.newSignupsThisMonth}</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{metrics.totalEmployers}</div>
+              <div className="text-2xl font-bold">{metrics.totalEmployers}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 Total active employers
               </p>

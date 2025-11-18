@@ -53,9 +53,9 @@ export function EnhancedStatCard({
   rawValue,
   size = "default",
   layout = "vertical",
-  elevation = "md",
-  showGradient = true,
-  showBorder = true,
+  elevation = "none",
+  showGradient = false,
+  showBorder = false,
   iconPosition = "left",
 }: EnhancedStatCardProps) {
   const { formatCurrency } = useCurrencyFormat();
@@ -123,57 +123,50 @@ export function EnhancedStatCard({
     <Card
       className={cn(
         sizeStyles[size],
-        "transition-all duration-300 cursor-pointer group relative h-full flex flex-col justify-between overflow-hidden",
-        "hover:scale-[1.02] active:scale-[0.98]",
-        "[transition-property:transform,background,border-color,box-shadow,color] [transition-duration:0.3s,0.5s,0.5s,0.5s,0.5s]",
-        "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
-        "dark:before:via-white/20",
-        "before:-translate-x-full before:transition-transform before:duration-700 hover:before:translate-x-full",
-        "animate-fade-in",
-        variantStyles[variant],
-        borderGradientStyles[variant],
-        overlayGradientStyles[variant],
-        elevation !== "none" && `${elevationStyles[elevation]} hover:-translate-y-1 hover:shadow-2xl`
+        "h-full flex flex-col justify-between bg-background"
       )}
     >
-      <div className={cn(
-        "flex items-start justify-between mb-4",
-        layout === "horizontal" && "flex-row items-center",
-        showMenu && "pr-8"
-      )}>
-        <div className={cn(
-          "rounded-full shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3",
-          "group-hover:shadow-xl",
-          iconBgStyles[variant], 
-          iconSizeStyles[size]
-        )}>
+      <div
+        className={cn(
+          "flex items-start justify-between mb-3 gap-3",
+          layout === "horizontal" && "flex-row items-center",
+          showMenu && "pr-8"
+        )}
+      >
+        <div
+          className={cn(
+            "rounded-full shadow-sm",
+            iconBgStyles[variant],
+            iconSizeStyles[size]
+          )}
+        >
           {icon}
         </div>
         <Badge
           className={cn(
-            "shadow-sm -mt-[2px] transition-all duration-300",
-            "group-hover:scale-110 group-hover:shadow-md",
+            "ml-auto text-xs px-2 py-0.5 leading-none rounded-full shadow-sm",
             trend === "up"
-              ? "bg-success/10 text-success border-success/20 hover:bg-success/20"
-              : "bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/20"
+              ? "bg-success/10 text-success border-success/20"
+              : "bg-destructive/10 text-destructive border-destructive/20"
           )}
         >
           {trend === "up" ? (
-            <TrendingUp className="h-3 w-3 mr-1 group-hover:animate-pulse" />
+            <TrendingUp className="h-3 w-3 mr-1" />
           ) : (
-            <TrendingDown className="h-3 w-3 mr-1 group-hover:animate-pulse" />
+            <TrendingDown className="h-3 w-3 mr-1" />
           )}
           {change}
         </Badge>
       </div>
-      <p className="text-sm text-muted-foreground mb-2 font-medium transition-colors duration-300 group-hover:text-foreground">
+      <p className="text-sm text-muted-foreground mb-1 font-medium">
         {title}
       </p>
-      <h3 className={cn(
-        valueSizeStyles[size], 
-        "font-bold tracking-tight transition-all duration-300",
-        "group-hover:scale-105 group-hover:text-primary"
-      )}>
+      <h3
+        className={cn(
+          valueSizeStyles[size],
+          "font-bold tracking-tight"
+        )}
+      >
         {displayValue}
       </h3>
 

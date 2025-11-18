@@ -114,11 +114,11 @@ export default function SupportTickets() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3">
-              <Ticket className="h-8 w-8 text-primary" />
+            <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
+              <Ticket className="h-6 w-6 text-primary" />
               Support Tickets
             </h1>
-            <p className="text-muted-foreground">Manage and respond to customer support requests</p>
+            <p className="text-sm text-muted-foreground">Manage and respond to customer support requests</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline">
@@ -131,38 +131,38 @@ export default function SupportTickets() {
         {/* Stats Overview */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold">{ticketsByStatus.all}</div>
+            <CardContent className="pt-5">
+              <div className="text-lg md:text-xl font-semibold">{ticketsByStatus.all}</div>
               <p className="text-xs text-muted-foreground">Total Tickets</p>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-red-500">
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-red-600">{ticketsByStatus.open}</div>
+          <Card>
+            <CardContent className="pt-5">
+              <div className="text-lg md:text-xl font-semibold">{ticketsByStatus.open}</div>
               <p className="text-xs text-muted-foreground">Open</p>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-orange-500">
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-orange-600">{ticketsByStatus['in-progress']}</div>
+          <Card>
+            <CardContent className="pt-5">
+              <div className="text-lg md:text-xl font-semibold">{ticketsByStatus['in-progress']}</div>
               <p className="text-xs text-muted-foreground">In Progress</p>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-yellow-500">
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-yellow-600">{ticketsByStatus['waiting-response']}</div>
+          <Card>
+            <CardContent className="pt-5">
+              <div className="text-lg md:text-xl font-semibold">{ticketsByStatus['waiting-response']}</div>
               <p className="text-xs text-muted-foreground">Waiting</p>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-green-500">
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-green-600">{ticketsByStatus.resolved}</div>
+          <Card>
+            <CardContent className="pt-5">
+              <div className="text-lg md:text-xl font-semibold">{ticketsByStatus.resolved}</div>
               <p className="text-xs text-muted-foreground">Resolved</p>
             </CardContent>
           </Card>
-          <Card className="border-l-4 border-l-gray-500">
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-gray-600">{ticketsByStatus.closed}</div>
+          <Card>
+            <CardContent className="pt-5">
+              <div className="text-lg md:text-xl font-semibold">{ticketsByStatus.closed}</div>
               <p className="text-xs text-muted-foreground">Closed</p>
             </CardContent>
           </Card>
@@ -228,7 +228,7 @@ export default function SupportTickets() {
         {/* Tickets List */}
         <Card>
           <CardHeader>
-            <CardTitle>Tickets ({filteredTickets.length})</CardTitle>
+            <CardTitle className="text-lg md:text-xl">Tickets ({filteredTickets.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -257,18 +257,18 @@ export default function SupportTickets() {
                             <div className="flex items-start justify-between gap-2 mb-2">
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1">
-                                  <Badge variant="outline" className="font-mono text-xs">
+                                  <Badge variant="outline" className="font-mono text-xs whitespace-nowrap">
                                     {ticket.ticketNumber}
                                   </Badge>
-                                  <Badge className={cn("text-xs capitalize", getPriorityColor(ticket.priority))}>
+                                  <Badge className={cn("text-xs capitalize whitespace-nowrap", getPriorityColor(ticket.priority))}>
                                     {ticket.priority}
                                   </Badge>
-                                  <Badge variant="secondary" className="text-xs capitalize">
+                                  <Badge variant="secondary" className="text-xs capitalize whitespace-nowrap">
                                     {ticket.status.replace('-', ' ')}
                                   </Badge>
                                 </div>
-                                <h3 className="font-semibold truncate">{ticket.subject}</h3>
-                                <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                                <h3 className="text-base md:text-lg font-semibold truncate">{ticket.subject}</h3>
+                                <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
                                   {ticket.description}
                                 </p>
                               </div>
@@ -297,20 +297,20 @@ export default function SupportTickets() {
                       </DialogTrigger>
                       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle className="flex items-center gap-2">
+                          <DialogTitle className="flex items-center gap-2 text-base md:text-lg">
                             <Ticket className="h-5 w-5" />
                             {ticket.ticketNumber} - {ticket.subject}
                           </DialogTitle>
                         </DialogHeader>
                         <div className="space-y-4">
                           <div className="flex gap-2">
-                            <Badge className={cn("capitalize", getPriorityColor(ticket.priority))}>
+                            <Badge className={cn("capitalize whitespace-nowrap", getPriorityColor(ticket.priority))}>
                               {ticket.priority} Priority
                             </Badge>
-                            <Badge variant="secondary" className="capitalize">
+                            <Badge variant="secondary" className="capitalize whitespace-nowrap">
                               {ticket.status.replace('-', ' ')}
                             </Badge>
-                            <Badge variant="outline" className="capitalize">
+                            <Badge variant="outline" className="capitalize whitespace-nowrap">
                               {ticket.category.replace('-', ' ')}
                             </Badge>
                           </div>

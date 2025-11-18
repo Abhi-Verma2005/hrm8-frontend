@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { useRBAC } from "@/hooks/useRBAC";
 import { getESSProfile, getESSStats, getQuickActions } from "@/lib/essStorage";
+import type { LucideIcon } from "lucide-react";
 import { User, FileText, Calendar, Receipt, Heart, Clock, TrendingUp, Bell, CheckCircle2, AlertCircle, Edit } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +20,7 @@ export default function EmployeeSelfService() {
   const quickActions = getQuickActions(userId);
 
   const getActionIcon = (iconName: string) => {
-    const icons: Record<string, any> = {
+    const icons: Record<string, LucideIcon> = {
       Calendar,
       Receipt,
       FileText,
@@ -35,20 +36,19 @@ export default function EmployeeSelfService() {
       <div className="p-12 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-3xl font-bold">Employee Self-Service</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold">Employee Self-Service</h1>
+          <p className="text-sm text-muted-foreground">
             Welcome back, {profile?.personalInfo.firstName}! Manage your information and requests.
           </p>
         </div>
 
-        {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Leave Balance</p>
-                  <p className="text-2xl font-bold">{stats.leaveBalance} days</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Leave Balance</p>
+                  <p className="text-xl font-bold">{stats.leaveBalance} days</p>
                 </div>
                 <Calendar className="h-8 w-8 text-blue-500" />
               </div>
@@ -59,8 +59,8 @@ export default function EmployeeSelfService() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Pending Approvals</p>
-                  <p className="text-2xl font-bold">{stats.pendingApprovals}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Pending Approvals</p>
+                  <p className="text-xl font-bold">{stats.pendingApprovals}</p>
                 </div>
                 <AlertCircle className="h-8 w-8 text-orange-500" />
               </div>
@@ -71,8 +71,8 @@ export default function EmployeeSelfService() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Upcoming Reviews</p>
-                  <p className="text-2xl font-bold">{stats.upcomingReviews}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Upcoming Reviews</p>
+                  <p className="text-xl font-bold">{stats.upcomingReviews}</p>
                 </div>
                 <CheckCircle2 className="h-8 w-8 text-green-500" />
               </div>
@@ -83,8 +83,8 @@ export default function EmployeeSelfService() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Unread Documents</p>
-                  <p className="text-2xl font-bold">{stats.unreadDocuments}</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Unread Documents</p>
+                  <p className="text-xl font-bold">{stats.unreadDocuments}</p>
                 </div>
                 <Bell className="h-8 w-8 text-purple-500" />
               </div>
@@ -95,47 +95,18 @@ export default function EmployeeSelfService() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">Attendance</p>
-                  <p className="text-2xl font-bold">{stats.attendancePercentage}%</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Attendance</p>
+                  <p className="text-xl font-bold">{stats.attendancePercentage}%</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-teal-500" />
               </div>
             </CardContent>
-          </Card>
+            </Card>
         </div>
 
-        {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>Common tasks and requests</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {quickActions.map((action) => {
-                const Icon = getActionIcon(action.icon);
-                return (
-                  <Card key={action.id} className="hover:bg-muted/50 cursor-pointer transition-colors" onClick={() => navigate(action.path)}>
-                    <CardContent className="pt-6">
-                      <div className="flex items-start gap-4">
-                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                          <Icon className="h-5 w-5 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold mb-1">{action.label}</h3>
-                          <p className="text-sm text-muted-foreground">{action.description}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Personal Information Card */}
+        {/* Personal Information & Documents */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Personal Information */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -155,21 +126,21 @@ export default function EmployeeSelfService() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">Full Name</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Full Name</p>
                   <p className="font-medium">
                     {profile?.personalInfo.firstName} {profile?.personalInfo.lastName}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Date of Birth</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Date of Birth</p>
                   <p className="font-medium">{profile?.personalInfo.dateOfBirth}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Email</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Email</p>
                   <p className="font-medium">{profile?.contactInfo.email}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Phone</p>
+                  <p className="text-xs md:text-sm text-muted-foreground">Phone</p>
                   <p className="font-medium">{profile?.contactInfo.phone}</p>
                 </div>
               </div>
@@ -179,6 +150,7 @@ export default function EmployeeSelfService() {
             </CardContent>
           </Card>
 
+          {/* Recent Documents */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -193,7 +165,7 @@ export default function EmployeeSelfService() {
                   <FileText className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="font-medium">Payslip - November 2024</p>
-                    <p className="text-sm text-muted-foreground">Generated 2 days ago</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Generated 2 days ago</p>
                   </div>
                 </div>
                 <Badge>New</Badge>
@@ -203,7 +175,7 @@ export default function EmployeeSelfService() {
                   <FileText className="h-5 w-5 text-muted-foreground" />
                   <div>
                     <p className="font-medium">Tax Form - 2024</p>
-                    <p className="text-sm text-muted-foreground">Generated 1 week ago</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Generated 1 week ago</p>
                   </div>
                 </div>
               </div>
