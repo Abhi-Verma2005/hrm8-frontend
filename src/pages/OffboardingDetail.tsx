@@ -70,7 +70,7 @@ export default function OffboardingDetail() {
         <title>{workflow.employeeName} - Offboarding</title>
       </Helmet>
 
-      <div className="container mx-auto p-6 space-y-6">
+      <div className="container mx-auto p-12 space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate('/offboarding')}>
             <ArrowLeft className="h-4 w-4" />
