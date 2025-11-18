@@ -10,6 +10,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Loader2, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 
+const PENDING_VERIFICATION_KEY = 'hrm8PendingVerification';
+
 type VerificationState = 'verifying' | 'success' | 'error';
 
 export default function VerifyCompany() {
@@ -30,18 +32,28 @@ export default function VerifyCompany() {
       return;
     }
 
-    // Get stored credentials from sessionStorage (optional - for auto-login)
-    const storedCredentials = sessionStorage.getItem('pendingVerification');
-    let credentials: { email: string; password: string } | null = null;
-    
-    if (storedCredentials) {
-      try {
-        credentials = JSON.parse(storedCredentials);
-      } catch {
-        // Invalid stored credentials, but we can still verify
-        credentials = null;
+    const getPendingCredentials = (): { email: string; password: string } | null => {
+      const sources = [
+        sessionStorage.getItem(PENDING_VERIFICATION_KEY),
+        localStorage.getItem(PENDING_VERIFICATION_KEY),
+      ];
+
+      for (const rawValue of sources) {
+        if (!rawValue) continue;
+        try {
+          const parsed = JSON.parse(rawValue) as { email: string; password: string };
+          if (parsed.email && parsed.password) {
+            return parsed;
+          }
+        } catch {
+          // Ignore malformed payloads
+        }
       }
-    }
+
+      return null;
+    };
+
+    const credentials = getPendingCredentials();
 
     // Perform verification
     const verificationKey = `${token}:${companyId}`;

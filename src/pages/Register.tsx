@@ -3,8 +3,8 @@
  * Company registration page
  */
 
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,7 +13,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, CheckCircle2, Mail } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { VerificationEmailCard } from '@/components/auth/VerificationEmailCard';
+import { authService } from '@/lib/authService';
+
+const LAST_VERIFICATION_KEY = 'hrm8LastVerification';
 
 const registerSchema = z.object({
   companyName: z.string().min(1, 'Company name is required'),
@@ -31,6 +35,7 @@ export default function Register() {
   const [sentToEmail, setSentToEmail] = useState<string>('');
   const { registerCompany, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const {
     register,
@@ -41,9 +46,79 @@ export default function Register() {
     resolver: zodResolver(registerSchema),
   });
 
-  // Redirect if already authenticated
+  const handleExternalVerification = useCallback(
+    (verifiedEmail?: string) => {
+      if (!verifiedEmail) {
+        return;
+      }
+
+      setEmailSent(false);
+      setSentToEmail(verifiedEmail);
+      reset();
+      navigate(
+        `/login?verified=true&email=${encodeURIComponent(verifiedEmail)}`,
+        { replace: true }
+      );
+    },
+    [navigate, reset]
+  );
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/home', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  useEffect(() => {
+    const verified = searchParams.get('verified') === 'true';
+    const verifiedEmail = searchParams.get('email');
+
+    if (verified) {
+      setEmailSent(false);
+      if (verifiedEmail) {
+        reset({
+          companyName: '',
+          companyWebsite: '',
+          adminEmail: verifiedEmail,
+          adminName: '',
+          password: '',
+        });
+      } else {
+        reset();
+      }
+    }
+  }, [searchParams, reset]);
+
+  useEffect(() => {
+    const processLastVerification = (rawValue: string | null) => {
+      if (!rawValue) {
+        return;
+      }
+
+      try {
+        const payload = JSON.parse(rawValue) as { email?: string };
+        if (payload?.email) {
+          handleExternalVerification(payload.email);
+          localStorage.removeItem(LAST_VERIFICATION_KEY);
+        }
+      } catch {
+        // Ignore malformed payloads
+      }
+    };
+
+    processLastVerification(localStorage.getItem(LAST_VERIFICATION_KEY));
+
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === LAST_VERIFICATION_KEY && event.newValue) {
+        processLastVerification(event.newValue);
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, [handleExternalVerification]);
+
   if (isAuthenticated) {
-    navigate('/home');
     return null;
   }
 
@@ -67,59 +142,35 @@ export default function Register() {
   // Show email sent confirmation
   if (emailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="space-y-1">
-            <div className="flex justify-center mb-4">
-              <div className="rounded-full bg-primary/10 p-3">
-                <Mail className="h-8 w-8 text-primary" />
-              </div>
-            </div>
-            <CardTitle className="text-2xl font-bold text-center">Check your email</CardTitle>
-            <CardDescription className="text-center">
-              We've sent a verification link to your email address
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="text-center space-y-2">
-              <p className="text-sm text-muted-foreground">
-                We sent a verification email to:
-              </p>
-              <p className="font-medium">{sentToEmail}</p>
-            </div>
-            <div className="bg-muted p-4 rounded-lg space-y-2">
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary mt-0.5" />
-                <div className="flex-1 space-y-1">
-                  <p className="text-sm font-medium">Next steps:</p>
-                  <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
-                    <li>Check your inbox (and spam folder)</li>
-                    <li>Click the verification link in the email</li>
-                    <li>You'll be automatically logged in</li>
-                  </ol>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => {
-                setEmailSent(false);
-                reset();
-              }}
-            >
-              Back to registration
-            </Button>
-            <div className="text-sm text-center text-muted-foreground">
-              Already have an account?{' '}
-              <Link to="/login" className="text-primary hover:underline">
-                Sign in
-              </Link>
-            </div>
-          </CardFooter>
-        </Card>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background to-muted p-4 space-y-4">
+        <VerificationEmailCard
+          email={sentToEmail}
+          backLabel="Back to registration"
+          onBack={() => {
+            setEmailSent(false);
+            reset();
+            navigate('/register', { replace: true });
+          }}
+          watchVerification
+          onVerified={(verifiedEmail) => {
+            handleExternalVerification(verifiedEmail);
+          }}
+          onResend={async () => {
+            const response = await authService.resendVerification(sentToEmail);
+            if (!response.success) {
+              throw new Error(response.error || 'Failed to resend verification email.');
+            }
+          }}
+        />
+        <div className="text-sm text-center text-muted-foreground">
+          Already have an account?{' '}
+          <Link
+            to={`/login?pendingEmail=${encodeURIComponent(sentToEmail)}`}
+            className="text-primary hover:underline"
+          >
+            Sign in
+          </Link>
+        </div>
       </div>
     );
   }

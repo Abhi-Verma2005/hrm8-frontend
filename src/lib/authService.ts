@@ -50,6 +50,13 @@ export interface VerifyCompanyResponse {
   user?: User;
 }
 
+export interface ResendVerificationResponse {
+  message: string;
+  email?: string;
+  companyId?: string;
+  expiresAt?: string;
+}
+
 class AuthService {
   async login(credentials: LoginRequest) {
     return apiClient.post<LoginResponse>('/api/auth/login', credentials);
@@ -86,6 +93,10 @@ class AuthService {
     name: string;
   }) {
     return apiClient.post<{ userId: string; message: string }>('/api/auth/accept-invitation', data);
+  }
+
+  async resendVerification(email: string) {
+    return apiClient.post<ResendVerificationResponse>('/api/auth/resend-verification', { email });
   }
 }
 

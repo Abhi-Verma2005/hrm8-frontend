@@ -5,10 +5,11 @@
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
+  details?: Record<string, unknown>;
 }
 
 class ApiClient {
@@ -41,6 +42,7 @@ class ApiClient {
         return {
           success: false,
           error: data.error || `HTTP ${response.status}: ${response.statusText}`,
+          details: data.details,
         };
       }
 
@@ -57,14 +59,14 @@ class ApiClient {
     return this.request<T>(endpoint, { method: 'GET' });
   }
 
-  async post<T>(endpoint: string, body?: any): Promise<ApiResponse<T>> {
+  async post<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'POST',
       body: body ? JSON.stringify(body) : undefined,
     });
   }
 
-  async put<T>(endpoint: string, body?: any): Promise<ApiResponse<T>> {
+  async put<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PUT',
       body: body ? JSON.stringify(body) : undefined,
