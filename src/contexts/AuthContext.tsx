@@ -66,9 +66,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         navigate('/home');
         return true;
       } else {
+        const errorMessage =
+          response.error?.toLowerCase().includes('invalid email or password')
+            ? 'Invalid email or password'
+            : response.error || 'Invalid email or password';
         toast({
           title: 'Login failed',
-          description: response.error || 'Invalid email or password',
+          description: errorMessage,
           variant: 'destructive',
         });
         return false;
@@ -172,12 +176,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { success: false, needsPassword: false };
         }
 
-        toast({
-          title: 'Company verified!',
-          description: response.data.message || 'Your company has been verified successfully',
-        });
+        // If backend returned user data, it means a session was created automatically
+        // Set the user in context and we're done
+        if (response.data.user) {
+          setUser(response.data.user);
+          toast({
+            title: 'Company verified!',
+            description: response.data.message || 'Your company has been verified successfully',
+          });
+          
+          // Clear stored credentials
+          sessionStorage.removeItem('pendingVerification');
+          
+          return { success: true, email: verifiedEmail };
+        }
 
-        // Try to auto-login if we have credentials
+        // If no user data returned, try to auto-login if we have credentials
         if (email && password) {
           const loginSuccess = await login(email, password);
           
@@ -186,7 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           
           return { success: loginSuccess, email: verifiedEmail };
         } else {
-          // No credentials available, return email for manual login
+          // No credentials available and no session created, return email for manual login
           sessionStorage.removeItem('pendingVerification');
           return { success: true, email: verifiedEmail, needsPassword: true };
         }

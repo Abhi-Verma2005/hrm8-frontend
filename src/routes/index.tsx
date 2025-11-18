@@ -10,6 +10,8 @@ import { sharedRoutes } from "./shared.routes";
 import { publicRoutes } from "./public.routes";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import EmployeeSignup from "@/pages/EmployeeSignup";
+import AcceptInvitation from "@/pages/AcceptInvitation";
 import NotFound from "@/pages/NotFound";
 
 export const AppRoutes = () => {
@@ -18,6 +20,8 @@ export const AppRoutes = () => {
       {/* Auth routes (public, no sidebar) */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/signup" element={<EmployeeSignup />} />
+      <Route path="/accept-invitation" element={<AcceptInvitation />} />
       
       {/* Redirect root to home page (protected) */}
       <Route path="/" element={<Navigate to="/home" replace />} />

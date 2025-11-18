@@ -37,6 +37,8 @@ import SystemMonitoring from "@/pages/SystemMonitoring";
 import NotificationPreferences from "@/pages/NotificationPreferences";
 import Settings from "@/pages/Settings";
 import Help from "@/pages/Help";
+import SignupRequests from "@/pages/SignupRequests";
+import InviteEmployees from "@/pages/InviteEmployees";
 
 export const sharedRoutes = (
   <>
@@ -78,6 +80,8 @@ export const sharedRoutes = (
     <Route path="/notification-preferences" element={<NotificationPreferences />} />
     <Route path="/settings" element={<Settings />} />
     <Route path="/help" element={<Help />} />
+    <Route path="/signup-requests" element={<SignupRequests />} />
+    <Route path="/invite-employees" element={<InviteEmployees />} />
   </>
 );
 

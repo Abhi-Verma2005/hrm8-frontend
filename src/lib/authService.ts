@@ -47,6 +47,7 @@ export interface VerifyCompanyRequest {
 export interface VerifyCompanyResponse {
   message: string;
   email?: string;
+  user?: User;
 }
 
 class AuthService {
@@ -68,6 +69,23 @@ class AuthService {
 
   async verifyCompany(data: VerifyCompanyRequest) {
     return apiClient.post<VerifyCompanyResponse>('/api/auth/verify-company', data);
+  }
+
+  async employeeSignup(data: {
+    email: string;
+    name: string;
+    password: string;
+    companyDomain?: string;
+  }) {
+    return apiClient.post<{ requestId: string; message: string }>('/api/auth/signup', data);
+  }
+
+  async acceptInvitation(data: {
+    token: string;
+    password: string;
+    name: string;
+  }) {
+    return apiClient.post<{ userId: string; message: string }>('/api/auth/accept-invitation', data);
   }
 }
 

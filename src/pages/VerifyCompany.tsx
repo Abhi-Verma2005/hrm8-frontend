@@ -15,7 +15,7 @@ type VerificationState = 'verifying' | 'success' | 'error';
 export default function VerifyCompany() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { verifyCompany } = useAuth();
+  const { verifyCompany, isAuthenticated } = useAuth();
   const [state, setState] = useState<VerificationState>('verifying');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const lastVerificationKeyRef = useRef<string | null>(null);
@@ -62,15 +62,18 @@ export default function VerifyCompany() {
         if (result.success) {
           setState('success');
           
-          if (result.needsPassword) {
-            // Verification succeeded but no auto-login, redirect to login with email
-            setTimeout(() => {
-              navigate(`/login?email=${encodeURIComponent(result.email || '')}&verified=true`);
-            }, 2000);
-          } else {
-            // Auto-login succeeded, go to home
+          // If needsPassword is false/undefined, it means a session was created automatically
+          // or login succeeded. Otherwise, redirect to login page.
+          if (result.needsPassword === false || result.needsPassword === undefined) {
+            // Session was created automatically or login succeeded, go to home
+            // Use a small delay to ensure state has updated
             setTimeout(() => {
               navigate('/home');
+            }, 2000);
+          } else {
+            // No session created and no credentials, redirect to login with email
+            setTimeout(() => {
+              navigate(`/login?email=${encodeURIComponent(result.email || '')}&verified=true`);
             }, 2000);
           }
         } else {
