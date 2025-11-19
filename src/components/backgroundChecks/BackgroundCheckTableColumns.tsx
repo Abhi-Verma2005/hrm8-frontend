@@ -78,7 +78,7 @@ export const createBackgroundCheckTableColumns = (
     label: 'Candidate',
     sortable: true,
     render: (check) => (
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <EntityAvatar
           name={check.employerName || 'Unknown'}
           src={check.employerLogo}
@@ -86,20 +86,20 @@ export const createBackgroundCheckTableColumns = (
         />
         <div className="min-w-0 flex-1">
           <Link to={`/candidates/${check.candidateId}`}>
-            <p className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block transition-colors duration-500">
+            <p className="font-semibold text-base cursor-pointer line-clamp-1 block leading-5">
               {check.candidateName}
             </p>
           </Link>
           {check.jobTitle && (
             <Link to={`/jobs/${check.jobId}`}>
-              <p className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors">
+              <p className="text-sm text-muted-foreground line-clamp-1 block leading-5">
                 {check.jobTitle}
               </p>
             </Link>
           )}
           {check.employerName && (
             <Link to={`/employers/${check.employerId}`}>
-              <p className="text-xs text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors">
+              <p className="text-xs text-muted-foreground line-clamp-1 block leading-5">
                 {check.employerName}
               </p>
             </Link>

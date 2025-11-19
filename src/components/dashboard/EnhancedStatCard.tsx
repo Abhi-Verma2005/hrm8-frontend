@@ -36,7 +36,6 @@ interface EnhancedStatCardProps {
   showBorder?: boolean;
   iconPosition?: "left" | "right" | "top";
 }
-
 export function EnhancedStatCard({
   title,
   value,
@@ -71,9 +70,9 @@ export function EnhancedStatCard({
   };
 
   const valueSizeStyles = {
-    compact: "text-2xl",
-    default: "text-3xl",
-    large: "text-4xl",
+    compact: "text-xl",
+    default: "text-2xl",
+    large: "text-3xl",
   };
 
   const elevationStyles = {
@@ -123,28 +122,29 @@ export function EnhancedStatCard({
     <Card
       className={cn(
         sizeStyles[size],
-        "h-full flex flex-col justify-between bg-background"
+        "relative h-full flex flex-col justify-between overflow-hidden",
+        "transition-colors",
+        variantStyles[variant],
+        borderGradientStyles[variant],
+        overlayGradientStyles[variant],
+        elevation !== "none" && `${elevationStyles[elevation]}`
       )}
     >
-      <div
-        className={cn(
-          "flex items-start justify-between mb-3 gap-3",
-          layout === "horizontal" && "flex-row items-center",
-          showMenu && "pr-8"
-        )}
-      >
-        <div
-          className={cn(
-            "rounded-full shadow-sm",
-            iconBgStyles[variant],
-            iconSizeStyles[size]
-          )}
-        >
+      <div className={cn(
+        "flex items-center justify-between mb-4",
+        layout === "horizontal" && "flex-row items-center",
+        showMenu && "pr-8"
+      )}>
+        <div className={cn(
+          "rounded-full shadow-md flex items-center justify-center w-10 h-10 flex-none",
+          iconBgStyles[variant]
+        )}>
           {icon}
         </div>
         <Badge
+          variant="outline"
           className={cn(
-            "ml-auto text-xs px-2 py-0.5 leading-none rounded-full shadow-sm",
+            "h-7 px-2.5 rounded-full flex items-center gap-1 text-xs leading-none",
             trend === "up"
               ? "bg-success/10 text-success border-success/20"
               : "bg-destructive/10 text-destructive border-destructive/20"
@@ -158,15 +158,13 @@ export function EnhancedStatCard({
           {change}
         </Badge>
       </div>
-      <p className="text-sm text-muted-foreground mb-1 font-medium">
+      <p className="text-sm text-muted-foreground mb-2 font-medium">
         {title}
       </p>
-      <h3
-        className={cn(
-          valueSizeStyles[size],
-          "font-bold tracking-tight"
-        )}
-      >
+      <h3 className={cn(
+        valueSizeStyles[size], 
+        "font-bold tracking-tight"
+      )}>
         {displayValue}
       </h3>
 
@@ -174,7 +172,7 @@ export function EnhancedStatCard({
         <Button
           variant="ghost"
           size="sm"
-          className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0"
+          className="absolute bottom-4 right-4"
           onClick={(e) => {
             e.stopPropagation();
             onAction();
@@ -190,7 +188,7 @@ export function EnhancedStatCard({
             <Button
               variant="ghost"
               size="icon-sm"
-              className="absolute top-4 right-4 opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110 hover:rotate-90"
+              className="absolute top-4 right-4 opacity-70"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreVertical className="h-4 w-4" />

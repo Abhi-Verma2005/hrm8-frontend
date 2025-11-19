@@ -35,7 +35,11 @@ export default function SalesPipelinePage() {
     return acc;
   }, {} as Record<OpportunityStage, SalesOpportunity[]>);
 
+<<<<<<< HEAD
   // Removed colored borders for a cleaner, neutral look
+=======
+  // Neutralize stage-specific colored borders for a cleaner look
+>>>>>>> c78cddde4ab172fd6d81dca12965a9c9d679ab30
 
   // Filter opportunities for table view
   const filteredOpportunities = opportunities.filter((opp) => {
@@ -241,7 +245,7 @@ export default function SalesPipelinePage() {
                         </p>
                       ) : (
                         stageOpps.map(opp => (
-                          <Card key={opp.id} className="p-3 cursor-pointer hover:shadow-md transition-shadow">
+                          <Card key={opp.id} className="p-3 cursor-pointer">
                             <h4 className="font-medium text-sm">{opp.name}</h4>
                             <p className="text-xs text-muted-foreground mt-1">{opp.employerName}</p>
                             <div className="flex justify-between items-center mt-2">

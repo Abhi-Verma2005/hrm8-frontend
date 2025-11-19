@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar as CalendarIcon, Video, Phone, Users, Plus, LayoutGrid, List, CalendarDays, BarChart3, FileText } from "lucide-react";
@@ -97,7 +98,8 @@ export default function Interviews() {
       cancelled: "outline",
       'no-show': "destructive",
     };
-    return <Badge variant={variants[status]}>{status}</Badge>;
+    // Neutralize badge hover color shift visually
+    return <Badge variant={variants[status]} className="hover:bg-transparent">{status}</Badge>;
   };
 
   const handleViewDetails = (interview: Interview) => {
@@ -128,14 +130,8 @@ export default function Interviews() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Interviews</h1>
-            <p className="text-muted-foreground">
-              Schedule and manage {interviews.length} candidate interviews
-            </p>
-          </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Interviews" subtitle={`Schedule and manage ${interviews.length} candidate interviews`}>
           <div className="flex items-center gap-3">
             <div className="flex items-center border rounded-lg p-1 gap-1 overflow-x-auto max-w-full">
               <Button
@@ -207,16 +203,20 @@ export default function Interviews() {
               Schedule Interview
             </Button>
           </div>
-        </div>
+        </AtsPageHeader>
 
         {viewMode === "kanban" ? (
-          <InterviewKanbanBoard onRefresh={loadInterviews} onViewDetails={handleViewDetails} />
+          <div className="overflow-x-auto -mx-1 px-1 min-w-0">
+            <InterviewKanbanBoard onRefresh={loadInterviews} onViewDetails={handleViewDetails} />
+          </div>
         ) : viewMode === "calendar" ? (
-          <InterviewCalendarView
+          <div className="overflow-x-auto -mx-1 px-1">
+            <InterviewCalendarView
             interviews={interviews}
             onViewDetails={handleViewDetails}
             onReschedule={handleReschedule}
-          />
+            />
+          </div>
         ) : viewMode === "analytics" ? (
           <InterviewAnalyticsDashboard interviews={interviews} />
         ) : viewMode === "templates" ? (
@@ -230,7 +230,7 @@ export default function Interviews() {
             {interviews.map((interview) => (
               <Card 
                 key={interview.id} 
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="cursor-pointer shadow-sm"
                 onClick={() => handleViewDetails(interview)}
               >
                 <CardHeader>

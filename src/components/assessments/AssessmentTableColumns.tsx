@@ -15,17 +15,24 @@ import type { Assessment } from '@/types/assessment';
 import { format } from 'date-fns';
 
 const getStatusBadge = (status: Assessment['status']) => {
-  const variants: Record<Assessment['status'], { variant: any; label: string }> = {
-    'draft': { variant: 'secondary', label: 'Draft' },
-    'pending-invitation': { variant: 'warning', label: 'Pending Invitation' },
-    'invited': { variant: 'default', label: 'Invited' },
-    'in-progress': { variant: 'default', label: 'In Progress' },
-    'completed': { variant: 'success', label: 'Completed' },
-    'expired': { variant: 'destructive', label: 'Expired' },
-    'cancelled': { variant: 'secondary', label: 'Cancelled' },
+  const styles: Record<Assessment['status'], { label: string; className: string }> = {
+    'draft': { label: 'Draft', className: 'text-foreground/70 border-foreground/20' },
+    'pending-invitation': { label: 'Pending Invitation', className: 'text-warning border-warning/30 bg-warning/5' },
+    'invited': { label: 'Invited', className: 'text-purple-600 border-purple-300/70 bg-purple-50/40' },
+    'in-progress': { label: 'In Progress', className: 'text-blue-600 border-blue-300/70 bg-blue-50/40' },
+    'completed': { label: 'Completed', className: 'text-success border-success/30 bg-success/5' },
+    'expired': { label: 'Expired', className: 'text-destructive border-destructive/30 bg-destructive/5' },
+    'cancelled': { label: 'Cancelled', className: 'text-foreground/60 border-foreground/20' },
   };
-  const config = variants[status];
-  return <Badge variant={config.variant}>{config.label}</Badge>;
+  const s = styles[status];
+  return (
+    <Badge
+      variant="outline"
+      className={`h-6 px-2 rounded-full text-xs font-medium ${s.className}`}
+    >
+      {s.label}
+    </Badge>
+  );
 };
 
 export const createAssessmentTableColumns = (
@@ -47,20 +54,20 @@ export const createAssessmentTableColumns = (
         />
         <div className="min-w-0 flex-1">
           <Link to={`/candidates/${assessment.candidateId}`}>
-            <p className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block transition-colors duration-500">
+            <p className="font-semibold text-base cursor-pointer line-clamp-1 block">
               {assessment.candidateName}
             </p>
           </Link>
           {assessment.jobTitle && (
             <Link to={`/jobs/${assessment.jobId}`}>
-              <p className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors">
+              <p className="text-sm text-muted-foreground line-clamp-1 block">
                 {assessment.jobTitle}
               </p>
             </Link>
           )}
           {assessment.employerName && (
             <Link to={`/employers/${assessment.employerId}`}>
-              <p className="text-xs text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors">
+              <p className="text-xs text-muted-foreground line-clamp-1 block">
                 {assessment.employerName}
               </p>
             </Link>
@@ -94,7 +101,7 @@ export const createAssessmentTableColumns = (
     label: 'Status',
     sortable: true,
     render: (assessment) => (
-      <div className="space-y-1">
+      <div className="flex flex-col items-start gap-1">
         {getStatusBadge(assessment.status)}
         <ReminderStatusIndicator
           remindersSent={assessment.remindersSent}
@@ -113,18 +120,21 @@ export const createAssessmentTableColumns = (
       if (assessment.overallScore) {
         return (
           <div className="flex items-center gap-2">
-            <span className="font-medium transition-colors duration-500">
+            <span className="font-medium">
               {assessment.overallScore}%
             </span>
             {assessment.passed !== undefined && (
-              <Badge variant={assessment.passed ? 'success' : 'destructive'} className="text-xs">
+              <Badge
+                variant="outline"
+                className={`h-6 px-2 rounded-full text-xs ${assessment.passed ? 'text-success border-success/30 bg-success/5' : 'text-destructive border-destructive/30 bg-destructive/5'}`}
+              >
                 {assessment.passed ? 'Pass' : 'Fail'}
               </Badge>
             )}
           </div>
         );
       }
-      return <span className="text-muted-foreground transition-colors duration-500">—</span>;
+      return <span className="text-muted-foreground">—</span>;
     }
   },
   {

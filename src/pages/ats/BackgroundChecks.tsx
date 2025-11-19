@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { BackgroundCheckNotificationBadge } from "@/components/backgroundChecks/BackgroundCheckNotificationBadge";
 import { BackgroundChecksFilterBar } from "@/components/backgroundChecks/BackgroundChecksFilterBar";
 import { BackgroundChecksBulkActionsToolbar } from "@/components/backgroundChecks/BackgroundChecksBulkActionsToolbar";
@@ -421,81 +422,75 @@ export default function BackgroundChecks() {
         </>
       }
     >
-      <div className="p-12 space-y-6 overflow-x-hidden">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Background Checks</h1>
-          <p className="text-muted-foreground">Manage candidate screening and verification</p>
-        </div>
-
-        {/* Actions Bar below the heading */}
-        <div className="flex flex-wrap items-center gap-2 min-w-0">
-          <BackgroundCheckNotificationBadge />
-
-          {/* Test Button (Development) */}
-          <Button
-            variant="outline"
-            onClick={handleTestAIReport}
-            className="gap-2 border-dashed border-2"
-          >
-            <TestTube className="h-4 w-4" />
-            Test AI Report
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => navigate('/background-checks/digest-settings')}
-          >
-            <Mail className="h-4 w-4 mr-2" />
-            Configure Digest
-          </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => navigate('/background-checks/digest-settings')}>
-                <Mail className="h-4 w-4 mr-2" />
-                Email Digest Settings
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/background-checks/escalation-rules')}>
-                <Bell className="h-4 w-4 mr-2" />
-                Escalation Rules
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate('/background-checks/sla-settings')}>
-                <TrendingUp className="h-4 w-4 mr-2" />
-                SLA Configuration
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/background-checks/analytics')}>
-                <BarChart3 className="h-4 w-4 mr-2" />
-                View Analytics
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button
-            variant="outline"
-            onClick={() => navigate('/questionnaire-templates')}
-          >
-            <FileText className="h-4 w-4 mr-2" />
-            Manage Templates
-          </Button>
-          <Button onClick={() => setIsFormOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Initiate Check
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/dashboard/addons?tab=background-checks">
-              <BarChart3 className="mr-2 h-4 w-4" />
-              View Dashboard
-            </Link>
-          </Button>
-        </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title="Background Checks"
+          subtitle="Manage candidate screening and verification"
+        >
+          <div className="flex gap-2 items-center">
+            <BackgroundCheckNotificationBadge />
+            {/* Test Button (Development) */}
+            <Button 
+              variant="outline"
+              onClick={handleTestAIReport}
+              className="gap-2 border-dashed border-2"
+            >
+              <TestTube className="h-4 w-4" />
+              Test AI Report
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/background-checks/digest-settings')}
+            >
+              <Mail className="h-4 w-4 mr-2" />
+              Configure Digest
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Settings
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => navigate('/background-checks/digest-settings')}>
+                  <Mail className="h-4 w-4 mr-2" />
+                  Email Digest Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/background-checks/escalation-rules')}>
+                  <Bell className="h-4 w-4 mr-2" />
+                  Escalation Rules
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/background-checks/sla-settings')}>
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  SLA Configuration
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/background-checks/analytics')}>
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  View Analytics
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/questionnaire-templates')}
+            >
+              <FileText className="h-4 w-4 mr-2" />
+              Manage Templates
+            </Button>
+            <Button onClick={() => setIsFormOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Initiate Check
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/dashboard/addons?tab=background-checks">
+                <BarChart3 className="mr-2 h-4 w-4" />
+                View Dashboard
+              </Link>
+            </Button>
+          </div>
+        </AtsPageHeader>
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -506,9 +501,6 @@ export default function BackgroundChecks() {
             trend="up"
             icon={<Shield className="h-6 w-6" />}
             variant="neutral"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             iconPosition="left"
             showMenu={true}
             menuItems={[
@@ -524,9 +516,6 @@ export default function BackgroundChecks() {
             trend="down"
             icon={<Shield className="h-6 w-6" />}
             variant="primary"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             iconPosition="left"
             showMenu={true}
             menuItems={[
@@ -541,9 +530,6 @@ export default function BackgroundChecks() {
             trend="up"
             icon={<CheckCircle className="h-6 w-6" />}
             variant="success"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             iconPosition="left"
             showMenu={true}
             menuItems={[
@@ -558,9 +544,6 @@ export default function BackgroundChecks() {
             trend="down"
             icon={<Clock className="h-6 w-6" />}
             variant="warning"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             iconPosition="left"
             showMenu={true}
             menuItems={[
@@ -665,23 +648,25 @@ export default function BackgroundChecks() {
         />
 
         {/* Background Checks Table */}
-        <DataTable
-          data={filteredChecks}
-          columns={createBackgroundCheckTableColumns(
-            (checkId) => navigate(`/background-checks/${checkId}`),
-            undefined,
-            undefined,
-            handleDownloadReport,
-            handleSendReminder,
-            handleCancelCheck
-          )}
-          selectable
-          searchable={false}
-          onSelectedRowsChange={setSelectedChecks}
-          emptyMessage="No background checks found matching your criteria"
-          tableId="background-checks"
-          resizable
-        />
+        <div className="overflow-x-auto -mx-1 px-1">
+          <DataTable
+            data={filteredChecks}
+            columns={createBackgroundCheckTableColumns(
+              (checkId) => navigate(`/background-checks/${checkId}`),
+              undefined,
+              undefined,
+              handleDownloadReport,
+              handleSendReminder,
+              handleCancelCheck
+            )}
+            selectable
+            searchable={false}
+            onSelectedRowsChange={setSelectedChecks}
+            emptyMessage="No background checks found matching your criteria"
+            tableId="background-checks"
+            resizable
+          />
+        </div>
 
         {/* Initiate Check Dialog */}
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>

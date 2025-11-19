@@ -28,16 +28,16 @@ export function Timeline({ items, className }: TimelineProps) {
         };
 
         return (
-          <div key={item.id} className="relative pl-8">
+          <div key={item.id} className="relative pl-12">
             {/* Vertical line */}
             {!isLast && (
-              <div className="absolute left-[15px] top-8 bottom-0 w-[2px] bg-border" />
+              <div className="absolute left-3 top-7 bottom-0 w-px bg-border" />
             )}
 
             {/* Icon circle */}
             <div
               className={cn(
-                'absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center',
+                'absolute left-0 top-1.5 w-6 h-6 rounded-full flex items-center justify-center',
                 variantClasses[item.variant || 'default']
               )}
             >
@@ -47,13 +47,13 @@ export function Timeline({ items, className }: TimelineProps) {
             {/* Content */}
             <div className="space-y-1">
               <div className="flex items-start justify-between gap-2">
-                <h4 className="text-sm font-medium">{item.title}</h4>
+                <h4 className="text-sm font-medium leading-5">{item.title}</h4>
                 <time className="text-xs text-muted-foreground whitespace-nowrap">
                   {item.timestamp.toLocaleDateString()} {item.timestamp.toLocaleTimeString()}
                 </time>
               </div>
               {item.description && (
-                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <p className="text-sm text-muted-foreground leading-5">{item.description}</p>
               )}
             </div>
           </div>

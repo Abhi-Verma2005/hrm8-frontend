@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { AssessmentNotificationBadge } from '@/components/assessments/AssessmentNotificationBadge';
 import { AssessmentsFilterBar } from '@/components/assessments/AssessmentsFilterBar';
@@ -137,16 +138,12 @@ export default function Assessments() {
         </>
       }
     >
-      <div className="p-12 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Assessments</h1>
-            <p className="text-muted-foreground">
-              Evaluate candidates through scientifically validated tests
-            </p>
-          </div>
-          <div className="flex gap-2">
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title="Assessments"
+          subtitle="Evaluate candidates through scientifically validated tests"
+        >
+          <div className="flex gap-2 items-center">
             <AssessmentNotificationBadge />
             <Button variant="outline" onClick={() => navigate('/scheduled-assessments')}>
               <Calendar className="h-4 w-4 mr-2" />
@@ -171,7 +168,7 @@ export default function Assessments() {
               </Link>
             </Button>
           </div>
-        </div>
+        </AtsPageHeader>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <EnhancedStatCard
             title="Total Assessments"
@@ -179,9 +176,6 @@ export default function Assessments() {
             icon={<ClipboardCheck className="h-6 w-6" />}
             change={`${Math.abs(stats.changeFromLastMonth.total)}%`}
             trend={stats.changeFromLastMonth.total > 0 ? 'up' : 'down'}
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="neutral"
             showMenu={true}
             menuItems={[
@@ -196,9 +190,6 @@ export default function Assessments() {
             icon={<TrendingUp className="h-6 w-6" />}
             change={`${Math.abs(stats.changeFromLastMonth.active)}%`}
             trend={stats.changeFromLastMonth.active > 0 ? 'up' : 'down'}
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="primary"
             showMenu={true}
             menuItems={[
@@ -212,9 +203,6 @@ export default function Assessments() {
             icon={<Award className="h-6 w-6" />}
             change={`${Math.abs(stats.changeFromLastMonth.avgScore)}%`}
             trend={stats.changeFromLastMonth.avgScore > 0 ? 'up' : 'down'}
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="success"
             showMenu={true}
             menuItems={[
@@ -228,9 +216,6 @@ export default function Assessments() {
             icon={<Clock className="h-6 w-6" />}
             change={`${Math.abs(stats.changeFromLastMonth.completed)}%`}
             trend={stats.changeFromLastMonth.completed > 0 ? 'up' : 'down'}
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="warning"
             showMenu={true}
             menuItems={[
@@ -268,21 +253,23 @@ export default function Assessments() {
           onClearSelection={() => setSelectedAssessments([])}
         />
 
-        <DataTable
-          data={filteredAssessments}
-          columns={createAssessmentTableColumns(
-            handleViewDetails,
-            handleSendReminder,
-            handleDownloadReport,
-            handleCancelAssessment
-          )}
-          selectable
-          searchable={false}
-          onSelectedRowsChange={setSelectedAssessments}
-          emptyMessage="No assessments found matching your criteria"
-          tableId="assessments"
-          resizable
-        />
+        <div className="overflow-x-auto -mx-1 px-1">
+          <DataTable
+            data={filteredAssessments}
+            columns={createAssessmentTableColumns(
+              handleViewDetails,
+              handleSendReminder,
+              handleDownloadReport,
+              handleCancelAssessment
+            )}
+            selectable
+            searchable={false}
+            onSelectedRowsChange={setSelectedAssessments}
+            emptyMessage="No assessments found matching your criteria"
+            tableId="assessments"
+            resizable
+          />
+        </div>
 
         <AssessmentInvitationWizard
           open={wizardOpen}
