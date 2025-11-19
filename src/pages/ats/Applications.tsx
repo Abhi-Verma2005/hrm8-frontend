@@ -29,12 +29,25 @@ import { exportToCSV } from "@/utils/exportHelpers";
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { performFuzzySearch } from "@/lib/advancedSearchService";
+// import { performFuzzySearch } from "@/lib/advancedSearchService";
 import { mockJobs } from "@/data/mockTableData";
 import { FileText, UserCheck, Clock, Sparkles, Tags } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import { useToast } from "@/hooks/use-toast";
+
+// Import file row type for stronger typing during import
+type ImportRow = {
+  name: string;
+  email: string;
+  jobTitle?: string;
+  position?: string;
+  status?: ApplicationStatus;
+  stage?: ApplicationStage;
+  appliedDate?: string;
+  date?: string;
+  score?: number | string;
+};
 
 export default function Applications() {
   const { toast } = useToast();
@@ -165,7 +178,7 @@ export default function Applications() {
   };
 
   // Export handlers
-  const handleExport = (format: string, selectedFields: string[]) => {
+  const handleExport = (format: string, _selectedFields: string[]) => {
     const dataToExport = filteredApplications.map(app => ({
       name: app.candidateName,
       email: app.candidateEmail,
@@ -180,16 +193,18 @@ export default function Applications() {
     const filename = `applications_export_${new Date().toISOString().split('T')[0]}`;
 
     switch (format) {
-      case 'csv':
+      case 'csv': {
         exportToCSV(dataToExport, filename);
         break;
-      case 'excel':
+      }
+      case 'excel': {
         const ws = XLSX.utils.json_to_sheet(dataToExport);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Applications');
         XLSX.writeFile(wb, `${filename}.xlsx`);
         break;
-      case 'pdf':
+      }
+      case 'pdf': {
         const doc = new jsPDF();
         doc.setFontSize(16);
         doc.text('Applications Export', 14, 15);
@@ -199,7 +214,8 @@ export default function Applications() {
         });
         doc.save(`${filename}.pdf`);
         break;
-      case 'json':
+      }
+      case 'json': {
         const blob = new Blob([JSON.stringify(dataToExport, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -207,19 +223,24 @@ export default function Applications() {
         link.download = `${filename}.json`;
         link.click();
         break;
+      }
     }
   };
 
   // Import handler
-  const handleImport = async (data: any[]) => {
-    data.forEach(row => {
+  const handleImport = async (data: ImportRow[]) => {
+    data.forEach((row: ImportRow) => {
       const application: Partial<Application> = {
         candidateName: row.name,
         candidateEmail: row.email,
         jobTitle: row.jobTitle || row.position || 'Not Specified',
-        status: (row.status as ApplicationStatus) || 'applied',
-        stage: (row.stage as ApplicationStage) || 'New Application',
-        appliedDate: row.appliedDate || row.date || new Date().toISOString(),
+        status: row.status || 'applied',
+        stage: row.stage || 'New Application',
+        appliedDate: row.appliedDate
+          ? new Date(row.appliedDate)
+          : row.date
+            ? new Date(row.date)
+            : new Date(),
         score: row.score ? Number(row.score) : 0,
       };
       
@@ -230,7 +251,7 @@ export default function Applications() {
   };
 
   // Bulk interview scheduling handler
-  const handleBulkSchedule = (data: any) => {
+  const handleBulkSchedule = () => {
     toast({
       title: "Interviews scheduled",
       description: `${selectedApplicationIds.length} interviews scheduled successfully.`,
@@ -361,7 +382,7 @@ export default function Applications() {
         </>
       }
     >
-      <div className="p-6 space-y-6">
+      <div className="p-12 space-y-6 overflow-x-hidden">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Applications</h1>
@@ -410,9 +431,9 @@ export default function Applications() {
           </div>
         </div>
 
-        {/* Main Content with Recommendations Sidebar */}
-        <div className="grid gap-4 lg:grid-cols-[1fr_350px]">
-          <div className="space-y-4">
+        {/* Top: Controls/Filters + AI Recommendations side-by-side */}
+        <div className="grid gap-4 lg:grid-cols-[1fr_350px] items-start">
+          <div className="space-y-4 min-w-0">
             {/* Stat Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <EnhancedStatCard
@@ -421,7 +442,6 @@ export default function Applications() {
                 change=""
                 icon={<FileText />}
                 variant="neutral"
-                showBorder
                 elevation="sm"
               />
               <EnhancedStatCard
@@ -430,7 +450,6 @@ export default function Applications() {
                 change=""
                 icon={<UserCheck />}
                 variant="primary"
-                showBorder
                 elevation="sm"
               />
               <EnhancedStatCard
@@ -439,7 +458,6 @@ export default function Applications() {
                 change=""
                 icon={<Sparkles />}
                 variant="success"
-                showBorder
                 elevation="sm"
               />
               <EnhancedStatCard
@@ -448,7 +466,6 @@ export default function Applications() {
                 change=""
                 icon={<Clock />}
                 variant="warning"
-                showBorder
                 elevation="sm"
               />
             </div>
@@ -528,38 +545,10 @@ export default function Applications() {
               onTagsChange={setSelectedTags}
               onClearFilters={handleClearFilters}
             />
-
-            {viewMode === "list" && (
-              <ApplicationBulkActionsToolbar
-                selectedCount={selectedApplicationIds.length}
-                onClearSelection={() => setSelectedApplicationIds([])}
-                onBulkStatusUpdate={handleBulkStatusUpdate}
-                onBulkAssignRecruiter={handleBulkAssignRecruiter}
-                onBulkEmail={handleBulkEmail}
-                onBulkScheduleInterview={handleBulkScheduleInterview}
-                onBulkReject={handleBulkReject}
-              />
-            )}
-
-            {viewMode === "pipeline" ? (
-              <ApplicationPipeline 
-                applications={filteredApplications}
-                isCompareMode={isCompareMode}
-                selectedForComparison={selectedForComparison}
-                onToggleSelect={handleToggleSelect}
-              />
-            ) : (
-              <ApplicationListView
-                applications={filteredApplications}
-                onApplicationClick={handleApplicationClick}
-                selectable
-                onSelectedRowsChange={setSelectedApplicationIds}
-              />
-            )}
           </div>
 
           {/* AI Recommendations Sidebar */}
-          <div className="lg:sticky lg:top-6 lg:self-start">
+          <div className="h-full items-stretch overflow-y-auto lg:sticky lg:top-6 p-4 min-w-0">
             <CandidateRecommendations 
               applications={applications}
               jobId={selectedJobId && selectedJobId !== "all" && selectedJobId !== "unread" ? selectedJobId : undefined}
@@ -567,6 +556,35 @@ export default function Applications() {
             />
           </div>
         </div>
+
+        {/* Below: Bulk actions + Applications view spanning full width */}
+        {viewMode === "list" && (
+          <ApplicationBulkActionsToolbar
+            selectedCount={selectedApplicationIds.length}
+            onClearSelection={() => setSelectedApplicationIds([])}
+            onBulkStatusUpdate={handleBulkStatusUpdate}
+            onBulkAssignRecruiter={handleBulkAssignRecruiter}
+            onBulkEmail={handleBulkEmail}
+            onBulkScheduleInterview={handleBulkScheduleInterview}
+            onBulkReject={handleBulkReject}
+          />
+        )}
+
+        {viewMode === "pipeline" ? (
+          <ApplicationPipeline 
+            applications={filteredApplications}
+            isCompareMode={isCompareMode}
+            selectedForComparison={selectedForComparison}
+            onToggleSelect={handleToggleSelect}
+          />
+        ) : (
+          <ApplicationListView
+            applications={filteredApplications}
+            onApplicationClick={handleApplicationClick}
+            selectable
+            onSelectedRowsChange={setSelectedApplicationIds}
+          />
+        )}
 
         <ApplicationDetailPanel
           application={selectedApplication}

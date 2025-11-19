@@ -41,7 +41,7 @@ export default function AIInterviewReportDetail() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-12 space-y-6">
       <PageHeader
         title={`Interview Report: ${report.candidateName}`}
         description={`${report.jobTitle} - ${format(new Date(report.createdAt), 'PPP')}`}

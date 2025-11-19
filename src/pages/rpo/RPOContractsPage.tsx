@@ -11,7 +11,7 @@ export default function RPOContractsPage() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-12 space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">

@@ -43,7 +43,7 @@ export default function EmployeeDetail() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-6 space-y-6" key={refreshKey}>
+      <div className="p-12 space-y-6" key={refreshKey}>
         <div className="flex items-center justify-between">
           <Button variant="ghost" onClick={() => navigate("/hrms")}>
             <ArrowLeft className="mr-2 h-4 w-4" />

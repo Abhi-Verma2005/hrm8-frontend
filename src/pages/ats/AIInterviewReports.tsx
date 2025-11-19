@@ -28,7 +28,7 @@ export default function AIInterviewReports() {
   });
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-12 space-y-6">
       <PageHeader
         title="Interview Reports"
         description="View and manage AI interview reports"
