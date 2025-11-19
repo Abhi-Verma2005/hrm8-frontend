@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { BackgroundCheckNotificationBadge } from "@/components/backgroundChecks/BackgroundCheckNotificationBadge";
 import { BackgroundChecksFilterBar } from "@/components/backgroundChecks/BackgroundChecksFilterBar";
 import { BackgroundChecksBulkActionsToolbar } from "@/components/backgroundChecks/BackgroundChecksBulkActionsToolbar";
@@ -417,17 +418,12 @@ export default function BackgroundChecks() {
       }
     >
       <div className="p-6 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Background Checks</h1>
-            <p className="text-muted-foreground">
-              Manage candidate screening and verification
-            </p>
-          </div>
-          <div className="flex gap-2">
+        <AtsPageHeader
+          title="Background Checks"
+          subtitle="Manage candidate screening and verification"
+        >
+          <div className="flex gap-2 items-center">
             <BackgroundCheckNotificationBadge />
-            
             {/* Test Button (Development) */}
             <Button 
               variant="outline"
@@ -437,7 +433,6 @@ export default function BackgroundChecks() {
               <TestTube className="h-4 w-4" />
               Test AI Report
             </Button>
-            
             <Button 
               variant="outline" 
               onClick={() => navigate('/background-checks/digest-settings')}
@@ -445,7 +440,6 @@ export default function BackgroundChecks() {
               <Mail className="h-4 w-4 mr-2" />
               Configure Digest
             </Button>
-            
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline">
@@ -473,7 +467,6 @@ export default function BackgroundChecks() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            
             <Button 
               variant="outline" 
               onClick={() => navigate('/questionnaire-templates')}
@@ -492,7 +485,7 @@ export default function BackgroundChecks() {
               </Link>
             </Button>
           </div>
-        </div>
+        </AtsPageHeader>
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -503,9 +496,6 @@ export default function BackgroundChecks() {
             trend="up"
             icon={<Shield className="h-6 w-6" />}
             variant="neutral"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             iconPosition="left"
             showMenu={true}
             menuItems={[
@@ -521,9 +511,6 @@ export default function BackgroundChecks() {
             trend="down"
             icon={<Shield className="h-6 w-6" />}
             variant="primary"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             iconPosition="left"
             showMenu={true}
             menuItems={[
@@ -538,9 +525,6 @@ export default function BackgroundChecks() {
             trend="up"
             icon={<CheckCircle className="h-6 w-6" />}
             variant="success"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             iconPosition="left"
             showMenu={true}
             menuItems={[
@@ -555,9 +539,6 @@ export default function BackgroundChecks() {
             trend="down"
             icon={<Clock className="h-6 w-6" />}
             variant="warning"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             iconPosition="left"
             showMenu={true}
             menuItems={[
@@ -662,23 +643,25 @@ export default function BackgroundChecks() {
         />
 
         {/* Background Checks Table */}
-        <DataTable
-          data={filteredChecks}
-          columns={createBackgroundCheckTableColumns(
-            (checkId) => navigate(`/background-checks/${checkId}`),
-            undefined,
-            undefined,
-            handleDownloadReport,
-            handleSendReminder,
-            handleCancelCheck
-          )}
-          selectable
-          searchable={false}
-          onSelectedRowsChange={setSelectedChecks}
-          emptyMessage="No background checks found matching your criteria"
-          tableId="background-checks"
-          resizable
-        />
+        <div className="overflow-x-auto -mx-1 px-1">
+          <DataTable
+            data={filteredChecks}
+            columns={createBackgroundCheckTableColumns(
+              (checkId) => navigate(`/background-checks/${checkId}`),
+              undefined,
+              undefined,
+              handleDownloadReport,
+              handleSendReminder,
+              handleCancelCheck
+            )}
+            selectable
+            searchable={false}
+            onSelectedRowsChange={setSelectedChecks}
+            emptyMessage="No background checks found matching your criteria"
+            tableId="background-checks"
+            resizable
+          />
+        </div>
 
         {/* Initiate Check Dialog */}
         <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
