@@ -4,17 +4,21 @@
  */
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { authService, User } from '@/lib/authService';
 import { useToast } from '@/hooks/use-toast';
+import { CompanyProfileSummary } from '@/types/companyProfile';
 
 const PENDING_VERIFICATION_KEY = 'hrm8PendingVerification';
 const LAST_VERIFICATION_KEY = 'hrm8LastVerification';
+const ONBOARDING_SKIP_KEY = 'hrm8OnboardingSkipUntil';
+const ONBOARDING_SNOOZE_HOURS = 12;
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  profileSummary: CompanyProfileSummary | null;
   login: (
     email: string,
     password: string
@@ -30,7 +34,14 @@ interface AuthContextType {
     countryOrRegion: string;
     acceptTerms: boolean;
   }) => Promise<{ success: boolean; verificationRequired?: boolean; email?: string }>;
-  verifyCompany: (token: string, companyId: string, email?: string, password?: string) => Promise<{ success: boolean; email?: string; needsPassword?: boolean }>;
+  verifyCompany: (
+    token: string,
+    companyId: string,
+    email?: string,
+    password?: string
+  ) => Promise<{ success: boolean; email?: string; needsPassword?: boolean }>;
+  refreshProfileSummary: () => Promise<CompanyProfileSummary | null>;
+  snoozeOnboardingReminder: (hours?: number) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -38,7 +49,9 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [profileSummary, setProfileSummary] = useState<CompanyProfileSummary | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   // Check if user is authenticated on mount
@@ -48,20 +61,48 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const response = await authService.getCurrentUser();
-      if (response.success && response.data) {
-        setUser(response.data.user);
-      } else {
+      const profile = await refreshProfileSummary();
+      if (!profile) {
         setUser(null);
+        setProfileSummary(null);
       }
-    } catch (error) {
-      setUser(null);
     } finally {
       setIsLoading(false);
     }
   };
 
-const login = async (
+  const shouldRedirectToOnboarding = () => {
+    const skipUntilRaw = localStorage.getItem(ONBOARDING_SKIP_KEY);
+    if (!skipUntilRaw) {
+      return true;
+    }
+    const skipUntil = new Date(skipUntilRaw).getTime();
+    if (Number.isNaN(skipUntil) || skipUntil < Date.now()) {
+      localStorage.removeItem(ONBOARDING_SKIP_KEY);
+      return true;
+    }
+    return false;
+  };
+
+  const handleOnboardingPrompt = (profile?: CompanyProfileSummary | null) => {
+    if (!profile || profile.status === 'COMPLETED') {
+      navigate('/home');
+      return;
+    }
+
+    toast({
+      title: "Let's finish your company profile",
+      description: 'Complete onboarding to start posting jobs and invite your team.',
+    });
+
+    if (shouldRedirectToOnboarding() || location.pathname === '/onboarding') {
+      navigate('/onboarding');
+    } else {
+      navigate('/home');
+    }
+  };
+
+  const login = async (
     email: string,
     password: string
   ): Promise<{ success: boolean; pendingVerification?: { email: string; companyId?: string } }> => {
@@ -71,11 +112,12 @@ const login = async (
 
       if (response.success && response.data) {
         setUser(response.data.user);
+        setProfileSummary(response.data.profile);
         toast({
           title: 'Welcome back!',
           description: `Logged in as ${response.data.user.email}`,
         });
-        navigate('/home');
+        handleOnboardingPrompt(response.data.profile);
         return { success: true };
       } else {
         const errorMessage =
@@ -121,6 +163,8 @@ const login = async (
     try {
       await authService.logout();
       setUser(null);
+      setProfileSummary(null);
+      localStorage.removeItem(ONBOARDING_SKIP_KEY);
       toast({
         title: 'Logged out',
         description: 'You have been successfully logged out',
@@ -197,7 +241,12 @@ const login = async (
     }
   };
 
-  const verifyCompany = async (token: string, companyId: string, email?: string, password?: string): Promise<{ success: boolean; email?: string; needsPassword?: boolean }> => {
+  const verifyCompany = async (
+    token: string,
+    companyId: string,
+    email?: string,
+    password?: string
+  ): Promise<{ success: boolean; email?: string; needsPassword?: boolean }> => {
     try {
       setIsLoading(true);
       const response = await authService.verifyCompany({ token, companyId });
@@ -213,6 +262,9 @@ const login = async (
         // Set the user in context and we're done
         if (response.data.user) {
           setUser(response.data.user);
+          if (response.data.profile) {
+            setProfileSummary(response.data.profile);
+          }
           toast({
             title: 'Company verified!',
             description: response.data.message || 'Your company has been verified successfully',
@@ -221,6 +273,7 @@ const login = async (
           // Clear stored credentials
           sessionStorage.removeItem('pendingVerification');
           
+          handleOnboardingPrompt(response.data.profile || profileSummary);
           return { success: true, email: verifiedEmail };
         }
 
@@ -277,16 +330,39 @@ const login = async (
     }
   };
 
+  const refreshProfileSummary = async (): Promise<CompanyProfileSummary | null> => {
+    try {
+      const response = await authService.getCurrentUser();
+      if (response.success && response.data) {
+        setUser(response.data.user);
+        setProfileSummary(response.data.profile);
+        return response.data.profile;
+      }
+    } catch (error) {
+      setUser(null);
+      setProfileSummary(null);
+    }
+    return null;
+  };
+
+  const snoozeOnboardingReminder = (hours: number = ONBOARDING_SNOOZE_HOURS) => {
+    const expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
+    localStorage.setItem(ONBOARDING_SKIP_KEY, expiresAt);
+  };
+
   return (
     <AuthContext.Provider
       value={{
         user,
         isLoading,
         isAuthenticated: !!user,
+        profileSummary,
         login,
         logout,
         registerCompany,
         verifyCompany,
+        refreshProfileSummary,
+        snoozeOnboardingReminder,
       }}
     >
       {children}

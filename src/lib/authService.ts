@@ -4,6 +4,7 @@
  */
 
 import { apiClient } from './api';
+import { CompanyProfileSummary } from '@/types/companyProfile';
 
 export interface User {
   id: string;
@@ -21,6 +22,7 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   user: User;
+  profile: CompanyProfileSummary;
 }
 
 export interface RegisterCompanyRequest {
@@ -51,6 +53,7 @@ export interface VerifyCompanyResponse {
   message: string;
   email?: string;
   user?: User;
+  profile?: CompanyProfileSummary;
 }
 
 export interface ResendVerificationResponse {
@@ -74,7 +77,7 @@ class AuthService {
   }
 
   async getCurrentUser() {
-    return apiClient.get<{ user: User }>('/api/auth/me');
+    return apiClient.get<{ user: User; profile: CompanyProfileSummary }>('/api/auth/me');
   }
 
   async verifyCompany(data: VerifyCompanyRequest) {

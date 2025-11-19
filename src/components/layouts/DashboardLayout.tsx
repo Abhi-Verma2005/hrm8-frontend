@@ -5,6 +5,7 @@ import { CommandPalette } from "@/components/common/CommandPalette";
 import { KeyboardShortcutsDialog } from "@/components/dialogs/KeyboardShortcutsDialog";
 import { useNavigationShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useSidebarState } from "@/hooks/useSidebarState";
+import { OnboardingReminderBanner } from "@/components/onboarding/OnboardingReminderBanner";
 
 export function DashboardLayout() {
   const { open, setOpen } = useSidebarState();
@@ -15,7 +16,10 @@ export function DashboardLayout() {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <SidebarInset className="flex-1">
-          <Outlet />
+          <div className="p-4 space-y-4">
+            <OnboardingReminderBanner />
+            <Outlet />
+          </div>
         </SidebarInset>
       </div>
       <CommandPalette />

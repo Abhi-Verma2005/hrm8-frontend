@@ -39,6 +39,7 @@ import Settings from "@/pages/Settings";
 import Help from "@/pages/Help";
 import SignupRequests from "@/pages/SignupRequests";
 import InviteEmployees from "@/pages/InviteEmployees";
+import OnboardingWizard from "@/pages/OnboardingWizard";
 
 export const sharedRoutes = (
   <>
@@ -82,6 +83,7 @@ export const sharedRoutes = (
     <Route path="/help" element={<Help />} />
     <Route path="/signup-requests" element={<SignupRequests />} />
     <Route path="/invite-employees" element={<InviteEmployees />} />
+    <Route path="/onboarding" element={<OnboardingWizard />} />
   </>
 );
 
