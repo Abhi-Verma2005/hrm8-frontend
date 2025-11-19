@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/DataTable";
 import { Plus, MapPin, Users, Building2, DollarSign, Eye, Download } from "lucide-react";
@@ -55,17 +56,13 @@ export default function TerritoriesPage() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Territories</h1>
-            <p className="text-muted-foreground mt-2">Manage sales territories and assignments</p>
-          </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Territories" subtitle="Manage sales territories and assignments">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
             New Territory
           </Button>
-        </div>
+        </AtsPageHeader>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <EnhancedStatCard
@@ -157,22 +154,24 @@ export default function TerritoriesPage() {
           onClearFilters={handleClearFilters}
         />
 
-        <DataTable
-          columns={columns}
-          data={filteredTerritories}
-          selectable
-          renderBulkActions={(selectedIds) => (
-            <TerritoryBulkActions
-              selectedCount={selectedIds.length}
-              onExport={() => handleExport(selectedIds)}
-              onDelete={() => handleDelete(selectedIds)}
-              onAssignAgents={() => handleAssignAgents(selectedIds)}
-              onClearSelection={() => {}}
-            />
-          )}
-          exportable
-          exportFilename="territories"
-        />
+        <div className="overflow-x-auto -mx-1 px-1">
+          <DataTable
+            columns={columns}
+            data={filteredTerritories}
+            selectable
+            renderBulkActions={(selectedIds) => (
+              <TerritoryBulkActions
+                selectedCount={selectedIds.length}
+                onExport={() => handleExport(selectedIds)}
+                onDelete={() => handleDelete(selectedIds)}
+                onAssignAgents={() => handleAssignAgents(selectedIds)}
+                onClearSelection={() => {}}
+              />
+            )}
+            exportable
+            exportFilename="territories"
+          />
+        </div>
       </div>
     </DashboardPageLayout>
   );

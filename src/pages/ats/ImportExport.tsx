@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -122,14 +123,11 @@ export default function ImportExport() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">Import & Export</h1>
-          <p className="text-muted-foreground">
-            Bulk import and export candidates and jobs
-          </p>
-        </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title="Import & Export"
+          subtitle="Bulk import and export candidates and jobs"
+        />
 
         <Tabs defaultValue="import" className="space-y-6">
           <TabsList>

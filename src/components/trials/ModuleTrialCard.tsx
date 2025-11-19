@@ -68,7 +68,7 @@ export function ModuleTrialCard({ employerId }: ModuleTrialCardProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
           Module Trials
         </CardTitle>
@@ -78,7 +78,7 @@ export function ModuleTrialCard({ employerId }: ModuleTrialCardProps) {
         {/* Active Trials */}
         {trials.length > 0 && (
           <div className="space-y-4">
-            <h3 className="font-semibold">Active Trials</h3>
+            <h3 className="text-sm font-semibold">Active Trials</h3>
             {trials.map((trial) => {
               const daysRemaining = getDaysRemaining(trial.endDate);
               const progress = ((14 - daysRemaining) / 14) * 100;
@@ -137,14 +137,14 @@ export function ModuleTrialCard({ employerId }: ModuleTrialCardProps) {
 
         {/* Available Trials */}
         <div className="space-y-4">
-          <h3 className="font-semibold">Available Trials</h3>
+          <h3 className="text-sm font-semibold">Available Trials</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {availableTrials
               .filter(at => !trials.some(t => t.moduleName === at.module))
               .map((available) => (
                 <div key={available.module} className="border rounded-lg p-4">
-                  <h4 className="font-semibold mb-1">{available.name}</h4>
-                  <p className="text-sm text-muted-foreground mb-3">{available.description}</p>
+                  <h4 className="text-base font-semibold mb-1">{available.name}</h4>
+                  <p className="text-xs text-muted-foreground mb-3">{available.description}</p>
                   <Button
                     variant="outline"
                     size="sm"

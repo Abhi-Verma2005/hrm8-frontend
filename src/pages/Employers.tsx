@@ -3,6 +3,7 @@ import { Plus, Download, Upload, Building, DollarSign, Briefcase, Clock, BarChar
 import { Button } from "@/components/ui/button";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { DataTable } from "@/components/tables/DataTable";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { EmployersFilterBar } from "@/components/employers/EmployersFilterBar";
@@ -199,16 +200,9 @@ export default function Employers() {
         </>
       }
     >
-      <div className="p-12 space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">Employers</h1>
-            <p className="text-muted-foreground">
-              Manage employer relationships and accounts
-            </p>
-          </div>
-          <div className="flex gap-2">
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Employers" subtitle="Manage employer relationships and accounts">
+          <div className="flex gap-2 items-center">
             <Button onClick={() => {
               setEditingEmployerId(null);
               setDrawerOpen(true);
@@ -223,7 +217,7 @@ export default function Employers() {
               </Link>
             </Button>
           </div>
-        </div>
+        </AtsPageHeader>
 
         {/* Stats Dashboard */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -331,12 +325,14 @@ export default function Employers() {
         />
 
         {/* Data Table */}
-        <DataTable
-          columns={columns}
-          data={filteredEmployers}
-          selectable
-          onSelectedRowsChange={setSelectedIds}
-        />
+        <div className="overflow-x-auto -mx-1 px-1">
+          <DataTable
+            columns={columns}
+            data={filteredEmployers}
+            selectable
+            onSelectedRowsChange={setSelectedIds}
+          />
+        </div>
 
         <EmployerBulkActions
           selectedCount={selectedIds.length}

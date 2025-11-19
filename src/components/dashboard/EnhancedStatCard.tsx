@@ -131,7 +131,7 @@ export function EnhancedStatCard({
       )}
     >
       <div className={cn(
-        "flex items-center justify-between mb-4",
+        "flex items-center justify-between mb-4 gap-2 flex-wrap min-w-0",
         layout === "horizontal" && "flex-row items-center",
         showMenu && "pr-8"
       )}>
@@ -144,7 +144,7 @@ export function EnhancedStatCard({
         <Badge
           variant="outline"
           className={cn(
-            "h-7 px-2.5 rounded-full flex items-center gap-1 text-xs leading-none",
+            "px-2.5 py-1 rounded-full inline-flex items-start gap-1 text-xs leading-tight max-w-full break-words",
             trend === "up"
               ? "bg-success/10 text-success border-success/20"
               : "bg-destructive/10 text-destructive border-destructive/20"
@@ -155,7 +155,7 @@ export function EnhancedStatCard({
           ) : (
             <TrendingDown className="h-3 w-3 mr-1" />
           )}
-          {change}
+          <span className="block">{change}</span>
         </Badge>
       </div>
       <p className="text-sm text-muted-foreground mb-2 font-medium">

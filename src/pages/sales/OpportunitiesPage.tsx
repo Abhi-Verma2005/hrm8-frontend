@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/DataTable";
 import { Plus, Target, DollarSign, TrendingUp, Award, Eye, Download, BarChart3 } from "lucide-react";
@@ -72,13 +73,9 @@ export default function OpportunitiesPage() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Opportunities</h1>
-            <p className="text-muted-foreground mt-2">Manage and track all sales opportunities</p>
-          </div>
-          <div className="flex gap-2">
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Opportunities" subtitle="Manage and track all sales opportunities">
+          <div className="flex gap-2 items-center">
             <Button variant="outline" onClick={() => setExportDialogOpen(true)}>
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -88,7 +85,7 @@ export default function OpportunitiesPage() {
               New Opportunity
             </Button>
           </div>
-        </div>
+        </AtsPageHeader>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <EnhancedStatCard
@@ -182,22 +179,24 @@ export default function OpportunitiesPage() {
           onClearFilters={handleClearFilters}
         />
 
-        <DataTable
-          columns={columns}
-          data={filteredOpportunities}
-          selectable
-          renderBulkActions={(selectedIds) => (
-            <OpportunityBulkActions
-              selectedCount={selectedIds.length}
-              onExport={() => handleExport()}
-              onDelete={() => handleDelete(selectedIds)}
-              onChangeStage={() => handleChangeStage(selectedIds)}
-              onClearSelection={() => {}}
-            />
-          )}
-          exportable
-          exportFilename="opportunities"
-        />
+        <div className="overflow-x-auto -mx-1 px-1">
+          <DataTable
+            columns={columns}
+            data={filteredOpportunities}
+            selectable
+            renderBulkActions={(selectedIds) => (
+              <OpportunityBulkActions
+                selectedCount={selectedIds.length}
+                onExport={() => handleExport()}
+                onDelete={() => handleDelete(selectedIds)}
+                onChangeStage={() => handleChangeStage(selectedIds)}
+                onClearSelection={() => {}}
+              />
+            )}
+            exportable
+            exportFilename="opportunities"
+          />
+        </div>
 
         <SalesExportDialog
           open={exportDialogOpen}

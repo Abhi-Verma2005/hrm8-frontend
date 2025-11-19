@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Plus, Users, TrendingUp, DollarSign, Award, Upload, Download, BarChart3, Eye, Filter } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
 import { createConsultantColumns } from '@/components/consultants/ConsultantTableColumns';
@@ -148,13 +149,9 @@ export default function ConsultantsPage() {
         </>
       }
     >
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Consultants</h1>
-            <p className="text-muted-foreground">Manage your consultant team</p>
-          </div>
-          <div className="flex gap-2">
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Consultants" subtitle="Manage your consultant team">
+          <div className="flex gap-2 items-center">
             <Button variant="outline" asChild>
               <Link to="/consultants/workload">
                 <BarChart3 className="mr-2 h-4 w-4" />
@@ -175,7 +172,7 @@ export default function ConsultantsPage() {
               </Link>
             </Button>
           </div>
-        </div>
+        </AtsPageHeader>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <EnhancedStatCard
@@ -286,12 +283,14 @@ export default function ConsultantsPage() {
           activeFilterCount={activeFilterCount}
         />
 
-        <DataTable
-          columns={createConsultantColumns()}
-          data={filteredData}
-          selectable
-          onSelectedRowsChange={setSelectedIds}
-        />
+        <div className="overflow-x-auto -mx-1 px-1">
+          <DataTable
+            columns={createConsultantColumns()}
+            data={filteredData}
+            selectable
+            onSelectedRowsChange={setSelectedIds}
+          />
+        </div>
 
         <ConsultantBulkActions
           selectedCount={selectedIds.length}

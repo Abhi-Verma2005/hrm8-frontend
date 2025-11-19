@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -102,19 +103,15 @@ export default function SalesForecastPage() {
         </Button>
       }
     >
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Sales Forecasting</h1>
-            <p className="text-muted-foreground mt-2">Revenue projections and sales forecasts</p>
-          </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Sales Forecasting" subtitle="Revenue projections and sales forecasts">
           <Button variant="outline" asChild>
             <Link to="/dashboard/sales">
               <BarChart3 className="mr-2 h-4 w-4" />
               View Dashboard
             </Link>
           </Button>
-        </div>
+        </AtsPageHeader>
 
         <div className="grid gap-4 md:grid-cols-4">
           <EnhancedStatCard
@@ -211,24 +208,26 @@ export default function SalesForecastPage() {
           onClearFilters={handleClearFilters}
         />
 
-        <DataTable
-          columns={createForecastColumns()}
-          data={filteredForecast}
-          selectable
-          onSelectedRowsChange={() => {}}
-          renderBulkActions={(selectedIds) => (
-            <ForecastBulkActions
-              selectedCount={selectedIds.length}
-              onExport={() => handleExport()}
-              onDelete={() => handleDelete(selectedIds)}
-              onAdjustProbability={() => handleAdjustProbability(selectedIds)}
-              onSendReport={() => handleSendReport(selectedIds)}
-              onClearSelection={() => {}}
-            />
-          )}
-          exportable
-          exportFilename="sales-forecast"
-        />
+        <div className="overflow-x-auto -mx-1 px-1">
+          <DataTable
+            columns={createForecastColumns()}
+            data={filteredForecast}
+            selectable
+            onSelectedRowsChange={() => {}}
+            renderBulkActions={(selectedIds) => (
+              <ForecastBulkActions
+                selectedCount={selectedIds.length}
+                onExport={() => handleExport()}
+                onDelete={() => handleDelete(selectedIds)}
+                onAdjustProbability={() => handleAdjustProbability(selectedIds)}
+                onSendReport={() => handleSendReport(selectedIds)}
+                onClearSelection={() => {}}
+              />
+            )}
+            exportable
+            exportFilename="sales-forecast"
+          />
+        </div>
 
         <SalesExportDialog
           open={exportDialogOpen}

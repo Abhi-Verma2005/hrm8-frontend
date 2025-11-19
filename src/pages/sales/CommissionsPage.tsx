@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { Button } from "@/components/ui/button";
 import { DollarSign, Clock, CheckCircle2, TrendingUp, Download, Eye, BarChart3 } from "lucide-react";
@@ -88,11 +89,8 @@ export default function CommissionsPage() {
         </Button>
       }
     >
-      <div className="p-12 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Commission Management</h1>
-          <p className="text-muted-foreground mt-2">Track and manage sales commissions</p>
-        </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Commission Management" subtitle="Track and manage sales commissions" />
 
         <div className="grid gap-4 md:grid-cols-4">
           <EnhancedStatCard
@@ -198,24 +196,26 @@ export default function CommissionsPage() {
           onClearFilters={handleClearFilters}
         />
 
-        <DataTable
-          columns={createCommissionColumns()}
-          data={filteredCommissions}
-          selectable
-          onSelectedRowsChange={() => {}}
-          renderBulkActions={(selectedIds) => (
-            <CommissionBulkActions
-              selectedCount={selectedIds.length}
-              onExport={() => handleExport()}
-              onDelete={() => handleDelete(selectedIds)}
-              onApprove={() => handleApprove(selectedIds)}
-              onMarkPaid={() => handleMarkPaid(selectedIds)}
-              onClearSelection={() => {}}
-            />
-          )}
-          exportable
-          exportFilename="commissions"
-        />
+        <div className="overflow-x-auto -mx-1 px-1">
+          <DataTable
+            columns={createCommissionColumns()}
+            data={filteredCommissions}
+            selectable
+            onSelectedRowsChange={() => {}}
+            renderBulkActions={(selectedIds) => (
+              <CommissionBulkActions
+                selectedCount={selectedIds.length}
+                onExport={() => handleExport()}
+                onDelete={() => handleDelete(selectedIds)}
+                onApprove={() => handleApprove(selectedIds)}
+                onMarkPaid={() => handleMarkPaid(selectedIds)}
+                onClearSelection={() => {}}
+              />
+            )}
+            exportable
+            exportFilename="commissions"
+          />
+        </div>
 
         <SalesExportDialog
           open={exportDialogOpen}

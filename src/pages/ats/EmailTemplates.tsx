@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -149,20 +150,13 @@ export default function EmailTemplates() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Email Templates</h1>
-            <p className="text-muted-foreground">
-              Manage automated email templates for candidate communications
-            </p>
-          </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Email Templates" subtitle="Manage automated email templates for candidate communications">
           <Button onClick={handleCreate}>
             <Plus className="h-4 w-4 mr-2" />
             Create Template
           </Button>
-        </div>
+        </AtsPageHeader>
 
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-3">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -61,16 +62,10 @@ export default function Calendar() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Calendar</h1>
-            <p className="text-muted-foreground">View and manage interviews and events</p>
-          </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Calendar" subtitle="View and manage interviews and events">
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleToday}>
-              Today
-            </Button>
+            <Button variant="outline" onClick={handleToday}>Today</Button>
             <Button variant="outline" size="icon" onClick={handlePrevMonth}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -78,18 +73,19 @@ export default function Calendar() {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-        </div>
+        </AtsPageHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle className="text-2xl">
+              <CardTitle className="text-lg font-semibold">
                 {format(currentDate, 'MMMM yyyy')}
               </CardTitle>
             </CardHeader>
             <CardContent>
               {/* Calendar Grid */}
-              <div className="grid grid-cols-7 gap-1">
+              <div className="overflow-x-auto -mx-1 px-1">
+                <div className="grid grid-cols-7 gap-1 min-w-[700px]">
                 {/* Day Headers */}
                 {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
                   <div key={day} className="text-center text-sm font-semibold text-muted-foreground py-2">
@@ -137,6 +133,7 @@ export default function Calendar() {
                     </button>
                   );
                 })}
+                </div>
               </div>
             </CardContent>
           </Card>

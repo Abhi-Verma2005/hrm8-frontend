@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Plus, Target, DollarSign, TrendingUp, Award, LayoutGrid, List, Eye, Download, BarChart3 } from "lucide-react";
@@ -34,6 +35,8 @@ export default function SalesPipelinePage() {
     acc[stage] = opportunities.filter(opp => opp.stage === stage);
     return acc;
   }, {} as Record<OpportunityStage, SalesOpportunity[]>);
+
+  // Neutralize stage-specific colored borders for a cleaner look
 
   // Filter opportunities for table view
   const filteredOpportunities = opportunities.filter((opp) => {
@@ -96,12 +99,8 @@ export default function SalesPipelinePage() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Sales Pipeline</h1>
-            <p className="text-muted-foreground mt-2">Visualize and manage your sales opportunities</p>
-          </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Sales Pipeline" subtitle="Visualize and manage your sales opportunities">
           <div className="flex items-center gap-2">
             <div className="flex items-center border rounded-lg p-1 gap-1">
               <Button
@@ -136,7 +135,7 @@ export default function SalesPipelinePage() {
               </Link>
             </Button>
           </div>
-        </div>
+        </AtsPageHeader>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <EnhancedStatCard
@@ -225,10 +224,10 @@ export default function SalesPipelinePage() {
                 <div key={stage} className="flex-shrink-0 w-80">
                   <Card>
                     <div className="p-4 border-b">
-                      <h3 className="font-semibold capitalize">
+                      <h3 className="text-base font-semibold capitalize">
                         {stage.replace('-', ' ')}
                       </h3>
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         {stageOpps.length} opportunities • ${stageValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                       </p>
                     </div>
@@ -267,23 +266,25 @@ export default function SalesPipelinePage() {
               onTypeFilterChange={(value) => setTypeFilter(value as OpportunityType | 'all')}
               onClearFilters={handleClearFilters}
             />
-            <DataTable
-              columns={createOpportunityColumns()}
-              data={filteredOpportunities}
-              selectable
-              onSelectedRowsChange={() => {}}
-              renderBulkActions={(selectedIds) => (
-                <OpportunityBulkActions
-                  selectedCount={selectedIds.length}
-                  onExport={() => handleExport(selectedIds)}
-                  onDelete={() => handleDelete(selectedIds)}
-                  onChangeStage={() => handleChangeStage(selectedIds)}
-                  onClearSelection={() => {}}
-                />
-              )}
-              exportable
-              exportFilename="sales-pipeline"
-            />
+            <div className="overflow-x-auto -mx-1 px-1">
+              <DataTable
+                columns={createOpportunityColumns()}
+                data={filteredOpportunities}
+                selectable
+                onSelectedRowsChange={() => {}}
+                renderBulkActions={(selectedIds) => (
+                  <OpportunityBulkActions
+                    selectedCount={selectedIds.length}
+                    onExport={() => handleExport(selectedIds)}
+                    onDelete={() => handleDelete(selectedIds)}
+                    onChangeStage={() => handleChangeStage(selectedIds)}
+                    onClearSelection={() => {}}
+                  />
+                )}
+                exportable
+                exportFilename="sales-pipeline"
+              />
+            </div>
           </div>
         )}
 
