@@ -21,12 +21,6 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import {
   Form,
@@ -48,7 +42,7 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, MapPin, ShieldCheck } from 'lucide-react';
+import { Loader2, MapPin, ShieldCheck, CheckCircle2, Circle } from 'lucide-react';
 import { FormMultiSelect } from '@/components/common/form-fields';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -138,7 +132,13 @@ const enumToKeyMap = Object.entries(COMPANY_PROFILE_SECTION_ENUM).reduce(
   {} as Record<string, CompanyProfileSectionKey>
 );
 
-export default function OnboardingWizard() {
+interface OnboardingWizardProps {
+  onComplete?: () => void;
+  onSkip?: () => void;
+  embedded?: boolean;
+}
+
+export function OnboardingWizardContent({ onComplete, onSkip, embedded = false }: OnboardingWizardProps = {}) {
   const { data, isLoading, savingSection, isCompleting, saveSection, completeProfile } =
     useCompanyProfile();
   const { profileSummary, snoozeOnboardingReminder } = useAuth();
@@ -174,7 +174,20 @@ export default function OnboardingWizard() {
       title: 'Onboarding paused',
       description: 'We will remind you to finish your company profile later today.',
     });
-    navigate('/home');
+    if (onSkip) {
+      onSkip();
+    } else {
+      navigate('/home');
+    }
+  };
+
+  const handleComplete = async () => {
+    await completeProfile();
+    if (onComplete) {
+      onComplete();
+    } else {
+      navigate('/home');
+    }
   };
 
   if (isLoading && !profile) {
@@ -186,27 +199,91 @@ export default function OnboardingWizard() {
   }
 
   const profileData = profile?.profileData || ({} as CompanyProfileData);
+  
+  const currentSectionIndex = onboardingSections.findIndex((s) => s.key === activeSection);
+  const currentSection = onboardingSections[currentSectionIndex];
+  const canGoNext = currentSectionIndex < onboardingSections.length - 1;
+  const canGoPrev = currentSectionIndex > 0;
+
+  const handleNext = () => {
+    if (canGoNext) {
+      setActiveSection(onboardingSections[currentSectionIndex + 1].key);
+    }
+  };
+
+  const handlePrev = () => {
+    if (canGoPrev) {
+      setActiveSection(onboardingSections[currentSectionIndex - 1].key);
+    }
+  };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p className="text-sm uppercase tracking-wide text-muted-foreground">Step 3</p>
-          <h1 className="text-3xl font-semibold text-foreground">
-            Let’s set up your company profile
-          </h1>
-          <p className="text-muted-foreground">
-            Capture company details, invite your team, and configure billing so you’re ready to post
-            your first job.
+    <div className={cn('flex overflow-hidden', embedded ? 'h-screen' : 'h-screen p-6')}>
+      {/* Left Sidebar - 30% */}
+      <div className="w-[30%] flex flex-col border-r bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-8">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">GUIDED ONBOARDING</span>
+            <ShieldCheck className="h-4 w-4 text-slate-400" />
+          </div>
+          <h2 className="text-2xl font-semibold mb-3">Welcome aboard — let's finish setting up your company</h2>
+          <p className="text-sm text-slate-300 leading-relaxed">
+            We saved your progress automatically. Complete each section or skip and return whenever you're ready.
           </p>
         </div>
-        <div className="flex gap-3">
-          <Button variant="outline" onClick={handleSkip}>
+
+        <div className="mb-8 p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
+          <p className="text-sm text-slate-200">
+            Completing onboarding unlocks job posting, billing, and branded careers pages.
+          </p>
+        </div>
+
+        <div className="mb-8">
+          <div className="mb-3 flex items-center justify-between text-sm">
+            <span className="text-slate-300">{profile?.completionPercentage ?? 0}% complete</span>
+            <span className="text-slate-400">
+              {completedSectionKeys.size}/{onboardingSections.length} sections
+            </span>
+          </div>
+          <Progress value={profile?.completionPercentage || 0} className="h-2" />
+        </div>
+
+        <div className="flex-1 space-y-2 overflow-y-auto">
+          {onboardingSections.map((section, index) => {
+            const isActive = section.key === activeSection;
+            const isComplete = completedSectionKeys.has(section.key);
+            const Icon = isComplete ? CheckCircle2 : Circle;
+            
+            return (
+              <button
+                key={section.key}
+                onClick={() => setActiveSection(section.key)}
+                className={cn(
+                  'w-full text-left p-4 rounded-lg border transition-all',
+                  isActive
+                    ? 'bg-slate-700/50 border-slate-600'
+                    : 'bg-slate-800/30 border-slate-700/50 hover:bg-slate-800/50'
+                )}
+              >
+                <div className="flex items-start gap-3">
+                  <Icon className={cn('h-5 w-5 mt-0.5 flex-shrink-0', isComplete ? 'text-emerald-400' : 'text-slate-400')} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-sm mb-1">{section.title}</p>
+                    <p className="text-xs text-slate-400 leading-relaxed">{section.description}</p>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-6 flex flex-col gap-2 pt-6 border-t border-slate-700/50">
+          <Button variant="outline" onClick={handleSkip} className="bg-transparent border-slate-600 text-white hover:bg-slate-700">
             Skip for now
           </Button>
           <Button
             disabled={!canCompleteProfile}
-            onClick={completeProfile}
+            onClick={handleComplete}
             className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
           >
             {isCompleting ? (
@@ -220,147 +297,139 @@ export default function OnboardingWizard() {
         </div>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Onboarding progress</CardTitle>
-          <CardDescription>
-            Complete the required sections to unlock job posting and billing features.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Progress value={profile?.completionPercentage || 0} />
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {onboardingSections.map((section) => {
-              const isComplete =
-                completedSectionKeys.has(section.key) ||
-                (profile?.status === 'COMPLETED' && !section.required);
-              return (
-                <div
-                  key={section.key}
-                  className={cn(
-                    'rounded-lg border p-4 transition',
-                    isComplete ? 'border-emerald-500/40 bg-emerald-500/5' : 'bg-muted/40'
-                  )}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium">{section.title}</p>
-                      <p className="text-sm text-muted-foreground">{section.description}</p>
-                    </div>
-                    <Badge variant={isComplete ? 'outline' : 'secondary'}>
-                      {isComplete ? 'Done' : section.required ? 'Required' : 'Optional'}
-                    </Badge>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Tabs value={activeSection} onValueChange={(value) => setActiveSection(value as CompanyProfileSectionKey)}>
-        <TabsList className="flex flex-wrap gap-2 bg-transparent p-0">
-          {onboardingSections.map((section) => (
-            <TabsTrigger
-              key={section.key}
-              value={section.key}
-              className={cn(
-                'flex flex-1 min-w-[150px] flex-col rounded-xl border px-4 py-3 text-left',
-                completedSectionKeys.has(section.key)
-                  ? 'border-emerald-500/50 bg-emerald-500/10'
-                  : 'bg-muted/60'
-              )}
-            >
-              <span className="text-sm font-medium">{section.title}</span>
-              <span className="text-xs text-muted-foreground">
-                {section.required ? 'Required' : 'Optional'}
-              </span>
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <TabsContent value="basicDetails">
-          <BasicDetailsSection
-            initialData={profileData.basicDetails}
-            onSave={(values) => saveSection('basicDetails', values, { successMessage: 'Basic company details updated.' })}
-            isSaving={savingSection === 'basicDetails'}
-          />
-        </TabsContent>
-
-        <TabsContent value="primaryLocation">
-          <PrimaryLocationSection
-            initialData={{
-              primary: profileData.primaryLocation,
-              additional: profileData.additionalLocations || [],
-            }}
-            onSave={(values) =>
-              saveSection('primaryLocation', values, { successMessage: 'Location details saved.' })
-            }
-            isSaving={savingSection === 'primaryLocation'}
-          />
-        </TabsContent>
-
-        <TabsContent value="personalProfile">
-          <PersonalProfileSection
-            initialData={profileData.personalProfile}
-            onSave={(values) =>
-              saveSection('personalProfile', values, { successMessage: 'Personal profile updated.' })
-            }
-            isSaving={savingSection === 'personalProfile'}
-          />
-        </TabsContent>
-
-        <TabsContent value="teamMembers">
-          <TeamMembersSection
-            initialData={profileData.teamMembers}
-            onSave={(values) =>
-              saveSection('teamMembers', values, { successMessage: 'Team members updated.' })
-            }
-            isSaving={savingSection === 'teamMembers'}
-          />
-        </TabsContent>
-
-        <TabsContent value="billing">
-          <BillingSection
-            initialData={profileData.billing}
-            onSave={(values) =>
-              saveSection('billing', values, { successMessage: 'Billing preferences saved.' })
-            }
-            isSaving={savingSection === 'billing'}
-          />
-        </TabsContent>
-
-        <TabsContent value="branding">
-          <BrandingSection
-            initialData={profileData.branding}
-            onSave={(values) =>
-              saveSection('branding', values, { successMessage: 'Branding preferences saved.' })
-            }
-            isSaving={savingSection === 'branding'}
-          />
-        </TabsContent>
-      </Tabs>
-
-      {profile?.status === 'COMPLETED' && (
-        <Alert className="bg-emerald-600/10 text-emerald-800 dark:text-emerald-100">
-          <ShieldCheck className="h-5 w-5" />
-          <AlertTitle>Congratulations, you’re ready to post your first job!</AlertTitle>
-          <AlertDescription className="mt-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div>
-              Your company profile is complete. Configure settings or jump straight into the
-              dashboard to start hiring.
+      {/* Right Content - 70% */}
+      <div className="flex-1 flex flex-col overflow-hidden bg-background">
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto p-8">
+            <div className="mb-6">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">STEP 3</p>
+              <h1 className="text-3xl font-semibold mb-2">{currentSection?.title}</h1>
+              <p className="text-muted-foreground">{currentSection?.description}</p>
             </div>
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => navigate('/settings')}>
-                Configure company settings
+
+            <Card>
+              <CardContent className="p-6">
+                {activeSection === 'basicDetails' && (
+                  <BasicDetailsSection
+                    initialData={profileData.basicDetails}
+                    onSave={(values) =>
+                      saveSection('basicDetails', values, { successMessage: 'Basic company details updated.' })
+                    }
+                    isSaving={savingSection === 'basicDetails'}
+                  />
+                )}
+
+                {activeSection === 'primaryLocation' && (
+                  <PrimaryLocationSection
+                    initialData={{
+                      primary: profileData.primaryLocation,
+                      additional: profileData.additionalLocations || [],
+                    }}
+                    onSave={(values) =>
+                      saveSection('primaryLocation', values, { successMessage: 'Location details saved.' })
+                    }
+                    isSaving={savingSection === 'primaryLocation'}
+                  />
+                )}
+
+                {activeSection === 'personalProfile' && (
+                  <PersonalProfileSection
+                    initialData={profileData.personalProfile}
+                    onSave={(values) =>
+                      saveSection('personalProfile', values, { successMessage: 'Personal profile updated.' })
+                    }
+                    isSaving={savingSection === 'personalProfile'}
+                  />
+                )}
+
+                {activeSection === 'teamMembers' && (
+                  <TeamMembersSection
+                    initialData={profileData.teamMembers}
+                    onSave={(values) =>
+                      saveSection('teamMembers', values, { successMessage: 'Team members updated.' })
+                    }
+                    isSaving={savingSection === 'teamMembers'}
+                  />
+                )}
+
+                {activeSection === 'billing' && (
+                  <BillingSection
+                    initialData={profileData.billing}
+                    onSave={(values) =>
+                      saveSection('billing', values, { successMessage: 'Billing preferences saved.' })
+                    }
+                    isSaving={savingSection === 'billing'}
+                  />
+                )}
+
+                {activeSection === 'branding' && (
+                  <BrandingSection
+                    initialData={profileData.branding}
+                    onSave={(values) =>
+                      saveSection('branding', values, { successMessage: 'Branding preferences saved.' })
+                    }
+                    isSaving={savingSection === 'branding'}
+                  />
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Navigation buttons */}
+            <div className="flex items-center justify-between mt-6">
+              <Button
+                variant="outline"
+                onClick={handlePrev}
+                disabled={!canGoPrev}
+              >
+                Previous
               </Button>
-              <Button onClick={() => navigate('/home')}>Go to dashboard</Button>
+              <Button
+                onClick={handleNext}
+                disabled={!canGoNext}
+                className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
+              >
+                Next
+              </Button>
             </div>
-          </AlertDescription>
-        </Alert>
-      )}
+
+            {profile?.status === 'COMPLETED' && (
+              <Alert className="mt-6 bg-emerald-600/10 text-emerald-800 dark:text-emerald-100">
+                <ShieldCheck className="h-5 w-5" />
+                <AlertTitle>Congratulations, you're ready to post your first job!</AlertTitle>
+                <AlertDescription className="mt-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    Your company profile is complete. Configure settings or jump straight into the
+                    dashboard to start hiring.
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => navigate('/settings')}>
+                      Configure company settings
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        if (onComplete) {
+                          onComplete();
+                        } else {
+                          navigate('/home');
+                        }
+                      }}
+                    >
+                      Go to dashboard
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
+}
+
+// Default export for /onboarding route
+export default function OnboardingWizard() {
+  return <OnboardingWizardContent />;
 }
 
 interface SectionProps<T> {
@@ -993,14 +1062,14 @@ function TeamMembersSection({ initialData, onSave, isSaving }: SectionProps<any>
     resolver: zodResolver(schema),
     defaultValues: {
       invites: initialData?.invites || [],
-      defaultAdminId: initialData?.defaultAdminId || '',
+      defaultAdminId: initialData?.defaultAdminId || 'none',
     },
   });
 
   useEffect(() => {
     form.reset({
       invites: initialData?.invites || [],
-      defaultAdminId: initialData?.defaultAdminId || '',
+      defaultAdminId: initialData?.defaultAdminId || 'none',
     });
   }, [form, initialData]);
 
@@ -1036,9 +1105,6 @@ function TeamMembersSection({ initialData, onSave, isSaving }: SectionProps<any>
                   <div className="mb-4 flex items-center justify-between">
                     <div>
                       <p className="font-medium">Invite #{index + 1}</p>
-                      <p className="text-sm text-muted-foreground">
-                        First invite becomes Account Admin by default.
-                      </p>
                     </div>
                     <Button
                       type="button"
@@ -1071,7 +1137,7 @@ function TeamMembersSection({ initialData, onSave, isSaving }: SectionProps<any>
                         <FormItem>
                           <FormLabel>Role</FormLabel>
                           <FormControl>
-                            <Input placeholder="Account Admin, Recruiter, Finance..." {...field} />
+                            <Input placeholder="User, Recruiter, Finance, Collaborator..." {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -1114,7 +1180,7 @@ function TeamMembersSection({ initialData, onSave, isSaving }: SectionProps<any>
               onClick={() =>
                 append({
                   email: '',
-                  role: 'Account Admin',
+                  role: 'User',
                   authorizationLevel: '',
                   approvalLevel: '',
                 })
@@ -1136,11 +1202,12 @@ function TeamMembersSection({ initialData, onSave, isSaving }: SectionProps<any>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {fields.length === 0 && (
-                        <SelectItem value="">No teammates added yet</SelectItem>
-                      )}
+                      <SelectItem value="none">No default admin selected</SelectItem>
                       {fields.map((field, index) => (
-                        <SelectItem key={field.id} value={form.watch(`invites.${index}.email`)}>
+                        <SelectItem
+                          key={field.id}
+                          value={form.watch(`invites.${index}.email`) || field.id}
+                        >
                           {form.watch(`invites.${index}.email`) || `Invite #${index + 1}`}
                         </SelectItem>
                       ))}

@@ -35,12 +35,6 @@ export default function SalesPipelinePage() {
     return acc;
   }, {} as Record<OpportunityStage, SalesOpportunity[]>);
 
-<<<<<<< HEAD
-  // Removed colored borders for a cleaner, neutral look
-=======
-  // Neutralize stage-specific colored borders for a cleaner look
->>>>>>> c78cddde4ab172fd6d81dca12965a9c9d679ab30
-
   // Filter opportunities for table view
   const filteredOpportunities = opportunities.filter((opp) => {
     const matchesSearch = 

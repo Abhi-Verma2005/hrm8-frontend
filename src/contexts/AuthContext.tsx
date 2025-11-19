@@ -39,7 +39,7 @@ interface AuthContextType {
     companyId: string,
     email?: string,
     password?: string
-  ) => Promise<{ success: boolean; email?: string; needsPassword?: boolean }>;
+  ) => Promise<{ success: boolean; email?: string; needsPassword?: boolean; error?: string }>;
   refreshProfileSummary: () => Promise<CompanyProfileSummary | null>;
   snoozeOnboardingReminder: (hours?: number) => void;
 }
@@ -246,7 +246,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     companyId: string,
     email?: string,
     password?: string
-  ): Promise<{ success: boolean; email?: string; needsPassword?: boolean }> => {
+  ): Promise<{ success: boolean; email?: string; needsPassword?: boolean; error?: string }> => {
     try {
       setIsLoading(true);
       const response = await authService.verifyCompany({ token, companyId });
@@ -255,7 +255,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const verifiedEmail = response.data.email || email;
         
         if (!verifiedEmail) {
-          return { success: false, needsPassword: false };
+          return { success: false, needsPassword: false, error: 'No email found in verification response' };
         }
 
         // If backend returned user data, it means a session was created automatically
@@ -273,7 +273,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Clear stored credentials
           sessionStorage.removeItem('pendingVerification');
           
-          handleOnboardingPrompt(response.data.profile || profileSummary);
+          // Don't redirect - let VerifyCompany page handle onboarding inline
           return { success: true, email: verifiedEmail };
         }
 
@@ -311,20 +311,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { success: true, email: verifiedEmail, needsPassword: true };
         }
       } else {
+        const errorMsg = response.error || 'Invalid or expired verification token';
         toast({
           title: 'Verification failed',
-          description: response.error || 'Invalid or expired verification token',
+          description: errorMsg,
           variant: 'destructive',
         });
-        return { success: false, needsPassword: false };
+        return { success: false, needsPassword: false, error: errorMsg };
       }
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'An error occurred during verification';
       toast({
         title: 'Verification failed',
-        description: error instanceof Error ? error.message : 'An error occurred during verification',
+        description: errorMsg,
         variant: 'destructive',
       });
-      return { success: false, needsPassword: false };
+      return { success: false, needsPassword: false, error: errorMsg };
     } finally {
       setIsLoading(false);
     }

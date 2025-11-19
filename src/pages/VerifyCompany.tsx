@@ -8,11 +8,17 @@ import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import {
+  Loader2,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+} from 'lucide-react';
+import { OnboardingWizardContent } from '@/pages/OnboardingWizard';
 
 const PENDING_VERIFICATION_KEY = 'hrm8PendingVerification';
 
-type VerificationState = 'verifying' | 'success' | 'error';
+type VerificationState = 'verifying' | 'success' | 'error' | 'onboarding';
 
 export default function VerifyCompany() {
   const [searchParams] = useSearchParams();
@@ -23,8 +29,8 @@ export default function VerifyCompany() {
   const lastVerificationKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    const companyId = searchParams.get('companyId');
+    const token = searchParams.get('token')?.trim();
+    const companyId = searchParams.get('companyId')?.trim();
 
     if (!token || !companyId) {
       setState('error');
@@ -72,25 +78,25 @@ export default function VerifyCompany() {
         );
         
         if (result.success) {
-          setState('success');
-          
           // If needsPassword is false/undefined, it means a session was created automatically
-          // or login succeeded. Otherwise, redirect to login page.
+          // or login succeeded. Show onboarding flow inline.
           if (result.needsPassword === false || result.needsPassword === undefined) {
-            // Session was created automatically or login succeeded, go to home
-            // Use a small delay to ensure state has updated
+            // Session was created automatically or login succeeded, show success then transition to onboarding
+            setState('success');
+            // Wait a moment to show success state, then transition to onboarding
             setTimeout(() => {
-              navigate('/home');
+              setState('onboarding');
             }, 2000);
           } else {
             // No session created and no credentials, redirect to login with email
+            setState('success');
             setTimeout(() => {
               navigate(`/login?email=${encodeURIComponent(result.email || '')}&verified=true`);
             }, 2000);
           }
         } else {
           setState('error');
-          setErrorMessage('Verification failed. The link may be invalid or expired.');
+          setErrorMessage(result.error || 'Verification failed. The link may be invalid or expired.');
         }
       } catch (error) {
         setState('error');
@@ -104,6 +110,35 @@ export default function VerifyCompany() {
 
     performVerification();
   }, [searchParams, verifyCompany, navigate]);
+
+  // Show onboarding wizard inline after verification success
+  if (state === 'onboarding') {
+    // Wait for authentication to be ready
+    if (!isAuthenticated) {
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
+          <Card className="w-full max-w-md">
+            <CardContent className="pt-6">
+              <div className="flex flex-col items-center space-y-4">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground text-center">
+                  Preparing your onboarding...
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    return (
+      <OnboardingWizardContent
+        embedded
+        onComplete={() => navigate('/home')}
+        onSkip={() => navigate('/home')}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
@@ -164,7 +199,7 @@ export default function VerifyCompany() {
           {state === 'success' && (
             <div className="text-center space-y-2">
               <p className="text-sm text-muted-foreground">
-                You're being redirected to your dashboard...
+                Setting up your onboarding experience...
               </p>
             </div>
           )}
@@ -209,7 +244,7 @@ export default function VerifyCompany() {
           )}
           {state === 'success' && (
             <div className="text-sm text-center text-muted-foreground">
-              Redirecting you to your dashboard...
+              Redirecting you to complete onboarding...
             </div>
           )}
           {state !== 'error' && (
