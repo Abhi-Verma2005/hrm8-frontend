@@ -15,8 +15,9 @@ import { generateMockAIReport } from "@/lib/backgroundChecks/mockAIReportData";
 import { saveAIReport } from "@/lib/backgroundChecks/aiReportStorage";
 import { saveAISession } from "@/lib/backgroundChecks/aiReferenceCheckStorage";
 import { AIReportEditor } from "@/components/backgroundChecks/ai-interview/AIReportEditor";
-import { BackgroundCheck } from "@/types/backgroundCheck";
+import { BackgroundCheck, BackgroundCheckType } from "@/types/backgroundCheck";
 import type { AIReferenceCheckSession, InterviewTranscript, AIAnalysis } from "@/types/aiReferenceCheck";
+import type { EditableReport } from "@/types/aiReferenceReport";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { BackgroundCheckForm } from "@/components/backgroundChecks/BackgroundCheckForm";
@@ -35,7 +36,7 @@ export default function BackgroundChecks() {
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [testEditorOpen, setTestEditorOpen] = useState(false);
   const [testSession, setTestSession] = useState<AIReferenceCheckSession | null>(null);
-  const [testReport, setTestReport] = useState<any>(null);
+  const [testReport, setTestReport] = useState<EditableReport | null>(null);
   
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -145,14 +146,18 @@ export default function BackgroundChecks() {
     return filtered;
   }, [checks, searchTerm, statusFilter, checkTypeFilter, resultFilter, dateFromFilter, dateToFilter, initiatedByFilter]);
 
-  const handleInitiateCheck = (data: any) => {
+  type InitiateFormData = {
+    provider: 'checkr' | 'sterling' | 'hireright' | 'manual';
+    checkTypes: string[];
+  };
+  const handleInitiateCheck = (data: InitiateFormData) => {
     const newCheck: BackgroundCheck = {
       id: `bgc-${Date.now()}`,
       candidateId: 'cand-temp',
       candidateName: 'Sample Candidate',
       provider: data.provider,
       checkTypes: data.checkTypes.map((type: string) => ({
-        type: type as any,
+        type: type as BackgroundCheckType,
         required: true,
       })),
       status: 'pending-consent',
@@ -355,7 +360,7 @@ export default function BackgroundChecks() {
     });
   };
 
-  const handleSaveTestReport = (editedReport: any) => {
+  const handleSaveTestReport = (editedReport: EditableReport) => {
     saveAIReport(editedReport);
     setTestEditorOpen(false);
     toast({
@@ -416,82 +421,80 @@ export default function BackgroundChecks() {
         </>
       }
     >
-      <div className="p-6 space-y-6">
+      <div className="p-12 space-y-6 overflow-x-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Background Checks</h1>
-            <p className="text-muted-foreground">
-              Manage candidate screening and verification
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <BackgroundCheckNotificationBadge />
-            
-            {/* Test Button (Development) */}
-            <Button 
-              variant="outline"
-              onClick={handleTestAIReport}
-              className="gap-2 border-dashed border-2"
-            >
-              <TestTube className="h-4 w-4" />
-              Test AI Report
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/background-checks/digest-settings')}
-            >
-              <Mail className="h-4 w-4 mr-2" />
-              Configure Digest
-            </Button>
-            
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Settings
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => navigate('/background-checks/digest-settings')}>
-                  <Mail className="h-4 w-4 mr-2" />
-                  Email Digest Settings
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/background-checks/escalation-rules')}>
-                  <Bell className="h-4 w-4 mr-2" />
-                  Escalation Rules
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate('/background-checks/sla-settings')}>
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  SLA Configuration
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate('/background-checks/analytics')}>
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  View Analytics
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/questionnaire-templates')}
-            >
-              <FileText className="h-4 w-4 mr-2" />
-              Manage Templates
-            </Button>
-            <Button onClick={() => setIsFormOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Initiate Check
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to="/dashboard/addons?tab=background-checks">
-                <BarChart3 className="mr-2 h-4 w-4" />
-                View Dashboard
-              </Link>
-            </Button>
-          </div>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Background Checks</h1>
+          <p className="text-muted-foreground">Manage candidate screening and verification</p>
+        </div>
+
+        {/* Actions Bar below the heading */}
+        <div className="flex flex-wrap items-center gap-2 min-w-0">
+          <BackgroundCheckNotificationBadge />
+
+          {/* Test Button (Development) */}
+          <Button
+            variant="outline"
+            onClick={handleTestAIReport}
+            className="gap-2 border-dashed border-2"
+          >
+            <TestTube className="h-4 w-4" />
+            Test AI Report
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => navigate('/background-checks/digest-settings')}
+          >
+            <Mail className="h-4 w-4 mr-2" />
+            Configure Digest
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => navigate('/background-checks/digest-settings')}>
+                <Mail className="h-4 w-4 mr-2" />
+                Email Digest Settings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/background-checks/escalation-rules')}>
+                <Bell className="h-4 w-4 mr-2" />
+                Escalation Rules
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate('/background-checks/sla-settings')}>
+                <TrendingUp className="h-4 w-4 mr-2" />
+                SLA Configuration
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/background-checks/analytics')}>
+                <BarChart3 className="h-4 w-4 mr-2" />
+                View Analytics
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <Button
+            variant="outline"
+            onClick={() => navigate('/questionnaire-templates')}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            Manage Templates
+          </Button>
+          <Button onClick={() => setIsFormOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Initiate Check
+          </Button>
+          <Button variant="outline" asChild>
+            <Link to="/dashboard/addons?tab=background-checks">
+              <BarChart3 className="mr-2 h-4 w-4" />
+              View Dashboard
+            </Link>
+          </Button>
         </div>
 
         {/* Key Metrics */}

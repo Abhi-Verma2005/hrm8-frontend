@@ -158,7 +158,7 @@ export default function RecruitmentServicesDashboardPage() {
       }
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
-      <div className="p-6 space-y-6">
+      <div className="p-12 space-y-6">
           {/* Active Filters Indicator */}
           <ActiveFiltersIndicator
           selectedCountry={selectedCountry}

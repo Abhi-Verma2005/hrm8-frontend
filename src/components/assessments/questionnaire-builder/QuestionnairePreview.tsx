@@ -172,7 +172,7 @@ export default function QuestionnairePreview({ questions, templateName, estimate
       </CardHeader>
       <CardContent className="p-0">
         <ScrollArea className="h-[600px]">
-          <div className="p-6 space-y-6">
+          <div className="p-12 space-y-6">
             {questions.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <p>No questions added yet.</p>

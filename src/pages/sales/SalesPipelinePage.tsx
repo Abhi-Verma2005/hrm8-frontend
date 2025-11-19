@@ -35,14 +35,7 @@ export default function SalesPipelinePage() {
     return acc;
   }, {} as Record<OpportunityStage, SalesOpportunity[]>);
 
-  const stageColors: Record<OpportunityStage, string> = {
-    prospecting: 'border-blue-300',
-    qualification: 'border-purple-300',
-    proposal: 'border-yellow-300',
-    negotiation: 'border-orange-300',
-    'closed-won': 'border-green-300',
-    'closed-lost': 'border-red-300',
-  };
+  // Removed colored borders for a cleaner, neutral look
 
   // Filter opportunities for table view
   const filteredOpportunities = opportunities.filter((opp) => {
@@ -105,7 +98,7 @@ export default function SalesPipelinePage() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-12 space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Sales Pipeline</h1>
@@ -232,7 +225,7 @@ export default function SalesPipelinePage() {
               
               return (
                 <div key={stage} className="flex-shrink-0 w-80">
-                  <Card className={`border-t-4 ${stageColors[stage]}`}>
+                  <Card>
                     <div className="p-4 border-b">
                       <h3 className="font-semibold capitalize">
                         {stage.replace('-', ' ')}

@@ -16,5 +16,5 @@ export function TerritoryRegionBadge({ region }: TerritoryRegionBadgeProps) {
 
   const { label, variant } = config[region];
 
-  return <Badge variant={variant}>{label}</Badge>;
+  return <Badge variant={variant} className="px-1.5 py-0.5 text-[10px] rounded-full whitespace-nowrap leading-none">{label}</Badge>;
 }

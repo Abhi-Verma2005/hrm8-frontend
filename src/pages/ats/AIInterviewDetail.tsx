@@ -35,7 +35,7 @@ export default function AIInterviewDetail() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto p-12 space-y-6">
       <PageHeader
         title={`Interview with ${session.candidateName}`}
         description={`${session.jobTitle} - ${format(new Date(session.scheduledDate), 'PPp')}`}

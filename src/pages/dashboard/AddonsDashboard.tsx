@@ -93,7 +93,7 @@ export default function AddonsDashboard() {
         />
       }
     >
-      <div className="px-6 pb-6 space-y-6">
+      <div className="px-12 pb-6 space-y-6">
         {/* Active Filters Indicator */}
       {hasActiveFilters && (
         <ActiveFiltersIndicator

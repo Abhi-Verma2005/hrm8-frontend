@@ -129,7 +129,6 @@ export function ApplicationListView({
     {
       key: "appliedDate",
       label: "Applied Date",
-      sortable: true,
       render: (app) => <span className="text-sm">{format(app.appliedDate, "MMM d, yyyy")}</span>,
     },
     {
@@ -137,16 +136,16 @@ export function ApplicationListView({
       label: "Score",
       sortable: true,
       render: (app) => {
-        if (!app.score) return <span className="text-muted-foreground">-</span>;
+        if (app.score === undefined || app.score === null) {
+          return <span className="text-muted-foreground text-sm">—</span>;
+        }
+        const passed = app.score >= 70;
         return (
-          <div className="flex items-center gap-2">
-            <div className="w-16 bg-secondary rounded-full h-2">
-              <div
-                className="bg-primary h-2 rounded-full"
-                style={{ width: `${app.score}%` }}
-              />
-            </div>
-            <span className="text-sm font-medium">{app.score}</span>
+          <div className="flex flex-col items-center leading-tight">
+            <Badge variant={passed ? "success" : "destructive"} className="text-xs px-1.5 py-0.5">
+              {passed ? "Pass" : "Fail"}
+            </Badge>
+            <span className="text-xs text-muted-foreground">{app.score}%</span>
           </div>
         );
       },
@@ -154,7 +153,6 @@ export function ApplicationListView({
     {
       key: "actions",
       label: "Actions",
-      width: "80px",
       render: (app) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
