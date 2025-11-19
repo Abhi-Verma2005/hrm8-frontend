@@ -23,9 +23,12 @@ interface AuthContextType {
   registerCompany: (data: {
     companyName: string;
     companyWebsite: string;
+    adminFirstName: string;
+    adminLastName: string;
     adminEmail: string;
-    adminName: string;
     password: string;
+    countryOrRegion: string;
+    acceptTerms: boolean;
   }) => Promise<{ success: boolean; verificationRequired?: boolean; email?: string }>;
   verifyCompany: (token: string, companyId: string, email?: string, password?: string) => Promise<{ success: boolean; email?: string; needsPassword?: boolean }>;
 }
@@ -133,9 +136,12 @@ const login = async (
   const registerCompany = async (data: {
     companyName: string;
     companyWebsite: string;
+    adminFirstName: string;
+    adminLastName: string;
     adminEmail: string;
-    adminName: string;
     password: string;
+    countryOrRegion: string;
+    acceptTerms: boolean;
   }): Promise<{ success: boolean; verificationRequired?: boolean; email?: string }> => {
     try {
       setIsLoading(true);

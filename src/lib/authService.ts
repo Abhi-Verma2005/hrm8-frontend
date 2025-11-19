@@ -26,9 +26,12 @@ export interface LoginResponse {
 export interface RegisterCompanyRequest {
   companyName: string;
   companyWebsite: string;
+  adminFirstName: string;
+  adminLastName: string;
   adminEmail: string;
-  adminName: string;
   password: string;
+  countryOrRegion: string;
+  acceptTerms: boolean;
 }
 
 export interface RegisterCompanyResponse {
@@ -79,9 +82,11 @@ class AuthService {
   }
 
   async employeeSignup(data: {
-    email: string;
-    name: string;
+    firstName: string;
+    lastName: string;
+    businessEmail: string;
     password: string;
+    acceptTerms: boolean;
     companyDomain?: string;
   }) {
     return apiClient.post<{ requestId: string; message: string }>('/api/auth/signup', data);
