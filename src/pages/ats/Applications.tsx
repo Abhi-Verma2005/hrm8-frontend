@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Upload, Download, LayoutGrid, List, Filter, X, GitCompare, Sparkles as SparklesIcon, BarChart3 } from "lucide-react";
@@ -362,14 +363,10 @@ export default function Applications() {
       }
     >
       <div className="p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Applications</h1>
-            <p className="text-muted-foreground">
-              Review and process {applications.length} applications
-            </p>
-          </div>
-
+        <AtsPageHeader 
+          title="Applications" 
+          subtitle={`Review and process ${applications.length} applications`}
+        >
           <div className="flex items-center gap-2">
             <Button 
               variant={isCompareMode ? "default" : "outline"} 
@@ -408,11 +405,11 @@ export default function Applications() {
               </Button>
             </div>
           </div>
-        </div>
+        </AtsPageHeader>
 
         {/* Main Content with Recommendations Sidebar */}
-        <div className="grid gap-4 lg:grid-cols-[1fr_350px]">
-          <div className="space-y-4">
+        <div className="grid gap-4 lg:grid-cols-[1fr_350px] min-w-0">
+          <div className="space-y-4 min-w-0">
             {/* Stat Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <EnhancedStatCard
@@ -421,8 +418,6 @@ export default function Applications() {
                 change=""
                 icon={<FileText />}
                 variant="neutral"
-                showBorder
-                elevation="sm"
               />
               <EnhancedStatCard
                 title="New/Unread"
@@ -430,8 +425,6 @@ export default function Applications() {
                 change=""
                 icon={<UserCheck />}
                 variant="primary"
-                showBorder
-                elevation="sm"
               />
               <EnhancedStatCard
                 title="Avg AI Match"
@@ -439,8 +432,6 @@ export default function Applications() {
                 change=""
                 icon={<Sparkles />}
                 variant="success"
-                showBorder
-                elevation="sm"
               />
               <EnhancedStatCard
                 title="Needs Action"
@@ -448,8 +439,6 @@ export default function Applications() {
                 change=""
                 icon={<Clock />}
                 variant="warning"
-                showBorder
-                elevation="sm"
               />
             </div>
 
@@ -542,24 +531,28 @@ export default function Applications() {
             )}
 
             {viewMode === "pipeline" ? (
-              <ApplicationPipeline 
-                applications={filteredApplications}
-                isCompareMode={isCompareMode}
-                selectedForComparison={selectedForComparison}
-                onToggleSelect={handleToggleSelect}
-              />
+              <div className="overflow-x-auto -mx-1 px-1 min-w-0">
+                <ApplicationPipeline 
+                  applications={filteredApplications}
+                  isCompareMode={isCompareMode}
+                  selectedForComparison={selectedForComparison}
+                  onToggleSelect={handleToggleSelect}
+                />
+              </div>
             ) : (
-              <ApplicationListView
-                applications={filteredApplications}
-                onApplicationClick={handleApplicationClick}
-                selectable
-                onSelectedRowsChange={setSelectedApplicationIds}
-              />
+              <div className="overflow-x-auto -mx-1 px-1">
+                <ApplicationListView
+                  applications={filteredApplications}
+                  onApplicationClick={handleApplicationClick}
+                  selectable
+                  onSelectedRowsChange={setSelectedApplicationIds}
+                />
+              </div>
             )}
           </div>
 
           {/* AI Recommendations Sidebar */}
-          <div className="lg:sticky lg:top-6 lg:self-start">
+          <div className="lg:sticky lg:top-6 lg:self-start min-w-0">
             <CandidateRecommendations 
               applications={applications}
               jobId={selectedJobId && selectedJobId !== "all" && selectedJobId !== "unread" ? selectedJobId : undefined}

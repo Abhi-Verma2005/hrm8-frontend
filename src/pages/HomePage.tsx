@@ -194,7 +194,7 @@ export default function HomePage() {
 
         {/* Priority Action Items */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-red-500" 
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" 
                 onClick={() => navigate('/support-tickets')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
@@ -213,7 +213,7 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-orange-500"
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow"
                 onClick={() => navigate('/recruitment-services')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
@@ -232,7 +232,7 @@ export default function HomePage() {
             </CardContent>
           </Card>
 
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-blue-500"
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow"
                 onClick={() => navigate('/employers')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">

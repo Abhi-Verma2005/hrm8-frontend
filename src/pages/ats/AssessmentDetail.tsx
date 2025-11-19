@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -110,7 +111,6 @@ export default function AssessmentDetail() {
 
   return (
     <DashboardPageLayout
-      title="Assessment Details"
       breadcrumbActions={
         <Button variant="ghost" onClick={() => navigate('/assessments')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
@@ -118,28 +118,19 @@ export default function AssessmentDetail() {
         </Button>
       }
     >
-      <div className="space-y-6">
-        {/* Header Card */}
-        <Card className="p-6">
-          <div className="flex items-start justify-between mb-6">
-            <div className="flex items-start gap-4">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-2xl">
-                {getAssessmentTypeIcon(assessment.assessmentType)}
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold">{assessment.candidateName}</h2>
-                <p className="text-muted-foreground">{assessment.candidateEmail}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  <Badge variant={getStatusBadgeVariant(assessment.status)}>
-                    {assessment.status}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">
-                    {assessment.assessmentType.replace(/-/g, ' ').toUpperCase()}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-2">
+      <div className="space-y-6 p-6">
+        <AtsPageHeader
+          title="Assessment Details"
+          subtitle={`${assessment.candidateName} • ${assessment.candidateEmail}`}
+        >
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="h-6 px-2 rounded-full text-xs capitalize">
+              {assessment.status}
+            </Badge>
+            <span className="text-xs text-muted-foreground uppercase tracking-wide">
+              {assessment.assessmentType.replace(/-/g, ' ')}
+            </span>
+            <div className="ml-auto flex gap-2">
               {assessment.status === 'completed' && (
                 <Button variant="outline">
                   <Download className="h-4 w-4 mr-2" />
@@ -160,7 +151,9 @@ export default function AssessmentDetail() {
               )}
             </div>
           </div>
+        </AtsPageHeader>
 
+        <Card className="p-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="flex items-center gap-2">
               <User className="h-4 w-4 text-muted-foreground" />
@@ -204,14 +197,14 @@ export default function AssessmentDetail() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 mb-8">
-              <Card className="p-4 bg-primary/5 border-primary/20">
+              <Card className="p-4">
                 <div className="text-center">
-                  <div className="text-4xl font-bold text-primary mb-2">
+                  <div className="text-3xl font-bold mb-1">
                     {assessment.overallScore}%
                   </div>
                   <p className="text-sm text-muted-foreground">Overall Score</p>
                   {assessment.passed !== undefined && (
-                    <Badge variant={assessment.passed ? 'default' : 'destructive'} className="mt-2">
+                    <Badge variant="outline" className={`mt-2 h-6 px-2 rounded-full text-xs ${assessment.passed ? 'text-success border-success/30 bg-success/5' : 'text-destructive border-destructive/30 bg-destructive/5'}`}>
                       {assessment.passed ? 'PASSED' : 'FAILED'}
                     </Badge>
                   )}
@@ -219,9 +212,9 @@ export default function AssessmentDetail() {
               </Card>
 
               {assessment.result.percentile && (
-                <Card className="p-4 bg-muted/50">
+                <Card className="p-4">
                   <div className="text-center">
-                    <div className="text-4xl font-bold mb-2">
+                    <div className="text-3xl font-bold mb-1">
                       {assessment.result.percentile}th
                     </div>
                     <p className="text-sm text-muted-foreground">Percentile Rank</p>
@@ -232,9 +225,9 @@ export default function AssessmentDetail() {
                 </Card>
               )}
 
-              <Card className="p-4 bg-muted/50">
+              <Card className="p-4">
                 <div className="text-center">
-                  <div className="text-4xl font-bold mb-2">
+                  <div className="text-3xl font-bold mb-1">
                     {assessment.result.timeSpent}
                   </div>
                   <p className="text-sm text-muted-foreground">Minutes Taken</p>
@@ -371,8 +364,8 @@ export default function AssessmentDetail() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold">{candidate.overallScore}%</div>
-                    <Badge variant={candidate.passed ? 'default' : 'secondary'} className="text-xs">
+                    <div className="text-base font-semibold">{candidate.overallScore}%</div>
+                    <Badge variant="outline" className={`h-6 px-2 rounded-full text-xs ${candidate.passed ? 'text-success border-success/30 bg-success/5' : 'text-destructive border-destructive/30 bg-destructive/5'}`}>
                       {candidate.passed ? 'Passed' : 'Failed'}
                     </Badge>
                   </div>

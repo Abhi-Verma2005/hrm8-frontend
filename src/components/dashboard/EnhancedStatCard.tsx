@@ -36,7 +36,6 @@ interface EnhancedStatCardProps {
   showBorder?: boolean;
   iconPosition?: "left" | "right" | "top";
 }
-
 export function EnhancedStatCard({
   title,
   value,
@@ -53,9 +52,9 @@ export function EnhancedStatCard({
   rawValue,
   size = "default",
   layout = "vertical",
-  elevation = "md",
-  showGradient = true,
-  showBorder = true,
+  elevation = "none",
+  showGradient = false,
+  showBorder = false,
   iconPosition = "left",
 }: EnhancedStatCardProps) {
   const { formatCurrency } = useCurrencyFormat();
@@ -71,9 +70,9 @@ export function EnhancedStatCard({
   };
 
   const valueSizeStyles = {
-    compact: "text-2xl",
-    default: "text-3xl",
-    large: "text-4xl",
+    compact: "text-xl",
+    default: "text-2xl",
+    large: "text-3xl",
   };
 
   const elevationStyles = {
@@ -123,56 +122,48 @@ export function EnhancedStatCard({
     <Card
       className={cn(
         sizeStyles[size],
-        "transition-all duration-300 cursor-pointer group relative h-full flex flex-col justify-between overflow-hidden",
-        "hover:scale-[1.02] active:scale-[0.98]",
-        "[transition-property:transform,background,border-color,box-shadow,color] [transition-duration:0.3s,0.5s,0.5s,0.5s,0.5s]",
-        "before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent",
-        "dark:before:via-white/20",
-        "before:-translate-x-full before:transition-transform before:duration-700 hover:before:translate-x-full",
-        "animate-fade-in",
+        "relative h-full flex flex-col justify-between overflow-hidden",
+        "transition-colors",
         variantStyles[variant],
         borderGradientStyles[variant],
         overlayGradientStyles[variant],
-        elevation !== "none" && `${elevationStyles[elevation]} hover:-translate-y-1 hover:shadow-2xl`
+        elevation !== "none" && `${elevationStyles[elevation]}`
       )}
     >
       <div className={cn(
-        "flex items-start justify-between mb-4",
+        "flex items-center justify-between mb-4",
         layout === "horizontal" && "flex-row items-center",
         showMenu && "pr-8"
       )}>
         <div className={cn(
-          "rounded-full shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3",
-          "group-hover:shadow-xl",
-          iconBgStyles[variant], 
-          iconSizeStyles[size]
+          "rounded-full shadow-md flex items-center justify-center w-10 h-10 flex-none",
+          iconBgStyles[variant]
         )}>
           {icon}
         </div>
         <Badge
+          variant="outline"
           className={cn(
-            "shadow-sm -mt-[2px] transition-all duration-300",
-            "group-hover:scale-110 group-hover:shadow-md",
+            "h-7 px-2.5 rounded-full flex items-center gap-1 text-xs leading-none",
             trend === "up"
-              ? "bg-success/10 text-success border-success/20 hover:bg-success/20"
-              : "bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/20"
+              ? "bg-success/10 text-success border-success/20"
+              : "bg-destructive/10 text-destructive border-destructive/20"
           )}
         >
           {trend === "up" ? (
-            <TrendingUp className="h-3 w-3 mr-1 group-hover:animate-pulse" />
+            <TrendingUp className="h-3 w-3 mr-1" />
           ) : (
-            <TrendingDown className="h-3 w-3 mr-1 group-hover:animate-pulse" />
+            <TrendingDown className="h-3 w-3 mr-1" />
           )}
           {change}
         </Badge>
       </div>
-      <p className="text-sm text-muted-foreground mb-2 font-medium transition-colors duration-300 group-hover:text-foreground">
+      <p className="text-sm text-muted-foreground mb-2 font-medium">
         {title}
       </p>
       <h3 className={cn(
         valueSizeStyles[size], 
-        "font-bold tracking-tight transition-all duration-300",
-        "group-hover:scale-105 group-hover:text-primary"
+        "font-bold tracking-tight"
       )}>
         {displayValue}
       </h3>
@@ -181,7 +172,7 @@ export function EnhancedStatCard({
         <Button
           variant="ghost"
           size="sm"
-          className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0"
+          className="absolute bottom-4 right-4"
           onClick={(e) => {
             e.stopPropagation();
             onAction();
@@ -197,7 +188,7 @@ export function EnhancedStatCard({
             <Button
               variant="ghost"
               size="icon-sm"
-              className="absolute top-4 right-4 opacity-60 hover:opacity-100 transition-all duration-300 hover:scale-110 hover:rotate-90"
+              className="absolute top-4 right-4 opacity-70"
               onClick={(e) => e.stopPropagation()}
             >
               <MoreVertical className="h-4 w-4" />
