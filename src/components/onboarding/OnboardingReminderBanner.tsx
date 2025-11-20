@@ -72,8 +72,8 @@ export function OnboardingReminderBanner() {
   };
 
   const handleContinue = () => {
-    if (location.pathname !== '/onboarding') {
-      navigate('/onboarding');
+    if (location.pathname !== '/company-profile') {
+      navigate('/company-profile');
     }
   };
 
