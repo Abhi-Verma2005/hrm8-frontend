@@ -13,6 +13,8 @@ export interface User {
   role: string;
   companyId: string;
   companyName?: string;
+  companyWebsite?: string;
+  companyDomain?: string;
 }
 
 export interface LoginRequest {

@@ -180,6 +180,8 @@ const integrationsNavItems = [
 
 // SYSTEM Section
 const systemNavItems = [
+  { title: "Company Profile", url: "/company-profile", icon: Building2 },
+  { title: "Settings", url: "/settings", icon: Settings },
   { title: "Admin Settings", url: "/admin-settings", icon: Settings2 },
   { title: "Support Tickets", url: "/support-tickets", icon: Ticket },
   { title: "System Monitoring", url: "/system-monitoring", icon: Server },
