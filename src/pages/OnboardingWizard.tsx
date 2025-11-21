@@ -44,6 +44,8 @@ import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, MapPin, ShieldCheck, CheckCircle2, Circle } from 'lucide-react';
 import { FormMultiSelect } from '@/components/common/form-fields';
+import { PhoneCountrySelect } from '@/components/common/PhoneCountrySelect';
+import { LocationSelect } from '@/components/common/LocationSelect';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
@@ -141,11 +143,19 @@ interface OnboardingWizardProps {
 export function OnboardingWizardContent({ onComplete, onSkip, embedded = false }: OnboardingWizardProps = {}) {
   const { data, isLoading, savingSection, isCompleting, saveSection, completeProfile } =
     useCompanyProfile();
-  const { profileSummary, snoozeOnboardingReminder } = useAuth();
+  const { user, profileSummary, snoozeOnboardingReminder } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const profile = data?.profile;
-  const [activeSection, setActiveSection] = useState<CompanyProfileSectionKey>('basicDetails');
+  
+  // Get section from URL query parameter if present
+  const searchParams = new URLSearchParams(window.location.search);
+  const sectionParam = searchParams.get('section') as CompanyProfileSectionKey | null;
+  const [activeSection, setActiveSection] = useState<CompanyProfileSectionKey>(
+    sectionParam && onboardingSections.some(s => s.key === sectionParam) 
+      ? sectionParam 
+      : 'basicDetails'
+  );
 
   useEffect(() => {
     if (profile?.status === 'COMPLETED') {
@@ -163,6 +173,10 @@ export function OnboardingWizardContent({ onComplete, onSkip, embedded = false }
         .filter(Boolean) as CompanyProfileSectionKey[]
     );
   }, [profile]);
+
+  // Calculate completion percentage based on actual completed sections
+  // Always calculate from completed sections count to ensure accuracy
+  const actualCompletionPercentage = Math.round((completedSectionKeys.size / onboardingSections.length) * 100);
 
   const requiredSectionKeys = onboardingSections.filter((section) => section.required).map((section) => section.key);
   const hasAllRequired = requiredSectionKeys.every((key) => completedSectionKeys.has(key));
@@ -240,12 +254,12 @@ export function OnboardingWizardContent({ onComplete, onSkip, embedded = false }
 
         <div className="mb-8">
           <div className="mb-3 flex items-center justify-between text-sm">
-            <span className="text-slate-300">{profile?.completionPercentage ?? 0}% complete</span>
+            <span className="text-slate-300">{actualCompletionPercentage}% complete</span>
             <span className="text-slate-400">
               {completedSectionKeys.size}/{onboardingSections.length} sections
             </span>
           </div>
-          <Progress value={profile?.completionPercentage || 0} className="h-2" />
+          <Progress value={actualCompletionPercentage} className="h-2" />
         </div>
 
         <div className="flex-1 space-y-2 overflow-y-auto">
@@ -312,6 +326,8 @@ export function OnboardingWizardContent({ onComplete, onSkip, embedded = false }
                 {activeSection === 'basicDetails' && (
                   <BasicDetailsSection
                     initialData={profileData.basicDetails}
+                    registeredCompanyName={user?.companyName}
+                    registeredCompanyWebsite={user?.companyWebsite}
                     onSave={(values) =>
                       saveSection('basicDetails', values, { successMessage: 'Basic company details updated.' })
                     }
@@ -438,11 +454,18 @@ interface SectionProps<T> {
   isSaving: boolean;
 }
 
+interface BasicDetailsSectionProps extends SectionProps<CompanyProfileBasicDetails> {
+  registeredCompanyName?: string;
+  registeredCompanyWebsite?: string;
+}
+
 function BasicDetailsSection({
   initialData,
   onSave,
   isSaving,
-}: SectionProps<CompanyProfileBasicDetails>) {
+  registeredCompanyName,
+  registeredCompanyWebsite,
+}: BasicDetailsSectionProps) {
   const schema = z.object({
     companyName: z.string().min(1, 'Company name is required'),
     companySize: z.string().min(1, 'Company size is required'),
@@ -464,12 +487,12 @@ function BasicDetailsSection({
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
-      companyName: initialData?.companyName || '',
+      companyName: initialData?.companyName || registeredCompanyName || '',
       companySize: initialData?.companySize || '',
       industries: initialData?.industries || [],
       phoneCountryCode: initialData?.phone?.countryCode || '+1',
       phoneNumber: initialData?.phone?.number || '',
-      websiteUrl: initialData?.websiteUrl || '',
+      websiteUrl: initialData?.websiteUrl || registeredCompanyWebsite || '',
       yearFounded: initialData?.yearFounded ? String(initialData.yearFounded) : '',
       overview: initialData?.overview || '',
       logoUrl: initialData?.logoUrl || '',
@@ -479,18 +502,18 @@ function BasicDetailsSection({
 
   useEffect(() => {
     form.reset({
-      companyName: initialData?.companyName || '',
+      companyName: initialData?.companyName || registeredCompanyName || '',
       companySize: initialData?.companySize || '',
       industries: initialData?.industries || [],
       phoneCountryCode: initialData?.phone?.countryCode || '+1',
       phoneNumber: initialData?.phone?.number || '',
-      websiteUrl: initialData?.websiteUrl || '',
+      websiteUrl: initialData?.websiteUrl || registeredCompanyWebsite || '',
       yearFounded: initialData?.yearFounded ? String(initialData.yearFounded) : '',
       overview: initialData?.overview || '',
       logoUrl: initialData?.logoUrl || '',
       iconUrl: initialData?.iconUrl || '',
     });
-  }, [form, initialData]);
+  }, [form, initialData, registeredCompanyName]);
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await onSave({
@@ -529,7 +552,7 @@ function BasicDetailsSection({
                   <FormItem>
                     <FormLabel>Company name</FormLabel>
                     <FormControl>
-                      <Input placeholder="HRM8" {...field} />
+                      <Input placeholder="HRM8" disabled {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -578,7 +601,11 @@ function BasicDetailsSection({
                   <FormItem>
                     <FormLabel>Country code</FormLabel>
                     <FormControl>
-                      <Input placeholder="+1" {...field} />
+                      <PhoneCountrySelect
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Search country code"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -607,7 +634,7 @@ function BasicDetailsSection({
                   <FormItem>
                     <FormLabel>Company website</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://example.com" {...field} />
+                      <Input placeholder="https://example.com" disabled {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -991,7 +1018,11 @@ function PersonalProfileSection({ initialData, onSave, isSaving }: SectionProps<
                   <FormItem>
                     <FormLabel>Country code</FormLabel>
                     <FormControl>
-                      <Input placeholder="+61" {...field} />
+                      <PhoneCountrySelect
+                        value={field.value}
+                        onChange={field.onChange}
+                        placeholder="Search country code"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -1017,9 +1048,13 @@ function PersonalProfileSection({ initialData, onSave, isSaving }: SectionProps<
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Preferred location</FormLabel>
+                  <FormLabel>Location</FormLabel>
                   <FormControl>
-                    <Input placeholder="Melbourne, Australia" {...field} />
+                    <LocationSelect
+                      value={field.value}
+                      onChange={field.onChange}
+                      placeholder="Search location"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

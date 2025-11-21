@@ -92,11 +92,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     toast({
       title: "Let's finish your company profile",
-      description: 'Complete onboarding to start posting jobs and invite your team.',
+      description: 'Complete your company profile to start posting jobs and invite your team.',
     });
 
-    if (shouldRedirectToOnboarding() || location.pathname === '/onboarding') {
-      navigate('/onboarding');
+    if (shouldRedirectToOnboarding() || location.pathname === '/company-profile') {
+      navigate('/company-profile');
     } else {
       navigate('/home');
     }
