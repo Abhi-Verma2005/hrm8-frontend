@@ -256,9 +256,6 @@ export default function QuestionBank() {
             change=""
             icon={<FileQuestion className="h-6 w-6" />}
             variant="neutral"
-            showBorder
-            showGradient={false}
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Active Questions"
@@ -266,9 +263,6 @@ export default function QuestionBank() {
             change=""
             icon={<TrendingUp className="h-6 w-6" />}
             variant="primary"
-            showBorder
-            showGradient={false}
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Total Uses"
@@ -276,9 +270,6 @@ export default function QuestionBank() {
             change=""
             icon={<BarChart3 className="h-6 w-6" />}
             variant="success"
-            showBorder
-            showGradient={false}
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Avg Pass Rate"
@@ -286,9 +277,6 @@ export default function QuestionBank() {
             change=""
             icon={<Award className="h-6 w-6" />}
             variant="warning"
-            showBorder
-            showGradient={false}
-            elevation="sm"
           />
         </div>
 

@@ -117,7 +117,7 @@ export default function Requisitions() {
 
         <div className="grid gap-4">
           {requisitions.map((req) => (
-            <Card key={req.id} className="hover:shadow-md transition-shadow">
+            <Card key={req.id}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">

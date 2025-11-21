@@ -235,29 +235,29 @@ export default function CompanyProfile() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as CompanyProfileSectionKey)}>
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
-              {sectionConfig.map((section) => {
-                const isComplete = completedSectionKeys.has(section.key);
-                const Icon = section.icon;
-                return (
-                  <TabsTrigger
-                    key={section.key}
-                    value={section.key}
-                    className="flex flex-col items-center gap-2 h-auto py-3"
-                  >
-                    <div className="flex items-center gap-2">
-                      <Icon className="h-4 w-4" />
+            <div className="overflow-x-auto -mx-1 px-1">
+              <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
+                {sectionConfig.map((section) => {
+                  const isComplete = completedSectionKeys.has(section.key);
+                  const Icon = section.icon;
+                  return (
+                    <TabsTrigger
+                      key={section.key}
+                      value={section.key}
+                      className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                    >
+                      <Icon className="h-3.5 w-3.5 flex-shrink-0" />
                       {isComplete ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
                       ) : (
-                        <Circle className="h-4 w-4 text-muted-foreground" />
+                        <Circle className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                       )}
-                    </div>
-                    <span className="text-xs">{section.title}</span>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+                      <span>{section.title}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
 
             {/* Basic Details Tab */}
             <TabsContent value="basicDetails" className="mt-6">

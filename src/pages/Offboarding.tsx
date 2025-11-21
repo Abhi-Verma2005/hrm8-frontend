@@ -176,7 +176,7 @@ export default function Offboarding() {
             return (
               <Card 
                 key={workflow.id}
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                className="cursor-pointer"
                 onClick={() => navigate(`/offboarding/${workflow.id}`)}
               >
                 <CardContent className="p-6">

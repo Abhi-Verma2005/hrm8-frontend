@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,26 +32,23 @@ export default function EnhancedLearning() {
 
   return (
     <DashboardPageLayout>
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Enhanced Learning Management</h1>
-            <p className="text-muted-foreground mt-2">
-              AI-powered learning paths, skill development, and certification tracking
-            </p>
-          </div>
-          <Button className="gap-2">
+      <div className="p-6 space-y-6">
+        <AtsPageHeader 
+          title="Enhanced Learning Management" 
+          subtitle="AI-powered learning paths, skill development, and certification tracking"
+        >
+          <Button size="sm" className="gap-2">
             <Brain className="h-4 w-4" />
             Get AI Recommendations
           </Button>
-        </div>
+        </AtsPageHeader>
 
         {/* Learning Overview Stats */}
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-primary" />
+              <CardTitle className="text-xs font-medium flex items-center gap-2">
+                <BookOpen className="h-3 w-3 text-primary" />
                 Active Enrollments
               </CardTitle>
             </CardHeader>
@@ -62,8 +60,8 @@ export default function EnhancedLearning() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Award className="h-4 w-4 text-success" />
+              <CardTitle className="text-xs font-medium flex items-center gap-2">
+                <Award className="h-3 w-3 text-success" />
                 Certifications
               </CardTitle>
             </CardHeader>
@@ -75,8 +73,8 @@ export default function EnhancedLearning() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <TrendingUp className="h-4 w-4 text-chart-1" />
+              <CardTitle className="text-xs font-medium flex items-center gap-2">
+                <TrendingUp className="h-3 w-3 text-chart-1" />
                 Completion Rate
               </CardTitle>
             </CardHeader>
@@ -90,8 +88,8 @@ export default function EnhancedLearning() {
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Target className="h-4 w-4 text-warning" />
+              <CardTitle className="text-xs font-medium flex items-center gap-2">
+                <Target className="h-3 w-3 text-warning" />
                 Skill Gaps
               </CardTitle>
             </CardHeader>
@@ -112,7 +110,7 @@ export default function EnhancedLearning() {
 
           <TabsContent value="courses" className="space-y-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold">Available Courses</h3>
+              <h3 className="text-base font-semibold">Available Courses</h3>
               <Button variant="outline" size="sm" className="gap-2">
                 <Sparkles className="h-4 w-4" />
                 AI-Recommended for You
@@ -123,7 +121,7 @@ export default function EnhancedLearning() {
                 <Card key={course.id}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
-                      <CardTitle className="text-base">{course.title}</CardTitle>
+                      <CardTitle className="text-sm font-medium">{course.title}</CardTitle>
                       <Badge variant="outline">{course.level}</Badge>
                     </div>
                     <CardDescription className="line-clamp-2">{course.description}</CardDescription>
@@ -154,8 +152,8 @@ export default function EnhancedLearning() {
           <TabsContent value="programs" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Skill Development Programs</CardTitle>
-                <CardDescription>Structured learning paths for career growth</CardDescription>
+                <CardTitle className="text-base font-semibold">Skill Development Programs</CardTitle>
+                <CardDescription className="text-sm">Structured learning paths for career growth</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -163,7 +161,7 @@ export default function EnhancedLearning() {
                     <div key={program.id} className="border rounded-lg p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h4 className="font-semibold">Development Program</h4>
+                          <h4 className="text-sm font-semibold">Development Program</h4>
                           <p className="text-sm text-muted-foreground">
                             Target: {program.targetLevel}/5
                           </p>
@@ -187,8 +185,8 @@ export default function EnhancedLearning() {
           <TabsContent value="certifications" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Employee Certifications</CardTitle>
-                <CardDescription>Professional certifications and credentials</CardDescription>
+                <CardTitle className="text-base font-semibold">Employee Certifications</CardTitle>
+                <CardDescription className="text-sm">Professional certifications and credentials</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -196,7 +194,7 @@ export default function EnhancedLearning() {
                     <div key={cert.id} className="border rounded-lg p-4">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h4 className="font-semibold flex items-center gap-2">
+                          <h4 className="text-sm font-semibold flex items-center gap-2">
                             <Award className="h-4 w-4 text-success" />
                             Certification {cert.certificationId}
                           </h4>
@@ -226,8 +224,8 @@ export default function EnhancedLearning() {
           <TabsContent value="gaps" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Critical Skill Gaps</CardTitle>
-                <CardDescription>Areas requiring immediate attention and development</CardDescription>
+                <CardTitle className="text-base font-semibold">Critical Skill Gaps</CardTitle>
+                <CardDescription className="text-sm">Areas requiring immediate attention and development</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -235,7 +233,7 @@ export default function EnhancedLearning() {
                     <div key={gap.id} className="border rounded-lg p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h4 className="font-semibold">{gap.skillName}</h4>
+                          <h4 className="text-sm font-semibold">{gap.skillName}</h4>
                           <p className="text-sm text-muted-foreground">
                             {gap.affectedEmployees} employees affected • {gap.departmentsAffected.join(', ')}
                           </p>

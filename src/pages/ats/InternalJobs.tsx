@@ -64,7 +64,7 @@ export default function InternalJobs() {
 
         <div className="grid gap-4">
           {jobs.map((job) => (
-            <Card key={job.id} className="hover:shadow-md transition-shadow">
+            <Card key={job.id}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">

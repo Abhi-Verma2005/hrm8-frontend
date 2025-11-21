@@ -147,7 +147,7 @@ export default function ImportExport() {
 
           <TabsContent value="import" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <Card className="hover:shadow-lg transition-shadow">
+              <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Users className="h-5 w-5" />
@@ -184,7 +184,7 @@ export default function ImportExport() {
                 </CardContent>
               </Card>
 
-              <Card className="hover:shadow-lg transition-shadow">
+              <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Briefcase className="h-5 w-5" />

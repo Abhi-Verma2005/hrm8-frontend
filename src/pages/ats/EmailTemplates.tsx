@@ -262,7 +262,7 @@ export default function EmailTemplates() {
         {/* Templates List */}
         <div className="space-y-3">
           {templates.map((template) => (
-            <Card key={template.id} className="hover:shadow-md transition-shadow">
+            <Card key={template.id}>
               <CardContent className="pt-6">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

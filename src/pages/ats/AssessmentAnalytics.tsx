@@ -103,9 +103,6 @@ export default function AssessmentAnalytics() {
             change=""
             icon={<BarChart3 className="h-6 w-6" />}
             variant="neutral"
-            showBorder
-            showGradient={false}
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Average Score"
@@ -113,9 +110,6 @@ export default function AssessmentAnalytics() {
             change=""
             icon={<Award className="h-6 w-6" />}
             variant="primary"
-            showBorder
-            showGradient={false}
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Pass Rate"
@@ -123,9 +117,6 @@ export default function AssessmentAnalytics() {
             change=""
             icon={<Target className="h-6 w-6" />}
             variant="success"
-            showBorder
-            showGradient={false}
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Completion Rate"
@@ -133,9 +124,6 @@ export default function AssessmentAnalytics() {
             change=""
             icon={<CheckCircle2 className="h-6 w-6" />}
             variant="warning"
-            showBorder
-            showGradient={false}
-            elevation="sm"
           />
         </div>
 

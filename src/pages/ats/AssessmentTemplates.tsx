@@ -311,7 +311,7 @@ export default function AssessmentTemplates() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredTemplates.map((template) => (
-              <Card key={template.id} className="transition-[background,border-color,box-shadow,color] duration-500 hover:shadow-lg">
+              <Card key={template.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">

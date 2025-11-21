@@ -125,7 +125,7 @@ export default function SystemMonitoring() {
 
         {/* System Health Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="border-l-4 border-l-green-500">
+          <Card>
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Platform Uptime</span>
@@ -249,19 +249,19 @@ export default function SystemMonitoring() {
           <TabsContent value="integrations" className="space-y-6">
             {/* Integration Status Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="border-l-4 border-l-green-500">
+              <Card>
                 <CardContent className="pt-6">
                   <div className="text-3xl font-bold text-green-600">{systemStats.activeIntegrations}</div>
                   <p className="text-sm text-muted-foreground mt-1">Active</p>
                 </CardContent>
               </Card>
-              <Card className="border-l-4 border-l-red-500">
+              <Card>
                 <CardContent className="pt-6">
                   <div className="text-3xl font-bold text-red-600">{systemStats.errorIntegrations}</div>
                   <p className="text-sm text-muted-foreground mt-1">Errors</p>
                 </CardContent>
               </Card>
-              <Card className="border-l-4 border-l-yellow-500">
+              <Card>
                 <CardContent className="pt-6">
                   <div className="text-3xl font-bold text-yellow-600">{systemStats.maintenanceIntegrations}</div>
                   <p className="text-sm text-muted-foreground mt-1">Maintenance</p>
