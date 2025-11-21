@@ -1,7 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Sparkles, TrendingUp, CheckCircle2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -113,13 +112,13 @@ export function CandidateRecommendations({
   if (recommendations.length === 0) {
     return (
       <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <CardTitle className="text-lg">AI Recommendations</CardTitle>
-          </div>
-          <CardDescription>Top candidate matches based on AI analysis</CardDescription>
-        </CardHeader>
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <CardTitle className="text-base font-semibold">AI Recommendations</CardTitle>
+        </div>
+        <CardDescription className="text-sm">Top candidate matches based on AI analysis</CardDescription>
+      </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground text-center py-6">
             No recommendations available for the current selection
@@ -131,18 +130,17 @@ export function CandidateRecommendations({
   
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <CardTitle className="text-lg">AI Recommendations</CardTitle>
+          <Sparkles className="h-4 w-4 text-primary" />
+          <CardTitle className="text-base font-semibold">AI Recommendations</CardTitle>
         </div>
-        <CardDescription>
+        <CardDescription className="text-sm">
           Top {recommendations.length} candidate{recommendations.length !== 1 ? 's' : ''} based on AI analysis
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-[400px]">
-          <div className="space-y-3 p-6 pt-0">
+        <div className="space-y-2 px-4 pb-4 max-h-[calc(100vh-500px)] overflow-y-auto">
             {recommendations.map((rec, index) => {
               const { application: app, reasons, priority } = rec;
               const initials = app.candidateName
@@ -159,26 +157,26 @@ export function CandidateRecommendations({
                   {priority === "high" && (
                     <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-indigo-600" />
                   )}
-                  <CardContent className="p-3">
-                    <div className="flex items-start gap-3">
-                      <div className="relative">
-                        <Avatar className="h-10 w-10">
+                  <CardContent className="p-2.5">
+                    <div className="flex items-start gap-2.5">
+                      <div className="relative flex-shrink-0">
+                        <Avatar className="h-9 w-9">
                           <AvatarImage src={app.candidatePhoto} />
                           <AvatarFallback className="text-xs">{initials}</AvatarFallback>
                         </Avatar>
                         {index === 0 && (
-                          <div className="absolute -top-1 -right-1 h-5 w-5 bg-primary rounded-full flex items-center justify-center">
-                            <span className="text-[10px] font-bold text-primary-foreground">1</span>
+                          <div className="absolute -top-1 -right-1 h-4 w-4 bg-primary rounded-full flex items-center justify-center">
+                            <span className="text-[9px] font-bold text-primary-foreground">1</span>
                           </div>
                         )}
                       </div>
                       
-                      <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex-1 min-w-0 space-y-1.5">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
                             <Link 
                               to={`/candidates/${app.candidateId}`}
-                              className="font-semibold text-sm hover:underline"
+                              className="font-semibold text-sm hover:underline block truncate"
                             >
                               {app.candidateName}
                             </Link>
@@ -191,30 +189,30 @@ export function CandidateRecommendations({
                           )}
                         </div>
                         
-                        <div className="space-y-1">
-                          {reasons.map((reason, idx) => (
+                        <div className="space-y-0.5">
+                          {reasons.slice(0, 2).map((reason, idx) => (
                             <div 
                               key={idx} 
-                              className="flex items-center gap-1.5 text-xs text-muted-foreground"
+                              className="flex items-center gap-1 text-xs text-muted-foreground"
                             >
                               {reason.icon}
-                              <span>{reason.text}</span>
+                              <span className="truncate">{reason.text}</span>
                             </div>
                           ))}
                         </div>
                         
-                        <div className="flex items-center justify-between pt-1">
-                          <Badge variant="outline" className="text-xs">
+                        <div className="flex items-center justify-between pt-0.5">
+                          <Badge variant="outline" className="text-xs h-5 px-1.5">
                             {app.stage}
                           </Badge>
                           <Button 
                             asChild 
                             variant="ghost" 
                             size="sm" 
-                            className="h-7 text-xs"
+                            className="h-6 text-xs px-2"
                           >
                             <Link to={`/applications/${app.id}`}>
-                              View Details
+                              View
                               <ArrowRight className="ml-1 h-3 w-3" />
                             </Link>
                           </Button>
@@ -225,8 +223,7 @@ export function CandidateRecommendations({
                 </Card>
               );
             })}
-          </div>
-        </ScrollArea>
+        </div>
       </CardContent>
     </Card>
   );

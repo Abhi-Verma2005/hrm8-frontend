@@ -428,7 +428,7 @@ export default function Applications() {
           </div>
         </AtsPageHeader>
 
-        {/* Main Content with Recommendations Sidebar */}
+        {/* Top Section: Stats + Filters with AI Recommendations Sidebar */}
         <div className="grid gap-4 lg:grid-cols-[1fr_350px] min-w-0">
           <div className="space-y-4 min-w-0">
             {/* Stat Cards */}
@@ -465,33 +465,33 @@ export default function Applications() {
 
             {/* Job Selection Filter */}
             <Card className="p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 flex-1">
-              <Label className="text-sm font-medium whitespace-nowrap">Filter by Job:</Label>
-              <Select value={selectedJobId || "unread"} onValueChange={handleJobSelect}>
-                <SelectTrigger className="w-full max-w-md">
-                  <SelectValue placeholder="Select a job or view unread" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unread">📬 New/Unread Applications</SelectItem>
-                  <SelectItem value="all">All Jobs</SelectItem>
-                  <SelectSeparator />
-                  {mockJobs.slice(0, 20).map(job => (
-                    <SelectItem key={job.id} value={job.id}>
-                      {job.title} - {job.employer}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedJob && (
-                <Button variant="ghost" size="sm" onClick={() => handleJobSelect("unread")}>
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-            <div className="text-sm text-muted-foreground whitespace-nowrap">
-              {filteredApplications.length} application(s)
-            </div>
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3 flex-1">
+                  <Label className="text-sm font-medium whitespace-nowrap">Filter by Job:</Label>
+                  <Select value={selectedJobId || "unread"} onValueChange={handleJobSelect}>
+                    <SelectTrigger className="w-full max-w-md">
+                      <SelectValue placeholder="Select a job or view unread" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unread">📬 New/Unread Applications</SelectItem>
+                      <SelectItem value="all">All Jobs</SelectItem>
+                      <SelectSeparator />
+                      {mockJobs.slice(0, 20).map(job => (
+                        <SelectItem key={job.id} value={job.id}>
+                          {job.title} - {job.employer}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {selectedJob && (
+                    <Button variant="ghost" size="sm" onClick={() => handleJobSelect("unread")}>
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+                <div className="text-sm text-muted-foreground whitespace-nowrap">
+                  {filteredApplications.length} application(s)
+                </div>
               </div>
             </Card>
 
@@ -527,6 +527,7 @@ export default function Applications() {
             {/* Smart Filters */}
             <SmartFiltersBar onFilterSelect={handleSmartFilterSelect} />
 
+            {/* Search and Filters */}
             <ApplicationFilters
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}
@@ -538,42 +539,10 @@ export default function Applications() {
               onTagsChange={setSelectedTags}
               onClearFilters={handleClearFilters}
             />
-
-            {viewMode === "list" && (
-              <ApplicationBulkActionsToolbar
-                selectedCount={selectedApplicationIds.length}
-                onClearSelection={() => setSelectedApplicationIds([])}
-                onBulkStatusUpdate={handleBulkStatusUpdate}
-                onBulkAssignRecruiter={handleBulkAssignRecruiter}
-                onBulkEmail={handleBulkEmail}
-                onBulkScheduleInterview={handleBulkScheduleInterview}
-                onBulkReject={handleBulkReject}
-              />
-            )}
-
-            {viewMode === "pipeline" ? (
-              <div className="overflow-x-auto -mx-1 px-1 min-w-0">
-                <ApplicationPipeline 
-                  applications={filteredApplications}
-                  isCompareMode={isCompareMode}
-                  selectedForComparison={selectedForComparison}
-                  onToggleSelect={handleToggleSelect}
-                />
-              </div>
-            ) : (
-              <div className="overflow-x-auto -mx-1 px-1">
-                <ApplicationListView
-                  applications={filteredApplications}
-                  onApplicationClick={handleApplicationClick}
-                  selectable
-                  onSelectedRowsChange={setSelectedApplicationIds}
-                />
-              </div>
-            )}
           </div>
 
-          {/* AI Recommendations Sidebar */}
-          <div className="lg:sticky lg:top-6 lg:self-start min-w-0">
+          {/* AI Recommendations Sidebar - Only extends to search bar height */}
+          <div className="lg:sticky lg:top-6 lg:self-start min-w-0 lg:h-fit">
             <CandidateRecommendations 
               applications={applications}
               jobId={selectedJobId && selectedJobId !== "all" && selectedJobId !== "unread" ? selectedJobId : undefined}
@@ -582,7 +551,7 @@ export default function Applications() {
           </div>
         </div>
 
-        {/* Below: Bulk actions + Applications view spanning full width */}
+        {/* Applications View - Full Width Below Filters */}
         {viewMode === "list" && (
           <ApplicationBulkActionsToolbar
             selectedCount={selectedApplicationIds.length}
@@ -596,19 +565,23 @@ export default function Applications() {
         )}
 
         {viewMode === "pipeline" ? (
-          <ApplicationPipeline 
-            applications={filteredApplications}
-            isCompareMode={isCompareMode}
-            selectedForComparison={selectedForComparison}
-            onToggleSelect={handleToggleSelect}
-          />
+          <div className="overflow-x-auto -mx-1 px-1 min-w-0">
+            <ApplicationPipeline 
+              applications={filteredApplications}
+              isCompareMode={isCompareMode}
+              selectedForComparison={selectedForComparison}
+              onToggleSelect={handleToggleSelect}
+            />
+          </div>
         ) : (
-          <ApplicationListView
-            applications={filteredApplications}
-            onApplicationClick={handleApplicationClick}
-            selectable
-            onSelectedRowsChange={setSelectedApplicationIds}
-          />
+          <div className="overflow-x-auto -mx-1 px-1">
+            <ApplicationListView
+              applications={filteredApplications}
+              onApplicationClick={handleApplicationClick}
+              selectable
+              onSelectedRowsChange={setSelectedApplicationIds}
+            />
+          </div>
         )}
 
         <ApplicationDetailPanel
