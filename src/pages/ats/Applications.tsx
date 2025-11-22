@@ -34,6 +34,7 @@ import autoTable from 'jspdf-autotable';
 import { mockJobs } from "@/data/mockTableData";
 import { FileText, UserCheck, Clock, Sparkles, Tags } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
 import { useToast } from "@/hooks/use-toast";
 
@@ -73,6 +74,7 @@ export default function Applications() {
   const [showBulkScoring, setShowBulkScoring] = useState(false);
   const [showBulkTagging, setShowBulkTagging] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [aiPanelOpen, setAiPanelOpen] = useState(false);
 
   useEffect(() => {
     loadApplications();
@@ -389,6 +391,14 @@ export default function Applications() {
           subtitle={`Review and process ${applications.length} applications`}
         >
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAiPanelOpen(true)}
+            >
+              <SparklesIcon className="mr-2 h-4 w-4" />
+              AI Recommendations
+            </Button>
             <Button 
               variant={isCompareMode ? "default" : "outline"} 
               size="sm"
@@ -428,9 +438,8 @@ export default function Applications() {
           </div>
         </AtsPageHeader>
 
-        {/* Top Section: Stats + Filters with AI Recommendations Sidebar */}
-        <div className="grid gap-4 lg:grid-cols-[1fr_350px] min-w-0">
-          <div className="space-y-4 min-w-0">
+        <div className="min-w-0 space-y-4">
+
             {/* Stat Cards */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               <EnhancedStatCard
@@ -539,16 +548,6 @@ export default function Applications() {
               onTagsChange={setSelectedTags}
               onClearFilters={handleClearFilters}
             />
-          </div>
-
-          {/* AI Recommendations Sidebar - Only extends to search bar height */}
-          <div className="lg:sticky lg:top-6 lg:self-start min-w-0 lg:h-fit">
-            <CandidateRecommendations 
-              applications={applications}
-              jobId={selectedJobId && selectedJobId !== "all" && selectedJobId !== "unread" ? selectedJobId : undefined}
-              maxRecommendations={5}
-            />
-          </div>
         </div>
 
         {/* Applications View - Full Width Below Filters */}
@@ -647,6 +646,23 @@ export default function Applications() {
             loadApplications();
           }}
         />
+
+        {/* AI Recommendations Partial (Sheet) */}
+        <Sheet open={aiPanelOpen} onOpenChange={setAiPanelOpen}>
+          <SheetContent side="right" className="w-full sm:max-w-md">
+            <SheetHeader>
+              <SheetTitle>AI Recommendations</SheetTitle>
+              <SheetDescription>Top candidate matches based on AI analysis</SheetDescription>
+            </SheetHeader>
+            <div className="mt-4">
+              <CandidateRecommendations
+                applications={applications}
+                jobId={selectedJobId && selectedJobId !== "all" && selectedJobId !== "unread" ? selectedJobId : undefined}
+                maxRecommendations={10}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </DashboardPageLayout>
   );
