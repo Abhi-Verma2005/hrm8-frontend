@@ -197,17 +197,17 @@ export default function BackgroundCheckDetail() {
             </Button>
             <Badge variant={currentStatus.variant} className="gap-1.5 h-6 px-2 text-xs">
               <StatusIcon className="h-3 w-3" />
-              {currentStatus.label}
-            </Badge>
-            {(() => {
-              const slaStatus = calculateSLAStatus(check);
-              return slaStatus ? <SLAIndicator slaStatus={slaStatus} /> : null;
-            })()}
+                  {currentStatus.label}
+                </Badge>
+                {(() => {
+                  const slaStatus = calculateSLAStatus(check);
+                  return slaStatus ? <SLAIndicator slaStatus={slaStatus} /> : null;
+                })()}
             <Button size="sm" onClick={handleExportPDF}>
               <Download className="h-4 w-4 mr-2" />
               Export PDF
             </Button>
-          </div>
+                </div>
         </AtsPageHeader>
 
         {/* Quick Stats Card */}
@@ -217,12 +217,12 @@ export default function BackgroundCheckDetail() {
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Total Cost</p>
                 <p className="text-2xl font-bold">${check.totalCost?.toFixed(2) || '0.00'}</p>
-                {check.paymentStatus && (
+              {check.paymentStatus && (
                   <Badge variant={check.paymentStatus === 'paid' ? 'success' : 'warning'} className="mt-1 text-xs">
-                    {check.paymentStatus.charAt(0).toUpperCase() + check.paymentStatus.slice(1)}
-                  </Badge>
-                )}
-              </div>
+                  {check.paymentStatus.charAt(0).toUpperCase() + check.paymentStatus.slice(1)}
+                </Badge>
+              )}
+            </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Check Types</p>
                 <p className="text-2xl font-bold">{check.checkTypes.length}</p>
@@ -230,16 +230,16 @@ export default function BackgroundCheckDetail() {
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Provider</p>
                 <p className="text-sm font-medium">{check.provider.toUpperCase()}</p>
-              </div>
+          </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Referees</p>
                 <p className="text-2xl font-bold">{referees.length}</p>
-              </div>
-            </div>
+        </div>
+      </div>
           </CardContent>
         </Card>
 
-        {/* Main Content */}
+      {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Timeline */}
           <div className="lg:col-span-1">

@@ -62,7 +62,7 @@ export function EnhancedStatCard({
   // Format the display value
   const displayValue = isCurrency && rawValue !== undefined 
     ? formatCurrency(rawValue) 
-    : value;
+    : (typeof value === 'number' && isNaN(value)) ? 0 : value;
   const sizeStyles = {
     compact: "p-4",
     default: "p-6",

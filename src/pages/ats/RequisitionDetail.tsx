@@ -72,7 +72,7 @@ export default function RequisitionDetail() {
             <Button variant="ghost" size="sm" onClick={() => navigate("/requisitions")}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
-            </Button>
+          </Button>
             <Badge variant="outline" className="h-6 px-2 text-xs">{requisition.status}</Badge>
           </div>
         </AtsPageHeader>

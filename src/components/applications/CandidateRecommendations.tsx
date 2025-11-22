@@ -113,12 +113,12 @@ export function CandidateRecommendations({
     return (
       <Card>
       <CardHeader className="pb-3">
-        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-primary" />
           <CardTitle className="text-base font-semibold">AI Recommendations</CardTitle>
-        </div>
+          </div>
         <CardDescription className="text-sm">Top candidate matches based on AI analysis</CardDescription>
-      </CardHeader>
+        </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground text-center py-6">
             No recommendations available for the current selection
@@ -223,7 +223,7 @@ export function CandidateRecommendations({
                 </Card>
               );
             })}
-        </div>
+          </div>
       </CardContent>
     </Card>
   );

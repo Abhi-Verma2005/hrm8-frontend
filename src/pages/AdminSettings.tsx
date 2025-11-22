@@ -1,4 +1,5 @@
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useRBAC } from "@/hooks/useRBAC";
@@ -47,63 +48,115 @@ export default function AdminSettings() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Admin Settings</h1>
-          <p className="text-muted-foreground">System-wide configuration and administration</p>
-        </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title="Admin Settings"
+          subtitle="System-wide configuration and administration"
+        />
 
         <Tabs defaultValue="dashboard" className="space-y-4">
-          <TabsList className="grid grid-cols-5 lg:grid-cols-10 w-full">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="pricing">Pricing</TabsTrigger>
-            <TabsTrigger value="commission">Commission</TabsTrigger>
-            <TabsTrigger value="territory">Territory</TabsTrigger>
-            <TabsTrigger value="currency">Currency</TabsTrigger>
-            <TabsTrigger value="users">Users</TabsTrigger>
-            <TabsTrigger value="system">System</TabsTrigger>
-            <TabsTrigger value="integrations">Integrations</TabsTrigger>
-            <TabsTrigger value="security">Security</TabsTrigger>
-            <TabsTrigger value="audit">Audit Logs</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-1 px-1">
+            <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
+              <TabsTrigger 
+                value="dashboard"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Dashboard
+              </TabsTrigger>
+              <TabsTrigger 
+                value="pricing"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Pricing
+              </TabsTrigger>
+              <TabsTrigger 
+                value="commission"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Commission
+              </TabsTrigger>
+              <TabsTrigger 
+                value="territory"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Territory
+              </TabsTrigger>
+              <TabsTrigger 
+                value="currency"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Currency
+              </TabsTrigger>
+              <TabsTrigger 
+                value="users"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Users
+              </TabsTrigger>
+              <TabsTrigger 
+                value="system"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                System
+              </TabsTrigger>
+              <TabsTrigger 
+                value="integrations"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Integrations
+              </TabsTrigger>
+              <TabsTrigger 
+                value="security"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Security
+              </TabsTrigger>
+              <TabsTrigger 
+                value="audit"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Audit Logs
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="dashboard">
+          <TabsContent value="dashboard" className="mt-6">
             <AdminSettingsDashboard />
           </TabsContent>
 
-          <TabsContent value="pricing">
+          <TabsContent value="pricing" className="mt-6">
             <PricingManagementTab />
           </TabsContent>
 
-          <TabsContent value="commission">
+          <TabsContent value="commission" className="mt-6">
             <CommissionsManagementTab />
           </TabsContent>
 
-          <TabsContent value="territory">
+          <TabsContent value="territory" className="mt-6">
             <TerritoryRegionsTab />
           </TabsContent>
 
-          <TabsContent value="currency">
+          <TabsContent value="currency" className="mt-6">
             <CurrencyManagementTab />
           </TabsContent>
 
-          <TabsContent value="users">
+          <TabsContent value="users" className="mt-6">
             <UserManagementTab />
           </TabsContent>
 
-          <TabsContent value="system">
+          <TabsContent value="system" className="mt-6">
             <SystemConfigurationTab />
           </TabsContent>
 
-          <TabsContent value="integrations">
+          <TabsContent value="integrations" className="mt-6">
             <IntegrationsTab />
           </TabsContent>
 
-          <TabsContent value="security">
+          <TabsContent value="security" className="mt-6">
             <SecurityComplianceTab />
           </TabsContent>
 
-          <TabsContent value="audit">
+          <TabsContent value="audit" className="mt-6">
             <AuditLogsTab />
           </TabsContent>
         </Tabs>

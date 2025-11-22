@@ -465,33 +465,33 @@ export default function Applications() {
 
             {/* Job Selection Filter */}
             <Card className="p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 flex-1">
-                  <Label className="text-sm font-medium whitespace-nowrap">Filter by Job:</Label>
-                  <Select value={selectedJobId || "unread"} onValueChange={handleJobSelect}>
-                    <SelectTrigger className="w-full max-w-md">
-                      <SelectValue placeholder="Select a job or view unread" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="unread">📬 New/Unread Applications</SelectItem>
-                      <SelectItem value="all">All Jobs</SelectItem>
-                      <SelectSeparator />
-                      {mockJobs.slice(0, 20).map(job => (
-                        <SelectItem key={job.id} value={job.id}>
-                          {job.title} - {job.employer}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {selectedJob && (
-                    <Button variant="ghost" size="sm" onClick={() => handleJobSelect("unread")}>
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                <div className="text-sm text-muted-foreground whitespace-nowrap">
-                  {filteredApplications.length} application(s)
-                </div>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 flex-1">
+              <Label className="text-sm font-medium whitespace-nowrap">Filter by Job:</Label>
+              <Select value={selectedJobId || "unread"} onValueChange={handleJobSelect}>
+                <SelectTrigger className="w-full max-w-md">
+                  <SelectValue placeholder="Select a job or view unread" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unread">📬 New/Unread Applications</SelectItem>
+                  <SelectItem value="all">All Jobs</SelectItem>
+                  <SelectSeparator />
+                  {mockJobs.slice(0, 20).map(job => (
+                    <SelectItem key={job.id} value={job.id}>
+                      {job.title} - {job.employer}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedJob && (
+                <Button variant="ghost" size="sm" onClick={() => handleJobSelect("unread")}>
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            <div className="text-sm text-muted-foreground whitespace-nowrap">
+              {filteredApplications.length} application(s)
+            </div>
               </div>
             </Card>
 
@@ -552,36 +552,36 @@ export default function Applications() {
         </div>
 
         {/* Applications View - Full Width Below Filters */}
-        {viewMode === "list" && (
-          <ApplicationBulkActionsToolbar
-            selectedCount={selectedApplicationIds.length}
-            onClearSelection={() => setSelectedApplicationIds([])}
-            onBulkStatusUpdate={handleBulkStatusUpdate}
-            onBulkAssignRecruiter={handleBulkAssignRecruiter}
-            onBulkEmail={handleBulkEmail}
-            onBulkScheduleInterview={handleBulkScheduleInterview}
-            onBulkReject={handleBulkReject}
-          />
-        )}
+            {viewMode === "list" && (
+              <ApplicationBulkActionsToolbar
+                selectedCount={selectedApplicationIds.length}
+                onClearSelection={() => setSelectedApplicationIds([])}
+                onBulkStatusUpdate={handleBulkStatusUpdate}
+                onBulkAssignRecruiter={handleBulkAssignRecruiter}
+                onBulkEmail={handleBulkEmail}
+                onBulkScheduleInterview={handleBulkScheduleInterview}
+                onBulkReject={handleBulkReject}
+              />
+            )}
 
-        {viewMode === "pipeline" ? (
-          <div className="overflow-x-auto -mx-1 px-1 min-w-0">
-            <ApplicationPipeline 
-              applications={filteredApplications}
-              isCompareMode={isCompareMode}
-              selectedForComparison={selectedForComparison}
-              onToggleSelect={handleToggleSelect}
-            />
-          </div>
-        ) : (
-          <div className="overflow-x-auto -mx-1 px-1">
-            <ApplicationListView
-              applications={filteredApplications}
-              onApplicationClick={handleApplicationClick}
-              selectable
-              onSelectedRowsChange={setSelectedApplicationIds}
-            />
-          </div>
+            {viewMode === "pipeline" ? (
+              <div className="overflow-x-auto -mx-1 px-1 min-w-0">
+                <ApplicationPipeline 
+                  applications={filteredApplications}
+                  isCompareMode={isCompareMode}
+                  selectedForComparison={selectedForComparison}
+                  onToggleSelect={handleToggleSelect}
+                />
+              </div>
+            ) : (
+              <div className="overflow-x-auto -mx-1 px-1">
+                <ApplicationListView
+                  applications={filteredApplications}
+                  onApplicationClick={handleApplicationClick}
+                  selectable
+                  onSelectedRowsChange={setSelectedApplicationIds}
+                />
+              </div>
         )}
 
         <ApplicationDetailPanel

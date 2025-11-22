@@ -9,10 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { FileText, Building2, Check, DollarSign, MapPin, Briefcase as BriefcaseIcon, Plus } from "lucide-react";
 import { ComboboxWithAdd } from "@/components/ui/combobox-with-add";
 import { formatSalaryRange } from "@/lib/jobUtils";
-import { getActiveEmployers, getDepartmentNames, getLocationNames } from "@/lib/employerService";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { AddDepartmentDialog } from "@/components/jobs/AddDepartmentDialog";
 import { AddLocationDialog } from "@/components/jobs/AddLocationDialog";
@@ -26,28 +23,22 @@ interface JobWizardStep1Props {
 export function JobWizardStep1({
   form
 }: JobWizardStep1Props) {
-  const [open, setOpen] = useState(false);
   const [departmentDialogOpen, setDepartmentDialogOpen] = useState(false);
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
   const {
     toast
   } = useToast();
-  const employers = getActiveEmployers();
-  const selectedEmployerId = form.watch("employerId");
-  const postAsHRM8 = form.watch("postAsHRM8");
-  const selectedEmployer = employers.find(emp => emp.id === selectedEmployerId);
+  const { user, profileSummary } = useAuth();
+  
+  // Get company name from user or profile
+  const companyName = user?.companyName || profileSummary?.name || "Your Company";
 
-  // Get departments and locations from selected employer
-  const employerDepartments = getDepartmentNames(selectedEmployer?.departments);
-  const employerLocations = getLocationNames(selectedEmployer?.locations);
-
-  // Fallback to common options if employer doesn't have specific ones
+  // Use default department and location options
   const defaultDepartments = ["Engineering", "Product", "Design", "Marketing", "Sales", "Finance", "Operations", "HR", "Customer Success", "Legal"];
-  const defaultLocations = ["Remote", selectedEmployer?.location || ""].filter(Boolean);
+  const defaultLocations = ["Remote"];
 
-  // Use employer-specific or defaults
-  const departmentOptions = employerDepartments.length > 0 ? employerDepartments : defaultDepartments;
-  const locationOptions = employerLocations.length > 0 ? employerLocations : defaultLocations;
+  const departmentOptions = defaultDepartments;
+  const locationOptions = defaultLocations;
   const handleAddDepartment = (departmentData: any) => {
     const newDepartmentName = departmentData.name;
     form.setValue("department", newDepartmentName);
@@ -112,81 +103,13 @@ export function JobWizardStep1({
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[1fr,auto] gap-4 items-start">
-        <FormField control={form.control} name="employerId" render={({
-        field
-      }) => <FormItem className="flex flex-col">
-              <FormLabel>Post Job For *</FormLabel>
-              <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button variant="outline" role="combobox" aria-expanded={open} disabled={postAsHRM8} className={cn("justify-between font-normal", !field.value && "text-muted-foreground", postAsHRM8 && "opacity-50 cursor-not-allowed")}>
-                    {selectedEmployer ? <div className="flex items-center gap-2">
-                        {selectedEmployer.logo ? <img src={selectedEmployer.logo} alt="" className="h-5 w-5 rounded" /> : <Building2 className="h-4 w-4" />}
-                        <span>{selectedEmployer.name}</span>
-                        <span className="text-xs text-muted-foreground">• {selectedEmployer.industry}</span>
-                      </div> : <>
-                        <Building2 className="h-4 w-4 mr-2" />
-                        Select employer company...
-                      </>}
-                  </Button>
-                </FormControl>
-              </PopoverTrigger>
-              <PopoverContent className="w-[500px] p-0" align="start">
-                <Command>
-                  <CommandInput placeholder="Search employers..." />
-                  <CommandList>
-                    <CommandEmpty>No employer found.</CommandEmpty>
-                    <CommandGroup>
-                      {employers.map(employer => <CommandItem key={employer.id} value={`${employer.name} ${employer.industry} ${employer.location}`} onSelect={() => {
-                    form.setValue("employerId", employer.id);
-                    setOpen(false);
-                  }}>
-                          <Check className={cn("mr-2 h-4 w-4", employer.id === field.value ? "opacity-100" : "opacity-0")} />
-                          <div className="flex items-center gap-2 flex-1">
-                            {employer.logo ? <img src={employer.logo} alt="" className="h-6 w-6 rounded" /> : <Building2 className="h-4 w-4 text-muted-foreground" />}
-                            <div className="flex flex-col">
-                              <span className="font-medium">{employer.name}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {employer.industry} • {employer.location}
-                              </span>
-                            </div>
-                          </div>
-                        </CommandItem>)}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            <FormDescription>
-              Select employer company or toggle to post as HRM8
-            </FormDescription>
-            <FormMessage />
-          </FormItem>} />
-
-        <FormField control={form.control} name="postAsHRM8" render={({
-        field
-      }) => <FormItem className="flex flex-col justify-end">
-              <FormLabel className="mb-2">Post as HRM8</FormLabel>
-              <div className="flex items-center space-x-2">
-                <FormControl>
-                  <Switch checked={field.value} onCheckedChange={checked => {
-              field.onChange(checked);
-              if (checked) {
-                form.setValue("employerId", "");
-              }
-            }} />
-                </FormControl>
-                <div className="space-y-0 leading-none">
-                  <FormLabel className="text-sm font-normal">
-                    {field.value ? "On" : "Off"}
-                  </FormLabel>
-                </div>
-              </div>
-              <FormDescription className="text-xs">
-                Job posted as HRM8
-              </FormDescription>
-            </FormItem>} />
+      {/* Company Display - Read Only */}
+      <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-lg border">
+        <Building2 className="h-5 w-5 text-muted-foreground" />
+        <div className="flex-1">
+          <p className="text-sm font-medium">Posting Job For</p>
+          <p className="text-lg font-semibold">{companyName}</p>
+        </div>
       </div>
 
       <div className="flex gap-4 items-start">
@@ -228,21 +151,20 @@ export function JobWizardStep1({
               <FormLabel>Department *</FormLabel>
               <div className="flex gap-2">
                 <FormControl className="flex-1">
-                  <ComboboxWithAdd value={field.value} onValueChange={field.onChange} options={departmentOptions} placeholder="Select department" emptyText="No departments found." disabled={postAsHRM8} />
+                  <ComboboxWithAdd value={field.value} onValueChange={field.onChange} options={departmentOptions} placeholder="Select department" emptyText="No departments found." />
                 </FormControl>
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
                   onClick={() => setDepartmentDialogOpen(true)}
-                  disabled={postAsHRM8 || !selectedEmployer}
                   className="shrink-0"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
               <FormDescription className="text-xs">
-                {postAsHRM8 ? "Select HRM8 department" : selectedEmployer ? `From ${selectedEmployer.name}'s departments` : "Select employer first to add departments"}
+                Select or add a department for this job
               </FormDescription>
               <FormMessage />
             </FormItem>} />
@@ -253,21 +175,20 @@ export function JobWizardStep1({
               <FormLabel>Location *</FormLabel>
               <div className="flex gap-2">
                 <FormControl className="flex-1">
-                  <ComboboxWithAdd value={field.value} onValueChange={field.onChange} options={locationOptions} placeholder="Select location" emptyText="No locations found." disabled={postAsHRM8} />
+                  <ComboboxWithAdd value={field.value} onValueChange={field.onChange} options={locationOptions} placeholder="Select location" emptyText="No locations found." />
                 </FormControl>
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
                   onClick={() => setLocationDialogOpen(true)}
-                  disabled={postAsHRM8 || !selectedEmployer}
                   className="shrink-0"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
               <FormDescription className="text-xs">
-                {postAsHRM8 ? "Specify job location" : selectedEmployer ? `From ${selectedEmployer.name}'s office locations` : "Select employer first to add locations"}
+                Select or add a location for this job
               </FormDescription>
               <FormMessage />
             </FormItem>} />
@@ -507,9 +428,9 @@ export function JobWizardStep1({
       />
 
       {/* Add Department Dialog */}
-      <AddDepartmentDialog open={departmentDialogOpen} onOpenChange={setDepartmentDialogOpen} onAdd={handleAddDepartment} employerName={selectedEmployer?.name} />
+      <AddDepartmentDialog open={departmentDialogOpen} onOpenChange={setDepartmentDialogOpen} onAdd={handleAddDepartment} employerName={companyName} />
 
       {/* Add Location Dialog */}
-      <AddLocationDialog open={locationDialogOpen} onOpenChange={setLocationDialogOpen} onAdd={handleAddLocation} employerName={selectedEmployer?.name} />
+      <AddLocationDialog open={locationDialogOpen} onOpenChange={setLocationDialogOpen} onAdd={handleAddLocation} employerName={companyName} />
     </div>;
 }

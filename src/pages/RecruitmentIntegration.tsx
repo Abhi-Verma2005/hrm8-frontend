@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -42,32 +43,47 @@ export default function RecruitmentIntegration() {
 
   return (
     <DashboardPageLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Recruitment Integration</h1>
-          <p className="text-muted-foreground mt-2">
-            Track candidates from offer to onboarding and measure recruitment effectiveness
-          </p>
-        </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title="Recruitment Integration"
+          subtitle="Track candidates from offer to onboarding and measure recruitment effectiveness"
+        />
 
         <Tabs defaultValue="candidates" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="candidates">Candidates & Onboarding</TabsTrigger>
-            <TabsTrigger value="pipeline">Hiring Pipeline</TabsTrigger>
-            <TabsTrigger value="roi">Recruitment ROI</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-1 px-1">
+            <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
+              <TabsTrigger 
+                value="candidates"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Candidates & Onboarding
+              </TabsTrigger>
+              <TabsTrigger 
+                value="pipeline"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Hiring Pipeline
+              </TabsTrigger>
+              <TabsTrigger 
+                value="roi"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Recruitment ROI
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="candidates" className="space-y-4">
+          <TabsContent value="candidates" className="space-y-4 mt-6">
             {candidates.map((candidate) => (
               <Card key={candidate.candidateId}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <UserPlus className="h-5 w-5" />
+                      <CardTitle className="text-base font-semibold flex items-center gap-2">
+                        <UserPlus className="h-4 w-4" />
                         {candidate.candidateName}
                       </CardTitle>
-                      <CardDescription>
+                      <CardDescription className="text-sm">
                         {candidate.jobTitle} • Start Date: {new Date(candidate.startDate).toLocaleDateString()}
                       </CardDescription>
                     </div>
@@ -85,14 +101,14 @@ export default function RecruitmentIntegration() {
                     </div>
 
                     <div className="space-y-2">
-                      <h4 className="text-sm font-semibold">Onboarding Tasks</h4>
+                      <h4 className="text-sm font-semibold mb-2">Onboarding Tasks</h4>
                       {candidate.onboardingTasks.map((task) => (
                         <div key={task.id} className="flex items-start gap-3 border rounded-lg p-3">
                           <div className="mt-0.5">{getTaskIcon(task.category)}</div>
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-1">
                               <p className="font-medium text-sm">{task.title}</p>
-                              <Badge variant={task.status === 'completed' ? 'default' : task.status === 'in-progress' ? 'secondary' : 'outline'} className="text-xs">
+                              <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
                                 {task.status === 'completed' ? <CheckCircle2 className="h-3 w-3 mr-1" /> : <Clock className="h-3 w-3 mr-1" />}
                                 {task.status}
                               </Badge>
@@ -112,17 +128,17 @@ export default function RecruitmentIntegration() {
             ))}
           </TabsContent>
 
-          <TabsContent value="pipeline" className="space-y-4">
+          <TabsContent value="pipeline" className="space-y-4 mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>Hiring Pipeline Overview</CardTitle>
-                <CardDescription>Track candidates through each stage of recruitment</CardDescription>
+                <CardTitle className="text-base font-semibold">Hiring Pipeline Overview</CardTitle>
+                <CardDescription className="text-sm">Track candidates through each stage of recruitment</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {pipelines.map((pipeline) => (
                     <div key={pipeline.jobId} className="border rounded-lg p-4">
-                      <h4 className="font-semibold mb-3">{pipeline.jobTitle} - {pipeline.department}</h4>
+                      <h4 className="text-sm font-semibold mb-3">{pipeline.jobTitle} - {pipeline.department}</h4>
                       <div className="grid grid-cols-5 gap-4 mb-4">
                         <div className="text-center">
                           <p className="text-2xl font-bold">{pipeline.candidatesApplied}</p>
@@ -147,12 +163,12 @@ export default function RecruitmentIntegration() {
                       </div>
                       <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                         <div>
-                          <p className="text-sm text-muted-foreground">Avg Time to Hire</p>
-                          <p className="text-lg font-semibold">{pipeline.avgTimeToHire} days</p>
+                          <p className="text-xs text-muted-foreground">Avg Time to Hire</p>
+                          <p className="text-base font-semibold">{pipeline.avgTimeToHire} days</p>
                         </div>
                         <div>
-                          <p className="text-sm text-muted-foreground">Cost per Hire</p>
-                          <p className="text-lg font-semibold">${pipeline.costPerHire.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                          <p className="text-xs text-muted-foreground">Cost per Hire</p>
+                          <p className="text-base font-semibold">${pipeline.costPerHire.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                         </div>
                       </div>
                     </div>
@@ -162,11 +178,11 @@ export default function RecruitmentIntegration() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="roi" className="space-y-4">
+          <TabsContent value="roi" className="space-y-4 mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>Recruitment Service ROI</CardTitle>
-                <CardDescription>Measure effectiveness of recruitment investments</CardDescription>
+                <CardTitle className="text-base font-semibold">Recruitment Service ROI</CardTitle>
+                <CardDescription className="text-sm">Measure effectiveness of recruitment investments</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -174,31 +190,31 @@ export default function RecruitmentIntegration() {
                     <div key={roi.serviceProjectId} className="border rounded-lg p-4">
                       <div className="flex items-start justify-between mb-4">
                         <div>
-                          <h4 className="font-semibold">{roi.projectName}</h4>
-                          <p className="text-sm text-muted-foreground">
+                          <h4 className="text-sm font-semibold">{roi.projectName}</h4>
+                          <p className="text-xs text-muted-foreground">
                             {roi.serviceType.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                           </p>
                         </div>
-                        <Badge variant="default" className="text-lg px-3 py-1">
+                        <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
                           {roi.roi}% ROI
                         </Badge>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
                           <p className="text-xs text-muted-foreground">Service Fee</p>
-                          <p className="text-lg font-semibold">${roi.serviceFee.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+                          <p className="text-base font-semibold">${roi.serviceFee.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Placements</p>
-                          <p className="text-lg font-semibold">{roi.candidatesPlaced}</p>
+                          <p className="text-base font-semibold">{roi.candidatesPlaced}</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Time to Fill</p>
-                          <p className="text-lg font-semibold">{roi.timeToFill} days</p>
+                          <p className="text-base font-semibold">{roi.timeToFill} days</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Satisfaction</p>
-                          <p className="text-lg font-semibold">{roi.clientSatisfaction}/5</p>
+                          <p className="text-base font-semibold">{roi.clientSatisfaction}/5</p>
                         </div>
                       </div>
                       <div className="mt-4 pt-4 border-t">

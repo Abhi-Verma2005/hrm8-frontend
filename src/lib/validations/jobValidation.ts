@@ -3,8 +3,6 @@ import { z } from 'zod';
 // Base schema without refinements (for merging in jobFormSchema)
 const baseJobBasicDetailsSchema = z.object({
   serviceType: z.enum(['self-managed', 'shortlisting', 'full-service', 'executive-search', 'rpo']),
-  postAsHRM8: z.boolean().default(false),
-  employerId: z.string(),
   title: z.string().min(5, "Job title must be at least 5 characters"),
   numberOfVacancies: z.number()
     .min(1, "At least 1 vacancy is required")
@@ -40,6 +38,19 @@ export const jobBasicDetailsSchema = baseJobBasicDetailsSchema.refine(
   }
 );
 
+// Schema for requirement/responsibility objects
+const requirementItemSchema = z.object({
+  id: z.string(),
+  text: z.string().min(1, "Requirement text cannot be empty"),
+  order: z.number().optional(),
+});
+
+const responsibilityItemSchema = z.object({
+  id: z.string(),
+  text: z.string().min(1, "Responsibility text cannot be empty"),
+  order: z.number().optional(),
+});
+
 export const jobDescriptionSchema = z.object({
   description: z.string()
     .min(1, "Job description is required")
@@ -50,8 +61,40 @@ export const jobDescriptionSchema = z.object({
     }, {
       message: "Job description must contain at least 50 characters of actual content"
     }),
-  requirements: z.array(z.string().min(1)).min(1, "At least one requirement is needed").optional(),
-  responsibilities: z.array(z.string().min(1)).min(1, "At least one responsibility is needed").optional(),
+  requirements: z.array(z.union([
+    z.string().min(1), // Support old string format
+    requirementItemSchema // Support new object format
+  ]))
+    .refine((arr) => {
+      // Filter out empty strings or objects with empty text
+      const validItems = arr.filter((item) => {
+        if (typeof item === 'string') {
+          return item.trim().length > 0;
+        }
+        return item.text && item.text.trim().length > 0;
+      });
+      return validItems.length >= 1;
+    }, {
+      message: "At least one requirement is needed"
+    })
+    .optional(),
+  responsibilities: z.array(z.union([
+    z.string().min(1), // Support old string format
+    responsibilityItemSchema // Support new object format
+  ]))
+    .refine((arr) => {
+      // Filter out empty strings or objects with empty text
+      const validItems = arr.filter((item) => {
+        if (typeof item === 'string') {
+          return item.trim().length > 0;
+        }
+        return item.text && item.text.trim().length > 0;
+      });
+      return validItems.length >= 1;
+    }, {
+      message: "At least one responsibility is needed"
+    })
+    .optional(),
 });
 
 export const jobCompensationSchema = z.object({
@@ -69,6 +112,11 @@ const standardFieldSchema = z.object({
 export const jobPublishSchema = z.object({
   status: z.enum(['draft', 'open']),
   jobBoardDistribution: z.array(z.string()),
+  termsAccepted: z.boolean().refine((val) => val === true, {
+    message: "You must accept the Terms & Conditions to proceed",
+  }),
+  selectedPaymentMethod: z.enum(['account', 'credit_card']).optional(),
+  paymentInvoiceRequested: z.boolean().optional(),
   applicationForm: z.object({
     id: z.string(),
     name: z.string(),
@@ -102,15 +150,6 @@ export const jobFormSchema = baseJobBasicDetailsSchema
   }, {
     message: "Maximum salary must be greater than or equal to minimum salary",
     path: ["salaryMax"],
-  })
-  .refine((data) => {
-    if (!data.postAsHRM8 && !data.employerId) {
-      return false;
-    }
-    return true;
-  }, {
-    message: "Please select an employer or toggle 'Post as HRM8'",
-    path: ["employerId"],
   });
 
 export const templateSchema = z.object({

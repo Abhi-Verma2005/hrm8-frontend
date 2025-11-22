@@ -146,7 +146,7 @@ export default function JobDetail() {
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            <JobStatusBadge status={job.status} />
+                <JobStatusBadge status={job.status} />
             <Button variant="outline" size="sm" onClick={handleEditJob}>
               <Edit className="h-4 w-4 mr-2" />
               Edit

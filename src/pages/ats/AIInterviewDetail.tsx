@@ -39,7 +39,7 @@ export default function AIInterviewDetail() {
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
         <AtsPageHeader
-          title={`Interview with ${session.candidateName}`}
+        title={`Interview with ${session.candidateName}`}
           subtitle={`${session.jobTitle} • ${format(new Date(session.scheduledDate), 'PPp')}`}
         >
           <div className="flex items-center gap-2">
@@ -151,7 +151,7 @@ export default function AIInterviewDetail() {
           </>
         )}
       </Tabs>
-      </div>
+    </div>
     </DashboardPageLayout>
   );
 }

@@ -98,7 +98,7 @@ export function OnboardingReminderBanner() {
           <div className="flex-1 min-w-0">
             <h3 className="text-sm font-semibold mb-1">Complete your company profile</h3>
             <p className="text-sm text-muted-foreground leading-5">
-              Finish onboarding to unlock job posting, billing, and branding features. You are{' '}
+          Finish onboarding to unlock job posting, billing, and branding features. You are{' '}
               <Badge 
                 variant="outline" 
                 className="h-6 px-2 text-xs inline-flex items-center rounded-full bg-warning/10 text-warning border-warning/20"

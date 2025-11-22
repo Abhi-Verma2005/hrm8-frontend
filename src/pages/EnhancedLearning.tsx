@@ -101,14 +101,36 @@ export default function EnhancedLearning() {
         </div>
 
         <Tabs defaultValue="courses" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="courses">Course Catalog</TabsTrigger>
-            <TabsTrigger value="programs">Development Programs</TabsTrigger>
-            <TabsTrigger value="certifications">Certifications</TabsTrigger>
-            <TabsTrigger value="gaps">Skill Gap Analysis</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-1 px-1">
+            <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
+              <TabsTrigger 
+                value="courses"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Course Catalog
+              </TabsTrigger>
+              <TabsTrigger 
+                value="programs"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Development Programs
+              </TabsTrigger>
+              <TabsTrigger 
+                value="certifications"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Certifications
+              </TabsTrigger>
+              <TabsTrigger 
+                value="gaps"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Skill Gap Analysis
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="courses" className="space-y-4">
+          <TabsContent value="courses" className="space-y-4 mt-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-semibold">Available Courses</h3>
               <Button variant="outline" size="sm" className="gap-2">
@@ -149,7 +171,7 @@ export default function EnhancedLearning() {
             </div>
           </TabsContent>
 
-          <TabsContent value="programs" className="space-y-4">
+          <TabsContent value="programs" className="space-y-4 mt-6">
             <Card>
               <CardHeader>
                 <CardTitle className="text-base font-semibold">Skill Development Programs</CardTitle>
@@ -182,7 +204,7 @@ export default function EnhancedLearning() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="certifications" className="space-y-4">
+          <TabsContent value="certifications" className="space-y-4 mt-6">
             <Card>
               <CardHeader>
                 <CardTitle className="text-base font-semibold">Employee Certifications</CardTitle>
@@ -221,7 +243,7 @@ export default function EnhancedLearning() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="gaps" className="space-y-4">
+          <TabsContent value="gaps" className="space-y-4 mt-6">
             <Card>
               <CardHeader>
                 <CardTitle className="text-base font-semibold">Critical Skill Gaps</CardTitle>

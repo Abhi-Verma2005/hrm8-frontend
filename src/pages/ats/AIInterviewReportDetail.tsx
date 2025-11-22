@@ -45,7 +45,7 @@ export default function AIInterviewReportDetail() {
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
         <AtsPageHeader
-          title={`Interview Report: ${report.candidateName}`}
+        title={`Interview Report: ${report.candidateName}`}
           subtitle={`${report.jobTitle} • ${format(new Date(report.createdAt), 'PPP')}`}
         >
           <div className="flex items-center gap-2">
@@ -177,7 +177,7 @@ export default function AIInterviewReportDetail() {
           </Card>
         </div>
       </div>
-      </div>
+    </div>
     </DashboardPageLayout>
   );
 }

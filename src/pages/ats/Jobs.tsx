@@ -5,8 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3, Filter, X, Zap, Eye } from "lucide-react";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { DataTable, Column } from "@/components/tables/DataTable";
-import { getJobs, deleteJob, getJobById } from "@/lib/mockJobStorage";
+import { jobService } from "@/lib/api/jobService";
 import { Job } from "@/types/job";
+import { useJobPostingPermission } from "@/hooks/useJobPostingPermission";
+import { mapBackendJobToFrontend, mapBackendJobToFormData } from "@/lib/jobDataMapper";
+import { useAuth } from "@/contexts/AuthContext";
 import { FormDrawer } from "@/components/ui/form-drawer";
 import { JobWizard } from "@/components/jobs/JobWizard";
 import { JobStatusBadge } from "@/components/jobs/JobStatusBadge";
@@ -44,12 +47,16 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 export default function Jobs() {
   const { toast } = useToast();
+  const { canPostJobs, loading: permissionLoading } = useJobPostingPermission();
+  const { user, profileSummary } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingJobId, setEditingJobId] = useState<string | null>(null);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Filter states
   const [searchValue, setSearchValue] = useState("");
@@ -65,21 +72,59 @@ export default function Jobs() {
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
 
-  const jobs = useMemo(() => getJobs(), [refreshKey]);
+  // Fetch jobs from API
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        setLoading(true);
+        const response = await jobService.getJobs();
+        if (response.success && response.data) {
+          // Map backend jobs to frontend format
+          const mappedJobs = response.data.map(mapBackendJobToFrontend);
+          setJobs(mappedJobs);
+        } else {
+          toast({
+            title: 'Error',
+            description: response.error || 'Failed to fetch jobs',
+            variant: 'destructive',
+          });
+        }
+      } catch (error) {
+        toast({
+          title: 'Error',
+          description: 'Failed to fetch jobs',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchJobs();
+  }, [refreshKey, toast]);
 
   // Calculate stats
   const stats = useMemo(() => {
-    const activeJobs = jobs.filter(j => j.status === 'open').length;
-    const totalApplicants = jobs.reduce((sum, j) => sum + j.applicantsCount, 0);
+    const activeJobs = jobs.filter(j => {
+      const status = typeof j.status === 'string' ? j.status.toLowerCase() : j.status;
+      return status === 'open';
+    }).length;
+    const totalApplicants = jobs.reduce((sum, j) => {
+      const count = j.applicantsCount ?? 0;
+      return sum + (isNaN(count) ? 0 : count);
+    }, 0);
     const avgApplicants = jobs.length > 0 ? Math.round(totalApplicants / jobs.length) : 0;
-    const filledJobs = jobs.filter(j => j.status === 'filled').length;
+    const filledJobs = jobs.filter(j => {
+      const status = typeof j.status === 'string' ? j.status.toLowerCase() : j.status;
+      return status === 'filled';
+    }).length;
 
     return {
-      total: jobs.length,
-      active: activeJobs,
-      applicants: totalApplicants,
-      filled: filledJobs,
-      avgApplicants,
+      total: jobs.length || 0,
+      active: activeJobs || 0,
+      applicants: totalApplicants || 0,
+      filled: filledJobs || 0,
+      avgApplicants: avgApplicants || 0,
     };
   }, [jobs]);
   
@@ -211,20 +256,77 @@ export default function Jobs() {
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (jobToDelete) {
-      deleteJob(jobToDelete);
-      toast({
-        title: "Job Deleted",
-        description: "The job posting has been removed.",
-      });
-      setRefreshKey(prev => prev + 1);
+      try {
+        const response = await jobService.deleteJob(jobToDelete);
+        if (response.success) {
+          toast({
+            title: "Job Deleted",
+            description: "The job posting has been removed.",
+          });
+          setRefreshKey(prev => prev + 1);
+        } else {
+          toast({
+            title: "Error",
+            description: response.error || "Failed to delete job",
+            variant: 'destructive',
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete job",
+          variant: 'destructive',
+        });
+      }
       setDeleteDialogOpen(false);
       setJobToDelete(null);
     }
   };
 
-  const handleCreateJob = () => {
+  const handleCreateJob = async () => {
+    try {
+      // Check for existing draft jobs for the current user
+      const response = await jobService.getJobs();
+      if (response.success && response.data) {
+        // Map backend jobs first
+        const mappedJobs = response.data.map(mapBackendJobToFrontend);
+        
+        // Find the most recent draft job created by the current user
+        const userDraftJobs = mappedJobs
+          .filter(job => {
+            // Check if it's a draft and belongs to current user
+            const status = typeof job.status === 'string' 
+              ? job.status.toLowerCase() 
+              : job.status;
+            return status === 'draft' && job.createdBy === user?.id;
+          })
+          .sort((a, b) => {
+            // Sort by updatedAt descending (most recent first)
+            const aTime = new Date(a.updatedAt || a.createdAt || 0).getTime();
+            const bTime = new Date(b.updatedAt || b.createdAt || 0).getTime();
+            return bTime - aTime;
+          });
+
+        if (userDraftJobs.length > 0) {
+          // Load the most recent draft
+          const mostRecentDraft = userDraftJobs[0];
+          setEditingJobId(mostRecentDraft.id);
+          setDrawerOpen(true);
+          toast({
+            title: "Draft loaded",
+            description: `Continuing with your draft: "${mostRecentDraft.title || 'Untitled Job'}"`,
+          });
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Error checking for draft jobs:', error);
+      // Continue to open fresh job wizard even if draft check fails
+    }
+
+    // No draft found, start fresh
     setEditingJobId(null);
     setDrawerOpen(true);
   };
@@ -285,13 +387,20 @@ export default function Jobs() {
   const confirmBulkDelete = async () => {
     setIsDeletingBulk(true);
     try {
-      selectedJobs.forEach(id => deleteJob(id));
+      const deletePromises = selectedJobs.map(id => jobService.deleteJob(id));
+      await Promise.all(deletePromises);
       toast({
         title: "Jobs deleted",
         description: `${selectedJobs.length} job(s) have been deleted.`,
       });
       setSelectedJobs([]);
       setRefreshKey(prev => prev + 1);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete some jobs",
+        variant: 'destructive',
+      });
     } finally {
       setIsDeletingBulk(false);
       setShowBulkDeleteDialog(false);
@@ -309,87 +418,64 @@ export default function Jobs() {
     return count;
   }, [advancedFilters]);
 
-  const editingJobData = editingJobId ? (() => {
-    const job = getJobById(editingJobId);
-    if (!job) return null;
-    // Convert Job to JobFormData (only include form fields)
-    return {
-      serviceType: job.serviceType,
-      postAsHRM8: job.employerId === "hrm8-platform",
-      employerId: job.employerId,
-      title: job.title,
-      department: job.department,
-      location: job.location,
-      employmentType: job.employmentType,
-      experienceLevel: job.experienceLevel,
-      workArrangement: job.workArrangement,
-      tags: job.tags,
-      description: job.description,
-      requirements: job.requirements.map((text, index) => ({
-        id: `req-${Date.now()}-${index}`,
-        text,
-        order: index + 1,
-      })),
-      responsibilities: job.responsibilities.map((text, index) => ({
-        id: `resp-${Date.now()}-${index}`,
-        text,
-        order: index + 1,
-      })),
-      salaryMin: job.salaryMin,
-      salaryMax: job.salaryMax,
-      salaryCurrency: job.salaryCurrency,
-      salaryPeriod: job.salaryPeriod || 'annual',
-      salaryDescription: job.salaryDescription,
-      hideSalary: false,
-      closeDate: job.closeDate,
-      visibility: job.visibility,
-      stealth: job.stealth,
-      hiringTeam: job.hiringTeam || [],
-      applicationForm: job.applicationForm || {
-        id: `form-${Date.now()}`,
-        name: "Application Form",
-        questions: [],
-        includeStandardFields: {
-          resume: { included: true, required: true },
-          coverLetter: { included: false, required: false },
-          portfolio: { included: false, required: false },
-          linkedIn: { included: false, required: false },
-          website: { included: false, required: false },
-        },
-      },
-      status: job.status === 'closed' || job.status === 'filled' || job.status === 'on-hold' ? 'draft' : job.status,
-      jobBoardDistribution: job.jobBoardDistribution,
+  const [editingJobData, setEditingJobData] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchJobData = async () => {
+      if (editingJobId) {
+        try {
+          const response = await jobService.getJobById(editingJobId);
+          if (response.success && response.data) {
+            // Map backend job to form data format
+            const formData = mapBackendJobToFormData(response.data);
+            setEditingJobData(formData);
+          }
+        } catch (error) {
+          toast({
+            title: "Error",
+            description: "Failed to load job data",
+            variant: 'destructive',
+          });
+        }
+      } else {
+        setEditingJobData(null);
+      }
     };
-  })() : null;
+
+    fetchJobData();
+  }, [editingJobId, toast]);
 
   const columns: Column<Job>[] = [
     {
       key: 'name',
       label: 'Job Title',
       sortable: true,
-      render: (job) => (
-        <div className="flex items-center gap-3">
-          <EntityAvatar
-            name={job.employerName}
-            src={job.employerLogo}
-            type="logo"
-          />
-          <div className="min-w-0 flex-1">
-            <Link 
-              to={`/jobs/${job.id}`} 
-              className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
-            >
-              {job.title}
-            </Link>
-            <Link
-              to={`/employers/${job.employerId}`}
-              className="text-sm text-muted-foreground hover:text-foreground hover:underline line-clamp-1 block transition-colors"
-            >
-              {job.employerName}
-            </Link>
+      render: (job) => {
+        // Use company name from job or fallback to user's company
+        const companyName = job.employerName || user?.companyName || profileSummary?.name || "Company";
+        const companyId = job.employerId || user?.companyId || "";
+        
+        return (
+          <div className="flex items-center gap-3">
+            <EntityAvatar
+              name={companyName}
+              src={job.employerLogo}
+              type="logo"
+            />
+            <div className="min-w-0 flex-1">
+              <Link 
+                to={`/jobs/${job.id}`} 
+                className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+              >
+                {job.title}
+              </Link>
+              <span className="text-sm text-muted-foreground line-clamp-1 block">
+                {companyName}
+              </span>
+            </div>
           </div>
-        </div>
-      )
+        );
+      }
     },
     {
       key: 'location',
@@ -447,7 +533,7 @@ export default function Jobs() {
           className="flex items-center gap-2 group"
         >
           <span className="font-medium group-hover:text-primary transition-colors">
-            {job.applicantsCount}
+            {job.applicantsCount ?? 0}
           </span>
           {job.unreadApplicants && job.unreadApplicants > 0 && (
             <span className="text-xs text-muted-foreground/70">
@@ -522,6 +608,18 @@ export default function Jobs() {
       }
     >
       <div className="p-12 space-y-6">
+        {!permissionLoading && !canPostJobs && (
+          <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              <strong>Limited Access:</strong> You don't have permission to post jobs. Contact your administrator to request job posting permissions.
+            </p>
+          </div>
+        )}
+        {loading && (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Loading jobs...</p>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Jobs</h1>
@@ -547,10 +645,17 @@ export default function Jobs() {
                 Automation
               </Link>
             </Button>
-            <Button onClick={handleCreateJob}>
-              <Plus className="h-4 w-4 mr-2" />
-              Post Job
-            </Button>
+            {canPostJobs ? (
+              <Button onClick={handleCreateJob}>
+                <Plus className="h-4 w-4 mr-2" />
+                Post Job
+              </Button>
+            ) : (
+              <Button variant="outline" disabled title="Contact your administrator to request job posting permissions">
+                <Plus className="h-4 w-4 mr-2" />
+                Post Job
+              </Button>
+            )}
             <Button variant="outline" asChild>
               <Link to="/dashboard/jobs">
                 <BarChart3 className="mr-2 h-4 w-4" />

@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
@@ -98,30 +99,26 @@ export default function SystemMonitoring() {
         <title>System Monitoring - HRM8</title>
       </Helmet>
 
-      <div className="p-12 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3">
-              <Server className="h-8 w-8 text-primary" />
-              System Monitoring
-            </h1>
-            <p className="text-muted-foreground">Platform health, performance metrics, and integration status</p>
-          </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title="System Monitoring"
+          subtitle="Platform health, performance metrics, and integration status"
+        >
           <div className="flex gap-2">
             <Button 
               variant={autoRefresh ? "default" : "outline"}
+              size="sm"
               onClick={() => setAutoRefresh(!autoRefresh)}
             >
               <RefreshCw className={cn("h-4 w-4 mr-2", autoRefresh && "animate-spin")} />
               Auto-Refresh
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" size="sm">
               <Bell className="h-4 w-4 mr-2" />
               Alerts
             </Button>
           </div>
-        </div>
+        </AtsPageHeader>
 
         {/* System Health Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -177,19 +174,41 @@ export default function SystemMonitoring() {
         </div>
 
         <Tabs defaultValue="performance" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="performance">Performance</TabsTrigger>
-            <TabsTrigger value="integrations">Integrations</TabsTrigger>
-            <TabsTrigger value="alerts">Alerts</TabsTrigger>
-            <TabsTrigger value="resources">Resources</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-1 px-1">
+            <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
+              <TabsTrigger 
+                value="performance"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Performance
+              </TabsTrigger>
+              <TabsTrigger 
+                value="integrations"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Integrations
+              </TabsTrigger>
+              <TabsTrigger 
+                value="alerts"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Alerts
+              </TabsTrigger>
+              <TabsTrigger 
+                value="resources"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Resources
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="performance" className="space-y-6">
+          <TabsContent value="performance" className="space-y-6 mt-6">
             {/* Performance Metrics Chart */}
             <Card>
               <CardHeader>
-                <CardTitle>System Performance (24 Hours)</CardTitle>
-                <CardDescription>Uptime, CPU, memory usage, and request volume</CardDescription>
+                <CardTitle className="text-base font-semibold">System Performance (24 Hours)</CardTitle>
+                <CardDescription className="text-sm">Uptime, CPU, memory usage, and request volume</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={350}>
@@ -229,8 +248,8 @@ export default function SystemMonitoring() {
             {/* Request Volume Chart */}
             <Card>
               <CardHeader>
-                <CardTitle>API Request Volume</CardTitle>
-                <CardDescription>Number of API requests over time</CardDescription>
+                <CardTitle className="text-base font-semibold">API Request Volume</CardTitle>
+                <CardDescription className="text-sm">Number of API requests over time</CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
@@ -246,7 +265,7 @@ export default function SystemMonitoring() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="integrations" className="space-y-6">
+          <TabsContent value="integrations" className="space-y-6 mt-6">
             {/* Integration Status Overview */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
@@ -272,8 +291,8 @@ export default function SystemMonitoring() {
             {/* Integration List */}
             <Card>
               <CardHeader>
-                <CardTitle>Integration Status</CardTitle>
-                <CardDescription>All system integrations and their current status</CardDescription>
+                <CardTitle className="text-base font-semibold">Integration Status</CardTitle>
+                <CardDescription className="text-sm">All system integrations and their current status</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -292,7 +311,7 @@ export default function SystemMonitoring() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold">{integration.name}</h3>
+                            <h3 className="text-sm font-semibold">{integration.name}</h3>
                             <Badge variant="outline" className="text-xs capitalize">
                               {integration.type.replace('-', ' ')}
                             </Badge>
@@ -318,11 +337,11 @@ export default function SystemMonitoring() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="alerts" className="space-y-6">
+          <TabsContent value="alerts" className="space-y-6 mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>System Alerts</CardTitle>
-                <CardDescription>Recent system alerts and notifications</CardDescription>
+                <CardTitle className="text-base font-semibold">System Alerts</CardTitle>
+                <CardDescription className="text-sm">Recent system alerts and notifications</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -366,12 +385,12 @@ export default function SystemMonitoring() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="resources" className="space-y-6">
+          <TabsContent value="resources" className="space-y-6 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Cpu className="h-5 w-5" />
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
+                    <Cpu className="h-4 w-4" />
                     CPU Usage
                   </CardTitle>
                 </CardHeader>
@@ -410,8 +429,8 @@ export default function SystemMonitoring() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <HardDrive className="h-5 w-5" />
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
+                    <HardDrive className="h-4 w-4" />
                     Memory Usage
                   </CardTitle>
                 </CardHeader>
@@ -450,8 +469,8 @@ export default function SystemMonitoring() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Database className="h-5 w-5" />
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
+                    <Database className="h-4 w-4" />
                     Database Metrics
                   </CardTitle>
                 </CardHeader>
@@ -479,8 +498,8 @@ export default function SystemMonitoring() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Network className="h-5 w-5" />
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
+                    <Network className="h-4 w-4" />
                     Network Metrics
                   </CardTitle>
                 </CardHeader>
