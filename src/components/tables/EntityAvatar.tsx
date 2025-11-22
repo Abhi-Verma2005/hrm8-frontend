@@ -7,7 +7,7 @@ interface EntityAvatarProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function EntityAvatar({ src, name, type = 'person', size = 'md' }: EntityAvatarProps) {
+export function EntityAvatar({ src, name = '', type = 'person', size = 'md' }: EntityAvatarProps) {
   const sizeClasses = {
     sm: 'h-8 w-8 text-xs',
     md: 'h-10 w-10 text-sm',
@@ -15,6 +15,9 @@ export function EntityAvatar({ src, name, type = 'person', size = 'md' }: Entity
   };
 
   const getInitials = (name: string) => {
+    if (!name || name.trim().length === 0) {
+      return '??';
+    }
     return name
       .split(' ')
       .map(word => word[0])
@@ -24,6 +27,9 @@ export function EntityAvatar({ src, name, type = 'person', size = 'md' }: Entity
   };
 
   const getBackgroundColor = (name: string) => {
+    if (!name || name.trim().length === 0) {
+      return 'bg-gray-500';
+    }
     const colors = [
       'bg-blue-500',
       'bg-green-500',

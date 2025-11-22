@@ -127,8 +127,6 @@ export interface JobFormData {
   serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
   
   // Step 1: Basic Details
-  postAsHRM8: boolean;
-  employerId: string;
   title: string;
   numberOfVacancies: number;
   department: string;

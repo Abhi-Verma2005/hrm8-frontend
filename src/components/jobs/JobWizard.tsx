@@ -23,11 +23,11 @@ import {
 import { JobBoardPublicPreview } from "./JobBoardPublicPreview";
 import { ExternalPromotionDialog } from "./ExternalPromotionDialog";
 import { toast } from "@/hooks/use-toast";
-import { saveJob } from "@/lib/mockJobStorage";
+import { jobService } from "@/lib/api/jobService";
 import { generateJobCode } from "@/lib/jobUtils";
-import { getEmployerById } from "@/lib/employerService";
 import { calculateServicePricing, processAccountPayment, processCreditCardPayment } from "@/lib/paymentService";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 
 interface JobWizardProps {
@@ -39,13 +39,15 @@ interface JobWizardProps {
   embedded?: boolean;
 }
 
-export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCancel, embedded = false }: JobWizardProps) {
+export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onSuccess, onCancel, embedded = false }: JobWizardProps) {
+  const { user, profileSummary } = useAuth();
   const [step, setStep] = useState(1);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [showExternalPromotionDialog, setShowExternalPromotionDialog] = useState(false);
   const [savedJobData, setSavedJobData] = useState<Job | null>(null);
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
+  const [currentJobId, setCurrentJobId] = useState<string | null>(initialJobId || null);
   
   const findScrollContainer = (): HTMLElement | null => {
     const scrollAreaViewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
@@ -79,26 +81,25 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   const form = useForm<JobFormData>({
     resolver: zodResolver(jobFormSchema),
     defaultValues: {
-      serviceType: serviceType || 'self-managed',
-      postAsHRM8: false,
-      employerId: "",
-      title: "",
-      department: "",
-      location: "",
-      employmentType: "full-time",
-      experienceLevel: "mid",
-      workArrangement: "on-site",
-      tags: [],
-      description: "",
-      requirements: [],
-      responsibilities: [],
-      salaryCurrency: "USD",
-      salaryPeriod: "annual",
-      hideSalary: false,
-      visibility: "public",
-      stealth: false,
-      hiringTeam: [],
-      applicationForm: {
+      serviceType: serviceType || defaultValues?.serviceType || 'self-managed',
+      title: defaultValues?.title || "",
+      numberOfVacancies: defaultValues?.numberOfVacancies || 1,
+      department: defaultValues?.department || "",
+      location: defaultValues?.location || "",
+      employmentType: defaultValues?.employmentType || "full-time",
+      experienceLevel: defaultValues?.experienceLevel || "mid",
+      workArrangement: defaultValues?.workArrangement || "on-site",
+      tags: defaultValues?.tags || [],
+      description: defaultValues?.description || "",
+      requirements: defaultValues?.requirements || [],
+      responsibilities: defaultValues?.responsibilities || [],
+      salaryCurrency: defaultValues?.salaryCurrency || "USD",
+      salaryPeriod: defaultValues?.salaryPeriod || "annual",
+      hideSalary: defaultValues?.hideSalary || false,
+      visibility: defaultValues?.visibility || "public",
+      stealth: defaultValues?.stealth || false,
+      hiringTeam: defaultValues?.hiringTeam || [],
+      applicationForm: defaultValues?.applicationForm || {
         id: `form-${Date.now()}`,
         name: "Application Form",
         questions: [],
@@ -110,11 +111,27 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
           website: { included: false, required: false },
         },
       },
-      status: "draft",
-      jobBoardDistribution: ["HRM8 Job Board"],
-      ...defaultValues,
+      status: defaultValues?.status || "draft",
+      jobBoardDistribution: defaultValues?.jobBoardDistribution || ["HRM8 Job Board"],
+      termsAccepted: defaultValues?.termsAccepted || false,
+      selectedPaymentMethod: defaultValues?.selectedPaymentMethod,
+      paymentInvoiceRequested: defaultValues?.paymentInvoiceRequested || false,
     },
   });
+
+  // Reset form when defaultValues change (e.g., when loading a draft)
+  useEffect(() => {
+    if (defaultValues) {
+      form.reset({
+        ...form.getValues(),
+        ...defaultValues,
+      });
+      // If we have a jobId, set it for auto-save
+      if (initialJobId) {
+        setCurrentJobId(initialJobId);
+      }
+    }
+  }, [defaultValues, initialJobId, form]);
 
   const currentServiceType = form.watch('serviceType');
   const isHRM8Service = currentServiceType !== 'self-managed';
@@ -138,59 +155,67 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
     setAutoSaving(true);
 
     try {
-      let employerData;
+      // Transform requirements and responsibilities from objects to strings
+      const requirements = (formData.requirements || []).map((req: any) => {
+        if (typeof req === 'string') return req;
+        return req.text || '';
+      }).filter((req: string) => req.trim().length > 0);
       
-      if (formData.postAsHRM8) {
-        employerData = {
-          employerId: "hrm8-platform",
-          employerName: "HRM8",
-          employerLogo: "/logo-light.png",
-        };
-      } else if (formData.employerId) {
-        const selectedEmployer = getEmployerById(formData.employerId);
-        employerData = {
-          employerId: formData.employerId,
-          employerName: selectedEmployer?.name || "Unknown Employer",
-          employerLogo: selectedEmployer?.logo,
-        };
-      } else {
-        // No employer selected yet, skip auto-save
-        setAutoSaving(false);
-        toast({
-          title: "Cannot Save",
-          description: "Please select an employer before saving as draft",
-          variant: "destructive"
-        });
-        return false;
-      }
+      const responsibilities = (formData.responsibilities || []).map((resp: any) => {
+        if (typeof resp === 'string') return resp;
+        return resp.text || '';
+      }).filter((resp: string) => resp.trim().length > 0);
 
-      const draftJobData: Job = {
-        id: jobId || `job-${Date.now()}`,
-        ...formData,
-        ...employerData,
-        createdBy: "admin-user-id",
-        createdByName: "HRM8 Admin",
-        jobCode: generateJobCode(),
-        aiGeneratedDescription: false,
-        serviceType: formData.serviceType,
-        applicantsCount: 0,
-        viewsCount: 0,
-        postingDate: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        hasJobTargetPromotion: false,
-        jobTargetBudget: 0,
-        jobTargetBudgetRemaining: 0,
-        requiresPayment: false,
-        status: 'draft', // Always save as draft for auto-save
+      // Convert form data to API format
+      const jobRequest = {
+        title: formData.title,
+        description: formData.description,
+        jobSummary: formData.description.substring(0, 150),
+        hiringMode: formData.serviceType === 'self-managed' ? 'SELF_MANAGED' as const :
+                   formData.serviceType === 'shortlisting' ? 'SHORTLISTING' as const :
+                   formData.serviceType === 'full-service' ? 'FULL_SERVICE' as const :
+                   'EXECUTIVE_SEARCH' as const,
+        location: formData.location,
+        department: formData.department,
+        workArrangement: formData.workArrangement.toUpperCase().replace('-', '_') as 'ON_SITE' | 'REMOTE' | 'HYBRID',
+        employmentType: formData.employmentType.toUpperCase().replace('-', '_') as 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'CASUAL',
+        numberOfVacancies: formData.numberOfVacancies || 1,
+        salaryMin: formData.salaryMin,
+        salaryMax: formData.salaryMax,
+        salaryCurrency: formData.salaryCurrency,
+        salaryDescription: formData.salaryDescription,
+        promotionalTags: formData.tags || [],
+        stealth: formData.stealth,
+        visibility: formData.visibility,
+        requirements,
+        responsibilities,
         termsAccepted: formData.termsAccepted || false,
         termsAcceptedAt: formData.termsAccepted ? new Date() : undefined,
-        termsAcceptedBy: formData.termsAccepted ? 'current-user-id' : undefined,
+        termsAcceptedBy: formData.termsAccepted ? user?.id : undefined,
       };
 
-      saveJob(draftJobData);
-      setLastAutoSave(new Date());
-      return true;
+      if (currentJobId) {
+        // Update existing job
+        const response = await jobService.updateJob(currentJobId, {
+          ...jobRequest,
+          status: 'DRAFT',
+        });
+        if (response.success) {
+          setLastAutoSave(new Date());
+          return true;
+        }
+      } else {
+        // Create new job
+        const response = await jobService.createJob(jobRequest);
+        if (response.success && response.data) {
+          // Store the job ID for future auto-saves
+          setCurrentJobId(response.data.id);
+          setLastAutoSave(new Date());
+          return true;
+        }
+      }
+      
+      return false;
     } catch (error) {
       console.error('Auto-save failed:', error);
       toast({
@@ -280,7 +305,90 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
   };
 
   const onSubmit = async (data: JobFormData) => {
+    console.log('📋 Form submitted!', { step, totalSteps, data: { ...data, description: data.description?.substring(0, 50) + '...' } });
+    
+    // Transform requirements and responsibilities from objects to strings for validation
+    // The form stores them as { id, text, order } but validation might expect strings
+    const transformedData = {
+      ...data,
+      requirements: (data.requirements || []).map((req: any) => {
+        if (typeof req === 'string') return req;
+        return req.text || req;
+      }).filter((req: any) => req && req.trim && req.trim().length > 0),
+      responsibilities: (data.responsibilities || []).map((resp: any) => {
+        if (typeof resp === 'string') return resp;
+        return resp.text || resp;
+      }).filter((resp: any) => resp && resp.trim && resp.trim().length > 0),
+    };
+    
+    // Manual validation for requirements and responsibilities
+    if (!transformedData.requirements || transformedData.requirements.length === 0) {
+      toast({
+        title: "Please Fix Form Errors",
+        description: "At least one requirement is needed",
+        variant: "destructive",
+        duration: 5000,
+      });
+      return;
+    }
+    
+    if (!transformedData.responsibilities || transformedData.responsibilities.length === 0) {
+      toast({
+        title: "Please Fix Form Errors",
+        description: "At least one responsibility is needed",
+        variant: "destructive",
+        duration: 5000,
+      });
+      return;
+    }
+    
+    // Check form validation errors first
+    const errors = form.formState.errors;
+    if (Object.keys(errors).length > 0) {
+      console.log('❌ Form validation errors:', errors);
+      
+      // Build user-friendly error messages
+      const errorMessages: string[] = [];
+      
+      if (errors.description) {
+        errorMessages.push(errors.description.message || 'Job description is required (at least 50 characters)');
+      }
+      if (errors.title) {
+        errorMessages.push(errors.title.message || 'Job title is required (at least 5 characters)');
+      }
+      if (errors.location) {
+        errorMessages.push(errors.location.message || 'Location is required');
+      }
+      if (errors.department) {
+        errorMessages.push(errors.department.message || 'Department is required');
+      }
+      if (errors.termsAccepted) {
+        errorMessages.push('You must accept the Terms & Conditions');
+      }
+      
+      // Add any other validation errors (excluding requirements/responsibilities as we handle them above)
+      Object.keys(errors).forEach((key) => {
+        if (!['requirements', 'responsibilities', 'description', 'title', 'location', 'department', 'termsAccepted'].includes(key)) {
+          const error = errors[key as keyof typeof errors];
+          if (error && 'message' in error) {
+            errorMessages.push(error.message as string);
+          }
+        }
+      });
+      
+      if (errorMessages.length > 0) {
+        toast({
+          title: "Please Fix Form Errors",
+          description: errorMessages.join('. '),
+          variant: "destructive",
+          duration: 5000,
+        });
+        return;
+      }
+    }
+    
     if (!data.termsAccepted) {
+      console.log('❌ Terms not accepted');
       toast({
         title: "Terms & Conditions Required",
         description: "Please accept the Terms & Conditions to proceed",
@@ -289,30 +397,19 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
       return;
     }
     
-    let employerData;
-    
-    if (data.postAsHRM8) {
-      employerData = {
-        employerId: "hrm8-platform",
-        employerName: "HRM8",
-        employerLogo: "/logo-light.png",
-      };
-    } else {
-      const selectedEmployer = getEmployerById(data.employerId);
-      employerData = {
-        employerId: data.employerId,
-        employerName: selectedEmployer?.name || "Unknown Employer",
-        employerLogo: selectedEmployer?.logo,
-      };
-    }
+    console.log('✅ Terms accepted, proceeding with publish...');
     
     const isSelfManaged = data.serviceType === 'self-managed' || data.serviceType === 'rpo';
     const requiresPayment = !isSelfManaged;
     
+    // Get company name from auth context
+    const companyName = user?.companyName || profileSummary?.name || "Your Company";
+    
     const jobData: Job = {
-      id: jobId || `job-${Date.now()}`,
+      id: currentJobId || `job-${Date.now()}`,
       ...data,
-      ...employerData,
+      employerId: user?.companyId || "",
+      employerName: companyName,
       createdBy: "admin-user-id",
       createdByName: "HRM8 Admin",
       jobCode: generateJobCode(),
@@ -343,7 +440,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
       if (data.selectedPaymentMethod === 'account') {
         paymentResult = await processAccountPayment(
           jobData.id,
-          data.employerId,
+          user?.companyId || "",
           pricing,
           data.paymentInvoiceRequested || false
         );
@@ -352,7 +449,39 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
           jobData.paymentId = paymentResult.paymentId;
           jobData.paymentStatus = 'pending';
           
-          saveJob(jobData);
+          // Save as draft via API
+          const jobRequest = {
+            title: data.title,
+            description: data.description,
+            jobSummary: data.description.substring(0, 150),
+            hiringMode: data.serviceType === 'self-managed' ? 'SELF_MANAGED' as const :
+                       data.serviceType === 'shortlisting' ? 'SHORTLISTING' as const :
+                       data.serviceType === 'full-service' ? 'FULL_SERVICE' as const :
+                       'EXECUTIVE_SEARCH' as const,
+            location: data.location,
+            department: data.department,
+            workArrangement: data.workArrangement.toUpperCase().replace('-', '_') as 'ON_SITE' | 'REMOTE' | 'HYBRID',
+            employmentType: data.employmentType.toUpperCase().replace('-', '_') as 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'CASUAL',
+            numberOfVacancies: data.numberOfVacancies || 1,
+            salaryMin: data.salaryMin,
+            salaryMax: data.salaryMax,
+            salaryCurrency: data.salaryCurrency,
+            salaryDescription: data.salaryDescription,
+            promotionalTags: data.tags || [],
+            stealth: data.stealth,
+            visibility: data.visibility,
+            status: 'DRAFT' as const,
+          };
+          
+          if (currentJobId) {
+            await jobService.updateJob(currentJobId, { ...jobRequest, status: 'DRAFT' });
+          } else {
+            const createResponse = await jobService.createJob(jobRequest);
+            if (createResponse.success && createResponse.data) {
+              jobData.id = createResponse.data.id;
+              setCurrentJobId(createResponse.data.id);
+            }
+          }
           
           toast({
             title: "Invoice Request Submitted",
@@ -368,7 +497,7 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
         const mockPaymentIntentId = `pi_mock_${Date.now()}`;
         paymentResult = await processCreditCardPayment(
           jobData.id,
-          data.employerId,
+          user?.companyId || "",
           pricing,
           mockPaymentIntentId
         );
@@ -387,18 +516,96 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
       jobData.paymentStatus = 'paid';
     }
 
-    saveJob(jobData);
+    // Transform requirements and responsibilities from objects to strings
+    const requirements = transformedData.requirements;
+    const responsibilities = transformedData.responsibilities;
+
+    // Convert to API format and save
+    const jobRequest = {
+      title: data.title,
+      description: data.description,
+      jobSummary: data.description.substring(0, 150),
+      hiringMode: data.serviceType === 'self-managed' ? 'SELF_MANAGED' as const :
+                 data.serviceType === 'shortlisting' ? 'SHORTLISTING' as const :
+                 data.serviceType === 'full-service' ? 'FULL_SERVICE' as const :
+                 'EXECUTIVE_SEARCH' as const,
+      location: data.location,
+      department: data.department,
+      workArrangement: data.workArrangement.toUpperCase().replace('-', '_') as 'ON_SITE' | 'REMOTE' | 'HYBRID',
+      employmentType: data.employmentType.toUpperCase().replace('-', '_') as 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'CASUAL',
+      numberOfVacancies: data.numberOfVacancies || 1,
+      salaryMin: data.salaryMin,
+      salaryMax: data.salaryMax,
+      salaryCurrency: data.salaryCurrency,
+      salaryDescription: data.salaryDescription,
+      promotionalTags: data.tags || [],
+      stealth: data.stealth,
+      visibility: data.visibility,
+      requirements,
+      responsibilities,
+      termsAccepted: data.termsAccepted || false,
+      termsAcceptedAt: data.termsAccepted ? new Date() : undefined,
+      termsAcceptedBy: data.termsAccepted ? user?.id : undefined,
+      status: 'DRAFT' as const, // Will be published below
+    };
     
-    // Handle draft saves separately
-    if (data.status === 'draft') {
-      toast({
-        title: "Draft Saved",
-        description: "Your job posting has been saved as a draft. You can publish it anytime from the Jobs page.",
-      });
-      
-      if (onSuccess) {
-        onSuccess(jobData);
+    // Publish job - create or update first, then publish
+    console.log('🚀 Publishing job...', { currentJobId, jobRequest });
+    try {
+      if (currentJobId) {
+        console.log('📝 Updating existing job:', currentJobId);
+        // Update existing job first
+        const updateResponse = await jobService.updateJob(currentJobId, jobRequest);
+        console.log('✅ Update response:', updateResponse);
+        if (updateResponse.success && updateResponse.data) {
+          jobData.id = updateResponse.data.id;
+          // Now publish it
+          console.log('📢 Publishing job:', currentJobId);
+          const publishResponse = await jobService.publishJob(currentJobId);
+          console.log('✅ Publish response:', publishResponse);
+          if (publishResponse.success && publishResponse.data) {
+            jobData.id = publishResponse.data.id;
+            jobData.status = 'open';
+            console.log('✅ Job published successfully!');
+          } else {
+            console.error('❌ Publish failed:', publishResponse);
+            throw new Error(publishResponse.error || 'Failed to publish job');
+          }
+        } else {
+          console.error('❌ Update failed:', updateResponse);
+          throw new Error(updateResponse.error || 'Failed to update job');
+        }
+      } else {
+        console.log('🆕 Creating new job...');
+        // Create new job first
+        const createResponse = await jobService.createJob(jobRequest);
+        console.log('✅ Create response:', createResponse);
+        if (createResponse.success && createResponse.data) {
+          jobData.id = createResponse.data.id;
+          setCurrentJobId(createResponse.data.id);
+          // Now publish it
+          console.log('📢 Publishing newly created job:', createResponse.data.id);
+          const publishResponse = await jobService.publishJob(createResponse.data.id);
+          console.log('✅ Publish response:', publishResponse);
+          if (publishResponse.success && publishResponse.data) {
+            jobData.status = 'open';
+            console.log('✅ Job created and published successfully!');
+          } else {
+            console.error('❌ Publish failed:', publishResponse);
+            throw new Error(publishResponse.error || 'Failed to publish job');
+          }
+        } else {
+          console.error('❌ Create failed:', createResponse);
+          throw new Error(createResponse.error || 'Failed to create job');
+        }
       }
+    } catch (error: any) {
+      console.error('❌ Error publishing job:', error);
+      toast({
+        title: "Publish Failed",
+        description: error?.message || "Failed to publish job. Please try again.",
+        variant: "destructive"
+      });
       return;
     }
     
@@ -567,6 +774,90 @@ export function JobWizard({ serviceType, defaultValues, jobId, onSuccess, onCanc
               <Button 
                 type="submit"
                 disabled={!form.watch('termsAccepted')}
+                onClick={async (e) => {
+                  console.log('🔘 Publish button clicked!');
+                  
+                  // Check requirements and responsibilities manually (they're stored as objects)
+                  const formData = form.getValues();
+                  const requirements = formData.requirements || [];
+                  const responsibilities = formData.responsibilities || [];
+                  
+                  // Extract text from objects or use strings directly
+                  const validRequirements = requirements.filter((req: any) => {
+                    if (typeof req === 'string') return req.trim().length > 0;
+                    return req.text && req.text.trim().length > 0;
+                  });
+                  
+                  const validResponsibilities = responsibilities.filter((resp: any) => {
+                    if (typeof resp === 'string') return resp.trim().length > 0;
+                    return resp.text && resp.text.trim().length > 0;
+                  });
+                  
+                  console.log('Requirements check:', { 
+                    total: requirements.length, 
+                    valid: validRequirements.length,
+                    items: requirements 
+                  });
+                  console.log('Responsibilities check:', { 
+                    total: responsibilities.length, 
+                    valid: validResponsibilities.length,
+                    items: responsibilities 
+                  });
+                  
+                  const errorMessages: string[] = [];
+                  
+                  if (validRequirements.length === 0) {
+                    errorMessages.push('At least one requirement is needed');
+                  }
+                  
+                  if (validResponsibilities.length === 0) {
+                    errorMessages.push('At least one responsibility is needed');
+                  }
+                  
+                  // Trigger validation on all fields
+                  const isValid = await form.trigger();
+                  console.log('Form validation result:', isValid);
+                  
+                  if (!isValid || errorMessages.length > 0) {
+                    const errors = form.formState.errors;
+                    console.log('Form validation errors:', errors);
+                    
+                    if (errors.description) {
+                      errorMessages.push(errors.description.message || 'Job description is required (at least 50 characters)');
+                    }
+                    if (errors.title) {
+                      errorMessages.push(errors.title.message || 'Job title is required (at least 5 characters)');
+                    }
+                    if (errors.location) {
+                      errorMessages.push(errors.location.message || 'Location is required');
+                    }
+                    if (errors.department) {
+                      errorMessages.push(errors.department.message || 'Department is required');
+                    }
+                    if (errors.termsAccepted) {
+                      errorMessages.push('You must accept the Terms & Conditions');
+                    }
+                    
+                    // Add any other validation errors
+                    Object.keys(errors).forEach((key) => {
+                      if (!['requirements', 'responsibilities', 'description', 'title', 'location', 'department', 'termsAccepted'].includes(key)) {
+                        const error = errors[key as keyof typeof errors];
+                        if (error && 'message' in error) {
+                          errorMessages.push(error.message as string);
+                        }
+                      }
+                    });
+                    
+                    if (errorMessages.length > 0) {
+                      toast({
+                        title: "Please Fix Form Errors",
+                        description: errorMessages.join('. '),
+                        variant: "destructive",
+                        duration: 5000,
+                      });
+                    }
+                  }
+                }}
               >
                 {(() => {
                   const formData = form.watch();

@@ -6,11 +6,13 @@
 import { apiClient } from './api';
 import { CompanyProfileSummary } from '@/types/companyProfile';
 
+export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'USER' | 'VISITOR';
+
 export interface User {
   id: string;
   email: string;
   name: string;
-  role: string;
+  role: UserRole;
   companyId: string;
   companyName?: string;
   companyWebsite?: string;
