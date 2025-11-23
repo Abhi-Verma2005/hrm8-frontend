@@ -268,7 +268,7 @@ export default function Login() {
             </Link>
           </div>
 
-          <Card className="border-2 shadow-xl">
+          <Card className="border-0 shadow-none bg-transparent">
             <CardHeader className="space-y-3 pb-6">
               <div>
                 <CardTitle className="text-3xl font-bold tracking-tight">Welcome back</CardTitle>

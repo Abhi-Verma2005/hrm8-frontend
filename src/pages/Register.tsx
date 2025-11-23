@@ -282,7 +282,7 @@ export default function Register() {
 
       {/* Right Side - Registration Form */}
       <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4 lg:p-8 overflow-y-auto">
-        <div className="w-full max-w-2xl py-8">
+        <div className="w-full max-w-xl py-4">
           {/* Logo for mobile */}
           <div className="lg:hidden mb-8 flex justify-center">
             <Link to="/" className="inline-block">
@@ -301,23 +301,23 @@ export default function Register() {
             </Link>
           </div>
 
-          <Card className="border-2 shadow-xl">
-            <CardHeader className="space-y-3 pb-6">
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader className="space-y-2 pb-4">
               <div>
-                <CardTitle className="text-3xl font-bold tracking-tight">Register your company</CardTitle>
-                <CardDescription className="text-base mt-2">
+                <CardTitle className="text-2xl font-bold tracking-tight">Register your company</CardTitle>
+                <CardDescription className="text-sm mt-1">
                   Create a new company account to get started
                 </CardDescription>
               </div>
             </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <CardContent className="px-6 py-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <div className="space-y-2">
               <Label htmlFor="companyName" className="text-sm font-medium">Company Name</Label>
               <Input
                 id="companyName"
                 placeholder="Acme Inc."
-                className="h-11"
+                className="h-10"
                 {...register('companyName')}
                 disabled={isLoading}
               />
@@ -331,7 +331,7 @@ export default function Register() {
                 id="companyWebsite"
                 type="url"
                 placeholder="https://www.example.com"
-                className="h-11"
+                className="h-10"
                 {...register('companyWebsite')}
                 disabled={isLoading}
               />
@@ -339,13 +339,13 @@ export default function Register() {
                 <p className="text-sm text-destructive">{errors.companyWebsite.message}</p>
               )}
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="adminFirstName" className="text-sm font-medium">Admin First Name</Label>
                 <Input
                   id="adminFirstName"
                   placeholder="John"
-                  className="h-11"
+                  className="h-10"
                   {...register('adminFirstName')}
                   disabled={isLoading}
                 />
@@ -358,7 +358,7 @@ export default function Register() {
                 <Input
                   id="adminLastName"
                   placeholder="Doe"
-                  className="h-11"
+                  className="h-10"
                   {...register('adminLastName')}
                   disabled={isLoading}
                 />
@@ -373,7 +373,7 @@ export default function Register() {
                 id="adminEmail"
                 type="email"
                 placeholder="admin@example.com"
-                className="h-11"
+                className="h-10"
                 {...register('adminEmail')}
                 disabled={isLoading}
               />
@@ -381,7 +381,7 @@ export default function Register() {
                 <p className="text-sm text-destructive">{errors.adminEmail.message}</p>
               )}
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">Password</Label>
                 <div className="relative">
@@ -391,7 +391,7 @@ export default function Register() {
                     placeholder="••••••••"
                     {...register('password')}
                     disabled={isLoading}
-                    className="h-11 pr-10"
+                    className="h-10 pr-10"
                   />
                   <button
                     type="button"
@@ -437,7 +437,7 @@ export default function Register() {
                         value={field.value || undefined}
                         disabled={isLoading}
                       >
-                        <SelectTrigger id="countryOrRegion" className="h-11">
+                        <SelectTrigger id="countryOrRegion" className="h-10">
                           <SelectValue placeholder="Select a country" />
                         </SelectTrigger>
                         <SelectContent className="max-h-[300px]">
@@ -477,7 +477,7 @@ export default function Register() {
                 )}
               </div>
             </div>
-            <div className="flex items-start space-x-3 rounded-md border p-4">
+            <div className="flex items-start space-x-3 rounded-md border p-3">
               <Controller
                 control={control}
                 name="acceptTerms"
@@ -506,13 +506,13 @@ export default function Register() {
                 )}
               </div>
             </div>
-            <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
+            <Button type="submit" className="w-full h-10 text-base" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isLoading ? 'Registering...' : 'Register'}
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4 pt-6">
+        <CardFooter className="flex flex-col space-y-2 pt-4">
           <div className="text-sm text-center text-muted-foreground">
             Already have an account?{' '}
             <Link to="/login" className="text-primary hover:underline font-medium">

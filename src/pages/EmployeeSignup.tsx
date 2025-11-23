@@ -102,7 +102,7 @@ export default function EmployeeSignup() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4">
         <div className="w-full max-w-md">
-          <Card className="border-2 shadow-xl">
+          <Card className="border-0 shadow-none bg-transparent">
             <CardHeader className="space-y-3">
               <div className="flex justify-center mb-4">
                 <div className="rounded-full bg-success/10 p-4 border-2 border-success/20">
@@ -250,7 +250,7 @@ export default function EmployeeSignup() {
             </Link>
           </div>
 
-          <Card className="border-2 shadow-xl">
+          <Card className="border-0 shadow-none bg-transparent">
             <CardHeader className="space-y-3 pb-6">
               <div>
                 <CardTitle className="text-3xl font-bold tracking-tight">Join Your Company</CardTitle>
