@@ -12,12 +12,13 @@ interface AIInterviewSessionCardProps {
 }
 
 const STATUS_CONFIG = {
-  scheduled: { label: 'Scheduled', variant: 'default' as const, color: 'text-primary' },
-  ready: { label: 'Ready', variant: 'secondary' as const, color: 'text-success' },
-  'in-progress': { label: 'In Progress', variant: 'secondary' as const, color: 'text-warning' },
-  completed: { label: 'Completed', variant: 'outline' as const, color: 'text-success' },
-  cancelled: { label: 'Cancelled', variant: 'outline' as const, color: 'text-muted-foreground' },
-  'no-show': { label: 'No Show', variant: 'destructive' as const, color: 'text-destructive' }
+  // Use variants only; avoid forcing text color that can clash with bg
+  scheduled: { label: 'Scheduled', variant: 'default' as const },
+  ready: { label: 'Ready', variant: 'secondary' as const },
+  'in-progress': { label: 'In Progress', variant: 'secondary' as const },
+  completed: { label: 'Completed', variant: 'outline' as const },
+  cancelled: { label: 'Cancelled', variant: 'outline' as const },
+  'no-show': { label: 'No Show', variant: 'destructive' as const }
 };
 
 const MODE_ICONS = {
@@ -44,7 +45,7 @@ export function AIInterviewSessionCard({ session, onViewDetails, onStartIntervie
               {session.jobTitle}
             </CardDescription>
           </div>
-          <Badge variant={statusConfig.variant} className={statusConfig.color}>
+          <Badge variant={statusConfig.variant}>
             {statusConfig.label}
           </Badge>
         </div>
