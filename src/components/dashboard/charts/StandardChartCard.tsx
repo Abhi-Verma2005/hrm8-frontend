@@ -41,11 +41,11 @@ export function StandardChartCard({
   className = "",
 }: StandardChartCardProps) {
   return (
-    <Card className={`shadow-md h-full flex flex-col transition-[background,border-color,box-shadow,color] duration-500 ${className}`}>
+    <Card className={`shadow-sm h-full flex flex-col ${className}`}>
       <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4 flex-shrink-0">
         <div className="space-y-1">
-          <CardTitle>{title}</CardTitle>
-          {description && <CardDescription>{description}</CardDescription>}
+          <CardTitle className="text-base font-semibold">{title}</CardTitle>
+          {description && <CardDescription className="text-sm">{description}</CardDescription>}
         </div>
         <div className="flex items-center gap-1">
           {showDatePicker && (

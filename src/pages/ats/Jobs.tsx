@@ -502,16 +502,30 @@ export default function Jobs() {
             type="logo"
           />
           <div className="min-w-0 flex-1">
-            <Link 
-              to={`/jobs/${job.id}`} 
-              className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
-            >
-              {job.title}
-            </Link>
-              <span className="text-sm text-muted-foreground line-clamp-1 block">
-                {companyName}
-              </span>
-            </div>
+            {(() => {
+              const parts = job.title.split(' - ');
+              const role = parts[0] || job.title;
+              const domain = parts.length > 1 ? parts.slice(1).join(' - ') : '';
+              return (
+                <>
+                  <Link
+                    to={`/jobs/${job.id}`}
+                    className="font-semibold text-base no-underline hover:underline cursor-pointer truncate block w-full"
+                  >
+                    {role}
+                  </Link>
+                  {domain && (
+                    <span className="text-sm text-muted-foreground truncate block w-full">
+                      {domain}
+                    </span>
+                  )}
+                  <span className="text-sm text-muted-foreground truncate block w-full">
+                    {companyName}
+                  </span>
+                </>
+              );
+            })()}
+          </div>
           </div>
         );
       }
@@ -770,8 +784,8 @@ export default function Jobs() {
           <SavedFiltersPanel onSelectFilter={handleSelectSavedFilter} />
         )}
 
-        <div className="flex items-center gap-2">
-          <div className="flex-1">
+        <div className="flex items-start gap-2">
+          <div className="flex-1 min-w-0">
             <JobsFilterBar
               searchValue={searchValue}
               onSearchChange={setSearchValue}
@@ -790,8 +804,9 @@ export default function Jobs() {
           </div>
           <Button
             variant={showAdvancedFilters ? "default" : "outline"}
+            size="sm"
             onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-            className="shrink-0"
+            className="shrink-0 h-9"
           >
             <Filter className="h-4 w-4 mr-2" />
             Advanced
