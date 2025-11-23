@@ -3,9 +3,10 @@ import { UseFormReturn } from "react-hook-form";
 import { JobFormData } from "@/types/job";
 import { Button } from "@/components/ui/button";
 import { FormItem, FormLabel, FormDescription } from "@/components/ui/form";
-import { FileText, Upload, X, Loader2, CheckCircle2 } from "lucide-react";
+import { FileText, Upload, X, Loader2, CheckCircle2, Sparkles } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { documentService } from "@/lib/api/documentService";
 
 interface PositionDescriptionUploadProps {
   form: UseFormReturn<JobFormData>;
@@ -18,49 +19,50 @@ export const PositionDescriptionUpload = forwardRef<HTMLDivElement, PositionDesc
   const [isProcessing, setIsProcessing] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [previewText, setPreviewText] = useState<string>("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const processFile = async (file: File) => {
     setIsProcessing(true);
     try {
-      // Simulate document parsing - in real implementation, use document--parse_document
-      // For now, we'll just read text files directly and simulate for others
-      const text = await readFileAsText(file);
+      // Upload and parse via backend API
+      const response = await documentService.parseDocument(file);
       
-      // Store the extracted text
+      if (response.success && response.data) {
+        // Store the file and extracted text
       form.setValue("positionDescriptionFile", file);
-      form.setValue("positionDescriptionText", text);
+        form.setValue("positionDescriptionText", response.data.extractedText);
+        
+        // Store extracted job data for AI generator
+        if (response.data.extractedData) {
+          form.setValue("extractedJobData", response.data.extractedData);
+        }
+        
       setUploadedFile(file);
-      setPreviewText(text.slice(0, 200));
+        setPreviewText(response.data.extractedText.slice(0, 200));
       
       if (onFileProcessed) {
-        onFileProcessed(text);
+          onFileProcessed(response.data.fullText || response.data.extractedText);
       }
 
       toast({
-        title: "Document Uploaded",
-        description: "Position description ready for AI processing.",
+          title: "Document Parsed Successfully",
+          description: response.data.extractedData?.title 
+            ? `Extracted: "${response.data.extractedData.title}". Click 'Generate with AI' to auto-fill form.`
+            : "AI extraction ready. Click 'Generate with AI' to auto-fill form.",
       });
+      } else {
+        throw new Error(response.error || "Failed to parse document");
+      }
     } catch (error) {
+      console.error("Error processing file:", error);
       toast({
         title: "Error Processing File",
-        description: "Failed to read the document. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to parse document. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsProcessing(false);
     }
-  };
-
-  const readFileAsText = async (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        resolve(text);
-      };
-      reader.onerror = reject;
-      reader.readAsText(file);
-    });
   };
 
   const validateFile = (file: File): boolean => {
@@ -133,11 +135,138 @@ export const PositionDescriptionUpload = forwardRef<HTMLDivElement, PositionDesc
     setPreviewText("");
     form.setValue("positionDescriptionFile", null);
     form.setValue("positionDescriptionText", undefined);
+    form.setValue("extractedJobData", undefined);
     
     toast({
       title: "File Removed",
       description: "Position description cleared.",
     });
+  };
+
+  const handleFillFormWithAI = async () => {
+    setIsGenerating(true);
+    try {
+      const extractedData = form.getValues("extractedJobData");
+      
+      if (!extractedData) {
+        toast({
+          title: "No Data Available",
+          description: "Please upload a document first to extract job details.",
+          variant: "destructive",
+        });
+        setIsGenerating(false);
+        return;
+      }
+
+      // Fill form with extracted data
+      if (extractedData.title && !form.getValues("title")) {
+        form.setValue("title", extractedData.title);
+      }
+      
+      if (extractedData.description) {
+        form.setValue("description", extractedData.description);
+      }
+      
+      if (extractedData.requirements && extractedData.requirements.length > 0) {
+        form.setValue("requirements", extractedData.requirements.map((text, index) => ({
+          id: `req-${Date.now()}-${index}`,
+          text,
+          order: index + 1,
+        })));
+      }
+      
+      if (extractedData.responsibilities && extractedData.responsibilities.length > 0) {
+        form.setValue("responsibilities", extractedData.responsibilities.map((text, index) => ({
+          id: `resp-${Date.now()}-${index}`,
+          text,
+          order: index + 1,
+        })));
+      }
+      
+      // Map other fields
+      if (extractedData.location && !form.getValues("location")) {
+        form.setValue("location", extractedData.location);
+      }
+      
+      if (extractedData.employmentType) {
+        const employmentTypeMap: Record<string, 'full-time' | 'part-time' | 'contract' | 'casual'> = {
+          'full-time': 'full-time',
+          'fulltime': 'full-time',
+          'part-time': 'part-time',
+          'parttime': 'part-time',
+          'contract': 'contract',
+          'casual': 'casual',
+        };
+        const mappedType = employmentTypeMap[extractedData.employmentType.toLowerCase()];
+        if (mappedType && !form.getValues("employmentType")) {
+          form.setValue("employmentType", mappedType);
+        }
+      }
+      
+      if (extractedData.experienceLevel) {
+        const experienceMap: Record<string, 'entry' | 'mid' | 'senior' | 'executive'> = {
+          'entry': 'entry',
+          'junior': 'entry',
+          'mid': 'mid',
+          'middle': 'mid',
+          'senior': 'senior',
+          'executive': 'executive',
+          'lead': 'senior',
+        };
+        const mappedLevel = experienceMap[extractedData.experienceLevel.toLowerCase()];
+        if (mappedLevel && !form.getValues("experienceLevel")) {
+          form.setValue("experienceLevel", mappedLevel);
+        }
+      }
+      
+      if (extractedData.department && !form.getValues("department")) {
+        form.setValue("department", extractedData.department);
+      }
+      
+      if (extractedData.salaryRange) {
+        if (extractedData.salaryRange.min && !form.getValues("salaryMin")) {
+          form.setValue("salaryMin", extractedData.salaryRange.min);
+        }
+        if (extractedData.salaryRange.max && !form.getValues("salaryMax")) {
+          form.setValue("salaryMax", extractedData.salaryRange.max);
+        }
+        if (extractedData.salaryRange.currency && !form.getValues("salaryCurrency")) {
+          form.setValue("salaryCurrency", extractedData.salaryRange.currency);
+        }
+        if (extractedData.salaryRange.period) {
+          const periodMap: Record<string, 'hourly' | 'daily' | 'weekly' | 'monthly' | 'annual'> = {
+            'hourly': 'hourly',
+            'hour': 'hourly',
+            'daily': 'daily',
+            'day': 'daily',
+            'weekly': 'weekly',
+            'week': 'weekly',
+            'monthly': 'monthly',
+            'month': 'monthly',
+            'annual': 'annual',
+            'yearly': 'annual',
+            'year': 'annual',
+          };
+          const mappedPeriod = periodMap[extractedData.salaryRange.period.toLowerCase()];
+          if (mappedPeriod && !form.getValues("salaryPeriod")) {
+            form.setValue("salaryPeriod", mappedPeriod);
+          }
+        }
+      }
+      
+      toast({
+        title: "Form Filled with AI Data!",
+        description: "Job details have been extracted and filled. Review and edit as needed.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fill form with AI data.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -219,9 +348,30 @@ export const PositionDescriptionUpload = forwardRef<HTMLDivElement, PositionDesc
                 </div>
               )}
               
-              <div className="mt-3 flex items-center gap-2 text-sm text-primary">
+              <div className="mt-3 space-y-2">
+                <div className="flex items-center gap-2 text-sm text-primary">
                 <CheckCircle2 className="h-4 w-4" />
                 <span>Ready for AI processing</span>
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleFillFormWithAI}
+                  disabled={isGenerating || !form.getValues("extractedJobData")}
+                  className="w-full"
+                  variant="default"
+                >
+                  {isGenerating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Filling Form...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Fill Form with AI Data
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           </div>

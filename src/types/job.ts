@@ -139,6 +139,24 @@ export interface JobFormData {
   // Step 2: Job Description
   positionDescriptionFile?: File | null;
   positionDescriptionText?: string;
+  extractedJobData?: {
+    title?: string;
+    description?: string;
+    requirements: string[];
+    responsibilities: string[];
+    qualifications?: string[];
+    benefits?: string[];
+    salaryRange?: {
+      min?: number;
+      max?: number;
+      currency?: string;
+      period?: string;
+    };
+    location?: string;
+    employmentType?: string;
+    experienceLevel?: string;
+    department?: string;
+  };
   description: string;
   requirements: Array<{ id: string; text: string; order: number }>;
   responsibilities: Array<{ id: string; text: string; order: number }>;

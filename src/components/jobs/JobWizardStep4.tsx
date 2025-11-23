@@ -10,8 +10,9 @@ import { ApplicationQuestionCard } from "./ApplicationQuestionCard";
 import { AddQuestionDialog } from "./AddQuestionDialog";
 import { ApplicationFormPreview } from "./ApplicationFormPreview";
 import { QuestionLibraryBrowser } from "./QuestionLibraryBrowser";
+import { AIGenerateQuestionsDialog } from "./AIGenerateQuestionsDialog";
 import { useState } from "react";
-import { FileQuestion, Plus, Eye, FileStack, BookOpen } from "lucide-react";
+import { FileQuestion, Plus, Eye, FileStack, BookOpen, Sparkles } from "lucide-react";
 import { DndContext, DragEndEvent, closestCenter } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { reorderQuestions } from "@/lib/applicationFormUtils";
@@ -21,12 +22,14 @@ import { useToast } from "@/hooks/use-toast";
 
 interface JobWizardStep4Props {
   form: UseFormReturn<JobFormData>;
+  jobId?: string | null;
 }
 
-export function JobWizardStep4({ form }: JobWizardStep4Props) {
+export function JobWizardStep4({ form, jobId }: JobWizardStep4Props) {
   const [questionDialogOpen, setQuestionDialogOpen] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<ApplicationQuestion | null>(null);
   const [libraryBrowserOpen, setLibraryBrowserOpen] = useState(false);
+  const [aiGenerateDialogOpen, setAiGenerateDialogOpen] = useState(false);
   const { toast } = useToast();
 
   const questions = form.watch('applicationForm.questions') || [];
@@ -100,6 +103,17 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
       title: "Question Added",
       description: "Question added to your application form",
     });
+  };
+
+  const handleAIGeneratedQuestions = (generatedQuestions: ApplicationQuestion[]) => {
+    const currentQuestions = form.getValues('applicationForm.questions') || [];
+    const newQuestions = generatedQuestions.map((q, index) => ({
+      ...q,
+      id: q.id || `question-${Date.now()}-${index}`,
+      order: currentQuestions.length + index + 1,
+    }));
+    
+    form.setValue('applicationForm.questions', [...currentQuestions, ...newQuestions]);
   };
 
   const handleSaveQuestionToLibrary = (question: ApplicationQuestion) => {
@@ -327,7 +341,11 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
               <p className="text-sm text-muted-foreground mb-4">
                 No custom questions added yet
               </p>
-              <div className="flex gap-2 justify-center">
+              <div className="flex gap-2 justify-center flex-wrap">
+                <Button onClick={() => setAiGenerateDialogOpen(true)} variant="default" className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate with AI
+                </Button>
                 <Button onClick={() => setLibraryBrowserOpen(true)} variant="outline">
                   <BookOpen className="h-4 w-4 mr-2" />
                   Browse Question Library
@@ -365,7 +383,16 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
                 </SortableContext>
               </DndContext>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  type="button"
+                  variant="default"
+                  onClick={() => setAiGenerateDialogOpen(true)}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Generate with AI
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
@@ -426,6 +453,17 @@ export function JobWizardStep4({ form }: JobWizardStep4Props) {
         onOpenChange={setLibraryBrowserOpen}
         onSelectQuestion={handleAddFromLibrary}
         currentQuestions={questions}
+      />
+
+      <AIGenerateQuestionsDialog
+        open={aiGenerateDialogOpen}
+        onOpenChange={setAiGenerateDialogOpen}
+        onQuestionsSelected={handleAIGeneratedQuestions}
+        jobId={jobId || ''}
+        jobTitle={form.getValues('title') || ''}
+        jobDescription={form.getValues('description') || ''}
+        requirements={form.getValues('requirements')?.map((r: any) => typeof r === 'string' ? r : r.text) || []}
+        responsibilities={form.getValues('responsibilities')?.map((r: any) => typeof r === 'string' ? r : r.text) || []}
       />
     </div>
   );

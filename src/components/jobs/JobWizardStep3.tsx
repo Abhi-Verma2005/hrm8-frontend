@@ -1,6 +1,7 @@
 import { UseFormReturn } from "react-hook-form";
 import { JobFormData, HiringTeamMember } from "@/types/job";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { format, addDays } from "date-fns";
 import { CalendarIcon, Trash2, Users, Plus, Eye } from "lucide-react";
 import { HiringTeamMemberCard } from "./HiringTeamMemberCard";
@@ -34,6 +35,7 @@ import { Calendar } from "@/components/ui/calendar";
 
 interface JobWizardStep3Props {
   form: UseFormReturn<JobFormData>;
+  jobId?: string | null;
 }
 
 const TIMELINE_PRESETS = [
@@ -43,7 +45,8 @@ const TIMELINE_PRESETS = [
   { label: "45 days", days: 45 },
 ];
 
-export function JobWizardStep3({ form }: JobWizardStep3Props) {
+export function JobWizardStep3({ form, jobId }: JobWizardStep3Props) {
+  const { user } = useAuth();
   const [selectedPreset, setSelectedPreset] = useState<string>("");
   const [showCalendar, setShowCalendar] = useState(false);
   const [teamDialogOpen, setTeamDialogOpen] = useState(false);
@@ -316,10 +319,14 @@ export function JobWizardStep3({ form }: JobWizardStep3Props) {
         open={teamDialogOpen}
         onOpenChange={(open) => {
           setTeamDialogOpen(open);
-          if (!open) setEditingMember(null);
+          if (!open) {
+            setEditingMember(null);
+          }
         }}
         onAdd={handleAddTeamMember}
         editMember={editingMember}
+        currentUserId={user?.id}
+        jobId={jobId}
       />
     </div>
   );

@@ -10,13 +10,16 @@ import { FileText, Building2, Check, DollarSign, MapPin, Briefcase as BriefcaseI
 import { ComboboxWithAdd } from "@/components/ui/combobox-with-add";
 import { formatSalaryRange } from "@/lib/jobUtils";
 import { useAuth } from "@/contexts/AuthContext";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { AddDepartmentDialog } from "@/components/jobs/AddDepartmentDialog";
 import { AddLocationDialog } from "@/components/jobs/AddLocationDialog";
 import { PositionDescriptionUpload } from "./PositionDescriptionUpload";
 import { useToast } from "@/hooks/use-toast";
 import { ServiceTypeSelector } from "./ServiceTypeSelector";
 import { Separator } from "@/components/ui/separator";
+import { useCompanyProfile } from "@/hooks/useCompanyProfile";
+import { CompanyProfileLocation } from "@/types/companyProfile";
+import { AIJobGenerator } from "./AIJobGenerator";
 interface JobWizardStep1Props {
   form: UseFormReturn<JobFormData>;
 }
@@ -29,17 +32,51 @@ export function JobWizardStep1({
     toast
   } = useToast();
   const { user, profileSummary } = useAuth();
+  const { data: profileData, refresh: refreshProfile } = useCompanyProfile();
   
-  // Get company name from user or profile
-  const companyName = user?.companyName || profileSummary?.name || "Your Company";
+  // Get company name from user
+  const companyName = user?.companyName || "Your Company";
 
-  // Use default department and location options
+  // Use default department options
   const defaultDepartments = ["Engineering", "Product", "Design", "Marketing", "Sales", "Finance", "Operations", "HR", "Customer Success", "Legal"];
-  const defaultLocations = ["Remote"];
-
   const departmentOptions = defaultDepartments;
-  const locationOptions = defaultLocations;
-  const handleAddDepartment = (departmentData: any) => {
+
+  // Extract and format company profile locations
+  const locationOptions = useMemo(() => {
+    // Helper function to format location name
+    const formatLocationName = (location: CompanyProfileLocation): string => {
+      const parts = [location.name];
+      if (location.city) parts.push(location.city);
+      if (location.country) parts.push(location.country);
+      return parts.join(", ");
+    };
+
+    const locations: string[] = [];
+    
+    if (profileData?.profile?.profileData) {
+      const { primaryLocation, additionalLocations = [] } = profileData.profile.profileData;
+      
+      // Add primary location if exists
+      if (primaryLocation) {
+        const formatted = formatLocationName(primaryLocation);
+        locations.push(formatted);
+      }
+      
+      // Add additional locations
+      additionalLocations.forEach((loc: CompanyProfileLocation) => {
+        const formatted = formatLocationName(loc);
+        locations.push(formatted);
+      });
+    }
+    
+    // If no locations from profile, add "Remote" as default
+    if (locations.length === 0) {
+      locations.push("Remote");
+    }
+    
+    return locations;
+  }, [profileData]);
+  const handleAddDepartment = (departmentData: { name: string }) => {
     const newDepartmentName = departmentData.name;
     form.setValue("department", newDepartmentName);
     toast({
@@ -47,13 +84,19 @@ export function JobWizardStep1({
       description: `${newDepartmentName} has been added successfully.`
     });
   };
-  const handleAddLocation = (locationData: any) => {
-    const formattedLocationName = `${locationData.name}${locationData.city ? `, ${locationData.city}` : ''}`;
+  
+  const handleAddLocation = async (locationData: { name: string; city?: string; country?: string }) => {
+    const parts = [locationData.name];
+    if (locationData.city) parts.push(locationData.city);
+    if (locationData.country) parts.push(locationData.country);
+    const formattedLocationName = parts.join(", ");
     form.setValue("location", formattedLocationName);
     toast({
       title: "Location added",
       description: `${formattedLocationName} has been added successfully.`
     });
+    // Refresh profile data to include the new location
+    await refreshProfile();
   };
   return <div className="space-y-6">
       {/* Service Type Selection Section */}
@@ -236,42 +279,92 @@ export function JobWizardStep1({
               <FormMessage />
             </FormItem>} />
 
-        <FormField control={form.control} name="workArrangement" render={({
-        field
-      }) => <FormItem>
+        <FormItem>
               <FormLabel>Work Arrangement *</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+              <div className="space-y-3">
+                <FormField
+                  control={form.control}
+                  name="workArrangement"
+                  render={({ field }) => {
+                    const isRemote = field.value === "remote";
+                    const isHybrid = field.value === "hybrid";
+                    
+                    const handleRemoteToggle = (checked: boolean) => {
+                      if (checked) {
+                        field.onChange("remote");
+                      } else {
+                        field.onChange("on-site");
+                      }
+                    };
+                    
+                    const handleHybridToggle = (checked: boolean) => {
+                      if (checked) {
+                        field.onChange("hybrid");
+                      } else {
+                        field.onChange("on-site");
+                      }
+                    };
+                    
+                    return (
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <MapPin className="h-4 w-4 text-muted-foreground" />
+                            <div>
+                              <FormLabel className="text-sm font-medium cursor-pointer" htmlFor="remote-toggle">
+                                Remote
+                              </FormLabel>
+                              <FormDescription className="text-xs">
+                                Work from anywhere
+                              </FormDescription>
+                            </div>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              id="remote-toggle"
+                              checked={isRemote}
+                              onCheckedChange={handleRemoteToggle}
+                            />
+                          </FormControl>
+                        </div>
+                        
+                        <div className="flex items-center justify-between p-3 border rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <BriefcaseIcon className="h-4 w-4 text-muted-foreground" />
+                            <div>
+                              <FormLabel className="text-sm font-medium cursor-pointer" htmlFor="hybrid-toggle">
+                                Hybrid
+                              </FormLabel>
+                              <FormDescription className="text-xs">
+                                Mix of remote and on-site
+                              </FormDescription>
+                            </div>
+                          </div>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select arrangement" />
-                  </SelectTrigger>
+                            <Switch
+                              id="hybrid-toggle"
+                              checked={isHybrid}
+                              onCheckedChange={handleHybridToggle}
+                            />
                 </FormControl>
-                <SelectContent>
-                  <SelectItem value="on-site">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4" />
-                      <span>On-site</span>
+                        </div>
+                        
+                        {!isRemote && !isHybrid && (
+                          <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg border">
+                            <Building2 className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">On-site (default)</span>
                     </div>
-                  </SelectItem>
-                  <SelectItem value="remote">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      <span>Remote</span>
+                        )}
                     </div>
-                  </SelectItem>
-                  <SelectItem value="hybrid">
-                    <div className="flex items-center gap-2">
-                      <BriefcaseIcon className="h-4 w-4" />
-                      <span>Hybrid</span>
+                    );
+                  }}
+                />
                     </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
               <FormDescription className="text-xs">
-                Where will this role be based?
+                Select the work arrangement for this role. Both options off means on-site.
               </FormDescription>
               <FormMessage />
-            </FormItem>} />
+            </FormItem>
       </div>
 
       {/* Salary Information Section */}

@@ -169,17 +169,124 @@ export function AIJobGenerator({ form, onScrollToUpload }: AIJobGeneratorProps) 
     }, 100);
   };
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true);
     
-    setTimeout(() => {
+    try {
       const jobTitle = form.getValues("title") || "Software Engineer";
       const department = form.getValues("department") || "Engineering";
       const experienceLevel = form.getValues("experienceLevel") || "mid";
+      const extractedData = form.getValues("extractedJobData");
       const positionDescText = form.getValues("positionDescriptionText");
       
-      // If PD file exists, use it to generate content
-      if (positionDescText) {
+      // If AI-extracted data exists, use it (from document parsing)
+      if (extractedData) {
+        // Use AI-extracted title if available and form title is empty
+        if (extractedData.title && !form.getValues("title")) {
+          form.setValue("title", extractedData.title);
+        }
+        
+        // Use AI-extracted description
+        if (extractedData.description) {
+          form.setValue("description", extractedData.description);
+        }
+        
+        // Use AI-extracted requirements
+        if (extractedData.requirements && extractedData.requirements.length > 0) {
+          form.setValue("requirements", extractedData.requirements.map((text, index) => ({
+            id: `req-${Date.now()}-${index}`,
+            text,
+            order: index + 1,
+          })));
+        }
+        
+        // Use AI-extracted responsibilities
+        if (extractedData.responsibilities && extractedData.responsibilities.length > 0) {
+          form.setValue("responsibilities", extractedData.responsibilities.map((text, index) => ({
+            id: `resp-${Date.now()}-${index}`,
+            text,
+            order: index + 1,
+          })));
+        }
+        
+        // Map other extracted fields
+        if (extractedData.location && !form.getValues("location")) {
+          form.setValue("location", extractedData.location);
+        }
+        
+        if (extractedData.employmentType) {
+          const employmentTypeMap: Record<string, 'full-time' | 'part-time' | 'contract' | 'casual'> = {
+            'full-time': 'full-time',
+            'fulltime': 'full-time',
+            'part-time': 'part-time',
+            'parttime': 'part-time',
+            'contract': 'contract',
+            'casual': 'casual',
+          };
+          const mappedType = employmentTypeMap[extractedData.employmentType.toLowerCase()];
+          if (mappedType && !form.getValues("employmentType")) {
+            form.setValue("employmentType", mappedType);
+          }
+        }
+        
+        if (extractedData.experienceLevel) {
+          const experienceMap: Record<string, 'entry' | 'mid' | 'senior' | 'executive'> = {
+            'entry': 'entry',
+            'junior': 'entry',
+            'mid': 'mid',
+            'middle': 'mid',
+            'senior': 'senior',
+            'executive': 'executive',
+            'lead': 'senior',
+          };
+          const mappedLevel = experienceMap[extractedData.experienceLevel.toLowerCase()];
+          if (mappedLevel && !form.getValues("experienceLevel")) {
+            form.setValue("experienceLevel", mappedLevel);
+          }
+        }
+        
+        if (extractedData.department && !form.getValues("department")) {
+          form.setValue("department", extractedData.department);
+        }
+        
+        // Map salary range if available
+        if (extractedData.salaryRange) {
+          if (extractedData.salaryRange.min && !form.getValues("salaryMin")) {
+            form.setValue("salaryMin", extractedData.salaryRange.min);
+          }
+          if (extractedData.salaryRange.max && !form.getValues("salaryMax")) {
+            form.setValue("salaryMax", extractedData.salaryRange.max);
+          }
+          if (extractedData.salaryRange.currency && !form.getValues("salaryCurrency")) {
+            form.setValue("salaryCurrency", extractedData.salaryRange.currency);
+          }
+          if (extractedData.salaryRange.period) {
+            const periodMap: Record<string, 'hourly' | 'daily' | 'weekly' | 'monthly' | 'annual'> = {
+              'hourly': 'hourly',
+              'hour': 'hourly',
+              'daily': 'daily',
+              'day': 'daily',
+              'weekly': 'weekly',
+              'week': 'weekly',
+              'monthly': 'monthly',
+              'month': 'monthly',
+              'annual': 'annual',
+              'yearly': 'annual',
+              'year': 'annual',
+            };
+            const mappedPeriod = periodMap[extractedData.salaryRange.period.toLowerCase()];
+            if (mappedPeriod && !form.getValues("salaryPeriod")) {
+              form.setValue("salaryPeriod", mappedPeriod);
+            }
+          }
+        }
+        
+        toast({
+          title: "Content Generated from AI!",
+          description: "Job details extracted from your document. Review and edit as needed.",
+        });
+      } else if (positionDescText) {
+        // Fallback to pattern matching if no AI data but text exists
         const description = extractDescription(positionDescText);
         const requirements = extractRequirements(positionDescText);
         const responsibilities = extractResponsibilities(positionDescText);
@@ -198,7 +305,7 @@ export function AIJobGenerator({ form, onScrollToUpload }: AIJobGeneratorProps) 
         
         toast({
           title: "Content Generated from Position Description!",
-          description: "Job details extracted from your document. Review and edit as needed.",
+          description: "Job details extracted using pattern matching. Review and edit as needed.",
         });
       } else {
         // Fall back to mock generation
@@ -242,7 +349,15 @@ Our ideal candidate is passionate about technology, has a strong problem-solving
       
       setIsGenerating(false);
       setOpen(false);
-    }, 2000);
+    } catch (error) {
+      console.error("Error generating content:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate content. Please try again.",
+        variant: "destructive",
+      });
+      setIsGenerating(false);
+    }
   };
 
   const positionDescText = form.watch("positionDescriptionText");

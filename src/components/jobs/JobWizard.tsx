@@ -192,6 +192,11 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
         termsAccepted: formData.termsAccepted || false,
         termsAcceptedAt: formData.termsAccepted ? new Date() : undefined,
         termsAcceptedBy: formData.termsAccepted ? user?.id : undefined,
+        // Add missing fields
+        hiringTeam: formData.hiringTeam || [],
+        closeDate: formData.closeDate ? new Date(formData.closeDate) : undefined,
+        category: formData.experienceLevel || undefined, // Store experienceLevel in category field
+        applicationForm: formData.applicationForm,
       };
 
       if (currentJobId) {
@@ -470,6 +475,16 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
             promotionalTags: data.tags || [],
             stealth: data.stealth,
             visibility: data.visibility,
+            requirements: transformedData.requirements,
+            responsibilities: transformedData.responsibilities,
+            termsAccepted: data.termsAccepted || false,
+            termsAcceptedAt: data.termsAccepted ? new Date() : undefined,
+            termsAcceptedBy: data.termsAccepted ? user?.id : undefined,
+            // Include all fields
+            hiringTeam: data.hiringTeam || [],
+            closeDate: data.closeDate ? new Date(data.closeDate) : undefined,
+            category: data.experienceLevel || undefined,
+            applicationForm: data.applicationForm,
             status: 'DRAFT' as const,
           };
           
@@ -546,6 +561,11 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
       termsAccepted: data.termsAccepted || false,
       termsAcceptedAt: data.termsAccepted ? new Date() : undefined,
       termsAcceptedBy: data.termsAccepted ? user?.id : undefined,
+      // Include all fields
+      hiringTeam: data.hiringTeam || [],
+      closeDate: data.closeDate ? new Date(data.closeDate) : undefined,
+      category: data.experienceLevel || undefined, // Store experienceLevel in category field
+      applicationForm: data.applicationForm,
       status: 'DRAFT' as const, // Will be published below
     };
     
@@ -729,8 +749,8 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
 
         {step === 1 && <JobWizardStep1 form={form} />}
         {step === 2 && !isHRM8Service && <JobWizardStep2 form={form} />}
-        {!isHRM8Service && step === 3 && <JobWizardStep3 form={form} />}
-        {!isHRM8Service && step === 4 && <JobWizardStep4 form={form} />}
+        {!isHRM8Service && step === 3 && <JobWizardStep3 form={form} jobId={currentJobId} />}
+        {!isHRM8Service && step === 4 && <JobWizardStep4 form={form} jobId={currentJobId} />}
         {!isHRM8Service && step === 5 && <JobWizardStep5 form={form} />}
         {!isHRM8Service && step === 6 && <JobWizardStep6 form={form} />}
 
