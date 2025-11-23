@@ -93,6 +93,9 @@ export interface Job {
       category: 'technical' | 'behavioral' | 'situational' | 'cultural' | 'experience';
     }>;
   };
+  
+  // Video Interviewing
+  videoInterviewingEnabled?: boolean;
 }
 
 export interface JobTemplate {
@@ -187,4 +190,7 @@ export interface JobFormData {
   selectedPaymentMethod?: 'account' | 'credit_card';
   paymentInvoiceRequested?: boolean;
   termsAccepted?: boolean;
+  
+  // Video Interviewing
+  videoInterviewingEnabled?: boolean;
 }

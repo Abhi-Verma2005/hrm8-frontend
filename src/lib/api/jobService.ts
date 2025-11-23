@@ -32,6 +32,7 @@ export interface CreateJobRequest {
   stealth?: boolean;
   visibility?: string;
   expiryDate?: string;
+  videoInterviewingEnabled?: boolean;
 }
 
 export interface UpdateJobRequest extends Partial<CreateJobRequest> {
@@ -89,6 +90,13 @@ class JobService {
    */
   async deleteJob(id: string) {
     return apiClient.delete(`/api/jobs/${id}`);
+  }
+
+  /**
+   * Bulk delete jobs
+   */
+  async bulkDeleteJobs(jobIds: string[]) {
+    return apiClient.post<{ deletedCount: number; message: string }>('/api/jobs/bulk-delete', { jobIds });
   }
 
   /**

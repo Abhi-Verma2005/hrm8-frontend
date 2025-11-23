@@ -24,6 +24,8 @@ interface JobsFilterBarProps {
   onLocationsChange: (locations: string[]) => void;
   selectedService: string;
   onServiceChange: (service: string) => void;
+  selectedStatus?: string;
+  onStatusChange?: (status: string) => void;
   consultantOptions: string[];
   locationOptions: LocationOption[];
   currentUserId?: string;
@@ -47,6 +49,8 @@ export function JobsFilterBar({
   onLocationsChange,
   selectedService,
   onServiceChange,
+  selectedStatus = "all",
+  onStatusChange,
   consultantOptions,
   locationOptions,
 }: JobsFilterBarProps) {
@@ -55,7 +59,8 @@ export function JobsFilterBar({
     (searchValue ? 1 : 0) +
     (selectedConsultants.length > 0 ? 1 : 0) +
     (selectedLocations.length > 0 ? 1 : 0) +
-    (selectedService !== "all" ? 1 : 0);
+    (selectedService !== "all" ? 1 : 0) +
+    (selectedStatus !== "all" ? 1 : 0);
 
   const hasActiveFilters = activeFilterCount > 0;
 
@@ -64,6 +69,9 @@ export function JobsFilterBar({
     onConsultantsChange([]);
     onLocationsChange([]);
     onServiceChange("all");
+    if (onStatusChange) {
+      onStatusChange("all");
+    }
   };
 
   return (
@@ -142,6 +150,23 @@ export function JobsFilterBar({
             ))}
           </SelectContent>
         </Select>
+
+        {onStatusChange && (
+          <Select value={selectedStatus} onValueChange={onStatusChange}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="open">Open</SelectItem>
+              <SelectItem value="closed">Closed</SelectItem>
+              <SelectItem value="on-hold">On Hold</SelectItem>
+              <SelectItem value="filled">Filled</SelectItem>
+              <SelectItem value="template">Template</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
 
         <Button
           variant="outline"

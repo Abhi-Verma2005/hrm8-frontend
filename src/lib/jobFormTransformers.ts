@@ -90,6 +90,7 @@ export function transformJobFormDataToCreateRequest(
     requirements,
     responsibilities,
     category: data.experienceLevel || undefined,
+    videoInterviewingEnabled: data.videoInterviewingEnabled || false,
   };
 
   // Add optional fields

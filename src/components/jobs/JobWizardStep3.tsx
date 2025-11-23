@@ -273,6 +273,41 @@ export function JobWizardStep3({ form, jobId }: JobWizardStep3Props) {
             </p>
           </div>
         )}
+
+        <FormField
+          control={form.control}
+          name="videoInterviewingEnabled"
+          render={({ field }) => {
+            // Check if user has subscription (for now, we'll assume free users don't have subscription)
+            // This can be enhanced to check actual subscription status from user context
+            const hasSubscription = false; // TODO: Get from user context/subscription service
+            const videoInterviewingEnabled = field.value || false;
+            
+            return (
+              <FormItem className="flex flex-row items-center justify-between space-x-3 space-y-0 rounded-lg border p-4">
+                <div className="flex-1 space-y-0.5">
+                  <FormLabel className="font-medium">Video Interviewing</FormLabel>
+                  <FormDescription>
+                    Enable video interviewing for candidates applying to this job
+                  </FormDescription>
+                  {videoInterviewingEnabled && !hasSubscription && (
+                    <div className="mt-2 rounded-md bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900 p-2">
+                      <p className="text-xs text-amber-900 dark:text-amber-100">
+                        <span className="font-semibold">Note:</span> Charges will apply for video interviewing. Upgrade to a subscription plan to use this feature for free.
+                      </p>
+                    </div>
+                  )}
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            );
+          }}
+        />
       </div>
 
       {/* Hiring Team Section */}

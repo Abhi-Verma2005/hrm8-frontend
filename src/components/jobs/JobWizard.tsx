@@ -128,6 +128,7 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
       termsAccepted: defaultValues?.termsAccepted || false,
       selectedPaymentMethod: defaultValues?.selectedPaymentMethod,
       paymentInvoiceRequested: defaultValues?.paymentInvoiceRequested || false,
+      videoInterviewingEnabled: defaultValues?.videoInterviewingEnabled || false,
     },
   });
 

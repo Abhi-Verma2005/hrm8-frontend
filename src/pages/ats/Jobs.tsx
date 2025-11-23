@@ -65,6 +65,7 @@ export default function Jobs() {
   const [selectedConsultant, setSelectedConsultant] = useState("all");
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [selectedService, setSelectedService] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
   
   // Advanced filters
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -73,13 +74,30 @@ export default function Jobs() {
   const [selectedJobs, setSelectedJobs] = useState<string[]>([]);
   const [showBulkDeleteDialog, setShowBulkDeleteDialog] = useState(false);
   const [isDeletingBulk, setIsDeletingBulk] = useState(false);
+  const [showDraftDialog, setShowDraftDialog] = useState(false);
+  const [pendingDraft, setPendingDraft] = useState<Job | null>(null);
+  const [pendingFromTemplate, setPendingFromTemplate] = useState(false);
 
   // Fetch jobs from API
   useEffect(() => {
     const fetchJobs = async () => {
       try {
         setLoading(true);
-        const response = await jobService.getJobs();
+        // Build filters object
+        const filters: { status?: string } = {};
+        if (selectedStatus !== 'all') {
+          // Convert frontend status format to backend format
+          const statusMap: Record<string, string> = {
+            'draft': 'DRAFT',
+            'open': 'OPEN',
+            'closed': 'CLOSED',
+            'on-hold': 'ON_HOLD',
+            'filled': 'FILLED',
+            'template': 'TEMPLATE',
+          };
+          filters.status = statusMap[selectedStatus] || selectedStatus.toUpperCase();
+        }
+        const response = await jobService.getJobs(filters);
         if (response.success && response.data) {
           // Map backend jobs to frontend format
           const mappedJobs = response.data.map(mapBackendJobToFrontend);
@@ -103,7 +121,7 @@ export default function Jobs() {
     };
 
     fetchJobs();
-  }, [refreshKey, toast]);
+  }, [refreshKey, selectedStatus, toast]);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -134,8 +152,10 @@ export default function Jobs() {
   useEffect(() => {
     if (searchParams.get('action') === 'create') {
       const fromTemplate = searchParams.get('fromTemplate') === 'true';
-      handleCreateJob(fromTemplate);
+      // Clear params first to avoid re-triggering
       setSearchParams({}, { replace: true });
+      // Then handle the create action
+      handleCreateJob(fromTemplate);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, setSearchParams]);
@@ -223,7 +243,8 @@ export default function Jobs() {
         if (job.serviceType !== selectedService) return false;
       }
 
-      // Advanced filters
+      // Note: Status filter is handled on the backend via API call
+      // Advanced filters (which may include multiple statuses)
       if (advancedFilters.status && advancedFilters.status.length > 0) {
         if (!advancedFilters.status.includes(job.status)) return false;
       }
@@ -252,7 +273,7 @@ export default function Jobs() {
 
       return true;
     });
-  }, [jobs, searchValue, selectedConsultant, selectedLocation, selectedService, advancedFilters]);
+  }, [jobs, searchValue, selectedConsultant, selectedLocation, selectedService, selectedStatus, advancedFilters]);
 
   const handleDelete = (id: string) => {
     setJobToDelete(id);
@@ -294,31 +315,52 @@ export default function Jobs() {
     // Refetch to get the latest draft and use the returned value
     const latestDraft = await refetchDraft();
     
-    if (latestDraft) {
-      // Load the most recent draft
+    // If coming from template, load the draft directly (template data already applied)
+    if (latestDraft && fromTemplate) {
       setEditingJobId(latestDraft.id);
       setDrawerOpen(true);
-      
-      // Show different toast message if coming from template
-      if (fromTemplate) {
-        toast({
-          title: "Template applied",
-          description: `Template data has been filled into your draft job.`,
-          duration: 4000,
-        });
-      } else {
-        toast({
-          title: "Draft loaded",
-          description: `Continuing with your draft: "${latestDraft.title || 'Untitled Job'}"`,
-          duration: 4000,
-        });
-      }
+      toast({
+        title: "Template applied",
+        description: `Template data has been filled into your draft job.`,
+        duration: 4000,
+      });
+      return;
+    }
+
+    // If draft exists and NOT from template, show dialog to let user choose
+    if (latestDraft && !fromTemplate) {
+      setPendingDraft(latestDraft);
+      setPendingFromTemplate(false);
+      setShowDraftDialog(true);
       return;
     }
 
     // No draft found, start fresh
     setEditingJobId(null);
     setDrawerOpen(true);
+  };
+
+  const handleContinueWithDraft = () => {
+    if (pendingDraft) {
+      setEditingJobId(pendingDraft.id);
+      setDrawerOpen(true);
+      toast({
+        title: "Draft loaded",
+        description: `Continuing with your draft: "${pendingDraft.title || 'Untitled Job'}"`,
+        duration: 4000,
+      });
+    }
+    setShowDraftDialog(false);
+    setPendingDraft(null);
+    setPendingFromTemplate(false);
+  };
+
+  const handleStartNewJob = () => {
+    setEditingJobId(null);
+    setDrawerOpen(true);
+    setShowDraftDialog(false);
+    setPendingDraft(null);
+    setPendingFromTemplate(false);
   };
 
   const handleEditJob = (jobId: string) => {
@@ -377,18 +419,25 @@ export default function Jobs() {
   const confirmBulkDelete = async () => {
     setIsDeletingBulk(true);
     try {
-      const deletePromises = selectedJobs.map(id => jobService.deleteJob(id));
-      await Promise.all(deletePromises);
-      toast({
-        title: "Jobs deleted",
-        description: `${selectedJobs.length} job(s) have been deleted.`,
-      });
-      setSelectedJobs([]);
-      setRefreshKey(prev => prev + 1);
+      const response = await jobService.bulkDeleteJobs(selectedJobs);
+      if (response.success) {
+        toast({
+          title: "Jobs deleted",
+          description: response.data?.message || `${selectedJobs.length} job(s) have been deleted.`,
+        });
+        setSelectedJobs([]);
+        setRefreshKey(prev => prev + 1);
+      } else {
+        toast({
+          title: "Error",
+          description: response.error || "Failed to delete jobs",
+          variant: 'destructive',
+        });
+      }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to delete some jobs",
+        description: "Failed to delete jobs",
         variant: 'destructive',
       });
     } finally {
@@ -635,7 +684,11 @@ export default function Jobs() {
               </Link>
             </Button>
             {canPostJobs ? (
-            <Button onClick={handleCreateJob}>
+            <Button onClick={() => {
+              // Clear any URL params first to avoid interference
+              setSearchParams({}, { replace: true });
+              handleCreateJob(false);
+            }}>
               <Plus className="h-4 w-4 mr-2" />
               Post Job
             </Button>
@@ -679,7 +732,10 @@ export default function Jobs() {
             showMenu={true}
             menuItems={[
               { label: "View active jobs", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-              { label: "Post new job", icon: <Plus className="h-4 w-4" />, onClick: () => handleCreateJob() },
+              { label: "Post new job", icon: <Plus className="h-4 w-4" />, onClick: () => {
+                setSearchParams({}, { replace: true });
+                handleCreateJob(false);
+              }},
             ]}
           />
           <EnhancedStatCard
@@ -725,6 +781,8 @@ export default function Jobs() {
               onLocationsChange={(locations) => setSelectedLocation(locations[0] || 'all')}
               selectedService={selectedService}
               onServiceChange={setSelectedService}
+              selectedStatus={selectedStatus}
+              onStatusChange={setSelectedStatus}
               consultantOptions={uniqueConsultants}
               locationOptions={locationOptions}
               currentUserId="admin-1"
@@ -812,6 +870,43 @@ export default function Jobs() {
           description={`Are you sure you want to delete ${selectedJobs.length} job(s)? This action cannot be undone.`}
           isDeleting={isDeletingBulk}
         />
+
+        <AlertDialog open={showDraftDialog} onOpenChange={setShowDraftDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Continue with Draft or Start New?</AlertDialogTitle>
+              <AlertDialogDescription>
+                You have an existing draft job: <strong>"{pendingDraft?.title || 'Untitled Job'}"</strong>.
+                <br /><br />
+                Would you like to continue editing your draft or start a new job posting?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+              <AlertDialogCancel onClick={() => {
+                setShowDraftDialog(false);
+                setPendingDraft(null);
+                setPendingFromTemplate(false);
+              }}>
+                Cancel
+              </AlertDialogCancel>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Button
+                  onClick={handleContinueWithDraft}
+                  className="flex-1 sm:flex-initial"
+                >
+                  Continue Draft
+                </Button>
+                <Button
+                  onClick={handleStartNewJob}
+                  variant="default"
+                  className="flex-1 sm:flex-initial"
+                >
+                  Start New Job
+                </Button>
+              </div>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
           </>
         )}
       </div>

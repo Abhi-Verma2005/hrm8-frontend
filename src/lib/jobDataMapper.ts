@@ -129,6 +129,7 @@ export function mapBackendJobToFrontend(backendJob: any): Job {
     currentEmployeePriority: backendJob.currentEmployeePriority,
     requisitionId: backendJob.requisitionId,
     aiInterviewConfig: backendJob.aiInterviewConfig,
+    videoInterviewingEnabled: backendJob.videoInterviewingEnabled || false,
   };
 }
 
@@ -185,6 +186,7 @@ export function mapBackendJobToFormData(backendJob: any): Partial<JobFormData> {
       ? 'draft' 
       : normalizedJob.status,
     jobBoardDistribution: normalizedJob.jobBoardDistribution || [],
+    videoInterviewingEnabled: normalizedJob.videoInterviewingEnabled || false,
   };
 }
 

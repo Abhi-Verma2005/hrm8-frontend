@@ -55,6 +55,7 @@ import { formatDistanceToNow } from "date-fns";
 import { templateCategories } from "@/lib/jobTemplateService";
 import { useDraftJob } from "@/hooks/useDraftJob";
 import { transformJobFormDataToCreateRequest } from "@/lib/jobFormTransformers";
+import { TemplatesPageSkeleton } from "@/components/jobs/templates/TemplatesPageSkeleton";
 
 interface TemplateJob extends Job {
   templateName?: string;
@@ -252,8 +253,12 @@ export default function JobTemplates() {
   return (
     <DashboardPageLayout>
       <div className="p-12 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+        {loading ? (
+          <TemplatesPageSkeleton />
+        ) : (
+          <>
+          {/* Header */}
+          <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Job Templates</h1>
             <p className="text-muted-foreground">
@@ -458,6 +463,8 @@ export default function JobTemplates() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+          </>
+        )}
       </div>
     </DashboardPageLayout>
   );
