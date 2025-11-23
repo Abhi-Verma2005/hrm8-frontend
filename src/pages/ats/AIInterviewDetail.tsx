@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAIInterview } from '@/hooks/useAIInterview';
-import { PageHeader } from '@/components/common/PageHeader';
+import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,36 +36,36 @@ export default function AIInterviewDetail() {
   };
 
   return (
-    <div className="container mx-auto p-12 space-y-6">
-      <PageHeader
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
         title={`Interview with ${session.candidateName}`}
-        description={`${session.jobTitle} - ${format(new Date(session.scheduledDate), 'PPp')}`}
-        actions={
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate('/ai-interviews')}>
+          subtitle={`${session.jobTitle} • ${format(new Date(session.scheduledDate), 'PPp')}`}
+        >
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate('/ai-interviews')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to List
             </Button>
             {session.status === 'scheduled' && (
-              <Button onClick={() => navigate(`/ai-interviews/session/${session.invitationToken}`)}>
+              <Button size="sm" onClick={() => navigate(`/ai-interviews/session/${session.invitationToken}`)}>
                 <Play className="h-4 w-4 mr-2" />
                 Start Interview
               </Button>
             )}
             {session.status === 'completed' && session.reportId && (
-              <Button onClick={() => navigate(`/ai-interviews/reports/${session.reportId}`)}>
+              <Button size="sm" onClick={() => navigate(`/ai-interviews/reports/${session.reportId}`)}>
                 <FileText className="h-4 w-4 mr-2" />
                 View Report
               </Button>
             )}
           </div>
-        }
-      />
+        </AtsPageHeader>
 
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Interview Overview</CardTitle>
+            <CardTitle className="text-base font-semibold">Interview Overview</CardTitle>
             <Badge className={statusColors[session.status]}>
               {session.status}
             </Badge>
@@ -101,7 +102,7 @@ export default function AIInterviewDetail() {
         <TabsContent value="overview" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Interview Details</CardTitle>
+              <CardTitle className="text-base font-semibold">Interview Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
@@ -151,5 +152,6 @@ export default function AIInterviewDetail() {
         )}
       </Tabs>
     </div>
+    </DashboardPageLayout>
   );
 }

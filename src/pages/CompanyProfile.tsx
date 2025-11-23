@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -193,25 +194,21 @@ export default function CompanyProfile() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-6">
-        <div className="space-y-6 max-w-6xl mx-auto">
+      <div className="p-6 space-y-6">
+        <div className="max-w-6xl mx-auto space-y-6">
           {/* Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold">Company Profile</h1>
-              <p className="text-muted-foreground mt-2">
-                View and manage your company information and onboarding details
-              </p>
-            </div>
-          </div>
+          <AtsPageHeader
+            title="Company Profile"
+            subtitle="View and manage your company information and onboarding details"
+          />
 
           {/* Progress Card */}
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>Profile Completion</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-base font-semibold">Profile Completion</CardTitle>
+                  <CardDescription className="text-sm">
                     Complete all required sections to unlock full features
                   </CardDescription>
                 </div>
@@ -235,7 +232,8 @@ export default function CompanyProfile() {
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as CompanyProfileSectionKey)}>
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6">
+            <div className="overflow-x-auto -mx-1 px-1">
+              <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
               {sectionConfig.map((section) => {
                 const isComplete = completedSectionKeys.has(section.key);
                 const Icon = section.icon;
@@ -243,21 +241,20 @@ export default function CompanyProfile() {
                   <TabsTrigger
                     key={section.key}
                     value={section.key}
-                    className="flex flex-col items-center gap-2 h-auto py-3"
+                      className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
                   >
-                    <div className="flex items-center gap-2">
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-3.5 w-3.5 flex-shrink-0" />
                       {isComplete ? (
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 flex-shrink-0" />
                       ) : (
-                        <Circle className="h-4 w-4 text-muted-foreground" />
+                        <Circle className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
                       )}
-                    </div>
-                    <span className="text-xs">{section.title}</span>
+                      <span>{section.title}</span>
                   </TabsTrigger>
                 );
               })}
             </TabsList>
+            </div>
 
             {/* Basic Details Tab */}
             <TabsContent value="basicDetails" className="mt-6">
@@ -265,8 +262,8 @@ export default function CompanyProfile() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Basic Company Details</CardTitle>
-                      <CardDescription>
+                      <CardTitle className="text-base font-semibold">Basic Company Details</CardTitle>
+                      <CardDescription className="text-sm">
                         {sectionConfig.find((s) => s.key === 'basicDetails')?.description}
                       </CardDescription>
                     </div>
@@ -351,8 +348,8 @@ export default function CompanyProfile() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Locations</CardTitle>
-                      <CardDescription>
+                      <CardTitle className="text-base font-semibold">Locations</CardTitle>
+                      <CardDescription className="text-sm">
                         {sectionConfig.find((s) => s.key === 'primaryLocation')?.description}
                       </CardDescription>
                     </div>
@@ -425,8 +422,8 @@ export default function CompanyProfile() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Personal Profile</CardTitle>
-                      <CardDescription>
+                      <CardTitle className="text-base font-semibold">Personal Profile</CardTitle>
+                      <CardDescription className="text-sm">
                         {sectionConfig.find((s) => s.key === 'personalProfile')?.description}
                       </CardDescription>
                     </div>
@@ -487,8 +484,8 @@ export default function CompanyProfile() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Team Members</CardTitle>
-                      <CardDescription>
+                      <CardTitle className="text-base font-semibold">Team Members</CardTitle>
+                      <CardDescription className="text-sm">
                         {sectionConfig.find((s) => s.key === 'teamMembers')?.description}
                       </CardDescription>
                     </div>
@@ -551,8 +548,8 @@ export default function CompanyProfile() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Billing Setup</CardTitle>
-                      <CardDescription>
+                      <CardTitle className="text-base font-semibold">Billing Setup</CardTitle>
+                      <CardDescription className="text-sm">
                         {sectionConfig.find((s) => s.key === 'billing')?.description}
                       </CardDescription>
                     </div>
@@ -613,8 +610,8 @@ export default function CompanyProfile() {
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle>Branding & Careers Page</CardTitle>
-                      <CardDescription>
+                      <CardTitle className="text-base font-semibold">Branding & Careers Page</CardTitle>
+                      <CardDescription className="text-sm">
                         {sectionConfig.find((s) => s.key === 'branding')?.description}
                       </CardDescription>
                     </div>

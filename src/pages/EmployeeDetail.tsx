@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,17 +44,26 @@ export default function EmployeeDetail() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6" key={refreshKey}>
-        <div className="flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate("/hrms")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Employees
-          </Button>
-          <Button onClick={() => setEditDialogOpen(true)}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Employee
-          </Button>
-        </div>
+      <div className="p-6 space-y-6" key={refreshKey}>
+        <AtsPageHeader
+          title={`${employee.firstName} ${employee.lastName}`}
+          subtitle={employee.jobTitle}
+        >
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/hrms")}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Employees
+            </Button>
+            <EmployeeStatusBadge status={employee.status} />
+            <Badge variant="outline" className="h-6 px-2 text-xs">{employee.department}</Badge>
+            <EmploymentTypeBadge type={employee.employmentType} />
+            <Badge variant="outline" className="h-6 px-2 text-xs font-mono">{employee.employeeId}</Badge>
+            <Button size="sm" onClick={() => setEditDialogOpen(true)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Employee
+            </Button>
+          </div>
+        </AtsPageHeader>
 
         <Card>
           <CardHeader>
@@ -66,35 +76,51 @@ export default function EmployeeDetail() {
               />
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <CardTitle className="text-3xl">
+                  <CardTitle className="text-base font-semibold">
                     {employee.firstName} {employee.lastName}
                   </CardTitle>
-                  <EmployeeStatusBadge status={employee.status} />
                 </div>
-                <CardDescription className="text-lg">{employee.jobTitle}</CardDescription>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  <Badge variant="outline">{employee.department}</Badge>
-                  <EmploymentTypeBadge type={employee.employmentType} />
-                  <Badge variant="outline" className="font-mono">{employee.employeeId}</Badge>
-                </div>
+                <CardDescription className="text-sm">{employee.jobTitle}</CardDescription>
               </div>
             </div>
           </CardHeader>
         </Card>
 
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="notes">Notes</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-1 px-1">
+            <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
+              <TabsTrigger 
+                value="overview"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="documents"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Documents
+              </TabsTrigger>
+              <TabsTrigger 
+                value="notes"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Notes
+              </TabsTrigger>
+              <TabsTrigger 
+                value="history"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                History
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Contact Information</CardTitle>
+                  <CardTitle className="text-base font-semibold">Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-2">
@@ -118,7 +144,7 @@ export default function EmployeeDetail() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Employment Details</CardTitle>
+                  <CardTitle className="text-base font-semibold">Employment Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-2">
@@ -140,7 +166,7 @@ export default function EmployeeDetail() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Compensation</CardTitle>
+                  <CardTitle className="text-base font-semibold">Compensation</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex items-center gap-2">
@@ -160,7 +186,7 @@ export default function EmployeeDetail() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Personal Information</CardTitle>
+                  <CardTitle className="text-base font-semibold">Personal Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
@@ -178,7 +204,7 @@ export default function EmployeeDetail() {
             {employee.emergencyContactName && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Emergency Contact</CardTitle>
+                  <CardTitle className="text-base font-semibold">Emergency Contact</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div>
@@ -204,7 +230,7 @@ export default function EmployeeDetail() {
             {(employee.skills && employee.skills.length > 0) && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Skills</CardTitle>
+                  <CardTitle className="text-base font-semibold">Skills</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
@@ -219,7 +245,7 @@ export default function EmployeeDetail() {
             {(employee.certifications && employee.certifications.length > 0) && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Certifications</CardTitle>
+                  <CardTitle className="text-base font-semibold">Certifications</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
@@ -234,7 +260,7 @@ export default function EmployeeDetail() {
             {employee.notes && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Additional Notes</CardTitle>
+                  <CardTitle className="text-base font-semibold">Additional Notes</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm whitespace-pre-wrap">{employee.notes}</p>

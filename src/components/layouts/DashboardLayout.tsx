@@ -16,7 +16,7 @@ export function DashboardLayout() {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <SidebarInset className="flex-1">
-          <div className="px-4 pb-4 space-y-4">
+          <div className="min-w-0">
             <OnboardingReminderBanner />
             <Outlet />
           </div>

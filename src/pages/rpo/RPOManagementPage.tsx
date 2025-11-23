@@ -1,4 +1,5 @@
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { RPOContractsTable } from '@/components/rpo/RPOContractsTable';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { Building2, Users, DollarSign, Clock, TrendingUp, FileText, BarChart3, Eye, Plus, Download } from 'lucide-react';
@@ -133,15 +134,8 @@ export default function RPOManagementPage() {
 
   return (
     <DashboardPageLayout>
-      <div className="w-full p-12 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">RPO Management</h1>
-            <p className="text-muted-foreground">
-              Manage and monitor your RPO contracts and consultants
-            </p>
-          </div>
+      <div className="w-full p-6 space-y-6">
+        <AtsPageHeader title="RPO Management" subtitle="Manage and monitor your RPO contracts and consultants">
           <div className="flex items-center gap-2">
             <Button variant="outline">
               <Users className="h-4 w-4 mr-2" />
@@ -158,7 +152,7 @@ export default function RPOManagementPage() {
               </Link>
             </Button>
           </div>
-        </div>
+        </AtsPageHeader>
 
         {/* Metric Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -258,13 +252,15 @@ export default function RPOManagementPage() {
         {/* Contracts Table */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">RPO Contracts</h2>
+            <h2 className="text-lg font-semibold">RPO Contracts</h2>
             <Button variant="outline" size="sm">
               <TrendingUp className="h-4 w-4 mr-2" />
               Export Data
             </Button>
           </div>
-          <RPOContractsTable contracts={mockContracts} />
+          <div className="overflow-x-auto -mx-1 px-1">
+            <RPOContractsTable contracts={mockContracts} />
+          </div>
         </div>
       </div>
     </DashboardPageLayout>

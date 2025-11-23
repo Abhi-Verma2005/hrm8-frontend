@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -120,17 +121,15 @@ export default function AdvancedAnalytics() {
 
   return (
     <DashboardPageLayout>
-      <div className="space-y-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Advanced Analytics</h1>
-            <p className="text-muted-foreground mt-2">
-              Predictive insights, workforce intelligence, and strategic recommendations
-            </p>
-          </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title="Advanced Analytics"
+          subtitle="Predictive insights, workforce intelligence, and strategic recommendations"
+        >
           <div className="flex gap-2">
             <Button
               variant={showFilters ? "default" : "outline"}
+              size="sm"
               onClick={() => setShowFilters(!showFilters)}
               className="gap-2"
             >
@@ -143,20 +142,20 @@ export default function AdvancedAnalytics() {
               )}
             </Button>
             {activeFilterCount > 0 && (
-              <Button variant="ghost" onClick={clearAllFilters} className="gap-2">
+              <Button variant="ghost" size="sm" onClick={clearAllFilters} className="gap-2">
                 <X className="h-4 w-4" />
                 Clear All
               </Button>
             )}
           </div>
-        </div>
+        </AtsPageHeader>
 
         {/* Filters Panel */}
         {showFilters && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Filters</CardTitle>
-              <CardDescription>Refine data visualization and analysis</CardDescription>
+              <CardTitle className="text-base font-semibold">Filters</CardTitle>
+              <CardDescription className="text-sm">Refine data visualization and analysis</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -303,8 +302,8 @@ export default function AdvancedAnalytics() {
         {/* Predictive Trends Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Predictive Trends</CardTitle>
-            <CardDescription>Forecasted vs. current metrics over time</CardDescription>
+            <CardTitle className="text-base font-semibold">Predictive Trends</CardTitle>
+            <CardDescription className="text-sm">Forecasted vs. current metrics over time</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -329,8 +328,8 @@ export default function AdvancedAnalytics() {
         {/* Predictive Metrics Details */}
         <Card>
           <CardHeader>
-            <CardTitle>Predictive Metrics</CardTitle>
-            <CardDescription>AI-powered forecasts for key workforce indicators</CardDescription>
+            <CardTitle className="text-base font-semibold">Predictive Metrics</CardTitle>
+            <CardDescription className="text-sm">AI-powered forecasts for key workforce indicators</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -338,8 +337,8 @@ export default function AdvancedAnalytics() {
                 <div key={metric.id} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h4 className="font-semibold">{metric.metricName}</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <h4 className="text-sm font-semibold">{metric.metricName}</h4>
+                      <p className="text-xs text-muted-foreground">
                         Predicted for {new Date(metric.predictedDate).toLocaleDateString()}
                       </p>
                     </div>
@@ -348,15 +347,15 @@ export default function AdvancedAnalytics() {
                   <div className="grid grid-cols-3 gap-4 mb-3">
                     <div>
                       <p className="text-xs text-muted-foreground">Current</p>
-                      <p className="text-lg font-semibold">{metric.currentValue}%</p>
+                      <p className="text-base font-semibold">{metric.currentValue}%</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Predicted</p>
-                      <p className="text-lg font-semibold">{metric.predictedValue}%</p>
+                      <p className="text-base font-semibold">{metric.predictedValue}%</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Confidence</p>
-                      <p className="text-lg font-semibold">{metric.confidence}%</p>
+                      <p className="text-base font-semibold">{metric.confidence}%</p>
                     </div>
                   </div>
                   <Progress value={metric.confidence} className="h-2" />
@@ -369,8 +368,8 @@ export default function AdvancedAnalytics() {
         {/* Workforce Insights */}
         <Card>
           <CardHeader>
-            <CardTitle>Workforce Insights</CardTitle>
-            <CardDescription>Actionable intelligence and strategic recommendations</CardDescription>
+            <CardTitle className="text-base font-semibold">Workforce Insights</CardTitle>
+            <CardDescription className="text-sm">Actionable intelligence and strategic recommendations</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -380,8 +379,8 @@ export default function AdvancedAnalytics() {
                     <div className="mt-0.5">{getInsightIcon(insight.type)}</div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <h4 className="font-semibold">{insight.title}</h4>
-                        <Badge variant={insight.impact === 'high' ? 'destructive' : insight.impact === 'medium' ? 'default' : 'secondary'}>
+                        <h4 className="text-sm font-semibold">{insight.title}</h4>
+                        <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
                           {insight.impact} impact
                         </Badge>
                       </div>
@@ -411,8 +410,8 @@ export default function AdvancedAnalytics() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Department Metrics</CardTitle>
-              <CardDescription>Performance and engagement scores</CardDescription>
+              <CardTitle className="text-base font-semibold">Department Metrics</CardTitle>
+              <CardDescription className="text-sm">Performance and engagement scores</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -431,8 +430,8 @@ export default function AdvancedAnalytics() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Department Radar</CardTitle>
-              <CardDescription>Multi-dimensional performance view</CardDescription>
+              <CardTitle className="text-base font-semibold">Department Radar</CardTitle>
+              <CardDescription className="text-sm">Multi-dimensional performance view</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -453,8 +452,8 @@ export default function AdvancedAnalytics() {
         {/* Department Comparison Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Department Performance Comparison</CardTitle>
-            <CardDescription>Detailed benchmarking across organizational units</CardDescription>
+            <CardTitle className="text-base font-semibold">Department Performance Comparison</CardTitle>
+            <CardDescription className="text-sm">Detailed benchmarking across organizational units</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -492,8 +491,8 @@ export default function AdvancedAnalytics() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle>Workforce Distribution</CardTitle>
-              <CardDescription>Headcount by department</CardDescription>
+              <CardTitle className="text-base font-semibold">Workforce Distribution</CardTitle>
+              <CardDescription className="text-sm">Headcount by department</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -520,8 +519,8 @@ export default function AdvancedAnalytics() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Skill Gap Analysis</CardTitle>
-              <CardDescription>Current vs. required skill levels</CardDescription>
+              <CardTitle className="text-base font-semibold">Skill Gap Analysis</CardTitle>
+              <CardDescription className="text-sm">Current vs. required skill levels</CardDescription>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
@@ -542,8 +541,8 @@ export default function AdvancedAnalytics() {
         {/* Skill Gap Details */}
         <Card>
           <CardHeader>
-            <CardTitle>Critical Skill Gaps</CardTitle>
-            <CardDescription>Areas requiring immediate attention and development</CardDescription>
+            <CardTitle className="text-base font-semibold">Critical Skill Gaps</CardTitle>
+            <CardDescription className="text-sm">Areas requiring immediate attention and development</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -551,27 +550,27 @@ export default function AdvancedAnalytics() {
                 <div key={gap.id} className="border rounded-lg p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div>
-                      <h4 className="font-semibold">{gap.skillName}</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <h4 className="text-sm font-semibold">{gap.skillName}</h4>
+                      <p className="text-xs text-muted-foreground">
                         {gap.affectedEmployees} employees • {gap.departmentsAffected.join(', ')}
                       </p>
                     </div>
-                    <Badge variant={gap.priority === 'critical' || gap.priority === 'high' ? 'destructive' : 'default'}>
+                    <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
                       {gap.priority}
                     </Badge>
                   </div>
                   <div className="grid grid-cols-3 gap-4 mb-3">
                     <div>
                       <p className="text-xs text-muted-foreground">Current Level</p>
-                      <p className="text-lg font-semibold">{gap.currentLevel}/5</p>
+                      <p className="text-base font-semibold">{gap.currentLevel}/5</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Required Level</p>
-                      <p className="text-lg font-semibold">{gap.requiredLevel}/5</p>
+                      <p className="text-base font-semibold">{gap.requiredLevel}/5</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Gap</p>
-                      <p className="text-lg font-semibold text-destructive">{gap.gap}</p>
+                      <p className="text-base font-semibold text-destructive">{gap.gap}</p>
                     </div>
                   </div>
                   <div>

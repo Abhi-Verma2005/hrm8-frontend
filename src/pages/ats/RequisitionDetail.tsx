@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -62,22 +63,24 @@ export default function RequisitionDetail() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/requisitions")}>
-            <ArrowLeft className="h-4 w-4" />
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title={requisition.title}
+          subtitle={requisition.department}
+        >
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/requisitions")}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back
           </Button>
-          <div className="flex-1">
-            <h1 className="text-3xl font-bold">{requisition.title}</h1>
-            <p className="text-muted-foreground">{requisition.department}</p>
+            <Badge variant="outline" className="h-6 px-2 text-xs">{requisition.status}</Badge>
           </div>
-          <Badge>{requisition.status}</Badge>
-        </div>
+        </AtsPageHeader>
 
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle>Requisition Details</CardTitle>
+              <CardTitle className="text-base font-semibold">Requisition Details</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
@@ -108,7 +111,7 @@ export default function RequisitionDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Business Justification</CardTitle>
+              <CardTitle className="text-base font-semibold">Business Justification</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm">{requisition.justification}</p>
@@ -118,7 +121,7 @@ export default function RequisitionDetail() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Approval Workflow</CardTitle>
+            <CardTitle className="text-base font-semibold">Approval Workflow</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -168,7 +171,7 @@ export default function RequisitionDetail() {
         {requisition.status === 'pending' && (
           <Card>
             <CardHeader>
-              <CardTitle>Review & Decision</CardTitle>
+              <CardTitle className="text-base font-semibold">Review & Decision</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>

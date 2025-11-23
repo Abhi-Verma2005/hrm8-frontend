@@ -1,4 +1,5 @@
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Settings as SettingsIcon, DollarSign, Bell, Globe, Eye, Shield } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -23,23 +24,21 @@ export default function Settings() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-6">
-        <div className="space-y-6 max-w-4xl">
-          <div>
-            <h1 className="text-3xl font-bold">Settings</h1>
-            <p className="text-muted-foreground mt-2">
-              Manage your application preferences and configurations
-            </p>
-          </div>
+      <div className="p-6 space-y-6">
+        <div className="max-w-4xl space-y-6">
+          <AtsPageHeader
+            title="Settings"
+            subtitle="Manage your application preferences and configurations"
+          />
 
           {/* Display & Formatting */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5" />
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Eye className="h-4 w-4" />
                 Display & Formatting
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 Customize how information is displayed throughout the application
               </CardDescription>
             </CardHeader>
@@ -75,11 +74,11 @@ export default function Settings() {
           {/* Regional Settings */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="h-5 w-5" />
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Globe className="h-4 w-4" />
                 Regional Settings
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 Configure language, timezone, and regional preferences
               </CardDescription>
             </CardHeader>
@@ -91,11 +90,11 @@ export default function Settings() {
           {/* Notifications */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="h-5 w-5" />
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Bell className="h-4 w-4" />
                 Notifications
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 Manage how you receive notifications and alerts
               </CardDescription>
             </CardHeader>
@@ -107,11 +106,11 @@ export default function Settings() {
           {/* Privacy & Security */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5" />
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Shield className="h-4 w-4" />
                 Privacy & Security
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 Control your privacy and security settings
               </CardDescription>
             </CardHeader>

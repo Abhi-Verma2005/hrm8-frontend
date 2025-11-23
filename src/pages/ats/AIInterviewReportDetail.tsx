@@ -1,5 +1,6 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { PageHeader } from '@/components/common/PageHeader';
+import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { useInterviewReport } from '@/hooks/useInterviewReports';
 import { useReportComments } from '@/hooks/useReportComments';
 import { Button } from '@/components/ui/button';
@@ -41,34 +42,34 @@ export default function AIInterviewReportDetail() {
   };
 
   return (
-    <div className="container mx-auto p-12 space-y-6">
-      <PageHeader
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
         title={`Interview Report: ${report.candidateName}`}
-        description={`${report.jobTitle} - ${format(new Date(report.createdAt), 'PPP')}`}
-        actions={
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => navigate('/ai-interviews/reports')}>
+          subtitle={`${report.jobTitle} • ${format(new Date(report.createdAt), 'PPP')}`}
+        >
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate('/ai-interviews/reports')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" size="sm">
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" size="sm">
               <Download className="h-4 w-4 mr-2" />
               Export PDF
             </Button>
           </div>
-        }
-      />
+        </AtsPageHeader>
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle>Report Status</CardTitle>
+                <CardTitle className="text-base font-semibold">Report Status</CardTitle>
                 <Badge className={statusColors[report.status]}>
                   {report.status.replace('-', ' ')}
                 </Badge>
@@ -81,7 +82,7 @@ export default function AIInterviewReportDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Executive Summary</CardTitle>
+              <CardTitle className="text-base font-semibold">Executive Summary</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="whitespace-pre-wrap">{report.executiveSummary}</p>
@@ -90,7 +91,7 @@ export default function AIInterviewReportDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Performance Analysis</CardTitle>
+              <CardTitle className="text-base font-semibold">Performance Analysis</CardTitle>
             </CardHeader>
             <CardContent>
               <InterviewScorecard analysis={report.analysis} />
@@ -99,7 +100,7 @@ export default function AIInterviewReportDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Recommendations</CardTitle>
+              <CardTitle className="text-base font-semibold">Recommendations</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="whitespace-pre-wrap">{report.recommendations}</p>
@@ -108,7 +109,7 @@ export default function AIInterviewReportDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Next Steps</CardTitle>
+              <CardTitle className="text-base font-semibold">Next Steps</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="whitespace-pre-wrap">{report.nextSteps}</p>
@@ -119,8 +120,8 @@ export default function AIInterviewReportDetail() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MessageSquare className="h-5 w-5" />
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
                 Team Discussion ({comments.length})
               </CardTitle>
             </CardHeader>
@@ -157,7 +158,7 @@ export default function AIInterviewReportDetail() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Report Info</CardTitle>
+              <CardTitle className="text-base font-semibold">Report Info</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <div>
@@ -177,5 +178,6 @@ export default function AIInterviewReportDetail() {
         </div>
       </div>
     </div>
+    </DashboardPageLayout>
   );
 }

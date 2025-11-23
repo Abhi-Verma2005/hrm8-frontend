@@ -1,9 +1,12 @@
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { AlertCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const ONBOARDING_SKIP_KEY = 'hrm8OnboardingSkipUntil';
 
@@ -78,23 +81,52 @@ export function OnboardingReminderBanner() {
   };
 
   return (
-    <Alert className="mb-4">
-      <AlertTitle>Complete your company profile</AlertTitle>
-      <AlertDescription className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
+    <Card className={cn(
+      "relative shadow-sm",
+      "bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60",
+      "border border-border/50",
+      "p-4 mt-4 mb-4 mx-4 rounded-lg"
+    )}>
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-start gap-3 min-w-0 flex-1">
+          <div className={cn(
+            "rounded-full flex items-center justify-center w-10 h-10 flex-none",
+            "bg-warning/10 text-warning"
+          )}>
+            <AlertCircle className="h-5 w-5" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-sm font-semibold mb-1">Complete your company profile</h3>
+            <p className="text-sm text-muted-foreground leading-5">
           Finish onboarding to unlock job posting, billing, and branding features. You are{' '}
-          <span className="font-semibold">{profileSummary.completionPercentage}%</span> done.
+              <Badge 
+                variant="outline" 
+                className="h-6 px-2 text-xs inline-flex items-center rounded-full bg-warning/10 text-warning border-warning/20"
+              >
+                {profileSummary.completionPercentage}% done
+              </Badge>
+            </p>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Button size="sm" onClick={handleContinue}>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Button 
+            size="sm" 
+            onClick={handleContinue}
+            className="whitespace-nowrap"
+          >
             Continue setup
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleRemindLater}>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleRemindLater}
+            className="whitespace-nowrap"
+          >
             Remind me later
           </Button>
         </div>
-      </AlertDescription>
-    </Alert>
+      </div>
+    </Card>
   );
 }
 

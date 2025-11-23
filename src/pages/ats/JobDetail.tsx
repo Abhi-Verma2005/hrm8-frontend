@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, Link, Navigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -134,60 +135,19 @@ export default function JobDetail() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-4 flex-1 min-w-0">
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title={job.title}
+          subtitle={job.employerName}
+        >
+          <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" asChild>
               <Link to="/jobs">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
             </Button>
-            
-            {/* Company Logo with 16:9 AspectRatio */}
-            <div className="flex-shrink-0 w-[120px]">
-              <div className="w-full aspect-[16/9] border border-gray-200 dark:border-gray-800 bg-card overflow-hidden shadow-sm">
-                {job.employerLogo ? (
-                  <img 
-                    src={job.employerLogo}
-                    alt={`${job.employerName} logo`}
-                    className="h-full w-full object-contain p-2"
-                    onError={(e) => {
-                      const parent = e.currentTarget.parentElement;
-                      if (parent) {
-                        e.currentTarget.style.display = 'none';
-                        const placeholder = document.createElement('div');
-                        placeholder.className = 'h-full w-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5';
-                        placeholder.innerHTML = `<span class="text-2xl font-bold text-primary">${job.employerName.substring(0, 2).toUpperCase()}</span>`;
-                        parent.appendChild(placeholder);
-                      }
-                    }}
-                  />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-                    <span className="text-2xl font-bold text-primary">
-                      {job.employerName.substring(0, 2).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold truncate">{job.title}</h1>
                 <JobStatusBadge status={job.status} />
-              </div>
-              <p className="text-muted-foreground mb-4">{job.employerName}</p>
-              <JobQuickStats 
-                applicantsCount={job.applicantsCount}
-                viewsCount={job.viewsCount}
-                postingDate={job.postingDate}
-              />
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={handleEditJob}>
+            <Button variant="outline" size="sm" onClick={handleEditJob}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </Button>
@@ -209,7 +169,14 @@ export default function JobDetail() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
+        </AtsPageHeader>
+
+        {/* Quick Stats */}
+        <JobQuickStats 
+          applicantsCount={job.applicantsCount}
+          viewsCount={job.viewsCount}
+          postingDate={job.postingDate}
+        />
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
@@ -242,7 +209,7 @@ export default function JobDetail() {
                 {/* Job Details */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Job Details</CardTitle>
+                    <CardTitle className="text-base font-semibold">Job Details</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
@@ -314,7 +281,7 @@ export default function JobDetail() {
                 {/* Description */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Description</CardTitle>
+                    <CardTitle className="text-base font-semibold">Description</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div 
@@ -327,7 +294,7 @@ export default function JobDetail() {
                 {/* Requirements */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Requirements</CardTitle>
+                    <CardTitle className="text-base font-semibold">Requirements</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
@@ -344,7 +311,7 @@ export default function JobDetail() {
                 {/* Responsibilities */}
                 <Card>
                   <CardHeader>
-                    <CardTitle>Responsibilities</CardTitle>
+                    <CardTitle className="text-base font-semibold">Responsibilities</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
@@ -362,7 +329,7 @@ export default function JobDetail() {
                 {job.jobBoardDistribution.length > 0 && (
                   <Card>
                     <CardHeader>
-                      <CardTitle>Job Board Distribution</CardTitle>
+                      <CardTitle className="text-base font-semibold">Job Board Distribution</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
@@ -379,7 +346,7 @@ export default function JobDetail() {
               <div className="space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Activity</CardTitle>
+                    <CardTitle className="text-base font-semibold">Activity</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <JobActivityFeed activities={activities} />
@@ -426,8 +393,8 @@ export default function JobDetail() {
             {!job.hasJobTargetPromotion && (job.serviceType === 'self-managed' || job.serviceType === 'rpo') && (
               <Card className="border-primary/20 bg-primary/5">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Megaphone className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
+                    <Megaphone className="h-4 w-4 text-primary" />
                     Promote to External Job Boards
                   </CardTitle>
                 </CardHeader>
@@ -462,7 +429,7 @@ export default function JobDetail() {
             
             <Card>
               <CardHeader>
-                <CardTitle>Job Settings</CardTitle>
+                <CardTitle className="text-base font-semibold">Job Settings</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Button variant="outline" onClick={handleEditJob} className="w-full justify-start">

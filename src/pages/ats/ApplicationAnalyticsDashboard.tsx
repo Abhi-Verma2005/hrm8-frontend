@@ -110,8 +110,6 @@ export default function ApplicationAnalyticsDashboard() {
             change=""
             icon={<Clock />}
             variant="primary"
-            showBorder
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Conversion Rate"
@@ -119,8 +117,6 @@ export default function ApplicationAnalyticsDashboard() {
             change=""
             icon={<TrendingUp />}
             variant="success"
-            showBorder
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Total Applications"
@@ -128,8 +124,6 @@ export default function ApplicationAnalyticsDashboard() {
             change=""
             icon={<Users />}
             variant="neutral"
-            showBorder
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Active Recruiters"
@@ -137,8 +131,6 @@ export default function ApplicationAnalyticsDashboard() {
             change=""
             icon={<Award />}
             variant="warning"
-            showBorder
-            elevation="sm"
           />
         </div>
 

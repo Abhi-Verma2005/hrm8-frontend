@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -110,23 +111,16 @@ export default function SupportTickets() {
         <title>Support Tickets - HRM8</title>
       </Helmet>
 
-      <div className="p-12 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl md:text-2xl font-bold flex items-center gap-2">
-              <Ticket className="h-6 w-6 text-primary" />
-              Support Tickets
-            </h1>
-            <p className="text-sm text-muted-foreground">Manage and respond to customer support requests</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline">
-              <Filter className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-          </div>
-        </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title="Support Tickets"
+          subtitle="Manage and respond to customer support requests"
+        >
+          <Button variant="outline" size="sm">
+            <Filter className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+        </AtsPageHeader>
 
         {/* Stats Overview */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -228,7 +222,7 @@ export default function SupportTickets() {
         {/* Tickets List */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg md:text-xl">Tickets ({filteredTickets.length})</CardTitle>
+            <CardTitle className="text-base font-semibold">Tickets ({filteredTickets.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -267,7 +261,7 @@ export default function SupportTickets() {
                                     {ticket.status.replace('-', ' ')}
                                   </Badge>
                                 </div>
-                                <h3 className="text-base md:text-lg font-semibold truncate">{ticket.subject}</h3>
+                                <h3 className="text-sm font-semibold truncate">{ticket.subject}</h3>
                                 <p className="text-xs text-muted-foreground line-clamp-2 mt-1">
                                   {ticket.description}
                                 </p>
@@ -297,8 +291,8 @@ export default function SupportTickets() {
                       </DialogTrigger>
                       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
-                          <DialogTitle className="flex items-center gap-2 text-base md:text-lg">
-                            <Ticket className="h-5 w-5" />
+                          <DialogTitle className="flex items-center gap-2 text-base font-semibold">
+                            <Ticket className="h-4 w-4" />
                             {ticket.ticketNumber} - {ticket.subject}
                           </DialogTitle>
                         </DialogHeader>

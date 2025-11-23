@@ -115,9 +115,6 @@ export default function EmailCenter() {
             icon={<Mail className="h-6 w-6" />}
             change=""
             variant="neutral"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Open Rate"
@@ -125,9 +122,6 @@ export default function EmailCenter() {
             icon={<Eye className="h-6 w-6" />}
             change=""
             variant="primary"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Click Rate"
@@ -135,9 +129,6 @@ export default function EmailCenter() {
             icon={<MousePointerClick className="h-6 w-6" />}
             change=""
             variant="success"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Scheduled"
@@ -145,9 +136,6 @@ export default function EmailCenter() {
             icon={<Clock className="h-6 w-6" />}
             change=""
             variant="warning"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
           />
           <EnhancedStatCard
             title="Drafts"
@@ -155,9 +143,6 @@ export default function EmailCenter() {
             icon={<FileText className="h-6 w-6" />}
             change=""
             variant="neutral"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
           />
         </div>
 

@@ -123,9 +123,6 @@ export default function BackgroundChecksDashboard() {
             icon={<DollarSign className="h-6 w-6" />}
             change={`+${revenueMetrics.monthOverMonthGrowth}%`}
             trend="up"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="neutral"
           />
           <EnhancedStatCard
@@ -134,9 +131,6 @@ export default function BackgroundChecksDashboard() {
             icon={<TrendingUp className="h-6 w-6" />}
             change="+22%"
             trend="up"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="primary"
           />
           <EnhancedStatCard
@@ -145,9 +139,6 @@ export default function BackgroundChecksDashboard() {
             icon={<PieChart className="h-6 w-6" />}
             change="+4.1%"
             trend="up"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="success"
           />
           <EnhancedStatCard
@@ -156,9 +147,6 @@ export default function BackgroundChecksDashboard() {
             icon={<Users className="h-6 w-6" />}
             change="+11.2%"
             trend="up"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="warning"
           />
         </div>

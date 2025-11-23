@@ -118,13 +118,13 @@ export default function AssessmentDetail() {
         </Button>
       }
     >
-      <div className="space-y-6 p-6">
+      <div className="p-6 space-y-6">
         <AtsPageHeader
           title="Assessment Details"
           subtitle={`${assessment.candidateName} • ${assessment.candidateEmail}`}
         >
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="h-6 px-2 rounded-full text-xs capitalize">
+            <Badge variant="outline" className="h-6 px-2 text-xs rounded-full capitalize">
               {assessment.status}
             </Badge>
             <span className="text-xs text-muted-foreground uppercase tracking-wide">
@@ -132,18 +132,18 @@ export default function AssessmentDetail() {
             </span>
             <div className="ml-auto flex gap-2">
               {assessment.status === 'completed' && (
-                <Button variant="outline">
+                <Button variant="outline" size="sm">
                   <Download className="h-4 w-4 mr-2" />
                   Download Report
                 </Button>
               )}
               {(assessment.status === 'invited' || assessment.status === 'pending-invitation') && (
                 <>
-                  <Button variant="outline">
+                  <Button variant="outline" size="sm">
                     <Send className="h-4 w-4 mr-2" />
                     Resend Invitation
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" size="sm">
                     <Ban className="h-4 w-4 mr-2" />
                     Cancel
                   </Button>
@@ -192,8 +192,8 @@ export default function AssessmentDetail() {
         {assessment.status === 'completed' && assessment.result && (
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-6">
-              <ClipboardCheck className="h-5 w-5" />
-              <h3 className="text-lg font-semibold">Assessment Results</h3>
+              <ClipboardCheck className="h-4 w-4" />
+              <h3 className="text-base font-semibold">Assessment Results</h3>
             </div>
 
             <div className="grid md:grid-cols-3 gap-6 mb-8">
@@ -241,7 +241,7 @@ export default function AssessmentDetail() {
             {/* Category Scores */}
             {assessment.result.details?.categoryScores && (
               <div className="mb-6">
-                <h4 className="font-semibold mb-4">Category Breakdown</h4>
+                <h4 className="text-sm font-semibold mb-4">Category Breakdown</h4>
                 <div className="space-y-4">
                   {Object.entries(assessment.result.details.categoryScores).map(([category, score]) => (
                     <div key={category}>
@@ -262,8 +262,8 @@ export default function AssessmentDetail() {
             <div className="grid md:grid-cols-2 gap-6">
               {assessment.result.details?.strengths && assessment.result.details.strengths.length > 0 && (
                 <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2 text-success">
-                    <Award className="h-4 w-4" />
+                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-success">
+                    <Award className="h-3 w-3" />
                     Strengths
                   </h4>
                   <ul className="space-y-2">
@@ -279,8 +279,8 @@ export default function AssessmentDetail() {
 
               {assessment.result.details?.weaknesses && assessment.result.details.weaknesses.length > 0 && (
                 <div>
-                  <h4 className="font-semibold mb-3 flex items-center gap-2 text-warning">
-                    <Target className="h-4 w-4" />
+                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2 text-warning">
+                    <Target className="h-3 w-3" />
                     Areas for Development
                   </h4>
                   <ul className="space-y-2">
@@ -299,7 +299,7 @@ export default function AssessmentDetail() {
               <>
                 <Separator className="my-6" />
                 <div>
-                  <h4 className="font-semibold mb-3">Recommendations</h4>
+                  <h4 className="text-sm font-semibold mb-3">Recommendations</h4>
                   <ul className="space-y-2">
                     {assessment.result.details.recommendations.map((rec, idx) => (
                       <li key={idx} className="text-sm flex items-start gap-2">
@@ -318,8 +318,8 @@ export default function AssessmentDetail() {
         {otherCandidates.length > 0 && assessment.overallScore && (
           <Card className="p-6">
             <div className="flex items-center gap-2 mb-6">
-              <TrendingUp className="h-5 w-5" />
-              <h3 className="text-lg font-semibold">Comparison with Other Candidates</h3>
+              <TrendingUp className="h-4 w-4" />
+              <h3 className="text-base font-semibold">Comparison with Other Candidates</h3>
             </div>
 
             <div className="mb-6">
@@ -349,7 +349,7 @@ export default function AssessmentDetail() {
             </div>
 
             <div className="space-y-3">
-              <h4 className="font-semibold text-sm">Other Candidates ({otherCandidates.length})</h4>
+              <h4 className="text-sm font-semibold">Other Candidates ({otherCandidates.length})</h4>
               {otherCandidates.slice(0, 5).map((candidate) => (
                 <div key={candidate.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                   <div className="flex items-center gap-3">
@@ -388,7 +388,7 @@ export default function AssessmentDetail() {
         {/* Collaboration - Comments, Ratings, Decisions */}
         <div>
           <div className="flex items-center gap-2 mb-4">
-            <h3 className="text-lg font-semibold">Team Collaboration</h3>
+            <h3 className="text-base font-semibold">Team Collaboration</h3>
             <Badge variant="secondary">Beta</Badge>
           </div>
           <AssessmentCollaboration assessmentId={assessment.id} />
@@ -397,8 +397,8 @@ export default function AssessmentDetail() {
         {/* Timeline */}
         <Card className="p-6">
           <div className="flex items-center gap-2 mb-6">
-            <Clock className="h-5 w-5" />
-            <h3 className="text-lg font-semibold">Assessment Timeline</h3>
+            <Clock className="h-4 w-4" />
+            <h3 className="text-base font-semibold">Assessment Timeline</h3>
           </div>
           <Timeline items={timelineItems} />
         </Card>

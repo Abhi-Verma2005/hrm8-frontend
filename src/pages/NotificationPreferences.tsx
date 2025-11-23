@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
@@ -202,32 +203,31 @@ export default function NotificationPreferences() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Notification Preferences</h1>
-            <p className="text-muted-foreground">Configure notification channels and automated alert rules</p>
-          </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader 
+          title="Notification Preferences" 
+          subtitle="Configure notification channels and automated alert rules"
+        >
           <Button onClick={handleSavePreferences}>
             <Save className="h-4 w-4 mr-2" />
             Save Preferences
           </Button>
-        </div>
+        </AtsPageHeader>
 
         <div className="grid gap-6 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings2 className="h-5 w-5" />
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Settings2 className="h-4 w-4" />
                 Event Notifications
               </CardTitle>
-              <CardDescription>Configure which events trigger notifications</CardDescription>
+              <CardDescription className="text-sm">Configure which events trigger notifications</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {Object.entries(preferences.eventPreferences).map(([eventType, config]) => (
                 <div key={eventType} className="space-y-2 pb-4 border-b last:border-0">
                   <div className="flex items-center justify-between">
-                    <Label className="text-base">{EVENT_LABELS[eventType as NotificationEventType]}</Label>
+                    <Label className="text-sm font-medium">{EVENT_LABELS[eventType as NotificationEventType]}</Label>
                     <Switch
                       checked={config.enabled}
                       onCheckedChange={(checked) => handleToggleEvent(eventType as NotificationEventType, checked)}
@@ -259,11 +259,11 @@ export default function NotificationPreferences() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Moon className="h-5 w-5" />
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Moon className="h-4 w-4" />
                 Quiet Hours
               </CardTitle>
-              <CardDescription>Pause non-critical notifications during specific hours</CardDescription>
+              <CardDescription className="text-sm">Pause non-critical notifications during specific hours</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
@@ -301,13 +301,13 @@ export default function NotificationPreferences() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <Bell className="h-4 w-4" />
                   Alert Rules
                 </CardTitle>
-                <CardDescription>Configure automated alert rules with custom conditions</CardDescription>
+                <CardDescription className="text-sm">Configure automated alert rules with custom conditions</CardDescription>
               </div>
-              <Button onClick={handleCreateRule}>
+              <Button onClick={handleCreateRule} size="sm">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Rule
               </Button>
@@ -327,7 +327,7 @@ export default function NotificationPreferences() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <h4 className="font-semibold">{rule.name}</h4>
+                            <h4 className="text-sm font-semibold">{rule.name}</h4>
                             <Badge variant={rule.enabled ? 'default' : 'secondary'}>
                               {rule.enabled ? 'Active' : 'Disabled'}
                             </Badge>

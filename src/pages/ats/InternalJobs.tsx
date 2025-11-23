@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -41,18 +42,10 @@ export default function InternalJobs() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <Building2 className="h-8 w-8 text-primary" />
-              Internal Opportunities
-            </h1>
-            <p className="text-muted-foreground">
-              Explore career growth within the organization
-            </p>
-          </div>
-        </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Internal Opportunities" subtitle="Explore career growth within the organization">
+          <div className="hidden" />
+        </AtsPageHeader>
 
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
           <div className="flex items-start gap-4">
@@ -71,7 +64,7 @@ export default function InternalJobs() {
 
         <div className="grid gap-4">
           {jobs.map((job) => (
-            <Card key={job.id} className="hover:shadow-md transition-shadow">
+            <Card key={job.id}>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">

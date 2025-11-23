@@ -1,4 +1,5 @@
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Helmet } from 'react-helmet-async';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FeedbackRequestDashboard } from '@/components/feedback/FeedbackRequestDashboard';
@@ -12,11 +13,11 @@ export default function FeedbackDashboard() {
       <Helmet>
         <title>Feedback Dashboard - ATS</title>
       </Helmet>
-      <div className="p-12 space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Feedback Dashboard</h1>
-          <p className="text-muted-foreground">Monitor feedback requests, analytics, and team performance</p>
-        </div>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader 
+          title="Feedback Dashboard" 
+          subtitle="Monitor feedback requests, analytics, and team performance"
+        />
 
         <Tabs defaultValue="requests" className="w-full">
           <TabsList className="grid w-full grid-cols-4">

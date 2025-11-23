@@ -123,9 +123,6 @@ export default function AssessmentsDashboard() {
             icon={<DollarSign className="h-6 w-6" />}
             change={`+${revenueMetrics.monthOverMonthGrowth}%`}
             trend="up"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="neutral"
           />
           <EnhancedStatCard
@@ -134,9 +131,6 @@ export default function AssessmentsDashboard() {
             icon={<TrendingUp className="h-6 w-6" />}
             change="+18%"
             trend="up"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="primary"
           />
           <EnhancedStatCard
@@ -145,9 +139,6 @@ export default function AssessmentsDashboard() {
             icon={<PieChart className="h-6 w-6" />}
             change="+3.2%"
             trend="up"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="success"
           />
           <EnhancedStatCard
@@ -156,9 +147,6 @@ export default function AssessmentsDashboard() {
             icon={<Users className="h-6 w-6" />}
             change="+8.5%"
             trend="up"
-            showGradient={false}
-            showBorder={true}
-            elevation="sm"
             variant="warning"
           />
         </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -76,16 +77,17 @@ export default function EmployerDetail() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link to="/employers">
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
-          </Button>
-          
-          <div className="flex gap-2">
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title={employer.name}
+          subtitle={employer.industry ? `${employer.industry} • ${employer.location ?? ''}` : employer.location ?? ''}
+        >
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" asChild>
+              <Link to="/employers">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
             <Button variant="outline" onClick={handleEdit}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
@@ -104,7 +106,7 @@ export default function EmployerDetail() {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-        </div>
+        </AtsPageHeader>
 
         {/* Hero Section */}
         <EmployerHeroSection employer={employer} metrics={metrics} />

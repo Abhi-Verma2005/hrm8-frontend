@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, Upload, Download, FolderKanban, Users, Briefcase, Target, Building, DollarSign, FileText, Eye, BarChart3 } from 'lucide-react';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Button } from '@/components/ui/button';
 import { DataTable } from '@/components/tables/DataTable';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
@@ -82,14 +83,9 @@ export default function RecruitmentServices() {
         </>
       }
     >
-      <div className="p-12 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Recruitment Services</h1>
-            <p className="text-muted-foreground">Manage and track all recruitment service projects</p>
-          </div>
-          <div className="flex gap-2">
+      <div className="p-6 space-y-6">
+        <AtsPageHeader title="Recruitment Services" subtitle="Manage and track all recruitment service projects">
+          <div className="flex gap-2 items-center">
             <Button variant="outline" asChild>
               <Link to="/recruitment-services/rpo">
                 <FileText className="mr-2 h-4 w-4" />
@@ -107,7 +103,7 @@ export default function RecruitmentServices() {
               </Link>
             </Button>
           </div>
-        </div>
+        </AtsPageHeader>
 
         {/* Stats Cards */}
         {loading ? (
@@ -225,30 +221,32 @@ export default function RecruitmentServices() {
         ) : null}
 
         {/* Data Table */}
-        <DataTable
-          columns={columns}
-          data={projects}
-          selectable
-          searchable
-          searchKeys={['name', 'clientName']}
-          typeFilter
-          typeOptions={[
-            { label: 'Shortlisting', value: 'shortlisting' },
-            { label: 'Full-Service', value: 'full-service' },
-            { label: 'Executive Search', value: 'executive-search' },
-            { label: 'RPO', value: 'rpo' }
-          ]}
-          typeKey="serviceType"
-          statusFilter
-          statusOptions={[
-            { label: 'Active', value: 'active' },
-            { label: 'On Hold', value: 'on-hold' },
-            { label: 'Completed', value: 'completed' },
-            { label: 'Cancelled', value: 'cancelled' }
-          ]}
-          statusKey="status"
-          emptyMessage="No service projects found"
-        />
+        <div className="overflow-x-auto -mx-1 px-1">
+          <DataTable
+            columns={columns}
+            data={projects}
+            selectable
+            searchable
+            searchKeys={['name', 'clientName']}
+            typeFilter
+            typeOptions={[
+              { label: 'Shortlisting', value: 'shortlisting' },
+              { label: 'Full-Service', value: 'full-service' },
+              { label: 'Executive Search', value: 'executive-search' },
+              { label: 'RPO', value: 'rpo' }
+            ]}
+            typeKey="serviceType"
+            statusFilter
+            statusOptions={[
+              { label: 'Active', value: 'active' },
+              { label: 'On Hold', value: 'on-hold' },
+              { label: 'Completed', value: 'completed' },
+              { label: 'Cancelled', value: 'cancelled' }
+            ]}
+            statusKey="status"
+            emptyMessage="No service projects found"
+          />
+        </div>
       </div>
     </DashboardPageLayout>
   );
