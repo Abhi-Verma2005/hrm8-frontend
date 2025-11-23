@@ -7,7 +7,7 @@ import { apiClient } from '../api';
 import { Job, JobFormData } from '@/types/job';
 
 export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'USER' | 'VISITOR';
-export type JobStatus = 'DRAFT' | 'OPEN' | 'CLOSED' | 'ON_HOLD' | 'FILLED';
+export type JobStatus = 'DRAFT' | 'OPEN' | 'CLOSED' | 'ON_HOLD' | 'FILLED' | 'TEMPLATE';
 export type HiringMode = 'SELF_MANAGED' | 'SHORTLISTING' | 'FULL_SERVICE' | 'EXECUTIVE_SEARCH';
 export type WorkArrangement = 'ON_SITE' | 'REMOTE' | 'HYBRID';
 export type EmploymentType = 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'CASUAL';
@@ -103,6 +103,14 @@ class JobService {
    */
   async saveDraft(id: string, data: UpdateJobRequest) {
     return apiClient.post<Job>(`/api/jobs/${id}/save-draft`, data);
+  }
+
+  /**
+   * Save job as template
+   */
+  async saveTemplate(id: string | null, data: CreateJobRequest) {
+    const endpoint = id ? `/api/jobs/${id}/save-template` : `/api/jobs/new/save-template`;
+    return apiClient.post<Job>(endpoint, data);
   }
 }
 

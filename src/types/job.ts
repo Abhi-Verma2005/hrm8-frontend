@@ -40,7 +40,7 @@ export interface Job {
   salaryPeriod?: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'annual';
   salaryDescription?: string;
   experienceLevel: 'entry' | 'mid' | 'senior' | 'executive';
-  status: 'draft' | 'open' | 'closed' | 'on-hold' | 'filled';
+  status: 'draft' | 'open' | 'closed' | 'on-hold' | 'filled' | 'template';
   visibility: 'public' | 'private';
   stealth: boolean;
   postingDate: string;

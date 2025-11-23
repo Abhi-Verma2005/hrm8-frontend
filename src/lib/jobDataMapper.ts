@@ -9,13 +9,14 @@ import { Job, JobFormData } from '@/types/job';
 /**
  * Normalize backend status to frontend status
  */
-function normalizeStatus(status: string): 'draft' | 'open' | 'closed' | 'on-hold' | 'filled' {
+function normalizeStatus(status: string): 'draft' | 'open' | 'closed' | 'on-hold' | 'filled' | 'template' {
   const normalized = status.toLowerCase();
   if (normalized === 'on_hold' || normalized === 'on-hold') return 'on-hold';
   if (normalized === 'draft') return 'draft';
   if (normalized === 'open') return 'open';
   if (normalized === 'closed') return 'closed';
   if (normalized === 'filled') return 'filled';
+  if (normalized === 'template') return 'template';
   return 'draft'; // default
 }
 

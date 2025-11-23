@@ -38,12 +38,14 @@ import {
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { JobsFilterBar } from "@/components/jobs/JobsFilterBar";
 import { getCountryFromLocation, expandRegionsToCountries, REGION_COUNTRY_MAP, getRegionForCountry } from "@/lib/countryRegions";
+import { useDraftJob } from "@/hooks/useDraftJob";
 
 import { AdvancedFilterBuilder } from "@/components/jobs/filters/AdvancedFilterBuilder";
 import { SavedFiltersPanel } from "@/components/jobs/filters/SavedFiltersPanel";
 import { BulkActionsToolbar } from "@/components/jobs/bulk/BulkActionsToolbar";
 import { FilterCriteria, SavedFilter } from "@/lib/savedFiltersService";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { JobsPageSkeleton } from "@/components/jobs/JobsPageSkeleton";
 
 export default function Jobs() {
   const { toast } = useToast();
@@ -131,10 +133,11 @@ export default function Jobs() {
   // Auto-open job wizard when navigating with action=create
   useEffect(() => {
     if (searchParams.get('action') === 'create') {
-      setEditingJobId(null);
-      setDrawerOpen(true);
+      const fromTemplate = searchParams.get('fromTemplate') === 'true';
+      handleCreateJob(fromTemplate);
       setSearchParams({}, { replace: true });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, setSearchParams]);
 
   // Extract unique consultants and countries
@@ -261,11 +264,11 @@ export default function Jobs() {
       try {
         const response = await jobService.deleteJob(jobToDelete);
         if (response.success) {
-          toast({
-            title: "Job Deleted",
-            description: "The job posting has been removed.",
-          });
-          setRefreshKey(prev => prev + 1);
+      toast({
+        title: "Job Deleted",
+        description: "The job posting has been removed.",
+      });
+      setRefreshKey(prev => prev + 1);
         } else {
           toast({
             title: "Error",
@@ -285,45 +288,32 @@ export default function Jobs() {
     }
   };
 
-  const handleCreateJob = async () => {
-    try {
-      // Check for existing draft jobs for the current user
-      const response = await jobService.getJobs();
-      if (response.success && response.data) {
-        // Map backend jobs first
-        const mappedJobs = response.data.map(mapBackendJobToFrontend);
-        
-        // Find the most recent draft job created by the current user
-        const userDraftJobs = mappedJobs
-          .filter(job => {
-            // Check if it's a draft and belongs to current user
-            const status = typeof job.status === 'string' 
-              ? job.status.toLowerCase() 
-              : job.status;
-            return status === 'draft' && job.createdBy === user?.id;
-          })
-          .sort((a, b) => {
-            // Sort by updatedAt descending (most recent first)
-            const aTime = new Date(a.updatedAt || a.createdAt || 0).getTime();
-            const bTime = new Date(b.updatedAt || b.createdAt || 0).getTime();
-            return bTime - aTime;
-          });
+  const { refetch: refetchDraft } = useDraftJob();
 
-        if (userDraftJobs.length > 0) {
-          // Load the most recent draft
-          const mostRecentDraft = userDraftJobs[0];
-          setEditingJobId(mostRecentDraft.id);
-          setDrawerOpen(true);
-          toast({
-            title: "Draft loaded",
-            description: `Continuing with your draft: "${mostRecentDraft.title || 'Untitled Job'}"`,
-          });
-          return;
-        }
+  const handleCreateJob = async (fromTemplate = false) => {
+    // Refetch to get the latest draft and use the returned value
+    const latestDraft = await refetchDraft();
+    
+    if (latestDraft) {
+      // Load the most recent draft
+      setEditingJobId(latestDraft.id);
+      setDrawerOpen(true);
+      
+      // Show different toast message if coming from template
+      if (fromTemplate) {
+        toast({
+          title: "Template applied",
+          description: `Template data has been filled into your draft job.`,
+          duration: 4000,
+        });
+      } else {
+        toast({
+          title: "Draft loaded",
+          description: `Continuing with your draft: "${latestDraft.title || 'Untitled Job'}"`,
+          duration: 4000,
+        });
       }
-    } catch (error) {
-      console.error('Error checking for draft jobs:', error);
-      // Continue to open fresh job wizard even if draft check fails
+      return;
     }
 
     // No draft found, start fresh
@@ -456,19 +446,19 @@ export default function Jobs() {
         const companyId = job.employerId || user?.companyId || "";
         
         return (
-          <div className="flex items-center gap-3">
-            <EntityAvatar
+        <div className="flex items-center gap-3">
+          <EntityAvatar
               name={companyName}
-              src={job.employerLogo}
-              type="logo"
-            />
-            <div className="min-w-0 flex-1">
-              <Link 
-                to={`/jobs/${job.id}`} 
-                className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
-              >
-                {job.title}
-              </Link>
+            src={job.employerLogo}
+            type="logo"
+          />
+          <div className="min-w-0 flex-1">
+            <Link 
+              to={`/jobs/${job.id}`} 
+              className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
+            >
+              {job.title}
+            </Link>
               <span className="text-sm text-muted-foreground line-clamp-1 block">
                 {companyName}
               </span>
@@ -615,12 +605,11 @@ export default function Jobs() {
             </p>
           </div>
         )}
-        {loading && (
-          <div className="text-center py-8">
-            <p className="text-muted-foreground">Loading jobs...</p>
-          </div>
-        )}
-        <div className="flex items-center justify-between">
+        {loading ? (
+          <JobsPageSkeleton />
+        ) : (
+          <>
+          <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Jobs</h1>
             <p className="text-muted-foreground">Create and manage job postings</p>
@@ -646,10 +635,10 @@ export default function Jobs() {
               </Link>
             </Button>
             {canPostJobs ? (
-              <Button onClick={handleCreateJob}>
-                <Plus className="h-4 w-4 mr-2" />
-                Post Job
-              </Button>
+            <Button onClick={handleCreateJob}>
+              <Plus className="h-4 w-4 mr-2" />
+              Post Job
+            </Button>
             ) : (
               <Button variant="outline" disabled title="Contact your administrator to request job posting permissions">
                 <Plus className="h-4 w-4 mr-2" />
@@ -823,6 +812,8 @@ export default function Jobs() {
           description={`Are you sure you want to delete ${selectedJobs.length} job(s)? This action cannot be undone.`}
           isDeleting={isDeletingBulk}
         />
+          </>
+        )}
       </div>
     </DashboardPageLayout>
   );

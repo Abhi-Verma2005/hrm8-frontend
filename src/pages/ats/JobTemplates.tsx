@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,28 +34,79 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { 
-  getJobTemplates, 
-  getMostUsedTemplates, 
-  deleteJobTemplate,
-  templateCategories,
-  JobTemplate 
-} from "@/lib/jobTemplateService";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { jobService } from "@/lib/api/jobService";
+import { mapBackendJobToFrontend } from "@/lib/jobDataMapper";
+import { mapBackendJobToFormData } from "@/lib/jobDataMapper";
+import { Job } from "@/types/job";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { CreateTemplateDialog } from "@/components/jobs/templates/CreateTemplateDialog";
 import { EditTemplateDialog } from "@/components/jobs/templates/EditTemplateDialog";
 import { formatDistanceToNow } from "date-fns";
+import { templateCategories } from "@/lib/jobTemplateService";
+import { useDraftJob } from "@/hooks/useDraftJob";
+import { transformJobFormDataToCreateRequest } from "@/lib/jobFormTransformers";
+
+interface TemplateJob extends Job {
+  templateName?: string;
+  templateDescription?: string;
+  templateCategory?: string;
+  usageCount?: number;
+}
 
 export default function JobTemplates() {
   const { toast } = useToast();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"recent" | "popular" | "name">("recent");
   const [showMyTemplates, setShowMyTemplates] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState<JobTemplate | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<TemplateJob | null>(null);
+  const [templates, setTemplates] = useState<TemplateJob[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [useTemplateDialogOpen, setUseTemplateDialogOpen] = useState(false);
+  const [templateToUse, setTemplateToUse] = useState<TemplateJob | null>(null);
+  const { draftJob: existingDraft, refetch: refetchDraft } = useDraftJob();
+  const [latestDraft, setLatestDraft] = useState<Job | null>(null);
 
-  const allTemplates = getJobTemplates();
-  const popularTemplates = getMostUsedTemplates(10);
+  // Fetch templates from backend
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        setLoading(true);
+        const response = await jobService.getJobs({ status: 'TEMPLATE' });
+        if (response.success && response.data) {
+          const mappedTemplates = response.data.map(mapBackendJobToFrontend) as TemplateJob[];
+          setTemplates(mappedTemplates);
+        }
+      } catch (error) {
+        console.error('Error fetching templates:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch templates",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTemplates();
+  }, [toast]);
+
+  const allTemplates = templates;
+  const popularTemplates = [...templates].sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0)).slice(0, 10);
 
   // Filter templates
   const filteredTemplates = useMemo(() => {
@@ -65,33 +117,38 @@ export default function JobTemplates() {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (t) =>
-          t.name.toLowerCase().includes(query) ||
-          t.description?.toLowerCase().includes(query) ||
-          t.category.toLowerCase().includes(query)
+          t.title.toLowerCase().includes(query) ||
+          t.templateDescription?.toLowerCase().includes(query) ||
+          t.templateCategory?.toLowerCase().includes(query) ||
+          t.department?.toLowerCase().includes(query)
       );
     }
 
     // Category filter
     if (selectedCategory !== "all") {
-      filtered = filtered.filter((t) => t.category === selectedCategory);
+      filtered = filtered.filter((t) => t.templateCategory === selectedCategory || t.department === selectedCategory);
     }
 
     // My templates filter
     if (showMyTemplates) {
-      filtered = filtered.filter((t) => t.createdBy === "Current User");
+      filtered = filtered.filter((t) => t.createdBy === user?.id);
     }
 
     // Sort
     switch (sortBy) {
       case "popular":
-        filtered = [...filtered].sort((a, b) => b.usageCount - a.usageCount);
+        filtered = [...filtered].sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0));
         break;
       case "name":
-        filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+        filtered = [...filtered].sort((a, b) => a.title.localeCompare(b.title));
         break;
       case "recent":
       default:
-        filtered = [...filtered].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        filtered = [...filtered].sort((a, b) => {
+          const aTime = new Date(a.updatedAt || a.createdAt || 0).getTime();
+          const bTime = new Date(b.updatedAt || b.createdAt || 0).getTime();
+          return bTime - aTime;
+        });
         break;
     }
 
@@ -102,31 +159,94 @@ export default function JobTemplates() {
   const stats = useMemo(() => {
     return {
       total: allTemplates.length,
-      myTemplates: allTemplates.filter((t) => t.createdBy === "Current User").length,
-      shared: allTemplates.filter((t) => t.isShared).length,
-      totalUsage: allTemplates.reduce((sum, t) => sum + t.usageCount, 0),
+      myTemplates: allTemplates.filter((t) => t.createdBy === user?.id).length,
+      shared: allTemplates.length, // All templates are shared within company
+      totalUsage: allTemplates.reduce((sum, t) => sum + (t.usageCount || 0), 0),
     };
-  }, [allTemplates]);
+  }, [allTemplates, user]);
 
-  const handleDelete = (template: JobTemplate) => {
-    if (confirm(`Delete template "${template.name}"?`)) {
-      deleteJobTemplate(template.id);
+
+  const handleUseTemplate = async (template: TemplateJob) => {
+    setTemplateToUse(template);
+    
+    // Refetch to get the latest draft before showing dialog
+    const draft = await refetchDraft();
+    setLatestDraft(draft);
+    
+    setUseTemplateDialogOpen(true);
+  };
+
+  const confirmUseTemplate = async () => {
+    if (!templateToUse) return;
+
+    try {
+      // Map template to form data
+      const templateFormData = mapBackendJobToFormData(templateToUse);
+      
+      // Transform to API format using utility function
+      const jobRequest = transformJobFormDataToCreateRequest(templateFormData as any, {
+        status: 'DRAFT',
+      });
+
+      if (latestDraft?.id) {
+        // Update existing draft with template data
+        await jobService.updateJob(latestDraft.id, {
+          ...jobRequest,
+          status: 'DRAFT',
+        });
+      } else {
+        // Create new draft with template data
+        await jobService.createJob(jobRequest);
+      }
+
       toast({
-        title: "Template deleted",
-        description: `"${template.name}" has been removed.`,
+        title: "Template applied",
+        description: `Template data has been filled into your draft job.`,
+      });
+
+      setUseTemplateDialogOpen(false);
+      setTemplateToUse(null);
+      
+      // Navigate to jobs page to open the draft, with flag to indicate it's from template
+      navigate('/jobs?action=create&fromTemplate=true');
+    } catch (error) {
+      console.error('Error using template:', error);
+      toast({
+        title: "Error",
+        description: "Failed to apply template. Please try again.",
+        variant: "destructive",
       });
     }
   };
 
-  const handleDuplicate = (template: JobTemplate) => {
-    toast({
-      title: "Template duplicated",
-      description: `Created a copy of "${template.name}".`,
-    });
+  const handleEdit = (template: TemplateJob) => {
+    setEditingTemplate(template);
   };
 
-  const handleEdit = (template: JobTemplate) => {
-    setEditingTemplate(template);
+  const handleDelete = async (template: TemplateJob) => {
+    if (confirm(`Delete template "${template.title}"?`)) {
+      try {
+        await jobService.deleteJob(template.id);
+        setTemplates(templates.filter(t => t.id !== template.id));
+        toast({
+          title: "Template deleted",
+          description: `"${template.title}" has been removed.`,
+        });
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to delete template",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleDuplicate = (template: TemplateJob) => {
+    toast({
+      title: "Template duplicated",
+      description: `Created a copy of "${template.title}".`,
+    });
   };
 
   return (
@@ -270,6 +390,7 @@ export default function JobTemplates() {
               onEdit={handleEdit}
               onDuplicate={handleDuplicate}
               onDelete={handleDelete}
+              onUseTemplate={handleUseTemplate}
             />
           </TabsContent>
 
@@ -279,16 +400,18 @@ export default function JobTemplates() {
               onEdit={handleEdit}
               onDuplicate={handleDuplicate}
               onDelete={handleDelete}
+              onUseTemplate={handleUseTemplate}
             />
           </TabsContent>
 
           {templateCategories.slice(0, 3).map((category) => (
             <TabsContent key={category} value={category} className="space-y-4">
               <TemplateGrid
-                templates={filteredTemplates.filter((t) => t.category === category)}
+                templates={filteredTemplates.filter((t) => t.templateCategory === category || t.department === category)}
                 onEdit={handleEdit}
                 onDuplicate={handleDuplicate}
                 onDelete={handleDelete}
+                onUseTemplate={handleUseTemplate}
               />
             </TabsContent>
           ))}
@@ -301,24 +424,54 @@ export default function JobTemplates() {
 
         {editingTemplate && (
           <EditTemplateDialog
-            template={editingTemplate}
+            template={editingTemplate as any}
             open={!!editingTemplate}
             onOpenChange={(open) => !open && setEditingTemplate(null)}
           />
         )}
+
+        <AlertDialog open={useTemplateDialogOpen} onOpenChange={setUseTemplateDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Use Template?</AlertDialogTitle>
+              <AlertDialogDescription>
+                {latestDraft ? (
+                  <>
+                    You have an existing draft job: <strong>"{latestDraft.title || 'Untitled Job'}"</strong>.
+                    <br /><br />
+                    Using this template will <strong>overwrite your current draft</strong> with the template data. 
+                    Any changes you made to the draft will be lost. Are you sure you want to continue?
+                  </>
+                ) : (
+                  "This will create a new draft job using the template data. Are you sure you want to continue?"
+                )}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => {
+                setTemplateToUse(null);
+                setLatestDraft(null);
+              }}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmUseTemplate}>
+                {latestDraft ? 'Overwrite Draft & Use Template' : 'Use Template'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardPageLayout>
   );
 }
 
 interface TemplateGridProps {
-  templates: JobTemplate[];
-  onEdit: (template: JobTemplate) => void;
-  onDuplicate: (template: JobTemplate) => void;
-  onDelete: (template: JobTemplate) => void;
+  templates: TemplateJob[];
+  onEdit: (template: TemplateJob) => void;
+  onDuplicate: (template: TemplateJob) => void;
+  onDelete: (template: TemplateJob) => void;
+  onUseTemplate: (template: TemplateJob) => void;
 }
 
-function TemplateGrid({ templates, onEdit, onDuplicate, onDelete }: TemplateGridProps) {
+function TemplateGrid({ templates, onEdit, onDuplicate, onDelete, onUseTemplate }: TemplateGridProps) {
   if (templates.length === 0) {
     return (
       <div className="text-center py-12 border rounded-lg">
@@ -339,16 +492,23 @@ function TemplateGrid({ templates, onEdit, onDuplicate, onDelete }: TemplateGrid
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <CardTitle className="text-lg flex items-center gap-2">
-                  {template.name}
-                  {template.usageCount > 20 && (
-                    <Badge variant="orange" className="text-xs">
+                  {template.title}
+                  {(template.usageCount || 0) > 20 && (
+                    <Badge variant="secondary" className="text-xs">
                       <Star className="h-3 w-3 mr-1" />
                       Popular
                     </Badge>
                   )}
                 </CardTitle>
-                <CardDescription className="mt-1">
-                  {template.description || "No description"}
+                <CardDescription className="mt-1 line-clamp-2">
+                  {(() => {
+                    const description = template.templateDescription || template.description || "No description";
+                    const maxLength = 150;
+                    if (description.length > maxLength) {
+                      return description.substring(0, maxLength).trim() + "...";
+                    }
+                    return description;
+                  })()}
                 </CardDescription>
               </div>
               <DropdownMenu>
@@ -379,56 +539,54 @@ function TemplateGrid({ templates, onEdit, onDuplicate, onDelete }: TemplateGrid
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between text-sm">
-              <Badge variant="secondary">{template.category}</Badge>
-              {template.isShared && (
-                <Badge variant="teal" className="text-xs">
+              <Badge variant="secondary">{template.templateCategory || template.department || "Uncategorized"}</Badge>
+              <Badge variant="secondary" className="text-xs">
                   <Users className="h-3 w-3 mr-1" />
                   Shared
                 </Badge>
-              )}
             </div>
 
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex items-center justify-between">
                 <span>Created by:</span>
                 <span className="font-medium text-foreground">
-                  {template.createdBy}
+                  {template.createdByName || "Unknown"}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Usage count:</span>
                 <span className="font-medium text-foreground">
-                  {template.usageCount} times
+                  {template.usageCount || 0} times
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span>Created:</span>
                 <span className="font-medium text-foreground">
-                  {formatDistanceToNow(template.createdAt, { addSuffix: true })}
+                  {formatDistanceToNow(new Date(template.createdAt), { addSuffix: true })}
                 </span>
               </div>
             </div>
 
-            {template.data.title && (
+            {template.title && (
               <div className="pt-3 border-t">
                 <p className="text-sm text-muted-foreground">Template includes:</p>
                 <ul className="mt-2 space-y-1 text-sm">
-                  {template.data.title && (
+                  {template.title && (
                     <li className="flex items-center gap-2">
                       <span className="text-primary">•</span>
-                      <span>Job Title: {template.data.title}</span>
+                      <span>Job Title: {template.title}</span>
                     </li>
                   )}
-                  {template.data.department && (
+                  {template.department && (
                     <li className="flex items-center gap-2">
                       <span className="text-primary">•</span>
-                      <span>Department: {template.data.department}</span>
+                      <span>Department: {template.department}</span>
                     </li>
                   )}
-                  {template.data.employmentType && (
+                  {template.employmentType && (
                     <li className="flex items-center gap-2">
                       <span className="text-primary">•</span>
-                      <span>Type: {template.data.employmentType}</span>
+                      <span>Type: {template.employmentType}</span>
                     </li>
                   )}
                 </ul>
@@ -438,7 +596,7 @@ function TemplateGrid({ templates, onEdit, onDuplicate, onDelete }: TemplateGrid
             <Button
               variant="outline"
               className="w-full"
-              onClick={() => onEdit(template)}
+              onClick={() => onUseTemplate(template)}
             >
               Use Template
             </Button>
