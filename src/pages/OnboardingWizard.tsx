@@ -48,6 +48,9 @@ import { PhoneCountrySelect } from '@/components/common/PhoneCountrySelect';
 import { LocationSelect } from '@/components/common/LocationSelect';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import logoLight from "@/assets/logo-light.png";
+import logoDark from "@/assets/logo-dark.png";
+import { Link } from 'react-router-dom';
 
 const companySizeOptions = [
   '1-10',
@@ -206,8 +209,11 @@ export function OnboardingWizardContent({ onComplete, onSkip, embedded = false }
 
   if (isLoading && !profile) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
+        <div className="text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <p className="text-sm text-muted-foreground">Loading your onboarding...</p>
+        </div>
       </div>
     );
   }
@@ -232,97 +238,173 @@ export function OnboardingWizardContent({ onComplete, onSkip, embedded = false }
   };
 
   return (
-    <div className={cn('flex overflow-hidden', embedded ? 'h-screen' : 'h-screen p-6')}>
-      {/* Left Sidebar - 30% */}
-      <div className="w-[30%] flex flex-col border-r bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-8">
-        <div className="mb-8">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">GUIDED ONBOARDING</span>
-            <ShieldCheck className="h-4 w-4 text-slate-400" />
+    <div className={cn('flex overflow-hidden', embedded ? 'h-screen' : 'h-screen flex-col lg:flex-row')}>
+      {/* Left Sidebar - Branding & Navigation */}
+      <div className="hidden lg:flex w-[400px] flex-col border-r bg-gradient-to-br from-primary via-primary/90 to-primary/80 relative overflow-hidden text-white">
+        {/* Grid Pattern Overlay */}
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)`,
+            backgroundSize: '20px 20px'
+          }}></div>
+        </div>
+        
+        <div className="relative z-10 flex flex-col h-full p-8">
+          {/* Logo */}
+          <div className="mb-8">
+            <Link to="/home" className="inline-block">
+              <img 
+                src={logoLight} 
+                alt="HRM8" 
+                className="h-10 dark:hidden" 
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+              <img 
+                src={logoDark} 
+                alt="HRM8" 
+                className="h-10 hidden dark:block" 
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+            </Link>
           </div>
-          <h2 className="text-2xl font-semibold mb-3">Welcome aboard — let's finish setting up your company</h2>
-          <p className="text-sm text-slate-300 leading-relaxed">
-            We saved your progress automatically. Complete each section or skip and return whenever you're ready.
-          </p>
-        </div>
 
-        <div className="mb-8 p-4 rounded-lg bg-slate-800/50 border border-slate-700/50">
-          <p className="text-sm text-slate-200">
-            Completing onboarding unlocks job posting, billing, and branded careers pages.
-          </p>
-        </div>
-
-        <div className="mb-8">
-          <div className="mb-3 flex items-center justify-between text-sm">
-            <span className="text-slate-300">{actualCompletionPercentage}% complete</span>
-            <span className="text-slate-400">
-              {completedSectionKeys.size}/{onboardingSections.length} sections
-            </span>
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <ShieldCheck className="h-4 w-4 text-white/80" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-white/80">GUIDED ONBOARDING</span>
+            </div>
+            <h2 className="text-2xl font-bold mb-3 leading-tight">Welcome aboard — let's finish setting up your company</h2>
+            <p className="text-sm text-white/90 leading-relaxed">
+              Completing onboarding unlocks job posting, billing, and branded careers pages.
+            </p>
           </div>
-          <Progress value={actualCompletionPercentage} className="h-2" />
-        </div>
 
-        <div className="flex-1 space-y-2 overflow-y-auto">
-          {onboardingSections.map((section, index) => {
-            const isActive = section.key === activeSection;
-            const isComplete = completedSectionKeys.has(section.key);
-            const Icon = isComplete ? CheckCircle2 : Circle;
-            
-            return (
-              <button
-                key={section.key}
-                onClick={() => setActiveSection(section.key)}
-                className={cn(
-                  'w-full text-left p-4 rounded-lg border transition-all',
-                  isActive
-                    ? 'bg-slate-700/50 border-slate-600'
-                    : 'bg-slate-800/30 border-slate-700/50 hover:bg-slate-800/50'
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <Icon className={cn('h-5 w-5 mt-0.5 flex-shrink-0', isComplete ? 'text-emerald-400' : 'text-slate-400')} />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm mb-1">{section.title}</p>
-                    <p className="text-xs text-slate-400 leading-relaxed">{section.description}</p>
+          {/* Progress Indicator */}
+          <div className="mb-6">
+            <div className="mb-3 flex items-center justify-between text-sm">
+              <span className="text-white/95 font-medium">{actualCompletionPercentage}% complete</span>
+              <span className="text-white/80">
+                {completedSectionKeys.size}/{onboardingSections.length} sections
+              </span>
+            </div>
+            <Progress value={actualCompletionPercentage} className="h-2 bg-white/20" />
+          </div>
+
+          {/* Onboarding Sections */}
+          <div className="flex-1 space-y-2 overflow-y-auto pr-2 -mr-2 min-h-0">
+            {onboardingSections.map((section, index) => {
+              const isActive = section.key === activeSection;
+              const isComplete = completedSectionKeys.has(section.key);
+              const Icon = isComplete ? CheckCircle2 : Circle;
+              
+              return (
+                <button
+                  key={section.key}
+                  onClick={() => setActiveSection(section.key)}
+                  className={cn(
+                    'w-full text-left p-4 rounded-lg border transition-all',
+                    isActive
+                      ? 'bg-white/20 backdrop-blur-sm border-white/30 shadow-lg'
+                      : 'bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/15'
+                  )}
+                >
+                  <div className="flex items-start gap-3">
+                    <Icon className={cn(
+                      'h-5 w-5 mt-0.5 flex-shrink-0', 
+                      isComplete ? 'text-white' : 'text-white/70'
+                    )} />
+                    <div className="flex-1 min-w-0">
+                      <p className={cn(
+                        'font-medium text-sm mb-1',
+                        isActive ? 'text-white' : 'text-white/95'
+                      )}>{section.title}</p>
+                      <p className={cn(
+                        'text-xs leading-relaxed',
+                        isActive ? 'text-white/90' : 'text-white/80'
+                      )}>{section.description}</p>
+                    </div>
                   </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                </button>
+              );
+            })}
+          </div>
 
-        <div className="mt-6 flex flex-col gap-2 pt-6 border-t border-slate-700/50">
-          <Button variant="outline" onClick={handleSkip} className="bg-transparent border-slate-600 text-white hover:bg-slate-700">
-            Skip for now
-          </Button>
-          <Button
-            disabled={!canCompleteProfile}
-            onClick={handleComplete}
-            className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
-          >
-            {isCompleting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Finishing...
-              </>
-            ) : (
-              'Mark profile complete'
-            )}
-          </Button>
+          {/* Action Buttons */}
+          <div className="mt-6 flex flex-col gap-3 pt-6 border-t border-white/20">
+            <Button 
+              variant="outline" 
+              onClick={handleSkip} 
+              className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20"
+            >
+              Skip for now
+            </Button>
+            <Button
+              disabled={!canCompleteProfile}
+              onClick={handleComplete}
+              className="bg-white text-primary hover:bg-white/90 font-semibold"
+            >
+              {isCompleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Finishing...
+                </>
+              ) : (
+                'Mark profile complete'
+              )}
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Right Content - 70% */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-background">
+      {/* Mobile Navigation Bar */}
+      <div className="lg:hidden bg-gradient-to-r from-primary to-primary/90 text-white p-4 border-b">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <img 
+              src={logoLight} 
+              alt="HRM8" 
+              className="h-6 dark:hidden" 
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
+            <img 
+              src={logoDark} 
+              alt="HRM8" 
+              className="h-6 hidden dark:block" 
+              style={{ filter: 'brightness(0) invert(1)' }}
+            />
+            <span className="text-xs font-semibold uppercase tracking-wider">ONBOARDING</span>
+          </div>
+          <div className="text-xs font-medium">
+            {currentSectionIndex + 1}/{onboardingSections.length}
+          </div>
+        </div>
+        <div className="mb-2">
+          <Progress value={actualCompletionPercentage} className="h-1.5 bg-white/20" />
+        </div>
+        <p className="text-xs text-white/90">{actualCompletionPercentage}% complete</p>
+      </div>
+
+      {/* Right Content - Main Form Area */}
+      <div className="flex-1 flex flex-col overflow-hidden bg-gradient-to-br from-background via-background to-primary/5">
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto p-8">
-            <div className="mb-6">
-              <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">STEP 3</p>
-              <h1 className="text-3xl font-semibold mb-2">{currentSection?.title}</h1>
-              <p className="text-muted-foreground">{currentSection?.description}</p>
+          <div className="max-w-4xl mx-auto p-6 lg:p-8 xl:p-12">
+            {/* Step Header */}
+            <div className="mb-6 lg:mb-8">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-semibold text-sm">
+                  {currentSectionIndex + 1}
+                </div>
+                <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">
+                  STEP {currentSectionIndex + 1} of {onboardingSections.length}
+                </p>
+              </div>
+              <h1 className="text-2xl lg:text-3xl font-bold tracking-tight mb-2">{currentSection?.title}</h1>
+              <p className="text-sm lg:text-base text-muted-foreground">{currentSection?.description}</p>
             </div>
 
-            <Card>
-              <CardContent className="p-6">
+            {/* Form Card */}
+            <Card className="border-2 shadow-xl">
+              <CardContent className="p-6 lg:p-8">
                 {activeSection === 'basicDetails' && (
                   <BasicDetailsSection
                     initialData={profileData.basicDetails}
@@ -391,35 +473,40 @@ export function OnboardingWizardContent({ onComplete, onSkip, embedded = false }
             </Card>
 
             {/* Navigation buttons */}
-            <div className="flex items-center justify-between mt-6">
+            <div className="flex items-center justify-between mt-8 pt-6 border-t">
               <Button
                 variant="outline"
                 onClick={handlePrev}
                 disabled={!canGoPrev}
+                className="h-11"
               >
                 Previous
               </Button>
               <Button
                 onClick={handleNext}
                 disabled={!canGoNext}
-                className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white"
+                className="h-11"
               >
                 Next
               </Button>
             </div>
 
             {profile?.status === 'COMPLETED' && (
-              <Alert className="mt-6 bg-emerald-600/10 text-emerald-800 dark:text-emerald-100">
+              <Alert className="mt-8 bg-success/10 border-success/20 text-success">
                 <ShieldCheck className="h-5 w-5" />
-                <AlertTitle>Congratulations, you're ready to post your first job!</AlertTitle>
-                <AlertDescription className="mt-2 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div>
+                <AlertTitle className="text-base font-semibold">Congratulations, you're ready to post your first job!</AlertTitle>
+                <AlertDescription className="mt-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div className="text-sm">
                     Your company profile is complete. Configure settings or jump straight into the
                     dashboard to start hiring.
                   </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" onClick={() => navigate('/settings')}>
-                      Configure company settings
+                  <div className="flex gap-3 flex-shrink-0">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate('/settings')}
+                      className="h-10"
+                    >
+                      Configure settings
                     </Button>
                     <Button 
                       onClick={() => {
@@ -429,6 +516,7 @@ export function OnboardingWizardContent({ onComplete, onSkip, embedded = false }
                           navigate('/home');
                         }
                       }}
+                      className="h-10"
                     >
                       Go to dashboard
                     </Button>
