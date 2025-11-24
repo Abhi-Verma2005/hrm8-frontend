@@ -1,16 +1,10 @@
 export type QuestionType = 
-  | 'short_text' 
-  | 'long_text' 
-  | 'multiple_choice' 
-  | 'checkbox' 
-  | 'dropdown' 
-  | 'yes_no' 
-  | 'file_upload' 
-  | 'date' 
-  | 'number'
-  | 'email'
-  | 'phone'
-  | 'url';
+  | 'short_text'      // Short Answer
+  | 'long_text'       // Long Answer
+  | 'multiple_choice' // Multiple Choice (single select)
+  | 'checkbox'        // Multiple Choice (multi-select)
+  | 'dropdown'        // Dropdown Selection
+  | 'file_upload';    // File Upload (e.g. certifications, licenses)
 
 export interface QuestionOption {
   id: string;
@@ -28,6 +22,61 @@ export interface ConditionalLogic {
     contains?: string;
     isEmpty?: boolean;
     isNotEmpty?: boolean;
+  };
+}
+
+export interface QuestionEvaluationSettings {
+  // Mandatory Response (Auto-disqualify)
+  mandatory?: {
+    enabled: boolean;
+    disqualifyIfBlank: boolean; // Auto-disqualify if not answered
+    disqualifyIfIncorrect?: boolean; // Auto-disqualify if answer doesn't match criteria
+    correctAnswers?: string[]; // For multiple_choice/dropdown/checkbox: correct option values
+    correctPattern?: string; // For text questions: regex pattern for correct answer
+    caseSensitive?: boolean; // For pattern matching
+  };
+  
+  // Scoring Rules
+  scoring?: {
+    enabled: boolean;
+    pointsPerAnswer?: Record<string, number>; // For multiple_choice/dropdown/checkbox: option value -> points
+    pointsForCorrect?: number; // Points if answer matches correctAnswers/pattern
+    pointsForIncorrect?: number; // Points if answer doesn't match (can be negative)
+    maxPoints?: number; // Maximum points for this question
+    minPointsToPass?: number; // Minimum points needed to pass this question
+  };
+  
+  // Auto-tagging
+  autoTagging?: {
+    enabled: boolean;
+    rules: Array<{
+      condition: 'equals' | 'contains' | 'matches' | 'greater_than' | 'less_than' | 'in_range';
+      value: string | number | string[]; // Value to compare against
+      tags: string[]; // Tags to apply if condition is met
+      removeTags?: string[]; // Tags to remove if condition is met
+    }>;
+  };
+  
+  // Trigger Next Steps
+  triggers?: {
+    enabled: boolean;
+    onPass?: {
+      moveToStage?: string; // ApplicationStage (e.g., "Resume Review", "Phone Screen")
+      sendAssessmentInvite?: {
+        assessmentType: string; // AssessmentType (e.g., "coding", "personality")
+        provider: string; // AssessmentProvider (e.g., "hackerrank", "cognify")
+        passThreshold?: number;
+        expiryDays?: number;
+      };
+      addTags?: string[];
+      removeTags?: string[];
+    };
+    onFail?: {
+      moveToStage?: string; // Usually "Rejected"
+      addTags?: string[];
+      removeTags?: string[];
+      sendRejectionEmail?: boolean;
+    };
   };
 }
 
@@ -49,6 +98,9 @@ export interface ApplicationQuestion {
   };
   order: number;
   conditionalLogic?: ConditionalLogic; // Dynamic question logic
+  
+  // Smart Evaluation Settings (optional)
+  evaluation?: QuestionEvaluationSettings;
 }
 
 export interface ApplicationFormConfig {

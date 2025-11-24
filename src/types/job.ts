@@ -66,8 +66,13 @@ export interface Job {
   
   // JobTarget Promotion & Payment
   hasJobTargetPromotion?: boolean;
+  jobTargetPromotionId?: string;
+  jobTargetChannels?: string[];
   jobTargetBudget?: number;
+  jobTargetBudgetSpent?: number;
   jobTargetBudgetRemaining?: number;
+  jobTargetStatus?: 'pending' | 'active' | 'paused' | 'completed';
+  jobTargetApproved?: boolean;
   jobTargetPromotions?: string[];
   paymentId?: string;
   requiresPayment?: boolean;
@@ -76,6 +81,18 @@ export interface Job {
   termsAccepted?: boolean;
   termsAcceptedAt?: Date;
   termsAcceptedBy?: string;
+  
+  // Post-Launch Configuration
+  alertsEnabled?: {
+    newApplicants?: boolean;
+    inactivity?: boolean;
+    deadlines?: boolean;
+    inactivityDays?: number;
+  };
+  shareLink?: string;
+  referralLink?: string;
+  savedAsTemplate?: boolean;
+  templateId?: string;
   
   // Internal Job Posting Fields
   isInternal?: boolean;
