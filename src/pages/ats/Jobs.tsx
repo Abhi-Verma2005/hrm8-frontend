@@ -37,6 +37,15 @@ import { BulkActionsToolbar } from "@/components/jobs/bulk/BulkActionsToolbar";
 import { FilterCriteria, SavedFilter } from "@/lib/savedFiltersService";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { JobsPageSkeleton } from "@/components/jobs/JobsPageSkeleton";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 export default function Jobs() {
   const { toast } = useToast();
@@ -45,6 +54,7 @@ export default function Jobs() {
   const { user, profileSummary } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [jobToDelete, setJobToDelete] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -275,6 +285,7 @@ export default function Jobs() {
 
   const confirmDelete = async () => {
     if (jobToDelete) {
+      setIsDeleting(true);
       try {
         const response = await jobService.deleteJob(jobToDelete);
         if (response.success) {
@@ -296,9 +307,11 @@ export default function Jobs() {
           description: "Failed to delete job",
           variant: 'destructive',
         });
+      } finally {
+        setIsDeleting(false);
+        setDeleteDialogOpen(false);
+        setJobToDelete(null);
       }
-      setDeleteDialogOpen(false);
-      setJobToDelete(null);
     }
   };
 
