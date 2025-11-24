@@ -7,7 +7,7 @@ import { apiClient } from '../api';
 import { Job, JobFormData } from '@/types/job';
 
 export type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'USER' | 'VISITOR';
-export type JobStatus = 'DRAFT' | 'OPEN' | 'CLOSED' | 'ON_HOLD' | 'FILLED' | 'TEMPLATE';
+export type JobStatus = 'DRAFT' | 'OPEN' | 'CLOSED' | 'ON_HOLD' | 'FILLED' | 'CANCELLED' | 'TEMPLATE';
 export type HiringMode = 'SELF_MANAGED' | 'SHORTLISTING' | 'FULL_SERVICE' | 'EXECUTIVE_SEARCH';
 export type WorkArrangement = 'ON_SITE' | 'REMOTE' | 'HYBRID';
 export type EmploymentType = 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'CASUAL';
@@ -45,6 +45,8 @@ export interface GetJobsFilters {
   department?: string;
   location?: string;
   hiringMode?: HiringMode;
+  includeArchived?: boolean; // If true, includes archived jobs. If false/undefined, excludes them
+  onlyArchived?: boolean; // If true, returns only archived jobs
 }
 
 class JobService {
@@ -64,6 +66,8 @@ class JobService {
     if (filters?.department) queryParams.append('department', filters.department);
     if (filters?.location) queryParams.append('location', filters.location);
     if (filters?.hiringMode) queryParams.append('hiringMode', filters.hiringMode);
+    if (filters?.includeArchived !== undefined) queryParams.append('includeArchived', filters.includeArchived.toString());
+    if (filters?.onlyArchived) queryParams.append('onlyArchived', 'true');
 
     const queryString = queryParams.toString();
     const endpoint = `/api/jobs${queryString ? `?${queryString}` : ''}`;
@@ -119,6 +123,34 @@ class JobService {
   async saveTemplate(id: string | null, data: CreateJobRequest) {
     const endpoint = id ? `/api/jobs/${id}/save-template` : `/api/jobs/new/save-template`;
     return apiClient.post<Job>(endpoint, data);
+  }
+
+  /**
+   * Archive a job
+   */
+  async archiveJob(id: string) {
+    return apiClient.post<Job>(`/api/jobs/${id}/archive`);
+  }
+
+  /**
+   * Unarchive a job
+   */
+  async unarchiveJob(id: string) {
+    return apiClient.post<Job>(`/api/jobs/${id}/unarchive`);
+  }
+
+  /**
+   * Bulk archive jobs
+   */
+  async bulkArchiveJobs(jobIds: string[]) {
+    return apiClient.post<{ archivedCount: number; message: string }>('/api/jobs/bulk-archive', { jobIds });
+  }
+
+  /**
+   * Bulk unarchive jobs
+   */
+  async bulkUnarchiveJobs(jobIds: string[]) {
+    return apiClient.post<{ unarchivedCount: number; message: string }>('/api/jobs/bulk-unarchive', { jobIds });
   }
 }
 

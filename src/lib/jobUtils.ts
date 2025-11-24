@@ -65,6 +65,8 @@ export function getJobStatusVariant(status: Job['status']): BadgeProps['variant'
     'closed': 'outline',
     'on-hold': 'warning',
     'filled': 'default',
+    'cancelled': 'destructive',
+    'template': 'outline',
   };
   
   return statusMap[status] || 'outline';

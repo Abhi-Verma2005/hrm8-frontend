@@ -18,6 +18,19 @@ export interface QuestionOption {
   value: string;
 }
 
+export interface ConditionalLogic {
+  enabled: boolean;
+  dependsOnQuestionId?: string; // ID of the question this depends on
+  showWhen?: {
+    // For multiple choice, checkbox, dropdown, yes_no
+    equals?: string | string[]; // Value(s) that trigger showing this question
+    // For text-based questions
+    contains?: string;
+    isEmpty?: boolean;
+    isNotEmpty?: boolean;
+  };
+}
+
 export interface ApplicationQuestion {
   id: string;
   type: QuestionType;
@@ -35,6 +48,7 @@ export interface ApplicationQuestion {
     maxFileSize?: number;
   };
   order: number;
+  conditionalLogic?: ConditionalLogic; // Dynamic question logic
 }
 
 export interface ApplicationFormConfig {

@@ -53,16 +53,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { WarningConfirmationDialog } from '@/components/ui/warning-confirmation-dialog';
 
 export default function QuestionBank() {
   const { toast } = useToast();
@@ -496,22 +487,15 @@ export default function QuestionBank() {
         question={selectedQuestion}
       />
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Question</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this question? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <WarningConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleDeleteConfirm}
+        type="delete"
+        title="Delete Question"
+        description="Are you sure you want to delete this question? This action cannot be undone."
+        isProcessing={false}
+      />
 
       <QuestionBankPreviewDialog
         open={previewDialogOpen}

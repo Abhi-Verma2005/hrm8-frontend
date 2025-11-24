@@ -1,14 +1,4 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-import { AlertTriangle } from 'lucide-react';
+import { WarningConfirmationDialog } from './warning-confirmation-dialog';
 
 interface DeleteConfirmationDialogProps {
   open: boolean;
@@ -20,6 +10,10 @@ interface DeleteConfirmationDialogProps {
   isDeleting?: boolean;
 }
 
+/**
+ * @deprecated Use WarningConfirmationDialog directly with type="delete"
+ * This component is kept for backward compatibility
+ */
 export function DeleteConfirmationDialog({
   open,
   onOpenChange,
@@ -34,31 +28,14 @@ export function DeleteConfirmationDialog({
     : 'This action cannot be undone. This will permanently delete the item.';
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <div className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-destructive" />
-            <AlertDialogTitle>{title}</AlertDialogTitle>
-          </div>
-          <AlertDialogDescription>
-            {description || defaultDescription}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={(e) => {
-              e.preventDefault();
-              onConfirm();
-            }}
-            disabled={isDeleting}
-            className="bg-destructive hover:bg-destructive/90"
-          >
-            {isDeleting ? 'Deleting...' : 'Delete'}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <WarningConfirmationDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      onConfirm={onConfirm}
+      type="delete"
+      title={title}
+      description={description || defaultDescription}
+      isProcessing={isDeleting}
+    />
   );
 }

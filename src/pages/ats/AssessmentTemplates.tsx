@@ -11,16 +11,7 @@ import {
   Plus, Search, Filter, Copy, Pencil, Trash2, Download,
   Clock, FileText, Target, ToggleLeft, ToggleRight 
 } from 'lucide-react';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { WarningConfirmationDialog } from '@/components/ui/warning-confirmation-dialog';
 import {
   Select,
   SelectContent,
@@ -433,25 +424,14 @@ export default function AssessmentTemplates() {
       />
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Template?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This template will be permanently deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <WarningConfirmationDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        type="delete"
+        title="Delete Template?"
+        description="This action cannot be undone. This template will be permanently deleted."
+      />
     </DashboardPageLayout>
   );
 }

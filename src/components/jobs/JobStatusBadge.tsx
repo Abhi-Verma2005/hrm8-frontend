@@ -14,6 +14,8 @@ export function JobStatusBadge({ status, className }: JobStatusBadgeProps) {
     'closed': 'Closed',
     'on-hold': 'On Hold',
     'filled': 'Filled',
+    'cancelled': 'Cancelled',
+    'template': 'Template',
   };
 
   return (

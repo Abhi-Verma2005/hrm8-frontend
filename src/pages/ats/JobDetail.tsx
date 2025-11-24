@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, Link, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,9 @@ import {
   ArrowLeft, 
   Edit, 
   Share2, 
-  Archive, 
+  Archive,
+  ArchiveRestore,
+  Trash2,
   MapPin, 
   Briefcase, 
   DollarSign,
@@ -22,15 +24,18 @@ import {
   MoreVertical,
   Megaphone,
   Sparkles,
-  Video
+  Video,
+  ArrowUpCircle
 } from "lucide-react";
 import { getJobById } from "@/lib/mockJobStorage";
 import { mockJobActivities } from "@/data/mockJobsData";
+import { Job } from "@/types/job";
 import { JobStatusBadge } from "@/components/jobs/JobStatusBadge";
 import { EmploymentTypeBadge } from "@/components/jobs/EmploymentTypeBadge";
 import { ServiceTypeBadge } from "@/components/jobs/ServiceTypeBadge";
 import { JobQuickStats } from "@/components/jobs/JobQuickStats";
 import { JobActivityFeed } from "@/components/jobs/JobActivityFeed";
+import { JobLifecycleActions } from "@/components/jobs/JobLifecycleActions";
 import { formatSalaryRange, formatExperienceLevel, formatRelativeDate } from "@/lib/jobUtils";
 import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
 import {
@@ -49,17 +54,90 @@ import { JobBudgetTracker } from "@/components/jobs/budget/JobBudgetTracker";
 import { CandidateMatchingPanel } from "@/components/jobs/matching/CandidateMatchingPanel";
 import { JobAIInterviewsTab } from "@/components/jobs/aiInterview/JobAIInterviewsTab";
 import { useToast } from "@/hooks/use-toast";
+import { jobService } from "@/lib/api/jobService";
+import { mapBackendJobToFrontend } from "@/lib/jobDataMapper";
+import { UpgradeServiceDialog } from "@/components/jobs/UpgradeServiceDialog";
+import { JobDetailPageSkeleton } from "@/components/jobs/JobDetailPageSkeleton";
+import { JobBoardVisibilityControl } from "@/components/jobs/JobBoardVisibilityControl";
+import { ArchiveJobDialog } from "@/components/jobs/ArchiveJobDialog";
+import { DeleteJobDialog } from "@/components/jobs/DeleteJobDialog";
 
 export default function JobDetail() {
   const { jobId } = useParams();
-  const job = jobId ? getJobById(jobId) : null;
+  const [job, setJob] = useState<Job | null>(null);
   const [editDrawerOpen, setEditDrawerOpen] = useState(false);
   const [promotionDialogOpen, setPromotionDialogOpen] = useState(false);
+  const [upgradeServiceDialogOpen, setUpgradeServiceDialogOpen] = useState(false);
+  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [isProcessingArchive, setIsProcessingArchive] = useState(false);
+  const [isProcessingDelete, setIsProcessingDelete] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  if (!job) {
+  // Fetch job from API to get latest data
+  useEffect(() => {
+    const fetchJob = async () => {
+      if (!jobId) {
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        const response = await jobService.getJobById(jobId);
+        if (response.success && response.data) {
+          const mappedJob = mapBackendJobToFrontend(response.data);
+          setJob(mappedJob);
+        } else {
+          // If API fails, try to get from mock storage as fallback
+          const mockJob = getJobById(jobId);
+          if (mockJob) {
+            setJob(mockJob);
+          } else {
+            toast({
+              title: "Job not found",
+              description: response.error || "The job you're looking for doesn't exist.",
+              variant: "destructive",
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching job:', error);
+        // Try to get from mock storage as fallback
+        const mockJob = jobId ? getJobById(jobId) : null;
+        if (mockJob) {
+          setJob(mockJob);
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to load job details",
+            variant: "destructive",
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchJob();
+  }, [jobId, refreshKey, toast]);
+
+  const handleJobUpdate = async () => {
+    setRefreshKey(prev => prev + 1);
+  };
+
+  if (!job && !loading) {
     return <Navigate to="/jobs" replace />;
+  }
+
+  if (loading || !job) {
+    return (
+      <DashboardPageLayout>
+        <JobDetailPageSkeleton />
+      </DashboardPageLayout>
+    );
   }
 
   const activities = mockJobActivities.filter(a => a.jobId === job.id);
@@ -76,6 +154,72 @@ export default function JobDetail() {
 
   const handleDrawerClose = () => {
     setEditDrawerOpen(false);
+  };
+
+  const handleArchive = async () => {
+    if (!job) return;
+    setIsProcessingArchive(true);
+    try {
+      const response = job.archived 
+        ? await jobService.unarchiveJob(job.id)
+        : await jobService.archiveJob(job.id);
+      
+      if (response.success) {
+        toast({
+          title: job.archived ? "Job unarchived" : "Job archived",
+          description: job.archived
+            ? "The job has been restored to active listings."
+            : "The job has been archived and hidden from active listings.",
+        });
+        handleJobUpdate();
+        setArchiveDialogOpen(false);
+      } else {
+        toast({
+          title: "Error",
+          description: response.error || `Failed to ${job.archived ? 'unarchive' : 'archive'} job`,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: `Failed to ${job.archived ? 'unarchive' : 'archive'} job`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingArchive(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!job) return;
+    setIsProcessingDelete(true);
+    try {
+      const response = await jobService.deleteJob(job.id);
+      if (response.success) {
+        toast({
+          title: "Job deleted",
+          description: "The job posting has been permanently deleted.",
+        });
+        // Navigate back to jobs list after successful deletion
+        navigate('/jobs');
+      } else {
+        toast({
+          title: "Error",
+          description: response.error || "Failed to delete job",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete job",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingDelete(false);
+      setDeleteDialogOpen(false);
+    }
   };
 
   const handleRevertVersion = (version: number) => {
@@ -136,40 +280,35 @@ export default function JobDetail() {
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
-        <AtsPageHeader
-          title={job.title}
-          subtitle={job.employerName}
-        >
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" asChild>
-              <Link to="/jobs">
-                <ArrowLeft className="h-4 w-4" />
-              </Link>
-            </Button>
-                <JobStatusBadge status={job.status} />
-            <Button variant="outline" size="sm" onClick={handleEditJob}>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <MoreVertical className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Archive className="h-4 w-4 mr-2" />
-                  Archive
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+        <div className="space-y-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl font-bold tracking-tight">{job.title}</h1>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <JobStatusBadge status={job.status} />
+                  <ServiceTypeBadge type={job.serviceType} />
+                </div>
+              </div>
+              <p className="text-muted-foreground">
+                {`${job.employerName}${job.department ? ` • ${job.department}` : ''} • ${job.location}`}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/jobs">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Link>
+              </Button>
+              <JobLifecycleActions 
+                job={job} 
+                onJobUpdate={handleJobUpdate}
+                onEdit={handleEditJob}
+              />
+            </div>
           </div>
-        </AtsPageHeader>
+        </div>
 
         {/* Quick Stats */}
         <JobQuickStats 
@@ -180,30 +319,104 @@ export default function JobDetail() {
 
         {/* Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="applicants">
-              Applicants
-              {job.applicantsCount > 0 && (
-                <Badge variant="secondary" className="ml-2">{job.applicantsCount}</Badge>
-              )}
-            </TabsTrigger>
-            <TabsTrigger value="matching">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Matching
-            </TabsTrigger>
-            <TabsTrigger value="ai-interviews">
-              <Video className="h-4 w-4 mr-2" />
-              AI Interviews
-            </TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="collaboration">Collaboration</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto -mx-1 px-1">
+            <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
+              <TabsTrigger 
+                value="overview"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Overview
+              </TabsTrigger>
+              <TabsTrigger 
+                value="applicants"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Applicants
+                {job.applicantsCount > 0 && (
+                  <Badge variant="outline" className="h-5 px-1.5 text-xs rounded-full ml-1">{job.applicantsCount}</Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger 
+                value="matching"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
+                Matching
+              </TabsTrigger>
+              <TabsTrigger 
+                value="ai-interviews"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <Video className="h-3.5 w-3.5 flex-shrink-0" />
+                AI Interviews
+              </TabsTrigger>
+              <TabsTrigger 
+                value="analytics"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Analytics
+              </TabsTrigger>
+              <TabsTrigger 
+                value="collaboration"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Collaboration
+              </TabsTrigger>
+              <TabsTrigger 
+                value="history"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                History
+              </TabsTrigger>
+              <TabsTrigger 
+                value="settings"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Settings
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
+          <TabsContent value="overview" className="mt-6 space-y-6">
+            {/* Upgrade to Recruitment Service Banner for Self-Managed Jobs */}
+            {job.serviceType === 'self-managed' && (job.status === 'open' || job.status === 'draft') && (
+              <Card className="border-primary/20 bg-primary/5">
+                <CardHeader>
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
+                    <ArrowUpCircle className="h-4 w-4 text-primary" />
+                    Upgrade to HRM8 Recruitment Service
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Need additional support? Upgrade to one of our recruitment services to get expert help with candidate sourcing, screening, and hiring.
+                  </p>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary mt-0.5">✓</span>
+                      <span>Professional candidate screening and evaluation</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary mt-0.5">✓</span>
+                      <span>Dedicated recruitment consultant support</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary mt-0.5">✓</span>
+                      <span>End-to-end recruitment process management</span>
+                    </li>
+                  </ul>
+                  <Button 
+                    className="w-full" 
+                    onClick={() => setUpgradeServiceDialogOpen(true)}
+                  >
+                    <ArrowUpCircle className="h-4 w-4 mr-2" />
+                    Upgrade to Recruitment Service
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
                 {/* Job Details */}
@@ -221,7 +434,7 @@ export default function JobDetail() {
                       <div className="flex items-center gap-2 text-sm">
                         <Briefcase className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">Arrangement:</span>
-                        <Badge variant="outline">
+                        <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
                           {job.workArrangement === 'on-site' ? 'On-site' : job.workArrangement === 'remote' ? 'Remote' : 'Hybrid'}
                         </Badge>
                       </div>
@@ -255,7 +468,9 @@ export default function JobDetail() {
                       <div className="flex items-center gap-2 text-sm">
                         <Eye className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">Visibility:</span>
-                        <Badge variant="outline">{job.visibility}</Badge>
+                        <Badge variant="outline" className="h-6 px-2 text-xs rounded-full capitalize">
+                          {job.visibility}
+                        </Badge>
                       </div>
                       <div className="flex items-center gap-2 text-sm">
                         <Globe className="h-4 w-4 text-muted-foreground" />
@@ -268,12 +483,12 @@ export default function JobDetail() {
                     </div>
                     <Separator />
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Job Code</p>
-                      <p className="font-mono text-sm">{job.jobCode}</p>
+                      <p className="text-xs text-muted-foreground mb-1">Job Code</p>
+                      <p className="font-mono text-sm font-medium">{job.jobCode}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground mb-1">Posted</p>
-                      <p className="text-sm">{formatRelativeDate(job.postingDate)}</p>
+                      <p className="text-xs text-muted-foreground mb-1">Posted</p>
+                      <p className="text-sm font-medium">{formatRelativeDate(job.postingDate)}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -334,7 +549,9 @@ export default function JobDetail() {
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
                         {job.jobBoardDistribution.map((board) => (
-                          <Badge key={board} variant="secondary">{board}</Badge>
+                          <Badge key={board} variant="outline" className="h-6 px-2 text-xs rounded-full">
+                            {board}
+                          </Badge>
                         ))}
                       </div>
                     </CardContent>
@@ -357,37 +574,39 @@ export default function JobDetail() {
           </TabsContent>
 
           {/* Applicants Tab */}
-          <TabsContent value="applicants">
+          <TabsContent value="applicants" className="mt-6">
             <ApplicationPipeline jobId={job.id} jobTitle={job.title} />
           </TabsContent>
 
           {/* Matching Tab */}
-          <TabsContent value="matching">
+          <TabsContent value="matching" className="mt-6">
             <CandidateMatchingPanel job={job} />
           </TabsContent>
 
           {/* AI Interviews Tab */}
-          <TabsContent value="ai-interviews">
+          <TabsContent value="ai-interviews" className="mt-6">
             <JobAIInterviewsTab job={job} />
           </TabsContent>
 
           {/* Analytics Tab */}
-          <TabsContent value="analytics">
+          <TabsContent value="analytics" className="mt-6">
             <JobAnalyticsDashboard jobId={job.id} />
           </TabsContent>
 
           {/* Collaboration Tab */}
-          <TabsContent value="collaboration">
+          <TabsContent value="collaboration" className="mt-6">
             <JobCollaborationPanel jobId={job.id} />
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history">
+          <TabsContent value="history" className="mt-6">
             <JobVersionHistory jobId={job.id} onRevert={handleRevertVersion} />
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="space-y-6">
+          <TabsContent value="settings" className="mt-6 space-y-6">
+            {/* Job Board Visibility Control */}
+            <JobBoardVisibilityControl job={job} onUpdate={handleJobUpdate} />
             <JobBudgetTracker jobId={job.id} />
             
             {!job.hasJobTargetPromotion && (job.serviceType === 'self-managed' || job.serviceType === 'rpo') && (
@@ -436,12 +655,29 @@ export default function JobDetail() {
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Job Details
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Archive className="h-4 w-4 mr-2" />
-                  Archive Job
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={() => setArchiveDialogOpen(true)}
+                >
+                  {job.archived ? (
+                    <>
+                      <ArchiveRestore className="h-4 w-4 mr-2" />
+                      Unarchive Job
+                    </>
+                  ) : (
+                    <>
+                      <Archive className="h-4 w-4 mr-2" />
+                      Archive Job
+                    </>
+                  )}
                 </Button>
-                <Button variant="destructive" className="w-full justify-start">
-                  <Archive className="h-4 w-4 mr-2" />
+                <Button 
+                  variant="destructive" 
+                  className="w-full justify-start"
+                  onClick={() => setDeleteDialogOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
                   Delete Job
                 </Button>
               </CardContent>
@@ -475,6 +711,43 @@ export default function JobDetail() {
             setRefreshKey(prev => prev + 1);
           }}
         />
+
+        <UpgradeServiceDialog
+          open={upgradeServiceDialogOpen}
+          onServiceTypeSelect={async (serviceType) => {
+            // Handle service upgrade - this will be implemented in the upgrade flow
+            toast({
+              title: "Service upgrade initiated",
+              description: `Upgrade to ${serviceType === 'shortlisting' ? 'Shortlisting Service' : serviceType === 'full-service' ? 'Full Recruitment Service' : 'Executive Search'} has been initiated.`,
+            });
+            setUpgradeServiceDialogOpen(false);
+            handleJobUpdate();
+          }}
+          onCancel={() => setUpgradeServiceDialogOpen(false)}
+        />
+
+        {/* Archive/Unarchive Dialog */}
+        {job && (
+          <ArchiveJobDialog
+            open={archiveDialogOpen}
+            onOpenChange={setArchiveDialogOpen}
+            job={job}
+            onConfirm={handleArchive}
+            isProcessing={isProcessingArchive}
+            isArchive={!job.archived}
+          />
+        )}
+
+        {/* Delete Job Dialog */}
+        {job && (
+          <DeleteJobDialog
+            open={deleteDialogOpen}
+            onOpenChange={setDeleteDialogOpen}
+            job={job}
+            onConfirm={handleDelete}
+            isProcessing={isProcessingDelete}
+          />
+        )}
       </div>
     </DashboardPageLayout>
   );

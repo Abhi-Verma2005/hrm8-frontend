@@ -1,34 +1,6 @@
-# UI Design Rules - Complete Guide
-
-
-**Version:** 2.0  
-**Last Updated:** 2024  
-**Purpose:** Ensure consistent, accessible, and maintainable UI patterns across the HRM8 platform
-
-This guide standardizes page headers, stat cards, tables, badges/pills, timelines, navigation, and overflow handling across the app without changing functionality.
-
 ---
-
-## Table of Contents
-
-1. [Page Headers](#page-headers)
-2. [Stat Cards (KPI)](#stat-cards-kpi)
-3. [Typography](#typography)
-4. [Pills, Filters, and Badges](#pills-filters-and-badges)
-5. [Navigation Tabs](#navigation-tabs)
-6. [Cards and Containers](#cards-and-containers)
-7. [Overflow Handling](#overflow-handling)
-8. [Shadows, Elevation, and Borders](#shadows-elevation-and-borders)
-9. [Spacing and Padding](#spacing-and-padding)
-10. [Icons](#icons)
-11. [Dark Mode](#dark-mode)
-12. [Responsive Design](#responsive-design)
-13. [Accessibility](#accessibility)
-14. [Common Patterns](#common-patterns)
-15. [Quick Checklist](#quick-checklist)
-
+alwaysApply: false
 ---
-
 ## Page Headers
 
 ### Standard Pattern: `AtsPageHeader`

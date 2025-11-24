@@ -146,19 +146,21 @@ export function ApplicationPipeline({
   return (
     <>
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-        <div className="flex gap-3 overflow-x-auto pb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-h-[calc(100vh-300px)] overflow-y-auto">
           {pipelineStages.map((stageConfig) => {
             const stageApplications = applications.filter((app) => app.stage === stageConfig.stage);
             return (
-              <div key={stageConfig.stage} className="flex-shrink-0 w-64">
-                <Card className={`${stageConfig.color} border-2`}>
-                  <div className="p-3">
-                    <div className="flex items-center justify-between mb-3">
+              <div key={stageConfig.stage} className="min-w-0">
+                <Card className={`${stageConfig.color} border-2 h-full flex flex-col`}>
+                  <div className="p-3 flex flex-col flex-1">
+                    <div className="flex items-center justify-between mb-3 flex-shrink-0">
                       <h3 className="font-semibold text-sm">{stageConfig.label}</h3>
-                      <Badge variant="secondary" className="text-xs">{stageApplications.length}</Badge>
+                      <Badge variant="outline" className="text-xs h-6 px-2 rounded-full">
+                        {stageApplications.length}
+                      </Badge>
                     </div>
                     <SortableContext items={stageApplications.map((app) => app.id)} strategy={verticalListSortingStrategy}>
-                      <div className="space-y-1.5 min-h-[150px]">
+                      <div className="space-y-1.5 flex-1 overflow-y-auto min-h-[150px]">
                         {stageApplications.map((application) => (
                           <ApplicationCard
                             key={application.id}
@@ -169,6 +171,11 @@ export function ApplicationPipeline({
                             onToggleSelect={onToggleSelect}
                           />
                         ))}
+                        {stageApplications.length === 0 && (
+                          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">
+                            No applications
+                          </div>
+                        )}
                       </div>
                     </SortableContext>
                   </div>

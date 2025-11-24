@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3, Filter, X, Zap, Eye } from "lucide-react";
@@ -25,16 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
 import { DeleteConfirmationDialog } from "@/components/ui/delete-confirmation-dialog";
 import { JobsFilterBar } from "@/components/jobs/JobsFilterBar";
 import { getCountryFromLocation, expandRegionsToCountries, REGION_COUNTRY_MAP, getRegionForCountry } from "@/lib/countryRegions";
@@ -49,6 +40,7 @@ import { JobsPageSkeleton } from "@/components/jobs/JobsPageSkeleton";
 
 export default function Jobs() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { canPostJobs, loading: permissionLoading } = useJobPostingPermission();
   const { user, profileSummary } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -93,6 +85,7 @@ export default function Jobs() {
             'closed': 'CLOSED',
             'on-hold': 'ON_HOLD',
             'filled': 'FILLED',
+            'cancelled': 'CANCELLED',
             'template': 'TEMPLATE',
           };
           filters.status = statusMap[selectedStatus] || selectedStatus.toUpperCase();
@@ -508,12 +501,11 @@ export default function Jobs() {
               const domain = parts.length > 1 ? parts.slice(1).join(' - ') : '';
               return (
                 <>
-                  <Link
-                    to={`/jobs/${job.id}`}
-                    className="font-semibold text-base no-underline hover:underline cursor-pointer truncate block w-full"
+                  <div
+                    className="font-semibold text-base truncate block w-full"
                   >
                     {role}
-                  </Link>
+                  </div>
                   {domain && (
                     <span className="text-sm text-muted-foreground truncate block w-full">
                       {domain}
@@ -581,11 +573,14 @@ export default function Jobs() {
       label: 'Applicants',
       sortable: true,
       render: (job) => (
-        <Link 
-          to={`/jobs/${job.id}?tab=applicants`}
+        <div 
           className="flex items-center gap-2 group"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/jobs/${job.id}?tab=applicants`);
+          }}
         >
-          <span className="font-medium group-hover:text-primary transition-colors">
+          <span className="font-medium group-hover:text-primary transition-colors cursor-pointer">
             {job.applicantsCount ?? 0}
           </span>
           {job.unreadApplicants && job.unreadApplicants > 0 && (
@@ -593,7 +588,7 @@ export default function Jobs() {
               {job.unreadApplicants} unread
             </span>
           )}
-        </Link>
+        </div>
       )
     },
     {
@@ -617,30 +612,32 @@ export default function Jobs() {
       label: 'Actions',
       width: "80px",
       render: (job) => (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleEditJob(job.id)}>
-              <Pencil className="h-4 w-4 mr-2" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Copy className="h-4 w-4 mr-2" />
-              Duplicate
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              className="text-destructive"
-              onClick={() => handleDelete(job.id)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div onClick={(e) => e.stopPropagation()}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleEditJob(job.id)}>
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Copy className="h-4 w-4 mr-2" />
+                Duplicate
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                className="text-destructive"
+                onClick={() => handleDelete(job.id)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       )
     },
   ];
@@ -841,6 +838,9 @@ export default function Jobs() {
           searchable={false}
           selectable
           onSelectedRowsChange={setSelectedJobs}
+          onRowClick={(job) => {
+            navigate(`/jobs/${job.id}`);
+          }}
           emptyMessage="No jobs found"
           tableId="jobs"
         />
@@ -862,20 +862,15 @@ export default function Jobs() {
           />
         </FormDrawer>
 
-        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the job posting and all associated data.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <WarningConfirmationDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          onConfirm={confirmDelete}
+          type="delete"
+          title="Delete Job Posting"
+          description="This action cannot be undone. This will permanently delete the job posting and all associated data."
+          isProcessing={isDeleting}
+        />
 
         <DeleteConfirmationDialog
           open={showBulkDeleteDialog}

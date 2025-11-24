@@ -34,15 +34,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { 
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  WarningConfirmationDialog
+} from "@/components/ui/warning-confirmation-dialog";
 import { jobService } from "@/lib/api/jobService";
 import { mapBackendJobToFrontend } from "@/lib/jobDataMapper";
 import { mapBackendJobToFormData } from "@/lib/jobDataMapper";
@@ -435,34 +428,25 @@ export default function JobTemplates() {
           />
         )}
 
-        <AlertDialog open={useTemplateDialogOpen} onOpenChange={setUseTemplateDialogOpen}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Use Template?</AlertDialogTitle>
-              <AlertDialogDescription>
-                {latestDraft ? (
-                  <>
-                    You have an existing draft job: <strong>"{latestDraft.title || 'Untitled Job'}"</strong>.
-                    <br /><br />
-                    Using this template will <strong>overwrite your current draft</strong> with the template data. 
-                    Any changes you made to the draft will be lost. Are you sure you want to continue?
-                  </>
-                ) : (
-                  "This will create a new draft job using the template data. Are you sure you want to continue?"
-                )}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel onClick={() => {
-                setTemplateToUse(null);
-                setLatestDraft(null);
-              }}>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={confirmUseTemplate}>
-                {latestDraft ? 'Overwrite Draft & Use Template' : 'Use Template'}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <WarningConfirmationDialog
+          open={useTemplateDialogOpen}
+          onOpenChange={(open) => {
+            setUseTemplateDialogOpen(open);
+            if (!open) {
+              setTemplateToUse(null);
+              setLatestDraft(null);
+            }
+          }}
+          onConfirm={confirmUseTemplate}
+          type="warning"
+          title="Use Template?"
+          description={
+            latestDraft
+              ? `You have an existing draft job: "${latestDraft.title || 'Untitled Job'}". Using this template will overwrite your current draft with the template data. Any changes you made to the draft will be lost.`
+              : "This will create a new draft job using the template data."
+          }
+          confirmLabel={latestDraft ? 'Overwrite Draft & Use Template' : 'Use Template'}
+        />
           </>
         )}
       </div>

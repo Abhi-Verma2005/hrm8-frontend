@@ -703,7 +703,13 @@ export function DataTable<T extends { id: string }>({
                         group.items.map((item) => (
                           <TableRow 
                             key={item.id}
-                            onClick={() => onRowClick?.(item)}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              if (onRowClick) {
+                                onRowClick(item);
+                              }
+                            }}
                             className={cn(onRowClick && "cursor-pointer")}
                           >
                             {selectable && (
@@ -757,9 +763,19 @@ export function DataTable<T extends { id: string }>({
               </TableRow>
             ) : (
               paginatedData && paginatedData.map((item) => (
-                <TableRow key={item.id}>
+                <TableRow 
+                  key={item.id}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (onRowClick) {
+                      onRowClick(item);
+                    }
+                  }}
+                  className={cn(onRowClick && "cursor-pointer")}
+                >
                   {selectable && (
-                    <TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
                       <Checkbox
                         checked={selectedIds.includes(item.id)}
                         onCheckedChange={(checked) => handleSelectRow(item.id, checked as boolean)}

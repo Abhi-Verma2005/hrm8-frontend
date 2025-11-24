@@ -215,6 +215,7 @@ export function JobsFilterBar({
                 <SelectItem value="closed">Closed</SelectItem>
                 <SelectItem value="on-hold">On Hold</SelectItem>
                 <SelectItem value="filled">Filled</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
                 <SelectItem value="template">Template</SelectItem>
               </SelectContent>
             </Select>

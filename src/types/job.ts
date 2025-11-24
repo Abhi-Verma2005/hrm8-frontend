@@ -40,7 +40,7 @@ export interface Job {
   salaryPeriod?: 'hourly' | 'daily' | 'weekly' | 'monthly' | 'annual';
   salaryDescription?: string;
   experienceLevel: 'entry' | 'mid' | 'senior' | 'executive';
-  status: 'draft' | 'open' | 'closed' | 'on-hold' | 'filled' | 'template';
+  status: 'draft' | 'open' | 'closed' | 'on-hold' | 'filled' | 'cancelled' | 'template';
   visibility: 'public' | 'private';
   stealth: boolean;
   postingDate: string;
@@ -58,6 +58,9 @@ export interface Job {
   viewsCount: number;
   createdAt: string;
   updatedAt: string;
+  archived?: boolean;
+  archivedAt?: string;
+  archivedBy?: string;
   hiringTeam?: HiringTeamMember[];
   applicationForm?: ApplicationFormConfig;
   

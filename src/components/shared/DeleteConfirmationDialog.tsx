@@ -1,13 +1,4 @@
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { WarningConfirmationDialog } from "@/components/ui/warning-confirmation-dialog";
 
 interface DeleteConfirmationDialogProps {
   open: boolean;
@@ -18,6 +9,10 @@ interface DeleteConfirmationDialogProps {
   isDeleting?: boolean;
 }
 
+/**
+ * @deprecated Use WarningConfirmationDialog directly with type="delete"
+ * This component is kept for backward compatibility
+ */
 export function DeleteConfirmationDialog({
   open,
   onOpenChange,
@@ -27,23 +22,14 @@ export function DeleteConfirmationDialog({
   isDeleting = false,
 }: DeleteConfirmationDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onConfirm}
-            disabled={isDeleting}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-          >
-            {isDeleting ? "Deleting..." : "Delete"}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <WarningConfirmationDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      onConfirm={onConfirm}
+      type="delete"
+      title={title}
+      description={description}
+      isProcessing={isDeleting}
+    />
   );
 }
