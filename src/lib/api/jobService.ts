@@ -120,6 +120,35 @@ class JobService {
     const endpoint = id ? `/api/jobs/${id}/save-template` : `/api/jobs/new/save-template`;
     return apiClient.post<Job>(endpoint, data);
   }
+
+  /**
+   * Submit and activate job (after review step)
+   */
+  async submitAndActivate(id: string, paymentId?: string) {
+    return apiClient.post<Job>(`/api/jobs/${id}/submit`, { paymentId });
+  }
+
+  /**
+   * Update job alerts configuration
+   */
+  async updateAlerts(id: string, alertsConfig: {
+    newApplicants?: boolean;
+    inactivity?: boolean;
+    deadlines?: boolean;
+    inactivityDays?: number;
+  }) {
+    return apiClient.put<Job>(`/api/jobs/${id}/alerts`, alertsConfig);
+  }
+
+  /**
+   * Save job as template (post-launch)
+   */
+  async saveAsTemplate(id: string, templateName: string, templateDescription?: string) {
+    return apiClient.post<{ job: Job; templateId: string }>(`/api/jobs/${id}/save-as-template`, {
+      templateName,
+      templateDescription,
+    });
+  }
 }
 
 export const jobService = new JobService();

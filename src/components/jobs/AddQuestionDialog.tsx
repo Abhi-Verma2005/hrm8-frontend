@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ApplicationQuestion, QuestionType, QuestionOption } from "@/types/applicationForm";
+import { ApplicationQuestion, QuestionType, QuestionOption, QuestionEvaluationSettings } from "@/types/applicationForm";
 import {
   Dialog,
   DialogContent,
@@ -27,6 +27,7 @@ import { questionTypeLabels, questionTypeIcons, needsOptions, getDefaultValidati
 import { saveQuestionToLibrary, getCategories } from "@/lib/questionLibraryStorage";
 import { Plus, X, BookmarkPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { QuestionEvaluationSettings as QuestionEvaluationSettingsComponent } from "./QuestionEvaluationSettings";
 
 interface AddQuestionDialogProps {
   open: boolean;
@@ -51,6 +52,7 @@ export function AddQuestionDialog({
   const [newOption, setNewOption] = useState('');
   const [saveToLibrary, setSaveToLibrary] = useState(false);
   const [category, setCategory] = useState('');
+  const [evaluation, setEvaluation] = useState<QuestionEvaluationSettings | undefined>(undefined);
   const { toast } = useToast();
 
   const categories = getCategories();
@@ -62,6 +64,7 @@ export function AddQuestionDialog({
       setDescription(editQuestion.description || '');
       setRequired(editQuestion.required);
       setOptions(editQuestion.options || []);
+      setEvaluation(editQuestion.evaluation);
     } else {
       resetForm();
     }
@@ -76,6 +79,7 @@ export function AddQuestionDialog({
     setNewOption('');
     setSaveToLibrary(false);
     setCategory('');
+    setEvaluation(undefined);
   };
 
   const handleAddOption = () => {
@@ -108,6 +112,7 @@ export function AddQuestionDialog({
       options: needsOptions(type) ? options : undefined,
       validation: getDefaultValidation(type),
       order: editQuestion?.order || nextOrder,
+      evaluation: evaluation,
     };
 
     // Save to library if checked and not editing
@@ -140,18 +145,12 @@ export function AddQuestionDialog({
   };
 
   const questionTypes: QuestionType[] = [
-    'short_text',
-    'long_text',
-    'multiple_choice',
-    'checkbox',
-    'dropdown',
-    'yes_no',
-    'file_upload',
-    'date',
-    'number',
-    'email',
-    'phone',
-    'url',
+    'short_text',      // Short Answer
+    'long_text',       // Long Answer
+    'multiple_choice', // Multiple Choice (single select)
+    'checkbox',        // Multiple Choice (multi-select)
+    'dropdown',        // Dropdown Selection
+    'file_upload',     // File Upload
   ];
 
   return (
@@ -277,6 +276,15 @@ export function AddQuestionDialog({
               </div>
             </div>
           )}
+
+          {/* Smart Evaluation Settings */}
+          <Separator className="my-4" />
+          <QuestionEvaluationSettingsComponent
+            questionType={type}
+            options={options}
+            evaluation={evaluation}
+            onChange={setEvaluation}
+          />
 
           {/* Save to Library section - only for new questions */}
           {!editQuestion && (

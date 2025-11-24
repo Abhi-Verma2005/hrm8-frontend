@@ -29,6 +29,8 @@ import {
 } from "@/components/ui/sheet";
 import { JobBoardPublicPreview } from "./JobBoardPublicPreview";
 import { ExternalPromotionDialog } from "./ExternalPromotionDialog";
+import { PostLaunchTools } from "./PostLaunchTools";
+import { PromoteExternallyDialog } from "./PromoteExternallyDialog";
 import { toast } from "@/hooks/use-toast";
 import { jobService } from "@/lib/api/jobService";
 import { generateJobCode } from "@/lib/jobUtils";
@@ -52,6 +54,7 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
   const [step, setStep] = useState(1);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [showExternalPromotionDialog, setShowExternalPromotionDialog] = useState(false);
+  const [showPostLaunchTools, setShowPostLaunchTools] = useState(false);
   const [savedJobData, setSavedJobData] = useState<Job | null>(null);
   const [autoSaving, setAutoSaving] = useState(false);
   const [lastAutoSave, setLastAutoSave] = useState<Date | null>(null);
@@ -652,28 +655,18 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
       status: 'DRAFT',
     });
     
-    // Publish job - create or update first, then publish
-    console.log('🚀 Publishing job...', { currentJobId, jobRequest });
+    // Submit and activate job - create or update first, then submit
+    console.log('🚀 Submitting and activating job...', { currentJobId, jobRequest });
     try {
+      let finalJobId = currentJobId;
+      
       if (currentJobId) {
         console.log('📝 Updating existing job:', currentJobId);
         // Update existing job first
         const updateResponse = await jobService.updateJob(currentJobId, jobRequest);
         console.log('✅ Update response:', updateResponse);
         if (updateResponse.success && updateResponse.data) {
-          jobData.id = updateResponse.data.id;
-          // Now publish it
-          console.log('📢 Publishing job:', currentJobId);
-          const publishResponse = await jobService.publishJob(currentJobId);
-          console.log('✅ Publish response:', publishResponse);
-          if (publishResponse.success && publishResponse.data) {
-            jobData.id = publishResponse.data.id;
-            jobData.status = 'open';
-            console.log('✅ Job published successfully!');
-          } else {
-            console.error('❌ Publish failed:', publishResponse);
-            throw new Error(publishResponse.error || 'Failed to publish job');
-          }
+          finalJobId = updateResponse.data.id;
         } else {
           console.error('❌ Update failed:', updateResponse);
           throw new Error(updateResponse.error || 'Failed to update job');
@@ -684,59 +677,48 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
         const createResponse = await jobService.createJob(jobRequest);
         console.log('✅ Create response:', createResponse);
         if (createResponse.success && createResponse.data) {
-          jobData.id = createResponse.data.id;
-          setCurrentJobId(createResponse.data.id);
-          // Now publish it
-          console.log('📢 Publishing newly created job:', createResponse.data.id);
-          const publishResponse = await jobService.publishJob(createResponse.data.id);
-          console.log('✅ Publish response:', publishResponse);
-          if (publishResponse.success && publishResponse.data) {
-            jobData.status = 'open';
-            console.log('✅ Job created and published successfully!');
-          } else {
-            console.error('❌ Publish failed:', publishResponse);
-            throw new Error(publishResponse.error || 'Failed to publish job');
-          }
+          finalJobId = createResponse.data.id;
+          setCurrentJobId(finalJobId);
         } else {
           console.error('❌ Create failed:', createResponse);
           throw new Error(createResponse.error || 'Failed to create job');
         }
       }
+
+      // Now submit and activate the job
+      console.log('📢 Submitting and activating job:', finalJobId);
+      const paymentId = requiresPayment && jobData.paymentId ? jobData.paymentId : undefined;
+      const submitResponse = await jobService.submitAndActivate(finalJobId!, paymentId);
+      console.log('✅ Submit response:', submitResponse);
+      
+      if (submitResponse.success && submitResponse.data) {
+        const activatedJob = submitResponse.data;
+        jobData.id = activatedJob.id;
+        jobData.status = 'open';
+        jobData.shareLink = activatedJob.shareLink;
+        jobData.referralLink = activatedJob.referralLink;
+        console.log('✅ Job submitted and activated successfully!');
+        
+        // Store job data for post-launch tools
+        setSavedJobData(jobData);
+        
+        // Show post-launch tools dialog
+        setShowPostLaunchTools(true);
+        setIsPublishing(false);
+        return;
+      } else {
+        console.error('❌ Submit failed:', submitResponse);
+        throw new Error(submitResponse.error || 'Failed to submit and activate job');
+      }
     } catch (error: any) {
-      console.error('❌ Error publishing job:', error);
+      console.error('❌ Error submitting job:', error);
       toast({
-        title: "Publish Failed",
-        description: error?.message || "Failed to publish job. Please try again.",
+        title: "Submission Failed",
+        description: error?.message || "Failed to submit and activate job. Please try again.",
         variant: "destructive"
       });
+      setIsPublishing(false);
       return;
-    }
-    
-    // Store job data for external promotion dialog
-    setSavedJobData(jobData);
-    
-    // Show external promotion popup for self-managed jobs
-    if (isSelfManaged) {
-      setShowExternalPromotionDialog(true);
-      // Don't reset loading state here - it will be reset when dialog closes
-      return;
-    }
-    
-    const successTitle = requiresPayment
-      ? "Payment Processed & Job Posted"
-      : "Job Posted Successfully";
-    
-    const successDescription = requiresPayment
-      ? "Your recruitment service request has been submitted and payment processed"
-      : "Your job is now live on HRM8";
-    
-    toast({
-      title: successTitle,
-      description: successDescription,
-    });
-    
-    if (onSuccess) {
-      onSuccess(jobData);
     }
     } finally {
       setIsPublishing(false);
@@ -996,7 +978,7 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
             </Button>
           </div>
           <div className="flex gap-2">
-            {step === 2 && !isHRM8Service && (
+            {!isHRM8Service && step <= 5 && (
               <Button 
                 type="button" 
                 variant="outline" 
@@ -1122,16 +1104,52 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
         </Sheet>
 
         {savedJobData && (
-          <ExternalPromotionDialog
-            open={showExternalPromotionDialog}
-            onOpenChange={setShowExternalPromotionDialog}
-            job={savedJobData}
-            onSuccess={() => {
-              if (onSuccess) {
-                onSuccess(savedJobData);
-              }
-            }}
-          />
+          <>
+            <PostLaunchTools
+              job={savedJobData}
+              open={showPostLaunchTools}
+              onOpenChange={(open) => {
+                setShowPostLaunchTools(open);
+                if (!open && onSuccess) {
+                  onSuccess(savedJobData);
+                }
+              }}
+              onSaveTemplate={async (templateName, templateDescription) => {
+                try {
+                  await jobService.saveAsTemplate(savedJobData.id, templateName, templateDescription);
+                } catch (error) {
+                  console.error('Failed to save template:', error);
+                }
+              }}
+              onPromoteExternally={() => {
+                setShowPostLaunchTools(false);
+                setShowExternalPromotionDialog(true);
+              }}
+            />
+            <PromoteExternallyDialog
+              job={savedJobData}
+              open={showExternalPromotionDialog}
+              onOpenChange={setShowExternalPromotionDialog}
+              onPromote={async (channels, budget) => {
+                // TODO: Call JobTarget API when integration is ready
+                console.log('Promoting job:', { channels, budget });
+                toast({
+                  title: "Promotion Initiated",
+                  description: "JobTarget integration coming soon. Your promotion will be processed once integration is complete.",
+                });
+              }}
+            />
+            <ExternalPromotionDialog
+              open={showExternalPromotionDialog}
+              onOpenChange={setShowExternalPromotionDialog}
+              job={savedJobData}
+              onSuccess={() => {
+                if (onSuccess) {
+                  onSuccess(savedJobData);
+                }
+              }}
+            />
+          </>
         )}
       </form>
     </Form>

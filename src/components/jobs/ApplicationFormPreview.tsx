@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { FileUp, Calendar } from "lucide-react";
+import { FileUp } from "lucide-react";
 import { questionTypeLabels } from "@/lib/applicationFormUtils";
 
 interface ApplicationFormPreviewProps {
@@ -180,23 +180,6 @@ export function ApplicationFormPreview({ formConfig }: ApplicationFormPreviewPro
                     </Select>
                   )}
 
-                  {question.type === 'yes_no' && (
-                    <RadioGroup disabled>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="yes" id={`${question.id}-yes`} />
-                        <Label htmlFor={`${question.id}-yes`} className="font-normal">
-                          Yes
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="no" id={`${question.id}-no`} />
-                        <Label htmlFor={`${question.id}-no`} className="font-normal">
-                          No
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  )}
-
                   {question.type === 'file_upload' && (
                     <div className="border-2 border-dashed rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors">
                       <FileUp className="h-6 w-6 mx-auto mb-1 text-muted-foreground" />
@@ -210,45 +193,6 @@ export function ApplicationFormPreview({ formConfig }: ApplicationFormPreviewPro
                         </p>
                       )}
                     </div>
-                  )}
-
-                  {question.type === 'date' && (
-                    <div className="flex items-center gap-2">
-                      <Input type="date" disabled />
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  )}
-
-                  {question.type === 'number' && (
-                    <Input
-                      type="number"
-                      placeholder="Enter a number..."
-                      disabled
-                    />
-                  )}
-
-                  {question.type === 'email' && (
-                    <Input
-                      type="email"
-                      placeholder="your.email@example.com"
-                      disabled
-                    />
-                  )}
-
-                  {question.type === 'phone' && (
-                    <Input
-                      type="tel"
-                      placeholder="+1 (555) 000-0000"
-                      disabled
-                    />
-                  )}
-
-                  {question.type === 'url' && (
-                    <Input
-                      type="url"
-                      placeholder="https://example.com"
-                      disabled
-                    />
                   )}
 
                   {question.validation && (

@@ -8,7 +8,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { GripVertical, MoreVertical, Edit, Copy, Trash2, BookmarkPlus } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { GripVertical, MoreVertical, Edit, Copy, Trash2, BookmarkPlus, Sparkles } from "lucide-react";
 import { questionTypeLabels, questionTypeIcons } from "@/lib/applicationFormUtils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -45,6 +51,33 @@ export function ApplicationQuestionCard({
 
   const TypeIcon = questionTypeIcons[question.type];
 
+  // Check if evaluation settings are enabled
+  const hasEvaluation = question.evaluation && (
+    question.evaluation.mandatory?.enabled ||
+    question.evaluation.scoring?.enabled ||
+    question.evaluation.autoTagging?.enabled ||
+    question.evaluation.triggers?.enabled
+  );
+
+  // Get evaluation summary for tooltip
+  const getEvaluationSummary = () => {
+    if (!question.evaluation) return '';
+    const parts: string[] = [];
+    if (question.evaluation.mandatory?.enabled) {
+      parts.push('Auto-disqualify');
+    }
+    if (question.evaluation.scoring?.enabled) {
+      parts.push('Scoring');
+    }
+    if (question.evaluation.autoTagging?.enabled) {
+      parts.push('Auto-tagging');
+    }
+    if (question.evaluation.triggers?.enabled) {
+      parts.push('Triggers');
+    }
+    return parts.join(', ');
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -75,6 +108,29 @@ export function ApplicationQuestionCard({
               <Badge variant="destructive" className="text-xs">
                 Required
               </Badge>
+            )}
+            {hasEvaluation && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge 
+                      variant="secondary" 
+                      className="text-xs bg-gradient-to-r from-purple-500/10 to-blue-500/10 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700"
+                    >
+                      <Sparkles className="h-3 w-3 mr-1" />
+                      Smart Eval
+                    </Badge>
+                  </TooltipTrigger>
+                  <TooltipContent side="top" className="max-w-xs">
+                    <div className="space-y-1">
+                      <p className="font-semibold text-sm">Smart Evaluation Active</p>
+                      <p className="text-xs text-muted-foreground">
+                        {getEvaluationSummary()}
+                      </p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
           </div>
         </div>

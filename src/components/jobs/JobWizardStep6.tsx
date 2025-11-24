@@ -4,10 +4,11 @@ import { JobFormData } from '@/types/job';
 import { PaymentMethodSelector } from './PaymentMethodSelector';
 import { TermsAndConditions } from './TermsAndConditions';
 import { calculateTotalJobCost } from '@/lib/paymentService';
-import { DollarSign, AlertCircle, Info, Megaphone } from 'lucide-react';
+import { Rocket, DollarSign, AlertCircle, Info, Megaphone, CheckCircle2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { RECRUITMENT_SERVICES } from '@/lib/subscriptionConfig';
+import { Badge } from '@/components/ui/badge';
 
 interface JobWizardStep6Props {
   form: UseFormReturn<JobFormData>;
@@ -42,21 +43,40 @@ export function JobWizardStep6({ form }: JobWizardStep6Props) {
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold flex items-center gap-2">
-          <DollarSign className="h-5 w-5" />
-          {costBreakdown.totalUpfront > 0 ? 'Payment & Terms' : 'Review & Confirm'}
+          <Rocket className="h-5 w-5" />
+          Submit & Activate
         </h3>
         <p className="text-sm text-muted-foreground mt-1">
-          {costBreakdown.totalUpfront > 0 
-            ? 'Review costs and complete payment to publish your job posting'
-            : 'Review and accept the terms to publish your job posting'}
+          Complete payment (if required) and activate your job posting. It will be live on HRM8 internal job board and your careers page.
         </p>
       </div>
 
-      {/* Cost Breakdown */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Cost Summary</CardTitle>
-        </CardHeader>
+      {/* Activation Info */}
+      <Alert className="border-2 border-primary/30 bg-primary/5">
+        <CheckCircle2 className="h-5 w-5 text-primary" />
+        <AlertTitle className="text-base font-semibold">What happens next?</AlertTitle>
+        <AlertDescription className="text-base mt-2">
+          <ul className="list-disc list-inside space-y-1 text-sm">
+            <li>Job will be activated and visible on HRM8 internal job board</li>
+            <li>Job will be published on your corporate careers page</li>
+            <li>You'll receive access to post-launch tools (alerts, sharing, templates)</li>
+            <li>Option to promote externally via JobTarget will be available</li>
+          </ul>
+        </AlertDescription>
+      </Alert>
+
+      {/* Cost Breakdown - Only show if payment required */}
+      {costBreakdown.totalUpfront > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <DollarSign className="h-5 w-5" />
+              Payment Required
+            </CardTitle>
+            <CardDescription>
+              Complete payment to activate your job posting
+            </CardDescription>
+          </CardHeader>
         <CardContent className="space-y-4">
           {/* Job Posting Cost */}
           <div className="flex justify-between items-center pb-3 border-b">
@@ -106,8 +126,9 @@ export function JobWizardStep6({ form }: JobWizardStep6Props) {
             </Alert>
           )}
         </CardContent>
-      </Card>
-      
+        </Card>
+      )}
+
       {/* Payment Method (only if totalUpfront > 0) */}
       {costBreakdown.totalUpfront > 0 && (
         <PaymentMethodSelector
@@ -116,6 +137,23 @@ export function JobWizardStep6({ form }: JobWizardStep6Props) {
           selectedMethod={formData.selectedPaymentMethod}
           onMethodSelect={handlePaymentMethodSelect}
         />
+      )}
+
+      {/* Free Job Posting Info */}
+      {costBreakdown.totalUpfront === 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-600" />
+              No Payment Required
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Your job posting is free and will be activated immediately upon submission.
+            </p>
+          </CardContent>
+        </Card>
       )}
       
       <TermsAndConditions

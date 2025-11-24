@@ -308,42 +308,134 @@ export function AIJobGenerator({ form, onScrollToUpload }: AIJobGeneratorProps) 
           description: "Job details extracted using pattern matching. Review and edit as needed.",
         });
       } else {
-        // Fall back to mock generation
-        const mockDescription = `We are seeking a talented ${jobTitle} to join our ${department} team. This is an exciting opportunity to work on cutting-edge projects and make a real impact. You'll collaborate with cross-functional teams to deliver high-quality solutions that drive our business forward.
+        // Priority 3: Call backend AI API with ALL available form fields
+        const jobTitle = form.getValues("title");
+        if (!jobTitle) {
+          toast({
+            title: "Title Required",
+            description: "Please enter a job title first.",
+            variant: "destructive",
+          });
+          setIsGenerating(false);
+          return;
+        }
 
-Our ideal candidate is passionate about technology, has a strong problem-solving mindset, and thrives in a fast-paced environment. We offer competitive compensation, comprehensive benefits, and opportunities for professional growth.`;
-
-        const mockRequirements = [
-          `${experienceLevel === 'entry' ? '1-2' : experienceLevel === 'mid' ? '3-5' : '5+'} years of relevant experience`,
-          'Strong technical skills and problem-solving abilities',
-          'Excellent communication and collaboration skills',
-          'Bachelor\'s degree in relevant field or equivalent experience',
-          'Proven track record of delivering high-quality work'
-        ];
-
-        const mockResponsibilities = [
-          'Design and implement solutions that meet business requirements',
-          'Collaborate with team members and stakeholders',
-          'Participate in code reviews and technical discussions',
-          'Contribute to continuous improvement initiatives',
-          'Mentor junior team members and share knowledge'
-        ];
-
-        form.setValue("description", mockDescription);
-        form.setValue("requirements", mockRequirements.map((text, index) => ({
-          id: `req-${Date.now()}-${index}`,
-          text,
-          order: index + 1,
-        })) as any);
-        form.setValue("responsibilities", mockResponsibilities.map((text, index) => ({
-          id: `resp-${Date.now()}-${index}`,
-          text,
-          order: index + 1,
-        })) as any);
+        // Get ALL available form data
+        const allFormData = form.getValues();
+        console.log('📤 Calling API with form data:', allFormData);
         
+        // Call backend API with ALL available fields
+        const { jobDescriptionService } = await import('@/lib/api/jobDescriptionService');
+        let generated;
+        try {
+          generated = await jobDescriptionService.generateDescription(allFormData);
+          console.log('✅ Generated content received:', generated);
+        } catch (error) {
+          console.error('❌ Error generating description:', error);
+          throw error;
+        }
+
+        if (!generated) {
+          console.error('❌ Generated content is null/undefined');
+          throw new Error('No content generated');
+        }
+
+        console.log('📝 Generated content:', generated);
+
+        // Fill form with generated content
+        // Always set description (user can edit if needed)
+        if (generated && generated.description) {
+          console.log('📝 Setting description (length:', generated.description.length, ')');
+          console.log('📝 Description preview:', generated.description.substring(0, 200));
+          
+          // Convert plain text to HTML paragraphs for RichTextEditor
+          // Handle both \n\n (double newlines) and \n (single newlines)
+          const htmlDescription = generated.description
+            .split(/\n\n+/)
+            .filter(para => para.trim().length > 0)
+            .map(para => {
+              // Split by single newlines within paragraphs and wrap in <p> tags
+              const lines = para.split('\n').filter(line => line.trim().length > 0);
+              return lines.map(line => `<p>${line.trim()}</p>`).join('');
+            })
+            .join('');
+          
+          console.log('📝 HTML description (length:', htmlDescription.length, '):', htmlDescription.substring(0, 300));
+          
+          try {
+            // Set the form value
+            form.setValue("description", htmlDescription, { shouldValidate: true, shouldDirty: true });
+            console.log('✅ Description set in form');
+            
+            // Force form to update and trigger re-render
+            await form.trigger("description");
+            console.log('✅ Form validation triggered');
+            
+            // Small delay to ensure React has processed the update
+            await new Promise(resolve => setTimeout(resolve, 100));
+            console.log('✅ Update complete');
+          } catch (error) {
+            console.error('❌ Error setting description:', error);
+          }
+        } else {
+          console.error('❌ Generated description is missing:', generated);
+        }
+        
+        // Set requirements (replace if empty, merge if existing)
+        const existingReqs = form.getValues("requirements") || [];
+        if (existingReqs.length === 0) {
+          const newReqs = generated.requirements.map((text, index) => ({
+            id: `req-${Date.now()}-${index}`,
+            text,
+            order: index + 1,
+          }));
+          console.log('Setting requirements:', newReqs);
+          form.setValue("requirements", newReqs, { shouldValidate: true, shouldDirty: true });
+        } else {
+          // Merge: add new requirements that don't already exist
+          const existingTexts = existingReqs.map(r => typeof r === 'string' ? r : r.text);
+          const newReqs = generated.requirements
+            .filter(text => !existingTexts.some(existing => existing.toLowerCase().includes(text.toLowerCase()) || text.toLowerCase().includes(existing.toLowerCase())))
+            .map((text, index) => ({
+              id: `req-${Date.now()}-${existingReqs.length + index}`,
+              text,
+              order: existingReqs.length + index + 1,
+            }));
+          if (newReqs.length > 0) {
+            console.log('Merging requirements:', newReqs);
+            form.setValue("requirements", [...existingReqs, ...newReqs] as any, { shouldValidate: true, shouldDirty: true });
+          }
+        }
+        
+        // Set responsibilities (replace if empty, merge if existing)
+        const existingResps = form.getValues("responsibilities") || [];
+        if (existingResps.length === 0) {
+          const newResps = generated.responsibilities.map((text, index) => ({
+            id: `resp-${Date.now()}-${index}`,
+            text,
+            order: index + 1,
+          }));
+          console.log('Setting responsibilities:', newResps);
+          form.setValue("responsibilities", newResps, { shouldValidate: true, shouldDirty: true });
+        } else {
+          // Merge: add new responsibilities that don't already exist
+          const existingTexts = existingResps.map(r => typeof r === 'string' ? r : r.text);
+          const newResps = generated.responsibilities
+            .filter(text => !existingTexts.some(existing => existing.toLowerCase().includes(text.toLowerCase()) || text.toLowerCase().includes(existing.toLowerCase())))
+            .map((text, index) => ({
+              id: `resp-${Date.now()}-${existingResps.length + index}`,
+              text,
+              order: existingResps.length + index + 1,
+            }));
+          if (newResps.length > 0) {
+            console.log('Merging responsibilities:', newResps);
+            form.setValue("responsibilities", [...existingResps, ...newResps] as any, { shouldValidate: true, shouldDirty: true });
+          }
+        }
+
         toast({
           title: "AI Content Generated!",
-          description: "Job description, requirements, and responsibilities have been populated. Feel free to edit them.",
+          description: "Job description generated using AI with all available form fields. Review and edit as needed.",
         });
       }
       

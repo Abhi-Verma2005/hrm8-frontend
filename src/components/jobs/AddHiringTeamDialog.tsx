@@ -239,7 +239,7 @@ export function AddHiringTeamDialog({
     // If editing an existing invited member, just update local state
     // Preserve original email/name, only update role and permissions
     if (editMember && editMember.status === 'pending_invite') {
-      const member: HiringTeamMember = {
+    const member: HiringTeamMember = {
         id: editMember.id,
         email: editMember.email, // Preserve original email
         name: editMember.name, // Preserve original name
@@ -275,10 +275,10 @@ export function AddHiringTeamDialog({
     try {
       // Send invitation via API only for new invites
       await hiringTeamService.inviteMember(jobId, {
-        email: inviteEmail,
-        name: inviteName,
-        role,
-        permissions,
+      email: inviteEmail,
+      name: inviteName,
+      role,
+      permissions,
       });
 
       // Add to local state
@@ -288,14 +288,14 @@ export function AddHiringTeamDialog({
         name: editMember?.name || inviteName, // Preserve original name when editing
         role,
         permissions,
-        status: editMember?.status || 'pending_invite',
-        invitedAt: editMember?.invitedAt || new Date().toISOString(),
-        addedBy: editMember?.addedBy || currentUserId,
-      };
+      status: editMember?.status || 'pending_invite',
+      invitedAt: editMember?.invitedAt || new Date().toISOString(),
+      addedBy: editMember?.addedBy || currentUserId,
+    };
 
-      onAdd(member);
-      resetForm();
-      onOpenChange(false);
+    onAdd(member);
+    resetForm();
+    onOpenChange(false);
       
       toast({
         title: 'Success',
@@ -455,10 +455,10 @@ export function AddHiringTeamDialog({
         ) : (
           // When adding new, show tabs
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'existing' | 'invite')} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="existing">Existing Users</TabsTrigger>
-              <TabsTrigger value="invite">Invite New User</TabsTrigger>
-            </TabsList>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="existing">Existing Users</TabsTrigger>
+            <TabsTrigger value="invite">Invite New User</TabsTrigger>
+          </TabsList>
 
           <TabsContent value="existing" className="space-y-4 pt-4">
             <div className="space-y-2">

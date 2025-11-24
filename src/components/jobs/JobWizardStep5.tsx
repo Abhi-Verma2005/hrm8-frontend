@@ -24,7 +24,6 @@ const formatWorkArrangement = (arrangement: string) => {
 
 export function JobWizardStep5({ form }: JobWizardStep5Props) {
   const formData = form.watch();
-  const jobBoards = ["HRM8 Job Board", "LinkedIn", "Indeed", "Glassdoor", "Company Career Page"];
 
   const requirements = formData.requirements || [];
   const responsibilities = formData.responsibilities || [];
@@ -47,7 +46,7 @@ export function JobWizardStep5({ form }: JobWizardStep5Props) {
       <ScrollArea className="h-[calc(100vh-300px)] pr-4">
         <div className="space-y-6 pb-4">
           {/* Job Overview */}
-          <Card>
+      <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Briefcase className="h-5 w-5" />
@@ -55,7 +54,7 @@ export function JobWizardStep5({ form }: JobWizardStep5Props) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
+          <div>
                 <h3 className="font-semibold text-xl mb-2">{formData.title || "Job Title"}</h3>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
@@ -66,8 +65,8 @@ export function JobWizardStep5({ form }: JobWizardStep5Props) {
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
                     <span>{formData.location || "Location"}</span>
-                  </div>
-                  <span>•</span>
+          </div>
+            <span>•</span>
                   <div className="flex items-center gap-1">
                     <Users className="h-4 w-4" />
                     <span>{formData.numberOfVacancies || 1} vacancy{formData.numberOfVacancies !== 1 ? 'ies' : 'y'}</span>
@@ -133,8 +132,8 @@ export function JobWizardStep5({ form }: JobWizardStep5Props) {
                     <>
                       <EyeOff className="h-4 w-4 text-muted-foreground" />
                       <span>Private</span>
-                    </>
-                  )}
+              </>
+            )}
                 </div>
                 {formData.stealth && (
                   <Badge variant="outline" className="text-xs">
@@ -162,9 +161,9 @@ export function JobWizardStep5({ form }: JobWizardStep5Props) {
             <CardContent>
               <div className="prose prose-sm max-w-none">
                 <p className="text-sm whitespace-pre-wrap">{formData.description || "No description provided"}</p>
-              </div>
-            </CardContent>
-          </Card>
+          </div>
+        </CardContent>
+      </Card>
 
           {/* Requirements */}
           {requirements.length > 0 && (
@@ -377,44 +376,6 @@ export function JobWizardStep5({ form }: JobWizardStep5Props) {
             </CardContent>
           </Card>
 
-          {/* Job Board Distribution */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Job Board Distribution</CardTitle>
-              <CardDescription>
-                Select where you want to post this job
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="jobBoardDistribution"
-                render={() => (
-                  <FormItem>
-                    <div className="space-y-3">
-                      {jobBoards.map((board) => (
-                        <div key={board} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                          <FormControl>
-                            <Checkbox
-                              checked={formData.jobBoardDistribution?.includes(board)}
-                              onCheckedChange={(checked) => {
-                                const current = formData.jobBoardDistribution || [];
-                                const updated = checked
-                                  ? [...current, board]
-                                  : current.filter(b => b !== board);
-                                form.setValue("jobBoardDistribution", updated);
-                              }}
-                            />
-                          </FormControl>
-                          <label className="text-sm font-medium cursor-pointer flex-1">{board}</label>
-                        </div>
-                      ))}
-                    </div>
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
         </div>
       </ScrollArea>
     </div>
