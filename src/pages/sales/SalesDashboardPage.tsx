@@ -1,6 +1,7 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
 import { Card } from "@/components/ui/card";
@@ -21,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 import { applyLocationFilterToMetric } from "@/lib/mockDataWithLocations";
+import { SalesDashboardSkeleton } from "@/components/sales/SalesDashboardSkeleton";
 
 export default function SalesDashboardPage() {
   const navigate = useNavigate();
@@ -29,6 +31,30 @@ export default function SalesDashboardPage() {
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [selectedCountry, setSelectedCountry] = useState<string>("all");
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFiltering, setIsFiltering] = useState(false);
+  
+  // Simulate loading on initial mount
+  useEffect(() => {
+    // Simulate data fetching delay
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 800); // 800ms loading time for smooth transition
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Show loading when filters change
+  useEffect(() => {
+    if (!isLoading) {
+      setIsFiltering(true);
+      const timer = setTimeout(() => {
+        setIsFiltering(false);
+      }, 400); // Shorter delay for filter changes
+
+      return () => clearTimeout(timer);
+    }
+  }, [dateRange, selectedCountry, selectedRegion, isLoading]);
   
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
   const salesAgentStats = getSalesAgentStats();
@@ -94,35 +120,45 @@ export default function SalesDashboardPage() {
   };
 
   return (
-    <DashboardPageLayout
-      title="Sales Dashboard"
-      subtitle="Monitor sales performance, pipeline, and team activity"
-      breadcrumbActions={
-        <DashboardActionBar
-          dateRange={dateRange}
-          onDateRangeChange={setDateRange}
-          selectedCountry={selectedCountry}
-          selectedRegion={selectedRegion}
-          onCountryChange={setSelectedCountry}
-          onRegionChange={setSelectedRegion}
-          onExport={handleExport}
-          onResetFilters={handleResetFilters}
-          hasActiveFilters={hasActiveFilters}
-        />
-      }
-    >
-      <div className="px-12 pb-6 space-y-6">
+    <DashboardPageLayout>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title="Sales Dashboard"
+          subtitle="Monitor sales performance, pipeline, and team activity"
+        >
+          <div className="overflow-x-auto -mx-1 px-1">
+            <DashboardActionBar
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+              selectedCountry={selectedCountry}
+              selectedRegion={selectedRegion}
+              onCountryChange={setSelectedCountry}
+              onRegionChange={setSelectedRegion}
+              onExport={handleExport}
+              onResetFilters={handleResetFilters}
+              hasActiveFilters={hasActiveFilters}
+            />
+          </div>
+        </AtsPageHeader>
+        
         {/* Active Filters Indicator */}
-        <ActiveFiltersIndicator
-          selectedCountry={selectedCountry}
-          selectedRegion={selectedRegion}
-          dateRange={dateRange}
-          onClearCountry={() => setSelectedCountry("all")}
-          onClearRegion={() => setSelectedRegion("all")}
-          onClearDateRange={() => setDateRange(undefined)}
-        />
+        {hasActiveFilters && !isLoading && !isFiltering && (
+          <ActiveFiltersIndicator
+            selectedCountry={selectedCountry}
+            selectedRegion={selectedRegion}
+            dateRange={dateRange}
+            onClearCountry={() => setSelectedCountry("all")}
+            onClearRegion={() => setSelectedRegion("all")}
+            onClearDateRange={() => setDateRange(undefined)}
+          />
+        )}
 
-        {/* Key Metrics */}
+        {/* Show skeleton while loading or filtering */}
+        {(isLoading || isFiltering) ? (
+          <SalesDashboardSkeleton />
+        ) : (
+          <>
+            {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <EnhancedStatCard
             title="Total Revenue"
@@ -131,7 +167,7 @@ export default function SalesDashboardPage() {
             rawValue={filteredTotalRevenue}
             change="+12.5%"
             trend="up"
-            icon={<DollarSign className="h-6 w-6" />}
+            icon={<DollarSign className="h-5 w-5" />}
             variant="success"
             showMenu={true}
             menuItems={[
@@ -159,7 +195,7 @@ export default function SalesDashboardPage() {
             rawValue={filteredPipelineValue}
             change={`${pipelineCoverage.toFixed(0)}% quota coverage`}
             trend={pipelineCoverage >= 300 ? "up" : "down"}
-            icon={<TrendingUp className="h-6 w-6" />}
+            icon={<TrendingUp className="h-5 w-5" />}
             variant="primary"
             showMenu={true}
             menuItems={[
@@ -180,7 +216,7 @@ export default function SalesDashboardPage() {
             value={`${quotaAttainment.toFixed(1)}%`}
             change="vs target 100%"
             trend={quotaAttainment >= 100 ? "up" : "down"}
-            icon={<Target className="h-6 w-6" />}
+            icon={<Target className="h-5 w-5" />}
             variant={quotaAttainment >= 100 ? "success" : "warning"}
             showMenu={true}
             menuItems={[
@@ -201,7 +237,7 @@ export default function SalesDashboardPage() {
             value={Math.round(filteredActiveOpportunities).toString()}
             change={`${opportunityStats.conversionRate.toFixed(1)}% win rate`}
             trend={opportunityStats.conversionRate >= 30 ? "up" : "down"}
-            icon={<Award className="h-6 w-6" />}
+            icon={<Award className="h-5 w-5" />}
             variant="neutral"
             showMenu={true}
             menuItems={[
@@ -227,7 +263,7 @@ export default function SalesDashboardPage() {
             value={salesAgentStats.active.toString()}
             change={`${salesAgentStats.total} total agents`}
             trend="up"
-            icon={<Users className="h-6 w-6" />}
+            icon={<Users className="h-5 w-5" />}
             variant="primary"
             showMenu={true}
             menuItems={[
@@ -255,7 +291,7 @@ export default function SalesDashboardPage() {
             rawValue={filteredAvgDealSize}
             change="+7%"
             trend="up"
-            icon={<DollarSign className="h-6 w-6" />}
+            icon={<DollarSign className="h-5 w-5" />}
             variant="success"
             showMenu={true}
             menuItems={[
@@ -387,11 +423,13 @@ export default function SalesDashboardPage() {
               { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
             ]}
           >
-            <DataTable
-              columns={createTopDealsColumns()}
-              data={topOpportunities}
-              searchable={false}
-            />
+            <div className="overflow-x-auto -mx-1 px-1">
+              <DataTable
+                columns={createTopDealsColumns()}
+                data={topOpportunities}
+                searchable={false}
+              />
+            </div>
           </StandardChartCard>
 
           <StandardChartCard
@@ -403,13 +441,17 @@ export default function SalesDashboardPage() {
               { label: "Export", onClick: () => toast({ title: "Exporting..." }) }
             ]}
           >
-            <DataTable
-              columns={createActivityColumns()}
-              data={recentActivities}
-              searchable={false}
-            />
+            <div className="overflow-x-auto -mx-1 px-1">
+              <DataTable
+                columns={createActivityColumns()}
+                data={recentActivities}
+                searchable={false}
+              />
+            </div>
           </StandardChartCard>
         </div>
+          </>
+        )}
       </div>
     </DashboardPageLayout>
   );

@@ -64,7 +64,7 @@ export function DashboardActionBar({
   ].filter(Boolean).length;
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 flex-wrap">
       <DateRangePicker
         value={dateRange}
         onChange={onDateRangeChange}

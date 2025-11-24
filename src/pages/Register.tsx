@@ -21,10 +21,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Search, Eye, EyeOff } from 'lucide-react';
+import { Loader2, Search, Eye, EyeOff, Building2, Globe, Users, CheckCircle2 } from 'lucide-react';
 import { VerificationEmailCard } from '@/components/auth/VerificationEmailCard';
 import { authService } from '@/lib/authService';
 import countries from 'world-countries';
+import logoLight from "@/assets/logo-light.png";
+import logoDark from "@/assets/logo-dark.png";
 
 const LAST_VERIFICATION_KEY = 'hrm8LastVerification';
 
@@ -173,55 +175,149 @@ export default function Register() {
   // Show email sent confirmation
   if (emailSent) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-background to-muted p-4 space-y-4">
-        <VerificationEmailCard
-          email={sentToEmail}
-          backLabel="Back to registration"
-          onBack={() => {
-            setEmailSent(false);
-            reset();
-            navigate('/register', { replace: true });
-          }}
-          watchVerification
-          onVerified={(verifiedEmail) => {
-            handleExternalVerification(verifiedEmail);
-          }}
-          onResend={async () => {
-            const response = await authService.resendVerification(sentToEmail);
-            if (!response.success) {
-              throw new Error(response.error || 'Failed to resend verification email.');
-            }
-          }}
-        />
-        <div className="text-sm text-center text-muted-foreground">
-          Already have an account?{' '}
-          <Link
-            to={`/login?pendingEmail=${encodeURIComponent(sentToEmail)}`}
-            className="text-primary hover:underline"
-          >
-            Sign in
-          </Link>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-primary/5 via-background to-primary/10 p-4 space-y-4">
+        <div className="w-full max-w-md">
+          <VerificationEmailCard
+            email={sentToEmail}
+            backLabel="Back to registration"
+            onBack={() => {
+              setEmailSent(false);
+              reset();
+              navigate('/register', { replace: true });
+            }}
+            watchVerification
+            onVerified={(verifiedEmail) => {
+              handleExternalVerification(verifiedEmail);
+            }}
+            onResend={async () => {
+              const response = await authService.resendVerification(sentToEmail);
+              if (!response.success) {
+                throw new Error(response.error || 'Failed to resend verification email.');
+              }
+            }}
+          />
+          <div className="text-sm text-center text-muted-foreground mt-4">
+            Already have an account?{' '}
+            <Link
+              to={`/login?pendingEmail=${encodeURIComponent(sentToEmail)}`}
+              className="text-primary hover:underline font-medium"
+            >
+              Sign in
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Register your company</CardTitle>
-          <CardDescription className="text-center">
-            Create a new company account to get started
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <div className="min-h-screen flex">
+      {/* Left Side - Branding */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary/90 to-primary/80 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)`,
+            backgroundSize: '20px 20px'
+          }}></div>
+        </div>
+        <div className="relative z-10 flex flex-col justify-between p-12 text-white">
+          <div>
+            <Link to="/" className="inline-block mb-12">
+              <img 
+                src={logoLight} 
+                alt="HRM8" 
+                className="h-10 dark:hidden" 
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+              <img 
+                src={logoDark} 
+                alt="HRM8" 
+                className="h-10 hidden dark:block" 
+                style={{ filter: 'brightness(0) invert(1)' }}
+              />
+            </Link>
+            <div className="space-y-6 max-w-md">
+              <div className="space-y-2">
+                <h1 className="text-4xl font-bold tracking-tight">Start your HR journey</h1>
+                <p className="text-lg text-white/90">
+                  Join thousands of companies managing their talent with HRM8
+                </p>
+              </div>
+              <div className="space-y-4 pt-8">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-white/20 p-2 backdrop-blur-sm">
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Complete HR Suite</p>
+                    <p className="text-sm text-white/80">Recruitment, onboarding, and management</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-white/20 p-2 backdrop-blur-sm">
+                    <Globe className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Global Reach</p>
+                    <p className="text-sm text-white/80">Built for companies worldwide</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="rounded-lg bg-white/20 p-2 backdrop-blur-sm">
+                    <Users className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Team Collaboration</p>
+                    <p className="text-sm text-white/80">Seamless workflows and integrations</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="text-sm text-white/80">
+            <p>© {new Date().getFullYear()} HRM8. All rights reserved.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Registration Form */}
+      <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4 lg:p-8 overflow-y-auto">
+        <div className="w-full max-w-xl py-4">
+          {/* Logo for mobile */}
+          <div className="lg:hidden mb-8 flex justify-center">
+            <Link to="/" className="inline-block">
+              <img 
+                src={logoLight} 
+                alt="HRM8" 
+                className="h-8 dark:hidden"
+                style={{ filter: 'brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2878%) hue-rotate(224deg) brightness(96%) contrast(95%)' }}
+              />
+              <img 
+                src={logoDark} 
+                alt="HRM8" 
+                className="h-8 hidden dark:block opacity-100"
+                style={{ filter: 'brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2878%) hue-rotate(224deg) brightness(96%) contrast(95%)' }}
+              />
+            </Link>
+          </div>
+
+          <Card className="border-0 shadow-none bg-transparent">
+            <CardHeader className="space-y-2 pb-4">
+              <div>
+                <CardTitle className="text-2xl font-bold tracking-tight">Register your company</CardTitle>
+                <CardDescription className="text-sm mt-1">
+                  Create a new company account to get started
+                </CardDescription>
+              </div>
+            </CardHeader>
+        <CardContent className="px-6 py-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             <div className="space-y-2">
-              <Label htmlFor="companyName">Company Name</Label>
+              <Label htmlFor="companyName" className="text-sm font-medium">Company Name</Label>
               <Input
                 id="companyName"
                 placeholder="Acme Inc."
+                className="h-10"
                 {...register('companyName')}
                 disabled={isLoading}
               />
@@ -230,11 +326,12 @@ export default function Register() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="companyWebsite">Company Website</Label>
+              <Label htmlFor="companyWebsite" className="text-sm font-medium">Company Website</Label>
               <Input
                 id="companyWebsite"
                 type="url"
                 placeholder="https://www.example.com"
+                className="h-10"
                 {...register('companyWebsite')}
                 disabled={isLoading}
               />
@@ -242,12 +339,13 @@ export default function Register() {
                 <p className="text-sm text-destructive">{errors.companyWebsite.message}</p>
               )}
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="adminFirstName">Admin First Name</Label>
+                <Label htmlFor="adminFirstName" className="text-sm font-medium">Admin First Name</Label>
                 <Input
                   id="adminFirstName"
                   placeholder="John"
+                  className="h-10"
                   {...register('adminFirstName')}
                   disabled={isLoading}
                 />
@@ -256,10 +354,11 @@ export default function Register() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="adminLastName">Admin Last Name</Label>
+                <Label htmlFor="adminLastName" className="text-sm font-medium">Admin Last Name</Label>
                 <Input
                   id="adminLastName"
                   placeholder="Doe"
+                  className="h-10"
                   {...register('adminLastName')}
                   disabled={isLoading}
                 />
@@ -269,11 +368,12 @@ export default function Register() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="adminEmail">Admin Email</Label>
+              <Label htmlFor="adminEmail" className="text-sm font-medium">Admin Email</Label>
               <Input
                 id="adminEmail"
                 type="email"
                 placeholder="admin@example.com"
+                className="h-10"
                 {...register('adminEmail')}
                 disabled={isLoading}
               />
@@ -281,9 +381,9 @@ export default function Register() {
                 <p className="text-sm text-destructive">{errors.adminEmail.message}</p>
               )}
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-3 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-sm font-medium">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
@@ -291,7 +391,7 @@ export default function Register() {
                     placeholder="••••••••"
                     {...register('password')}
                     disabled={isLoading}
-                    className="pr-10"
+                    className="h-10 pr-10"
                   />
                   <button
                     type="button"
@@ -312,7 +412,7 @@ export default function Register() {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="countryOrRegion">Country / Region</Label>
+                <Label htmlFor="countryOrRegion" className="text-sm font-medium">Country / Region</Label>
                 <Controller
                   control={control}
                   name="countryOrRegion"
@@ -337,7 +437,7 @@ export default function Register() {
                         value={field.value || undefined}
                         disabled={isLoading}
                       >
-                        <SelectTrigger id="countryOrRegion">
+                        <SelectTrigger id="countryOrRegion" className="h-10">
                           <SelectValue placeholder="Select a country" />
                         </SelectTrigger>
                         <SelectContent className="max-h-[300px]">
@@ -377,7 +477,7 @@ export default function Register() {
                 )}
               </div>
             </div>
-            <div className="flex items-start space-x-3 rounded-md border p-4">
+            <div className="flex items-start space-x-3 rounded-md border p-3">
               <Controller
                 control={control}
                 name="acceptTerms"
@@ -406,21 +506,23 @@ export default function Register() {
                 )}
               </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full h-10 text-base" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isLoading ? 'Registering...' : 'Register'}
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
+        <CardFooter className="flex flex-col space-y-2 pt-4">
           <div className="text-sm text-center text-muted-foreground">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary hover:underline">
+            <Link to="/login" className="text-primary hover:underline font-medium">
               Sign in
             </Link>
           </div>
         </CardFooter>
       </Card>
+        </div>
+      </div>
     </div>
   );
 }
