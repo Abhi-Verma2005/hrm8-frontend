@@ -42,8 +42,8 @@ export default function CompensationManagement() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Compensation Management</h1>
             <p className="text-muted-foreground">Manage salary structures, bonuses, and benefits</p>
@@ -64,7 +64,7 @@ export default function CompensationManagement() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Payroll</p>
                   <p className="text-3xl font-bold mt-2">$5.5M</p>
@@ -79,7 +79,7 @@ export default function CompensationManagement() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Avg Salary</p>
                   <p className="text-3xl font-bold mt-2">$102K</p>
@@ -94,7 +94,7 @@ export default function CompensationManagement() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Bonus Pool</p>
                   <p className="text-3xl font-bold mt-2">$450K</p>
@@ -109,7 +109,7 @@ export default function CompensationManagement() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Adjustments Due</p>
                   <p className="text-3xl font-bold mt-2">23</p>
@@ -134,7 +134,7 @@ export default function CompensationManagement() {
           <TabsContent value="salary" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Salary Ranges by Department</CardTitle>
+                <CardTitle className="text-base font-semibold">Salary Ranges by Department</CardTitle>
                 <CardDescription>Current compensation structure across departments</CardDescription>
               </CardHeader>
               <CardContent>
@@ -157,7 +157,7 @@ export default function CompensationManagement() {
           <TabsContent value="trends" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Compensation Trends</CardTitle>
+                <CardTitle className="text-base font-semibold">Compensation Trends</CardTitle>
                 <CardDescription>Monthly compensation breakdown</CardDescription>
               </CardHeader>
               <CardContent>
@@ -180,7 +180,7 @@ export default function CompensationManagement() {
           <TabsContent value="equity" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Equity Distribution</CardTitle>
+                <CardTitle className="text-base font-semibold">Equity Distribution</CardTitle>
                 <CardDescription>Stock options and equity grants by department</CardDescription>
               </CardHeader>
               <CardContent>
@@ -229,7 +229,7 @@ export default function CompensationManagement() {
           <TabsContent value="benchmarks" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Compa-Ratio Analysis</CardTitle>
+                <CardTitle className="text-base font-semibold">Compa-Ratio Analysis</CardTitle>
                 <CardDescription>Salary positioning vs market rates by level</CardDescription>
               </CardHeader>
               <CardContent>

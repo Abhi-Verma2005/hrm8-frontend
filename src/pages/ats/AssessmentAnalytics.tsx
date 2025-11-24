@@ -217,8 +217,8 @@ export default function AssessmentAnalytics() {
                 </ResponsiveContainer>
                 <div className="space-y-3">
                   {scoreDistribution.map((dist, index) => (
-                    <div key={dist.range} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                    <div key={dist.range} className="text-base font-semibold flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center gap-2">
                         <div
                           className="w-4 h-4 rounded"
                           style={{ backgroundColor: COLORS[index % COLORS.length] }}

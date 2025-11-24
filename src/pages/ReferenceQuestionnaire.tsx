@@ -118,7 +118,7 @@ export default function ReferenceQuestionnaire() {
               {/* Introduction Card */}
               <Card className="mb-6">
                 <CardHeader>
-                  <CardTitle>Welcome, {referee.name}</CardTitle>
+                  <CardTitle className="text-base font-semibold">Welcome, {referee.name}</CardTitle>
                   <CardDescription>
                     You have been requested to provide a professional reference for {candidateName}
                   </CardDescription>

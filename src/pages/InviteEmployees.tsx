@@ -115,7 +115,7 @@ export default function InviteEmployees() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Send Invitations</CardTitle>
+          <CardTitle className="text-base font-semibold">Send Invitations</CardTitle>
           <CardDescription>
             Enter email addresses of employees you want to invite
           </CardDescription>
@@ -188,7 +188,7 @@ export default function InviteEmployees() {
           {result.sent.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
                   Successfully Sent ({result.sent.length})
                 </CardTitle>
@@ -209,7 +209,7 @@ export default function InviteEmployees() {
           {result.failed.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <XCircle className="h-5 w-5 text-red-600" />
                   Failed ({result.failed.length})
                 </CardTitle>
@@ -218,7 +218,7 @@ export default function InviteEmployees() {
                 <div className="space-y-2">
                   {result.failed.map((failure, index) => (
                     <div key={index} className="flex flex-col gap-1 text-sm">
-                      <div className="flex items-center gap-2">
+                      <div className="text-base font-semibold flex items-center gap-2">
                         <Mail className="h-4 w-4 text-red-600" />
                         <span className="font-medium">{failure.email}</span>
                       </div>

@@ -76,7 +76,7 @@ export default function HRAnalytics() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold">HR Analytics</h1>
@@ -221,7 +221,7 @@ export default function HRAnalytics() {
                 .sort((a, b) => b[1] - a[1])
                 .map(([dept, count]) => (
                   <div key={dept} className="space-y-2">
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm font-medium">{dept}</span>
                       <span className="text-sm text-muted-foreground">
                         {count} ({Math.round((count / analytics.total) * 100)}%)
@@ -248,8 +248,8 @@ export default function HRAnalytics() {
                 .sort((a, b) => b[1] - a[1])
                 .map(([location, count]) => (
                   <div key={location} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                    <div className="text-base font-semibold flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm font-medium">{location}</span>
                       </div>
@@ -277,7 +277,7 @@ export default function HRAnalytics() {
               {Object.entries(analytics.byEmploymentType)
                 .sort((a, b) => b[1] - a[1])
                 .map(([type, count]) => (
-                  <div key={type} className="flex items-center justify-between">
+                  <div key={type} className="text-base font-semibold flex items-center justify-between">
                     <span className="text-sm capitalize">{type.replace('-', ' ')}</span>
                     <Badge variant="secondary">
                       {count} ({Math.round((count / analytics.total) * 100)}%)
@@ -300,8 +300,8 @@ export default function HRAnalytics() {
             <div className="space-y-3">
               {analytics.topSkills.length > 0 ? (
                 analytics.topSkills.map(([skill, count]) => (
-                  <div key={skill} className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
+                  <div key={skill} className="text-base font-semibold flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center gap-2">
                       <Award className="h-4 w-4 text-muted-foreground" />
                       <span className="text-sm">{skill}</span>
                     </div>

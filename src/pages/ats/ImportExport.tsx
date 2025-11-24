@@ -149,7 +149,7 @@ export default function ImportExport() {
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <Users className="h-5 w-5" />
                     Import Candidates
                   </CardTitle>
@@ -160,19 +160,19 @@ export default function ImportExport() {
                     field mapping and duplicate detection.
                   </p>
                   <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li className="flex items-center gap-2">
+                    <li className="text-base font-semibold flex items-center gap-2">
                       <CheckCircle className="h-3 w-3 text-green-600" />
                       Field mapping wizard
                     </li>
-                    <li className="flex items-center gap-2">
+                    <li className="text-base font-semibold flex items-center gap-2">
                       <CheckCircle className="h-3 w-3 text-green-600" />
                       Duplicate detection
                     </li>
-                    <li className="flex items-center gap-2">
+                    <li className="text-base font-semibold flex items-center gap-2">
                       <CheckCircle className="h-3 w-3 text-green-600" />
                       Data validation
                     </li>
-                    <li className="flex items-center gap-2">
+                    <li className="text-base font-semibold flex items-center gap-2">
                       <CheckCircle className="h-3 w-3 text-green-600" />
                       Preview before import
                     </li>
@@ -186,7 +186,7 @@ export default function ImportExport() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <Briefcase className="h-5 w-5" />
                     Import Jobs
                   </CardTitle>
@@ -197,19 +197,19 @@ export default function ImportExport() {
                     validation and error reporting.
                   </p>
                   <ul className="text-sm space-y-1 text-muted-foreground">
-                    <li className="flex items-center gap-2">
+                    <li className="text-base font-semibold flex items-center gap-2">
                       <CheckCircle className="h-3 w-3 text-green-600" />
                       Field mapping wizard
                     </li>
-                    <li className="flex items-center gap-2">
+                    <li className="text-base font-semibold flex items-center gap-2">
                       <CheckCircle className="h-3 w-3 text-green-600" />
                       Duplicate detection
                     </li>
-                    <li className="flex items-center gap-2">
+                    <li className="text-base font-semibold flex items-center gap-2">
                       <CheckCircle className="h-3 w-3 text-green-600" />
                       Data validation
                     </li>
-                    <li className="flex items-center gap-2">
+                    <li className="text-base font-semibold flex items-center gap-2">
                       <CheckCircle className="h-3 w-3 text-green-600" />
                       Preview before import
                     </li>
@@ -227,7 +227,7 @@ export default function ImportExport() {
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <Users className="h-5 w-5" />
                     Export Candidates
                   </CardTitle>
@@ -259,7 +259,7 @@ export default function ImportExport() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <Briefcase className="h-5 w-5" />
                     Export Jobs
                   </CardTitle>
@@ -294,7 +294,7 @@ export default function ImportExport() {
           <TabsContent value="history" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Import History</CardTitle>
+                <CardTitle className="text-base font-semibold">Import History</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">

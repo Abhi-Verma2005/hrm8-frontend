@@ -391,9 +391,9 @@ export default function BenefitsAdmin() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Heart className="h-8 w-8" />
@@ -413,7 +413,7 @@ export default function BenefitsAdmin() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Active Enrollment</p>
                   <p className="text-2xl font-bold">
@@ -427,7 +427,7 @@ export default function BenefitsAdmin() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Pending Life Events</p>
                   <p className="text-2xl font-bold">{lifeEvents.length}</p>
@@ -439,7 +439,7 @@ export default function BenefitsAdmin() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Active COBRA</p>
                   <p className="text-2xl font-bold">
@@ -453,7 +453,7 @@ export default function BenefitsAdmin() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Enrollment Rate</p>
                   <p className="text-2xl font-bold">87%</p>
@@ -477,7 +477,7 @@ export default function BenefitsAdmin() {
           <TabsContent value="enrollment" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Enrollment Periods</CardTitle>
+                <CardTitle className="text-base font-semibold">Enrollment Periods</CardTitle>
                 <CardDescription>
                   Manage open enrollment and special enrollment periods
                 </CardDescription>
@@ -512,9 +512,9 @@ export default function BenefitsAdmin() {
           <TabsContent value="life-events" className="space-y-4">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div>
-                    <CardTitle>Life Events</CardTitle>
+                    <CardTitle className="text-base font-semibold">Life Events</CardTitle>
                     <CardDescription>
                       Process qualifying life events and special enrollment periods
                     </CardDescription>
@@ -561,7 +561,7 @@ export default function BenefitsAdmin() {
           <TabsContent value="eligibility" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Eligibility Rules</CardTitle>
+                <CardTitle className="text-base font-semibold">Eligibility Rules</CardTitle>
                 <CardDescription>
                   Define and manage plan eligibility criteria
                 </CardDescription>
@@ -577,9 +577,9 @@ export default function BenefitsAdmin() {
           <TabsContent value="cobra" className="space-y-4">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div>
-                    <CardTitle>COBRA Administration</CardTitle>
+                    <CardTitle className="text-base font-semibold">COBRA Administration</CardTitle>
                     <CardDescription>
                       Manage COBRA qualifying events and continuation coverage
                     </CardDescription>
@@ -626,7 +626,7 @@ export default function BenefitsAdmin() {
           <TabsContent value="costs" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Benefits Cost Calculator</CardTitle>
+                <CardTitle className="text-base font-semibold">Benefits Cost Calculator</CardTitle>
                 <CardDescription>
                   Calculate employee and employer contributions by coverage tier
                 </CardDescription>

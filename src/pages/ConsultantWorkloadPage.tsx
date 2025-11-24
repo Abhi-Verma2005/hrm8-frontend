@@ -32,7 +32,7 @@ export default function ConsultantWorkloadPage() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-2">
             <div>

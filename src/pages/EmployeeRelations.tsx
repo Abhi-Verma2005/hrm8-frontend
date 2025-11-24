@@ -321,9 +321,9 @@ export default function EmployeeRelations() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Shield className="h-8 w-8" />
@@ -333,7 +333,7 @@ export default function EmployeeRelations() {
               Manage grievances, investigations, and disciplinary cases
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <Button
               variant={enableGrouping ? "secondary" : "outline"}
               onClick={() => {
@@ -365,7 +365,7 @@ export default function EmployeeRelations() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Cases</p>
                   <p className="text-2xl font-bold">{stats.total}</p>
@@ -377,7 +377,7 @@ export default function EmployeeRelations() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Open Cases</p>
                   <p className="text-2xl font-bold">{stats.open}</p>
@@ -389,7 +389,7 @@ export default function EmployeeRelations() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Investigating</p>
                   <p className="text-2xl font-bold">{stats.investigating}</p>
@@ -401,7 +401,7 @@ export default function EmployeeRelations() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Resolved</p>
                   <p className="text-2xl font-bold">{stats.resolved}</p>
@@ -413,7 +413,7 @@ export default function EmployeeRelations() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Avg. Resolution</p>
                   <p className="text-2xl font-bold">{stats.avgResolutionTime}d</p>
@@ -456,7 +456,7 @@ export default function EmployeeRelations() {
           <TabsContent value="all" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>All Cases</CardTitle>
+                <CardTitle className="text-base font-semibold">All Cases</CardTitle>
                 <CardDescription>
                   {cases.length === 0
                     ? "No cases found. Create your first case to get started."
@@ -518,7 +518,7 @@ export default function EmployeeRelations() {
           <TabsContent value="open" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Open Cases</CardTitle>
+                <CardTitle className="text-base font-semibold">Open Cases</CardTitle>
                 <CardDescription>Cases requiring attention</CardDescription>
               </CardHeader>
               <CardContent>
@@ -534,7 +534,7 @@ export default function EmployeeRelations() {
           <TabsContent value="investigating" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Under Investigation</CardTitle>
+                <CardTitle className="text-base font-semibold">Under Investigation</CardTitle>
                 <CardDescription>Active investigations</CardDescription>
               </CardHeader>
               <CardContent>
@@ -550,7 +550,7 @@ export default function EmployeeRelations() {
           <TabsContent value="resolved" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Resolved Cases</CardTitle>
+                <CardTitle className="text-base font-semibold">Resolved Cases</CardTitle>
                 <CardDescription>Completed and closed cases</CardDescription>
               </CardHeader>
               <CardContent>

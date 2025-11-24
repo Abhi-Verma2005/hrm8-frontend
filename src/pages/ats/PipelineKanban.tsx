@@ -178,9 +178,9 @@ export default function PipelineKanban() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Candidate Pipeline</h1>
             <p className="text-muted-foreground">
@@ -340,7 +340,7 @@ export default function PipelineKanban() {
             <div className="grid gap-4 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle>Candidates by Stage</CardTitle>
+                  <CardTitle className="text-base font-semibold">Candidates by Stage</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
@@ -357,12 +357,12 @@ export default function PipelineKanban() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Pipeline Bottlenecks</CardTitle>
+                  <CardTitle className="text-base font-semibold">Pipeline Bottlenecks</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {analytics.bottlenecks.map((bottleneck, index) => (
-                      <div key={bottleneck.stageId} className="flex items-center justify-between">
+                      <div key={bottleneck.stageId} className="text-base font-semibold flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold">
                             {index + 1}
@@ -379,7 +379,7 @@ export default function PipelineKanban() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Average Time in Stage</CardTitle>
+                <CardTitle className="text-base font-semibold">Average Time in Stage</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid gap-3 md:grid-cols-3">

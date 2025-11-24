@@ -25,7 +25,7 @@ export default function ServiceProjectDetail() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => navigate('/recruitment-services')}>
@@ -39,7 +39,7 @@ export default function ServiceProjectDetail() {
         </div>
 
         {/* Placeholder Content */}
-        <div className="bg-muted/50 rounded-lg p-12 text-center">
+        <div className="bg-muted/50 rounded-lg p-6 text-center">
           <h2 className="text-xl font-semibold mb-2">Service Project Detail Page</h2>
           <p className="text-muted-foreground">
             This detailed view is coming soon and will include:

@@ -205,7 +205,7 @@ export default function CompanyProfile() {
           {/* Progress Card */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <CardTitle className="text-base font-semibold">Profile Completion</CardTitle>
                   <CardDescription className="text-sm">
@@ -260,7 +260,7 @@ export default function CompanyProfile() {
             <TabsContent value="basicDetails" className="mt-6">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <div>
                       <CardTitle className="text-base font-semibold">Basic Company Details</CardTitle>
                       <CardDescription className="text-sm">
@@ -346,7 +346,7 @@ export default function CompanyProfile() {
             <TabsContent value="primaryLocation" className="mt-6">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <div>
                       <CardTitle className="text-base font-semibold">Locations</CardTitle>
                       <CardDescription className="text-sm">
@@ -420,7 +420,7 @@ export default function CompanyProfile() {
             <TabsContent value="personalProfile" className="mt-6">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <div>
                       <CardTitle className="text-base font-semibold">Personal Profile</CardTitle>
                       <CardDescription className="text-sm">
@@ -482,7 +482,7 @@ export default function CompanyProfile() {
             <TabsContent value="teamMembers" className="mt-6">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <div>
                       <CardTitle className="text-base font-semibold">Team Members</CardTitle>
                       <CardDescription className="text-sm">
@@ -518,7 +518,7 @@ export default function CompanyProfile() {
                         <div className="space-y-3">
                           {teamMembers.invites.map((invite: any, index: number) => (
                             <div key={index} className="border rounded-lg p-4">
-                              <div className="flex items-center justify-between">
+                              <div className="text-base font-semibold flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                   <Globe className="h-4 w-4 text-muted-foreground" />
                                   <div>
@@ -546,7 +546,7 @@ export default function CompanyProfile() {
             <TabsContent value="billing" className="mt-6">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <div>
                       <CardTitle className="text-base font-semibold">Billing Setup</CardTitle>
                       <CardDescription className="text-sm">
@@ -608,7 +608,7 @@ export default function CompanyProfile() {
             <TabsContent value="branding" className="mt-6">
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <div>
                       <CardTitle className="text-base font-semibold">Branding & Careers Page</CardTitle>
                       <CardDescription className="text-sm">
@@ -980,7 +980,7 @@ function LocationForm({
         </div>
 
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
             <div>
               <p className="font-medium">Additional locations</p>
               <p className="text-sm text-muted-foreground">
@@ -1828,7 +1828,7 @@ function BrandingForm({ initialData, onSave, onCancel, isSaving }: FormProps<any
               <FormItem>
                 <FormLabel>Careers page subdomain</FormLabel>
                 <FormControl>
-                  <div className="flex items-center gap-2">
+                  <div className="text-base font-semibold flex items-center gap-2">
                     <Input placeholder="careers" {...field} />
                     <span className="text-sm text-muted-foreground">.hrm8.com</span>
                   </div>

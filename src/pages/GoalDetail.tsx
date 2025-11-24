@@ -126,9 +126,9 @@ export default function GoalDetail() {
         <title>{editedGoal.title} - Goal Detail</title>
       </Helmet>
 
-      <div className="container mx-auto p-12 space-y-6">
+      <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate('/performance')}>
               <ArrowLeft className="h-5 w-5" />
@@ -171,7 +171,7 @@ export default function GoalDetail() {
             {/* Goal Information */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <Target className="h-5 w-5" />
                   Goal Information
                 </CardTitle>
@@ -263,7 +263,7 @@ export default function GoalDetail() {
             {/* KPIs */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
                   Key Performance Indicators
                 </CardTitle>
@@ -271,7 +271,7 @@ export default function GoalDetail() {
               <CardContent className="space-y-4">
                 {editedGoal.kpis.map((kpi, index) => (
                   <div key={kpi.id} className="border rounded-lg p-4 space-y-3">
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <h4 className="font-semibold">{kpi.name}</h4>
                       <Badge variant="outline">
                         {kpi.current}/{kpi.target} {kpi.unit}
@@ -318,7 +318,7 @@ export default function GoalDetail() {
             {/* Status Management */}
             <Card>
               <CardHeader>
-                <CardTitle>Status</CardTitle>
+                <CardTitle className="text-base font-semibold">Status</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -349,7 +349,7 @@ export default function GoalDetail() {
             {/* Timeline */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <Calendar className="h-5 w-5" />
                   Timeline
                 </CardTitle>
@@ -391,7 +391,7 @@ export default function GoalDetail() {
             {/* Additional Info */}
             <Card>
               <CardHeader>
-                <CardTitle>Additional Info</CardTitle>
+                <CardTitle className="text-base font-semibold">Additional Info</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div>

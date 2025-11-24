@@ -190,7 +190,7 @@ export default function BackgroundCheckDetail() {
           title={check.candidateName}
           subtitle={`Background Check #${check.id.slice(0, 8).toUpperCase()} • Initiated ${new Date(check.initiatedDate).toLocaleDateString()} by ${check.initiatedByName}`}
         >
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate('/background-checks')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back

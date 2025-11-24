@@ -189,9 +189,9 @@ export default function CourseDetail() {
         <title>{course.title} - Course Detail</title>
       </Helmet>
 
-      <div className="container mx-auto p-12 space-y-6">
+      <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate('/talent-development')}>
               <ArrowLeft className="h-5 w-5" />
@@ -268,7 +268,7 @@ export default function CourseDetail() {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>About this Course</CardTitle>
+                <CardTitle className="text-base font-semibold">About this Course</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">{course.description}</p>
@@ -348,7 +348,7 @@ export default function CourseDetail() {
               <TabsContent value="objectives" className="space-y-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle>What You'll Learn</CardTitle>
+                    <CardTitle className="text-base font-semibold">What You'll Learn</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-3">
@@ -364,7 +364,7 @@ export default function CourseDetail() {
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Prerequisites</CardTitle>
+                    <CardTitle className="text-base font-semibold">Prerequisites</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
@@ -385,7 +385,7 @@ export default function CourseDetail() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Your Progress</CardTitle>
+                <CardTitle className="text-base font-semibold">Your Progress</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -397,11 +397,11 @@ export default function CourseDetail() {
                 </div>
                 <Separator />
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <span className="text-muted-foreground">Completed Modules</span>
                     <span className="font-medium">{completedModules}/{totalModules}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <span className="text-muted-foreground">Time Spent</span>
                     <span className="font-medium">{Math.floor(course.duration * (course.progress / 100))}h</span>
                   </div>
@@ -415,7 +415,7 @@ export default function CourseDetail() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Instructor</CardTitle>
+                <CardTitle className="text-base font-semibold">Instructor</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
@@ -427,7 +427,7 @@ export default function CourseDetail() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Certificate</CardTitle>
+                <CardTitle className="text-base font-semibold">Certificate</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">

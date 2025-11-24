@@ -169,9 +169,9 @@ export default function AssessmentComparisonPage() {
   const hasActiveFilters = selectedJob !== 'all' || selectedType !== 'all' || searchTerm !== '';
 
   return (
-    <div className="min-h-screen bg-background p-12 space-y-6">
+    <div className="min-h-screen bg-background p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="text-base font-semibold flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate('/assessments')}>
             <ArrowLeft className="h-5 w-5" />
@@ -193,7 +193,7 @@ export default function AssessmentComparisonPage() {
           {/* Filters */}
           <Card className="transition-[background,border-color,box-shadow,color] duration-500">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <CardTitle className="text-base transition-colors duration-500">
                   <Filter className="h-4 w-4 inline mr-2" />
                   Filters

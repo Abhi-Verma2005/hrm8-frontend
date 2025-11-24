@@ -137,8 +137,8 @@ export default function FeedbackRequestCreate() {
         <title>Request 360 Feedback</title>
       </Helmet>
 
-      <div className="container mx-auto p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate('/performance')}>
               <ArrowLeft className="h-5 w-5" />
@@ -156,7 +156,7 @@ export default function FeedbackRequestCreate() {
             <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Request Information</CardTitle>
+                  <CardTitle className="text-base font-semibold">Request Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -188,8 +188,8 @@ export default function FeedbackRequestCreate() {
               {/* Feedback Providers */}
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Feedback Providers</CardTitle>
+                  <div className="text-base font-semibold flex items-center justify-between">
+                    <CardTitle className="text-base font-semibold">Feedback Providers</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={handleAddProvider}>
                       <Plus className="h-4 w-4 mr-2" />
                       Add Provider
@@ -199,7 +199,7 @@ export default function FeedbackRequestCreate() {
                 <CardContent className="space-y-4">
                   {providers.map((provider, index) => (
                     <div key={index} className="border rounded-lg p-4 space-y-3">
-                      <div className="flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center justify-between">
                         <h4 className="font-semibold">Provider {index + 1}</h4>
                         {providers.length > 1 && (
                           <Button
@@ -258,8 +258,8 @@ export default function FeedbackRequestCreate() {
               {/* Questions */}
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Feedback Questions</CardTitle>
+                  <div className="text-base font-semibold flex items-center justify-between">
+                    <CardTitle className="text-base font-semibold">Feedback Questions</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={handleAddQuestion}>
                       <Plus className="h-4 w-4 mr-2" />
                       Add Question
@@ -269,7 +269,7 @@ export default function FeedbackRequestCreate() {
                 <CardContent className="space-y-4">
                   {questions.map((question, index) => (
                     <div key={index} className="border rounded-lg p-4 space-y-3">
-                      <div className="flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center justify-between">
                         <h4 className="font-semibold">Question {index + 1}</h4>
                         {questions.length > 1 && (
                           <Button
@@ -299,7 +299,7 @@ export default function FeedbackRequestCreate() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Employee</CardTitle>
+                  <CardTitle className="text-base font-semibold">Employee</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -326,14 +326,14 @@ export default function FeedbackRequestCreate() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Summary</CardTitle>
+                  <CardTitle className="text-base font-semibold">Summary</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <span className="text-muted-foreground">Providers</span>
                     <span className="font-medium">{providers.length}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <span className="text-muted-foreground">Questions</span>
                     <span className="font-medium">{questions.length}</span>
                   </div>

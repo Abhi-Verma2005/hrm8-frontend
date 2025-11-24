@@ -79,6 +79,7 @@ function MyPage() {
   change="+12.5%"
   trend="up"
   icon={<FileText className="h-5 w-5" />}
+  variant="neutral"  // Always use neutral for consistency
   // Use defaults - do NOT set showBorder or elevation
 />
 ```
@@ -87,21 +88,24 @@ function MyPage() {
 
 - ❌ **No colored borders** (`showBorder={false}` by default)
 - ❌ **No hover elevation** (`elevation="none"` by default)
+- ✅ **Neutral variant** for all stat cards (consistent icon colors)
+- ✅ **Compact padding** (`p-4` by default, reduced from `p-6`)
 - ✅ **Subtle icon chip** with fixed `w-10 h-10` size
 - ✅ **Top-right pill** uses `Badge variant="outline"` with no hover transitions
 - ✅ **Consistent header row:** icon left, pill right
+- ✅ **Minimal internal spacing** (`mb-2` between icon/badge and title, `mb-1` between title and value)
 
 #### Value Sizes
 
 ```tsx
 // Compact
-size="compact"  // text-xl
+size="compact"  // text-xl, p-3
 
 // Default (recommended)
-size="default"  // text-2xl
+size="default"  // text-2xl, p-4
 
 // Large
-size="large"    // text-3xl
+size="large"    // text-3xl, p-6
 ```
 
 #### Implementation
@@ -139,11 +143,13 @@ function Dashboard() {
 - Set `elevation="sm"` or any hover elevation
 - Add custom hover effects
 - Use colored left borders
+- Use variants other than `neutral` (e.g., `primary`, `success`, `warning`)
 
 ✅ **Do:**
-- Rely on component defaults
+- Always use `variant="neutral"` for consistency
+- Rely on component defaults for padding and spacing
 - Use appropriate size prop
-- Keep icon size consistent (`h-5 w-5`)
+- Keep icon size consistent (`h-5 w-5` or `h-6 w-6`)
 
 ---
 
@@ -470,14 +476,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 </DashboardPageLayout>
 ```
 
-- **Standard:** `p-6 space-y-6`
+- **Standard:** `p-6 space-y-6` (reduced from `p-12` for better space utilization)
 - **Dense pages:** `p-4 space-y-4` (rare)
+- ❌ **Never use** `p-12` or larger padding - wastes screen space
 
 ### Component Spacing
 
-- **Card padding:** `p-4` to `p-6` (consistent on page)
+- **Card padding:** `p-4` (default, reduced from `p-6` for compactness)
 - **Gap between cards:** `gap-4` or `gap-6`
 - **Icon spacing:** `gap-2` or `gap-1.5`
+- **Stat card internal spacing:**
+  - Icon/badge to title: `mb-2`
+  - Title to value: `mb-1`
 
 ### Grid Spacing
 
@@ -487,6 +497,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Content grids
 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+
+// Quick action grids (7 items)
+<div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
 ```
 
 ---

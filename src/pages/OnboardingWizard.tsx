@@ -359,7 +359,7 @@ export function OnboardingWizardContent({ onComplete, onSkip, embedded = false }
       {/* Mobile Navigation Bar */}
       <div className="lg:hidden bg-gradient-to-r from-primary to-primary/90 text-white p-4 border-b">
         <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <img 
               src={logoLight} 
               alt="HRM8" 
@@ -624,7 +624,7 @@ function BasicDetailsSection({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Basic Company Details</CardTitle>
+        <CardTitle className="text-base font-semibold">Basic Company Details</CardTitle>
         <CardDescription>
           Share the essentials so candidates understand who you are at a glance.
         </CardDescription>
@@ -850,7 +850,7 @@ function PrimaryLocationSection({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Locations</CardTitle>
+        <CardTitle className="text-base font-semibold">Locations</CardTitle>
         <CardDescription>
           Identify your primary location and any additional offices that require access.
         </CardDescription>
@@ -866,7 +866,7 @@ function PrimaryLocationSection({
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="font-medium">Additional locations</p>
                   <p className="text-sm text-muted-foreground">
@@ -1054,7 +1054,7 @@ function PersonalProfileSection({ initialData, onSave, isSaving }: SectionProps<
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Personal profile</CardTitle>
+        <CardTitle className="text-base font-semibold">Personal profile</CardTitle>
         <CardDescription>
           Add a friendly face to your hiring experience (optional but recommended).
         </CardDescription>
@@ -1208,7 +1208,7 @@ function TeamMembersSection({ initialData, onSave, isSaving }: SectionProps<any>
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Invite team members</CardTitle>
+        <CardTitle className="text-base font-semibold">Invite team members</CardTitle>
         <CardDescription>
           Add future admins, approvers, or collaborators. Invitations go out once you launch hiring.
         </CardDescription>
@@ -1447,7 +1447,7 @@ function BillingSection({ initialData, onSave, isSaving }: SectionProps<any>) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Billing setup</CardTitle>
+        <CardTitle className="text-base font-semibold">Billing setup</CardTitle>
         <CardDescription>
           Choose how you’d like to pay (PAYG or subscription) and provide billing info.
         </CardDescription>
@@ -1718,7 +1718,7 @@ function BrandingSection({ initialData, onSave, isSaving }: SectionProps<any>) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Branding & careers page</CardTitle>
+        <CardTitle className="text-base font-semibold">Branding & careers page</CardTitle>
         <CardDescription>
           Shine on the HRM8 Employers page and your own branded careers experience.
         </CardDescription>
@@ -1768,7 +1768,7 @@ function BrandingSection({ initialData, onSave, isSaving }: SectionProps<any>) {
                   <FormItem>
                     <FormLabel>Careers page subdomain</FormLabel>
                     <FormControl>
-                      <div className="flex items-center gap-2">
+                      <div className="text-base font-semibold flex items-center gap-2">
                         <Input placeholder="careers" {...field} />
                         <span className="text-sm text-muted-foreground">.hrm8.com</span>
                       </div>

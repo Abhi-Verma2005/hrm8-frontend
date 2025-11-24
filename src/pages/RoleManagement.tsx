@@ -167,9 +167,9 @@ export default function RoleManagement() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Shield className="h-8 w-8" />
@@ -189,7 +189,7 @@ export default function RoleManagement() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Roles</p>
                   <p className="text-2xl font-bold">{userRoles.length}</p>
@@ -201,7 +201,7 @@ export default function RoleManagement() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Active Users</p>
                   <p className="text-2xl font-bold">{userRoles.filter((r) => r.isActive).length}</p>
@@ -213,7 +213,7 @@ export default function RoleManagement() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Administrators</p>
                   <p className="text-2xl font-bold">
@@ -229,7 +229,7 @@ export default function RoleManagement() {
         {/* Role Definitions */}
         <Card>
           <CardHeader>
-            <CardTitle>Role Definitions</CardTitle>
+            <CardTitle className="text-base font-semibold">Role Definitions</CardTitle>
             <CardDescription>Understanding role hierarchy and permissions</CardDescription>
           </CardHeader>
           <CardContent>
@@ -268,7 +268,7 @@ export default function RoleManagement() {
         {/* User Roles Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Assigned Roles</CardTitle>
+            <CardTitle className="text-base font-semibold">Assigned Roles</CardTitle>
             <CardDescription>Current role assignments across users</CardDescription>
           </CardHeader>
           <CardContent>

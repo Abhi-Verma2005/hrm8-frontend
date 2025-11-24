@@ -58,15 +58,15 @@ export function EnhancedStatCard({
   iconPosition = "left",
 }: EnhancedStatCardProps) {
   const { formatCurrency } = useCurrencyFormat();
-  
+
   // Format the display value
-  const displayValue = isCurrency && rawValue !== undefined 
-    ? formatCurrency(rawValue) 
+  const displayValue = isCurrency && rawValue !== undefined
+    ? formatCurrency(rawValue)
     : (typeof value === 'number' && isNaN(value)) ? 0 : value;
   const sizeStyles = {
-    compact: "p-4",
-    default: "p-6",
-    large: "p-8",
+    compact: "p-3",
+    default: "p-4",
+    large: "p-6",
   };
 
   const valueSizeStyles = {
@@ -131,7 +131,7 @@ export function EnhancedStatCard({
       )}
     >
       <div className={cn(
-        "flex items-center justify-between mb-4 gap-2 flex-wrap min-w-0",
+        "flex items-center justify-between mb-2 gap-2 flex-wrap min-w-0",
         layout === "horizontal" && "flex-row items-center",
         showMenu && "pr-8"
       )}>
@@ -158,11 +158,11 @@ export function EnhancedStatCard({
           <span className="block">{change}</span>
         </Badge>
       </div>
-      <p className="text-sm text-muted-foreground mb-2 font-medium">
+      <p className="text-sm text-muted-foreground mb-1 font-medium">
         {title}
       </p>
       <h3 className={cn(
-        valueSizeStyles[size], 
+        valueSizeStyles[size],
         "font-bold tracking-tight"
       )}>
         {displayValue}

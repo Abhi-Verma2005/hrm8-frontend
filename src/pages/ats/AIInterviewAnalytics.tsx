@@ -46,7 +46,7 @@ export default function AIInterviewAnalytics() {
   ];
 
   return (
-    <div className="container mx-auto p-12 space-y-6">
+    <div className="container mx-auto p-6 space-y-6">
       <PageHeader
         title="AI Interview Analytics"
         description="Comprehensive insights and metrics from AI interviews"
@@ -117,7 +117,7 @@ export default function AIInterviewAnalytics() {
         <TabsContent value="overview" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Interview Trends</CardTitle>
+              <CardTitle className="text-base font-semibold">Interview Trends</CardTitle>
               <CardDescription>Interview volume and average scores over time</CardDescription>
             </CardHeader>
             <CardContent>
@@ -138,7 +138,7 @@ export default function AIInterviewAnalytics() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Interview Performance Overview</CardTitle>
+              <CardTitle className="text-base font-semibold">Interview Performance Overview</CardTitle>
               <CardDescription>Current interview statistics by status</CardDescription>
             </CardHeader>
             <CardContent>
@@ -170,7 +170,7 @@ export default function AIInterviewAnalytics() {
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Interview Modes Distribution</CardTitle>
+                <CardTitle className="text-base font-semibold">Interview Modes Distribution</CardTitle>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
@@ -197,7 +197,7 @@ export default function AIInterviewAnalytics() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Top Performing Candidates</CardTitle>
+                <CardTitle className="text-base font-semibold">Top Performing Candidates</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -205,7 +205,7 @@ export default function AIInterviewAnalytics() {
                     .sort((a, b) => (b.analysis?.overallScore || 0) - (a.analysis?.overallScore || 0))
                     .slice(0, 5)
                     .map(session => (
-                      <div key={session.id} className="flex items-center justify-between">
+                      <div key={session.id} className="text-base font-semibold flex items-center justify-between">
                         <div>
                           <p className="font-medium">{session.candidateName}</p>
                           <p className="text-sm text-muted-foreground">{session.jobTitle}</p>

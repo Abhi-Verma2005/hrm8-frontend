@@ -390,7 +390,7 @@ export default function Applications() {
           title="Applications" 
           subtitle={`Review and process ${applications.length} applications`}
         >
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -508,7 +508,7 @@ export default function Applications() {
             {isCompareMode && (
               <Alert>
                 <GitCompare className="h-4 w-4" />
-                <AlertDescription className="flex items-center justify-between">
+                <AlertDescription className="text-base font-semibold flex items-center justify-between">
                   <span>
                     Select candidates to compare ({selectedForComparison.length} selected)
                   </span>

@@ -33,7 +33,7 @@ export default function EmployeeSelfService() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-2xl font-bold">Employee Self-Service</h1>
@@ -45,7 +45,7 @@ export default function EmployeeSelfService() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-xs md:text-sm text-muted-foreground">Leave Balance</p>
                   <p className="text-xl font-bold">{stats.leaveBalance} days</p>
@@ -57,7 +57,7 @@ export default function EmployeeSelfService() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-xs md:text-sm text-muted-foreground">Pending Approvals</p>
                   <p className="text-xl font-bold">{stats.pendingApprovals}</p>
@@ -69,7 +69,7 @@ export default function EmployeeSelfService() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-xs md:text-sm text-muted-foreground">Upcoming Reviews</p>
                   <p className="text-xl font-bold">{stats.upcomingReviews}</p>
@@ -81,7 +81,7 @@ export default function EmployeeSelfService() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-xs md:text-sm text-muted-foreground">Unread Documents</p>
                   <p className="text-xl font-bold">{stats.unreadDocuments}</p>
@@ -93,7 +93,7 @@ export default function EmployeeSelfService() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-xs md:text-sm text-muted-foreground">Attendance</p>
                   <p className="text-xl font-bold">{stats.attendancePercentage}%</p>
@@ -109,9 +109,9 @@ export default function EmployeeSelfService() {
           {/* Personal Information */}
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <User className="h-5 w-5" />
                     Personal Information
                   </CardTitle>
@@ -153,7 +153,7 @@ export default function EmployeeSelfService() {
           {/* Recent Documents */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <FileText className="h-5 w-5" />
                 Recent Documents
               </CardTitle>

@@ -63,8 +63,8 @@ export default function SkillsManagement() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Skills Management</h1>
             <p className="text-muted-foreground">Track and develop employee skills and competencies</p>
@@ -85,7 +85,7 @@ export default function SkillsManagement() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Skills</p>
                   <p className="text-3xl font-bold mt-2">87</p>
@@ -100,7 +100,7 @@ export default function SkillsManagement() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Avg Proficiency</p>
                   <p className="text-3xl font-bold mt-2">74%</p>
@@ -115,7 +115,7 @@ export default function SkillsManagement() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Skill Gaps</p>
                   <p className="text-3xl font-bold mt-2">12</p>
@@ -130,7 +130,7 @@ export default function SkillsManagement() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Assessments Due</p>
                   <p className="text-3xl font-bold mt-2">23</p>
@@ -156,7 +156,7 @@ export default function SkillsManagement() {
             {skillCategories.map(category => (
               <Card key={category.id}>
                 <CardHeader>
-                  <CardTitle>{category.name}</CardTitle>
+                  <CardTitle className="text-base font-semibold">{category.name}</CardTitle>
                   <CardDescription>{category.skills.length} skills in this category</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -207,7 +207,7 @@ export default function SkillsManagement() {
           <TabsContent value="gaps" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Skill Gap Analysis</CardTitle>
+                <CardTitle className="text-base font-semibold">Skill Gap Analysis</CardTitle>
                 <CardDescription>Comparison between current and required proficiency levels</CardDescription>
               </CardHeader>
               <CardContent>
@@ -230,7 +230,7 @@ export default function SkillsManagement() {
                     .map(item => (
                       <Card key={item.skill}>
                         <CardContent className="p-4">
-                          <div className="flex items-center justify-between">
+                          <div className="text-base font-semibold flex items-center justify-between">
                             <div>
                               <h5 className="font-semibold">{item.skill}</h5>
                               <p className="text-sm text-muted-foreground">
@@ -250,7 +250,7 @@ export default function SkillsManagement() {
           <TabsContent value="competency" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Team Competency Radar</CardTitle>
+                <CardTitle className="text-base font-semibold">Team Competency Radar</CardTitle>
                 <CardDescription>Current vs target competency levels</CardDescription>
               </CardHeader>
               <CardContent>
@@ -271,7 +271,7 @@ export default function SkillsManagement() {
           <TabsContent value="assessments" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Upcoming Assessments</CardTitle>
+                <CardTitle className="text-base font-semibold">Upcoming Assessments</CardTitle>
                 <CardDescription>Scheduled skill assessments and evaluations</CardDescription>
               </CardHeader>
               <CardContent>
@@ -279,14 +279,14 @@ export default function SkillsManagement() {
                   {assessmentQueue.map(assessment => (
                     <Card key={assessment.id}>
                       <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
+                        <div className="text-base font-semibold flex items-center justify-between">
                           <div>
                             <h4 className="font-semibold">{assessment.employee}</h4>
                             <p className="text-sm text-muted-foreground">
                               Skill: {assessment.skill} • Due: {assessment.dueDate}
                             </p>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="text-base font-semibold flex items-center gap-2">
                             <Badge variant={assessment.status === 'in-progress' ? 'default' : 'secondary'}>
                               {assessment.status}
                             </Badge>

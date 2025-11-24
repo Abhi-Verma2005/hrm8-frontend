@@ -68,8 +68,8 @@ export default function InternalJobs() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <CardTitle className="text-xl">{job.title}</CardTitle>
+                    <div className="text-base font-semibold flex items-center gap-2">
+                      <CardTitle className="text-base font-semibold">{job.title}</CardTitle>
                       <InternalJobBadge internalOnly={job.internalOnly} />
                     </div>
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">

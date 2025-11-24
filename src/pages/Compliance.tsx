@@ -289,9 +289,9 @@ export default function Compliance() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Shield className="h-8 w-8" />
@@ -334,7 +334,7 @@ export default function Compliance() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Policies</p>
                   <p className="text-2xl font-bold">{policies.length}</p>
@@ -346,7 +346,7 @@ export default function Compliance() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Audit Logs</p>
                   <p className="text-2xl font-bold">{auditLogs.length}</p>
@@ -358,7 +358,7 @@ export default function Compliance() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Active Alerts</p>
                   <p className="text-2xl font-bold">{alerts.length}</p>
@@ -370,7 +370,7 @@ export default function Compliance() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Data Requests</p>
                   <p className="text-2xl font-bold">{dsRequests.length}</p>
@@ -394,7 +394,7 @@ export default function Compliance() {
           <TabsContent value="overview" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Compliance Overview</CardTitle>
+                <CardTitle className="text-base font-semibold">Compliance Overview</CardTitle>
                 <CardDescription>Key compliance metrics and status</CardDescription>
               </CardHeader>
               <CardContent>
@@ -437,7 +437,7 @@ export default function Compliance() {
           <TabsContent value="audit-logs" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Audit Trail</CardTitle>
+                <CardTitle className="text-base font-semibold">Audit Trail</CardTitle>
                 <CardDescription>Complete system activity log</CardDescription>
               </CardHeader>
               <CardContent>
@@ -453,9 +453,9 @@ export default function Compliance() {
           <TabsContent value="policies" className="space-y-4">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div>
-                    <CardTitle>Company Policies</CardTitle>
+                    <CardTitle className="text-base font-semibold">Company Policies</CardTitle>
                     <CardDescription>Manage organizational policies</CardDescription>
                   </div>
                   <Button onClick={() => setPolicyDialogOpen(true)}>
@@ -494,7 +494,7 @@ export default function Compliance() {
           <TabsContent value="acknowledgments" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Policy Acknowledgments</CardTitle>
+                <CardTitle className="text-base font-semibold">Policy Acknowledgments</CardTitle>
                 <CardDescription>Track employee policy acknowledgments</CardDescription>
               </CardHeader>
               <CardContent>
@@ -508,7 +508,7 @@ export default function Compliance() {
           <TabsContent value="reports" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Compliance Reports</CardTitle>
+                <CardTitle className="text-base font-semibold">Compliance Reports</CardTitle>
                 <CardDescription>Generate and view compliance reports</CardDescription>
               </CardHeader>
               <CardContent>

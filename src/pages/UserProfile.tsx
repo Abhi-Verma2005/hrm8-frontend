@@ -112,7 +112,7 @@ export default function UserProfile() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
@@ -145,7 +145,7 @@ export default function UserProfile() {
           <TabsContent value="profile" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Personal Information</CardTitle>
+                <CardTitle className="text-base font-semibold">Personal Information</CardTitle>
                 <CardDescription>
                   Update your personal details and profile picture
                 </CardDescription>
@@ -255,13 +255,13 @@ export default function UserProfile() {
           <TabsContent value="notifications" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Email Notifications</CardTitle>
+                <CardTitle className="text-base font-semibold">Email Notifications</CardTitle>
                 <CardDescription>
                   Choose what email notifications you want to receive
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>New Candidate Applications</Label>
                     <p className="text-sm text-muted-foreground">
@@ -276,7 +276,7 @@ export default function UserProfile() {
                   />
                 </div>
                 <Separator />
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Interview Reminders</Label>
                     <p className="text-sm text-muted-foreground">
@@ -291,7 +291,7 @@ export default function UserProfile() {
                   />
                 </div>
                 <Separator />
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Offer Status Updates</Label>
                     <p className="text-sm text-muted-foreground">
@@ -306,7 +306,7 @@ export default function UserProfile() {
                   />
                 </div>
                 <Separator />
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Performance Reviews</Label>
                     <p className="text-sm text-muted-foreground">
@@ -325,13 +325,13 @@ export default function UserProfile() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Push Notifications</CardTitle>
+                <CardTitle className="text-base font-semibold">Push Notifications</CardTitle>
                 <CardDescription>
                   Manage in-app push notifications
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <Label>Interview Reminders</Label>
                   <Switch
                     checked={notifications.pushInterview}
@@ -341,7 +341,7 @@ export default function UserProfile() {
                   />
                 </div>
                 <Separator />
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <Label>Offer Updates</Label>
                   <Switch
                     checked={notifications.pushOffer}
@@ -355,13 +355,13 @@ export default function UserProfile() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Digest & Reports</CardTitle>
+                <CardTitle className="text-base font-semibold">Digest & Reports</CardTitle>
                 <CardDescription>
                   Periodic summaries and analytics reports
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Weekly Digest</Label>
                     <p className="text-sm text-muted-foreground">
@@ -376,7 +376,7 @@ export default function UserProfile() {
                   />
                 </div>
                 <Separator />
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Monthly Report</Label>
                     <p className="text-sm text-muted-foreground">
@@ -405,7 +405,7 @@ export default function UserProfile() {
           <TabsContent value="security" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Change Password</CardTitle>
+                <CardTitle className="text-base font-semibold">Change Password</CardTitle>
                 <CardDescription>
                   Update your password to keep your account secure
                 </CardDescription>
@@ -457,13 +457,13 @@ export default function UserProfile() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Two-Factor Authentication</CardTitle>
+                <CardTitle className="text-base font-semibold">Two-Factor Authentication</CardTitle>
                 <CardDescription>
                   Add an extra layer of security to your account
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label>Enable 2FA</Label>
                     <p className="text-sm text-muted-foreground">
@@ -490,7 +490,7 @@ export default function UserProfile() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Session Management</CardTitle>
+                <CardTitle className="text-base font-semibold">Session Management</CardTitle>
                 <CardDescription>
                   Control how long you stay signed in
                 </CardDescription>
@@ -525,7 +525,7 @@ export default function UserProfile() {
           <TabsContent value="appearance" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Theme & Display</CardTitle>
+                <CardTitle className="text-base font-semibold">Theme & Display</CardTitle>
                 <CardDescription>
                   Customize how the application looks
                 </CardDescription>
@@ -569,7 +569,7 @@ export default function UserProfile() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Localization</CardTitle>
+                <CardTitle className="text-base font-semibold">Localization</CardTitle>
                 <CardDescription>
                   Set your language and regional preferences
                 </CardDescription>

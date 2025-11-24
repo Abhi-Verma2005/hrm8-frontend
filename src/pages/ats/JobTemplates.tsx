@@ -245,13 +245,13 @@ export default function JobTemplates() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {loading ? (
           <TemplatesPageSkeleton />
         ) : (
           <>
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Job Templates</h1>
             <p className="text-muted-foreground">
@@ -538,19 +538,19 @@ function TemplateGrid({ templates, onEdit, onDuplicate, onDelete, onUseTemplate 
             </div>
 
             <div className="space-y-2 text-sm text-muted-foreground">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <span>Created by:</span>
                 <span className="font-medium text-foreground">
                   {template.createdByName || "Unknown"}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <span>Usage count:</span>
                 <span className="font-medium text-foreground">
                   {template.usageCount || 0} times
                 </span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <span>Created:</span>
                 <span className="font-medium text-foreground">
                   {formatDistanceToNow(new Date(template.createdAt), { addSuffix: true })}
@@ -563,19 +563,19 @@ function TemplateGrid({ templates, onEdit, onDuplicate, onDelete, onUseTemplate 
                 <p className="text-sm text-muted-foreground">Template includes:</p>
                 <ul className="mt-2 space-y-1 text-sm">
                   {template.title && (
-                    <li className="flex items-center gap-2">
+                    <li className="text-base font-semibold flex items-center gap-2">
                       <span className="text-primary">•</span>
                       <span>Job Title: {template.title}</span>
                     </li>
                   )}
                   {template.department && (
-                    <li className="flex items-center gap-2">
+                    <li className="text-base font-semibold flex items-center gap-2">
                       <span className="text-primary">•</span>
                       <span>Department: {template.department}</span>
                     </li>
                   )}
                   {template.employmentType && (
-                    <li className="flex items-center gap-2">
+                    <li className="text-base font-semibold flex items-center gap-2">
                       <span className="text-primary">•</span>
                       <span>Type: {template.employmentType}</span>
                     </li>

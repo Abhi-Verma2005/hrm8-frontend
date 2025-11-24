@@ -81,7 +81,7 @@ export default function Payroll() {
 
         {/* Main Content */}
         <Tabs defaultValue="runs" className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
             <TabsList>
               <TabsTrigger value="runs">Payroll Runs</TabsTrigger>
               <TabsTrigger value="payslips">Payslips</TabsTrigger>
@@ -104,7 +104,7 @@ export default function Payroll() {
           <TabsContent value="runs" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Payroll Runs</CardTitle>
+                <CardTitle className="text-base font-semibold">Payroll Runs</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -145,7 +145,7 @@ export default function Payroll() {
           <TabsContent value="payslips" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Employee Payslips</CardTitle>
+                <CardTitle className="text-base font-semibold">Employee Payslips</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -179,7 +179,7 @@ export default function Payroll() {
           <TabsContent value="components" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Salary Components</CardTitle>
+                <CardTitle className="text-base font-semibold">Salary Components</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">
@@ -193,7 +193,7 @@ export default function Payroll() {
           <TabsContent value="reports" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Payroll Reports</CardTitle>
+                <CardTitle className="text-base font-semibold">Payroll Reports</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">

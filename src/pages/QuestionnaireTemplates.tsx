@@ -75,7 +75,7 @@ export default function QuestionnaireTemplates() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="text-base font-semibold flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Reference Check Templates</h1>
           <p className="text-muted-foreground mt-1">
@@ -100,7 +100,7 @@ export default function QuestionnaireTemplates() {
                       <Badge variant="secondary" className="text-xs">Default</Badge>
                     )}
                   </div>
-                  <CardTitle className="text-lg">{template.name}</CardTitle>
+                  <CardTitle className="text-base font-semibold">{template.name}</CardTitle>
                 </div>
               </div>
             </CardHeader>
@@ -109,7 +109,7 @@ export default function QuestionnaireTemplates() {
                 {template.description}
               </p>
 
-              <div className="flex items-center gap-2">
+              <div className="text-base font-semibold flex items-center gap-2">
                 <Badge variant={getCategoryBadgeVariant(template.category)}>
                   {template.category}
                 </Badge>
