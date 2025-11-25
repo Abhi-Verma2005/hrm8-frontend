@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
+import { ResponsiveContainer, AreaChart, Area, LineChart, Line, XAxis, YAxis } from "recharts";
 
 interface EnhancedStatCardProps {
   title: string;
@@ -35,6 +36,7 @@ interface EnhancedStatCardProps {
   showGradient?: boolean;
   showBorder?: boolean;
   iconPosition?: "left" | "right" | "top";
+  chartData?: Array<{ name: string; value: number; secondary?: number }>;
 }
 export function EnhancedStatCard({
   title,
@@ -56,6 +58,7 @@ export function EnhancedStatCard({
   showGradient = false,
   showBorder = false,
   iconPosition = "left",
+  chartData,
 }: EnhancedStatCardProps) {
   const { formatCurrency } = useCurrencyFormat();
 
@@ -63,116 +66,159 @@ export function EnhancedStatCard({
   const displayValue = isCurrency && rawValue !== undefined
     ? formatCurrency(rawValue)
     : (typeof value === 'number' && isNaN(value)) ? 0 : value;
+  
+  // Generate default chart data if not provided
+  const defaultChartData = chartData || Array.from({ length: 12 }, (_, i) => ({
+    name: `${i + 1}`,
+    value: Math.floor(Math.random() * 100) + 50,
+    secondary: Math.floor(Math.random() * 80) + 40,
+  }));
+
   const sizeStyles = {
     compact: "p-3",
     default: "p-4",
-    large: "p-6",
+    large: "p-5",
   };
 
   const valueSizeStyles = {
-    compact: "text-xl",
-    default: "text-2xl",
-    large: "text-3xl",
+    compact: "text-2xl",
+    default: "text-3xl",
+    large: "text-4xl",
   };
 
-  const elevationStyles = {
-    none: "",
-    sm: "hover:shadow-md",
-    md: "hover:shadow-lg",
-    lg: "hover:shadow-xl",
-  };
-
-  const variantStyles = {
-    primary: showBorder ? "border-l-6 border-l-blue-500 dark:border-l-blue-400" : "",
-    success: showBorder ? "border-l-6 border-l-emerald-500 dark:border-l-emerald-400" : "",
-    warning: showBorder ? "border-l-6 border-l-orange-500 dark:border-l-orange-400" : "",
-    neutral: showBorder ? "border-l-6 border-l-purple-500 dark:border-l-purple-400" : "",
-  };
-
-  // Base gradient that always shows with borders
-  const borderGradientStyles = {
-    primary: showBorder ? "bg-gradient-to-br from-blue-50/50 to-cyan-50/30 dark:from-blue-950/30 dark:to-cyan-950/20" : "",
-    success: showBorder ? "bg-gradient-to-br from-emerald-50/50 to-green-50/30 dark:from-emerald-950/30 dark:to-green-950/20" : "",
-    warning: showBorder ? "bg-gradient-to-br from-orange-50/50 to-amber-50/30 dark:from-orange-950/30 dark:to-amber-950/20" : "",
-    neutral: showBorder ? "bg-gradient-to-br from-purple-50/50 to-indigo-50/30 dark:from-purple-950/30 dark:to-indigo-950/20" : "",
-  };
-
-  // Additional gradient overlay (controlled by showGradient prop)
-  const overlayGradientStyles = {
-    primary: showGradient ? "bg-gradient-to-br from-blue-100/30 to-transparent dark:from-blue-900/20 dark:to-transparent" : "",
-    success: showGradient ? "bg-gradient-to-br from-emerald-100/30 to-transparent dark:from-emerald-900/20 dark:to-transparent" : "",
-    warning: showGradient ? "bg-gradient-to-br from-orange-100/30 to-transparent dark:from-orange-900/20 dark:to-transparent" : "",
-    neutral: showGradient ? "bg-gradient-to-br from-purple-100/30 to-transparent dark:from-purple-900/20 dark:to-transparent" : "",
-  };
-
-  const iconBgStyles = {
-    primary: "bg-blue-500 text-white shadow-lg shadow-blue-500/30 dark:bg-blue-600 dark:shadow-blue-600/40",
-    success: "bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 dark:bg-emerald-600 dark:shadow-emerald-600/40",
-    warning: "bg-orange-500 text-white shadow-lg shadow-orange-500/30 dark:bg-orange-600 dark:shadow-orange-600/40",
-    neutral: "bg-purple-500 text-white shadow-lg shadow-purple-500/30 dark:bg-purple-600 dark:shadow-purple-600/40",
-  };
-
-  const iconSizeStyles = {
-    compact: "p-2",
-    default: "p-3",
-    large: "p-4",
-  };
+  // Chart color based on variant - using lighter, more subtle colors
+  const chartColor = {
+    primary: "hsl(var(--primary) / 0.6)",
+    success: "hsl(var(--success) / 0.6)",
+    warning: "hsl(var(--warning) / 0.6)",
+    neutral: "hsl(215 20% 55%)", // Lighter blue-gray
+  }[variant];
 
   return (
     <Card
       className={cn(
         sizeStyles[size],
-        "relative h-full flex flex-col justify-between overflow-hidden",
-        "transition-colors",
-        variantStyles[variant],
-        borderGradientStyles[variant],
-        overlayGradientStyles[variant],
-        elevation !== "none" && `${elevationStyles[elevation]}`
+        "relative h-full flex flex-col overflow-hidden",
+        "group cursor-default",
+        "border border-border/60 bg-card"
       )}
     >
-      <div className={cn(
-        "flex items-center justify-between mb-2 gap-2 flex-wrap min-w-0",
-        layout === "horizontal" && "flex-row items-center",
-        showMenu && "pr-8"
-      )}>
-        <div className={cn(
-          "rounded-full shadow-md flex items-center justify-center w-10 h-10 flex-none",
-          iconBgStyles[variant]
-        )}>
-          {icon}
+      {/* Content wrapper */}
+      <div className="relative flex flex-col h-full">
+      {/* Header Section: Icon, Title and Menu */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="text-muted-foreground [&>svg]:h-3.5 [&>svg]:w-3.5">
+            {icon}
+          </div>
+          <h4 className="text-sm font-semibold text-foreground tracking-wide">
+            {title}
+          </h4>
         </div>
-        <Badge
-          variant="outline"
-          className={cn(
-            "px-2.5 py-1 rounded-full inline-flex items-start gap-1 text-xs leading-tight max-w-full break-words",
-            trend === "up"
-              ? "bg-success/10 text-success border-success/20"
-              : "bg-destructive/10 text-destructive border-destructive/20"
-          )}
-        >
-          {trend === "up" ? (
-            <TrendingUp className="h-3 w-3 mr-1" />
-          ) : (
-            <TrendingDown className="h-3 w-3 mr-1" />
-          )}
-          <span className="block">{change}</span>
-        </Badge>
+        
+        {showMenu && menuItems.length > 0 && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "h-7 w-7 opacity-60 hover:opacity-100 transition-opacity duration-200",
+                  "hover:bg-muted/60"
+                )}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MoreVertical className="h-4 w-4 text-foreground" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {menuItems.map((item, index) => (
+                <DropdownMenuItem
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    item.onClick();
+                  }}
+                >
+                  {item.icon && <span className="mr-2">{item.icon}</span>}
+                  {item.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </div>
-      <p className="text-sm text-muted-foreground mb-1 font-medium">
-        {title}
-      </p>
-      <h3 className={cn(
-        valueSizeStyles[size],
-        "font-bold tracking-tight"
-      )}>
-        {displayValue}
-      </h3>
+
+      {/* Main Value Section */}
+      <div className="mb-3">
+        <h3 className={cn(
+          valueSizeStyles[size],
+          "font-bold tracking-tight text-foreground mb-1.5",
+          "leading-none"
+        )}>
+          {displayValue}
+        </h3>
+        
+        {/* Change text - integrated into design with blinking colored arrow and colored text */}
+        <div className={cn(
+          "flex items-center gap-1.5 text-xs",
+          trend === "up" && "text-emerald-600 dark:text-emerald-400",
+          trend === "down" && "text-red-600 dark:text-red-400",
+          !trend && "text-muted-foreground"
+        )}>
+          {trend === "up" && (
+            <TrendingUp className="h-3 w-3 flex-shrink-0 animate-[blink_1.5s_ease-in-out_infinite]" />
+          )}
+          {trend === "down" && (
+            <TrendingDown className="h-3 w-3 flex-shrink-0 animate-[blink_1.5s_ease-in-out_infinite]" />
+          )}
+          <span>{change}</span>
+        </div>
+        <style>{`
+          @keyframes blink {
+            0%, 100% { 
+              opacity: 1; 
+              transform: scale(1);
+            }
+            50% { 
+              opacity: 0.4; 
+              transform: scale(0.95);
+            }
+          }
+        `}</style>
+      </div>
+
+      {/* Mini Chart Section */}
+      <div className="mt-auto -mx-5 -mb-5 h-[90px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={defaultChartData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+            <defs>
+              <linearGradient id={`gradient-${variant}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={chartColor} stopOpacity={0.15} />
+                <stop offset="95%" stopColor={chartColor} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="name" hide />
+            <YAxis hide domain={[0, 'auto']} />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke={chartColor}
+              strokeWidth={2}
+              fill={`url(#gradient-${variant})`}
+              dot={false}
+              activeDot={false}
+              baseLine={0}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
 
       {showAction && onAction && (
         <Button
           variant="ghost"
           size="sm"
-          className="absolute bottom-4 right-4"
+          className="absolute bottom-5 right-5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           onClick={(e) => {
             e.stopPropagation();
             onAction();
@@ -181,35 +227,7 @@ export function EnhancedStatCard({
           {actionLabel}
         </Button>
       )}
-
-      {showMenu && menuItems.length > 0 && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="absolute top-4 right-4 opacity-70"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            {menuItems.map((item, index) => (
-              <DropdownMenuItem
-                key={index}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  item.onClick();
-                }}
-              >
-                {item.icon && <span className="mr-2">{item.icon}</span>}
-                {item.label}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      </div>
     </Card>
   );
 }

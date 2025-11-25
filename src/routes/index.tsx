@@ -8,6 +8,7 @@ import { salesRoutes } from "./sales.routes";
 import { rpoRoutes } from "./rpo.routes";
 import { sharedRoutes } from "./shared.routes";
 import { publicRoutes } from "./public.routes";
+import { candidateRoutes } from "./candidate.routes";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import EmployeeSignup from "@/pages/EmployeeSignup";
@@ -51,6 +52,9 @@ export const AppRoutes = () => {
         {/* Shared/General Routes */}
         {sharedRoutes}
       </Route>
+      
+      {/* Candidate routes (separate auth, separate layout) */}
+      {candidateRoutes}
       
       {/* Public routes (no sidebar, no auth required) */}
       {publicRoutes}

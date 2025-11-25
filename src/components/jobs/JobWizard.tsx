@@ -33,6 +33,7 @@ import { PostLaunchTools } from "./PostLaunchTools";
 import { PromoteExternallyDialog } from "./PromoteExternallyDialog";
 import { toast } from "@/hooks/use-toast";
 import { jobService } from "@/lib/api/jobService";
+import { jobTemplateService } from "@/lib/api/jobTemplateService";
 import { generateJobCode } from "@/lib/jobUtils";
 import { calculateServicePricing, processAccountPayment, processCreditCardPayment } from "@/lib/paymentService";
 import { cn } from "@/lib/utils";
@@ -261,11 +262,30 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
   const autoSaveDraft = async () => {
     const formData = form.getValues();
     
-    // Only auto-save if there's meaningful content (at least a title)
+    // Validate required fields: title and location are required for draft
+    const missingFields: string[] = [];
+    
     if (!formData.title || formData.title.trim().length === 0) {
+      missingFields.push('job title');
+      form.setError('title', { 
+        type: 'manual', 
+        message: 'Job title is required to save as draft' 
+      });
+    }
+    
+    if (!formData.location || formData.location.trim().length === 0) {
+      missingFields.push('location');
+      form.setError('location', { 
+        type: 'manual', 
+        message: 'Location is required to save as draft' 
+      });
+    }
+    
+    if (missingFields.length > 0) {
+      const fieldList = missingFields.join(' and ');
       toast({
-        title: "Cannot Save",
-        description: "Please add a job title before saving as draft",
+        title: "Cannot Save Draft",
+        description: `Please add a ${fieldList} before saving as draft.`,
         variant: "destructive"
       });
       return false;
@@ -340,11 +360,29 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
       }
       
       return false;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Auto-save failed:', error);
+      
+      // Check if error is from backend validation
+      const errorMessage = error?.response?.data?.error || error?.message || 'Failed to save draft';
+      
+      // Check for specific validation errors
+      if (errorMessage.includes('title') || errorMessage.includes('Title')) {
+        form.setError('title', { 
+          type: 'manual', 
+          message: 'Job title is required' 
+        });
+      }
+      if (errorMessage.includes('location') || errorMessage.includes('Location')) {
+        form.setError('location', { 
+          type: 'manual', 
+          message: 'Location is required' 
+        });
+      }
+      
       toast({
         title: "Save Failed",
-        description: "Failed to save draft. Please try again.",
+        description: errorMessage || "Failed to save draft. Please try again.",
         variant: "destructive"
       });
       return false;
@@ -760,23 +798,46 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
         return;
       }
 
-      // Transform to API format using utility function
-      const jobRequest = transformJobFormDataToCreateRequest(data, {
-        status: 'TEMPLATE',
-      });
+      // Transform to API format for template creation
+      const jobRequest = transformJobFormDataToCreateRequest(data);
+      
+      // Create template name from job title
+      const templateName = data.title || 'Untitled Template';
+      const templateDescription = data.description?.substring(0, 200) || undefined;
+      const category = data.department || undefined;
 
-      const response = await jobService.saveTemplate(currentJobId, jobRequest);
+      let response;
+      if (currentJobId) {
+        // Create template from existing job
+        response = await jobTemplateService.createFromJob(
+          currentJobId,
+          templateName,
+          templateDescription,
+          category
+        );
+      } else {
+        // Create template from scratch with current form data
+        response = await jobTemplateService.createTemplate({
+          name: templateName,
+          description: templateDescription,
+          category: category,
+          jobData: jobRequest, // Send job data as JSON object
+        });
+      }
       
       if (response.success && response.data) {
-        if (response.data.id && !currentJobId) {
-          setCurrentJobId(response.data.id);
-        }
         toast({
           title: "Template Saved",
-          description: `"${response.data.title}" has been saved as a template.`,
+          description: `"${response.data.name}" has been saved as a template.`,
         });
         if (onSuccess) {
-          onSuccess(response.data as any);
+          // Return the job data if we have it, otherwise return template data
+          if (currentJobId) {
+            const jobResponse = await jobService.getJobById(currentJobId);
+            if (jobResponse.success && jobResponse.data) {
+              onSuccess(jobResponse.data);
+            }
+          }
         }
       } else {
         throw new Error(response.error || 'Failed to save template');
@@ -1116,7 +1177,13 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
               }}
               onSaveTemplate={async (templateName, templateDescription) => {
                 try {
-                  await jobService.saveAsTemplate(savedJobData.id, templateName, templateDescription);
+                  const category = savedJobData.department || undefined;
+                  await jobTemplateService.createFromJob(
+                    savedJobData.id,
+                    templateName,
+                    templateDescription,
+                    category
+                  );
                 } catch (error) {
                   console.error('Failed to save template:', error);
                 }

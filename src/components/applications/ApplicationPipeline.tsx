@@ -6,6 +6,7 @@ import { ApplicationCard } from "./ApplicationCard";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { updateApplicationStatus, getApplications } from "@/lib/mockApplicationStorage";
+import { applicationService } from "@/lib/applicationService";
 import { toast } from "sonner";
 import { CandidateAssessmentView } from "../jobs/candidate-assessment/CandidateAssessmentView";
 
@@ -44,18 +45,88 @@ export function ApplicationPipeline({
 
   useEffect(() => {
     loadApplications();
-  }, [jobId, providedApplications]);
+  }, [jobId, providedApplications]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loadApplications = () => {
+  const loadApplications = async () => {
     if (providedApplications) {
       // Use provided filtered applications
       setApplications(providedApplications);
+    } else if (jobId) {
+      // Load from API if jobId is provided
+      try {
+        const response = await applicationService.getJobApplications(jobId);
+        const apiApplications = response.data?.applications || [];
+        // Map API applications to frontend Application type
+        const mappedApplications: Application[] = apiApplications.map((app: any) => ({
+          id: app.id,
+          candidateId: app.candidateId,
+          candidateName: app.candidate?.firstName && app.candidate?.lastName
+            ? `${app.candidate.firstName} ${app.candidate.lastName}`
+            : 'Unknown Candidate',
+          candidateEmail: app.candidate?.email || '',
+          candidatePhoto: app.candidate?.photo,
+          jobId: app.jobId,
+          jobTitle: app.job?.title || 'Unknown Job',
+          employerName: app.job?.company?.name || 'Unknown Company',
+          appliedDate: new Date(app.appliedDate),
+          status: mapApplicationStatus(app.status),
+          stage: mapApplicationStage(app.stage),
+          resumeUrl: app.resumeUrl,
+          coverLetterUrl: app.coverLetterUrl,
+          portfolioUrl: app.portfolioUrl,
+          linkedInUrl: app.linkedInUrl,
+          customAnswers: app.customAnswers || [],
+          isRead: app.isRead,
+          isNew: app.isNew,
+          tags: app.tags || [],
+          notes: [],
+          activities: [],
+          interviews: [],
+          createdAt: new Date(app.createdAt),
+          updatedAt: new Date(app.updatedAt),
+        }));
+        setApplications(mappedApplications);
+      } catch (error) {
+        console.error('Failed to load applications:', error);
+        // Fallback to mock data
+        const allApps = getApplications();
+        const filtered = allApps.filter(app => app.jobId === jobId);
+        setApplications(filtered);
+      }
     } else {
-      // Fetch and filter by jobId if provided
+      // Fetch all from mock storage
       const allApps = getApplications();
-      const filtered = jobId ? allApps.filter(app => app.jobId === jobId) : allApps;
-      setApplications(filtered);
+      setApplications(allApps);
     }
+  };
+
+  // Map backend ApplicationStatus to frontend ApplicationStatus
+  const mapApplicationStatus = (status: string): Application['status'] => {
+    const statusMap: Record<string, Application['status']> = {
+      'NEW': 'applied',
+      'SCREENING': 'screening',
+      'INTERVIEW': 'interview',
+      'OFFER': 'offer',
+      'HIRED': 'hired',
+      'REJECTED': 'rejected',
+      'WITHDRAWN': 'withdrawn',
+    };
+    return statusMap[status] || 'applied';
+  };
+
+  // Map backend ApplicationStage to frontend ApplicationStage
+  const mapApplicationStage = (stage: string): ApplicationStage => {
+    const stageMap: Record<string, ApplicationStage> = {
+      'NEW_APPLICATION': 'New Application',
+      'RESUME_REVIEW': 'Resume Review',
+      'PHONE_SCREEN': 'Phone Screen',
+      'TECHNICAL_INTERVIEW': 'Technical Interview',
+      'ONSITE_INTERVIEW': 'Manager Interview',
+      'OFFER_EXTENDED': 'Offer Extended',
+      'OFFER_ACCEPTED': 'Offer Accepted',
+      'REJECTED': 'Rejected',
+    };
+    return stageMap[stage] || 'New Application';
   };
 
   const handleDragStart = (event: DragStartEvent) => {
