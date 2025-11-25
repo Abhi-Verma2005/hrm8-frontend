@@ -46,7 +46,7 @@ class DocumentService {
       formData.append('document', file);
 
       // Use fetch directly for FormData to let browser set Content-Type with boundary
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
       const url = `${API_BASE_URL}/api/jobs/parse-document`;
 
       const response = await fetch(url, {
