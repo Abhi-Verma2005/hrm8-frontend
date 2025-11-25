@@ -404,9 +404,28 @@ export default function JobTemplates() {
 
         {editingTemplate && (
           <EditTemplateDialog
-            template={editingTemplate as any}
+            template={editingTemplate}
             open={!!editingTemplate}
-            onOpenChange={(open) => !open && setEditingTemplate(null)}
+            onOpenChange={(open) => {
+              if (!open) {
+                setEditingTemplate(null);
+                // Refetch templates after editing
+                const fetchTemplates = async () => {
+                  try {
+                    const response = await jobTemplateService.getTemplates({
+                      category: selectedCategory !== "all" ? selectedCategory : undefined,
+                      search: searchQuery || undefined,
+                    });
+                    if (response.success && response.data) {
+                      setTemplates(response.data);
+                    }
+                  } catch (error) {
+                    console.error('Error fetching templates:', error);
+                  }
+                };
+                fetchTemplates();
+              }
+            }}
           />
         )}
 
