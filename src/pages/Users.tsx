@@ -5,7 +5,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 export default function Users() {
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Users</h1>
           <p className="text-muted-foreground">Manage system users, roles, and permissions</p>
@@ -17,7 +17,7 @@ export default function Users() {
                 <UsersRound className="h-6 w-6 text-foreground" />
               </div>
               <div>
-                <CardTitle>Coming Soon</CardTitle>
+                <CardTitle className="text-base font-semibold">Coming Soon</CardTitle>
                 <CardDescription>User management features are under development</CardDescription>
               </div>
             </div>

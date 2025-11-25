@@ -51,7 +51,7 @@ export default function PivotDemo() {
 
   return (
     <div className="container mx-auto py-8 space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="text-base font-semibold flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold mb-2">Advanced Pivot Table Demo</h1>
           <p className="text-muted-foreground">
@@ -66,7 +66,7 @@ export default function PivotDemo() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Feature Highlights</CardTitle>
+          <CardTitle className="text-base font-semibold">Feature Highlights</CardTitle>
           <CardDescription>
             This pivot table includes the following advanced features:
           </CardDescription>
@@ -109,7 +109,7 @@ export default function PivotDemo() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Interactive Pivot Table</CardTitle>
+          <CardTitle className="text-base font-semibold">Interactive Pivot Table</CardTitle>
           <CardDescription>
             Configure your pivot table using the tools above. All changes are automatically saved.
           </CardDescription>
@@ -151,7 +151,7 @@ export default function PivotDemo() {
 
       <Card className="bg-muted/50">
         <CardHeader>
-          <CardTitle>Quick Start Guide</CardTitle>
+          <CardTitle className="text-base font-semibold">Quick Start Guide</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <GuideStep

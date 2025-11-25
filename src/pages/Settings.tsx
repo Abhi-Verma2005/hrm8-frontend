@@ -43,7 +43,7 @@ export default function Settings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div className="space-y-0.5">
                   <Label htmlFor="currency-format" className="text-base">
                     Currency Format

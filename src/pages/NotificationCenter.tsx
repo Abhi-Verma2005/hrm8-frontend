@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 export default function NotificationCenter() {
   return (
     <div className="container mx-auto py-8 space-y-8">
-      <div className="flex items-center justify-between">
+      <div className="text-base font-semibold flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2">Notification Center</h1>
           <p className="text-muted-foreground">

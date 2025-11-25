@@ -557,7 +557,7 @@ export default function BackgroundChecks() {
         {analyticsFilterApplied && (
           <Alert className="border-primary/50 bg-primary/5">
             <BarChart3 className="h-4 w-4 text-primary" />
-            <AlertDescription className="flex items-center justify-between">
+            <AlertDescription className="text-base font-semibold flex items-center justify-between">
               <span className="text-sm">
                 Viewing filtered results from analytics drill-down.
                 {dateFromFilter && ` Date: ${new Date(dateFromFilter).toLocaleDateString()}`}

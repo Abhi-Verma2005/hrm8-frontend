@@ -102,7 +102,7 @@ export default function Expenses() {
 
         {/* Main Content */}
         <Tabs defaultValue="my-expenses" className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
             <TabsList>
               <TabsTrigger value="my-expenses">My Expenses</TabsTrigger>
               <TabsTrigger value="approvals">Pending Approvals</TabsTrigger>
@@ -158,7 +158,7 @@ export default function Expenses() {
             
             <Card>
               <CardHeader>
-                <CardTitle>My Expenses</CardTitle>
+                <CardTitle className="text-base font-semibold">My Expenses</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -202,7 +202,7 @@ export default function Expenses() {
           <TabsContent value="approvals" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Pending Approvals</CardTitle>
+                <CardTitle className="text-base font-semibold">Pending Approvals</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -234,7 +234,7 @@ export default function Expenses() {
           <TabsContent value="all" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>All Expenses</CardTitle>
+                <CardTitle className="text-base font-semibold">All Expenses</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">
@@ -248,7 +248,7 @@ export default function Expenses() {
           <TabsContent value="policies" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Expense Policies</CardTitle>
+                <CardTitle className="text-base font-semibold">Expense Policies</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">

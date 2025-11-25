@@ -64,7 +64,7 @@ export default function Calendar() {
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
         <AtsPageHeader title="Calendar" subtitle="View and manage interviews and events">
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <Button variant="outline" onClick={handleToday}>Today</Button>
             <Button variant="outline" size="icon" onClick={handlePrevMonth}>
               <ChevronLeft className="h-4 w-4" />
@@ -141,7 +141,7 @@ export default function Calendar() {
           {/* Day Details */}
           <Card>
             <CardHeader>
-              <CardTitle>
+              <CardTitle className="text-base font-semibold">
                 {selectedDate ? format(selectedDate, 'MMMM d, yyyy') : 'Select a date'}
               </CardTitle>
             </CardHeader>
@@ -152,7 +152,7 @@ export default function Calendar() {
                     <Card key={interview.id}>
                       <CardContent className="p-4 space-y-2">
                         <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-2">
+                          <div className="text-base font-semibold flex items-center gap-2">
                             {getTypeIcon(interview.type)}
                             <span className="font-semibold">{interview.scheduledTime}</span>
                           </div>

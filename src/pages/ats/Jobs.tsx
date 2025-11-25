@@ -670,7 +670,7 @@ export default function Jobs() {
         </>
       }
     >
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {!permissionLoading && !canPostJobs && (
           <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
@@ -682,7 +682,7 @@ export default function Jobs() {
           <JobsPageSkeleton />
         ) : (
           <>
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Jobs</h1>
             <p className="text-muted-foreground">Create and manage job postings</p>

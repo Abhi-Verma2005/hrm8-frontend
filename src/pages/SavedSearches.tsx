@@ -91,8 +91,8 @@ export default function SavedSearches() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Saved Searches</h1>
             <p className="text-muted-foreground">Quick access to your favorite search queries</p>
@@ -106,9 +106,9 @@ export default function SavedSearches() {
         {/* Favorites Section */}
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center gap-2">
               <Star className="h-5 w-5 fill-amber-500 text-amber-500" />
-              <CardTitle>Favorite Searches</CardTitle>
+              <CardTitle className="text-base font-semibold">Favorite Searches</CardTitle>
             </div>
             <CardDescription>Your most frequently used searches</CardDescription>
           </CardHeader>
@@ -136,8 +136,8 @@ export default function SavedSearches() {
                           <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
                         </Button>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                      <div className="text-base font-semibold flex items-center justify-between">
+                        <div className="text-base font-semibold flex items-center gap-2">
                           <Badge className={getModuleColor(search.module)} variant="secondary">
                             {search.module}
                           </Badge>
@@ -159,9 +159,9 @@ export default function SavedSearches() {
         {/* Recent Searches */}
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center gap-2">
               <Clock className="h-5 w-5" />
-              <CardTitle>Recent Searches</CardTitle>
+              <CardTitle className="text-base font-semibold">Recent Searches</CardTitle>
             </div>
             <CardDescription>Recently executed search queries</CardDescription>
           </CardHeader>
@@ -170,7 +170,7 @@ export default function SavedSearches() {
               {recentSearches.map(search => (
                 <Card key={search.id}>
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h4 className="font-semibold">{search.name}</h4>
@@ -228,7 +228,7 @@ export default function SavedSearches() {
         {/* Search Templates */}
         <Card>
           <CardHeader>
-            <CardTitle>Search Templates</CardTitle>
+            <CardTitle className="text-base font-semibold">Search Templates</CardTitle>
             <CardDescription>Pre-configured search templates for common queries</CardDescription>
           </CardHeader>
           <CardContent>
@@ -242,7 +242,7 @@ export default function SavedSearches() {
                 <Card key={idx} className="cursor-pointer hover:border-primary transition-colors">
                   <CardContent className="p-4">
                     <h4 className="font-semibold mb-2">{template.name}</h4>
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <Badge className={getModuleColor(template.module as SavedSearch['module'])} variant="secondary">
                         {template.module}
                       </Badge>

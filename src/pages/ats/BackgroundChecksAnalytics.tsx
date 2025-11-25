@@ -98,7 +98,7 @@ export default function BackgroundChecksAnalytics() {
       title="Background Checks Analytics"
       subtitle="Comprehensive insights into verification processes and performance"
       actions={
-        <div className="flex items-center gap-2">
+        <div className="text-base font-semibold flex items-center gap-2">
           <span className="text-xs text-muted-foreground">
             Last updated: {lastRefresh.toLocaleTimeString()}
           </span>

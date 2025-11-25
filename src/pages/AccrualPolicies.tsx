@@ -242,9 +242,9 @@ export default function AccrualPolicies() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Clock className="h-8 w-8" />
@@ -270,7 +270,7 @@ export default function AccrualPolicies() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Active Policies</p>
                   <p className="text-2xl font-bold">{policies.length}</p>
@@ -282,7 +282,7 @@ export default function AccrualPolicies() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Transactions</p>
                   <p className="text-2xl font-bold">{transactions.length}</p>
@@ -294,7 +294,7 @@ export default function AccrualPolicies() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Next Run</p>
                   <p className="text-2xl font-bold">3 days</p>
@@ -306,7 +306,7 @@ export default function AccrualPolicies() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Avg. Accrual</p>
                   <p className="text-2xl font-bold">1.5 days</p>
@@ -329,7 +329,7 @@ export default function AccrualPolicies() {
           <TabsContent value="policies" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Accrual Policies</CardTitle>
+                <CardTitle className="text-base font-semibold">Accrual Policies</CardTitle>
                 <CardDescription>
                   {policies.length === 0
                     ? "No policies configured. Create your first policy to automate accruals."
@@ -377,7 +377,7 @@ export default function AccrualPolicies() {
           <TabsContent value="transactions" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Accrual Transactions</CardTitle>
+                <CardTitle className="text-base font-semibold">Accrual Transactions</CardTitle>
                 <CardDescription>History of all accrual calculations and adjustments</CardDescription>
               </CardHeader>
               <CardContent>
@@ -399,14 +399,14 @@ export default function AccrualPolicies() {
           <TabsContent value="schedules" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Accrual Schedules</CardTitle>
+                <CardTitle className="text-base font-semibold">Accrual Schedules</CardTitle>
                 <CardDescription>Automated processing schedules for each policy</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {policies.map((policy) => (
                     <div key={policy.id} className="p-4 rounded-lg border">
-                      <div className="flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center justify-between">
                         <div>
                           <p className="font-medium">{policy.name}</p>
                           <p className="text-sm text-muted-foreground">
@@ -425,7 +425,7 @@ export default function AccrualPolicies() {
           <TabsContent value="simulator" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Accrual Simulator</CardTitle>
+                <CardTitle className="text-base font-semibold">Accrual Simulator</CardTitle>
                 <CardDescription>
                   Test policy changes before applying them
                 </CardDescription>

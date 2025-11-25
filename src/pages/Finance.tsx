@@ -76,9 +76,9 @@ export default function Finance() {
         <title>Revenue Analytics - HRM8</title>
       </Helmet>
 
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
               <DollarSign className="h-8 w-8 text-primary" />
@@ -182,7 +182,7 @@ export default function Finance() {
             {/* Revenue Trend Chart */}
             <Card>
               <CardHeader>
-                <CardTitle>Revenue Trend (6 Months)</CardTitle>
+                <CardTitle className="text-base font-semibold">Revenue Trend (6 Months)</CardTitle>
                 <CardDescription>Monthly revenue, expenses, and profit comparison</CardDescription>
               </CardHeader>
               <CardContent>
@@ -205,7 +205,7 @@ export default function Finance() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Revenue by Subscription Tier</CardTitle>
+                  <CardTitle className="text-base font-semibold">Revenue by Subscription Tier</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
@@ -222,7 +222,7 @@ export default function Finance() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Annual Projection</CardTitle>
+                  <CardTitle className="text-base font-semibold">Annual Projection</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
@@ -238,15 +238,15 @@ export default function Finance() {
                       </p>
                     </div>
                     <div className="space-y-4 pt-4 border-t">
-                      <div className="flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center justify-between">
                         <span className="text-sm">Current MRR</span>
                         <span className="font-semibold">${(metrics.monthlyRecurringRevenue / 1000).toFixed(0)}K</span>
                       </div>
-                      <div className="flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center justify-between">
                         <span className="text-sm">Q1 Target</span>
                         <span className="font-semibold">${((metrics.monthlyRecurringRevenue * 3) / 1000).toFixed(0)}K</span>
                       </div>
-                      <div className="flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center justify-between">
                         <span className="text-sm">Annual Target</span>
                         <span className="font-semibold">${((metrics.monthlyRecurringRevenue * 12) / 1000).toFixed(0)}K</span>
                       </div>
@@ -261,7 +261,7 @@ export default function Finance() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Customer Value Distribution</CardTitle>
+                  <CardTitle className="text-base font-semibold">Customer Value Distribution</CardTitle>
                   <CardDescription>Average revenue per customer segment</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -289,7 +289,7 @@ export default function Finance() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Customer Metrics</CardTitle>
+                  <CardTitle className="text-base font-semibold">Customer Metrics</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
@@ -320,7 +320,7 @@ export default function Finance() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Subscription Distribution</CardTitle>
+                <CardTitle className="text-base font-semibold">Subscription Distribution</CardTitle>
                 <CardDescription>Customer count by subscription tier</CardDescription>
               </CardHeader>
               <CardContent>
@@ -353,7 +353,7 @@ export default function Finance() {
           <TabsContent value="subscriptions" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Subscription Overview</CardTitle>
+                <CardTitle className="text-base font-semibold">Subscription Overview</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -377,7 +377,7 @@ export default function Finance() {
           <TabsContent value="churn" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Churn Rate Trend</CardTitle>
+                <CardTitle className="text-base font-semibold">Churn Rate Trend</CardTitle>
                 <CardDescription>Monthly churn rate vs target</CardDescription>
               </CardHeader>
               <CardContent>

@@ -70,7 +70,7 @@ export default function OffboardingDetail() {
         <title>{workflow.employeeName} - Offboarding</title>
       </Helmet>
 
-      <div className="container mx-auto p-12 space-y-6">
+      <div className="container mx-auto p-6 space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={() => navigate('/offboarding')}>
             <ArrowLeft className="h-4 w-4" />
@@ -141,11 +141,11 @@ export default function OffboardingDetail() {
         {/* Employee Info */}
         <Card>
           <CardHeader>
-            <CardTitle>Offboarding Information</CardTitle>
+            <CardTitle className="text-base font-semibold">Offboarding Information</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-              <div className="flex items-center gap-2">
+              <div className="text-base font-semibold flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="font-medium">Notice Date</p>
@@ -154,7 +154,7 @@ export default function OffboardingDetail() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="text-base font-semibold flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="font-medium">Last Working Day</p>
@@ -163,7 +163,7 @@ export default function OffboardingDetail() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="text-base font-semibold flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="font-medium">Separation Type</p>
@@ -197,14 +197,14 @@ export default function OffboardingDetail() {
           </TabsList>
 
           <TabsContent value="clearance">
-            <ClearanceChecklist 
-              workflowId={workflow.id} 
+            <ClearanceChecklist
+              workflowId={workflow.id}
               onUpdate={handleRefresh}
             />
           </TabsContent>
 
           <TabsContent value="exit-interview">
-            <ExitInterviewForm 
+            <ExitInterviewForm
               workflowId={workflow.id}
               onUpdate={handleRefresh}
             />

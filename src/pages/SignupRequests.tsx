@@ -151,7 +151,7 @@ export default function SignupRequests() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="text-base font-semibold flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Signup Requests</h1>
           <p className="text-muted-foreground mt-1">
@@ -180,8 +180,8 @@ export default function SignupRequests() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="text-lg">{request.name}</CardTitle>
-                    <CardDescription className="flex items-center gap-2">
+                    <CardTitle className="text-base font-semibold">{request.name}</CardTitle>
+                    <CardDescription className="text-base font-semibold flex items-center gap-2">
                       <Mail className="h-4 w-4" />
                       {request.email}
                     </CardDescription>

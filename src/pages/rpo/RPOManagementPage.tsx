@@ -136,7 +136,7 @@ export default function RPOManagementPage() {
     <DashboardPageLayout>
       <div className="w-full p-6 space-y-6">
         <AtsPageHeader title="RPO Management" subtitle="Manage and monitor your RPO contracts and consultants">
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <Button variant="outline">
               <Users className="h-4 w-4 mr-2" />
               Manage Consultants
@@ -251,7 +251,7 @@ export default function RPOManagementPage() {
 
         {/* Contracts Table */}
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
             <h2 className="text-lg font-semibold">RPO Contracts</h2>
             <Button variant="outline" size="sm">
               <TrendingUp className="h-4 w-4 mr-2" />

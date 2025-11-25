@@ -100,8 +100,8 @@ export default function GoalCreate() {
         <title>Create Performance Goal</title>
       </Helmet>
 
-      <div className="container mx-auto p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate('/performance')}>
               <ArrowLeft className="h-5 w-5" />
@@ -119,7 +119,7 @@ export default function GoalCreate() {
             <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Goal Information</CardTitle>
+                  <CardTitle className="text-base font-semibold">Goal Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -204,8 +204,8 @@ export default function GoalCreate() {
               {/* KPIs */}
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Key Performance Indicators</CardTitle>
+                  <div className="text-base font-semibold flex items-center justify-between">
+                    <CardTitle className="text-base font-semibold">Key Performance Indicators</CardTitle>
                     <Button type="button" variant="outline" size="sm" onClick={handleAddKPI}>
                       <Plus className="h-4 w-4 mr-2" />
                       Add KPI
@@ -215,7 +215,7 @@ export default function GoalCreate() {
                 <CardContent className="space-y-4">
                   {kpis.map((kpi, index) => (
                     <div key={index} className="border rounded-lg p-4 space-y-3">
-                      <div className="flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center justify-between">
                         <h4 className="font-semibold">KPI {index + 1}</h4>
                         {kpis.length > 1 && (
                           <Button
@@ -281,7 +281,7 @@ export default function GoalCreate() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Employee</CardTitle>
+                  <CardTitle className="text-base font-semibold">Employee</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -305,7 +305,7 @@ export default function GoalCreate() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Alignment (Optional)</CardTitle>
+                  <CardTitle className="text-base font-semibold">Alignment (Optional)</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -339,7 +339,7 @@ export default function GoalCreate() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Status</CardTitle>
+                  <CardTitle className="text-base font-semibold">Status</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Select

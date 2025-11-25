@@ -65,7 +65,7 @@ export default function JobAnalytics() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -448,7 +448,7 @@ export default function JobAnalytics() {
               >
                 <div className="space-y-3">
                   {metrics.recruiterPerformance.slice(0, 4).map((recruiter) => (
-                    <div key={recruiter.recruiterId} className="flex items-center justify-between">
+                    <div key={recruiter.recruiterId} className="text-base font-semibold flex items-center justify-between">
                       <div>
                         <p className="font-medium">{recruiter.name}</p>
                         <p className="text-sm text-muted-foreground">

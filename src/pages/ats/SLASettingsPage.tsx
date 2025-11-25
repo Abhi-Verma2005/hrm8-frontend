@@ -58,7 +58,7 @@ export default function SLASettingsPage() {
 
   return (
     <DashboardPageLayout breadcrumbActions={breadcrumbActions}>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold mb-2">SLA Configuration</h1>
           <p className="text-muted-foreground">
@@ -119,8 +119,8 @@ export default function SLASettingsPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2">
-                      <CardTitle className="text-lg">{config.name}</CardTitle>
+                    <div className="text-base font-semibold flex items-center gap-2">
+                      <CardTitle className="text-base font-semibold">{config.name}</CardTitle>
                       <Badge variant={config.enabled ? 'success' : 'outline'}>
                         {config.enabled ? 'Active' : 'Inactive'}
                       </Badge>
@@ -128,7 +128,7 @@ export default function SLASettingsPage() {
                     <CardDescription>Status: {config.status}</CardDescription>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="text-base font-semibold flex items-center gap-2">
                     <Switch
                       checked={config.enabled}
                       onCheckedChange={() => handleToggle(config)}

@@ -127,7 +127,7 @@ export default function Documents() {
         {/* Documents List */}
         <Card>
           <CardHeader>
-            <CardTitle>Recent Documents</CardTitle>
+            <CardTitle className="text-base font-semibold">Recent Documents</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

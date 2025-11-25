@@ -115,8 +115,8 @@ export default function ReviewCreate() {
         <title>Create Performance Review</title>
       </Helmet>
 
-      <div className="container mx-auto p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate('/performance')}>
               <ArrowLeft className="h-5 w-5" />
@@ -134,7 +134,7 @@ export default function ReviewCreate() {
             <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Review Information</CardTitle>
+                  <CardTitle className="text-base font-semibold">Review Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -203,14 +203,14 @@ export default function ReviewCreate() {
               {/* Approval Workflow */}
               <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <div>
-                      <CardTitle>Approval Workflow</CardTitle>
+                      <CardTitle className="text-base font-semibold">Approval Workflow</CardTitle>
                       <p className="text-sm text-muted-foreground mt-1">
                         Optional multi-stage approval process
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="text-base font-semibold flex items-center gap-2">
                       <Checkbox
                         checked={enableApprovalWorkflow}
                         onCheckedChange={(checked) => setEnableApprovalWorkflow(checked as boolean)}
@@ -223,7 +223,7 @@ export default function ReviewCreate() {
                   <CardContent className="space-y-4">
                     {approvalStages.map((stage, index) => (
                       <div key={index} className="border rounded-lg p-4 space-y-3">
-                        <div className="flex items-center justify-between">
+                        <div className="text-base font-semibold flex items-center justify-between">
                           <h4 className="font-semibold">Stage {index + 1}</h4>
                           {approvalStages.length > 1 && (
                             <Button
@@ -263,7 +263,7 @@ export default function ReviewCreate() {
                             </Select>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="text-base font-semibold flex items-center gap-2">
                           <Checkbox
                             checked={stage.required}
                             onCheckedChange={(checked) => handleStageChange(index, 'required', checked)}
@@ -285,7 +285,7 @@ export default function ReviewCreate() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Employee</CardTitle>
+                  <CardTitle className="text-base font-semibold">Employee</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -309,7 +309,7 @@ export default function ReviewCreate() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Reviewer</CardTitle>
+                  <CardTitle className="text-base font-semibold">Reviewer</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -333,7 +333,7 @@ export default function ReviewCreate() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Status</CardTitle>
+                  <CardTitle className="text-base font-semibold">Status</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Select

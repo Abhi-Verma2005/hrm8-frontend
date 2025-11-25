@@ -226,7 +226,7 @@ export default function NotificationPreferences() {
             <CardContent className="space-y-4">
               {Object.entries(preferences.eventPreferences).map(([eventType, config]) => (
                 <div key={eventType} className="space-y-2 pb-4 border-b last:border-0">
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <Label className="text-sm font-medium">{EVENT_LABELS[eventType as NotificationEventType]}</Label>
                     <Switch
                       checked={config.enabled}
@@ -266,7 +266,7 @@ export default function NotificationPreferences() {
               <CardDescription className="text-sm">Pause non-critical notifications during specific hours</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <Label>Enable Quiet Hours</Label>
                 <Switch
                   checked={preferences.quietHours?.enabled}
@@ -299,7 +299,7 @@ export default function NotificationPreferences() {
 
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="text-base font-semibold flex items-center justify-between">
               <div>
                 <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <Bell className="h-4 w-4" />

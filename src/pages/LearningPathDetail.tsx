@@ -164,9 +164,9 @@ export default function LearningPathDetail() {
         <title>{learningPath.title} - Learning Path</title>
       </Helmet>
 
-      <div className="container mx-auto p-12 space-y-6">
+      <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate('/talent-development')}>
               <ArrowLeft className="h-5 w-5" />
@@ -247,7 +247,7 @@ export default function LearningPathDetail() {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>About this Learning Path</CardTitle>
+                <CardTitle className="text-base font-semibold">About this Learning Path</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">{learningPath.description}</p>
@@ -341,7 +341,7 @@ export default function LearningPathDetail() {
               <TabsContent value="skills" className="space-y-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Skills You'll Learn</CardTitle>
+                    <CardTitle className="text-base font-semibold">Skills You'll Learn</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex flex-wrap gap-2">
@@ -361,7 +361,7 @@ export default function LearningPathDetail() {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Your Progress</CardTitle>
+                <CardTitle className="text-base font-semibold">Your Progress</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -386,7 +386,7 @@ export default function LearningPathDetail() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Certificate</CardTitle>
+                <CardTitle className="text-base font-semibold">Certificate</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <p className="text-sm text-muted-foreground">

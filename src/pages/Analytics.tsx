@@ -62,7 +62,7 @@ export default function Analytics() {
     <DashboardPageLayout>
       <div className="space-y-6 p-6 animate-fade-in">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Recruitment Analytics</h1>
             <p className="text-muted-foreground">

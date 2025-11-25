@@ -104,9 +104,9 @@ export default function JobAutomationSettings() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Job Automation</h1>
             <p className="text-muted-foreground">
@@ -207,7 +207,7 @@ export default function JobAutomationSettings() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3">
-                          <CardTitle className="text-lg">{rule.name}</CardTitle>
+                          <CardTitle className="text-base font-semibold">{rule.name}</CardTitle>
                           <Badge variant={rule.isActive ? "teal" : "secondary"}>
                             {rule.isActive ? "Active" : "Inactive"}
                           </Badge>
@@ -218,7 +218,7 @@ export default function JobAutomationSettings() {
                           <span className="font-medium">Then:</span> {getActionText(rule)}
                         </CardDescription>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="text-base font-semibold flex items-center gap-2">
                         <Switch
                           checked={rule.isActive}
                           onCheckedChange={() => handleToggleRule(rule)}
@@ -265,7 +265,7 @@ export default function JobAutomationSettings() {
               {scheduled.map((item) => (
                 <Card key={item.id}>
                   <CardContent className="pt-6">
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h4 className="font-semibold capitalize">{item.action}</h4>
@@ -325,7 +325,7 @@ export default function JobAutomationSettings() {
           <TabsContent value="history" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Automation History</CardTitle>
+                <CardTitle className="text-base font-semibold">Automation History</CardTitle>
                 <CardDescription>
                   View past automated actions and their outcomes
                 </CardDescription>

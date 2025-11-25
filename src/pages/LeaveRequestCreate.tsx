@@ -108,8 +108,8 @@ export default function LeaveRequestCreate() {
         <title>Request Leave</title>
       </Helmet>
 
-      <div className="container mx-auto p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate('/leave')}>
               <ArrowLeft className="h-5 w-5" />
@@ -127,7 +127,7 @@ export default function LeaveRequestCreate() {
             <div className="lg:col-span-2 space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Leave Details</CardTitle>
+                  <CardTitle className="text-base font-semibold">Leave Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -143,7 +143,7 @@ export default function LeaveRequestCreate() {
                       <SelectContent>
                         {leaveTypes.map((type) => (
                           <SelectItem key={type.id} value={type.id}>
-                            <div className="flex items-center gap-2">
+                            <div className="text-base font-semibold flex items-center gap-2">
                               <div
                                 className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: type.color }}
@@ -226,7 +226,7 @@ export default function LeaveRequestCreate() {
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Employee Information</CardTitle>
+                  <CardTitle className="text-base font-semibold">Employee Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                   <div>
@@ -243,20 +243,20 @@ export default function LeaveRequestCreate() {
               {selectedLeaveType && (
                 <Card>
                   <CardHeader>
-                    <CardTitle>Leave Balance</CardTitle>
+                    <CardTitle className="text-base font-semibold">Leave Balance</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm">
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-muted-foreground">Available</span>
                       <span className="font-medium">15 days</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-muted-foreground">Pending</span>
                       <span className="font-medium">2 days</span>
                     </div>
                     {totalDays > 0 && (
                       <div className="pt-3 border-t">
-                        <div className="flex items-center justify-between">
+                        <div className="text-base font-semibold flex items-center justify-between">
                           <span className="text-muted-foreground">After Request</span>
                           <span className="font-medium">{15 - totalDays} days</span>
                         </div>
@@ -268,7 +268,7 @@ export default function LeaveRequestCreate() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Approval Workflow</CardTitle>
+                  <CardTitle className="text-base font-semibold">Approval Workflow</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
                   <div className="space-y-2">

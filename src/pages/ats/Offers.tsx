@@ -80,8 +80,8 @@ export default function Offers() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Offer Letters</h1>
             <p className="text-muted-foreground">
@@ -100,14 +100,14 @@ export default function Offers() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div>
-                    <CardTitle>{offer.candidateName}</CardTitle>
+                    <CardTitle className="text-base font-semibold">{offer.candidateName}</CardTitle>
                     <p className="text-sm text-muted-foreground">{offer.jobTitle}</p>
                   </div>
                   {getStatusBadge(offer.status)}
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div className="space-y-1">
                     <div className="text-sm">
                       <span className="font-medium">Salary:</span>{" "}

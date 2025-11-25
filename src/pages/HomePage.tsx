@@ -85,9 +85,9 @@ export default function HomePage() {
         <title>Home - Super Admin Dashboard</title>
       </Helmet>
 
-      <div className="w-full p-12 space-y-6">
+      <div className="w-full p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Platform Overview</h1>
             <p className="text-muted-foreground">Monitor and manage your HRM8 platform operations</p>
@@ -133,7 +133,7 @@ export default function HomePage() {
             change="MRR"
             trend="up"
             icon={<DollarSign className="h-6 w-6" />}
-            variant="primary"
+            variant="neutral"
             isCurrency={true}
             rawValue={metrics.monthlyRecurringRevenue}
             showMenu={true}
@@ -155,7 +155,7 @@ export default function HomePage() {
             value={`${metrics.platformUptime}%`}
             change="Last 30 days"
             icon={<Server className="h-6 w-6" />}
-            variant="success"
+            variant="neutral"
             showMenu={true}
             menuItems={[
               {
@@ -186,7 +186,7 @@ export default function HomePage() {
               {
                 label: "Performance Report",
                 icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -194,11 +194,11 @@ export default function HomePage() {
 
         {/* Priority Action Items */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <Card className="cursor-pointer" 
-                onClick={() => navigate('/support-tickets')}>
+          <Card className="cursor-pointer"
+            onClick={() => navigate('/support-tickets')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
-                <span className="flex items-center gap-2">
+                <span className="text-base font-semibold flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 text-muted-foreground" />
                   Critical Tickets
                 </span>
@@ -214,10 +214,10 @@ export default function HomePage() {
           </Card>
 
           <Card className="cursor-pointer"
-                onClick={() => navigate('/recruitment-services')}>
+            onClick={() => navigate('/recruitment-services')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
-                <span className="flex items-center gap-2">
+                <span className="text-base font-semibold flex items-center gap-2">
                   <Target className="h-4 w-4 text-muted-foreground" />
                   Pending Services
                 </span>
@@ -233,10 +233,10 @@ export default function HomePage() {
           </Card>
 
           <Card className="cursor-pointer"
-                onClick={() => navigate('/employers')}>
+            onClick={() => navigate('/employers')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
-                <span className="flex items-center gap-2">
+                <span className="text-base font-semibold flex items-center gap-2">
                   <Users className="h-4 w-4 text-muted-foreground" />
                   New Sign-ups
                 </span>
@@ -255,10 +255,10 @@ export default function HomePage() {
         {/* Quick Admin Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle className="text-base font-semibold">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
               <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/employers')}>
                 <Building2 className="h-6 w-6 mb-2" />
                 <span className="text-xs">Employers</span>
@@ -301,7 +301,7 @@ export default function HomePage() {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold flex items-center justify-between">
                   <span>Support Ticket Queue</span>
                   <Button variant="ghost" size="sm" onClick={() => navigate('/support-tickets')}>
                     View All
@@ -312,7 +312,7 @@ export default function HomePage() {
                 <div className="space-y-3">
                   {tickets.slice(0, 5).map((ticket) => (
                     <div key={ticket.id} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors"
-                         onClick={() => navigate('/support-tickets')}>
+                      onClick={() => navigate('/support-tickets')}>
                       <div className={cn(
                         "flex items-center justify-center w-10 h-10 rounded-full border",
                         getPriorityColor(ticket.priority)
@@ -347,7 +347,7 @@ export default function HomePage() {
             {/* Recent Platform Activity */}
             <Card>
               <CardHeader>
-                <CardTitle>Platform Activity</CardTitle>
+                <CardTitle className="text-base font-semibold">Platform Activity</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -386,7 +386,7 @@ export default function HomePage() {
             {/* System Integrations Status */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <Plug className="h-5 w-5" />
                   System Status
                 </CardTitle>
@@ -408,7 +408,7 @@ export default function HomePage() {
                   {integrations.slice(0, 4).map((integration) => (
                     <div key={integration.id} className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground truncate">{integration.name}</span>
-                      <div className="flex items-center gap-2">
+                      <div className="text-base font-semibold flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">
                           {integration.connectedEmployers}
                         </span>
@@ -431,7 +431,7 @@ export default function HomePage() {
             {/* Revenue Summary */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
                   Revenue Summary
                 </CardTitle>

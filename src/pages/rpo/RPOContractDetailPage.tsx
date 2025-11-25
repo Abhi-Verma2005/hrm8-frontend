@@ -78,7 +78,7 @@ export default function RPOContractDetailPage() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
         <div>
           <Button 
@@ -215,7 +215,7 @@ export default function RPOContractDetailPage() {
             <div className="grid md:grid-cols-2 gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <Calendar className="h-5 w-5" />
                     Contract Timeline
                   </CardTitle>
@@ -252,7 +252,7 @@ export default function RPOContractDetailPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <TrendingUp className="h-5 w-5" />
                     Placement Metrics
                   </CardTitle>
@@ -270,7 +270,7 @@ export default function RPOContractDetailPage() {
                   </div>
                   <div>
                     <p className="text-sm font-medium mb-1">Success Rate</p>
-                    <div className="flex items-center gap-2">
+                    <div className="text-base font-semibold flex items-center gap-2">
                       <Progress value={contract.progress} className="flex-1" />
                       <span className="text-sm font-medium">{contract.progress}%</span>
                     </div>
@@ -283,7 +283,7 @@ export default function RPOContractDetailPage() {
             {contract.feeStructures.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <DollarSign className="h-5 w-5" />
                     Fee Structure
                   </CardTitle>
@@ -322,7 +322,7 @@ export default function RPOContractDetailPage() {
             {/* Timeline Visualization */}
             <Card>
               <CardHeader>
-                <CardTitle>Consultant Timeline</CardTitle>
+                <CardTitle className="text-base font-semibold">Consultant Timeline</CardTitle>
                 <CardDescription>Visual representation of consultant allocations over time</CardDescription>
               </CardHeader>
               <CardContent>
@@ -344,8 +344,8 @@ export default function RPOContractDetailPage() {
 
                     return (
                       <div key={assignment.id} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
+                        <div className="text-base font-semibold flex items-center justify-between">
+                          <div className="text-base font-semibold flex items-center gap-2">
                             <Avatar className="h-8 w-8">
                               {assignment.avatar && <AvatarImage src={assignment.avatar} />}
                               <AvatarFallback>{getInitials(assignment.consultantName)}</AvatarFallback>
@@ -385,7 +385,7 @@ export default function RPOContractDetailPage() {
               {contract.assignedConsultants.map((assignment) => (
                 <Card key={assignment.id}>
                   <CardHeader>
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <Avatar className="h-12 w-12">
                           {assignment.avatar && <AvatarImage src={assignment.avatar} />}
@@ -476,7 +476,7 @@ export default function RPOContractDetailPage() {
             {/* Task List */}
             <Card>
               <CardHeader>
-                <CardTitle>All Tasks</CardTitle>
+                <CardTitle className="text-base font-semibold">All Tasks</CardTitle>
               </CardHeader>
               <CardContent>
                 {tasks.length === 0 ? (
@@ -502,7 +502,7 @@ export default function RPOContractDetailPage() {
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="text-base font-semibold flex items-center gap-2">
                           <Badge variant={
                             task.priority === 'high' ? 'destructive' :
                             task.priority === 'medium' ? 'default' :
@@ -527,7 +527,7 @@ export default function RPOContractDetailPage() {
             <div className="grid md:grid-cols-3 gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle>Placement Rate</CardTitle>
+                  <CardTitle className="text-base font-semibold">Placement Rate</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold mb-2">{contract.progress}%</div>
@@ -540,7 +540,7 @@ export default function RPOContractDetailPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Task Completion</CardTitle>
+                  <CardTitle className="text-base font-semibold">Task Completion</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold mb-2">
@@ -555,7 +555,7 @@ export default function RPOContractDetailPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Consultant Utilization</CardTitle>
+                  <CardTitle className="text-base font-semibold">Consultant Utilization</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold mb-2">{contract.numberOfConsultants}</div>
@@ -572,7 +572,7 @@ export default function RPOContractDetailPage() {
             {/* Cost by Consultant */}
             <Card>
               <CardHeader>
-                <CardTitle>Cost Analysis by Consultant</CardTitle>
+                <CardTitle className="text-base font-semibold">Cost Analysis by Consultant</CardTitle>
                 <CardDescription>Monthly rates and projected costs</CardDescription>
               </CardHeader>
               <CardContent>
@@ -623,7 +623,7 @@ export default function RPOContractDetailPage() {
             {/* Contract Value Breakdown */}
             <Card>
               <CardHeader>
-                <CardTitle>Contract Value Breakdown</CardTitle>
+                <CardTitle className="text-base font-semibold">Contract Value Breakdown</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">

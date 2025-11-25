@@ -89,8 +89,8 @@ export default function OnboardingOffboardingDashboard() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Onboarding & Offboarding</h1>
             <p className="text-muted-foreground">Manage employee transitions and workflows</p>
@@ -111,7 +111,7 @@ export default function OnboardingOffboardingDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <UserPlus className="h-5 w-5" />
                 Onboarding Statistics
               </CardTitle>
@@ -140,7 +140,7 @@ export default function OnboardingOffboardingDashboard() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <UserMinus className="h-5 w-5" />
                 Offboarding Statistics
               </CardTitle>
@@ -171,7 +171,7 @@ export default function OnboardingOffboardingDashboard() {
         {/* Timeline Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Onboarding & Offboarding Trends</CardTitle>
+            <CardTitle className="text-base font-semibold">Onboarding & Offboarding Trends</CardTitle>
             <CardDescription>Monthly activity over the past 6 months</CardDescription>
           </CardHeader>
           <CardContent>
@@ -198,7 +198,7 @@ export default function OnboardingOffboardingDashboard() {
           <TabsContent value="onboarding" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Active Onboarding Processes</CardTitle>
+                <CardTitle className="text-base font-semibold">Active Onboarding Processes</CardTitle>
                 <CardDescription>Employees currently going through onboarding</CardDescription>
               </CardHeader>
               <CardContent>
@@ -228,7 +228,7 @@ export default function OnboardingOffboardingDashboard() {
                             <Progress value={employee.progress} />
                           </div>
 
-                          <div className="flex items-center justify-between">
+                          <div className="text-base font-semibold flex items-center justify-between">
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Clock className="h-4 w-4" />
                               <span>{employee.daysRemaining} days remaining</span>
@@ -247,7 +247,7 @@ export default function OnboardingOffboardingDashboard() {
           <TabsContent value="offboarding" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Active Offboarding Processes</CardTitle>
+                <CardTitle className="text-base font-semibold">Active Offboarding Processes</CardTitle>
                 <CardDescription>Employees currently going through offboarding</CardDescription>
               </CardHeader>
               <CardContent>
@@ -277,7 +277,7 @@ export default function OnboardingOffboardingDashboard() {
                             <Progress value={employee.progress} />
                           </div>
 
-                          <div className="flex items-center justify-between">
+                          <div className="text-base font-semibold flex items-center justify-between">
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Clock className="h-4 w-4" />
                               <span>{employee.daysRemaining} days until last day</span>

@@ -5,7 +5,7 @@ import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 export default function Inbox() {
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Inbox</h1>
           <p className="text-muted-foreground">Manage messages, notifications, and communications</p>
@@ -17,7 +17,7 @@ export default function Inbox() {
                 <Mail className="h-6 w-6 text-foreground" />
               </div>
               <div>
-                <CardTitle>Coming Soon</CardTitle>
+                <CardTitle className="text-base font-semibold">Coming Soon</CardTitle>
                 <CardDescription>Inbox and messaging features are under development</CardDescription>
               </div>
             </div>

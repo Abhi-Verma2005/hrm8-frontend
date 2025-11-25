@@ -173,9 +173,9 @@ export default function Dashboard() {
         )}
         
         {/* Main Dashboard Content */}
-        <div className="p-12 space-y-6">
+        <div className="p-6 space-y-6">
         {/* Header Section */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">{dashboardMeta.name}</h1>
             <p className="text-muted-foreground">

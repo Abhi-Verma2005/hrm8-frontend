@@ -112,8 +112,8 @@ export default function NotificationsCenter() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Notifications</h1>
             <p className="text-muted-foreground">Stay updated with important alerts and messages</p>
@@ -132,10 +132,10 @@ export default function NotificationsCenter() {
 
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center gap-2">
                 <Bell className="h-5 w-5" />
-                <CardTitle>All Notifications</CardTitle>
+                <CardTitle className="text-base font-semibold">All Notifications</CardTitle>
                 {unreadCount > 0 && (
                   <Badge variant="destructive" className="ml-2">{unreadCount} New</Badge>
                 )}
