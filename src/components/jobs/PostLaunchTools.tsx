@@ -31,6 +31,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { jobService } from "@/lib/api/jobService";
+import { jobTemplateService } from "@/lib/api/jobTemplateService";
 
 interface PostLaunchToolsProps {
   job: Job;
@@ -104,7 +105,14 @@ export function PostLaunchTools({
       if (onSaveTemplate) {
         onSaveTemplate(templateName.trim(), templateDescription.trim() || undefined);
       } else {
-        await jobService.saveAsTemplate(job.id, templateName.trim(), templateDescription.trim() || undefined);
+        // Use new template service
+        const category = job.department || undefined;
+        await jobTemplateService.createFromJob(
+          job.id,
+          templateName.trim(),
+          templateDescription.trim() || undefined,
+          category
+        );
       }
       toast({
         title: "Template Saved",
