@@ -18,9 +18,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { updateJobTemplate, templateCategories, JobTemplate } from "@/lib/jobTemplateService";
+import { jobTemplateService, JobTemplate } from "@/lib/api/jobTemplateService";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
+
+const templateCategories = ['ENGINEERING', 'PRODUCT', 'DESIGN', 'MARKETING', 'SALES', 'OPERATIONS', 'HR', 'FINANCE', 'EXECUTIVE', 'OTHER'];
 
 interface EditTemplateDialogProps {
   template: JobTemplate;
@@ -34,23 +36,19 @@ export function EditTemplateDialog({
   onOpenChange,
 }: EditTemplateDialogProps) {
   const { toast } = useToast();
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     name: template.name,
     description: template.description || "",
     category: template.category,
     isShared: template.isShared,
-    title: template.data.title || "",
-    department: template.data.department || "",
-    employmentType: (template.data.employmentType || "full-time") as
+    title: template.jobData?.title || "",
+    department: template.jobData?.department || "",
+    employmentType: (template.jobData?.employmentType?.toLowerCase().replace('_', '-') || "full-time") as
       | "full-time"
       | "part-time"
       | "contract"
       | "casual",
-    experienceLevel: (template.data.experienceLevel || "mid") as
-      | "entry"
-      | "mid"
-      | "senior"
-      | "executive",
   });
 
   useEffect(() => {
@@ -59,14 +57,13 @@ export function EditTemplateDialog({
       description: template.description || "",
       category: template.category,
       isShared: template.isShared,
-      title: template.data.title || "",
-      department: template.data.department || "",
-      employmentType: (template.data.employmentType || "full-time") as any,
-      experienceLevel: (template.data.experienceLevel || "mid") as any,
+      title: template.jobData?.title || "",
+      department: template.jobData?.department || "",
+      employmentType: (template.jobData?.employmentType?.toLowerCase().replace('_', '-') || "full-time") as any,
     });
   }, [template]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name.trim()) {
@@ -78,25 +75,46 @@ export function EditTemplateDialog({
       return;
     }
 
-    updateJobTemplate(template.id, {
-      name: formData.name.trim(),
-      description: formData.description.trim() || undefined,
-      category: formData.category,
-      isShared: formData.isShared,
-      data: {
-        title: formData.title || undefined,
-        department: formData.department || undefined,
-        employmentType: formData.employmentType,
-        experienceLevel: formData.experienceLevel,
-      },
-    });
+    setIsSaving(true);
+    try {
+      // Convert employmentType back to enum format
+      const employmentTypeEnum = formData.employmentType.toUpperCase().replace('-', '_') as 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'CASUAL';
 
-    toast({
-      title: "Template updated",
-      description: `"${formData.name}" has been updated successfully.`,
-    });
+      // Update template with new data
+      const updatedJobData = {
+        ...template.jobData,
+        title: formData.title || template.jobData.title,
+        department: formData.department || template.jobData.department,
+        employmentType: employmentTypeEnum,
+      };
 
-    onOpenChange(false);
+      const response = await jobTemplateService.updateTemplate(template.id, {
+        name: formData.name.trim(),
+        description: formData.description.trim() || undefined,
+        category: formData.category,
+        isShared: formData.isShared,
+        jobData: updatedJobData,
+      });
+
+      if (response.success) {
+        toast({
+          title: "Template updated",
+          description: `"${formData.name}" has been updated successfully.`,
+        });
+        onOpenChange(false);
+      } else {
+        throw new Error(response.error || 'Failed to update template');
+      }
+    } catch (error: any) {
+      console.error('Error updating template:', error);
+      toast({
+        title: "Error",
+        description: error?.message || "Failed to update template. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -212,46 +230,24 @@ export function EditTemplateDialog({
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="employmentType">Employment Type</Label>
-                  <Select
-                    value={formData.employmentType}
-                    onValueChange={(value: any) =>
-                      setFormData({ ...formData, employmentType: value })
-                    }
-                  >
-                    <SelectTrigger id="employmentType">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="full-time">Full-time</SelectItem>
-                      <SelectItem value="part-time">Part-time</SelectItem>
-                      <SelectItem value="contract">Contract</SelectItem>
-                      <SelectItem value="casual">Casual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="experienceLevel">Experience Level</Label>
-                  <Select
-                    value={formData.experienceLevel}
-                    onValueChange={(value: any) =>
-                      setFormData({ ...formData, experienceLevel: value })
-                    }
-                  >
-                    <SelectTrigger id="experienceLevel">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="entry">Entry Level</SelectItem>
-                      <SelectItem value="mid">Mid Level</SelectItem>
-                      <SelectItem value="senior">Senior</SelectItem>
-                      <SelectItem value="executive">Executive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="employmentType">Employment Type</Label>
+                <Select
+                  value={formData.employmentType}
+                  onValueChange={(value: any) =>
+                    setFormData({ ...formData, employmentType: value })
+                  }
+                >
+                  <SelectTrigger id="employmentType">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="full-time">Full-time</SelectItem>
+                    <SelectItem value="part-time">Part-time</SelectItem>
+                    <SelectItem value="contract">Contract</SelectItem>
+                    <SelectItem value="casual">Casual</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -264,8 +260,8 @@ export function EditTemplateDialog({
               >
                 Cancel
               </Button>
-              <Button type="submit" className="flex-1">
-                Save Changes
+              <Button type="submit" className="flex-1" disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </form>
