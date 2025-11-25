@@ -101,8 +101,8 @@ export default function Requisitions() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Job Requisitions</h1>
             <p className="text-muted-foreground">
@@ -121,7 +121,7 @@ export default function Requisitions() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
-                    <CardTitle className="text-xl">{req.title}</CardTitle>
+                    <CardTitle className="text-base font-semibold">{req.title}</CardTitle>
                     <CardDescription>
                       {req.department} • {req.numberOfPositions} position(s) • {req.location}
                     </CardDescription>
@@ -141,7 +141,7 @@ export default function Requisitions() {
                       {formatDistanceToNow(new Date(req.requestDate), { addSuffix: true })}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="text-base font-semibold flex items-center justify-between">
                     <div className="text-sm">
                       <span className="font-medium">Budget: </span>
                       <span>

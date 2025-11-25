@@ -85,9 +85,9 @@ export default function HomePage() {
         <title>Home - Super Admin Dashboard</title>
       </Helmet>
 
-      <div className="w-full p-12 space-y-6">
+      <div className="w-full p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Platform Overview</h1>
             <p className="text-muted-foreground">Monitor and manage your HRM8 platform operations</p>
@@ -105,15 +105,31 @@ export default function HomePage() {
         </div>
 
         {/* Platform Health KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           <EnhancedStatCard
             title="Total Users"
             value={metrics.totalActiveUsers.toLocaleString()}
             change={`${metrics.totalEmployers} employers`}
             trend="up"
-            icon={<Users className="h-6 w-6" />}
+            icon={<Users className="h-3.5 w-3.5" />}
             variant="neutral"
+            size="default"
+            elevation="sm"
             showMenu={true}
+            chartData={[
+              { name: "1", value: 2100, secondary: 2000 },
+              { name: "2", value: 2200, secondary: 2100 },
+              { name: "3", value: 2150, secondary: 2050 },
+              { name: "4", value: 2300, secondary: 2200 },
+              { name: "5", value: 2400, secondary: 2300 },
+              { name: "6", value: 2350, secondary: 2250 },
+              { name: "7", value: 2500, secondary: 2400 },
+              { name: "8", value: 2600, secondary: 2500 },
+              { name: "9", value: 2550, secondary: 2450 },
+              { name: "10", value: 2700, secondary: 2600 },
+              { name: "11", value: 2750, secondary: 2650 },
+              { name: "12", value: 2847, secondary: 2747 },
+            ]}
             menuItems={[
               {
                 label: "View Users",
@@ -132,11 +148,27 @@ export default function HomePage() {
             value={metrics.monthlyRecurringRevenue.toString()}
             change="MRR"
             trend="up"
-            icon={<DollarSign className="h-6 w-6" />}
-            variant="primary"
+            icon={<DollarSign className="h-3.5 w-3.5" />}
+            variant="neutral"
+            size="default"
+            elevation="sm"
             isCurrency={true}
             rawValue={metrics.monthlyRecurringRevenue}
             showMenu={true}
+            chartData={[
+              { name: "1", value: 120000, secondary: 110000 },
+              { name: "2", value: 125000, secondary: 115000 },
+              { name: "3", value: 130000, secondary: 120000 },
+              { name: "4", value: 128000, secondary: 118000 },
+              { name: "5", value: 135000, secondary: 125000 },
+              { name: "6", value: 138000, secondary: 128000 },
+              { name: "7", value: 140000, secondary: 130000 },
+              { name: "8", value: 142000, secondary: 132000 },
+              { name: "9", value: 141000, secondary: 131000 },
+              { name: "10", value: 143000, secondary: 133000 },
+              { name: "11", value: 142500, secondary: 132500 },
+              { name: "12", value: 142500, secondary: 132500 },
+            ]}
             menuItems={[
               {
                 label: "View Revenue Report",
@@ -154,9 +186,26 @@ export default function HomePage() {
             title="Platform Uptime"
             value={`${metrics.platformUptime}%`}
             change="Last 30 days"
-            icon={<Server className="h-6 w-6" />}
-            variant="success"
+            trend="down"
+            icon={<Server className="h-3.5 w-3.5" />}
+            variant="neutral"
+            size="default"
+            elevation="sm"
             showMenu={true}
+            chartData={[
+              { name: "1", value: 99.9, secondary: 99.8 },
+              { name: "2", value: 99.95, secondary: 99.85 },
+              { name: "3", value: 99.9, secondary: 99.8 },
+              { name: "4", value: 99.85, secondary: 99.75 },
+              { name: "5", value: 99.9, secondary: 99.8 },
+              { name: "6", value: 99.88, secondary: 99.78 },
+              { name: "7", value: 99.92, secondary: 99.82 },
+              { name: "8", value: 99.9, secondary: 99.8 },
+              { name: "9", value: 99.85, secondary: 99.75 },
+              { name: "10", value: 99.88, secondary: 99.78 },
+              { name: "11", value: 99.9, secondary: 99.8 },
+              { name: "12", value: 99.8, secondary: 99.7 },
+            ]}
             menuItems={[
               {
                 label: "View Status",
@@ -174,9 +223,26 @@ export default function HomePage() {
             title="Avg Response Time"
             value={`${metrics.avgResponseTime}h`}
             change={`${metrics.customerSatisfaction}/5 satisfaction`}
-            icon={<Clock className="h-6 w-6" />}
+            trend="down"
+            icon={<Clock className="h-3.5 w-3.5" />}
             variant="neutral"
+            size="default"
+            elevation="sm"
             showMenu={true}
+            chartData={[
+              { name: "1", value: 3.2, secondary: 3.0 },
+              { name: "2", value: 3.0, secondary: 2.8 },
+              { name: "3", value: 2.8, secondary: 2.6 },
+              { name: "4", value: 2.9, secondary: 2.7 },
+              { name: "5", value: 2.7, secondary: 2.5 },
+              { name: "6", value: 2.6, secondary: 2.4 },
+              { name: "7", value: 2.5, secondary: 2.3 },
+              { name: "8", value: 2.4, secondary: 2.2 },
+              { name: "9", value: 2.5, secondary: 2.3 },
+              { name: "10", value: 2.4, secondary: 2.2 },
+              { name: "11", value: 2.4, secondary: 2.2 },
+              { name: "12", value: 2.4, secondary: 2.2 },
+            ]}
             menuItems={[
               {
                 label: "View Metrics",
@@ -186,7 +252,7 @@ export default function HomePage() {
               {
                 label: "Performance Report",
                 icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -194,11 +260,11 @@ export default function HomePage() {
 
         {/* Priority Action Items */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <Card className="cursor-pointer" 
-                onClick={() => navigate('/support-tickets')}>
+          <Card className="cursor-pointer"
+            onClick={() => navigate('/support-tickets')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
-                <span className="flex items-center gap-2">
+                <span className="text-base font-semibold flex items-center gap-2">
                   <AlertCircle className="h-4 w-4 text-muted-foreground" />
                   Critical Tickets
                 </span>
@@ -214,10 +280,10 @@ export default function HomePage() {
           </Card>
 
           <Card className="cursor-pointer"
-                onClick={() => navigate('/recruitment-services')}>
+            onClick={() => navigate('/recruitment-services')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
-                <span className="flex items-center gap-2">
+                <span className="text-base font-semibold flex items-center gap-2">
                   <Target className="h-4 w-4 text-muted-foreground" />
                   Pending Services
                 </span>
@@ -233,10 +299,10 @@ export default function HomePage() {
           </Card>
 
           <Card className="cursor-pointer"
-                onClick={() => navigate('/employers')}>
+            onClick={() => navigate('/employers')}>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium flex items-center justify-between">
-                <span className="flex items-center gap-2">
+                <span className="text-base font-semibold flex items-center gap-2">
                   <Users className="h-4 w-4 text-muted-foreground" />
                   New Sign-ups
                 </span>
@@ -255,10 +321,10 @@ export default function HomePage() {
         {/* Quick Admin Actions */}
         <Card>
           <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
+            <CardTitle className="text-base font-semibold">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
               <Button variant="outline" className="h-auto flex-col py-4" onClick={() => navigate('/employers')}>
                 <Building2 className="h-6 w-6 mb-2" />
                 <span className="text-xs">Employers</span>
@@ -301,7 +367,7 @@ export default function HomePage() {
           <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold flex items-center justify-between">
                   <span>Support Ticket Queue</span>
                   <Button variant="ghost" size="sm" onClick={() => navigate('/support-tickets')}>
                     View All
@@ -312,7 +378,7 @@ export default function HomePage() {
                 <div className="space-y-3">
                   {tickets.slice(0, 5).map((ticket) => (
                     <div key={ticket.id} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors"
-                         onClick={() => navigate('/support-tickets')}>
+                      onClick={() => navigate('/support-tickets')}>
                       <div className={cn(
                         "flex items-center justify-center w-10 h-10 rounded-full border",
                         getPriorityColor(ticket.priority)
@@ -347,7 +413,7 @@ export default function HomePage() {
             {/* Recent Platform Activity */}
             <Card>
               <CardHeader>
-                <CardTitle>Platform Activity</CardTitle>
+                <CardTitle className="text-base font-semibold">Platform Activity</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -386,7 +452,7 @@ export default function HomePage() {
             {/* System Integrations Status */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <Plug className="h-5 w-5" />
                   System Status
                 </CardTitle>
@@ -408,7 +474,7 @@ export default function HomePage() {
                   {integrations.slice(0, 4).map((integration) => (
                     <div key={integration.id} className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground truncate">{integration.name}</span>
-                      <div className="flex items-center gap-2">
+                      <div className="text-base font-semibold flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">
                           {integration.connectedEmployers}
                         </span>
@@ -431,7 +497,7 @@ export default function HomePage() {
             {/* Revenue Summary */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <TrendingUp className="h-5 w-5" />
                   Revenue Summary
                 </CardTitle>

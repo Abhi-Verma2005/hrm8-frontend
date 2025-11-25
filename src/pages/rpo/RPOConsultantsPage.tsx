@@ -12,8 +12,8 @@ export default function RPOConsultantsPage() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Users className="h-6 w-6" />

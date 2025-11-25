@@ -153,9 +153,9 @@ export default function ReviewDetail() {
         <title>{editedReview.employeeName} - Review Detail</title>
       </Helmet>
 
-      <div className="container mx-auto p-12 space-y-6">
+      <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate('/performance')}>
               <ArrowLeft className="h-5 w-5" />
@@ -193,7 +193,7 @@ export default function ReviewDetail() {
             {template.sections.map((section) => (
               <Card key={section.id}>
                 <CardHeader>
-                  <CardTitle>{section.title}</CardTitle>
+                  <CardTitle className="text-base font-semibold">{section.title}</CardTitle>
                   {section.description && (
                     <p className="text-sm text-muted-foreground">{section.description}</p>
                   )}
@@ -231,7 +231,7 @@ export default function ReviewDetail() {
                                 </p>
                               </>
                             ) : (
-                              <div className="flex items-center gap-2">
+                              <div className="text-base font-semibold flex items-center gap-2">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                   <div
                                     key={star}
@@ -283,7 +283,7 @@ export default function ReviewDetail() {
             {/* Overall Assessment */}
             <Card>
               <CardHeader>
-                <CardTitle>Overall Assessment</CardTitle>
+                <CardTitle className="text-base font-semibold">Overall Assessment</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -347,7 +347,7 @@ export default function ReviewDetail() {
             {/* Status */}
             <Card>
               <CardHeader>
-                <CardTitle>Status</CardTitle>
+                <CardTitle className="text-base font-semibold">Status</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <Select
@@ -375,7 +375,7 @@ export default function ReviewDetail() {
             {/* Review Info */}
             <Card>
               <CardHeader>
-                <CardTitle>Review Information</CardTitle>
+                <CardTitle className="text-base font-semibold">Review Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div>
@@ -414,7 +414,7 @@ export default function ReviewDetail() {
             {editedReview.approvalWorkflow && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Approval Workflow</CardTitle>
+                  <CardTitle className="text-base font-semibold">Approval Workflow</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Badge
@@ -432,7 +432,7 @@ export default function ReviewDetail() {
                   <div className="space-y-3">
                     {editedReview.approvalWorkflow.stages.map((stage, index) => (
                       <div key={stage.id} className="border rounded-lg p-3 space-y-2">
-                        <div className="flex items-center justify-between">
+                        <div className="text-base font-semibold flex items-center justify-between">
                           <p className="font-medium text-sm">{stage.name}</p>
                           <Badge
                             variant={

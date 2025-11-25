@@ -89,7 +89,7 @@ export default function RecruiterAnalyticsDashboard() {
         {/* Overall Score */}
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
               <Award className="h-5 w-5 text-primary" />
               Overall Performance Score
             </CardTitle>
@@ -112,7 +112,7 @@ export default function RecruiterAnalyticsDashboard() {
               <CardDescription>Total Checks Initiated</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div className="text-2xl font-bold">{recruiter.totalInitiated}</div>
                 <Target className="h-8 w-8 text-muted-foreground" />
               </div>
@@ -125,7 +125,7 @@ export default function RecruiterAnalyticsDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div className="text-2xl font-bold">{recruiter.completionRate.toFixed(1)}%</div>
                   <CheckCircle className="h-8 w-8 text-green-500" />
                 </div>
@@ -152,7 +152,7 @@ export default function RecruiterAnalyticsDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div className="text-2xl font-bold">{recruiter.onTimeRate.toFixed(1)}%</div>
                   <Clock className="h-8 w-8 text-blue-500" />
                 </div>
@@ -179,7 +179,7 @@ export default function RecruiterAnalyticsDashboard() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center justify-between">
                   <div className="text-2xl font-bold">{recruiter.qualityScore.toFixed(1)}%</div>
                   <Award className="h-8 w-8 text-purple-500" />
                 </div>
@@ -206,7 +206,7 @@ export default function RecruiterAnalyticsDashboard() {
           {/* Trend Chart */}
           <Card>
             <CardHeader>
-              <CardTitle>Performance Trend</CardTitle>
+              <CardTitle className="text-base font-semibold">Performance Trend</CardTitle>
               <CardDescription>Checks initiated and completed over the last 6 months</CardDescription>
             </CardHeader>
             <CardContent>
@@ -227,7 +227,7 @@ export default function RecruiterAnalyticsDashboard() {
           {/* Comparison to Team Average */}
           <Card>
             <CardHeader>
-              <CardTitle>Team Comparison</CardTitle>
+              <CardTitle className="text-base font-semibold">Team Comparison</CardTitle>
               <CardDescription>Performance metrics vs. team average</CardDescription>
             </CardHeader>
             <CardContent>
@@ -248,7 +248,7 @@ export default function RecruiterAnalyticsDashboard() {
         {/* Improvement Suggestions */}
         <Card>
           <CardHeader>
-            <CardTitle>Improvement Suggestions</CardTitle>
+            <CardTitle className="text-base font-semibold">Improvement Suggestions</CardTitle>
             <CardDescription>Personalized recommendations based on your performance</CardDescription>
           </CardHeader>
           <CardContent>

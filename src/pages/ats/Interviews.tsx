@@ -236,7 +236,7 @@ export default function Interviews() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle>{interview.candidateName}</CardTitle>
+                      <CardTitle className="text-base font-semibold">{interview.candidateName}</CardTitle>
                       <p className="text-sm text-muted-foreground">{interview.jobTitle}</p>
                     </div>
                     {getStatusBadge(interview.status)}
@@ -244,11 +244,11 @@ export default function Interviews() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-6 text-sm">
-                    <div className="flex items-center gap-2">
+                    <div className="text-base font-semibold flex items-center gap-2">
                       {getTypeIcon(interview.type)}
                       <span className="capitalize">{interview.type}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="text-base font-semibold flex items-center gap-2">
                       <CalendarIcon className="h-4 w-4" />
                       <span>
                         {format(new Date(interview.scheduledDate), "PPP")} at {interview.scheduledTime}

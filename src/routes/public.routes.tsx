@@ -9,6 +9,11 @@ import PhoneInterviewInterface from "@/pages/PhoneInterviewInterface";
 import AIInterviewComplete from "@/pages/AIInterviewComplete";
 import TakeAssessment from "@/pages/public/TakeAssessment";
 import PublicFeedbackForm from "@/pages/PublicFeedbackForm";
+import JobSearchPage from "@/pages/candidate/JobSearchPage";
+import JobDetailPage from "@/pages/candidate/JobDetailPage";
+import ApplyPage from "@/pages/candidate/ApplyPage";
+import CandidateLogin from "@/pages/candidate/Login";
+import CandidateRegister from "@/pages/candidate/Register";
 
 export const publicRoutes = (
   <>
@@ -22,6 +27,15 @@ export const publicRoutes = (
     <Route path="/ai-reference/:token/complete" element={<AIInterviewComplete />} />
     <Route path="/assessment/:token" element={<TakeAssessment />} />
     <Route path="/feedback/:feedbackId/:providerId" element={<PublicFeedbackForm />} />
+    
+    {/* Public Job Search Routes */}
+    <Route path="/jobs" element={<JobSearchPage />} />
+    <Route path="/jobs/:id" element={<JobDetailPage />} />
+    <Route path="/jobs/:id/apply" element={<ApplyPage />} />
+    
+    {/* Candidate Auth Routes */}
+    <Route path="/candidate/login" element={<CandidateLogin />} />
+    <Route path="/candidate/register" element={<CandidateRegister />} />
   </>
 );
 

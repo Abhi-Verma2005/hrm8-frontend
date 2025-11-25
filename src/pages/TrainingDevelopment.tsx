@@ -99,8 +99,8 @@ export default function TrainingDevelopment() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Training & Development</h1>
             <p className="text-muted-foreground">Manage employee learning and development programs</p>
@@ -121,7 +121,7 @@ export default function TrainingDevelopment() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Active Courses</p>
                   <p className="text-3xl font-bold mt-2">{trainingStats.activeCourses}</p>
@@ -136,7 +136,7 @@ export default function TrainingDevelopment() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Completed</p>
                   <p className="text-3xl font-bold mt-2">{trainingStats.completedThisMonth}</p>
@@ -151,7 +151,7 @@ export default function TrainingDevelopment() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Completion Rate</p>
                   <p className="text-3xl font-bold mt-2">{trainingStats.avgCompletionRate}%</p>
@@ -166,7 +166,7 @@ export default function TrainingDevelopment() {
 
           <Card>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Training Hours</p>
                   <p className="text-3xl font-bold mt-2">{trainingStats.totalHours}</p>
@@ -192,7 +192,7 @@ export default function TrainingDevelopment() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <Card className="lg:col-span-2">
                 <CardHeader>
-                  <CardTitle>Popular Courses</CardTitle>
+                  <CardTitle className="text-base font-semibold">Popular Courses</CardTitle>
                   <CardDescription>Most enrolled training programs</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -230,7 +230,7 @@ export default function TrainingDevelopment() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Course Categories</CardTitle>
+                  <CardTitle className="text-base font-semibold">Course Categories</CardTitle>
                   <CardDescription>Distribution by type</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -254,7 +254,7 @@ export default function TrainingDevelopment() {
                   <div className="mt-4 space-y-2">
                     {courseCategories.map(category => (
                       <div key={category.name} className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
+                        <div className="text-base font-semibold flex items-center gap-2">
                           <div className="w-3 h-3 rounded" style={{ backgroundColor: category.color }} />
                           <span>{category.name}</span>
                         </div>
@@ -270,7 +270,7 @@ export default function TrainingDevelopment() {
           <TabsContent value="paths" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Learning Paths</CardTitle>
+                <CardTitle className="text-base font-semibold">Learning Paths</CardTitle>
                 <CardDescription>Structured development programs</CardDescription>
               </CardHeader>
               <CardContent>
@@ -310,7 +310,7 @@ export default function TrainingDevelopment() {
           <TabsContent value="analytics" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Enrollment & Completion Trends</CardTitle>
+                <CardTitle className="text-base font-semibold">Enrollment & Completion Trends</CardTitle>
                 <CardDescription>Monthly training activity</CardDescription>
               </CardHeader>
               <CardContent>
@@ -332,7 +332,7 @@ export default function TrainingDevelopment() {
           <TabsContent value="certifications" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Professional Certifications</CardTitle>
+                <CardTitle className="text-base font-semibold">Professional Certifications</CardTitle>
                 <CardDescription>Track employee certifications and renewals</CardDescription>
               </CardHeader>
               <CardContent>
@@ -345,7 +345,7 @@ export default function TrainingDevelopment() {
                   ].map((cert, idx) => (
                     <Card key={idx}>
                       <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
+                        <div className="text-base font-semibold flex items-center justify-between">
                           <div>
                             <h4 className="font-semibold">{cert.name}</h4>
                             <p className="text-sm text-muted-foreground mt-1">

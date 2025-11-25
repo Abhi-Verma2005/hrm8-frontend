@@ -152,7 +152,7 @@ export default function CandidatesDashboard() {
       }
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Active Filters */}
         {!isEditMode && (
           <ActiveFiltersIndicator
@@ -396,8 +396,8 @@ export default function CandidatesDashboard() {
                 <div className="space-y-4">
                   {sourceData.map((source, index) => (
                     <div key={index} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                      <div className="text-base font-semibold flex items-center justify-between">
+                        <div className="text-base font-semibold flex items-center gap-2">
                           <div 
                             className="w-3 h-3 rounded-full" 
                             style={{ backgroundColor: source.color }}
@@ -465,7 +465,7 @@ export default function CandidatesDashboard() {
                   
                   return (
                     <div key={index} className="space-y-2">
-                      <div className="flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <Badge 
                             variant="outline" 

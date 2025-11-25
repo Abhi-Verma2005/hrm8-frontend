@@ -42,7 +42,7 @@ export default function AIInterviewDetail() {
         title={`Interview with ${session.candidateName}`}
           subtitle={`${session.jobTitle} • ${format(new Date(session.scheduledDate), 'PPp')}`}
         >
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => navigate('/ai-interviews')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to List
@@ -64,7 +64,7 @@ export default function AIInterviewDetail() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
             <CardTitle className="text-base font-semibold">Interview Overview</CardTitle>
             <Badge className={statusColors[session.status]}>
               {session.status}

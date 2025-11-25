@@ -177,9 +177,9 @@ export default function WorkforcePlanning() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-2">
               <Users className="h-8 w-8" />
@@ -199,7 +199,7 @@ export default function WorkforcePlanning() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Total Employees</p>
                   <p className="text-2xl font-bold">{demographics.totalEmployees}</p>
@@ -211,7 +211,7 @@ export default function WorkforcePlanning() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Avg. Tenure</p>
                   <p className="text-2xl font-bold">{demographics.avgTenure} yrs</p>
@@ -223,7 +223,7 @@ export default function WorkforcePlanning() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Attrition Rate</p>
                   <p className="text-2xl font-bold">{demographics.attritionRate}%</p>
@@ -235,7 +235,7 @@ export default function WorkforcePlanning() {
 
           <Card>
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">Cost per Hire</p>
                   <p className="text-2xl font-bold">${demographics.costPerHire.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
@@ -258,7 +258,7 @@ export default function WorkforcePlanning() {
           <TabsContent value="headcount" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Headcount Planning</CardTitle>
+                <CardTitle className="text-base font-semibold">Headcount Planning</CardTitle>
                 <CardDescription>
                   Manage departmental headcount and position requisitions
                 </CardDescription>
@@ -305,7 +305,7 @@ export default function WorkforcePlanning() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <Building2 className="h-5 w-5" />
                     By Department
                   </CardTitle>
@@ -313,7 +313,7 @@ export default function WorkforcePlanning() {
                 <CardContent>
                   <div className="space-y-3">
                     {Object.entries(demographics.byDepartment).map(([dept, count]) => (
-                      <div key={dept} className="flex items-center justify-between">
+                      <div key={dept} className="text-base font-semibold flex items-center justify-between">
                         <span className="text-sm">{dept}</span>
                         <Badge variant="secondary">{count}</Badge>
                       </div>
@@ -324,7 +324,7 @@ export default function WorkforcePlanning() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <MapPin className="h-5 w-5" />
                     By Location
                   </CardTitle>
@@ -332,7 +332,7 @@ export default function WorkforcePlanning() {
                 <CardContent>
                   <div className="space-y-3">
                     {Object.entries(demographics.byLocation).map(([location, count]) => (
-                      <div key={location} className="flex items-center justify-between">
+                      <div key={location} className="text-base font-semibold flex items-center justify-between">
                         <span className="text-sm">{location}</span>
                         <Badge variant="secondary">{count}</Badge>
                       </div>
@@ -343,7 +343,7 @@ export default function WorkforcePlanning() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="text-base font-semibold flex items-center gap-2">
                     <TrendingUp className="h-5 w-5" />
                     By Level
                   </CardTitle>
@@ -351,7 +351,7 @@ export default function WorkforcePlanning() {
                 <CardContent>
                   <div className="space-y-3">
                     {Object.entries(demographics.byLevel).map(([level, count]) => (
-                      <div key={level} className="flex items-center justify-between">
+                      <div key={level} className="text-base font-semibold flex items-center justify-between">
                         <span className="text-sm">{level}</span>
                         <Badge variant="secondary">{count}</Badge>
                       </div>
@@ -362,19 +362,19 @@ export default function WorkforcePlanning() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Key Metrics</CardTitle>
+                  <CardTitle className="text-base font-semibold">Key Metrics</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm">Time to Fill</span>
                       <Badge variant="outline">{demographics.timeToFill} days</Badge>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm">Cost per Hire</span>
                       <Badge variant="outline">${demographics.costPerHire.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</Badge>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm">Attrition Rate</span>
                       <Badge variant="outline">{demographics.attritionRate}%</Badge>
                     </div>
@@ -387,7 +387,7 @@ export default function WorkforcePlanning() {
           <TabsContent value="scenarios" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Scenario Modeling</CardTitle>
+                <CardTitle className="text-base font-semibold">Scenario Modeling</CardTitle>
                 <CardDescription>
                   Create what-if scenarios for workforce projections
                 </CardDescription>
@@ -403,7 +403,7 @@ export default function WorkforcePlanning() {
           <TabsContent value="forecasts" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Budget Forecasts</CardTitle>
+                <CardTitle className="text-base font-semibold">Budget Forecasts</CardTitle>
                 <CardDescription>
                   Financial projections for workforce expenses
                 </CardDescription>

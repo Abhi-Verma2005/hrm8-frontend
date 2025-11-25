@@ -143,7 +143,7 @@ export default function AddonsDashboard() {
           {/* Quick Actions */}
           <Card>
             <CardHeader>
-              <CardTitle>Quick Actions</CardTitle>
+              <CardTitle className="text-base font-semibold">Quick Actions</CardTitle>
               <CardDescription>Navigate to individual service modules</CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -284,7 +284,7 @@ export default function AddonsDashboard() {
           
           <Card>
             <CardHeader>
-              <CardTitle>AI Interview Analytics</CardTitle>
+              <CardTitle className="text-base font-semibold">AI Interview Analytics</CardTitle>
               <CardDescription>Detailed performance metrics and trends</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -330,7 +330,7 @@ export default function AddonsDashboard() {
           
           <Card>
             <CardHeader>
-              <CardTitle>Assessment Insights</CardTitle>
+              <CardTitle className="text-base font-semibold">Assessment Insights</CardTitle>
               <CardDescription>Performance metrics and candidate evaluation</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -376,7 +376,7 @@ export default function AddonsDashboard() {
           
           <Card>
             <CardHeader>
-              <CardTitle>Background Check Operations</CardTitle>
+              <CardTitle className="text-base font-semibold">Background Check Operations</CardTitle>
               <CardDescription>Track verification progress and compliance</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

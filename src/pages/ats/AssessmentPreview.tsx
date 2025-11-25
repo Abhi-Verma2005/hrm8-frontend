@@ -306,7 +306,7 @@ export default function AssessmentPreview() {
       {/* Header */}
       <div className="border-b bg-card sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Eye className="h-5 w-5 text-muted-foreground" />
               <div>
@@ -519,15 +519,15 @@ export default function AssessmentPreview() {
             })}
           </div>
           <div className="flex items-center gap-4 mt-4 text-xs text-muted-foreground">
-            <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center gap-2">
               <div className="w-3 h-3 bg-primary rounded" />
               <span>Current</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center gap-2">
               <div className="w-3 h-3 bg-secondary rounded" />
               <span>Answered</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center gap-2">
               <Flag className="h-3 w-3 text-warning" />
               <span>Flagged</span>
             </div>

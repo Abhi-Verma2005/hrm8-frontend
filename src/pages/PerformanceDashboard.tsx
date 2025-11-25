@@ -129,9 +129,9 @@ export default function PerformanceDashboard() {
     <DashboardPageLayout
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
-        <div className="p-12 space-y-6">
+        <div className="p-6 space-y-6">
         {/* Header Section */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Performance Analytics</h1>
             <p className="text-muted-foreground">
@@ -290,7 +290,7 @@ export default function PerformanceDashboard() {
 
               <Card className="md:col-span-2">
                 <CardHeader>
-                  <CardTitle>Goal Status Overview</CardTitle>
+                  <CardTitle className="text-base font-semibold">Goal Status Overview</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -482,7 +482,7 @@ export default function PerformanceDashboard() {
                 <div className="space-y-4">
                   {competencyData.map((comp, index) => (
                     <div key={index} className="space-y-2">
-                      <div className="flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center justify-between">
                         <span className="text-sm font-medium">{comp.competency}</span>
                         <Badge variant="secondary">
                           {comp.score.toFixed(1)}/5.0

@@ -78,10 +78,10 @@ export default function RPOOverviewPage() {
         />
       }
     >
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         <div>
           <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center gap-2">
               <FileText className="h-6 w-6" />
               <h1 className="text-3xl font-bold">RPO Management</h1>
             </div>
@@ -168,8 +168,8 @@ export default function RPOOverviewPage() {
         {renewalSummary.critical > 0 && (
           <Card className="border-destructive/50 bg-destructive/5">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="text-base font-semibold flex items-center justify-between">
+                <div className="text-base font-semibold flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5 text-destructive" />
                   <CardTitle className="text-destructive">Urgent Action Required</CardTitle>
                 </div>

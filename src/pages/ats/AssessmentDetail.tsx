@@ -123,7 +123,7 @@ export default function AssessmentDetail() {
           title="Assessment Details"
           subtitle={`${assessment.candidateName} • ${assessment.candidateEmail}`}
         >
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <Badge variant="outline" className="h-6 px-2 text-xs rounded-full capitalize">
               {assessment.status}
             </Badge>
@@ -155,7 +155,7 @@ export default function AssessmentDetail() {
 
         <Card className="p-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center gap-2">
               <User className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Invited By</p>
@@ -163,7 +163,7 @@ export default function AssessmentDetail() {
               </div>
             </div>
             {assessment.jobTitle && (
-              <div className="flex items-center gap-2">
+              <div className="text-base font-semibold flex items-center gap-2">
                 <Briefcase className="h-4 w-4 text-muted-foreground" />
                 <div>
                   <p className="text-xs text-muted-foreground">Job Position</p>
@@ -171,14 +171,14 @@ export default function AssessmentDetail() {
                 </div>
               </div>
             )}
-            <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Invited Date</p>
                 <p className="text-sm font-medium">{format(new Date(assessment.invitedDate), 'MMM d, yyyy')}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
               <div>
                 <p className="text-xs text-muted-foreground">Expires</p>
@@ -326,7 +326,7 @@ export default function AssessmentDetail() {
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Performance vs Average</span>
                 {scoreComparison !== null && (
-                  <div className="flex items-center gap-2">
+                  <div className="text-base font-semibold flex items-center gap-2">
                     {scoreComparison > 0 ? (
                       <TrendingUp className="h-4 w-4 text-success" />
                     ) : scoreComparison < 0 ? (

@@ -159,7 +159,7 @@ export default function AssessmentTemplates() {
       title="Assessment Templates"
       subtitle="Create and manage reusable assessment templates"
       breadcrumbActions={
-        <div className="flex items-center gap-2">
+        <div className="text-base font-semibold flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"

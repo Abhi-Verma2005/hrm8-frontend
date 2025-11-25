@@ -367,7 +367,7 @@ export default function SystemMonitoring() {
                             {formatDistanceToNow(alert.time, { addSuffix: true })}
                           </p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="text-base font-semibold flex items-center gap-2">
                           <Badge variant={alert.resolved ? "secondary" : "destructive"} className="text-xs">
                             {alert.resolved ? 'Resolved' : 'Active'}
                           </Badge>
@@ -476,19 +476,19 @@ export default function SystemMonitoring() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Active Connections</span>
                       <span className="text-lg font-semibold">1,247</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Query Time (avg)</span>
                       <span className="text-lg font-semibold">28ms</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Storage Used</span>
                       <span className="text-lg font-semibold">248 GB</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Slow Queries</span>
                       <span className="text-lg font-semibold">3</span>
                     </div>
@@ -505,19 +505,19 @@ export default function SystemMonitoring() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Bandwidth In</span>
                       <span className="text-lg font-semibold">125 Mbps</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Bandwidth Out</span>
                       <span className="text-lg font-semibold">98 Mbps</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Active Requests</span>
                       <span className="text-lg font-semibold">3,421</span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <span className="text-sm text-muted-foreground">Failed Requests</span>
                       <span className="text-lg font-semibold">12</span>
                     </div>

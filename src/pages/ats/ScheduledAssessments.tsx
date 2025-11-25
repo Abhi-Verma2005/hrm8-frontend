@@ -79,7 +79,7 @@ export default function ScheduledAssessments() {
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-lg border border-border bg-card p-6">
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Total Scheduled</p>
               <p className="text-3xl font-bold">{scheduledAssessments.length}</p>
@@ -89,7 +89,7 @@ export default function ScheduledAssessments() {
         </div>
 
         <div className="rounded-lg border border-border bg-card p-6">
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Upcoming</p>
               <p className="text-3xl font-bold text-blue-600">{upcomingCount}</p>
@@ -99,7 +99,7 @@ export default function ScheduledAssessments() {
         </div>
 
         <div className="rounded-lg border border-border bg-card p-6">
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Sent</p>
               <p className="text-3xl font-bold text-green-600">{sentCount}</p>
@@ -111,7 +111,7 @@ export default function ScheduledAssessments() {
 
       {/* Scheduled Assessments Table */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <h2 className="text-lg font-semibold">All Scheduled Assessments</h2>
           <p className="text-sm text-muted-foreground">
             Assessments are automatically sent at their scheduled time

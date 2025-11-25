@@ -48,7 +48,7 @@ export default function CollaborativeFeedback() {
         <title>Collaborative Feedback - ATS</title>
       </Helmet>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Collaborative Feedback</h1>
             <p className="text-muted-foreground">Multi-criteria candidate evaluation with team voting and consensus tracking</p>
@@ -144,7 +144,7 @@ export default function CollaborativeFeedback() {
           <TabsContent value="feedback" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Load Candidate for Feedback</CardTitle>
+                <CardTitle className="text-base font-semibold">Load Candidate for Feedback</CardTitle>
                 <CardDescription>
                   Enter a candidate ID to view and provide collaborative feedback
                 </CardDescription>
@@ -184,7 +184,7 @@ export default function CollaborativeFeedback() {
           <TabsContent value="comparison" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Load Candidates for Comparison</CardTitle>
+                <CardTitle className="text-base font-semibold">Load Candidates for Comparison</CardTitle>
                 <CardDescription>
                   Enter multiple candidate IDs separated by commas to compare
                 </CardDescription>
@@ -256,7 +256,7 @@ export default function CollaborativeFeedback() {
           <TabsContent value="decisions" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Record Hiring Decision</CardTitle>
+                <CardTitle className="text-base font-semibold">Record Hiring Decision</CardTitle>
                 <CardDescription>
                   Make final hiring decisions based on team feedback and consensus
                 </CardDescription>

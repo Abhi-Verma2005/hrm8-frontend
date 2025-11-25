@@ -199,7 +199,7 @@ export default function QuestionnaireBuilder() {
       {/* Header */}
       <div className="border-b bg-card sticky top-0 z-10">
         <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Button variant="ghost" onClick={() => navigate('/assessment-templates')}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -212,7 +212,7 @@ export default function QuestionnaireBuilder() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center gap-2">
               <Button 
                 variant="outline" 
                 onClick={() => setShowTemplateLibrary(!showTemplateLibrary)}
@@ -250,7 +250,7 @@ export default function QuestionnaireBuilder() {
               {/* Left Panel - Template Settings */}
               <Card className="lg:col-span-1">
                 <CardHeader>
-                  <CardTitle>Template Settings</CardTitle>
+                  <CardTitle className="text-base font-semibold">Template Settings</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
@@ -349,8 +349,8 @@ export default function QuestionnaireBuilder() {
               <div>
                 <Card>
                   <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle>Questions ({template.questions.length})</CardTitle>
+                    <div className="text-base font-semibold flex items-center justify-between">
+                      <CardTitle className="text-base font-semibold">Questions ({template.questions.length})</CardTitle>
                       <Button onClick={() => handleAddQuestion('short-text')}>
                         <Plus className="h-4 w-4 mr-2" />
                         Add Question

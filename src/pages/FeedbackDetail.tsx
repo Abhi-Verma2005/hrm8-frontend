@@ -118,9 +118,9 @@ export default function FeedbackDetail() {
         <title>{feedback.employeeName} - 360 Feedback Detail</title>
       </Helmet>
 
-      <div className="container mx-auto p-12 space-y-6">
+      <div className="container mx-auto p-6 space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate('/performance')}>
               <ArrowLeft className="h-5 w-5" />
@@ -222,12 +222,12 @@ export default function FeedbackDetail() {
                         ) : (
                           responses.map((response) => (
                             <div key={response.id} className="border-l-2 border-primary pl-4 space-y-2">
-                              <div className="flex items-center justify-between">
+                              <div className="text-base font-semibold flex items-center justify-between">
                                 <div>
                                   <p className="font-medium text-sm">{response.providerName}</p>
                                   <p className="text-xs text-muted-foreground">{response.relationship}</p>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="text-base font-semibold flex items-center gap-2">
                                   {[1, 2, 3, 4, 5].map((star) => (
                                     <div
                                       key={star}
@@ -267,7 +267,7 @@ export default function FeedbackDetail() {
             {/* Status Management */}
             <Card>
               <CardHeader>
-                <CardTitle>Status Management</CardTitle>
+                <CardTitle className="text-base font-semibold">Status Management</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -297,7 +297,7 @@ export default function FeedbackDetail() {
             {/* Feedback Providers */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <Users className="h-5 w-5" />
                   Feedback Providers
                 </CardTitle>
@@ -307,7 +307,7 @@ export default function FeedbackDetail() {
                   const providerBadge = getProviderStatusBadge(provider.status);
                   return (
                     <div key={provider.id} className="p-3 border rounded-lg space-y-2">
-                      <div className="flex items-center justify-between">
+                      <div className="text-base font-semibold flex items-center justify-between">
                         <div className="flex-1">
                           <p className="font-medium text-sm">{provider.providerName}</p>
                           <p className="text-xs text-muted-foreground">{provider.relationship}</p>
@@ -350,7 +350,7 @@ export default function FeedbackDetail() {
             {/* Feedback Info */}
             <Card>
               <CardHeader>
-                <CardTitle>Feedback Information</CardTitle>
+                <CardTitle className="text-base font-semibold">Feedback Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3 text-sm">
                 <div>

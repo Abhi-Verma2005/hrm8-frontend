@@ -49,7 +49,7 @@ export default function EmployeeDetail() {
           title={`${employee.firstName} ${employee.lastName}`}
           subtitle={employee.jobTitle}
         >
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate("/hrms")}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Employees
@@ -123,11 +123,11 @@ export default function EmployeeDetail() {
                   <CardTitle className="text-base font-semibold">Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2">
+                  <div className="text-base font-semibold flex items-center gap-2">
                     <Mail className="h-4 w-4 text-muted-foreground" />
                     <span>{employee.email}</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="text-base font-semibold flex items-center gap-2">
                     <Phone className="h-4 w-4 text-muted-foreground" />
                     <span>{employee.phone}</span>
                   </div>
@@ -147,11 +147,11 @@ export default function EmployeeDetail() {
                   <CardTitle className="text-base font-semibold">Employment Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2">
+                  <div className="text-base font-semibold flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span>Hired: {format(new Date(employee.hireDate), "MMM d, yyyy")}</span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="text-base font-semibold flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground" />
                     <span>Location: {employee.location}</span>
                   </div>
@@ -169,7 +169,7 @@ export default function EmployeeDetail() {
                   <CardTitle className="text-base font-semibold">Compensation</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2">
+                  <div className="text-base font-semibold flex items-center gap-2">
                     <DollarSign className="h-4 w-4 text-muted-foreground" />
                     <span className="text-2xl font-bold">
                       {new Intl.NumberFormat('en-US', {

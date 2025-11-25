@@ -157,7 +157,7 @@ export default function JobsDashboard() {
       }
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Active Filters */}
         {!isEditMode && (
           <ActiveFiltersIndicator
@@ -412,15 +412,15 @@ export default function JobsDashboard() {
                     const fillRate = ((dept.filled / dept.openings) * 100).toFixed(1);
                     return (
                       <div key={index} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
+                        <div className="text-base font-semibold flex items-center justify-between">
+                          <div className="text-base font-semibold flex items-center gap-2">
                             <div 
                               className="w-3 h-3 rounded-full" 
                               style={{ backgroundColor: dept.color }}
                             />
                             <span className="text-sm font-medium">{dept.name}</span>
                           </div>
-                          <div className="flex items-center gap-2">
+                          <div className="text-base font-semibold flex items-center gap-2">
                             <span className="text-sm text-muted-foreground">
                               {dept.filled}/{dept.openings}
                             </span>
@@ -508,7 +508,7 @@ export default function JobsDashboard() {
 
               <Card className="md:col-span-2">
                 <CardHeader>
-                  <CardTitle>Key Performance Indicators</CardTitle>
+                  <CardTitle className="text-base font-semibold">Key Performance Indicators</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -552,7 +552,7 @@ export default function JobsDashboard() {
               <div className="space-y-4">
                 {funnelData.map((stage, index) => (
                   <div key={index} className="space-y-2">
-                    <div className="flex items-center justify-between">
+                    <div className="text-base font-semibold flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <Badge variant="outline" className="w-24 justify-center">
                           {stage.stage}

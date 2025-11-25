@@ -66,8 +66,8 @@ export default function EscalationRulesPage() {
 
   return (
     <DashboardPageLayout breadcrumbActions={breadcrumbActions}>
-      <div className="p-12 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="p-6 space-y-6">
+        <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2">Escalation Rules</h1>
             <p className="text-muted-foreground">
@@ -86,8 +86,8 @@ export default function EscalationRulesPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2">
-                      <CardTitle className="text-lg">{rule.name}</CardTitle>
+                    <div className="text-base font-semibold flex items-center gap-2">
+                      <CardTitle className="text-base font-semibold">{rule.name}</CardTitle>
                       <Badge variant={priorityColors[rule.priority]}>
                         {rule.priority}
                       </Badge>
@@ -98,7 +98,7 @@ export default function EscalationRulesPage() {
                     <CardDescription>{rule.description}</CardDescription>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="text-base font-semibold flex items-center gap-2">
                     <Switch
                       checked={rule.enabled}
                       onCheckedChange={() => handleToggleRule(rule)}
@@ -151,7 +151,7 @@ export default function EscalationRulesPage() {
         </div>
 
         {rules.length === 0 && (
-          <Card className="p-12">
+          <Card className="p-6">
             <div className="text-center">
               <AlertTriangle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">No Escalation Rules</h3>

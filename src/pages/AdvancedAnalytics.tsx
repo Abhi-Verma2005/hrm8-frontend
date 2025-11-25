@@ -284,7 +284,7 @@ export default function AdvancedAnalytics() {
         {activeFilterCount > 0 && (
           <Card className="bg-muted/50">
             <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <div className="space-y-1">
                   <p className="text-sm font-medium">Filtered Results</p>
                   <p className="text-xs text-muted-foreground">

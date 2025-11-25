@@ -227,13 +227,13 @@ export default function JobTemplates() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-12 space-y-6">
+      <div className="p-6 space-y-6">
         {loading ? (
           <TemplatesPageSkeleton />
         ) : (
           <>
           {/* Header */}
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Job Templates</h1>
             <p className="text-muted-foreground">
@@ -545,13 +545,13 @@ function TemplateGrid({ templates, onEdit, onDuplicate, onDelete, onUseTemplate 
                   {template.jobData?.title || "N/A"}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <span>Usage count:</span>
                 <span className="font-medium text-foreground">
                   {template.usageCount || 0} times
                 </span>
               </div>
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <span>Created:</span>
                 <span className="font-medium text-foreground">
                   {formatDistanceToNow(new Date(template.createdAt), { addSuffix: true })}

@@ -71,7 +71,7 @@ export default function Benefits() {
 
         {/* Main Content */}
         <Tabs defaultValue="plans" className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="text-base font-semibold flex items-center justify-between">
             <TabsList>
               <TabsTrigger value="plans">Benefit Plans</TabsTrigger>
               <TabsTrigger value="enrollments">Enrollments</TabsTrigger>
@@ -98,7 +98,7 @@ export default function Benefits() {
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div>
-                        <CardTitle className="text-lg">{plan.name}</CardTitle>
+                        <CardTitle className="text-base font-semibold">{plan.name}</CardTitle>
                         <p className="text-sm text-muted-foreground">{plan.provider}</p>
                       </div>
                       <Badge variant={plan.isActive ? "default" : "secondary"}>
@@ -126,7 +126,7 @@ export default function Benefits() {
           <TabsContent value="enrollments" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Benefit Enrollments</CardTitle>
+                <CardTitle className="text-base font-semibold">Benefit Enrollments</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -165,7 +165,7 @@ export default function Benefits() {
           <TabsContent value="providers" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Benefit Providers</CardTitle>
+                <CardTitle className="text-base font-semibold">Benefit Providers</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">
@@ -179,7 +179,7 @@ export default function Benefits() {
           <TabsContent value="reports" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Benefits Reports</CardTitle>
+                <CardTitle className="text-base font-semibold">Benefits Reports</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="text-center py-12 text-muted-foreground">

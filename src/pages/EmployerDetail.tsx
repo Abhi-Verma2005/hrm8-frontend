@@ -82,7 +82,7 @@ export default function EmployerDetail() {
           title={employer.name}
           subtitle={employer.industry ? `${employer.industry} • ${employer.location ?? ''}` : employer.location ?? ''}
         >
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <Button variant="ghost" size="icon" asChild>
               <Link to="/employers">
                 <ArrowLeft className="h-4 w-4" />

@@ -48,7 +48,7 @@ export default function AIInterviewReportDetail() {
         title={`Interview Report: ${report.candidateName}`}
           subtitle={`${report.jobTitle} • ${format(new Date(report.createdAt), 'PPP')}`}
         >
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={() => navigate('/ai-interviews/reports')}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
@@ -68,7 +68,7 @@ export default function AIInterviewReportDetail() {
         <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="text-base font-semibold flex items-center justify-between">
                 <CardTitle className="text-base font-semibold">Report Status</CardTitle>
                 <Badge className={statusColors[report.status]}>
                   {report.status.replace('-', ' ')}

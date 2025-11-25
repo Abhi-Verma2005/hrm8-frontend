@@ -101,7 +101,7 @@ export default function SalesPipelinePage() {
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
         <AtsPageHeader title="Sales Pipeline" subtitle="Visualize and manage your sales opportunities">
-          <div className="flex items-center gap-2">
+          <div className="text-base font-semibold flex items-center gap-2">
             <div className="flex items-center border rounded-lg p-1 gap-1">
               <Button
                 variant={viewMode === 'kanban' ? 'default' : 'ghost'}

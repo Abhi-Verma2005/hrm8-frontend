@@ -123,9 +123,9 @@ export default function TakeAssessment() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <div className="flex items-center gap-2">
+            <div className="text-base font-semibold flex items-center gap-2">
               <AlertCircle className="h-5 w-5 text-destructive" />
-              <CardTitle>Assessment Unavailable</CardTitle>
+              <CardTitle className="text-base font-semibold">Assessment Unavailable</CardTitle>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -185,7 +185,7 @@ export default function TakeAssessment() {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-4xl">
           <CardHeader>
-            <CardTitle>{assessmentInfo.name}</CardTitle>
+            <CardTitle className="text-base font-semibold">{assessmentInfo.name}</CardTitle>
             <CardDescription>
               This is a simulated assessment interface. In production, this would embed the actual provider's assessment.
             </CardDescription>
@@ -223,7 +223,7 @@ export default function TakeAssessment() {
               <Icon className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <CardTitle className="text-xl">{assessmentInfo.name}</CardTitle>
+              <CardTitle className="text-base font-semibold">{assessmentInfo.name}</CardTitle>
               <CardDescription>
                 Invited by {assessment.invitedByName}
               </CardDescription>

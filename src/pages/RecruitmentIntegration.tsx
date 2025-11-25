@@ -218,7 +218,7 @@ export default function RecruitmentIntegration() {
                         </div>
                       </div>
                       <div className="mt-4 pt-4 border-t">
-                        <div className="flex items-center justify-between">
+                        <div className="text-base font-semibold flex items-center justify-between">
                           <span className="text-sm text-muted-foreground">Cost per Placement</span>
                           <span className="font-semibold">${roi.costPerPlacement.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
                         </div>

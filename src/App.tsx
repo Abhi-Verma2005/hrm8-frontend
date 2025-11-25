@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { CurrencyFormatProvider } from "@/contexts/CurrencyFormatContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CandidateAuthProvider } from "@/contexts/CandidateAuthContext";
 import { useGlobalKeyboardShortcuts, useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import { GlobalSearch } from "./components/common/GlobalSearch";
@@ -54,8 +55,10 @@ const App = () => (
             <Sonner />
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <AuthProvider>
-                <ScrollToTop />
-                <AppContent />
+                <CandidateAuthProvider>
+                  <ScrollToTop />
+                  <AppContent />
+                </CandidateAuthProvider>
               </AuthProvider>
             </BrowserRouter>
           </TooltipProvider>
