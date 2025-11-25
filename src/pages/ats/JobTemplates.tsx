@@ -520,13 +520,8 @@ function TemplateGrid({ templates, onEdit, onDuplicate, onDelete, onUseTemplate 
             </div>
 
             <div className="space-y-2 text-sm text-muted-foreground">
-<<<<<<< HEAD
-              <div className="text-base font-semibold flex items-center justify-between">
-                <span>Created by:</span>
-=======
               <div className="flex items-center justify-between">
                 <span>Job Title:</span>
->>>>>>> 52b4f8864302c864495c405615b4281dbb698603
                 <span className="font-medium text-foreground">
                   {template.jobData?.title || "N/A"}
                 </span>
@@ -549,35 +544,20 @@ function TemplateGrid({ templates, onEdit, onDuplicate, onDelete, onUseTemplate 
               <div className="pt-3 border-t">
                 <p className="text-sm text-muted-foreground">Template includes:</p>
                 <ul className="mt-2 space-y-1 text-sm">
-<<<<<<< HEAD
-                  {template.title && (
-                    <li className="text-base font-semibold flex items-center gap-2">
-=======
                   {template.jobData.title && (
                     <li className="flex items-center gap-2">
->>>>>>> 52b4f8864302c864495c405615b4281dbb698603
                       <span className="text-primary">•</span>
                       <span>Job Title: {template.jobData.title}</span>
                     </li>
                   )}
-<<<<<<< HEAD
-                  {template.department && (
-                    <li className="text-base font-semibold flex items-center gap-2">
-=======
                   {template.jobData?.department && (
                     <li className="flex items-center gap-2">
->>>>>>> 52b4f8864302c864495c405615b4281dbb698603
                       <span className="text-primary">•</span>
                       <span>Department: {template.jobData.department}</span>
                     </li>
                   )}
-<<<<<<< HEAD
-                  {template.employmentType && (
-                    <li className="text-base font-semibold flex items-center gap-2">
-=======
                   {template.jobData?.employmentType && (
                     <li className="flex items-center gap-2">
->>>>>>> 52b4f8864302c864495c405615b4281dbb698603
                       <span className="text-primary">•</span>
                       <span>Type: {template.jobData.employmentType}</span>
                     </li>
