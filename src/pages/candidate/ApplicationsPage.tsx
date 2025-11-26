@@ -88,7 +88,7 @@ export default function ApplicationsPage() {
                   className="pl-8 w-64"
                 />
               </div>
-              <Button onClick={() => navigate('/jobs')}>
+              <Button onClick={() => navigate('/candidate/jobs')}>
                 Browse Jobs
               </Button>
             </div>

@@ -3,8 +3,8 @@
  * Dynamic form based on job's applicationForm configuration
  */
 
-import { useState, useEffect } from 'react';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useState, useEffect, useMemo } from 'react';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
@@ -63,14 +63,8 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
   };
 
   // Build form schema dynamically
-  const buildFormSchema = (config: ApplicationFormConfig | undefined) => {
+  const buildFormSchema = (config: ApplicationFormConfig) => {
     const schemaFields: Record<string, z.ZodTypeAny> = {};
-
-    if (!config) {
-      // Default schema with just resume
-      schemaFields.resume = z.instanceof(File, { message: 'Resume is required' });
-      return z.object(schemaFields);
-    }
 
     // Standard fields
     if (config.includeStandardFields.resume.included) {
@@ -81,8 +75,8 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
 
     if (config.includeStandardFields.coverLetter.included) {
       schemaFields.coverLetter = config.includeStandardFields.coverLetter.required
-        ? z.string().min(1, 'Cover letter is required')
-        : z.string().optional();
+        ? z.instanceof(File, { message: 'Cover letter is required' })
+        : z.instanceof(File).optional();
     }
 
     if (config.includeStandardFields.portfolio.included) {
@@ -156,8 +150,23 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
     return z.object(schemaFields);
   };
 
-  const formConfig = job?.applicationForm as ApplicationFormConfig | undefined;
-  const formSchema = buildFormSchema(formConfig);
+  const normalizedFormConfig = useMemo<ApplicationFormConfig>(() => {
+    return (job?.applicationForm as ApplicationFormConfig | undefined) || {
+      id: `form-${Date.now()}`,
+      name: 'Application Form',
+      description: 'Please provide the required information to apply for this position.',
+      questions: [],
+      includeStandardFields: {
+        resume: { included: true, required: true },
+        coverLetter: { included: false, required: false },
+        portfolio: { included: false, required: false },
+        linkedIn: { included: false, required: false },
+        website: { included: false, required: false },
+      },
+    };
+  }, [job?.applicationForm]);
+
+  const formSchema = useMemo(() => buildFormSchema(normalizedFormConfig), [normalizedFormConfig]);
 
   const {
     register,
@@ -168,6 +177,12 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
   } = useForm({
     resolver: zodResolver(formSchema),
   });
+
+  useEffect(() => {
+    register('resume');
+    register('coverLetter');
+    register('portfolio');
+  }, [register]);
 
   const handleFileUpload = (fieldName: string, file: File | null) => {
     if (!file) {
@@ -194,8 +209,8 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
     try {
       // Prepare custom answers
       const customAnswers: Array<{ questionId: string; answer: string | string[] }> = [];
-      if (formConfig) {
-        formConfig.questions.forEach((question) => {
+      if (normalizedFormConfig) {
+        normalizedFormConfig.questions.forEach((question) => {
           const fieldName = `question_${question.id}`;
           const answer = data[fieldName];
           if (answer !== undefined && answer !== null && answer !== '') {
@@ -211,11 +226,26 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
       const applicationData: SubmitApplicationRequest = {
         jobId: job.id,
         resumeUrl: uploadedFiles.resume?.url,
-        coverLetterUrl: data.coverLetter ? `mock://documents/${candidate.id}/${jobId}/cover-letter-${Date.now()}.txt` : undefined,
+        coverLetterUrl: uploadedFiles.coverLetter?.url,
         portfolioUrl: uploadedFiles.portfolio?.url,
         linkedInUrl: data.linkedIn || undefined,
         websiteUrl: data.website || undefined,
         customAnswers: customAnswers.length > 0 ? customAnswers : undefined,
+        questionnaireData: {
+          jobMeta: {
+            jobId: job.id,
+            title: job.title,
+            requirements: job.requirements || [],
+            responsibilities: job.responsibilities || [],
+          },
+          standardFields: {
+            resume: uploadedFiles.resume ? uploadedFiles.resume.file.name : undefined,
+            coverLetter: uploadedFiles.coverLetter ? uploadedFiles.coverLetter.file.name : undefined,
+            portfolio: uploadedFiles.portfolio ? uploadedFiles.portfolio.file.name : undefined,
+            linkedIn: data.linkedIn || undefined,
+            website: data.website || undefined,
+          },
+        },
       };
 
       const response = await applicationService.submitApplication(applicationData);
@@ -241,6 +271,50 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
     }
   };
 
+  const shouldShowQuestion = (question: ApplicationQuestion) => {
+    const logic = question.conditionalLogic;
+    if (!logic?.enabled || !logic.dependsOnQuestionId || !logic.showWhen) {
+      return true;
+    }
+
+    const dependencyField = `question_${logic.dependsOnQuestionId}`;
+    const dependencyValue = watch(dependencyField);
+    const { equals, contains, isEmpty, isNotEmpty } = logic.showWhen;
+
+    const isValueEmpty =
+      dependencyValue === undefined ||
+      dependencyValue === null ||
+      dependencyValue === '' ||
+      (Array.isArray(dependencyValue) && dependencyValue.length === 0);
+
+    if (equals !== undefined) {
+      const expectedValues = Array.isArray(equals) ? equals : [equals];
+      if (Array.isArray(dependencyValue)) {
+        return dependencyValue.some((value) => expectedValues.includes(value));
+      }
+      return expectedValues.includes(dependencyValue);
+    }
+
+    if (contains !== undefined) {
+      if (Array.isArray(dependencyValue)) {
+        return dependencyValue.includes(contains);
+      }
+      if (typeof dependencyValue === 'string') {
+        return dependencyValue.toLowerCase().includes(String(contains).toLowerCase());
+      }
+    }
+
+    if (isEmpty) {
+      return isValueEmpty;
+    }
+
+    if (isNotEmpty) {
+      return !isValueEmpty;
+    }
+
+    return true;
+  };
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -259,6 +333,12 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
 
   const renderQuestion = (question: ApplicationQuestion) => {
     const fieldName = `question_${question.id}`;
+    const isVisible = shouldShowQuestion(question);
+
+    if (!isVisible) {
+      return null;
+    }
+
     const error = errors[fieldName];
 
     switch (question.type) {
@@ -443,17 +523,62 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
       <CardHeader>
         <CardTitle>Apply for {job.title}</CardTitle>
         <CardDescription>
-          {formConfig?.description || 'Please fill out the application form below'}
+          {normalizedFormConfig?.description || 'Please fill out the application form below'}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-6">
+        <div className="rounded-lg border bg-muted/30 p-4 space-y-4">
+          <div className="grid gap-3 md:grid-cols-2 text-sm">
+            <div>
+              <p className="text-xs uppercase text-muted-foreground">Location</p>
+              <p className="font-medium">{job.location}</p>
+            </div>
+            <div>
+              <p className="text-xs uppercase text-muted-foreground">Employment Type</p>
+              <p className="font-medium">{job.employmentType.replace(/_/g, ' ')}</p>
+            </div>
+            {job.department && (
+              <div>
+                <p className="text-xs uppercase text-muted-foreground">Department</p>
+                <p className="font-medium">{job.department}</p>
+              </div>
+            )}
+            <div>
+              <p className="text-xs uppercase text-muted-foreground">Work Arrangement</p>
+              <p className="font-medium">{job.workArrangement.replace(/_/g, ' ')}</p>
+            </div>
+          </div>
+
+          {(job.requirements?.length || 0) > 0 && (
+            <div>
+              <p className="text-xs uppercase text-muted-foreground mb-2">Core Requirements</p>
+              <ul className="list-disc list-inside text-sm space-y-1">
+                {job.requirements!.map((req, idx) => (
+                  <li key={`req-${idx}`}>{req}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {(job.responsibilities?.length || 0) > 0 && (
+            <div>
+              <p className="text-xs uppercase text-muted-foreground mb-2">Responsibilities</p>
+              <ul className="list-disc list-inside text-sm space-y-1">
+                {job.responsibilities!.map((item, idx) => (
+                  <li key={`resp-${idx}`}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Standard Fields */}
-          {formConfig?.includeStandardFields.resume.included && (
+          {normalizedFormConfig.includeStandardFields.resume.included && (
             <div className="space-y-2">
               <Label htmlFor="resume">
                 Resume / CV
-                {formConfig.includeStandardFields.resume.required && (
+                {normalizedFormConfig.includeStandardFields.resume.required && (
                   <span className="text-destructive">*</span>
                 )}
               </Label>
@@ -488,31 +613,50 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
             </div>
           )}
 
-          {formConfig?.includeStandardFields.coverLetter.included && (
+          {normalizedFormConfig.includeStandardFields.coverLetter.included && (
             <div className="space-y-2">
               <Label htmlFor="coverLetter">
                 Cover Letter
-                {formConfig.includeStandardFields.coverLetter.required && (
+                {normalizedFormConfig.includeStandardFields.coverLetter.required && (
                   <span className="text-destructive">*</span>
                 )}
               </Label>
-              <Textarea
-                id="coverLetter"
-                {...register('coverLetter')}
-                placeholder="Write your cover letter here..."
-                rows={6}
-              />
+              <div className="flex items-center gap-2">
+                <Input
+                  id="coverLetter"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    handleFileUpload('coverLetter', file);
+                  }}
+                />
+                {uploadedFiles.coverLetter && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <File className="h-4 w-4" />
+                    <span>{uploadedFiles.coverLetter.file.name}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleFileUpload('coverLetter', null)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
               {errors.coverLetter && (
                 <p className="text-sm text-destructive">{errors.coverLetter.message as string}</p>
               )}
             </div>
           )}
 
-          {formConfig?.includeStandardFields.portfolio.included && (
+          {normalizedFormConfig.includeStandardFields.portfolio.included && (
             <div className="space-y-2">
               <Label htmlFor="portfolio">
                 Portfolio
-                {formConfig.includeStandardFields.portfolio.required && (
+                {normalizedFormConfig.includeStandardFields.portfolio.required && (
                   <span className="text-destructive">*</span>
                 )}
               </Label>
@@ -547,11 +691,11 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
             </div>
           )}
 
-          {formConfig?.includeStandardFields.linkedIn.included && (
+          {normalizedFormConfig.includeStandardFields.linkedIn.included && (
             <div className="space-y-2">
               <Label htmlFor="linkedIn">
                 LinkedIn Profile URL
-                {formConfig.includeStandardFields.linkedIn.required && (
+                {normalizedFormConfig.includeStandardFields.linkedIn.required && (
                   <span className="text-destructive">*</span>
                 )}
               </Label>
@@ -567,11 +711,11 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
             </div>
           )}
 
-          {formConfig?.includeStandardFields.website.included && (
+          {normalizedFormConfig.includeStandardFields.website.included && (
             <div className="space-y-2">
               <Label htmlFor="website">
                 Personal Website / Portfolio URL
-                {formConfig.includeStandardFields.website.required && (
+                {normalizedFormConfig.includeStandardFields.website.required && (
                   <span className="text-destructive">*</span>
                 )}
               </Label>
@@ -588,7 +732,7 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
           )}
 
           {/* Custom Questions */}
-          {formConfig?.questions
+          {normalizedFormConfig.questions
             .sort((a, b) => a.order - b.order)
             .map((question) => renderQuestion(question))}
 

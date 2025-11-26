@@ -33,7 +33,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const defaultEmail = searchParams.get('email') || '';
@@ -51,15 +51,16 @@ export default function Login() {
     },
   });
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate('/home', { replace: true });
+    }
+  }, [isAuthenticated, authLoading, navigate]);
+
   const pendingEmailParam = searchParams.get('pendingEmail');
   const verificationSuccess = searchParams.get('verified') === 'true';
   const verificationEmail = searchParams.get('email') || defaultEmail;
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/home', { replace: true });
-    }
-  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
     if (defaultEmail) {
@@ -133,6 +134,14 @@ export default function Login() {
     window.addEventListener('storage', handleStorage);
     return () => window.removeEventListener('storage', handleStorage);
   }, [clearPendingVerification, navigate, pendingVerificationEmail, reset, searchParams]);
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   if (isAuthenticated) {
     return null;

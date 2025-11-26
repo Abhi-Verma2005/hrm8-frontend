@@ -28,6 +28,12 @@ export const AppRoutes = () => {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       
+      {/* Public routes (no sidebar, no auth required) - MUST come before protected routes */}
+      {publicRoutes}
+      
+      {/* Candidate routes (separate auth, separate layout) */}
+      {candidateRoutes}
+      
       {/* Redirect root to home page (protected) */}
       <Route path="/" element={<Navigate to="/home" replace />} />
       
@@ -56,12 +62,6 @@ export const AppRoutes = () => {
         {/* Shared/General Routes */}
         {sharedRoutes}
       </Route>
-      
-      {/* Candidate routes (separate auth, separate layout) */}
-      {candidateRoutes}
-      
-      {/* Public routes (no sidebar, no auth required) */}
-      {publicRoutes}
       
       {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />

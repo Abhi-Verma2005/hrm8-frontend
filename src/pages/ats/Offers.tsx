@@ -18,6 +18,7 @@ export default function Offers() {
   useEffect(() => {
     loadOffers();
   }, []);
+  
 
   const loadOffers = () => {
     setOffers(getOffers());
@@ -32,7 +33,7 @@ export default function Offers() {
       candidateEmail: 'candidate@example.com',
       jobId: 'job-temp',
       jobTitle: 'Sample Position',
-      templateId: data.templateId,
+      templateId: data?.templateId,
       offerType: data.offerType,
       salary: data.salary,
       salaryCurrency: data.salaryCurrency,

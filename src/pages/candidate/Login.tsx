@@ -24,7 +24,7 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function CandidateLogin() {
   const [isLoading, setIsLoading] = useState(false);
-  const { login, isAuthenticated } = useCandidateAuth();
+  const { login, isAuthenticated, isLoading: authLoading } = useCandidateAuth();
   const navigate = useNavigate();
 
   const {
@@ -35,12 +35,23 @@ export default function CandidateLogin() {
     resolver: zodResolver(loginSchema),
   });
 
+  // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!authLoading && isAuthenticated) {
       navigate('/candidate/dashboard', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Don't render login form if authenticated
   if (isAuthenticated) {
     return null;
   }
@@ -104,7 +115,7 @@ export default function CandidateLogin() {
             </Link>
           </div>
           <div className="text-sm text-center text-muted-foreground">
-            <Link to="/jobs" className="text-primary hover:underline">
+            <Link to="/candidate/jobs" className="text-primary hover:underline">
               Browse jobs without an account
             </Link>
           </div>

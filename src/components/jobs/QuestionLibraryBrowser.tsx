@@ -24,7 +24,7 @@ import {
   deleteQuestionFromLibrary,
   getCategories,
 } from "@/lib/questionLibraryStorage";
-import { questionTypeLabels, questionTypeIcons } from "@/lib/applicationFormUtils";
+import { getQuestionTypeIcon, getQuestionTypeLabel } from "@/lib/applicationFormUtils";
 import { Plus, Search, MoreVertical, Trash2, Sparkles, BookmarkCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -68,7 +68,7 @@ export function QuestionLibraryBrowser({
         (q) =>
           q.label.toLowerCase().includes(query) ||
           q.description?.toLowerCase().includes(query) ||
-          questionTypeLabels[q.type].toLowerCase().includes(query)
+          getQuestionTypeLabel(q.type).toLowerCase().includes(query)
       );
     }
 
@@ -157,7 +157,7 @@ export function QuestionLibraryBrowser({
                 ) : (
                   <div className="space-y-3 pr-4">
                     {filteredQuestions.map((question) => {
-                      const TypeIcon = questionTypeIcons[question.type];
+                      const TypeIcon = getQuestionTypeIcon(question.type);
                       const inForm = isQuestionInForm(question.libraryId);
 
                       return (
@@ -197,7 +197,7 @@ export function QuestionLibraryBrowser({
                           <CardFooter className="pt-0 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <Badge variant="outline" className="text-xs">
-                                {questionTypeLabels[question.type]}
+                                {getQuestionTypeLabel(question.type)}
                               </Badge>
                               {question.required && (
                                 <Badge variant="destructive" className="text-xs">
