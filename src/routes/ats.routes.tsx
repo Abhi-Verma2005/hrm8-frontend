@@ -16,6 +16,8 @@ import EmailTemplates from "@/pages/ats/EmailTemplates";
 import EmailCenter from "@/pages/ats/EmailCenter";
 import ImportExport from "@/pages/ats/ImportExport";
 import Applications from "@/pages/ats/Applications";
+import JobApplications from "@/pages/ats/JobApplications";
+import ApplicationDetail from "@/pages/ats/ApplicationDetail";
 import Requisitions from "@/pages/ats/Requisitions";
 import RequisitionDetail from "@/pages/ats/RequisitionDetail";
 import Interviews from "@/pages/ats/Interviews";
@@ -67,6 +69,8 @@ export const atsRoutes = (
     <Route path="/requisitions/:id" element={<RequisitionDetail />} />
     <Route path="/interviews" element={<Interviews />} />
     <Route path="/offers" element={<Offers />} />
+    <Route path="/jobs/:jobId/applications" element={<JobApplications />} />
+    <Route path="/jobs/:jobId/applications/:id" element={<ApplicationDetail />} />
     <Route path="/assessments" element={<Assessments />} />
     <Route path="/assessments/:id" element={<AssessmentDetail />} />
     <Route path="/assessments/compare" element={<AssessmentComparisonPage />} />

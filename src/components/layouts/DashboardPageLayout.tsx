@@ -59,10 +59,3 @@ export function DashboardPageLayout({
     </>
   );
 }
-<div className={fullWidth ? "w-full" : "container"}>
-  {children}
-</div>
-      </div >
-    </>
-  );
-}

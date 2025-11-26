@@ -3,7 +3,7 @@ import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -38,6 +38,8 @@ import { JobActivityFeed } from "@/components/jobs/JobActivityFeed";
 import { JobLifecycleActions } from "@/components/jobs/JobLifecycleActions";
 import { formatSalaryRange, formatExperienceLevel, formatRelativeDate } from "@/lib/jobUtils";
 import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
+import { JobApplicantsList } from "@/components/applications/JobApplicantsList";
+import { AllApplicantsCard } from "@/components/applications/AllApplicantsCard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,6 +63,7 @@ import { JobDetailPageSkeleton } from "@/components/jobs/JobDetailPageSkeleton";
 import { JobBoardVisibilityControl } from "@/components/jobs/JobBoardVisibilityControl";
 import { ArchiveJobDialog } from "@/components/jobs/ArchiveJobDialog";
 import { DeleteJobDialog } from "@/components/jobs/DeleteJobDialog";
+import { applicationService } from "@/lib/applicationService";
 
 export default function JobDetail() {
   const { jobId } = useParams();
@@ -74,6 +77,7 @@ export default function JobDetail() {
   const [loading, setLoading] = useState(true);
   const [isProcessingArchive, setIsProcessingArchive] = useState(false);
   const [isProcessingDelete, setIsProcessingDelete] = useState(false);
+  const [applicantsCount, setApplicantsCount] = useState<number | undefined>(undefined);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -123,6 +127,23 @@ export default function JobDetail() {
     
     fetchJob();
   }, [jobId, refreshKey, toast]);
+
+  // Fetch applicant count from applications API so the All Applicants card shows real total
+  useEffect(() => {
+    const loadCount = async () => {
+      if (!jobId) return;
+      try {
+        const res = await applicationService.getJobApplications(jobId);
+        const list = res.data?.applications || [];
+        setApplicantsCount(list.length);
+      } catch (err) {
+        console.error("[JobDetail] Failed to load applicants count", err);
+        setApplicantsCount(undefined);
+      }
+    };
+
+    loadCount();
+  }, [jobId, refreshKey]);
 
   const handleJobUpdate = async () => {
     setRefreshKey(prev => prev + 1);
@@ -574,7 +595,16 @@ export default function JobDetail() {
           </TabsContent>
 
           {/* Applicants Tab */}
-          <TabsContent value="applicants" className="mt-6">
+          <TabsContent value="applicants" className="mt-6 space-y-6">
+            {/* All Applicants quick card styled like an application card */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <AllApplicantsCard
+                onClick={() => navigate(`/jobs/${job.id}/applications`)}
+                count={applicantsCount ?? job.applicantsCount}
+              />
+            </div>
+
+            {/* Kanban pipeline */}
             <ApplicationPipeline jobId={job.id} jobTitle={job.title} />
           </TabsContent>
 

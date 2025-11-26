@@ -50,6 +50,11 @@ class ApplicationService {
     return apiClient.get<{ application: Application }>(`/api/applications/${id}`);
   }
 
+  // Recruiter/admin view – does not require candidate auth
+  async getApplicationForAdmin(id: string) {
+    return apiClient.get<{ application: Application }>(`/api/applications/admin/${id}`);
+  }
+
   async getCandidateApplications() {
     return apiClient.get<{ applications: Application[] }>('/api/applications');
   }

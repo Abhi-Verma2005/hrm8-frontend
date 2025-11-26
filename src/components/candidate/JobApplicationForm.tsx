@@ -69,20 +69,20 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
     // Standard fields
     if (config.includeStandardFields.resume.included) {
       schemaFields.resume = config.includeStandardFields.resume.required
-        ? z.instanceof(File, { message: 'Resume is required' })
-        : z.instanceof(File).optional();
+        ? z.any()
+        : z.any().optional();
     }
 
     if (config.includeStandardFields.coverLetter.included) {
       schemaFields.coverLetter = config.includeStandardFields.coverLetter.required
-        ? z.instanceof(File, { message: 'Cover letter is required' })
-        : z.instanceof(File).optional();
+        ? z.string().min(1, 'Cover letter is required')
+        : z.string().optional().or(z.literal(''));
     }
 
     if (config.includeStandardFields.portfolio.included) {
       schemaFields.portfolio = config.includeStandardFields.portfolio.required
-        ? z.instanceof(File, { message: 'Portfolio is required' })
-        : z.instanceof(File).optional();
+        ? z.any()
+        : z.any().optional();
     }
 
     if (config.includeStandardFields.linkedIn.included) {
@@ -135,9 +135,8 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
             break;
 
           case 'file_upload':
-            fieldSchema = question.required
-              ? z.instanceof(File, { message: 'File is required' })
-              : z.instanceof(File).optional();
+            // Mock file upload – accept any value so we don't block submission
+            fieldSchema = question.required ? z.any() : z.any().optional();
             break;
 
           default:
@@ -240,11 +239,12 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
           },
           standardFields: {
             resume: uploadedFiles.resume ? uploadedFiles.resume.file.name : undefined,
-            coverLetter: uploadedFiles.coverLetter ? uploadedFiles.coverLetter.file.name : undefined,
+            coverLetter: data.coverLetter || undefined,
             portfolio: uploadedFiles.portfolio ? uploadedFiles.portfolio.file.name : undefined,
             linkedIn: data.linkedIn || undefined,
             website: data.website || undefined,
           },
+          coverLetterMarkdown: data.coverLetter || undefined,
         },
       };
 
@@ -616,36 +616,20 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
           {normalizedFormConfig.includeStandardFields.coverLetter.included && (
             <div className="space-y-2">
               <Label htmlFor="coverLetter">
-                Cover Letter
+                Cover Letter (Markdown supported)
                 {normalizedFormConfig.includeStandardFields.coverLetter.required && (
                   <span className="text-destructive">*</span>
                 )}
               </Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="coverLetter"
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    handleFileUpload('coverLetter', file);
-                  }}
-                />
-                {uploadedFiles.coverLetter && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <File className="h-4 w-4" />
-                    <span>{uploadedFiles.coverLetter.file.name}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleFileUpload('coverLetter', null)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-              </div>
+              <p className="text-xs text-muted-foreground">
+                You can use basic markdown (**, *, -, #) to format your cover letter.
+              </p>
+              <Textarea
+                id="coverLetter"
+                rows={6}
+                placeholder="Write your cover letter here..."
+                {...register('coverLetter')}
+              />
               {errors.coverLetter && (
                 <p className="text-sm text-destructive">{errors.coverLetter.message as string}</p>
               )}

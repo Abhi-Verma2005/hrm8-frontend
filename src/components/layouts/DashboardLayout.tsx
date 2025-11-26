@@ -5,10 +5,6 @@ import { CommandPalette } from "@/components/common/CommandPalette";
 import { KeyboardShortcutsDialog } from "@/components/dialogs/KeyboardShortcutsDialog";
 import { useNavigationShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useSidebarState } from "@/hooks/useSidebarState";
-<<<<<<< HEAD
-
-=======
->>>>>>> 4f711825f5a63474967324fe793905a76e5da39e
 
 export function DashboardLayout() {
   const { open, setOpen } = useSidebarState();
@@ -20,11 +16,7 @@ export function DashboardLayout() {
         <AppSidebar />
         <SidebarInset className="flex-1">
           <div className="min-w-0">
-<<<<<<< HEAD
-
-=======
->>>>>>> 4f711825f5a63474967324fe793905a76e5da39e
-            <Outlet />
+           <Outlet />
           </div>
         </SidebarInset>
       </div>

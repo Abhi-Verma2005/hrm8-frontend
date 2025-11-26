@@ -73,10 +73,12 @@ export default function ApplicationConfirmation() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => navigate('/candidate/applications')}
+                onClick={() =>
+                  id ? navigate(`/application/${id}`) : navigate('/candidate/applications')
+                }
               >
                 <FileText className="h-4 w-4 mr-2" />
-                View All Applications
+                {id ? 'View This Application' : 'View Applications'}
               </Button>
               <Button
                 variant="outline"

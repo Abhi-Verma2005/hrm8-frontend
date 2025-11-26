@@ -109,7 +109,7 @@ export default function ApplicationsPage() {
                 <Button
                   variant="outline"
                   className="mt-4"
-                  onClick={() => navigate('/jobs')}
+                  onClick={() => navigate('/candidate/jobs')}
                 >
                   Browse Jobs
                 </Button>
@@ -121,7 +121,7 @@ export default function ApplicationsPage() {
                 <div
                   key={app.id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
-                  onClick={() => navigate(`/candidate/applications/${app.id}`)}
+                  onClick={() => navigate(`/application/${app.id}`)}
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -145,7 +145,7 @@ export default function ApplicationsPage() {
                     size="sm"
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`/candidate/applications/${app.id}`);
+                      navigate(`/application/${app.id}`);
                     }}
                   >
                     <Eye className="h-4 w-4 mr-2" />
