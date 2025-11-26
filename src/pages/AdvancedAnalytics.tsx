@@ -39,7 +39,7 @@ export default function AdvancedAnalytics() {
   }, []);
 
   // Apply filters to data
-  const filteredDepartments = departments.filter(dept => 
+  const filteredDepartments = departments.filter(dept =>
     selectedDepartments.length === 0 || selectedDepartments.includes(dept.department)
   );
 
@@ -52,14 +52,14 @@ export default function AdvancedAnalytics() {
   );
 
   const filteredInsights = insights.filter(insight =>
-    selectedPriority === 'all' || 
+    selectedPriority === 'all' ||
     (selectedPriority === 'high' && insight.impact === 'high') ||
     (selectedPriority === 'medium' && insight.impact === 'medium') ||
     (selectedPriority === 'low' && insight.impact === 'low')
   );
 
   const allDepartments = [...new Set(departments.map(d => d.department))];
-  const activeFilterCount = 
+  const activeFilterCount =
     (selectedDepartments.length > 0 ? 1 : 0) +
     (selectedMetricTypes.length < 3 ? 1 : 0) +
     (selectedPriority !== 'all' ? 1 : 0) +
@@ -307,20 +307,34 @@ export default function AdvancedAnalytics() {
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={filteredMetrics.map(m => ({
-                name: m.metricName.split(' ').slice(0, 2).join(' '),
-                current: m.currentValue,
-                predicted: m.predictedValue,
-                confidence: m.confidence
-              }))}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="current" stroke="hsl(var(--primary))" strokeWidth={2} name="Current Value" />
-                <Line type="monotone" dataKey="predicted" stroke="hsl(var(--chart-2))" strokeWidth={2} strokeDasharray="5 5" name="Predicted Value" />
-              </LineChart>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={filteredMetrics.map(m => ({
+                  name: m.metricName.split(' ').slice(0, 2).join(' '),
+                  current: m.currentValue,
+                  predicted: m.predictedValue,
+                  confidence: m.confidence
+                }))} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
+                    dy={10}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <Tooltip
+                    cursor={false}
+                    contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }}
+                  />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                  <Line type="monotone" dataKey="current" stroke="hsl(var(--primary))" strokeWidth={3} name="Current Value" dot={false} activeDot={false} />
+                  <Line type="monotone" dataKey="predicted" stroke="hsl(var(--chart-2))" strokeWidth={2} strokeDasharray="5 5" name="Predicted Value" dot={false} activeDot={false} />
+                </LineChart>
+              </ResponsiveContainer>
             </ResponsiveContainer>
           </CardContent>
         </Card>
@@ -415,14 +429,26 @@ export default function AdvancedAnalytics() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={filteredDepartments}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="department" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="performanceScore" fill="hsl(var(--chart-1))" name="Performance" />
-                  <Bar dataKey="engagementScore" fill="hsl(var(--chart-2))" name="Engagement" />
+                <BarChart data={filteredDepartments} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis
+                    dataKey="department"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
+                    dy={10}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <Tooltip
+                    cursor={{ fill: 'transparent' }}
+                    contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }}
+                  />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                  <Bar dataKey="performanceScore" fill="hsl(var(--chart-1))" name="Performance" radius={[4, 4, 0, 0]} barSize={40} />
+                  <Bar dataKey="engagementScore" fill="hsl(var(--chart-2))" name="Engagement" radius={[4, 4, 0, 0]} barSize={40} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -436,13 +462,13 @@ export default function AdvancedAnalytics() {
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
                 <RadarChart data={filteredDepartments}>
-                  <PolarGrid />
-                  <PolarAngleAxis dataKey="department" />
-                  <PolarRadiusAxis angle={90} domain={[0, 10]} />
-                  <Radar name="Performance" dataKey="performanceScore" stroke="hsl(var(--chart-1))" fill="hsl(var(--chart-1))" fillOpacity={0.6} />
-                  <Radar name="Engagement" dataKey="engagementScore" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.6} />
-                  <Tooltip />
-                  <Legend />
+                  <PolarGrid strokeOpacity={0.2} />
+                  <PolarAngleAxis dataKey="department" tick={{ fontSize: 12 }} />
+                  <PolarRadiusAxis angle={90} domain={[0, 10]} strokeOpacity={0.2} />
+                  <Radar name="Performance" dataKey="performanceScore" stroke="hsl(var(--chart-1))" fill="hsl(var(--chart-1))" fillOpacity={0.4} />
+                  <Radar name="Engagement" dataKey="engagementScore" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.4} />
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }} />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 </RadarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -501,17 +527,20 @@ export default function AdvancedAnalytics() {
                     data={workforceDistribution}
                     cx="50%"
                     cy="50%"
+                    innerRadius={70}
+                    outerRadius={110}
                     labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={100}
+                    label={false}
                     fill="#8884d8"
                     dataKey="value"
+                    strokeWidth={0}
                   >
                     {workforceDistribution.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }} />
+                  <Legend />
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
@@ -524,14 +553,24 @@ export default function AdvancedAnalytics() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={skillGapTrendData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis domain={[0, 5]} />
-                  <Tooltip />
-                  <Legend />
-                  <Area type="monotone" dataKey="currentLevel" stackId="1" stroke="hsl(var(--chart-3))" fill="hsl(var(--chart-3))" fillOpacity={0.6} name="Current Level" />
-                  <Area type="monotone" dataKey="gap" stackId="1" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.6} name="Skill Gap" />
+                <AreaChart data={skillGapTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis
+                    dataKey="name"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
+                    dy={10}
+                  />
+                  <YAxis
+                    domain={[0, 5]}
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }} />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                  <Area type="monotone" dataKey="currentLevel" stackId="1" stroke="hsl(var(--chart-3))" fill="hsl(var(--chart-3))" fillOpacity={0.6} name="Current Level" strokeWidth={2} />
+                  <Area type="monotone" dataKey="gap" stackId="1" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.6} name="Skill Gap" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </CardContent>

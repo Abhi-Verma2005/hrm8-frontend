@@ -807,6 +807,234 @@ Before submitting a page/component, verify:
 
 ---
 
+## Charts and Data Visualization
+
+### Component: `StandardChartCard`
+
+**Use `StandardChartCard` as a wrapper for all dashboard charts.**
+
+#### Default Pattern
+
+```tsx
+import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
+import { ResponsiveContainer, LineChart, BarChart, PieChart } from "recharts";
+
+<StandardChartCard
+  title="Chart Title"
+  description="Chart description"
+  onDownload={() => handleDownload()}
+  className="bg-transparent border-0 shadow-none"
+  menuItems={[
+    { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+    { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+  ]}
+>
+  <ResponsiveContainer width="100%" height={300}>
+    {/* Chart component */}
+  </ResponsiveContainer>
+</StandardChartCard>
+```
+
+#### Chart Card Styling
+
+- **Background:** `bg-transparent border-0 shadow-none` (seamless with page)
+- **Height:** `300px` for chart area (consistent across all charts)
+- **Margins:** `margin={{ top: 10, right: 10, left: -20, bottom: 0 }}`
+
+### Line Charts
+
+**Use for trends and time-series data.**
+
+```tsx
+<LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+  <XAxis 
+    dataKey="month" 
+    axisLine={false} 
+    tickLine={false} 
+    tick={{ fontSize: 12 }} 
+    dy={10}
+  />
+  <YAxis 
+    axisLine={false} 
+    tickLine={false} 
+    tick={{ fontSize: 12 }} 
+  />
+  <Tooltip cursor={false} />
+  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+  <Line 
+    type="monotone" 
+    dataKey="value" 
+    stroke="#10b981" 
+    strokeWidth={3} 
+    dot={false} 
+    activeDot={false} 
+  />
+</LineChart>
+```
+
+#### Line Chart Specifications
+
+- **Grid:** No `CartesianGrid` (clean background)
+- **Axes:**
+  - No axis lines (`axisLine={false}`)
+  - No tick marks (`tickLine={false}`)
+  - Small font size (`fontSize: 12`)
+  - X-axis offset: `dy={10}`
+- **Lines:**
+  - Type: `monotone` (smooth curves)
+  - Width: `strokeWidth={3}` (bold, visible)
+  - No dots: `dot={false}`
+  - No active dots: `activeDot={false}`
+- **Tooltip:**
+  - No cursor line: `cursor={false}`
+- **Legend:**
+  - Padding top: `paddingTop: '20px'`
+
+#### Line Chart Colors
+
+- **Primary:** `#10b981` (Emerald)
+- **Secondary:** `#3b82f6` (Blue)
+- **Tertiary:** `#8b5cf6` (Violet)
+- **Additional:** `#f59e0b` (Amber), `#ec4899` (Pink)
+
+### Bar Charts
+
+**Use for comparisons and categorical data.**
+
+```tsx
+<BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+  <XAxis 
+    dataKey="category" 
+    axisLine={false} 
+    tickLine={false} 
+    tick={{ fontSize: 12 }} 
+    dy={10}
+  />
+  <YAxis 
+    axisLine={false} 
+    tickLine={false} 
+    tick={{ fontSize: 12 }} 
+  />
+  <Tooltip cursor={{ fill: 'transparent' }} />
+  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+  <Bar 
+    dataKey="value" 
+    fill="#8b5cf6" 
+    name="Label" 
+    radius={[4, 4, 0, 0]} 
+    barSize={20} 
+  />
+</BarChart>
+```
+
+#### Bar Chart Specifications
+
+- **Grid:** No `CartesianGrid` (clean background)
+- **Axes:** Same as line charts
+- **Bars:**
+  - Rounded tops: `radius={[4, 4, 0, 0]}`
+  - Standard width: `barSize={20}` (thin bars)
+  - Wider bars: `barSize={40}` (for fewer categories)
+- **Tooltip:**
+  - Transparent cursor: `cursor={{ fill: 'transparent' }}`
+
+#### Bar Chart Colors
+
+- **Single series:** `#8b5cf6` (Violet)
+- **Dual series:** `#8b5cf6` (Violet) + `#38bdf8` (Sky Blue)
+- **Multiple series:** Use line chart color palette
+
+### Pie/Donut Charts
+
+**Use for proportional data and distributions.**
+
+```tsx
+<PieChart>
+  <Pie
+    data={data}
+    cx="50%"
+    cy="50%"
+    innerRadius={80}
+    outerRadius={120}
+    labelLine={false}
+    label={false}
+    fill="#8884d8"
+    dataKey="count"
+    strokeWidth={0}
+  >
+    {data.map((entry, index) => (
+      <Cell key={`cell-${index}`} fill={entry.color} />
+    ))}
+  </Pie>
+  <Tooltip />
+  <Legend />
+</PieChart>
+```
+
+#### Donut Chart Specifications
+
+- **Inner radius:** `80` (creates donut hole)
+- **Outer radius:** `120` (ring thickness)
+- **Labels:** `label={false}` (no inline labels)
+- **Label lines:** `labelLine={false}`
+- **Stroke:** `strokeWidth={0}` (no borders between segments)
+- **Legend:** Always include for identification
+
+#### Donut Chart Colors
+
+Use distinct, accessible colors for each segment:
+- `#3b82f6` (Blue)
+- `#10b981` (Emerald)
+- `#f59e0b` (Amber)
+- `#8b5cf6` (Violet)
+- `#ec4899` (Pink)
+- `#6366f1` (Indigo)
+
+### Common Chart Styling Rules
+
+#### ❌ Don't:
+- Add `CartesianGrid` (creates visual clutter)
+- Use axis lines or tick marks
+- Show dots on line charts
+- Add hover cursor lines
+- Use default chart backgrounds
+- Mix different styling patterns
+
+#### ✅ Do:
+- Use transparent, borderless card backgrounds
+- Remove all grid lines for clean appearance
+- Use smooth, bold lines (`strokeWidth={3}`)
+- Disable dots and active dots on lines
+- Use rounded bar tops (`radius={[4, 4, 0, 0]}`)
+- Keep consistent axis styling across all charts
+- Use consistent color palette
+- Include legends for multi-series charts
+
+### Chart Layout Grid
+
+```tsx
+{/* Charts section */}
+<div className="grid gap-4 md:grid-cols-2">
+  <StandardChartCard>{/* Chart 1 */}</StandardChartCard>
+  <StandardChartCard>{/* Chart 2 */}</StandardChartCard>
+  <StandardChartCard>{/* Chart 3 */}</StandardChartCard>
+  <StandardChartCard>{/* Chart 4 */}</StandardChartCard>
+</div>
+```
+
+- **Grid:** `grid gap-4 md:grid-cols-2`
+- **Responsive:** Single column on mobile, 2 columns on tablet+
+- **Spacing:** `gap-4` between charts
+
+### Accessibility
+
+- **Color contrast:** Ensure chart colors meet WCAG AA standards
+- **Tooltips:** Always include for data point details
+- **Legends:** Required for multi-series charts
+- **Font size:** Minimum `12px` for axis labels
+
+---
+
 ## Examples Reference
 
 Pages updated using these rules:

@@ -16,11 +16,18 @@ export function PipelineFunnelChart({ data }: PipelineFunnelChartProps) {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" />
-            <YAxis dataKey="stage" type="category" width={100} />
-            <Tooltip 
+          <BarChart data={data} layout="vertical" margin={{ top: 10, right: 30, left: 40, bottom: 0 }}>
+            <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+            <YAxis
+              dataKey="stage"
+              type="category"
+              width={100}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12 }}
+            />
+            <Tooltip
+              cursor={{ fill: 'transparent' }}
               content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
                 const data = payload[0].payload;
@@ -34,7 +41,7 @@ export function PipelineFunnelChart({ data }: PipelineFunnelChartProps) {
                 );
               }}
             />
-            <Bar dataKey="candidates" radius={[0, 4, 4, 0]}>
+            <Bar dataKey="candidates" radius={[0, 4, 4, 0]} barSize={32}>
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}

@@ -19,7 +19,7 @@ export function TimeToHireTrendChart({ data }: TimeToHireTrendChartProps) {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="period" />
             <YAxis />
-            <Tooltip 
+            <Tooltip
               content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
                 const data = payload[0].payload as TimeToHireData;
@@ -37,10 +37,10 @@ export function TimeToHireTrendChart({ data }: TimeToHireTrendChartProps) {
               }}
             />
             <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="averageDays" 
-              stroke="#8b5cf6" 
+            <Line
+              type="monotone"
+              dataKey="averageDays"
+              stroke="#8b5cf6"
               strokeWidth={2}
               name="Avg. Days to Hire"
               dot={{ fill: '#8b5cf6', r: 4 }}

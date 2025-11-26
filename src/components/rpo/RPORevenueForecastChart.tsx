@@ -1,13 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { 
-  LineChart, 
-  Line, 
+import {
+  LineChart,
+  Line,
   BarChart,
   Bar,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   Legend
 } from 'recharts';
@@ -32,7 +32,7 @@ export function RPORevenueForecastChart({ forecasts }: RPORevenueForecastChartPr
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       const forecast = forecasts.find(f => f.monthLabel === data.month);
-      
+
       return (
         <div className="bg-background border rounded-lg shadow-lg p-3">
           <p className="font-semibold mb-2">{data.month}</p>
@@ -46,7 +46,7 @@ export function RPORevenueForecastChart({ forecasts }: RPORevenueForecastChartPr
               {data.contracts}
             </span>
           </p>
-          
+
           {forecast && forecast.contractBreakdown.length > 0 && (
             <div className="mt-2 pt-2 border-t">
               <p className="text-xs font-semibold mb-1">Contract Breakdown:</p>
@@ -96,21 +96,21 @@ export function RPORevenueForecastChart({ forecasts }: RPORevenueForecastChartPr
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="month" 
+            <XAxis
+              dataKey="month"
               className="text-xs"
               angle={-45}
               textAnchor="end"
               height={80}
             />
-            <YAxis 
+            <YAxis
               className="text-xs"
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
-            <Bar 
-              dataKey="revenue" 
+            <Bar
+              dataKey="revenue"
               name="Projected Revenue"
               fill="hsl(var(--chart-2))"
               radius={[8, 8, 0, 0]}
@@ -123,37 +123,37 @@ export function RPORevenueForecastChart({ forecasts }: RPORevenueForecastChartPr
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis 
-                dataKey="month" 
+              <XAxis
+                dataKey="month"
                 className="text-xs"
                 angle={-45}
                 textAnchor="end"
                 height={60}
               />
-              <YAxis 
+              <YAxis
                 className="text-xs"
                 yAxisId="left"
                 tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
               />
-              <YAxis 
+              <YAxis
                 className="text-xs"
                 yAxisId="right"
                 orientation="right"
               />
               <Tooltip content={<CustomTooltip />} />
               <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="revenue" 
+              <Line
+                type="monotone"
+                dataKey="revenue"
                 name="Revenue Trend"
                 stroke="hsl(var(--chart-2))"
                 strokeWidth={2}
                 yAxisId="left"
                 dot={{ fill: 'hsl(var(--chart-2))' }}
               />
-              <Line 
-                type="monotone" 
-                dataKey="contracts" 
+              <Line
+                type="monotone"
+                dataKey="contracts"
                 name="Active Contracts"
                 stroke="hsl(var(--chart-1))"
                 strokeWidth={2}

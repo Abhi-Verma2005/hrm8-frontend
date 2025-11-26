@@ -47,17 +47,17 @@ export function HiringTrendsChart() {
           <CardTitle>Hiring Trends</CardTitle>
           <CardDescription>Application flow over the last 6 months</CardDescription>
         </div>
-          <div className="flex items-center gap-1">
-            <DateRangePickerCompact
-              value={dateRange}
-              onChange={setDateRange}
-              align="end"
-            />
-          
+        <div className="flex items-center gap-1">
+          <DateRangePickerCompact
+            value={dateRange}
+            onChange={setDateRange}
+            align="end"
+          />
+
           <Button variant="ghost" size="icon-sm">
             <Download className="h-4 w-4" />
           </Button>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon-sm">

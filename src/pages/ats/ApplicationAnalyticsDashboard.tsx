@@ -4,10 +4,10 @@ import { DashboardActionBar } from '@/components/dashboard/DashboardActionBar';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getApplications } from '@/lib/mockApplicationStorage';
-import { 
-  calculateTimeToHire, 
-  calculateConversionRates, 
-  analyzeSourceEffectiveness, 
+import {
+  calculateTimeToHire,
+  calculateConversionRates,
+  analyzeSourceEffectiveness,
   analyzeRecruiterPerformance,
   getApplicationVolumeOverTime,
   getStatusDistribution
@@ -16,6 +16,7 @@ import { TimeToHireChart } from '@/components/applications/analytics/TimeToHireC
 import { ConversionRateChart } from '@/components/applications/analytics/ConversionRateChart';
 import { SourceEffectivenessChart } from '@/components/applications/analytics/SourceEffectivenessChart';
 import { RecruiterPerformanceTable } from '@/components/applications/analytics/RecruiterPerformanceTable';
+import { StandardChartCard } from '@/components/dashboard/charts/StandardChartCard';
 import { Clock, TrendingUp, Users, Award } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
@@ -73,7 +74,7 @@ export default function ApplicationAnalyticsDashboard() {
     setSelectedRegion('all');
   };
 
-  const hasActiveFilters = selectedCountry !== 'all' || selectedRegion !== 'all' || 
+  const hasActiveFilters = selectedCountry !== 'all' || selectedRegion !== 'all' ||
     (dateRange.from && dateRange.from.getTime() !== new Date(new Date().setMonth(new Date().getMonth() - 6)).getTime());
 
   return (
@@ -146,45 +147,62 @@ export default function ApplicationAnalyticsDashboard() {
 
           <TabsContent value="overview" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2">
-              <Card className="p-6">
-                <h3 className="font-semibold mb-4">Application Volume Trend</h3>
+              <StandardChartCard
+                title="Application Volume Trend"
+                className="bg-transparent border-0 shadow-none"
+              >
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={metrics.volumeOverTime}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" className="text-xs" />
-                    <YAxis className="text-xs" />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
+                  <LineChart data={metrics.volumeOverTime} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis
+                      dataKey="month"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                      dy={10}
                     />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="count" 
-                      stroke="hsl(var(--chart-1))" 
-                      strokeWidth={2}
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <Tooltip cursor={false} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      stroke="#3b82f6"
+                      strokeWidth={3}
                       name="Applications"
-                      dot={{ fill: 'hsl(var(--chart-1))' }}
+                      dot={false}
+                      activeDot={false}
                     />
                   </LineChart>
                 </ResponsiveContainer>
-              </Card>
+              </StandardChartCard>
 
-              <Card className="p-6">
-                <h3 className="font-semibold mb-4">Status Distribution</h3>
+              <StandardChartCard
+                title="Status Distribution"
+                className="bg-transparent border-0 shadow-none"
+              >
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={metrics.statusDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="status" className="text-xs" />
-                    <YAxis className="text-xs" />
-                    <Tooltip 
-                      contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
+                  <BarChart data={metrics.statusDistribution} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis
+                      dataKey="status"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                      dy={10}
                     />
-                    <Bar dataKey="count" fill="hsl(var(--chart-2))" name="Count" />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <Tooltip cursor={{ fill: 'transparent' }} />
+                    <Bar dataKey="count" fill="#8b5cf6" name="Count" radius={[4, 4, 0, 0]} barSize={40} />
                   </BarChart>
                 </ResponsiveContainer>
-              </Card>
+              </StandardChartCard>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">

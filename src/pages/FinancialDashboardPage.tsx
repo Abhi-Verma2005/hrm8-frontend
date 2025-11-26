@@ -6,8 +6,8 @@ import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCa
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
 import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
-import { 
-  DollarSign, TrendingUp, TrendingDown, CreditCard, Download, Eye, Filter as FilterIcon, 
+import {
+  DollarSign, TrendingUp, TrendingDown, CreditCard, Download, Eye, Filter as FilterIcon,
   BarChart3, PieChart as PieChartIcon, Wallet
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -64,17 +64,17 @@ export default function FinancialDashboardPage() {
   const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
 
   // Calculate filtered metrics
-  const filteredTotalRevenue = useMemo(() => 
+  const filteredTotalRevenue = useMemo(() =>
     applyLocationFilterToMetric(356000, selectedCountry, selectedRegion),
     [selectedCountry, selectedRegion]
   );
 
-  const filteredNetProfit = useMemo(() => 
+  const filteredNetProfit = useMemo(() =>
     applyLocationFilterToMetric(121000, selectedCountry, selectedRegion),
     [selectedCountry, selectedRegion]
   );
 
-  const filteredTotalExpenses = useMemo(() => 
+  const filteredTotalExpenses = useMemo(() =>
     applyLocationFilterToMetric(235000, selectedCountry, selectedRegion),
     [selectedCountry, selectedRegion]
   );
@@ -82,7 +82,7 @@ export default function FinancialDashboardPage() {
   // Filter data based on date range and location
   const filteredRevenueExpenses = useMemo(() => {
     let data = revenueExpenses;
-    
+
     if (dateRange?.from) {
       data = data.filter((item) => {
         const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
@@ -92,7 +92,7 @@ export default function FinancialDashboardPage() {
         });
       });
     }
-    
+
     return applyLocationFilterToTimeSeries(
       data,
       selectedCountry,
@@ -103,7 +103,7 @@ export default function FinancialDashboardPage() {
 
   const filteredPayrollTrends = useMemo(() => {
     let data = payrollTrends;
-    
+
     if (dateRange?.from) {
       data = data.filter((item) => {
         const itemDate = new Date(2024, ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'].indexOf(item.month), 1);
@@ -113,7 +113,7 @@ export default function FinancialDashboardPage() {
         });
       });
     }
-    
+
     return applyLocationFilterToTimeSeries(
       data,
       selectedCountry,
@@ -123,7 +123,7 @@ export default function FinancialDashboardPage() {
   }, [dateRange, selectedCountry, selectedRegion]);
 
   const handleExport = () => {
-    toast({ 
+    toast({
       title: "Exporting financial data...",
       description: "Preparing your export..."
     });
@@ -158,8 +158,8 @@ export default function FinancialDashboardPage() {
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
       <div className="p-6 space-y-6">
-          {/* Active Filters Indicator */}
-          <ActiveFiltersIndicator
+        {/* Active Filters Indicator */}
+        <ActiveFiltersIndicator
           selectedCountry={selectedCountry}
           selectedRegion={selectedRegion}
           dateRange={dateRange}
@@ -169,183 +169,183 @@ export default function FinancialDashboardPage() {
         />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <EnhancedStatCard
-              title="Total Revenue"
-              value=""
-              isCurrency={true}
-              rawValue={filteredTotalRevenue}
-              change="+15.2%"
-              trend="up"
-              icon={<DollarSign className="h-6 w-6" />}
-              variant="success"
-              showMenu={true}
-              menuItems={[
-                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/finance') },
-                { label: "Analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
-              ]}
-            />
+          <EnhancedStatCard
+            title="Total Revenue"
+            value=""
+            isCurrency={true}
+            rawValue={filteredTotalRevenue}
+            change="+15.2%"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/finance') },
+              { label: "Analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-            <EnhancedStatCard
-              title="Total Expenses"
-              value=""
-              isCurrency={true}
-              rawValue={235000}
-              change="+8.4%"
-              trend="up"
-              icon={<CreditCard className="h-6 w-6" />}
-              variant="warning"
-              showMenu={true}
-              menuItems={[
-                { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                { label: "Budget Analysis", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
-              ]}
-            />
+          <EnhancedStatCard
+            title="Total Expenses"
+            value=""
+            isCurrency={true}
+            rawValue={235000}
+            change="+8.4%"
+            trend="up"
+            icon={<CreditCard className="h-6 w-6" />}
+            variant="warning"
+            showMenu={true}
+            menuItems={[
+              { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+              { label: "Budget Analysis", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-            <EnhancedStatCard
-              title="Profit Margin"
-              value="34.0%"
-              change="+2.3%"
-              trend="up"
-              icon={<TrendingUp className="h-6 w-6" />}
-              variant="success"
-              showMenu={true}
-              menuItems={[
-                { label: "View Trend", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                { label: "Compare Periods", icon: <FilterIcon className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
-              ]}
-            />
+          <EnhancedStatCard
+            title="Profit Margin"
+            value="34.0%"
+            change="+2.3%"
+            trend="up"
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              { label: "View Trend", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+              { label: "Compare Periods", icon: <FilterIcon className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
 
-            <EnhancedStatCard
-              title="Payroll Cost"
-              value=""
-              isCurrency={true}
-              rawValue={192000}
-              change="+3.2%"
-              trend="up"
-              icon={<Wallet className="h-6 w-6" />}
-              variant="primary"
-              showMenu={true}
-              menuItems={[
-                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/payroll') },
-                { label: "Forecast", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
-              ]}
-            />
-          </div>
+          <EnhancedStatCard
+            title="Payroll Cost"
+            value=""
+            isCurrency={true}
+            rawValue={192000}
+            change="+3.2%"
+            trend="up"
+            icon={<Wallet className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/payroll') },
+              { label: "Forecast", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
+        </div>
 
-          {/* Charts */}
-          <div className="grid gap-4 md:grid-cols-2">
-            <StandardChartCard
-              title="Revenue vs Expenses"
-              description={`Monthly financial comparison${dateRange?.from ? ' (filtered)' : ''}`}
-              onDownload={() => toast({ title: "Downloading financial comparison..." })}
-              menuItems={[
-                { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setDateRange(undefined) },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
-              ]}
-            >
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={filteredRevenueExpenses}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="revenue" fill="#10b981" name="Revenue" />
-                  <Bar dataKey="expenses" fill="#ef4444" name="Expenses" />
-                </BarChart>
-              </ResponsiveContainer>
-            </StandardChartCard>
+        {/* Charts */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <StandardChartCard
+            title="Revenue vs Expenses"
+            description={`Monthly financial comparison${dateRange?.from ? ' (filtered)' : ''}`}
+            onDownload={() => toast({ title: "Downloading financial comparison..." })}
+            menuItems={[
+              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+              { label: "Clear Filter", icon: <FilterIcon className="h-4 w-4" />, onClick: () => setDateRange(undefined) },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={filteredRevenueExpenses}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="revenue" fill="#10b981" name="Revenue" />
+                <Bar dataKey="expenses" fill="#ef4444" name="Expenses" />
+              </BarChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
 
-            <StandardChartCard
-              title="Budget Analysis"
-              description={`Budget vs actual spending${dateRange?.from ? ' (filtered)' : ''}`}
-              onDownload={() => toast({ title: "Downloading budget analysis..." })}
-              menuItems={[
-                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
-              ]}
-            >
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={budgetAnalysis} layout="horizontal">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="category" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="budget" fill="#3b82f6" name="Budget" />
-                  <Bar dataKey="spent" fill="#8b5cf6" name="Spent" />
-                </BarChart>
-              </ResponsiveContainer>
-            </StandardChartCard>
+          <StandardChartCard
+            title="Budget Analysis"
+            description={`Budget vs actual spending${dateRange?.from ? ' (filtered)' : ''}`}
+            onDownload={() => toast({ title: "Downloading budget analysis..." })}
+            menuItems={[
+              { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={budgetAnalysis} layout="horizontal">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="category" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="budget" fill="#3b82f6" name="Budget" />
+                <Bar dataKey="spent" fill="#8b5cf6" name="Spent" />
+              </BarChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
 
-            <StandardChartCard
-              title="Cost Breakdown"
-              description="Expense distribution by category"
-              onDownload={() => toast({ title: "Downloading cost breakdown..." })}
-              menuItems={[
-                { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
-              ]}
-            >
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={costBreakdown}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={100}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {costBreakdown.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </StandardChartCard>
+          <StandardChartCard
+            title="Cost Breakdown"
+            description="Expense distribution by category"
+            onDownload={() => toast({ title: "Downloading cost breakdown..." })}
+            menuItems={[
+              { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={costBreakdown}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {costBreakdown.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
 
-            <StandardChartCard
-              title="Payroll Trends"
-              description={`Monthly payroll and benefits${dateRange?.from ? ' (filtered)' : ''}`}
-              onDownload={() => toast({ title: "Downloading payroll trends..." })}
-              menuItems={[
-                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/payroll') },
-                { label: "Forecast", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
-              ]}
-            >
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={filteredPayrollTrends}>
-                  <defs>
-                    <linearGradient id="colorPayroll" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
-                    </linearGradient>
-                    <linearGradient id="colorBenefits" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Area type="monotone" dataKey="payroll" stroke="#3b82f6" fillOpacity={1} fill="url(#colorPayroll)" name="Payroll" />
-                  <Area type="monotone" dataKey="benefits" stroke="#10b981" fillOpacity={1} fill="url(#colorBenefits)" name="Benefits" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </StandardChartCard>
-          </div>
+          <StandardChartCard
+            title="Payroll Trends"
+            description={`Monthly payroll and benefits${dateRange?.from ? ' (filtered)' : ''}`}
+            onDownload={() => toast({ title: "Downloading payroll trends..." })}
+            menuItems={[
+              { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/payroll') },
+              { label: "Forecast", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={filteredPayrollTrends}>
+                <defs>
+                  <linearGradient id="colorPayroll" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorBenefits" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Area type="monotone" dataKey="payroll" stroke="#3b82f6" fillOpacity={1} fill="url(#colorPayroll)" name="Payroll" />
+                <Area type="monotone" dataKey="benefits" stroke="#10b981" fillOpacity={1} fill="url(#colorBenefits)" name="Benefits" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
+        </div>
       </div>
     </DashboardPageLayout>
   );

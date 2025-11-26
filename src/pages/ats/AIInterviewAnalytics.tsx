@@ -6,21 +6,22 @@ import { BarChart3, TrendingUp, Clock, CheckCircle } from 'lucide-react';
 import { AIInterviewPerformanceChart } from '@/components/aiInterview/dashboard/AIInterviewPerformanceChart';
 import { AIInterviewCalendar } from '@/components/aiInterview/calendar/AIInterviewCalendar';
 import { InterviewComparisonTool } from '@/components/aiInterview/comparison/InterviewComparisonTool';
+import { StandardChartCard } from '@/components/dashboard/charts/StandardChartCard';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell } from 'recharts';
 
 export default function AIInterviewAnalytics() {
   const sessions = getAIInterviewSessions();
   const completedSessions = sessions.filter(s => s.status === 'completed');
-  
+
   const totalInterviews = sessions.length;
-  const completionRate = totalInterviews > 0 
-    ? Math.round((completedSessions.length / totalInterviews) * 100) 
+  const completionRate = totalInterviews > 0
+    ? Math.round((completedSessions.length / totalInterviews) * 100)
     : 0;
-  
+
   const avgScore = completedSessions.length > 0
     ? Math.round(completedSessions.reduce((sum, s) => sum + (s.analysis?.overallScore || 0), 0) / completedSessions.length)
     : 0;
-  
+
   const avgDuration = completedSessions.length > 0
     ? Math.round(completedSessions.reduce((sum, s) => sum + (s.duration || 0), 0) / completedSessions.length / 60)
     : 0;
@@ -30,7 +31,7 @@ export default function AIInterviewAnalytics() {
     const month = new Date();
     month.setMonth(month.getMonth() - (5 - i));
     const monthName = month.toLocaleDateString('en-US', { month: 'short' });
-    
+
     return {
       month: monthName,
       interviews: Math.floor(Math.random() * 10) + 5,
@@ -115,26 +116,58 @@ export default function AIInterviewAnalytics() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-semibold">Interview Trends</CardTitle>
-              <CardDescription>Interview volume and average scores over time</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={monthlyData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
-                  <Tooltip />
-                  <Legend />
-                  <Line yAxisId="left" type="monotone" dataKey="interviews" stroke="hsl(var(--primary))" name="Interviews" />
-                  <Line yAxisId="right" type="monotone" dataKey="avgScore" stroke="hsl(var(--secondary))" name="Avg Score" />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+          <StandardChartCard
+            title="Interview Trends"
+            description="Interview volume and average scores over time"
+            className="bg-transparent border-0 shadow-none"
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={monthlyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  yAxisId="left"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip cursor={false} />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Line
+                  yAxisId="left"
+                  type="monotone"
+                  dataKey="interviews"
+                  stroke="#3b82f6"
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={false}
+                  name="Interviews"
+                />
+                <Line
+                  yAxisId="right"
+                  type="monotone"
+                  dataKey="avgScore"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  dot={false}
+                  activeDot={false}
+                  name="Avg Score"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
 
           <Card>
             <CardHeader>
@@ -168,32 +201,33 @@ export default function AIInterviewAnalytics() {
           </Card>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">Interview Modes Distribution</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
-                  <PieChart>
-                    <Pie
-                      data={modeData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={80}
-                      fill="hsl(var(--primary))"
-                      dataKey="value"
-                    >
-                      {modeData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
+            <StandardChartCard
+              title="Interview Modes Distribution"
+              className="bg-transparent border-0 shadow-none"
+            >
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={modeData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    labelLine={false}
+                    label={false}
+                    fill="hsl(var(--primary))"
+                    dataKey="value"
+                    strokeWidth={0}
+                  >
+                    {modeData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </StandardChartCard>
 
             <Card>
               <CardHeader>

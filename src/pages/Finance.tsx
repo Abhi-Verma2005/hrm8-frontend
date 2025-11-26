@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Helmet } from "react-helmet-async";
-import { 
-  DollarSign, TrendingUp, TrendingDown, Users, Building2, 
+import {
+  DollarSign, TrendingUp, TrendingDown, Users, Building2,
   CreditCard, Receipt, ArrowUpRight, ArrowDownRight, Calendar,
   PieChart, BarChart3, Download
 } from "lucide-react";
@@ -58,7 +58,7 @@ export default function Finance() {
 
     const avgCustomerValue = currentRevenue / metrics.totalEmployers;
     const lifetimeValue = avgCustomerValue * 24; // 2 years average
-    
+
     const projectedAnnual = currentRevenue * 12 * (1 + metrics.revenueGrowth / 100);
 
     return {
@@ -187,15 +187,28 @@ export default function Finance() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={350}>
-                  <AreaChart data={revenueData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
-                    <Legend />
-                    <Area type="monotone" dataKey="revenue" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} name="Revenue" />
-                    <Area type="monotone" dataKey="expenses" stackId="2" stroke="#ef4444" fill="#ef4444" fillOpacity={0.6} name="Expenses" />
-                    <Area type="monotone" dataKey="profit" stackId="3" stroke="#10b981" fill="#10b981" fillOpacity={0.6} name="Profit" />
+                  <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis
+                      dataKey="month"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                      dy={10}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <Tooltip
+                      formatter={(value) => `$${value.toLocaleString()}`}
+                      cursor={{ stroke: '#3b82f6', strokeWidth: 1, strokeDasharray: '5 5' }}
+                      contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }}
+                    />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Area type="monotone" dataKey="revenue" stackId="1" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} name="Revenue" strokeWidth={2} />
+                    <Area type="monotone" dataKey="expenses" stackId="2" stroke="#ef4444" fill="#ef4444" fillOpacity={0.6} name="Expenses" strokeWidth={2} />
+                    <Area type="monotone" dataKey="profit" stackId="3" stroke="#10b981" fill="#10b981" fillOpacity={0.6} name="Profit" strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -209,12 +222,25 @@ export default function Finance() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={subscriptionData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="tier" />
-                      <YAxis />
-                      <Tooltip formatter={(value) => `$${value.toLocaleString()}`} />
-                      <Bar dataKey="revenue" fill="#3b82f6" name="Revenue" />
+                    <BarChart data={subscriptionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <XAxis
+                        dataKey="tier"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12 }}
+                        dy={10}
+                      />
+                      <YAxis
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <Tooltip
+                        formatter={(value) => `$${value.toLocaleString()}`}
+                        cursor={{ fill: 'transparent' }}
+                        contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }}
+                      />
+                      <Bar dataKey="revenue" fill="#3b82f6" name="Revenue" radius={[4, 4, 0, 0]} barSize={40} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -271,17 +297,23 @@ export default function Finance() {
                         data={customerValueData}
                         cx="50%"
                         cy="50%"
+                        innerRadius={70}
+                        outerRadius={110}
                         labelLine={false}
-                        label={({ segment, value }) => `${segment}: $${value}`}
-                        outerRadius={100}
+                        label={false}
                         fill="#8884d8"
                         dataKey="value"
+                        strokeWidth={0}
                       >
                         {customerValueData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(value) => `$${value}`} />
+                      <Tooltip
+                        formatter={(value) => `$${value}`}
+                        contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }}
+                      />
+                      <Legend />
                     </RechartsPieChart>
                   </ResponsiveContainer>
                 </CardContent>
@@ -335,12 +367,12 @@ export default function Finance() {
                         </div>
                       </div>
                       <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div 
+                        <div
                           className="h-full rounded-full transition-all"
-                          style={{ 
+                          style={{
                             width: `${(sub.count / subscriptionData.reduce((acc, s) => acc + s.count, 0)) * 100}%`,
                             backgroundColor: COLORS[index % COLORS.length]
-                          }} 
+                          }}
                         />
                       </div>
                     </div>
@@ -382,14 +414,27 @@ export default function Finance() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={350}>
-                  <LineChart data={churnData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => `${value}%`} />
-                    <Legend />
-                    <Line type="monotone" dataKey="churn" stroke="#ef4444" strokeWidth={2} name="Actual Churn" />
-                    <Line type="monotone" dataKey="target" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" name="Target" />
+                  <LineChart data={churnData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis
+                      dataKey="month"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                      dy={10}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <Tooltip
+                      formatter={(value) => `${value}%`}
+                      cursor={false}
+                      contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }}
+                    />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Line type="monotone" dataKey="churn" stroke="#ef4444" strokeWidth={3} name="Actual Churn" dot={false} activeDot={false} />
+                    <Line type="monotone" dataKey="target" stroke="#10b981" strokeWidth={2} strokeDasharray="5 5" name="Target" dot={false} activeDot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>

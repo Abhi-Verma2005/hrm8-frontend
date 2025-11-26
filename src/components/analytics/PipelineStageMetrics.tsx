@@ -31,17 +31,20 @@ export function PipelineStageMetrics({ data }: PipelineStageMetricsProps) {
                   data={chartData}
                   cx="50%"
                   cy="50%"
-                  labelLine={false}
-                  label={({ name, percentage }) => `${name}: ${percentage}%`}
+                  innerRadius={60}
                   outerRadius={80}
+                  labelLine={false}
+                  label={false}
                   fill="#8884d8"
                   dataKey="value"
+                  strokeWidth={0}
                 >
                   {chartData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
+                  cursor={{ fill: 'transparent' }}
                   content={({ active, payload }) => {
                     if (!active || !payload?.length) return null;
                     const data = payload[0].payload;
@@ -58,16 +61,17 @@ export function PipelineStageMetrics({ data }: PipelineStageMetricsProps) {
                     );
                   }}
                 />
+                <Legend verticalAlign="bottom" height={36} />
               </PieChart>
             </ResponsiveContainer>
           </div>
-          
+
           <div className="flex-1 space-y-3">
             {data.map((stage, index) => (
               <div key={stage.stage} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <div 
-                    className="w-3 h-3 rounded-full" 
+                  <div
+                    className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
                   />
                   <div>

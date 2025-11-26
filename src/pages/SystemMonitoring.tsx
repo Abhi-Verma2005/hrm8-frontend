@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Helmet } from "react-helmet-async";
-import { 
+import {
   Server, Activity, Zap, AlertTriangle, CheckCircle, Clock,
   Cpu, HardDrive, Network, Database, Plug, RefreshCw, TrendingUp,
   XCircle, Shield, Bell
@@ -48,7 +48,7 @@ export default function SystemMonitoring() {
     const activeIntegrations = integrations.filter(i => i.status === 'active').length;
     const errorIntegrations = integrations.filter(i => i.status === 'error').length;
     const maintenanceIntegrations = integrations.filter(i => i.status === 'maintenance').length;
-    
+
     return {
       activeIntegrations,
       errorIntegrations,
@@ -105,7 +105,7 @@ export default function SystemMonitoring() {
           subtitle="Platform health, performance metrics, and integration status"
         >
           <div className="flex gap-2">
-            <Button 
+            <Button
               variant={autoRefresh ? "default" : "outline"}
               size="sm"
               onClick={() => setAutoRefresh(!autoRefresh)}
@@ -176,25 +176,25 @@ export default function SystemMonitoring() {
         <Tabs defaultValue="performance" className="space-y-6">
           <div className="overflow-x-auto -mx-1 px-1">
             <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
-              <TabsTrigger 
+              <TabsTrigger
                 value="performance"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Performance
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="integrations"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Integrations
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="alerts"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Alerts
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="resources"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
@@ -212,15 +212,27 @@ export default function SystemMonitoring() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={350}>
-                  <AreaChart data={systemHealthData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="time" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Area type="monotone" dataKey="uptime" stroke="#10b981" fill="#10b981" fillOpacity={0.6} name="Uptime %" />
-                    <Area type="monotone" dataKey="cpu" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.6} name="CPU %" />
-                    <Area type="monotone" dataKey="memory" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.6} name="Memory %" />
+                  <AreaChart data={systemHealthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis
+                      dataKey="time"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                      dy={10}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <Tooltip
+                      cursor={{ stroke: '#3b82f6', strokeWidth: 1, strokeDasharray: '5 5' }}
+                      contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }}
+                    />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Area type="monotone" dataKey="uptime" stroke="hsl(var(--chart-2))" fill="hsl(var(--chart-2))" fillOpacity={0.6} name="Uptime %" strokeWidth={2} />
+                    <Area type="monotone" dataKey="cpu" stroke="hsl(var(--chart-1))" fill="hsl(var(--chart-1))" fillOpacity={0.6} name="CPU %" strokeWidth={2} />
+                    <Area type="monotone" dataKey="memory" stroke="hsl(var(--chart-3))" fill="hsl(var(--chart-3))" fillOpacity={0.6} name="Memory %" strokeWidth={2} />
                   </AreaChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -253,12 +265,24 @@ export default function SystemMonitoring() {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={systemHealthData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="time" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="requests" stroke="#3b82f6" strokeWidth={2} name="Requests" />
+                  <LineChart data={systemHealthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis
+                      dataKey="time"
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                      dy={10}
+                    />
+                    <YAxis
+                      axisLine={false}
+                      tickLine={false}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <Tooltip
+                      cursor={false}
+                      contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }}
+                    />
+                    <Line type="monotone" dataKey="requests" stroke="hsl(var(--primary))" strokeWidth={3} name="Requests" dot={false} activeDot={false} />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>

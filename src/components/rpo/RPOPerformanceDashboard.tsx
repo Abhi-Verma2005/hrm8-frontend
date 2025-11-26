@@ -36,11 +36,11 @@ import {
   ChevronUp,
   ExternalLink,
 } from 'lucide-react';
-import type { 
+import type {
   ContractPerformanceMetrics,
   YearOverYearComparison,
   MonthlyPerformanceTrend,
-  PerformanceBenchmark 
+  PerformanceBenchmark
 } from '@/lib/rpoPerformanceUtils';
 import { cn } from '@/lib/utils';
 
@@ -202,67 +202,70 @@ export function RPOPerformanceDashboard({
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={monthlyTrend}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis 
-                dataKey="monthLabel" 
-                className="text-xs"
+            <LineChart data={monthlyTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <XAxis
+                dataKey="monthLabel"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12 }}
                 angle={-45}
                 textAnchor="end"
                 height={80}
+                dy={10}
               />
-              <YAxis className="text-xs" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '6px',
-                }}
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12 }}
               />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="placements" 
+              <Tooltip cursor={false} />
+              <Legend wrapperStyle={{ paddingTop: '20px' }} />
+              <Line
+                type="monotone"
+                dataKey="placements"
                 name="Placements"
-                stroke="hsl(var(--chart-1))"
-                strokeWidth={2}
-                dot={{ fill: 'hsl(var(--chart-1))' }}
+                stroke="#10b981"
+                strokeWidth={3}
+                dot={false}
+                activeDot={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="satisfactionScore" 
+              <Line
+                type="monotone"
+                dataKey="satisfactionScore"
                 name="Satisfaction Score"
-                stroke="hsl(var(--chart-2))"
-                strokeWidth={2}
-                dot={{ fill: 'hsl(var(--chart-2))' }}
+                stroke="#3b82f6"
+                strokeWidth={3}
+                dot={false}
+                activeDot={false}
               />
             </LineChart>
           </ResponsiveContainer>
 
           <ResponsiveContainer width="100%" height={250} className="mt-6">
-            <BarChart data={monthlyTrend}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-              <XAxis 
-                dataKey="monthLabel" 
-                className="text-xs"
+            <BarChart data={monthlyTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <XAxis
+                dataKey="monthLabel"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12 }}
                 angle={-45}
                 textAnchor="end"
                 height={80}
+                dy={10}
               />
-              <YAxis className="text-xs" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(var(--background))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '6px',
-                }}
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 12 }}
               />
-              <Legend />
-              <Bar 
-                dataKey="averageTimeToFill" 
+              <Tooltip cursor={{ fill: 'transparent' }} />
+              <Legend wrapperStyle={{ paddingTop: '20px' }} />
+              <Bar
+                dataKey="averageTimeToFill"
                 name="Avg. Time-to-Fill (days)"
-                fill="hsl(var(--chart-3))"
-                radius={[8, 8, 0, 0]}
+                fill="#8b5cf6"
+                radius={[4, 4, 0, 0]}
+                barSize={40}
               />
             </BarChart>
           </ResponsiveContainer>
@@ -291,8 +294,8 @@ export function RPOPerformanceDashboard({
                       <span>Your Performance: {benchmark.contractValue}</span>
                       <span>Industry Avg: {benchmark.industryAverage}</span>
                     </div>
-                    <Progress 
-                      value={(benchmark.contractValue / benchmark.topPerformer) * 100} 
+                    <Progress
+                      value={(benchmark.contractValue / benchmark.topPerformer) * 100}
                       className="h-2"
                     />
                     <div className="text-xs text-muted-foreground text-right">
@@ -307,21 +310,21 @@ export function RPOPerformanceDashboard({
               <ResponsiveContainer width="100%" height={300}>
                 <RadarChart data={benchmarks}>
                   <PolarGrid stroke="hsl(var(--border))" />
-                  <PolarAngleAxis 
-                    dataKey="metric" 
+                  <PolarAngleAxis
+                    dataKey="metric"
                     tick={{ fill: 'hsl(var(--foreground))', fontSize: 11 }}
                   />
                   <PolarRadiusAxis angle={90} domain={[0, 100]} tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }} />
-                  <Radar 
-                    name="Your Performance" 
-                    dataKey="contractValue" 
+                  <Radar
+                    name="Your Performance"
+                    dataKey="contractValue"
                     stroke="hsl(var(--chart-1))"
                     fill="hsl(var(--chart-1))"
                     fillOpacity={0.6}
                   />
-                  <Radar 
-                    name="Industry Average" 
-                    dataKey="industryAverage" 
+                  <Radar
+                    name="Industry Average"
+                    dataKey="industryAverage"
                     stroke="hsl(var(--chart-2))"
                     fill="hsl(var(--chart-2))"
                     fillOpacity={0.3}
@@ -362,7 +365,7 @@ export function RPOPerformanceDashboard({
                         <AvatarFallback>{getInitials(contract.clientName)}</AvatarFallback>
                       </Avatar>
                     )}
-                    
+
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-semibold">{contract.contractName}</h4>
@@ -383,19 +386,19 @@ export function RPOPerformanceDashboard({
 
                 {/* Quick Metrics */}
                 <div className="grid grid-cols-4 gap-3">
-                  <div className="p-2 bg-muted rounded">
+                  <div className="p-2 rounded">
                     <p className="text-xs text-muted-foreground">Success Rate</p>
                     <p className="text-lg font-bold">{contract.placementSuccessRate}%</p>
                   </div>
-                  <div className="p-2 bg-muted rounded">
+                  <div className="p-2 rounded">
                     <p className="text-xs text-muted-foreground">Avg. Time-to-Fill</p>
                     <p className="text-lg font-bold">{contract.averageTimeToFill}d</p>
                   </div>
-                  <div className="p-2 bg-muted rounded">
+                  <div className="p-2 rounded">
                     <p className="text-xs text-muted-foreground">Satisfaction</p>
                     <p className="text-lg font-bold">{contract.clientSatisfactionScore}%</p>
                   </div>
-                  <div className="p-2 bg-muted rounded">
+                  <div className="p-2 rounded">
                     <p className="text-xs text-muted-foreground">Placements</p>
                     <p className="text-lg font-bold">{contract.actualPlacements}/{contract.targetPlacements}</p>
                   </div>
