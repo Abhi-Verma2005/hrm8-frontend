@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardSelector } from '@/components/dashboard/DashboardSelector';
 import { useCurrentDashboard } from '@/hooks/useCurrentDashboard';
-import { OnboardingReminderBanner } from "@/components/onboarding/OnboardingReminderBanner";
 
 interface DashboardPageLayoutProps {
   title?: string;
@@ -28,7 +27,6 @@ export function DashboardPageLayout({
   return (
     <>
       <DashboardHeader breadcrumbActions={breadcrumbActions} />
-      <OnboardingReminderBanner />
 
       {/* Persistent Dashboard Selector */}
       {currentDashboard && (
@@ -58,6 +56,13 @@ export function DashboardPageLayout({
           {children}
         </div>
       </div>
+    </>
+  );
+}
+<div className={fullWidth ? "w-full" : "container"}>
+  {children}
+</div>
+      </div >
     </>
   );
 }

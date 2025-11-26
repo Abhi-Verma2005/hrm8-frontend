@@ -13,6 +13,8 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import EmployeeSignup from "@/pages/EmployeeSignup";
 import AcceptInvitation from "@/pages/AcceptInvitation";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/NotFound";
 
 export const AppRoutes = () => {
@@ -23,6 +25,14 @@ export const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/signup" element={<EmployeeSignup />} />
       <Route path="/accept-invitation" element={<AcceptInvitation />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+      
+      {/* Public routes (no sidebar, no auth required) - MUST come before protected routes */}
+      {publicRoutes}
+      
+      {/* Candidate routes (separate auth, separate layout) */}
+      {candidateRoutes}
       
       {/* Redirect root to home page (protected) */}
       <Route path="/" element={<Navigate to="/home" replace />} />
@@ -52,12 +62,6 @@ export const AppRoutes = () => {
         {/* Shared/General Routes */}
         {sharedRoutes}
       </Route>
-      
-      {/* Candidate routes (separate auth, separate layout) */}
-      {candidateRoutes}
-      
-      {/* Public routes (no sidebar, no auth required) */}
-      {publicRoutes}
       
       {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />

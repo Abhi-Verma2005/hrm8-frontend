@@ -1,4 +1,5 @@
 import { QuestionType } from '@/types/applicationForm';
+import type { LucideIcon } from 'lucide-react';
 import {
   Type,
   AlignLeft,
@@ -6,15 +7,23 @@ import {
   CheckSquare,
   ChevronDown,
   FileUp,
+  CalendarDays,
+  ToggleLeft,
+  Hash,
 } from 'lucide-react';
 
-export const questionTypeIcons: Record<QuestionType, any> = {
+const FALLBACK_ICON: LucideIcon = Type;
+
+export const questionTypeIcons: Record<QuestionType, LucideIcon> = {
   short_text: Type,
   long_text: AlignLeft,
   multiple_choice: ListChecks,
   checkbox: CheckSquare,
   dropdown: ChevronDown,
   file_upload: FileUp,
+  date: CalendarDays,
+  yes_no: ToggleLeft,
+  number: Hash,
 };
 
 export const questionTypeLabels: Record<QuestionType, string> = {
@@ -24,6 +33,24 @@ export const questionTypeLabels: Record<QuestionType, string> = {
   checkbox: 'Multiple Choice (Multi-Select)',
   dropdown: 'Dropdown Selection',
   file_upload: 'File Upload',
+  date: 'Date',
+  yes_no: 'Yes / No',
+  number: 'Number',
+};
+
+const toTitleCase = (value: string) =>
+  value
+    .split(/[_\s]/g)
+    .filter(Boolean)
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+
+export const getQuestionTypeLabel = (type: QuestionType | string): string => {
+  return questionTypeLabels[type as QuestionType] || toTitleCase(type);
+};
+
+export const getQuestionTypeIcon = (type: QuestionType | string): LucideIcon => {
+  return questionTypeIcons[type as QuestionType] || FALLBACK_ICON;
 };
 
 export const getDefaultValidation = (type: QuestionType) => {

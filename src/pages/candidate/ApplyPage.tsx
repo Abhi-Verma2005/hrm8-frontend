@@ -4,7 +4,6 @@
  */
 
 import { useParams, useNavigate } from 'react-router-dom';
-import { CandidateAuthGuard } from '@/components/auth/CandidateAuthGuard';
 import { JobApplicationForm } from '@/components/candidate/JobApplicationForm';
 
 export default function ApplyPage() {
@@ -20,18 +19,16 @@ export default function ApplyPage() {
   }
 
   return (
-    <CandidateAuthGuard>
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8 max-w-3xl">
-          <JobApplicationForm
-            jobId={id}
-            onSuccess={(applicationId) => {
-              navigate(`/candidate/applications/${applicationId}/confirmation`);
-            }}
-          />
-        </div>
+    <div className="p-6">
+      <div className="container mx-auto max-w-3xl">
+        <JobApplicationForm
+          jobId={id}
+          onSuccess={(applicationId) => {
+            navigate(`/candidate/applications/${applicationId}/confirmation`);
+          }}
+        />
       </div>
-    </CandidateAuthGuard>
+    </div>
   );
 }
 

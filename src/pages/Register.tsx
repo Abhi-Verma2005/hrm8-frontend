@@ -59,7 +59,7 @@ export default function Register() {
   const [sentToEmail, setSentToEmail] = useState<string>('');
   const [countrySearch, setCountrySearch] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const { registerCompany, isAuthenticated } = useAuth();
+  const { registerCompany, isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -93,11 +93,12 @@ export default function Register() {
     [navigate, reset]
   );
 
+  // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!authLoading && isAuthenticated) {
       navigate('/home', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
   useEffect(() => {
     const verified = searchParams.get('verified') === 'true';
@@ -151,6 +152,16 @@ export default function Register() {
     return () => window.removeEventListener('storage', handleStorage);
   }, [handleExternalVerification]);
 
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Don't render register form if authenticated
   if (isAuthenticated) {
     return null;
   }

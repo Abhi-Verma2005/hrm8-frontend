@@ -29,8 +29,7 @@ import {
 } from "@/components/ui/sheet";
 import { JobBoardPublicPreview } from "./JobBoardPublicPreview";
 import { ExternalPromotionDialog } from "./ExternalPromotionDialog";
-import { PostLaunchTools } from "./PostLaunchTools";
-import { PromoteExternallyDialog } from "./PromoteExternallyDialog";
+import { PostPublishFlow } from "./PostPublishFlow";
 import { toast } from "@/hooks/use-toast";
 import { jobService } from "@/lib/api/jobService";
 import { jobTemplateService } from "@/lib/api/jobTemplateService";
@@ -54,7 +53,6 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
   const { user, profileSummary } = useAuth();
   const [step, setStep] = useState(1);
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [showExternalPromotionDialog, setShowExternalPromotionDialog] = useState(false);
   const [showPostLaunchTools, setShowPostLaunchTools] = useState(false);
   const [savedJobData, setSavedJobData] = useState<Job | null>(null);
   const [autoSaving, setAutoSaving] = useState(false);
@@ -1165,58 +1163,34 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
         </Sheet>
 
         {savedJobData && (
-          <>
-            <PostLaunchTools
-              job={savedJobData}
-              open={showPostLaunchTools}
-              onOpenChange={(open) => {
-                setShowPostLaunchTools(open);
-                if (!open && onSuccess) {
-                  onSuccess(savedJobData);
-                }
-              }}
-              onSaveTemplate={async (templateName, templateDescription) => {
-                try {
-                  const category = savedJobData.department || undefined;
-                  await jobTemplateService.createFromJob(
-                    savedJobData.id,
-                    templateName,
-                    templateDescription,
-                    category
-                  );
-                } catch (error) {
-                  console.error('Failed to save template:', error);
-                }
-              }}
-              onPromoteExternally={() => {
-                setShowPostLaunchTools(false);
-                setShowExternalPromotionDialog(true);
-              }}
-            />
-            <PromoteExternallyDialog
-              job={savedJobData}
-              open={showExternalPromotionDialog}
-              onOpenChange={setShowExternalPromotionDialog}
-              onPromote={async (channels, budget) => {
-                // TODO: Call JobTarget API when integration is ready
-                console.log('Promoting job:', { channels, budget });
-                toast({
-                  title: "Promotion Initiated",
-                  description: "JobTarget integration coming soon. Your promotion will be processed once integration is complete.",
-                });
-              }}
-            />
-            <ExternalPromotionDialog
-              open={showExternalPromotionDialog}
-              onOpenChange={setShowExternalPromotionDialog}
-              job={savedJobData}
-              onSuccess={() => {
-                if (onSuccess) {
-                  onSuccess(savedJobData);
-                }
-              }}
-            />
-          </>
+          <PostPublishFlow
+            job={savedJobData}
+            open={showPostLaunchTools}
+            onOpenChange={(open) => {
+              setShowPostLaunchTools(open);
+              if (!open && onSuccess) {
+                onSuccess(savedJobData);
+              }
+            }}
+            onSaveTemplate={async (templateName, templateDescription) => {
+              try {
+                const category = savedJobData.department || undefined;
+                await jobTemplateService.createFromJob(
+                  savedJobData.id,
+                  templateName,
+                  templateDescription,
+                  category
+                );
+              } catch (error) {
+                console.error('Failed to save template:', error);
+              }
+            }}
+            onComplete={() => {
+              if (onSuccess) {
+                onSuccess(savedJobData);
+              }
+            }}
+          />
         )}
       </form>
     </Form>

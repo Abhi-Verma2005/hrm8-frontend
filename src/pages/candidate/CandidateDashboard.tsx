@@ -28,9 +28,10 @@ import { cn } from '@/lib/utils';
 
 const menuItems = [
   { path: '/candidate/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/candidate/profile', label: 'My Profile', icon: User },
+  { path: '/candidate/jobs', label: 'Browse Jobs', icon: Briefcase },
   { path: '/candidate/applications', label: 'Applications', icon: FileText },
   { path: '/candidate/saved-jobs', label: 'Saved Jobs', icon: Bookmark },
+  { path: '/candidate/profile', label: 'My Profile', icon: User },
   { path: '/candidate/settings', label: 'Settings', icon: Settings },
 ];
 
@@ -215,9 +216,9 @@ export default function CandidateDashboard() {
                       <Button
                         variant="outline"
                         className="mt-4"
-                        onClick={() => navigate('/jobs')}
+                        asChild
                       >
-                        Browse Jobs
+                        <Link to="/candidate/jobs">Browse Jobs</Link>
                       </Button>
                     </div>
                   ) : (
@@ -246,19 +247,21 @@ export default function CandidateDashboard() {
 
               {/* Quick Actions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/jobs')}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Briefcase className="h-5 w-5" />
-                      Browse Jobs
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">
-                      Search and apply for new opportunities
-                    </p>
-                  </CardContent>
-                </Card>
+                <Link to="/candidate/jobs" className="block">
+                  <Card className="cursor-pointer hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Briefcase className="h-5 w-5" />
+                        Browse Jobs
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        Search and apply for new opportunities
+                      </p>
+                    </CardContent>
+                  </Card>
+                </Link>
 
                 <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/candidate/profile')}>
                   <CardHeader>

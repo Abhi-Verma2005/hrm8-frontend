@@ -25,7 +25,7 @@ export function DashboardHeader({ breadcrumbActions }: DashboardHeaderProps = {}
   return (
     <TooltipProvider>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center gap-4 px-6">
+        <div className="flex h-14 items-center gap-3 px-5">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-6" />
           
@@ -61,7 +61,7 @@ export function DashboardHeader({ breadcrumbActions }: DashboardHeaderProps = {}
         </div>
 
       {/* Breadcrumbs Row */}
-      <div className="px-6 h-12 border-t bg-muted/30 flex items-center justify-between gap-4">
+      <div className="px-6 h-10 border-t bg-muted/30 flex items-center justify-between gap-4">
         <Breadcrumbs />
         {breadcrumbActions && (
           <div className="flex items-center gap-2">

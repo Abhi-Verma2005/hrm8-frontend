@@ -1,5 +1,5 @@
 /**
- * Public Job Detail Page
+ * Candidate Job Detail Page
  */
 
 import { useState, useEffect } from 'react';
@@ -40,9 +40,9 @@ export default function JobDetailPage() {
 
   const handleApply = () => {
     if (!isAuthenticated) {
-      navigate('/candidate/login', { state: { from: `/jobs/${id}`, action: 'apply' } });
+      navigate('/candidate/login', { state: { from: `/candidate/jobs/${id}`, action: 'apply' } });
     } else {
-      navigate(`/jobs/${id}/apply`);
+      navigate(`/candidate/jobs/${id}/apply`);
     }
   };
 
@@ -57,7 +57,7 @@ export default function JobDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
@@ -65,23 +65,23 @@ export default function JobDetailPage() {
 
   if (!job) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Job Not Found</h2>
           <p className="text-muted-foreground mb-4">The job you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => navigate('/jobs')}>Browse Jobs</Button>
+          <Button onClick={() => navigate('/candidate/jobs')}>Browse Jobs</Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-5xl">
+    <div className="p-6">
+      <div className="container mx-auto max-w-5xl">
         {/* Back Button */}
         <Button
           variant="ghost"
-          onClick={() => navigate('/jobs')}
+          onClick={() => navigate('/candidate/jobs')}
           className="mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
