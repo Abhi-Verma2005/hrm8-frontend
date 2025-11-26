@@ -1,5 +1,6 @@
 import { ReactNode } from 'react';
 import { DashboardHeader } from './DashboardHeader';
+import { OnboardingReminderBanner } from '@/components/onboarding/OnboardingReminderBanner';
 import { DashboardSelector } from '@/components/dashboard/DashboardSelector';
 import { useCurrentDashboard } from '@/hooks/useCurrentDashboard';
 
@@ -27,6 +28,7 @@ export function DashboardPageLayout({
   return (
     <>
       <DashboardHeader breadcrumbActions={breadcrumbActions} />
+      <OnboardingReminderBanner />
       
       {/* Persistent Dashboard Selector */}
       {currentDashboard && (

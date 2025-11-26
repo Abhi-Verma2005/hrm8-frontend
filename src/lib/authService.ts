@@ -110,6 +110,14 @@ class AuthService {
   async resendVerification(email: string) {
     return apiClient.post<ResendVerificationResponse>('/api/auth/resend-verification', { email });
   }
+
+  async requestPasswordReset(email: string) {
+    return apiClient.post<{ message: string }>('/api/auth/forgot-password', { email });
+  }
+
+  async resetPassword(data: { token: string; password: string }) {
+    return apiClient.post<{ message: string }>('/api/auth/reset-password', data);
+  }
 }
 
 export const authService = new AuthService();

@@ -41,6 +41,35 @@ interface PostLaunchToolsProps {
   onPromoteExternally?: () => void;
 }
 
+interface StepHeadingProps {
+  step: number;
+  title: string;
+  description?: string;
+  status?: "pending" | "completed" | "skipped";
+}
+
+function StepHeading({ step, title, description, status = "pending" }: StepHeadingProps) {
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <Badge variant="outline" className="rounded-full px-3 py-1 text-xs font-semibold">
+        Step {step}
+      </Badge>
+      <div className="min-w-0 flex-1">
+        <p className="text-base font-semibold">{title}</p>
+        {description && <p className="text-sm text-muted-foreground">{description}</p>}
+      </div>
+      {status !== "pending" && (
+        <Badge
+          variant={status === "completed" ? "default" : "secondary"}
+          className="rounded-full px-3 py-1 text-xs font-semibold"
+        >
+          {status === "completed" ? "Completed" : "Skipped"}
+        </Badge>
+      )}
+    </div>
+  );
+}
+
 export function PostLaunchTools({
   job,
   open,
@@ -59,6 +88,8 @@ export function PostLaunchTools({
   const [templateName, setTemplateName] = useState("");
   const [templateDescription, setTemplateDescription] = useState("");
   const [savingTemplate, setSavingTemplate] = useState(false);
+  const [jobTargetStatus, setJobTargetStatus] = useState<"pending" | "completed" | "skipped">("pending");
+  const [launchingJobTarget, setLaunchingJobTarget] = useState(false);
 
   const shareLink = job.shareLink || `${window.location.origin}/jobs/${job.id}`;
   const referralLink = job.referralLink || `${shareLink}?ref=${job.id.substring(0, 8)}`;
@@ -149,6 +180,51 @@ export function PostLaunchTools({
     const url = encodeURIComponent(shareLink);
     const text = encodeURIComponent(`Check out this job: ${job.title}`);
     window.open(`https://twitter.com/intent/tweet?url=${url}&text=${text}`, "_blank");
+  };
+
+  const handleContinueToJobTarget = async () => {
+    if (!onPromoteExternally) {
+      toast({
+        title: "JobTarget integration unavailable",
+        description: "This action is disabled for your current plan.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLaunchingJobTarget(true);
+    try {
+      await Promise.resolve(onPromoteExternally());
+      setJobTargetStatus("completed");
+      toast({
+        title: "Opening JobTarget",
+        description: "Finish your external promotion in the new tab.",
+      });
+    } catch (error) {
+      toast({
+        title: "Unable to launch JobTarget",
+        description: "Please try again in a moment.",
+        variant: "destructive",
+      });
+    } finally {
+      setLaunchingJobTarget(false);
+    }
+  };
+
+  const handleSkipJobTarget = () => {
+    setJobTargetStatus("skipped");
+    toast({
+      title: "JobTarget promotion skipped",
+      description: "You can return to this step anytime from the job detail page.",
+    });
+  };
+
+  const handleResumeJobTarget = () => {
+    setJobTargetStatus("pending");
+    toast({
+      title: "JobTarget step resumed",
+      description: "Continue whenever you’re ready.",
+    });
   };
 
   return (

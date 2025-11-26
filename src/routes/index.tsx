@@ -13,6 +13,8 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import EmployeeSignup from "@/pages/EmployeeSignup";
 import AcceptInvitation from "@/pages/AcceptInvitation";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 import NotFound from "@/pages/NotFound";
 
 export const AppRoutes = () => {
@@ -23,6 +25,8 @@ export const AppRoutes = () => {
       <Route path="/register" element={<Register />} />
       <Route path="/signup" element={<EmployeeSignup />} />
       <Route path="/accept-invitation" element={<AcceptInvitation />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
       
       {/* Redirect root to home page (protected) */}
       <Route path="/" element={<Navigate to="/home" replace />} />
