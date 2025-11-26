@@ -27,7 +27,7 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 
 export default function CandidateRegister() {
   const [isLoading, setIsLoading] = useState(false);
-  const { register: registerCandidate, isAuthenticated } = useCandidateAuth();
+  const { register: registerCandidate, isAuthenticated, isLoading: authLoading } = useCandidateAuth();
   const navigate = useNavigate();
 
   const {
@@ -38,12 +38,23 @@ export default function CandidateRegister() {
     resolver: zodResolver(registerSchema),
   });
 
+  // Redirect if already authenticated
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!authLoading && isAuthenticated) {
       navigate('/candidate/dashboard', { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authLoading, navigate]);
 
+  // Show loading while checking auth
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  // Don't render register form if authenticated
   if (isAuthenticated) {
     return null;
   }

@@ -4,7 +4,10 @@ export type QuestionType =
   | 'multiple_choice' // Multiple Choice (single select)
   | 'checkbox'        // Multiple Choice (multi-select)
   | 'dropdown'        // Dropdown Selection
-  | 'file_upload';    // File Upload (e.g. certifications, licenses)
+  | 'file_upload'     // File Upload (e.g. certifications, licenses)
+  | 'date'            // Date picker
+  | 'yes_no'          // Yes / No toggle
+  | 'number';         // Numeric input
 
 export interface QuestionOption {
   id: string;

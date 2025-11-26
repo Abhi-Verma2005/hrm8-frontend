@@ -32,7 +32,7 @@ export default function SavedJobsPage() {
             </p>
             <Button
               variant="outline"
-              onClick={() => navigate('/jobs')}
+              onClick={() => navigate('/candidate/jobs')}
             >
               <Briefcase className="h-4 w-4 mr-2" />
               Browse Jobs
