@@ -34,7 +34,7 @@ export default function JobAnalytics() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
-  
+
   const jobs = getJobs();
   const analytics = getJobAnalytics(jobs);
   const metrics = getRecruitmentMetrics();
@@ -81,7 +81,7 @@ export default function JobAnalytics() {
               placeholder="Select period"
               align="end"
             />
-            
+
             <Button variant="outline" size="sm" onClick={handleExport}>
               <Download className="h-4 w-4 mr-2" />
               Export
@@ -113,7 +113,7 @@ export default function JobAnalytics() {
               {
                 label: "View Analytics",
                 icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -157,7 +157,7 @@ export default function JobAnalytics() {
               {
                 label: "View Analytics",
                 icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "Export Report",
@@ -179,12 +179,12 @@ export default function JobAnalytics() {
               {
                 label: "View Metrics",
                 icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "Set Benchmarks",
                 icon: <Target className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -203,6 +203,7 @@ export default function JobAnalytics() {
             <div className="grid gap-4 md:grid-cols-2">
               <StandardChartCard
                 title="Jobs by Status"
+                className="bg-transparent border-0 shadow-none"
                 showDatePicker={false}
                 onDownload={() => toast({ title: "Downloading chart..." })}
                 menuItems={[
@@ -217,36 +218,38 @@ export default function JobAnalytics() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      label={false}
                       outerRadius={80}
                       fill="hsl(var(--primary))"
                       dataKey="value"
+                      strokeWidth={0}
                     >
                       {statusData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip />
+                    <Legend />
                   </PieChart>
                 </ResponsiveContainer>
               </StandardChartCard>
 
               <StandardChartCard
                 title="Jobs by Department"
+                className="bg-transparent border-0 shadow-none"
                 showDatePicker={false}
                 onDownload={() => toast({ title: "Downloading chart..." })}
                 menuItems={[
-                  { label: "Filter by Department", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Filter by Department", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
                   { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={departmentData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="hsl(var(--primary))" />
+                  <BarChart data={departmentData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip cursor={{ fill: 'transparent' }} />
+                    <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={40} />
                   </BarChart>
                 </ResponsiveContainer>
               </StandardChartCard>
@@ -284,28 +287,30 @@ export default function JobAnalytics() {
             <StandardChartCard
               title="Applicant Trend"
               description="Daily applicant submissions"
+              className="bg-transparent border-0 shadow-none"
               showDatePicker={true}
               dateRange={dateRange}
               onDateRangeChange={setDateRange}
               onDownload={() => toast({ title: "Downloading trend data..." })}
               menuItems={[
-                { label: "View Full Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                { label: "Compare Periods", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+                { label: "View Full Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                { label: "Compare Periods", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
                 { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={analytics.applicantsTrend}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
+                <LineChart data={analytics.applicantsTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                  <Tooltip cursor={false} />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
                   <Line
                     type="monotone"
                     dataKey="count"
                     stroke="hsl(var(--primary))"
-                    strokeWidth={2}
+                    strokeWidth={3}
+                    dot={false}
+                    activeDot={false}
                     name="Applicants"
                   />
                 </LineChart>
@@ -315,27 +320,29 @@ export default function JobAnalytics() {
             <StandardChartCard
               title="Job Views Trend"
               description="Daily job post views"
+              className="bg-transparent border-0 shadow-none"
               showDatePicker={true}
               dateRange={dateRange}
               onDateRangeChange={setDateRange}
               onDownload={() => toast({ title: "Downloading views data..." })}
               menuItems={[
-                { label: "View Analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+                { label: "View Analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
                 { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={analytics.viewsTrend}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
+                <LineChart data={analytics.viewsTrend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                  <Tooltip cursor={false} />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
                   <Line
                     type="monotone"
                     dataKey="count"
                     stroke="hsl(var(--accent))"
-                    strokeWidth={2}
+                    strokeWidth={3}
+                    dot={false}
+                    activeDot={false}
                     name="Views"
                   />
                 </LineChart>
@@ -347,44 +354,44 @@ export default function JobAnalytics() {
             <StandardChartCard
               title="Source Effectiveness"
               description="Applicants and hires by source"
+              className="bg-transparent border-0 shadow-none"
               showDatePicker={true}
               dateRange={dateRange}
               onDateRangeChange={setDateRange}
               onDownload={() => toast({ title: "Downloading source data..." })}
               menuItems={[
-                { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
                 { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={sourceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="applicants" fill="hsl(var(--primary))" name="Applicants" />
-                  <Bar dataKey="hires" fill="hsl(var(--accent))" name="Hires" />
+                <BarChart data={sourceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                  <Tooltip cursor={{ fill: 'transparent' }} />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                  <Bar dataKey="applicants" fill="hsl(var(--primary))" name="Applicants" radius={[4, 4, 0, 0]} barSize={20} />
+                  <Bar dataKey="hires" fill="hsl(var(--accent))" name="Hires" radius={[4, 4, 0, 0]} barSize={20} />
                 </BarChart>
               </ResponsiveContainer>
             </StandardChartCard>
 
             <StandardChartCard
               title="Cost Per Hire by Source"
+              className="bg-transparent border-0 shadow-none"
               showDatePicker={false}
               onDownload={() => toast({ title: "Downloading cost data..." })}
               menuItems={[
-                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
                 { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={sourceData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="costPerHire" fill="hsl(var(--secondary))" name="Cost per Hire ($)" />
+                <BarChart data={sourceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                  <Tooltip cursor={{ fill: 'transparent' }} />
+                  <Bar dataKey="costPerHire" fill="hsl(var(--secondary))" name="Cost per Hire ($)" radius={[4, 4, 0, 0]} barSize={40} />
                 </BarChart>
               </ResponsiveContainer>
             </StandardChartCard>
@@ -394,23 +401,23 @@ export default function JobAnalytics() {
             <StandardChartCard
               title="Time to Hire by Stage"
               description="Average days per recruitment stage"
+              className="bg-transparent border-0 shadow-none"
               showDatePicker={true}
               dateRange={dateRange}
               onDateRangeChange={setDateRange}
               onDownload={() => toast({ title: "Downloading time metrics..." })}
               menuItems={[
-                { label: "View Metrics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                { label: "Set Benchmarks", icon: <Target className="h-4 w-4" />, onClick: () => {} },
+                { label: "View Metrics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                { label: "Set Benchmarks", icon: <Target className="h-4 w-4" />, onClick: () => { } },
                 { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
               ]}
             >
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={metrics.timeToHireByStage} layout="vertical">
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="stage" type="category" width={150} />
-                  <Tooltip />
-                  <Bar dataKey="avgDays" fill="hsl(var(--primary))" name="Avg Days" />
+                <BarChart data={metrics.timeToHireByStage} layout="vertical" margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                  <YAxis dataKey="stage" type="category" width={150} axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                  <Tooltip cursor={{ fill: 'transparent' }} />
+                  <Bar dataKey="avgDays" fill="hsl(var(--primary))" name="Avg Days" radius={[0, 4, 4, 0]} barSize={20} />
                 </BarChart>
               </ResponsiveContainer>
             </StandardChartCard>
@@ -418,10 +425,11 @@ export default function JobAnalytics() {
             <div className="grid gap-4 md:grid-cols-2">
               <StandardChartCard
                 title="Offer Acceptance Rate"
+                className="bg-transparent border-0 shadow-none"
                 showDatePicker={false}
                 onDownload={() => toast({ title: "Downloading acceptance rate..." })}
                 menuItems={[
-                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
                   { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
                 ]}
               >
@@ -439,10 +447,11 @@ export default function JobAnalytics() {
 
               <StandardChartCard
                 title="Recruiter Performance"
+                className="bg-transparent border-0 shadow-none"
                 showDatePicker={false}
                 onDownload={() => toast({ title: "Downloading recruiter data..." })}
                 menuItems={[
-                  { label: "View All Recruiters", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
+                  { label: "View All Recruiters", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
                   { label: "Export Data", icon: <Download className="h-4 w-4" />, onClick: handleExport }
                 ]}
               >

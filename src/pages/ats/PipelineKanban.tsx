@@ -121,7 +121,7 @@ export default function PipelineKanban() {
             const hasScheduledInterview = aiInterviews.some(
               i => i.status === 'scheduled' || i.status === 'in-progress'
             );
-            
+
             if (!hasScheduledInterview) {
               toast({
                 title: "Moved to Interview Stage",
@@ -344,12 +344,11 @@ export default function PipelineKanban() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="name" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar dataKey="count" fill="hsl(var(--primary))" />
+                    <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                      <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                      <Tooltip cursor={{ fill: 'transparent' }} />
+                      <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </CardContent>

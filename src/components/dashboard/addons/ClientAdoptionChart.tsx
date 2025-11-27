@@ -4,7 +4,7 @@ import { getClientAdoptionStats } from '@/lib/addons/combinedAnalytics';
 
 export function ClientAdoptionChart() {
   const stats = getClientAdoptionStats();
-  
+
   const data = [
     { name: 'Using 1 Service', clients: stats.usingOne, fill: 'hsl(var(--chart-1))' },
     { name: 'Using 2 Services', clients: stats.usingTwo, fill: 'hsl(var(--chart-2))' },
@@ -19,18 +19,18 @@ export function ClientAdoptionChart() {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis dataKey="name" className="text-xs" />
-            <YAxis className="text-xs" />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--background))', 
-                border: '1px solid hsl(var(--border))' 
+          <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
+                border: '1px solid hsl(var(--border))'
               }}
+              cursor={{ fill: 'transparent' }}
               formatter={(value: number) => [`${value} clients`, 'Count']}
             />
-            <Bar dataKey="clients" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]}>
+            <Bar dataKey="clients" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]}>
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.fill} />
               ))}

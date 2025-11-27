@@ -6,7 +6,7 @@ import { AlertTriangle, TrendingDown } from 'lucide-react';
 
 export function ChurnTrackingChart() {
   const data = getChurnMetrics();
-  
+
   // Calculate trend
   const recentChurn = data.slice(-3).reduce((sum, d) => sum + d.churnRate, 0) / 3;
   const olderChurn = data.slice(0, 3).reduce((sum, d) => sum + d.churnRate, 0) / 3;
@@ -45,25 +45,30 @@ export function ChurnTrackingChart() {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <AreaChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="month" 
-              className="text-xs"
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12 }}
               angle={-45}
               textAnchor="end"
               height={80}
+              dy={10}
             />
-            <YAxis 
-              className="text-xs"
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12 }}
               label={{ value: 'Customers Lost', angle: -90, position: 'insideLeft' }}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--background))', 
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px'
               }}
+              cursor={false}
               formatter={(value: number, name: string) => {
                 const nameMap: Record<string, string> = {
                   aiInterviewsChurn: 'AI Interviews',
@@ -74,7 +79,8 @@ export function ChurnTrackingChart() {
                 return [value, nameMap[name] || name];
               }}
             />
-            <Legend 
+            <Legend
+              wrapperStyle={{ paddingTop: '20px' }}
               formatter={(value) => {
                 const nameMap: Record<string, string> = {
                   aiInterviewsChurn: 'AI Interviews',
@@ -91,6 +97,7 @@ export function ChurnTrackingChart() {
               stroke="hsl(var(--chart-1))"
               fill="hsl(var(--chart-1))"
               fillOpacity={0.6}
+              strokeWidth={3}
             />
             <Area
               type="monotone"
@@ -99,6 +106,7 @@ export function ChurnTrackingChart() {
               stroke="hsl(var(--chart-2))"
               fill="hsl(var(--chart-2))"
               fillOpacity={0.6}
+              strokeWidth={3}
             />
             <Area
               type="monotone"
@@ -107,13 +115,15 @@ export function ChurnTrackingChart() {
               stroke="hsl(var(--chart-3))"
               fill="hsl(var(--chart-3))"
               fillOpacity={0.6}
+              strokeWidth={3}
             />
             <Line
               type="monotone"
               dataKey="totalChurn"
               stroke="hsl(var(--destructive))"
-              strokeWidth={2}
-              dot={{ r: 3 }}
+              strokeWidth={3}
+              dot={false}
+              activeDot={false}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -124,20 +134,22 @@ export function ChurnTrackingChart() {
             <LineChart data={data}>
               <XAxis dataKey="month" hide />
               <YAxis domain={[0, 'auto']} hide />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--background))', 
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--background))',
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px'
                 }}
+                cursor={false}
                 formatter={(value: number) => [`${value}%`, 'Churn Rate']}
               />
               <Line
                 type="monotone"
                 dataKey="churnRate"
                 stroke="hsl(var(--destructive))"
-                strokeWidth={2}
-                dot={{ r: 2 }}
+                strokeWidth={3}
+                dot={false}
+                activeDot={false}
               />
             </LineChart>
           </ResponsiveContainer>

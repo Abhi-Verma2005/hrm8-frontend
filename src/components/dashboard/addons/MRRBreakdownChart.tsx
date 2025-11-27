@@ -29,25 +29,30 @@ export function MRRBreakdownChart() {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={350}>
-          <AreaChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="month" 
-              className="text-xs"
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12 }}
               angle={-45}
               textAnchor="end"
               height={80}
+              dy={10}
             />
-            <YAxis 
-              className="text-xs"
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12 }}
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--background))', 
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px'
               }}
+              cursor={false}
               formatter={(value: number, name: string) => {
                 const nameMap: Record<string, string> = {
                   aiInterviews: 'AI Interviews',
@@ -58,7 +63,8 @@ export function MRRBreakdownChart() {
                 return [formatCurrency(value), nameMap[name] || name];
               }}
             />
-            <Legend 
+            <Legend
+              wrapperStyle={{ paddingTop: '20px' }}
               formatter={(value) => {
                 const nameMap: Record<string, string> = {
                   aiInterviews: 'AI Interviews',
@@ -68,36 +74,40 @@ export function MRRBreakdownChart() {
                 return nameMap[value] || value;
               }}
             />
-            <Area 
-              type="monotone" 
-              dataKey="aiInterviews" 
+            <Area
+              type="monotone"
+              dataKey="aiInterviews"
               stackId="1"
-              stroke="hsl(var(--chart-1))" 
+              stroke="hsl(var(--chart-1))"
               fill="hsl(var(--chart-1))"
               fillOpacity={0.8}
+              strokeWidth={3}
             />
-            <Area 
-              type="monotone" 
-              dataKey="assessments" 
+            <Area
+              type="monotone"
+              dataKey="assessments"
               stackId="1"
-              stroke="hsl(var(--chart-2))" 
+              stroke="hsl(var(--chart-2))"
               fill="hsl(var(--chart-2))"
               fillOpacity={0.8}
+              strokeWidth={3}
             />
-            <Area 
-              type="monotone" 
-              dataKey="backgroundChecks" 
+            <Area
+              type="monotone"
+              dataKey="backgroundChecks"
               stackId="1"
-              stroke="hsl(var(--chart-3))" 
+              stroke="hsl(var(--chart-3))"
               fill="hsl(var(--chart-3))"
               fillOpacity={0.8}
+              strokeWidth={3}
             />
             <Line
               type="monotone"
               dataKey="total"
               stroke="hsl(var(--primary))"
-              strokeWidth={2}
+              strokeWidth={3}
               dot={false}
+              activeDot={false}
             />
           </AreaChart>
         </ResponsiveContainer>

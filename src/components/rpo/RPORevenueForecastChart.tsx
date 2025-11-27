@@ -95,7 +95,7 @@ export function RPORevenueForecastChart({ forecasts }: RPORevenueForecastChartPr
       <CardContent>
         <ResponsiveContainer width="100%" height={350}>
           <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+
             <XAxis
               dataKey="month"
               className="text-xs"
@@ -113,7 +113,7 @@ export function RPORevenueForecastChart({ forecasts }: RPORevenueForecastChartPr
               dataKey="revenue"
               name="Projected Revenue"
               fill="hsl(var(--chart-2))"
-              radius={[8, 8, 0, 0]}
+              radius={[4, 4, 0, 0]}
             />
           </BarChart>
         </ResponsiveContainer>
@@ -122,7 +122,7 @@ export function RPORevenueForecastChart({ forecasts }: RPORevenueForecastChartPr
         <div className="mt-6">
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+
               <XAxis
                 dataKey="month"
                 className="text-xs"
@@ -147,18 +147,20 @@ export function RPORevenueForecastChart({ forecasts }: RPORevenueForecastChartPr
                 dataKey="revenue"
                 name="Revenue Trend"
                 stroke="hsl(var(--chart-2))"
-                strokeWidth={2}
+                strokeWidth={3}
                 yAxisId="left"
-                dot={{ fill: 'hsl(var(--chart-2))' }}
+                dot={false}
+                activeDot={false}
               />
               <Line
                 type="monotone"
                 dataKey="contracts"
                 name="Active Contracts"
                 stroke="hsl(var(--chart-1))"
-                strokeWidth={2}
+                strokeWidth={3}
                 yAxisId="right"
-                dot={{ fill: 'hsl(var(--chart-1))' }}
+                dot={false}
+                activeDot={false}
               />
             </LineChart>
           </ResponsiveContainer>

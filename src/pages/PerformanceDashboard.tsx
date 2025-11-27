@@ -7,11 +7,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DateRangePicker } from "@/components/ui/date-range-picker-v2";
 import { Badge } from "@/components/ui/badge";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
-import { 
+import {
   LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell, PieChart, Pie
 } from "recharts";
-import { 
+import {
   Target, TrendingUp, TrendingDown, Users,
   CheckCircle, Clock, Download, Eye, Filter, BarChart3, Calendar, Star, Plus
 } from "lucide-react";
@@ -39,15 +39,15 @@ export default function PerformanceDashboard() {
     const completedGoals = goals.filter(g => g.status === 'completed').length;
     const onTrackGoals = goals.filter(g => g.status === 'in-progress').length;
     const atRiskGoals = goals.filter(g => g.status === 'on-hold').length;
-    
+
     const completedReviews = reviews.filter(r => r.status === 'completed').length;
     const pendingReviews = reviews.filter(r => r.status === 'in-progress' || r.status === 'not-started').length;
-    
+
     const completedReviewsWithRatings = reviews.filter(r => r.status === 'completed' && r.overallRating);
     const avgRating = completedReviewsWithRatings.length > 0
       ? (completedReviewsWithRatings.reduce((sum, r) => sum + (r.overallRating || 0), 0) / completedReviewsWithRatings.length).toFixed(1)
       : 0;
-    
+
     return {
       totalGoals,
       completedGoals,
@@ -129,7 +129,7 @@ export default function PerformanceDashboard() {
     <DashboardPageLayout
       dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
     >
-        <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6">
         {/* Header Section */}
         <div className="text-base font-semibold flex items-center justify-between">
           <div>
@@ -138,7 +138,7 @@ export default function PerformanceDashboard() {
               Goals, reviews, ratings, and employee development insights
             </p>
           </div>
-          
+
           {!isEditMode && (
             <div className="flex items-center gap-3">
               <DateRangePicker
@@ -147,7 +147,7 @@ export default function PerformanceDashboard() {
                 placeholder="Select period"
                 align="end"
               />
-              
+
               <Button variant="secondary" size="sm" onClick={handleExport}>
                 <Download className="h-4 w-4 mr-2" />
                 Export
@@ -183,7 +183,7 @@ export default function PerformanceDashboard() {
             showMenu={true}
             menuItems={[
               { label: "View On Track", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/performance?status=on-track') },
-              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
               { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
             ]}
           />
@@ -198,7 +198,7 @@ export default function PerformanceDashboard() {
             showMenu={true}
             menuItems={[
               { label: "View Ratings", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/performance/reviews') },
-              { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+              { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => { } },
               { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
             ]}
           />
@@ -238,21 +238,20 @@ export default function PerformanceDashboard() {
                 onDateRangeChange={setDateRange}
                 onDownload={() => toast({ title: "Downloading goal trends..." })}
                 menuItems={[
-                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={goalTrends}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
+                  <BarChart data={goalTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip cursor={{ fill: 'transparent' }} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Bar dataKey="completed" stackId="a" fill="#10b981" name="Completed" />
                     <Bar dataKey="onTrack" stackId="a" fill="#3b82f6" name="On Track" />
-                    <Bar dataKey="atRisk" stackId="a" fill="#ef4444" name="At Risk" />
+                    <Bar dataKey="atRisk" stackId="a" fill="#ef4444" name="At Risk" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </StandardChartCard>
@@ -262,9 +261,9 @@ export default function PerformanceDashboard() {
                 description="Distribution by goal type"
                 onDownload={() => toast({ title: "Downloading goal categories..." })}
                 menuItems={[
-                  { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={300}>
@@ -274,10 +273,11 @@ export default function PerformanceDashboard() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ category, percent }) => `${category}: ${(percent * 100).toFixed(0)}%`}
+                      label={false}
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="count"
+                      strokeWidth={0}
                     >
                       {goalCategories.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
@@ -352,18 +352,17 @@ export default function PerformanceDashboard() {
                 description="Employee rating breakdown"
                 onDownload={() => toast({ title: "Downloading ratings data..." })}
                 menuItems={[
-                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={ratingsData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="rating" type="category" width={150} />
-                    <Tooltip />
-                    <Bar dataKey="count" radius={[0, 8, 8, 0]}>
+                  <BarChart data={ratingsData} layout="vertical" margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <YAxis dataKey="rating" type="category" width={150} axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip cursor={{ fill: 'transparent' }} />
+                    <Bar dataKey="count" radius={[0, 4, 4, 0]}>
                       {ratingsData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
@@ -380,31 +379,34 @@ export default function PerformanceDashboard() {
                 onDateRangeChange={setDateRange}
                 onDownload={() => toast({ title: "Downloading review data..." })}
                 menuItems={[
-                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={reviewTimeline}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="week" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="scheduled" 
-                      stroke="#94a3b8" 
-                      strokeWidth={2}
+                  <LineChart data={reviewTimeline} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip cursor={false} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Line
+                      type="monotone"
+                      dataKey="scheduled"
+                      stroke="#94a3b8"
+                      strokeWidth={3}
                       name="Scheduled"
+                      dot={false}
+                      activeDot={false}
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="completed" 
-                      stroke="#10b981" 
-                      strokeWidth={2}
+                    <Line
+                      type="monotone"
+                      dataKey="completed"
+                      stroke="#10b981"
+                      strokeWidth={3}
                       name="Completed"
+                      dot={false}
+                      activeDot={false}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -418,22 +420,21 @@ export default function PerformanceDashboard() {
                 onDateRangeChange={setDateRange}
                 onDownload={() => toast({ title: "Downloading improvement data..." })}
                 menuItems={[
-                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
                 className="md:col-span-2"
               >
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={improvementData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="quarter" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="improved" fill="#10b981" name="Improved" />
-                    <Bar dataKey="maintained" fill="#3b82f6" name="Maintained" />
-                    <Bar dataKey="declined" fill="#ef4444" name="Declined" />
+                  <BarChart data={improvementData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="quarter" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip cursor={{ fill: 'transparent' }} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Bar dataKey="improved" fill="#10b981" name="Improved" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="maintained" fill="#3b82f6" name="Maintained" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="declined" fill="#ef4444" name="Declined" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </StandardChartCard>
@@ -447,9 +448,9 @@ export default function PerformanceDashboard() {
                 description="Average scores across key competencies"
                 onDownload={() => toast({ title: "Downloading competency data..." })}
                 menuItems={[
-                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={350}>
@@ -457,12 +458,12 @@ export default function PerformanceDashboard() {
                     <PolarGrid />
                     <PolarAngleAxis dataKey="competency" />
                     <PolarRadiusAxis angle={90} domain={[0, 5]} />
-                    <Radar 
-                      name="Average Score" 
-                      dataKey="score" 
-                      stroke="#3b82f6" 
-                      fill="#3b82f6" 
-                      fillOpacity={0.6} 
+                    <Radar
+                      name="Average Score"
+                      dataKey="score"
+                      stroke="#3b82f6"
+                      fill="#3b82f6"
+                      fillOpacity={0.6}
                     />
                     <Tooltip />
                   </RadarChart>
@@ -474,9 +475,9 @@ export default function PerformanceDashboard() {
                 description="Detailed breakdown by competency area"
                 onDownload={() => toast({ title: "Downloading scores..." })}
                 menuItems={[
-                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <div className="space-y-4">
@@ -489,7 +490,7 @@ export default function PerformanceDashboard() {
                         </Badge>
                       </div>
                       <div className="w-full bg-muted rounded-full h-2">
-                        <div 
+                        <div
                           className="h-2 rounded-full bg-blue-500 transition-all"
                           style={{ width: `${(comp.score / comp.fullMark) * 100}%` }}
                         />
@@ -507,21 +508,20 @@ export default function PerformanceDashboard() {
               description="Average ratings and goal completion by department"
               onDownload={() => toast({ title: "Downloading department data..." })}
               menuItems={[
-                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
               ]}
             >
               <ResponsiveContainer width="100%" height={400}>
-                <BarChart data={departmentPerformance}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="department" />
-                  <YAxis yAxisId="left" orientation="left" stroke="#3b82f6" />
-                  <YAxis yAxisId="right" orientation="right" stroke="#10b981" />
-                  <Tooltip />
-                  <Legend />
-                  <Bar yAxisId="left" dataKey="avgRating" fill="#3b82f6" name="Avg Rating (out of 5)" />
-                  <Bar yAxisId="right" dataKey="goalCompletion" fill="#10b981" name="Goal Completion %" />
+                <BarChart data={departmentPerformance} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="department" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                  <YAxis yAxisId="left" orientation="left" stroke="#3b82f6" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                  <YAxis yAxisId="right" orientation="right" stroke="#10b981" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                  <Tooltip cursor={{ fill: 'transparent' }} />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                  <Bar yAxisId="left" dataKey="avgRating" fill="#3b82f6" name="Avg Rating (out of 5)" radius={[4, 4, 0, 0]} />
+                  <Bar yAxisId="right" dataKey="goalCompletion" fill="#10b981" name="Goal Completion %" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
 
@@ -548,7 +548,7 @@ export default function PerformanceDashboard() {
             </StandardChartCard>
           </TabsContent>
         </Tabs>
-        </div>
+      </div>
     </DashboardPageLayout>
   );
 }

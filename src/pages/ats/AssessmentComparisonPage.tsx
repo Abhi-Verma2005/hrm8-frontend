@@ -36,7 +36,7 @@ export default function AssessmentComparisonPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   const allAssessments = getAssessments();
-  
+
   // Get unique jobs and assessment types
   const jobs = useMemo(() => {
     const uniqueJobs = new Map<string, string>();
@@ -76,8 +76,8 @@ export default function AssessmentComparisonPage() {
         });
       }
     });
-    return Array.from(candidateMap.values()).filter(c => 
-      searchTerm === '' || 
+    return Array.from(candidateMap.values()).filter(c =>
+      searchTerm === '' ||
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       c.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -91,7 +91,7 @@ export default function AssessmentComparisonPage() {
 
       const candidateAssessments = filteredAssessments.filter(a => a.candidateId === candidateId);
       const avgScore = candidateAssessments.reduce((sum, a) => sum + (a.overallScore || 0), 0) / candidateAssessments.length;
-      
+
       // Aggregate category scores
       const categoryScores: Record<string, number[]> = {};
       candidateAssessments.forEach(a => {
@@ -343,8 +343,8 @@ export default function AssessmentComparisonPage() {
                         <p className="text-2xl font-bold transition-colors duration-500">
                           {comparisonData.length > 0
                             ? Math.round(
-                                comparisonData.reduce((sum, d) => sum + d!.avgScore, 0) / comparisonData.length
-                              )
+                              comparisonData.reduce((sum, d) => sum + d!.avgScore, 0) / comparisonData.length
+                            )
                             : 0}%
                         </p>
                       </div>
@@ -383,27 +383,32 @@ export default function AssessmentComparisonPage() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={scoreComparisonData}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                      <XAxis 
-                        dataKey="name" 
-                        className="text-xs"
+                    <BarChart data={scoreComparisonData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <XAxis
+                        dataKey="name"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12 }}
+                        stroke="hsl(var(--muted-foreground))"
+                        dy={10}
+                      />
+                      <YAxis
+                        domain={[0, 100]}
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 12 }}
                         stroke="hsl(var(--muted-foreground))"
                       />
-                      <YAxis 
-                        domain={[0, 100]} 
-                        className="text-xs"
-                        stroke="hsl(var(--muted-foreground))"
-                      />
-                      <RechartsTooltip 
+                      <RechartsTooltip
                         contentStyle={{
                           backgroundColor: 'hsl(var(--background))',
                           border: '1px solid hsl(var(--border))',
                           borderRadius: '8px',
                         }}
                         labelStyle={{ color: 'hsl(var(--foreground))' }}
+                        cursor={{ fill: 'transparent' }}
                       />
-                      <Bar dataKey="score" radius={[8, 8, 0, 0]}>
+                      <Bar dataKey="score" radius={[4, 4, 0, 0]}>
                         {scoreComparisonData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
@@ -428,13 +433,13 @@ export default function AssessmentComparisonPage() {
                     <ResponsiveContainer width="100%" height={400}>
                       <RadarChart data={radarData}>
                         <PolarGrid stroke="hsl(var(--border))" />
-                        <PolarAngleAxis 
-                          dataKey="category" 
+                        <PolarAngleAxis
+                          dataKey="category"
                           stroke="hsl(var(--muted-foreground))"
                           className="text-xs"
                         />
-                        <PolarRadiusAxis 
-                          angle={90} 
+                        <PolarRadiusAxis
+                          angle={90}
                           domain={[0, 100]}
                           stroke="hsl(var(--muted-foreground))"
                         />
@@ -469,7 +474,7 @@ export default function AssessmentComparisonPage() {
                       <div key={data!.candidateId}>
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
-                            <div 
+                            <div
                               className="h-4 w-4 rounded-full"
                               style={{ backgroundColor: CANDIDATE_COLORS[index % CANDIDATE_COLORS.length] }}
                             />

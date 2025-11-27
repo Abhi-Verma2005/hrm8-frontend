@@ -13,7 +13,7 @@ export function CheckTypeComparisonChart({ data }: CheckTypeComparisonChartProps
 
   const handleBarClick = (data: any) => {
     if (!data || !data.type) return;
-    
+
     // Convert display name back to type key
     const typeMap: Record<string, string> = {
       'Reference': 'reference',
@@ -25,16 +25,16 @@ export function CheckTypeComparisonChart({ data }: CheckTypeComparisonChartProps
       'Drug Screen': 'drug-screen',
       'Professional License': 'professional-license',
     };
-    
+
     const checkType = typeMap[data.type] || data.type.toLowerCase();
-    
+
     // Navigate to main page with check type filter
     const params = new URLSearchParams({
       checkType,
     });
-    
+
     navigate(`/background-checks?${params.toString()}`);
-    
+
     toast({
       title: "Filters Applied",
       description: `Viewing ${data.type} checks`,
@@ -49,35 +49,37 @@ export function CheckTypeComparisonChart({ data }: CheckTypeComparisonChartProps
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={400}>
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis dataKey="type" className="text-xs" angle={-45} textAnchor="end" height={100} />
-            <YAxis className="text-xs" />
-            <Tooltip 
+          <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <XAxis dataKey="type" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={100} dy={10} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+            <Tooltip
               contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
-              cursor={{ fill: 'hsl(var(--accent))', opacity: 0.3 }}
+              cursor={{ fill: 'transparent' }}
             />
-            <Legend />
-            <Bar 
-              dataKey="total" 
-              fill="hsl(var(--primary))" 
-              name="Total Checks" 
+            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+            <Bar
+              dataKey="total"
+              fill="hsl(var(--primary))"
+              name="Total Checks"
               onClick={handleBarClick}
               cursor="pointer"
+              radius={[4, 4, 0, 0]}
             />
-            <Bar 
-              dataKey="completed" 
-              fill="hsl(var(--success))" 
-              name="Completed" 
+            <Bar
+              dataKey="completed"
+              fill="hsl(var(--success))"
+              name="Completed"
               onClick={handleBarClick}
               cursor="pointer"
+              radius={[4, 4, 0, 0]}
             />
-            <Bar 
-              dataKey="avgTime" 
-              fill="hsl(var(--warning))" 
-              name="Avg. Days" 
+            <Bar
+              dataKey="avgTime"
+              fill="hsl(var(--warning))"
+              name="Avg. Days"
               onClick={handleBarClick}
               cursor="pointer"
+              radius={[4, 4, 0, 0]}
             />
           </BarChart>
         </ResponsiveContainer>

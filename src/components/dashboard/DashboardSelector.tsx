@@ -10,22 +10,23 @@ interface DashboardSelectorProps {
 
 export function DashboardSelector({ currentDashboard }: DashboardSelectorProps) {
   const navigate = useNavigate();
-  
+
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide -mx-1 px-1">
       {Object.values(DASHBOARD_METADATA).map((dashboard) => {
         const Icon = dashboard.icon;
         const isActive = currentDashboard === dashboard.id;
-        
+
         return (
           <Button
             key={dashboard.id}
             variant={isActive ? "default" : "outline"}
             size="sm"
             onClick={() => navigate(dashboard.defaultRoute)}
+            className="flex-shrink-0"
           >
             <Icon className="h-4 w-4" />
-            <span className="hidden sm:inline">{dashboard.name}</span>
+            <span className="hidden sm:inline ml-2">{dashboard.name}</span>
           </Button>
         );
       })}

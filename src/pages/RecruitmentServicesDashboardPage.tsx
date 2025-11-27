@@ -345,7 +345,7 @@ export default function RecruitmentServicesDashboardPage() {
             ]}
           >
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={filteredRevenueTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <LineChart data={filteredRevenueTrends} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                 <XAxis
                   dataKey="month"
                   axisLine={false}
@@ -357,8 +357,13 @@ export default function RecruitmentServicesDashboardPage() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+                  width={50}
                 />
-                <Tooltip cursor={false} />
+                <Tooltip
+                  cursor={false}
+                  formatter={(value: number) => `$${value.toLocaleString()}`}
+                />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} name="Revenue" dot={false} activeDot={false} />
                 <Line type="monotone" dataKey="target" stroke="#3b82f6" strokeWidth={3} strokeDasharray="5 5" name="Target" dot={false} activeDot={false} />

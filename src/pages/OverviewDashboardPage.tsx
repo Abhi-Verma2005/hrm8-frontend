@@ -323,8 +323,7 @@ export default function OverviewDashboardPage() {
             ]}
           >
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={filteredRevenueExpenses} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-
+              <BarChart data={filteredRevenueExpenses} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                 <XAxis
                   dataKey="month"
                   axisLine={false}
@@ -336,8 +335,13 @@ export default function OverviewDashboardPage() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+                  width={50}
                 />
-                <Tooltip cursor={{ fill: 'transparent' }} />
+                <Tooltip
+                  cursor={{ fill: 'transparent' }}
+                  formatter={(value: number) => `$${value.toLocaleString()}`}
+                />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Bar dataKey="revenue" fill="#8b5cf6" name="Revenue" radius={[4, 4, 0, 0]} barSize={20} />
                 <Bar dataKey="expenses" fill="#38bdf8" name="Expenses" radius={[4, 4, 0, 0]} barSize={20} />

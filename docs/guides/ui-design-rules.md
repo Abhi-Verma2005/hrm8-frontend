@@ -839,7 +839,7 @@ import { ResponsiveContainer, LineChart, BarChart, PieChart } from "recharts";
 
 - **Background:** `bg-transparent border-0 shadow-none` (seamless with page)
 - **Height:** `300px` for chart area (consistent across all charts)
-- **Margins:** `margin={{ top: 10, right: 10, left: -20, bottom: 0 }}`
+- **Margins:** `margin={{ top: 10, right: 10, left: -20, bottom: 0 }}` (adjust `left` to `10` if Y-axis labels are cut off)
 
 ### Line Charts
 
@@ -896,6 +896,24 @@ import { ResponsiveContainer, LineChart, BarChart, PieChart } from "recharts";
 - **Secondary:** `#3b82f6` (Blue)
 - **Tertiary:** `#8b5cf6` (Violet)
 - **Additional:** `#f59e0b` (Amber), `#ec4899` (Pink)
+
+#### Y-Axis Formatting
+
+**For large numbers (thousands/millions):**
+
+```tsx
+<YAxis 
+  axisLine={false} 
+  tickLine={false} 
+  tick={{ fontSize: 12 }} 
+  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+  width={50}
+/>
+```
+
+- **Formatter:** Use `tickFormatter` to compact numbers (e.g., `180K` vs `180000`)
+- **Width:** Set `width={50}` to prevent label overflow
+- **Margins:** Ensure chart `margin.left` is positive (e.g., `left: 10`) if labels are long
 
 ### Bar Charts
 

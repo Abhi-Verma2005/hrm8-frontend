@@ -8,7 +8,7 @@ import { TrendingUp, Users, Clock } from 'lucide-react';
 export function LTVByServiceChart() {
   const { formatCurrency } = useCurrencyFormat();
   const data = getLTVByService();
-  
+
   const colors = {
     aiInterviews: 'hsl(var(--chart-1))',
     assessments: 'hsl(var(--chart-2))',
@@ -23,36 +23,40 @@ export function LTVByServiceChart() {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              type="number" 
-              className="text-xs"
+          <BarChart data={data} layout="vertical" margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <XAxis
+              type="number"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12 }}
               tickFormatter={(value) => formatCurrency(value)}
             />
-            <YAxis 
-              type="category" 
-              dataKey="serviceName" 
-              className="text-xs"
+            <YAxis
+              type="category"
+              dataKey="serviceName"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12 }}
               width={120}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--background))', 
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px'
               }}
+              cursor={{ fill: 'transparent' }}
               formatter={(value: number) => formatCurrency(value)}
               labelFormatter={(label) => `Service: ${label}`}
             />
-            <Bar dataKey="averageLTV" radius={[0, 8, 8, 0]}>
+            <Bar dataKey="averageLTV" radius={[0, 4, 4, 0]}>
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={colors[entry.service]} />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-        
+
         {/* Service Details */}
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           {data.map((service) => (

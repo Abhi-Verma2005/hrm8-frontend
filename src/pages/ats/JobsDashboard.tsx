@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
-import { 
+import {
   LineChart, Line, BarChart, Bar, PieChart, Pie, AreaChart, Area,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell 
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell
 } from "recharts";
-import { 
+import {
   Briefcase, TrendingUp, TrendingDown, Clock,
   CheckCircle, AlertCircle, Download, Eye, Filter, BarChart3, Calendar, Plus
 } from "lucide-react";
@@ -41,9 +41,9 @@ export default function JobsDashboard() {
     setSelectedRegion("all");
   };
 
-  const hasActiveFilters = 
-    selectedCountry !== "all" || 
-    selectedRegion !== "all" || 
+  const hasActiveFilters =
+    selectedCountry !== "all" ||
+    selectedRegion !== "all" ||
     dateRange !== undefined;
 
   // Calculate metrics
@@ -52,7 +52,7 @@ export default function JobsDashboard() {
     const active = jobs.filter(j => j.status === 'open').length;
     const filled = jobs.filter(j => j.status === 'filled').length;
     const draft = jobs.filter(j => j.status === 'draft').length;
-    
+
     return {
       total,
       active,
@@ -197,7 +197,7 @@ export default function JobsDashboard() {
             showMenu={true}
             menuItems={[
               { label: "View Active Jobs", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/jobs?status=open') },
-              { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
+              { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
               { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
             ]}
           />
@@ -211,8 +211,8 @@ export default function JobsDashboard() {
             variant="success"
             showMenu={true}
             menuItems={[
-              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-              { label: "Compare", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
+              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+              { label: "Compare", icon: <Calendar className="h-4 w-4" />, onClick: () => { } },
               { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
             ]}
           />
@@ -226,8 +226,8 @@ export default function JobsDashboard() {
             variant="warning"
             showMenu={true}
             menuItems={[
-              { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
+              { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
               { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
             ]}
           />
@@ -247,42 +247,44 @@ export default function JobsDashboard() {
               <StandardChartCard
                 title="Job Posting Activity"
                 description="Monthly job posting and fill rates"
+                className="bg-transparent border-0 shadow-none"
                 onDownload={() => toast({ title: "Downloading posting data..." })}
                 menuItems={[
-                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={postingTrends}>
+                  <AreaChart data={postingTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorPosted" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="colorFilled" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Area 
-                      type="monotone" 
-                      dataKey="posted" 
-                      stroke="#3b82f6" 
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip cursor={false} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Area
+                      type="monotone"
+                      dataKey="posted"
+                      stroke="#3b82f6"
+                      strokeWidth={3}
                       fillOpacity={1}
                       fill="url(#colorPosted)"
                       name="Posted"
                     />
-                    <Area 
-                      type="monotone" 
-                      dataKey="filled" 
-                      stroke="#10b981" 
+                    <Area
+                      type="monotone"
+                      dataKey="filled"
+                      stroke="#10b981"
+                      strokeWidth={3}
                       fillOpacity={1}
                       fill="url(#colorFilled)"
                       name="Filled"
@@ -294,25 +296,26 @@ export default function JobsDashboard() {
               <StandardChartCard
                 title="Application Volume"
                 description="Weekly application submissions"
+                className="bg-transparent border-0 shadow-none"
                 onDownload={() => toast({ title: "Downloading application data..." })}
                 menuItems={[
-                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={applicationVolume}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="week" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line 
-                      type="monotone" 
-                      dataKey="applications" 
-                      stroke="#8b5cf6" 
-                      strokeWidth={2}
-                      dot={{ fill: '#8b5cf6', r: 4 }}
+                  <LineChart data={applicationVolume} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip cursor={false} />
+                    <Line
+                      type="monotone"
+                      dataKey="applications"
+                      stroke="#8b5cf6"
+                      strokeWidth={3}
+                      dot={false}
+                      activeDot={false}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -321,11 +324,12 @@ export default function JobsDashboard() {
               <StandardChartCard
                 title="Job Type Distribution"
                 description="Breakdown by employment type"
+                className="bg-transparent border-0 shadow-none"
                 onDownload={() => toast({ title: "Downloading job type data..." })}
                 menuItems={[
-                  { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={300}>
@@ -335,16 +339,18 @@ export default function JobsDashboard() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ type, percent }) => `${type}: ${(percent * 100).toFixed(0)}%`}
+                      label={false}
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="count"
+                      strokeWidth={0}
                     >
                       {jobTypeData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
                     <Tooltip />
+                    <Legend />
                   </PieChart>
                 </ResponsiveContainer>
               </StandardChartCard>
@@ -352,20 +358,20 @@ export default function JobsDashboard() {
               <StandardChartCard
                 title="Location Demand"
                 description="Open positions by location"
+                className="bg-transparent border-0 shadow-none"
                 onDownload={() => toast({ title: "Downloading location data..." })}
                 menuItems={[
-                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={locationData} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" />
-                    <YAxis dataKey="location" type="category" width={100} />
-                    <Tooltip />
-                    <Bar dataKey="openings" fill="#3b82f6" radius={[0, 8, 8, 0]} />
+                  <BarChart data={locationData} layout="vertical" margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <YAxis dataKey="location" type="category" width={100} axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip cursor={{ fill: 'transparent' }} />
+                    <Bar dataKey="openings" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={20} />
                   </BarChart>
                 </ResponsiveContainer>
               </StandardChartCard>
@@ -377,22 +383,22 @@ export default function JobsDashboard() {
               <StandardChartCard
                 title="Department Hiring Demand"
                 description="Open positions vs filled by department"
+                className="bg-transparent border-0 shadow-none"
                 onDownload={() => toast({ title: "Downloading department data..." })}
                 menuItems={[
-                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={400}>
-                  <BarChart data={departmentData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="openings" fill="#3b82f6" name="Open Positions" />
-                    <Bar dataKey="filled" fill="#10b981" name="Filled" />
+                  <BarChart data={departmentData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip cursor={{ fill: 'transparent' }} />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Bar dataKey="openings" fill="#3b82f6" name="Open Positions" radius={[4, 4, 0, 0]} barSize={40} />
+                    <Bar dataKey="filled" fill="#10b981" name="Filled" radius={[4, 4, 0, 0]} barSize={40} />
                   </BarChart>
                 </ResponsiveContainer>
               </StandardChartCard>
@@ -400,11 +406,12 @@ export default function JobsDashboard() {
               <StandardChartCard
                 title="Department Fill Rates"
                 description="Hiring success by department"
+                className="bg-transparent border-0 shadow-none"
                 onDownload={() => toast({ title: "Downloading fill rate data..." })}
                 menuItems={[
-                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <div className="space-y-4">
@@ -414,8 +421,8 @@ export default function JobsDashboard() {
                       <div key={index} className="space-y-2">
                         <div className="text-base font-semibold flex items-center justify-between">
                           <div className="text-base font-semibold flex items-center gap-2">
-                            <div 
-                              className="w-3 h-3 rounded-full" 
+                            <div
+                              className="w-3 h-3 rounded-full"
                               style={{ backgroundColor: dept.color }}
                             />
                             <span className="text-sm font-medium">{dept.name}</span>
@@ -430,11 +437,11 @@ export default function JobsDashboard() {
                           </div>
                         </div>
                         <div className="w-full bg-muted rounded-full h-2">
-                          <div 
+                          <div
                             className="h-2 rounded-full transition-all"
-                            style={{ 
+                            style={{
                               width: `${fillRate}%`,
-                              backgroundColor: dept.color 
+                              backgroundColor: dept.color
                             }}
                           />
                         </div>
@@ -451,24 +458,24 @@ export default function JobsDashboard() {
               <StandardChartCard
                 title="Time to Fill Distribution"
                 description="How quickly positions are being filled"
+                className="bg-transparent border-0 shadow-none"
                 onDownload={() => toast({ title: "Downloading time to fill data..." })}
                 menuItems={[
-                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={timeToFillData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="range" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#3b82f6" radius={[8, 8, 0, 0]}>
+                  <BarChart data={timeToFillData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="range" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip cursor={{ fill: 'transparent' }} />
+                    <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={40}>
                       {timeToFillData.map((entry, index) => (
-                        <Cell 
-                          key={`cell-${index}`} 
-                          fill={['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#ef4444'][index]} 
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#ef4444'][index]}
                         />
                       ))}
                     </Bar>
@@ -479,28 +486,29 @@ export default function JobsDashboard() {
               <StandardChartCard
                 title="Cost Per Hire Trend"
                 description="Quarterly recruitment cost efficiency"
+                className="bg-transparent border-0 shadow-none"
                 showDatePicker={true}
                 dateRange={dateRange}
                 onDateRangeChange={setDateRange}
                 onDownload={() => toast({ title: "Downloading cost data..." })}
                 menuItems={[
-                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                  { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Compare Periods", icon: <Calendar className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
                 ]}
               >
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={costPerHireData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="quarter" />
-                    <YAxis />
-                    <Tooltip formatter={(value) => `$${value}`} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="cost" 
-                      stroke="#10b981" 
-                      strokeWidth={2}
-                      dot={{ fill: '#10b981', r: 5 }}
+                  <LineChart data={costPerHireData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="quarter" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip formatter={(value) => `$${value}`} cursor={false} />
+                    <Line
+                      type="monotone"
+                      dataKey="cost"
+                      stroke="#10b981"
+                      strokeWidth={3}
+                      dot={false}
+                      activeDot={false}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -544,9 +552,9 @@ export default function JobsDashboard() {
               description="Conversion rates through the recruitment process"
               onDownload={() => toast({ title: "Downloading funnel data..." })}
               menuItems={[
-                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-                { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+                { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
               ]}
             >
               <div className="space-y-4">
@@ -571,11 +579,11 @@ export default function JobsDashboard() {
                       )}
                     </div>
                     <div className="w-full bg-muted rounded-full h-8">
-                      <div 
+                      <div
                         className="h-8 rounded-full flex items-center justify-end px-3 transition-all"
-                        style={{ 
+                        style={{
                           width: `${index === 0 ? 100 : (stage.count / funnelData[1].count * 100)}%`,
-                          backgroundColor: ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'][index] 
+                          backgroundColor: ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'][index]
                         }}
                       >
                         {index === 0 ? (

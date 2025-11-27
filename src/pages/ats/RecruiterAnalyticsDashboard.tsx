@@ -12,10 +12,10 @@ import { getRecruiterPerformance } from '@/lib/backgroundChecks/analyticsService
 export default function RecruiterAnalyticsDashboard() {
   const { recruiterId } = useParams<{ recruiterId: string }>();
   const navigate = useNavigate();
-  
+
   const allRecruiters = getRecruiterPerformance();
   const recruiter = allRecruiters.find(r => r.recruiterId === recruiterId);
-  
+
   if (!recruiter) {
     return (
       <DashboardPageLayout title="Recruiter Not Found">
@@ -211,14 +211,13 @@ export default function RecruiterAnalyticsDashboard() {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={trendData}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="month" className="text-xs" />
-                  <YAxis className="text-xs" />
-                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }} />
-                  <Legend />
-                  <Bar dataKey="initiated" fill="hsl(var(--primary))" name="Initiated" />
-                  <Bar dataKey="completed" fill="hsl(var(--success))" name="Completed" />
+                <BarChart data={trendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                  <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }} cursor={{ fill: 'transparent' }} />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                  <Bar dataKey="initiated" fill="hsl(var(--primary))" name="Initiated" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="completed" fill="hsl(var(--success))" name="Completed" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
@@ -259,13 +258,13 @@ export default function RecruiterAnalyticsDashboard() {
                   <div>
                     <h4 className="font-medium text-yellow-900 dark:text-yellow-100">Boost Completion Rate</h4>
                     <p className="text-sm text-yellow-800 dark:text-yellow-200 mt-1">
-                      Your completion rate is {(teamAvg.completionRate - recruiter.completionRate).toFixed(1)}% below team average. 
+                      Your completion rate is {(teamAvg.completionRate - recruiter.completionRate).toFixed(1)}% below team average.
                       Consider sending more frequent reminders to candidates and referees.
                     </p>
                   </div>
                 </div>
               )}
-              
+
               {recruiter.onTimeRate < teamAvg.onTimeRate && (
                 <div className="flex items-start gap-3 p-3 border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-900 rounded-lg">
                   <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
@@ -277,7 +276,7 @@ export default function RecruiterAnalyticsDashboard() {
                   </div>
                 </div>
               )}
-              
+
               {recruiter.qualityScore < teamAvg.qualityScore && (
                 <div className="flex items-start gap-3 p-3 border border-purple-200 bg-purple-50 dark:bg-purple-950/20 dark:border-purple-900 rounded-lg">
                   <Award className="h-5 w-5 text-purple-600 mt-0.5" />
@@ -289,20 +288,20 @@ export default function RecruiterAnalyticsDashboard() {
                   </div>
                 </div>
               )}
-              
-              {recruiter.completionRate >= teamAvg.completionRate && 
-               recruiter.onTimeRate >= teamAvg.onTimeRate && 
-               recruiter.qualityScore >= teamAvg.qualityScore && (
-                <div className="flex items-start gap-3 p-3 border border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-900 rounded-lg">
-                  <Award className="h-5 w-5 text-green-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-green-900 dark:text-green-100">Excellent Performance!</h4>
-                    <p className="text-sm text-green-800 dark:text-green-200 mt-1">
-                      You're performing above team average across all metrics. Keep up the great work!
-                    </p>
+
+              {recruiter.completionRate >= teamAvg.completionRate &&
+                recruiter.onTimeRate >= teamAvg.onTimeRate &&
+                recruiter.qualityScore >= teamAvg.qualityScore && (
+                  <div className="flex items-start gap-3 p-3 border border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-900 rounded-lg">
+                    <Award className="h-5 w-5 text-green-600 mt-0.5" />
+                    <div>
+                      <h4 className="font-medium text-green-900 dark:text-green-100">Excellent Performance!</h4>
+                      <p className="text-sm text-green-800 dark:text-green-200 mt-1">
+                        You're performing above team average across all metrics. Keep up the great work!
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           </CardContent>
         </Card>

@@ -142,31 +142,35 @@ export default function AssessmentAnalytics() {
               <Card className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Score & Pass Rate Trends</h3>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={performanceTrends}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" className="text-xs" />
-                    <YAxis className="text-xs" />
+                  <LineChart data={performanceTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: 'hsl(var(--popover))',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
                       }}
+                      cursor={false}
                     />
-                    <Legend />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
                     <Line
                       type="monotone"
                       dataKey="averageScore"
                       stroke="#8b5cf6"
-                      strokeWidth={2}
+                      strokeWidth={3}
                       name="Average Score"
+                      dot={false}
+                      activeDot={false}
                     />
                     <Line
                       type="monotone"
                       dataKey="passRate"
                       stroke="#10b981"
-                      strokeWidth={2}
+                      strokeWidth={3}
                       name="Pass Rate"
+                      dot={false}
+                      activeDot={false}
                     />
                   </LineChart>
                 </ResponsiveContainer>
@@ -175,19 +179,19 @@ export default function AssessmentAnalytics() {
               <Card className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Assessment Volume</h3>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={performanceTrends}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="month" className="text-xs" />
-                    <YAxis className="text-xs" />
+                  <BarChart data={performanceTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: 'hsl(var(--popover))',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
                       }}
+                      cursor={{ fill: 'transparent' }}
                     />
-                    <Legend />
-                    <Bar dataKey="totalAssessments" fill="#3b82f6" name="Assessments" />
+                    <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                    <Bar dataKey="totalAssessments" fill="#3b82f6" name="Assessments" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </Card>
@@ -203,10 +207,11 @@ export default function AssessmentAnalytics() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ range, percentage }) => `${range}: ${percentage}%`}
+                      label={false}
                       outerRadius={100}
                       fill="#8884d8"
                       dataKey="count"
+                      strokeWidth={0}
                     >
                       {scoreDistribution.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -244,18 +249,22 @@ export default function AssessmentAnalytics() {
                 Comparing labeled difficulty vs. actual performance-based difficulty
               </p>
               <ResponsiveContainer width="100%" height={400}>
-                <ScatterChart>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                <ScatterChart margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <XAxis
                     dataKey="averageScore"
                     name="Average Score"
-                    className="text-xs"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
                     label={{ value: 'Average Score (%)', position: 'insideBottom', offset: -5 }}
+                    dy={10}
                   />
                   <YAxis
                     dataKey="actualDifficulty"
                     name="Actual Difficulty"
-                    className="text-xs"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 12 }}
                     label={{ value: 'Difficulty (1-10)', angle: -90, position: 'insideLeft' }}
                   />
                   <ZAxis dataKey="timesUsed" range={[100, 1000]} name="Times Used" />
@@ -347,18 +356,18 @@ export default function AssessmentAnalytics() {
               <Card className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Average Completion Time by Type</h3>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={timeMetrics} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis type="number" className="text-xs" label={{ value: 'Minutes', position: 'insideBottom', offset: -5 }} />
-                    <YAxis dataKey="assessmentType" type="category" className="text-xs" width={120} />
+                  <BarChart data={timeMetrics} layout="vertical" margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} label={{ value: 'Minutes', position: 'insideBottom', offset: -5 }} />
+                    <YAxis dataKey="assessmentType" type="category" width={120} axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: 'hsl(var(--popover))',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
                       }}
+                      cursor={{ fill: 'transparent' }}
                     />
-                    <Bar dataKey="averageTime" fill="#3b82f6" name="Avg Time" />
+                    <Bar dataKey="averageTime" fill="#3b82f6" name="Avg Time" radius={[0, 4, 4, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </Card>
@@ -366,18 +375,18 @@ export default function AssessmentAnalytics() {
               <Card className="p-6">
                 <h3 className="text-lg font-semibold mb-4">Completion Rate by Type</h3>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={timeMetrics}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                    <XAxis dataKey="assessmentType" className="text-xs" />
-                    <YAxis className="text-xs" domain={[0, 100]} />
+                  <BarChart data={timeMetrics} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <XAxis dataKey="assessmentType" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                    <YAxis domain={[0, 100]} axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: 'hsl(var(--popover))',
                         border: '1px solid hsl(var(--border))',
                         borderRadius: '8px',
                       }}
+                      cursor={{ fill: 'transparent' }}
                     />
-                    <Bar dataKey="completionRate" fill="#10b981" name="Completion Rate %" />
+                    <Bar dataKey="completionRate" fill="#10b981" name="Completion Rate %" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </Card>
@@ -502,20 +511,20 @@ export default function AssessmentAnalytics() {
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Category Performance Overview</h3>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={categoryPerformance}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                  <XAxis dataKey="category" className="text-xs" />
-                  <YAxis className="text-xs" />
+                <BarChart data={categoryPerformance} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="category" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: 'hsl(var(--popover))',
                       border: '1px solid hsl(var(--border))',
                       borderRadius: '8px',
                     }}
+                    cursor={{ fill: 'transparent' }}
                   />
-                  <Legend />
-                  <Bar dataKey="averageScore" fill="#8b5cf6" name="Average Score" />
-                  <Bar dataKey="passRate" fill="#10b981" name="Pass Rate" />
+                  <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                  <Bar dataKey="averageScore" fill="#8b5cf6" name="Average Score" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="passRate" fill="#10b981" name="Pass Rate" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </Card>

@@ -21,19 +21,21 @@ export function ServiceMixChart() {
               cx="50%"
               cy="50%"
               labelLine={false}
-              label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+              label={false}
               outerRadius={80}
               fill="hsl(var(--primary))"
               dataKey="value"
+              strokeWidth={0}
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />
               ))}
             </Pie>
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--background))', 
-                border: '1px solid hsl(var(--border))' 
+            <Legend />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
+                border: '1px solid hsl(var(--border))'
               }}
               formatter={(value: number, name: string, props: any) => [
                 `${formatCurrency(value)} (${props.payload.count} services)`,

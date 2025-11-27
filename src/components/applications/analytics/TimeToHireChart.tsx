@@ -12,22 +12,23 @@ export function TimeToHireChart({ data }: TimeToHireChartProps) {
       <Card className="p-6">
         <h3 className="font-semibold mb-4">Time to Hire Trend</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data.trend}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis dataKey="month" className="text-xs" />
-            <YAxis className="text-xs" label={{ value: 'Days', angle: -90, position: 'insideLeft' }} />
-            <Tooltip 
+          <LineChart data={data.trend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} label={{ value: 'Days', angle: -90, position: 'insideLeft' }} />
+            <Tooltip
               contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
               labelStyle={{ color: 'hsl(var(--foreground))' }}
+              cursor={false}
             />
-            <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="averageDays" 
-              stroke="hsl(var(--primary))" 
-              strokeWidth={2}
+            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+            <Line
+              type="monotone"
+              dataKey="averageDays"
+              stroke="hsl(var(--primary))"
+              strokeWidth={3}
               name="Avg Days to Hire"
-              dot={{ fill: 'hsl(var(--primary))' }}
+              dot={false}
+              activeDot={false}
             />
           </LineChart>
         </ResponsiveContainer>
@@ -36,15 +37,15 @@ export function TimeToHireChart({ data }: TimeToHireChartProps) {
       <Card className="p-6">
         <h3 className="font-semibold mb-4">Average Time to Hire by Final Stage</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data.byStage}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis dataKey="stage" className="text-xs" angle={-45} textAnchor="end" height={100} />
-            <YAxis className="text-xs" label={{ value: 'Days', angle: -90, position: 'insideLeft' }} />
-            <Tooltip 
+          <BarChart data={data.byStage} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <XAxis dataKey="stage" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={100} dy={10} />
+            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} label={{ value: 'Days', angle: -90, position: 'insideLeft' }} />
+            <Tooltip
               contentStyle={{ backgroundColor: 'hsl(var(--background))', border: '1px solid hsl(var(--border))' }}
               labelStyle={{ color: 'hsl(var(--foreground))' }}
+              cursor={{ fill: 'transparent' }}
             />
-            <Bar dataKey="averageDays" fill="hsl(var(--chart-1))" name="Avg Days" />
+            <Bar dataKey="averageDays" fill="hsl(var(--chart-1))" name="Avg Days" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </Card>

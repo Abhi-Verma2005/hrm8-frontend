@@ -241,6 +241,7 @@ export default function FinancialDashboardPage() {
           <StandardChartCard
             title="Revenue vs Expenses"
             description={`Monthly financial comparison${dateRange?.from ? ' (filtered)' : ''}`}
+            className="bg-transparent border-0 shadow-none"
             onDownload={() => toast({ title: "Downloading financial comparison..." })}
             menuItems={[
               { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
@@ -249,14 +250,22 @@ export default function FinancialDashboardPage() {
             ]}
           >
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={filteredRevenueExpenses}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="revenue" fill="#10b981" name="Revenue" />
-                <Bar dataKey="expenses" fill="#ef4444" name="Expenses" />
+              <BarChart data={filteredRevenueExpenses} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+                  width={50}
+                />
+                <Tooltip
+                  cursor={{ fill: 'transparent' }}
+                  formatter={(value: number) => `$${value.toLocaleString()}`}
+                />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Bar dataKey="revenue" fill="#10b981" name="Revenue" radius={[4, 4, 0, 0]} barSize={40} />
+                <Bar dataKey="expenses" fill="#ef4444" name="Expenses" radius={[4, 4, 0, 0]} barSize={40} />
               </BarChart>
             </ResponsiveContainer>
           </StandardChartCard>
@@ -264,6 +273,7 @@ export default function FinancialDashboardPage() {
           <StandardChartCard
             title="Budget Analysis"
             description={`Budget vs actual spending${dateRange?.from ? ' (filtered)' : ''}`}
+            className="bg-transparent border-0 shadow-none"
             onDownload={() => toast({ title: "Downloading budget analysis..." })}
             menuItems={[
               { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
@@ -271,14 +281,22 @@ export default function FinancialDashboardPage() {
             ]}
           >
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={budgetAnalysis} layout="horizontal">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="category" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="budget" fill="#3b82f6" name="Budget" />
-                <Bar dataKey="spent" fill="#8b5cf6" name="Spent" />
+              <BarChart data={budgetAnalysis} layout="horizontal" margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                <XAxis dataKey="category" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+                  width={50}
+                />
+                <Tooltip
+                  cursor={{ fill: 'transparent' }}
+                  formatter={(value: number) => `$${value.toLocaleString()}`}
+                />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Bar dataKey="budget" fill="#3b82f6" name="Budget" radius={[4, 4, 0, 0]} barSize={40} />
+                <Bar dataKey="spent" fill="#8b5cf6" name="Spent" radius={[4, 4, 0, 0]} barSize={40} />
               </BarChart>
             </ResponsiveContainer>
           </StandardChartCard>
@@ -286,6 +304,7 @@ export default function FinancialDashboardPage() {
           <StandardChartCard
             title="Cost Breakdown"
             description="Expense distribution by category"
+            className="bg-transparent border-0 shadow-none"
             onDownload={() => toast({ title: "Downloading cost breakdown..." })}
             menuItems={[
               { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
@@ -299,16 +318,18 @@ export default function FinancialDashboardPage() {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  label={false}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
+                  strokeWidth={0}
                 >
                   {costBreakdown.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
                 <Tooltip />
+                <Legend />
               </PieChart>
             </ResponsiveContainer>
           </StandardChartCard>
@@ -316,6 +337,7 @@ export default function FinancialDashboardPage() {
           <StandardChartCard
             title="Payroll Trends"
             description={`Monthly payroll and benefits${dateRange?.from ? ' (filtered)' : ''}`}
+            className="bg-transparent border-0 shadow-none"
             onDownload={() => toast({ title: "Downloading payroll trends..." })}
             menuItems={[
               { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/payroll') },
@@ -324,7 +346,7 @@ export default function FinancialDashboardPage() {
             ]}
           >
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={filteredPayrollTrends}>
+              <AreaChart data={filteredPayrollTrends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorPayroll" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
@@ -335,13 +357,12 @@ export default function FinancialDashboardPage() {
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Area type="monotone" dataKey="payroll" stroke="#3b82f6" fillOpacity={1} fill="url(#colorPayroll)" name="Payroll" />
-                <Area type="monotone" dataKey="benefits" stroke="#10b981" fillOpacity={1} fill="url(#colorBenefits)" name="Benefits" />
+                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                <Tooltip cursor={false} />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Area type="monotone" dataKey="payroll" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorPayroll)" name="Payroll" />
+                <Area type="monotone" dataKey="benefits" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorBenefits)" name="Benefits" />
               </AreaChart>
             </ResponsiveContainer>
           </StandardChartCard>

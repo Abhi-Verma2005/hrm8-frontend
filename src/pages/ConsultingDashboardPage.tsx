@@ -326,7 +326,7 @@ export default function ConsultingDashboardPage() {
             ]}
           >
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={filteredRevenueForecast} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <LineChart data={filteredRevenueForecast} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                 <XAxis
                   dataKey="month"
                   axisLine={false}
@@ -338,8 +338,13 @@ export default function ConsultingDashboardPage() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+                  width={50}
                 />
-                <Tooltip cursor={false} />
+                <Tooltip
+                  cursor={false}
+                  formatter={(value: number) => `$${value.toLocaleString()}`}
+                />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Line type="monotone" dataKey="actual" stroke="#10b981" strokeWidth={3} name="Actual Revenue" dot={false} activeDot={false} />
                 <Line type="monotone" dataKey="forecast" stroke="#3b82f6" strokeWidth={3} strokeDasharray="5 5" name="Forecast" dot={false} activeDot={false} />

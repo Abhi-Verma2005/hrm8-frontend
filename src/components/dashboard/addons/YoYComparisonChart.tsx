@@ -7,7 +7,7 @@ import { TrendingUp, TrendingDown } from 'lucide-react';
 export function YoYComparisonChart() {
   const { formatCurrency } = useCurrencyFormat();
   const data = getYoYComparison();
-  
+
   // Calculate overall YoY growth
   const totalCurrentYear = data.reduce((sum, d) => sum + d.currentYear, 0);
   const totalPreviousYear = data.reduce((sum, d) => sum + d.previousYear, 0);
@@ -27,19 +27,21 @@ export function YoYComparisonChart() {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis dataKey="month" className="text-xs" />
-            <YAxis 
-              className="text-xs"
+          <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12 }}
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--background))', 
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px'
               }}
+              cursor={{ fill: 'transparent' }}
               formatter={(value: number, name: string) => {
                 const nameMap: Record<string, string> = {
                   currentYear: 'Current Year',
@@ -49,7 +51,8 @@ export function YoYComparisonChart() {
               }}
               labelFormatter={(label) => `Month: ${label}`}
             />
-            <Legend 
+            <Legend
+              wrapperStyle={{ paddingTop: '20px' }}
               formatter={(value) => {
                 const nameMap: Record<string, string> = {
                   currentYear: 'Current Year',
@@ -58,19 +61,19 @@ export function YoYComparisonChart() {
                 return nameMap[value] || value;
               }}
             />
-            <Bar 
-              dataKey="previousYear" 
-              fill="hsl(var(--muted))" 
+            <Bar
+              dataKey="previousYear"
+              fill="hsl(var(--chart-4))"
               radius={[4, 4, 0, 0]}
             />
-            <Bar 
-              dataKey="currentYear" 
-              fill="hsl(var(--primary))" 
+            <Bar
+              dataKey="currentYear"
+              fill="hsl(var(--primary))"
               radius={[4, 4, 0, 0]}
             >
               {data.map((entry, index) => (
-                <Cell 
-                  key={`cell-${index}`} 
+                <Cell
+                  key={`cell-${index}`}
                   fill={entry.growthPercentage >= 0 ? 'hsl(var(--chart-2))' : 'hsl(var(--destructive))'}
                 />
               ))}

@@ -49,7 +49,7 @@ export function InterviewAnalyticsDashboard({ interviews }: InterviewAnalyticsDa
     const avgRating =
       interviewsWithRatings.length > 0
         ? interviewsWithRatings.reduce((sum, i) => sum + (i.rating || 0), 0) /
-          interviewsWithRatings.length
+        interviewsWithRatings.length
         : 0;
 
     // Time-to-hire calculation (days from first interview to completion)
@@ -59,13 +59,13 @@ export function InterviewAnalyticsDashboard({ interviews }: InterviewAnalyticsDa
     const avgTimeToHire =
       completedInterviews.length > 0
         ? completedInterviews.reduce((sum, i) => {
-            const interviewDate = new Date(i.scheduledDate);
-            const completedDate = new Date(i.updatedAt);
-            const days = Math.floor(
-              (completedDate.getTime() - interviewDate.getTime()) / (1000 * 60 * 60 * 24)
-            );
-            return sum + days;
-          }, 0) / completedInterviews.length
+          const interviewDate = new Date(i.scheduledDate);
+          const completedDate = new Date(i.updatedAt);
+          const days = Math.floor(
+            (completedDate.getTime() - interviewDate.getTime()) / (1000 * 60 * 60 * 24)
+          );
+          return sum + days;
+        }, 0) / completedInterviews.length
         : 0;
 
     // Status distribution
@@ -134,7 +134,7 @@ export function InterviewAnalyticsDashboard({ interviews }: InterviewAnalyticsDa
         if (interview.status === "completed") {
           acc[interviewer.userId].completedInterviews++;
         }
-        
+
         // Count feedback from this interviewer
         const interviewerFeedback = interview.feedback.filter(
           (f) => f.interviewerId === interviewer.userId
@@ -213,11 +213,10 @@ export function InterviewAnalyticsDashboard({ interviews }: InterviewAnalyticsDa
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`h-3 w-3 ${
-              star <= rating
+            className={`h-3 w-3 ${star <= rating
                 ? "fill-warning text-warning"
                 : "fill-muted text-muted"
-            }`}
+              }`}
           />
         ))}
       </div>
@@ -299,12 +298,11 @@ export function InterviewAnalyticsDashboard({ interviews }: InterviewAnalyticsDa
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
-                  }
+                  label={false}
                   outerRadius={100}
                   fill="#8884d8"
                   dataKey="value"
+                  strokeWidth={0}
                 >
                   {analytics.statusData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
@@ -323,12 +321,11 @@ export function InterviewAnalyticsDashboard({ interviews }: InterviewAnalyticsDa
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={analytics.typeData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="hsl(var(--primary))" />
+              <BarChart data={analytics.typeData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                <Tooltip cursor={{ fill: 'transparent' }} />
+                <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -344,12 +341,11 @@ export function InterviewAnalyticsDashboard({ interviews }: InterviewAnalyticsDa
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={analytics.ratingsData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="rating" type="category" />
-                <Tooltip />
-                <Bar dataKey="count" fill="hsl(var(--warning))" />
+              <BarChart data={analytics.ratingsData} layout="vertical" margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                <YAxis dataKey="rating" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} width={80} />
+                <Tooltip cursor={{ fill: 'transparent' }} />
+                <Bar dataKey="count" fill="hsl(var(--warning))" radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -362,12 +358,11 @@ export function InterviewAnalyticsDashboard({ interviews }: InterviewAnalyticsDa
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={analytics.recommendationData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="count" fill="hsl(var(--success))" />
+              <BarChart data={analytics.recommendationData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                <Tooltip cursor={{ fill: 'transparent' }} />
+                <Bar dataKey="count" fill="hsl(var(--success))" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>

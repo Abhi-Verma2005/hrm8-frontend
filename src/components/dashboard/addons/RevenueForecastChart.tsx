@@ -8,12 +8,12 @@ import { TrendingUp } from 'lucide-react';
 export function RevenueForecastChart() {
   const { formatCurrency } = useCurrencyFormat();
   const data = getRevenueForecast(6);
-  
+
   // Calculate projected growth
   const lastActual = data.find(d => d.actual !== undefined);
   const lastForecast = data[data.length - 1];
-  const projectedGrowth = lastActual && lastForecast 
-    ? ((lastForecast.forecast - lastActual.actual) / lastActual.actual) * 100 
+  const projectedGrowth = lastActual && lastForecast
+    ? ((lastForecast.forecast - lastActual.actual) / lastActual.actual) * 100
     : 0;
 
   return (
@@ -34,25 +34,30 @@ export function RevenueForecastChart() {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="month" 
-              className="text-xs"
+          <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <XAxis
+              dataKey="month"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12 }}
               angle={-45}
               textAnchor="end"
               height={60}
+              dy={10}
             />
-            <YAxis 
-              className="text-xs"
+            <YAxis
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12 }}
               tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
             />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--background))', 
+            <Tooltip
+              contentStyle={{
+                backgroundColor: 'hsl(var(--background))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px'
               }}
+              cursor={false}
               formatter={(value: number, name: string) => {
                 const nameMap: Record<string, string> = {
                   actual: 'Actual',
@@ -63,7 +68,8 @@ export function RevenueForecastChart() {
                 return [value ? formatCurrency(value) : 'N/A', nameMap[name] || name];
               }}
             />
-            <Legend 
+            <Legend
+              wrapperStyle={{ paddingTop: '20px' }}
               formatter={(value) => {
                 const nameMap: Record<string, string> = {
                   actual: 'Actual Revenue',
@@ -74,7 +80,7 @@ export function RevenueForecastChart() {
                 return nameMap[value] || value;
               }}
             />
-            
+
             {/* Confidence interval area */}
             <Area
               type="monotone"
@@ -90,29 +96,31 @@ export function RevenueForecastChart() {
               fill="hsl(var(--background))"
               fillOpacity={1}
             />
-            
+
             {/* Actual revenue line */}
             <Line
               type="monotone"
               dataKey="actual"
               stroke="hsl(var(--chart-1))"
               strokeWidth={3}
-              dot={{ r: 4 }}
+              dot={false}
+              activeDot={false}
               connectNulls={false}
             />
-            
+
             {/* Forecast line */}
             <Line
               type="monotone"
               dataKey="forecast"
               stroke="hsl(var(--primary))"
-              strokeWidth={2}
+              strokeWidth={3}
               strokeDasharray="5 5"
-              dot={{ r: 3 }}
+              dot={false}
+              activeDot={false}
             />
           </LineChart>
         </ResponsiveContainer>
-        
+
         <div className="mt-4 text-xs text-muted-foreground">
           <p>* Forecast based on historical trend analysis using linear regression</p>
           <p>* Confidence interval represents 95% probability range</p>

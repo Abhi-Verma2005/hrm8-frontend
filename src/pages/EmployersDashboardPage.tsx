@@ -268,7 +268,7 @@ export default function EmployersDashboardPage() {
             ]}
           >
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={filteredRevenueExpenses} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={filteredRevenueExpenses} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                 <XAxis
                   dataKey="month"
                   axisLine={false}
@@ -280,8 +280,13 @@ export default function EmployersDashboardPage() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+                  width={50}
                 />
-                <Tooltip cursor={{ fill: 'transparent' }} />
+                <Tooltip
+                  cursor={{ fill: 'transparent' }}
+                  formatter={(value: number) => `$${value.toLocaleString()}`}
+                />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Bar dataKey="revenue" fill="#10b981" name="Revenue" radius={[4, 4, 0, 0]} barSize={20} />
                 <Bar dataKey="expenses" fill="#ef4444" name="Expenses" radius={[4, 4, 0, 0]} barSize={20} />
@@ -301,7 +306,7 @@ export default function EmployersDashboardPage() {
             ]}
           >
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={filteredBudgetAnalysis} layout="horizontal" margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <BarChart data={filteredBudgetAnalysis} layout="horizontal" margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
                 <XAxis
                   dataKey="category"
                   axisLine={false}
@@ -313,8 +318,13 @@ export default function EmployersDashboardPage() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+                  width={50}
                 />
-                <Tooltip cursor={{ fill: 'transparent' }} />
+                <Tooltip
+                  cursor={{ fill: 'transparent' }}
+                  formatter={(value: number) => `$${value.toLocaleString()}`}
+                />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Bar dataKey="budget" fill="#3b82f6" name="Budget" radius={[4, 4, 0, 0]} barSize={20} />
                 <Bar dataKey="spent" fill="#8b5cf6" name="Spent" radius={[4, 4, 0, 0]} barSize={20} />

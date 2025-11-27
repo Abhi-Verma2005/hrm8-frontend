@@ -569,8 +569,8 @@ export default function AdvancedAnalytics() {
                   />
                   <Tooltip contentStyle={{ backgroundColor: 'hsl(var(--background))', borderColor: 'hsl(var(--border))', borderRadius: 'var(--radius)' }} />
                   <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                  <Area type="monotone" dataKey="currentLevel" stackId="1" stroke="hsl(var(--chart-3))" fill="hsl(var(--chart-3))" fillOpacity={0.6} name="Current Level" strokeWidth={2} />
-                  <Area type="monotone" dataKey="gap" stackId="1" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.6} name="Skill Gap" strokeWidth={2} />
+                  <Area type="monotone" dataKey="currentLevel" stackId="1" stroke="hsl(var(--chart-3))" fill="hsl(var(--chart-3))" fillOpacity={0.6} name="Current Level" strokeWidth={3} />
+                  <Area type="monotone" dataKey="gap" stackId="1" stroke="hsl(var(--destructive))" fill="hsl(var(--destructive))" fillOpacity={0.6} name="Skill Gap" strokeWidth={3} />
                 </AreaChart>
               </ResponsiveContainer>
             </CardContent>

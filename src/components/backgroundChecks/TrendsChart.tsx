@@ -13,18 +13,18 @@ export function TrendsChart({ data }: TrendsChartProps) {
 
   const handleDataPointClick = (data: any) => {
     if (!data || !data.activePayload || !data.activePayload[0]) return;
-    
+
     const point = data.activePayload[0].payload;
     const date = point.date;
-    
+
     // Navigate to main page with date filter
     const params = new URLSearchParams({
       dateFrom: date,
       dateTo: date,
     });
-    
+
     navigate(`/background-checks?${params.toString()}`);
-    
+
     toast({
       title: "Filters Applied",
       description: `Viewing checks from ${new Date(date).toLocaleDateString()}`,
@@ -39,55 +39,57 @@ export function TrendsChart({ data }: TrendsChartProps) {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={data} onClick={handleDataPointClick} style={{ cursor: 'pointer' }}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis 
-              dataKey="date" 
-              className="text-xs"
+          <LineChart data={data} onClick={handleDataPointClick} style={{ cursor: 'pointer' }} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <XAxis
+              dataKey="date"
+              axisLine={false}
+              tickLine={false}
+              tick={{ fontSize: 12 }}
+              dy={10}
               tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             />
-            <YAxis className="text-xs" />
-            <Tooltip 
+            <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+            <Tooltip
               contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
               labelFormatter={(value) => new Date(value).toLocaleDateString()}
-              cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1, strokeDasharray: '5 5' }}
+              cursor={false}
             />
-            <Legend />
-            <Line 
-              type="monotone" 
-              dataKey="totalChecks" 
-              stroke="hsl(var(--primary))" 
-              strokeWidth={2}
+            <Legend wrapperStyle={{ paddingTop: '20px' }} />
+            <Line
+              type="monotone"
+              dataKey="totalChecks"
+              stroke="hsl(var(--primary))"
+              strokeWidth={3}
               name="Total Checks"
-              dot={{ r: 4, strokeWidth: 2, cursor: 'pointer' }}
-              activeDot={{ r: 6, strokeWidth: 2, cursor: 'pointer' }}
+              dot={false}
+              activeDot={false}
             />
-            <Line 
-              type="monotone" 
-              dataKey="completed" 
-              stroke="hsl(var(--success))" 
-              strokeWidth={2}
+            <Line
+              type="monotone"
+              dataKey="completed"
+              stroke="hsl(var(--success))"
+              strokeWidth={3}
               name="Completed"
-              dot={{ r: 4, strokeWidth: 2, cursor: 'pointer' }}
-              activeDot={{ r: 6, strokeWidth: 2, cursor: 'pointer' }}
+              dot={false}
+              activeDot={false}
             />
-            <Line 
-              type="monotone" 
-              dataKey="inProgress" 
-              stroke="hsl(var(--warning))" 
-              strokeWidth={2}
+            <Line
+              type="monotone"
+              dataKey="inProgress"
+              stroke="hsl(var(--warning))"
+              strokeWidth={3}
               name="In Progress"
-              dot={{ r: 4, strokeWidth: 2, cursor: 'pointer' }}
-              activeDot={{ r: 6, strokeWidth: 2, cursor: 'pointer' }}
+              dot={false}
+              activeDot={false}
             />
-            <Line 
-              type="monotone" 
-              dataKey="avgCompletionTime" 
-              stroke="hsl(var(--info))" 
-              strokeWidth={2}
+            <Line
+              type="monotone"
+              dataKey="avgCompletionTime"
+              stroke="hsl(var(--info))"
+              strokeWidth={3}
               name="Avg. Days to Complete"
-              dot={{ r: 4, strokeWidth: 2, cursor: 'pointer' }}
-              activeDot={{ r: 6, strokeWidth: 2, cursor: 'pointer' }}
+              dot={false}
+              activeDot={false}
             />
           </LineChart>
         </ResponsiveContainer>
