@@ -1,4 +1,5 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
@@ -135,6 +136,23 @@ export default function JobsDashboard() {
     { stage: 'Offered', count: 178, percentage: 8 },
     { stage: 'Filled', count: 142, percentage: 7 },
   ];
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <DashboardPageLayout>
+        <DashboardSkeleton />
+      </DashboardPageLayout>
+    );
+  }
 
   return (
     <DashboardPageLayout

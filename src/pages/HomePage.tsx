@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
@@ -117,6 +118,23 @@ export default function HomePage() {
       default: return Activity;
     }
   };
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <DashboardPageLayout>
+        <DashboardSkeleton />
+      </DashboardPageLayout>
+    );
+  }
 
   return (
     <DashboardPageLayout>
