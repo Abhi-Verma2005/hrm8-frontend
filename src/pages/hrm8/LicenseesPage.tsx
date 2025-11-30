@@ -1,0 +1,146 @@
+/**
+ * Regional Licensees Management Page
+ * HRM8 Global Admin licensee management
+ */
+
+import { useState, useEffect } from 'react';
+import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
+import { licenseeService, RegionalLicensee } from '@/lib/hrm8/licenseeService';
+import { DataTable } from '@/components/tables/DataTable';
+import { Button } from '@/components/ui/button';
+import { Plus, Building2, Edit, Trash2, Ban } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from 'sonner';
+import { FormDrawer } from '@/components/ui/form-drawer';
+import { LicenseeForm } from '@/components/hrm8/LicenseeForm';
+
+const columns = [
+  {
+    key: 'name',
+    label: 'Name',
+    sortable: true,
+  },
+  {
+    key: 'email',
+    label: 'Email',
+    sortable: true,
+  },
+  {
+    key: 'status',
+    label: 'Status',
+    render: (licensee: RegionalLicensee) => (
+      <span className={licensee.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-500'}>
+        {licensee.status}
+      </span>
+    ),
+  },
+  {
+    key: 'revenueSharePercent',
+    label: 'Revenue Share %',
+    render: (licensee: RegionalLicensee) => `${licensee.revenueSharePercent}%`,
+  },
+];
+
+export default function LicenseesPage() {
+  const { hrm8User } = useHrm8Auth();
+  const [licensees, setLicensees] = useState<RegionalLicensee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editingLicenseeId, setEditingLicenseeId] = useState<string | null>(null);
+
+  const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
+
+  useEffect(() => {
+    loadLicensees();
+  }, []);
+
+  const loadLicensees = async () => {
+    try {
+      setLoading(true);
+      const response = await licenseeService.getAll();
+      if (response.success && response.data?.licensees) {
+        setLicensees(response.data.licensees);
+      }
+    } catch (error) {
+      toast.error('Failed to load licensees');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreate = () => {
+    setEditingLicenseeId(null);
+    setDrawerOpen(true);
+  };
+
+  const handleEdit = (licensee: RegionalLicensee) => {
+    setEditingLicenseeId(licensee.id);
+    setDrawerOpen(true);
+  };
+
+  const handleSave = async () => {
+    await loadLicensees();
+    setDrawerOpen(false);
+    setEditingLicenseeId(null);
+  };
+
+  if (!isGlobalAdmin) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Regional Licensees</h1>
+          <p className="text-muted-foreground mt-2">Global Admin access required</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Regional Licensees</h1>
+          <p className="text-muted-foreground mt-2">Manage regional licensees</p>
+        </div>
+        <Button onClick={handleCreate}>
+          <Plus className="mr-2 h-4 w-4" />
+          Create Licensee
+        </Button>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Licensees</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="text-center py-8">Loading licensees...</div>
+          ) : (
+            <DataTable
+              data={licensees}
+              columns={columns}
+              searchable
+              searchKeys={['name', 'email', 'legalEntityName']}
+              emptyMessage="No licensees found"
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      <FormDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        title={editingLicenseeId ? 'Edit Licensee' : 'Create Licensee'}
+      >
+        <LicenseeForm
+          licenseeId={editingLicenseeId}
+          onSave={handleSave}
+          onCancel={() => {
+            setDrawerOpen(false);
+            setEditingLicenseeId(null);
+          }}
+        />
+      </FormDrawer>
+    </div>
+  );
+}

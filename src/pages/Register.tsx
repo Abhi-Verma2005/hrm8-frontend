@@ -9,6 +9,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -60,6 +61,10 @@ export default function Register() {
   const [countrySearch, setCountrySearch] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { registerCompany, isAuthenticated, isLoading: authLoading } = useAuth();
+  const {
+    isAuthenticated: isCandidateAuthenticated,
+    isLoading: candidateAuthLoading,
+  } = useCandidateAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -99,6 +104,12 @@ export default function Register() {
       navigate('/home', { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate]);
+
+  useEffect(() => {
+    if (!candidateAuthLoading && isCandidateAuthenticated) {
+      navigate('/candidate/dashboard', { replace: true });
+    }
+  }, [candidateAuthLoading, isCandidateAuthenticated, navigate]);
 
   useEffect(() => {
     const verified = searchParams.get('verified') === 'true';
@@ -153,7 +164,7 @@ export default function Register() {
   }, [handleExternalVerification]);
 
   // Show loading while checking auth
-  if (authLoading) {
+  if (authLoading || candidateAuthLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -162,7 +173,7 @@ export default function Register() {
   }
 
   // Don't render register form if authenticated
-  if (isAuthenticated) {
+  if (isAuthenticated || isCandidateAuthenticated) {
     return null;
   }
 

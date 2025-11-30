@@ -23,6 +23,7 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
+  MessageSquare,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -31,6 +32,7 @@ const menuItems = [
   { path: '/candidate/jobs', label: 'Browse Jobs', icon: Briefcase },
   { path: '/candidate/applications', label: 'Applications', icon: FileText },
   { path: '/candidate/saved-jobs', label: 'Saved Jobs', icon: Bookmark },
+  { path: '/candidate/messages', label: 'Messages', icon: MessageSquare },
   { path: '/candidate/profile', label: 'My Profile', icon: User },
   { path: '/candidate/settings', label: 'Settings', icon: Settings },
 ];

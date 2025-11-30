@@ -40,6 +40,8 @@ import Help from "@/pages/Help";
 import SignupRequests from "@/pages/SignupRequests";
 import InviteEmployees from "@/pages/InviteEmployees";
 import CompanyProfile from "@/pages/CompanyProfile";
+import MessagesPage from "@/pages/messages/MessagesPage";
+import ConversationPage from "@/pages/messages/ConversationPage";
 
 export const sharedRoutes = (
   <>
@@ -84,6 +86,8 @@ export const sharedRoutes = (
     <Route path="/help" element={<Help />} />
     <Route path="/signup-requests" element={<SignupRequests />} />
     <Route path="/invite-employees" element={<InviteEmployees />} />
+    <Route path="/messages" element={<MessagesPage />} />
+    <Route path="/messages/:conversationId" element={<ConversationPage />} />
   </>
 );
 

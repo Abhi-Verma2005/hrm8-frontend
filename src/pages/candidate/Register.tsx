@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,6 +29,10 @@ type RegisterFormData = z.infer<typeof registerSchema>;
 export default function CandidateRegister() {
   const [isLoading, setIsLoading] = useState(false);
   const { register: registerCandidate, isAuthenticated, isLoading: authLoading } = useCandidateAuth();
+  const {
+    isAuthenticated: isRecruiterAuthenticated,
+    isLoading: recruiterAuthLoading,
+  } = useAuth();
   const navigate = useNavigate();
 
   const {
@@ -45,8 +50,14 @@ export default function CandidateRegister() {
     }
   }, [isAuthenticated, authLoading, navigate]);
 
+  useEffect(() => {
+    if (!recruiterAuthLoading && isRecruiterAuthenticated) {
+      navigate('/home', { replace: true });
+    }
+  }, [isRecruiterAuthenticated, recruiterAuthLoading, navigate]);
+
   // Show loading while checking auth
-  if (authLoading) {
+  if (authLoading || recruiterAuthLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -55,7 +66,7 @@ export default function CandidateRegister() {
   }
 
   // Don't render register form if authenticated
-  if (isAuthenticated) {
+  if (isAuthenticated || isRecruiterAuthenticated) {
     return null;
   }
 

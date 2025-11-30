@@ -206,3 +206,13 @@ export default function ApplicationDetailPage() {
 }
 
 
+
+
+
+
+
+
+
+
+
+
