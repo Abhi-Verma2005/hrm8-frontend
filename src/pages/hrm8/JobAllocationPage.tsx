@@ -8,7 +8,6 @@ import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
 import { jobAllocationService } from '@/lib/hrm8/jobAllocationService';
 import { regionService } from '@/lib/hrm8/regionService';
 import { consultantManagementService } from '@/lib/hrm8/consultantManagementService';
-import { jobService } from '@/lib/api/jobService';
 import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,32 +35,97 @@ export default function JobAllocationPage() {
   const loadData = async () => {
     try {
       setLoading(true);
+      console.log('[Job Allocation] Starting to load data...');
       
       // Load jobs, regions, and consultants in parallel
-      const [jobsRes, regionsRes, consultantsRes] = await Promise.all([
-        jobService.getAllJobs(),
-        regionService.getAll({ isActive: true }),
-        consultantManagementService.getAll({ status: 'ACTIVE' }),
+      const [jobsRes, regionsRes, consultantsRes] = await Promise.allSettled([
+        (async () => {
+          console.log('[Job Allocation] Fetching jobs...');
+          try {
+            // Use HRM8 jobs endpoint which supports HRM8 authentication
+            const res = await jobAllocationService.getAll();
+            console.log('[Job Allocation] Jobs response:', { 
+              success: res.success, 
+              error: res.error,
+              dataType: typeof res.data,
+              count: res.data?.jobs?.length || 0
+            });
+            return res;
+          } catch (error) {
+            console.error('[Job Allocation] Jobs fetch error:', error);
+            return { success: false, error: error instanceof Error ? error.message : 'Unknown error', data: { jobs: [] } };
+          }
+        })(),
+        (async () => {
+          console.log('[Job Allocation] Fetching regions...');
+          const res = await regionService.getAll({ isActive: true });
+          console.log('[Job Allocation] Regions response:', { success: res.success, error: res.error, count: res.data?.regions?.length });
+          return res;
+        })(),
+        (async () => {
+          console.log('[Job Allocation] Fetching consultants...');
+          const res = await consultantManagementService.getAll({ status: 'ACTIVE' });
+          console.log('[Job Allocation] Consultants response:', { success: res.success, error: res.error, count: res.data?.consultants?.length });
+          return res;
+        })(),
       ]);
 
-      if (jobsRes.success && jobsRes.data?.jobs) {
-        setJobs(jobsRes.data.jobs);
+      // Process jobs
+      if (jobsRes.status === 'fulfilled') {
+        const jobsResponse = jobsRes.value;
+        if (jobsResponse.success && jobsResponse.data?.jobs) {
+          setJobs(jobsResponse.data.jobs);
+          console.log('[Job Allocation] Set jobs:', jobsResponse.data.jobs.length);
+        } else {
+          console.warn('[Job Allocation] Jobs failed:', jobsResponse.error);
+          setJobs([]);
+          toast.error(`Failed to load jobs: ${jobsResponse.error || 'Unknown error'}`);
+        }
+      } else {
+        console.error('[Job Allocation] Jobs promise rejected:', jobsRes.reason);
+        setJobs([]);
+        toast.error('Failed to load jobs');
       }
       
-      if (regionsRes.success && regionsRes.data?.regions) {
-        setRegions(regionsRes.data.regions.map(r => ({ id: r.id, name: r.name })));
+      // Process regions
+      if (regionsRes.status === 'fulfilled') {
+        const regionsResponse = regionsRes.value;
+        if (regionsResponse.success && regionsResponse.data?.regions) {
+          setRegions(regionsResponse.data.regions.map(r => ({ id: r.id, name: r.name })));
+          console.log('[Job Allocation] Set regions:', regionsResponse.data.regions.length);
+        } else {
+          console.error('[Job Allocation] Regions failed:', regionsResponse.error);
+          toast.error(`Failed to load regions: ${regionsResponse.error || 'Unknown error'}`);
+        }
+      } else {
+        console.error('[Job Allocation] Regions promise rejected:', regionsRes.reason);
+        toast.error('Failed to load regions');
       }
       
-      if (consultantsRes.success && consultantsRes.data?.consultants) {
-        setConsultants(consultantsRes.data.consultants.map(c => ({
-          id: c.id,
-          firstName: c.firstName,
-          lastName: c.lastName,
-          regionId: c.regionId,
-        })));
+      // Process consultants
+      if (consultantsRes.status === 'fulfilled') {
+        const consultantsResponse = consultantsRes.value;
+        if (consultantsResponse.success && consultantsResponse.data?.consultants) {
+          setConsultants(consultantsResponse.data.consultants.map(c => ({
+            id: c.id,
+            firstName: c.firstName,
+            lastName: c.lastName,
+            regionId: c.regionId,
+          })));
+          console.log('[Job Allocation] Set consultants:', consultantsResponse.data.consultants.length);
+        } else {
+          console.error('[Job Allocation] Consultants failed:', consultantsResponse.error);
+          toast.error(`Failed to load consultants: ${consultantsResponse.error || 'Unknown error'}`);
+        }
+      } else {
+        console.error('[Job Allocation] Consultants promise rejected:', consultantsRes.reason);
+        toast.error('Failed to load consultants');
       }
+
+      console.log('[Job Allocation] Data loading completed');
     } catch (error) {
-      toast.error('Failed to load data');
+      console.error('[Job Allocation] Unexpected error:', error);
+      toast.error(`Failed to load data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }

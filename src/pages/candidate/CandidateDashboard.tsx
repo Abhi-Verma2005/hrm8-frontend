@@ -19,15 +19,12 @@ import {
   FileText,
   Bookmark,
   Settings,
-  LogOut,
-  CheckCircle2,
-  Clock,
-  XCircle,
   MessageSquare,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { UnifiedDashboardLayout } from '@/components/layouts/UnifiedDashboardLayout';
+import type { DashboardMenuItem } from '@/components/layouts/UnifiedDashboardLayout';
 
-const menuItems = [
+const menuItems: DashboardMenuItem[] = [
   { path: '/candidate/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { path: '/candidate/jobs', label: 'Browse Jobs', icon: Briefcase },
   { path: '/candidate/applications', label: 'Applications', icon: FileText },
@@ -111,60 +108,24 @@ export default function CandidateDashboard() {
 
   return (
     <CandidateAuthGuard>
-      <div className="min-h-screen bg-background flex">
-        {/* Sidebar */}
-        <div className="w-64 border-r bg-card flex flex-col">
-          <div className="p-6 border-b">
-            <h2 className="text-xl font-bold">Candidate Portal</h2>
-            {candidate && (
-              <p className="text-sm text-muted-foreground mt-1">
-                {candidate.firstName} {candidate.lastName}
-              </p>
-            )}
-          </div>
-
-          <nav className="flex-1 p-4 space-y-1">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors',
-                    isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'hover:bg-muted text-muted-foreground hover:text-foreground'
-                  )}
-                >
-                  <Icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="p-4 border-t">
-            <Button
-              variant="ghost"
-              className="w-full justify-start"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-5 w-5 mr-3" />
-              Sign Out
-            </Button>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1 overflow-auto">
-          {location.pathname === '/candidate/dashboard' ? (
-            <div className="p-6 space-y-6">
-              <div>
-                <h1 className="text-3xl font-bold">Dashboard</h1>
-                <p className="text-muted-foreground">Welcome back, {candidate?.firstName}!</p>
-              </div>
+      <UnifiedDashboardLayout
+        title="Candidate Portal"
+        subtitle={candidate ? `${candidate.firstName} ${candidate.lastName}` : undefined}
+        menuItems={menuItems}
+        user={{
+          name: candidate ? `${candidate.firstName} ${candidate.lastName}` : undefined,
+          email: candidate?.email,
+        }}
+        onLogout={handleLogout}
+        showHeader={true}
+        showSidebar={true}
+      >
+        {location.pathname === '/candidate/dashboard' ? (
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold">Dashboard</h1>
+              <p className="text-muted-foreground">Welcome back, {candidate?.firstName}!</p>
+            </div>
 
               {/* Profile Completeness */}
               <Card>
@@ -279,12 +240,11 @@ export default function CandidateDashboard() {
                   </CardContent>
                 </Card>
               </div>
-            </div>
-          ) : (
-            <Outlet />
-          )}
-        </div>
-      </div>
+          </div>
+        ) : (
+          <Outlet />
+        )}
+      </UnifiedDashboardLayout>
     </CandidateAuthGuard>
   );
 }
