@@ -8,15 +8,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 
-import { 
-  ArrowLeft, 
-  Edit, 
-  Share2, 
+import {
+  ArrowLeft,
+  Edit,
+  Share2,
   Archive,
   ArchiveRestore,
   Trash2,
-  MapPin, 
-  Briefcase, 
+  MapPin,
+  Briefcase,
   DollarSign,
   Calendar,
   Eye,
@@ -34,6 +34,7 @@ import { JobStatusBadge } from "@/components/jobs/JobStatusBadge";
 import { EmploymentTypeBadge } from "@/components/jobs/EmploymentTypeBadge";
 import { ServiceTypeBadge } from "@/components/jobs/ServiceTypeBadge";
 import { JobQuickStats } from "@/components/jobs/JobQuickStats";
+import { DetailSkeleton } from "@/components/skeletons/DetailSkeleton";
 import { JobActivityFeed } from "@/components/jobs/JobActivityFeed";
 import { JobLifecycleActions } from "@/components/jobs/JobLifecycleActions";
 import { formatSalaryRange, formatExperienceLevel, formatRelativeDate } from "@/lib/jobUtils";
@@ -124,7 +125,7 @@ export default function JobDetail() {
         setLoading(false);
       }
     };
-    
+
     fetchJob();
   }, [jobId, refreshKey, toast]);
 
@@ -181,10 +182,10 @@ export default function JobDetail() {
     if (!job) return;
     setIsProcessingArchive(true);
     try {
-      const response = job.archived 
+      const response = job.archived
         ? await jobService.unarchiveJob(job.id)
         : await jobService.archiveJob(job.id);
-      
+
       if (response.success) {
         toast({
           title: job.archived ? "Job unarchived" : "Job archived",
@@ -301,38 +302,31 @@ export default function JobDetail() {
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
-        <div className="space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-bold tracking-tight">{job.title}</h1>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <JobStatusBadge status={job.status} />
-                  <ServiceTypeBadge type={job.serviceType} />
-                </div>
-              </div>
-              <p className="text-muted-foreground">
-                {`${job.employerName}${job.department ? ` • ${job.department}` : ''} • ${job.location}`}
-              </p>
+        <AtsPageHeader
+          title={job.title}
+          subtitle={`${job.employerName}${job.department ? ` • ${job.department}` : ''} • ${job.location}`}
+        >
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 mr-4">
+              <JobStatusBadge status={job.status} />
+              <ServiceTypeBadge type={job.serviceType} />
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <Button variant="ghost" size="sm" asChild>
-                <Link to="/jobs">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back
-                </Link>
-              </Button>
-              <JobLifecycleActions 
-                job={job} 
-                onJobUpdate={handleJobUpdate}
-                onEdit={handleEditJob}
-              />
-            </div>
+            <Button variant="ghost" size="sm" asChild>
+              <Link to="/jobs">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back
+              </Link>
+            </Button>
+            <JobLifecycleActions
+              job={job}
+              onJobUpdate={handleJobUpdate}
+              onEdit={handleEditJob}
+            />
           </div>
-        </div>
+        </AtsPageHeader>
 
         {/* Quick Stats */}
-        <JobQuickStats 
+        <JobQuickStats
           applicantsCount={job.applicantsCount}
           viewsCount={job.viewsCount}
           postingDate={job.postingDate}
@@ -342,13 +336,13 @@ export default function JobDetail() {
         <Tabs defaultValue="overview" className="space-y-6">
           <div className="overflow-x-auto -mx-1 px-1">
             <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
-              <TabsTrigger 
+              <TabsTrigger
                 value="overview"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Overview
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="applicants"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
@@ -357,39 +351,39 @@ export default function JobDetail() {
                   <Badge variant="outline" className="h-5 px-1.5 text-xs rounded-full ml-1">{job.applicantsCount}</Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="matching"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
                 Matching
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="ai-interviews"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 <Video className="h-3.5 w-3.5 flex-shrink-0" />
                 AI Interviews
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="analytics"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Analytics
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="collaboration"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Collaboration
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="history"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 History
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="settings"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
@@ -427,8 +421,8 @@ export default function JobDetail() {
                       <span>End-to-end recruitment process management</span>
                     </li>
                   </ul>
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     onClick={() => setUpgradeServiceDialogOpen(true)}
                   >
                     <ArrowUpCircle className="h-4 w-4 mr-2" />
@@ -471,7 +465,7 @@ export default function JobDetail() {
                             <span className="font-medium">Salary:</span>
                             <span>{formatSalaryRange(job.salaryMin, job.salaryMax, job.salaryCurrency, job.salaryPeriod)}</span>
                           </div>
-                          
+
                           {job.salaryDescription && (
                             <div className="ml-6 text-sm bg-primary/10 border border-primary/20 rounded-md px-3 py-2">
                               <p className="text-foreground italic">
@@ -520,7 +514,7 @@ export default function JobDetail() {
                     <CardTitle className="text-base font-semibold">Description</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div 
+                    <div
                       className="prose prose-sm max-w-none"
                       dangerouslySetInnerHTML={{ __html: job.description }}
                     />
@@ -638,7 +632,7 @@ export default function JobDetail() {
             {/* Job Board Visibility Control */}
             <JobBoardVisibilityControl job={job} onUpdate={handleJobUpdate} />
             <JobBudgetTracker jobId={job.id} />
-            
+
             {!job.hasJobTargetPromotion && (job.serviceType === 'self-managed' || job.serviceType === 'rpo') && (
               <Card className="border-primary/20 bg-primary/5">
                 <CardHeader>
@@ -665,8 +659,8 @@ export default function JobDetail() {
                       <span>Flexible budget options starting from $500</span>
                     </li>
                   </ul>
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     onClick={() => setPromotionDialogOpen(true)}
                   >
                     <Megaphone className="h-4 w-4 mr-2" />
@@ -675,7 +669,7 @@ export default function JobDetail() {
                 </CardContent>
               </Card>
             )}
-            
+
             <Card>
               <CardHeader>
                 <CardTitle className="text-base font-semibold">Job Settings</CardTitle>
@@ -685,8 +679,8 @@ export default function JobDetail() {
                   <Edit className="h-4 w-4 mr-2" />
                   Edit Job Details
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full justify-start"
                   onClick={() => setArchiveDialogOpen(true)}
                 >
@@ -702,8 +696,8 @@ export default function JobDetail() {
                     </>
                   )}
                 </Button>
-                <Button 
-                  variant="destructive" 
+                <Button
+                  variant="destructive"
                   className="w-full justify-start"
                   onClick={() => setDeleteDialogOpen(true)}
                 >

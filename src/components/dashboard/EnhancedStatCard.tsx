@@ -10,7 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
-import { ResponsiveContainer, AreaChart, Area, LineChart, Line, XAxis, YAxis } from "recharts";
+import { ResponsiveContainer, AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip } from "recharts";
+import { useMemo } from "react";
+import { generateRealisticTrend, generatePercentageTrend } from "@/lib/generators/realisticTrendData";
 
 interface EnhancedStatCardProps {
   title: string;
@@ -67,12 +69,49 @@ export function EnhancedStatCard({
     ? formatCurrency(rawValue)
     : (typeof value === 'number' && isNaN(value)) ? 0 : value;
 
-  // Generate default chart data if not provided
-  const defaultChartData = chartData || Array.from({ length: 12 }, (_, i) => ({
-    name: `${i + 1}`,
-    value: Math.floor(Math.random() * 100) + 50,
-    secondary: Math.floor(Math.random() * 80) + 40,
-  }));
+  // Generate realistic chart data if not provided
+  const defaultChartData = useMemo(() => {
+    if (chartData) return chartData;
+
+    // Parse the numeric value from the display value
+    let numericValue = rawValue || 0;
+    if (!numericValue && typeof value === 'string') {
+      // Try to extract number from string (e.g., "2,847" or "99.8%" or "$142,500")
+      const cleaned = value.replace(/[^0-9.]/g, '');
+      numericValue = parseFloat(cleaned) || 100;
+    } else if (typeof value === 'number') {
+      numericValue = value;
+    }
+
+    // Determine if this is a percentage metric
+    const isPercentage = typeof value === 'string' && value.includes('%');
+
+    if (isPercentage) {
+      // For percentage metrics (uptime, satisfaction, etc.)
+      return generatePercentageTrend({
+        baseValue: numericValue * 0.95, // Start 5% lower
+        currentValue: numericValue,
+        dataPoints: 12,
+        volatility: 0.01,
+        targetRange: [Math.max(0, numericValue - 5), Math.min(100, numericValue + 2)]
+      });
+    } else {
+      // For regular metrics (users, revenue, etc.)
+      const baseValue = trend === 'up'
+        ? numericValue * 0.7  // Start 30% lower for upward trends
+        : numericValue * 1.3; // Start 30% higher for downward trends
+
+      return generateRealisticTrend({
+        baseValue,
+        currentValue: numericValue,
+        dataPoints: 12,
+        growthRate: trend === 'up' ? 2.5 : -2.5,
+        volatility: 0.08,
+        seasonality: true,
+        trend: trend || 'stable'
+      });
+    }
+  }, [chartData, value, rawValue, trend]);
 
   const sizeStyles = {
     compact: "p-2 sm:p-3",
@@ -200,6 +239,23 @@ export function EnhancedStatCard({
               </defs>
               <XAxis dataKey="name" hide />
               <YAxis hide domain={[0, 'auto']} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '8px',
+                  padding: '8px 12px',
+                  fontSize: '12px'
+                }}
+                labelStyle={{ fontWeight: 600, marginBottom: '4px' }}
+                formatter={(value: number, name: string) => {
+                  if (isCurrency && rawValue !== undefined) {
+                    return [formatCurrency(value), name === 'value' ? 'Current' : 'Previous'];
+                  }
+                  return [value.toLocaleString(), name === 'value' ? 'Current' : 'Previous'];
+                }}
+                labelFormatter={(label) => `Period: ${label}`}
+              />
               <Area
                 type="monotone"
                 dataKey="value"

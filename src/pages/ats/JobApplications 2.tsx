@@ -1,0 +1,47 @@
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { JobApplicantsList } from "@/components/applications/JobApplicantsList";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+
+export default function JobApplications() {
+  const { jobId } = useParams<{ jobId: string }>();
+  const navigate = useNavigate();
+
+  if (!jobId) {
+    return (
+      <DashboardPageLayout>
+        <div className="p-6">
+          <p className="text-muted-foreground">Job not found.</p>
+          <Button variant="outline" className="mt-4" onClick={() => navigate("/jobs")}>
+            <ArrowLeft className="h-4 w-4 mr-1" />
+            Back to Jobs
+          </Button>
+        </div>
+      </DashboardPageLayout>
+    );
+  }
+
+  return (
+    <DashboardPageLayout>
+      <div className="p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to={`/jobs/${jobId}`}>
+              <ArrowLeft className="h-4 w-4 mr-1" />
+              Back to Job
+            </Link>
+          </Button>
+          <div className="text-right">
+            <p className="text-xs uppercase text-muted-foreground">Job</p>
+            <p className="font-mono text-sm">{jobId}</p>
+          </div>
+        </div>
+
+        <JobApplicantsList jobId={jobId} />
+      </div>
+    </DashboardPageLayout>
+  );
+}
+
+

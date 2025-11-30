@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams, Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
-import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { applicationService, Application as RawApplication } from "@/lib/applicationService";
 import { format } from "date-fns";
-import { ApplicationStatusBadge } from "@/components/applications/ApplicationStatusBadge";
-import { DetailSkeleton } from "@/components/skeletons/DetailSkeleton";
 
 export default function ApplicationDetail() {
   const { id, jobId } = useParams<{ id: string; jobId?: string }>();
@@ -46,9 +43,34 @@ export default function ApplicationDetail() {
     load();
   }, [id]);
 
+  const renderStatus = (status: string) => {
+    switch (status) {
+      case "NEW":
+        return <Badge variant="default">New</Badge>;
+      case "SCREENING":
+        return <Badge variant="secondary">Screening</Badge>;
+      case "INTERVIEW":
+        return <Badge variant="outline">Interview</Badge>;
+      case "OFFER":
+        return <Badge className="bg-green-500">Offer</Badge>;
+      case "HIRED":
+        return <Badge className="bg-green-600">Hired</Badge>;
+      case "REJECTED":
+        return <Badge variant="destructive">Rejected</Badge>;
+      case "WITHDRAWN":
+        return <Badge variant="outline">Withdrawn</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
   const body = () => {
     if (isLoading) {
-      return <DetailSkeleton />;
+      return (
+        <div className="flex justify-center items-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin" />
+        </div>
+      );
     }
 
     if (error || !application) {
@@ -66,35 +88,28 @@ export default function ApplicationDetail() {
 
     return (
       <div className="space-y-6">
-        <AtsPageHeader
-          title={`${q.jobMeta?.title || "Application"} – ${application.id.slice(0, 8)}`}
-          subtitle={`Applied ${createdAt ? format(new Date(createdAt), "PPP p") : "Unknown date"}`}
-        >
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 mr-4">
-              <ApplicationStatusBadge status={application.status} />
-              {application.stage && (
-                <Badge variant="outline" className="text-xs">
-                  {application.stage}
-                </Badge>
-              )}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (jobId) {
-                  navigate(`/jobs/${jobId}/applications`);
-                } else {
-                  navigate(-1);
-                }
-              }}
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back
-            </Button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-semibold">
+              {q.jobMeta?.title || "Application"} –{" "}
+              {application.id.slice(0, 8)}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Applied{" "}
+              {createdAt
+                ? format(new Date(createdAt), "PPP p")
+                : "Unknown date"}
+            </p>
           </div>
-        </AtsPageHeader>
+          <div className="flex items-center gap-2">
+            {renderStatus(application.status)}
+            {application.stage && (
+              <Badge variant="outline" className="text-xs">
+                {application.stage}
+              </Badge>
+            )}
+          </div>
+        </div>
 
         <Card>
           <CardHeader>
@@ -179,7 +194,22 @@ export default function ApplicationDetail() {
 
   return (
     <DashboardPageLayout>
-      <div className="p-6">
+      <div className="p-6 space-y-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => {
+            if (jobId) {
+              navigate(`/jobs/${jobId}/applications`);
+            } else {
+              navigate(-1);
+            }
+          }}
+          className="mb-2"
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" />
+          Back
+        </Button>
         {body()}
       </div>
     </DashboardPageLayout>
