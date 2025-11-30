@@ -29,6 +29,7 @@ import {
 import { format, formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
+import { generateRealisticTrend, generatePercentageTrend } from "@/lib/generators/realisticTrendData";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -40,6 +41,44 @@ export default function HomePage() {
   const recruitmentQueue = useMemo(() => getRecruitmentQueue(), []);
   const integrations = useMemo(() => getSystemIntegrations(), []);
   const activities = useMemo(() => getPlatformActivity(), []);
+
+  // Generate realistic trend data for stat cards
+  const usersTrendData = useMemo(() => generateRealisticTrend({
+    baseValue: 2100,
+    currentValue: metrics.totalActiveUsers,
+    dataPoints: 12,
+    growthRate: 2.5,
+    volatility: 0.08,
+    seasonality: true,
+    trend: 'up'
+  }), [metrics.totalActiveUsers]);
+
+  const revenueTrendData = useMemo(() => generateRealisticTrend({
+    baseValue: 120000,
+    currentValue: metrics.monthlyRecurringRevenue,
+    dataPoints: 12,
+    growthRate: 1.8,
+    volatility: 0.06,
+    seasonality: true,
+    trend: 'up'
+  }), [metrics.monthlyRecurringRevenue]);
+
+  const uptimeTrendData = useMemo(() => generatePercentageTrend({
+    baseValue: 99.9,
+    currentValue: metrics.platformUptime,
+    dataPoints: 12,
+    volatility: 0.002,
+    targetRange: [99.5, 100]
+  }), [metrics.platformUptime]);
+
+  const responseTimeTrendData = useMemo(() => generateRealisticTrend({
+    baseValue: 3.2,
+    currentValue: metrics.avgResponseTime,
+    dataPoints: 12,
+    growthRate: -2,
+    volatility: 0.1,
+    trend: 'down'
+  }), [metrics.avgResponseTime]);
 
   // Calculate key stats
   const stats = useMemo(() => {
@@ -116,20 +155,7 @@ export default function HomePage() {
             size="default"
             elevation="sm"
             showMenu={true}
-            chartData={[
-              { name: "1", value: 2100, secondary: 2000 },
-              { name: "2", value: 2200, secondary: 2100 },
-              { name: "3", value: 2150, secondary: 2050 },
-              { name: "4", value: 2300, secondary: 2200 },
-              { name: "5", value: 2400, secondary: 2300 },
-              { name: "6", value: 2350, secondary: 2250 },
-              { name: "7", value: 2500, secondary: 2400 },
-              { name: "8", value: 2600, secondary: 2500 },
-              { name: "9", value: 2550, secondary: 2450 },
-              { name: "10", value: 2700, secondary: 2600 },
-              { name: "11", value: 2750, secondary: 2650 },
-              { name: "12", value: 2847, secondary: 2747 },
-            ]}
+            chartData={usersTrendData}
             menuItems={[
               {
                 label: "View Users",
@@ -155,20 +181,7 @@ export default function HomePage() {
             isCurrency={true}
             rawValue={metrics.monthlyRecurringRevenue}
             showMenu={true}
-            chartData={[
-              { name: "1", value: 120000, secondary: 110000 },
-              { name: "2", value: 125000, secondary: 115000 },
-              { name: "3", value: 130000, secondary: 120000 },
-              { name: "4", value: 128000, secondary: 118000 },
-              { name: "5", value: 135000, secondary: 125000 },
-              { name: "6", value: 138000, secondary: 128000 },
-              { name: "7", value: 140000, secondary: 130000 },
-              { name: "8", value: 142000, secondary: 132000 },
-              { name: "9", value: 141000, secondary: 131000 },
-              { name: "10", value: 143000, secondary: 133000 },
-              { name: "11", value: 142500, secondary: 132500 },
-              { name: "12", value: 142500, secondary: 132500 },
-            ]}
+            chartData={revenueTrendData}
             menuItems={[
               {
                 label: "View Revenue Report",
@@ -192,20 +205,7 @@ export default function HomePage() {
             size="default"
             elevation="sm"
             showMenu={true}
-            chartData={[
-              { name: "1", value: 99.9, secondary: 99.8 },
-              { name: "2", value: 99.95, secondary: 99.85 },
-              { name: "3", value: 99.9, secondary: 99.8 },
-              { name: "4", value: 99.85, secondary: 99.75 },
-              { name: "5", value: 99.9, secondary: 99.8 },
-              { name: "6", value: 99.88, secondary: 99.78 },
-              { name: "7", value: 99.92, secondary: 99.82 },
-              { name: "8", value: 99.9, secondary: 99.8 },
-              { name: "9", value: 99.85, secondary: 99.75 },
-              { name: "10", value: 99.88, secondary: 99.78 },
-              { name: "11", value: 99.9, secondary: 99.8 },
-              { name: "12", value: 99.8, secondary: 99.7 },
-            ]}
+            chartData={uptimeTrendData}
             menuItems={[
               {
                 label: "View Status",
@@ -229,20 +229,7 @@ export default function HomePage() {
             size="default"
             elevation="sm"
             showMenu={true}
-            chartData={[
-              { name: "1", value: 3.2, secondary: 3.0 },
-              { name: "2", value: 3.0, secondary: 2.8 },
-              { name: "3", value: 2.8, secondary: 2.6 },
-              { name: "4", value: 2.9, secondary: 2.7 },
-              { name: "5", value: 2.7, secondary: 2.5 },
-              { name: "6", value: 2.6, secondary: 2.4 },
-              { name: "7", value: 2.5, secondary: 2.3 },
-              { name: "8", value: 2.4, secondary: 2.2 },
-              { name: "9", value: 2.5, secondary: 2.3 },
-              { name: "10", value: 2.4, secondary: 2.2 },
-              { name: "11", value: 2.4, secondary: 2.2 },
-              { name: "12", value: 2.4, secondary: 2.2 },
-            ]}
+            chartData={responseTimeTrendData}
             menuItems={[
               {
                 label: "View Metrics",
