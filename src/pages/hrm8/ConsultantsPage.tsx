@@ -10,6 +10,7 @@ import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
 import { Plus, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { toast } from 'sonner';
 import { FormDrawer } from '@/components/ui/form-drawer';
 import { ConsultantForm } from '@/components/hrm8/ConsultantForm';
@@ -80,19 +81,19 @@ export default function ConsultantsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Consultants</h1>
-          <p className="text-muted-foreground mt-2">Manage HRM8 consultants</p>
-        </div>
-        {isGlobalAdmin && (
+    <Hrm8PageLayout
+      title="Consultants"
+      subtitle="Manage HRM8 consultants"
+      actions={
+        isGlobalAdmin ? (
           <Button onClick={handleCreate}>
             <Plus className="mr-2 h-4 w-4" />
             Create Consultant
           </Button>
-        )}
-      </div>
+        ) : undefined
+      }
+    >
+      <div className="p-6 space-y-6">
 
       <Card>
         <CardHeader>
@@ -129,6 +130,7 @@ export default function ConsultantsPage() {
           />
         </FormDrawer>
       )}
-    </div>
+      </div>
+    </Hrm8PageLayout>
   );
 }

@@ -4,6 +4,7 @@
 
 import { Route } from "react-router-dom";
 import CandidateDashboard from "@/pages/candidate/CandidateDashboard";
+import CandidateDashboardHome from "@/pages/candidate/CandidateDashboardHome";
 import ProfilePage from "@/pages/candidate/ProfilePage";
 import ApplicationsPage from "@/pages/candidate/ApplicationsPage";
 import SavedJobsPage from "@/pages/candidate/SavedJobsPage";
@@ -25,7 +26,8 @@ export const candidateRoutes = (
         </RoleIsolationGate>
       }
     >
-      <Route path="dashboard" element={null} />
+      <Route index element={<CandidateDashboardHome />} />
+      <Route path="dashboard" element={<CandidateDashboardHome />} />
       <Route path="jobs" element={<JobSearchPage />} />
       <Route path="jobs/:id" element={<JobDetailPage />} />
       <Route path="jobs/:id/apply" element={<ApplyPage />} />

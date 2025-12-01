@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useConsultantAuth } from '@/contexts/ConsultantAuthContext';
 import { consultantService, ConsultantProfile } from '@/lib/consultant/consultantService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConsultantPageLayout } from '@/components/layouts/ConsultantPageLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -77,18 +78,23 @@ export default function ConsultantProfilePage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 animate-spin" />
-      </div>
+      <ConsultantPageLayout
+        title="Profile"
+        subtitle="Loading..."
+      >
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </div>
+      </ConsultantPageLayout>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-        <p className="text-muted-foreground mt-2">Manage your profile information</p>
-      </div>
+    <ConsultantPageLayout
+      title="Profile"
+      subtitle="Manage your profile information"
+    >
+      <div className="p-6 space-y-6">
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <Card>
@@ -182,7 +188,8 @@ export default function ConsultantProfilePage() {
           </Button>
         </div>
       </form>
-    </div>
+      </div>
+    </ConsultantPageLayout>
   );
 }
 

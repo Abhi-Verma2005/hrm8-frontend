@@ -1,4 +1,15 @@
+import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
+
 export default function ReportsPage() {
-  return <div><h1 className="text-3xl font-bold">Reports & Analytics</h1><p className="text-muted-foreground mt-2">Comprehensive reporting and analytics</p></div>;
+  return (
+    <Hrm8PageLayout
+      title="Reports & Analytics"
+      subtitle="Comprehensive reporting and analytics"
+    >
+      <div className="p-6">
+        <p className="text-muted-foreground">Reports and analytics coming soon.</p>
+      </div>
+    </Hrm8PageLayout>
+  );
 }
 

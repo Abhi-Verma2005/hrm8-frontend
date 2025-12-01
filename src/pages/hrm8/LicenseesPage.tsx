@@ -10,6 +10,7 @@ import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
 import { Plus, Building2, Edit, Trash2, Ban } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { toast } from 'sonner';
 import { FormDrawer } from '@/components/ui/form-drawer';
 import { LicenseeForm } from '@/components/hrm8/LicenseeForm';
@@ -86,27 +87,27 @@ export default function LicenseesPage() {
 
   if (!isGlobalAdmin) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Regional Licensees</h1>
-          <p className="text-muted-foreground mt-2">Global Admin access required</p>
-        </div>
-      </div>
+      <Hrm8PageLayout
+        title="Regional Licensees"
+        subtitle="Global Admin access required"
+      >
+        <div className="p-6" />
+      </Hrm8PageLayout>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Regional Licensees</h1>
-          <p className="text-muted-foreground mt-2">Manage regional licensees</p>
-        </div>
+    <Hrm8PageLayout
+      title="Regional Licensees"
+      subtitle="Manage regional licensees"
+      actions={
         <Button onClick={handleCreate}>
           <Plus className="mr-2 h-4 w-4" />
           Create Licensee
         </Button>
-      </div>
+      }
+    >
+      <div className="p-6 space-y-6">
 
       <Card>
         <CardHeader>
@@ -141,6 +142,7 @@ export default function LicenseesPage() {
           }}
         />
       </FormDrawer>
-    </div>
+      </div>
+    </Hrm8PageLayout>
   );
 }

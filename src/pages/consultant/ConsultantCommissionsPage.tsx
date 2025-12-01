@@ -7,6 +7,8 @@ import { useState, useEffect } from 'react';
 import { useConsultantAuth } from '@/contexts/ConsultantAuthContext';
 import { consultantService } from '@/lib/consultant/consultantService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
+import { ConsultantPageLayout } from '@/components/layouts/ConsultantPageLayout';
 import { DataTable } from '@/components/tables/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { DollarSign, Clock, CheckCircle, XCircle } from 'lucide-react';
@@ -91,42 +93,37 @@ export default function ConsultantCommissionsPage() {
     .reduce((sum, c) => sum + (c.amount || 0), 0);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Commissions</h1>
-        <p className="text-muted-foreground mt-2">View your commission history</p>
-      </div>
+    <ConsultantPageLayout
+      title="Commissions"
+      subtitle="View your commission history"
+    >
+      <div className="p-6 space-y-6">
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Commissions</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${totalPending.toLocaleString()}</div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <EnhancedStatCard
+          title="Pending Commissions"
+          value=""
+          isCurrency={true}
+          rawValue={totalPending}
+          icon={<Clock className="h-6 w-6" />}
+          variant="warning"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Paid</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${totalPaid.toLocaleString()}</div>
-          </CardContent>
-        </Card>
+        <EnhancedStatCard
+          title="Total Paid"
+          value=""
+          isCurrency={true}
+          rawValue={totalPaid}
+          icon={<CheckCircle className="h-6 w-6" />}
+          variant="success"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Commissions</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{commissions.length}</div>
-          </CardContent>
-        </Card>
+        <EnhancedStatCard
+          title="Total Commissions"
+          value={commissions.length.toString()}
+          icon={<DollarSign className="h-6 w-6" />}
+          variant="neutral"
+        />
       </div>
 
       <Card>
@@ -151,7 +148,8 @@ export default function ConsultantCommissionsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </ConsultantPageLayout>
   );
 }
 

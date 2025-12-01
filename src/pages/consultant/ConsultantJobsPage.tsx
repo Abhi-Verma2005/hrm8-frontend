@@ -8,6 +8,8 @@ import { useConsultantAuth } from '@/contexts/ConsultantAuthContext';
 import { consultantService } from '@/lib/consultant/consultantService';
 import { jobService } from '@/lib/api/jobService';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
+import { ConsultantPageLayout } from '@/components/layouts/ConsultantPageLayout';
 import { DataTable } from '@/components/tables/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { Briefcase, MapPin, Clock } from 'lucide-react';
@@ -86,34 +88,26 @@ export default function ConsultantJobsPage() {
   ];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">My Jobs</h1>
-        <p className="text-muted-foreground mt-2">View and manage your assigned jobs</p>
-      </div>
+    <ConsultantPageLayout
+      title="My Jobs"
+      subtitle="View and manage your assigned jobs"
+    >
+      <div className="p-6 space-y-6">
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Jobs</CardTitle>
-            <Briefcase className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{jobs.length}</div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <EnhancedStatCard
+          title="Total Jobs"
+          value={jobs.length.toString()}
+          icon={<Briefcase className="h-6 w-6" />}
+          variant="neutral"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Jobs</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {jobs.filter(j => j.status === 'ACTIVE').length}
-            </div>
-          </CardContent>
-        </Card>
+        <EnhancedStatCard
+          title="Active Jobs"
+          value={jobs.filter(j => j.status === 'ACTIVE').length.toString()}
+          icon={<Clock className="h-6 w-6" />}
+          variant="primary"
+        />
       </div>
 
       <Card>
@@ -138,7 +132,8 @@ export default function ConsultantJobsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </ConsultantPageLayout>
   );
 }
 

@@ -8,6 +8,8 @@ import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
 import { revenueService, RegionalRevenue } from '@/lib/hrm8/revenueService';
 import { DataTable } from '@/components/tables/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
+import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { DollarSign, TrendingUp, CheckCircle, Clock } from 'lucide-react';
@@ -106,12 +108,10 @@ export default function RevenuePage() {
   const totalLicenseeShare = revenues.reduce((sum, r) => sum + r.licenseeShare, 0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Revenue Tracking</h1>
-          <p className="text-muted-foreground mt-2">Track regional revenue and shares</p>
-        </div>
+    <Hrm8PageLayout
+      title="Revenue Tracking"
+      subtitle="Track regional revenue and shares"
+      actions={
         <div className="flex items-center gap-2">
           <Label>Filter by Status:</Label>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -126,38 +126,37 @@ export default function RevenuePage() {
             </SelectContent>
           </Select>
         </div>
-      </div>
+      }
+    >
+      <div className="p-6 space-y-6">
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <EnhancedStatCard
+          title="Total Revenue"
+          value=""
+          isCurrency={true}
+          rawValue={totalRevenue}
+          icon={<DollarSign className="h-6 w-6" />}
+          variant="primary"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">HRM8 Share</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">${totalHRM8Share.toLocaleString()}</div>
-          </CardContent>
-        </Card>
+        <EnhancedStatCard
+          title="HRM8 Share"
+          value=""
+          isCurrency={true}
+          rawValue={totalHRM8Share}
+          icon={<TrendingUp className="h-6 w-6" />}
+          variant="primary"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Licensee Share</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-600">${totalLicenseeShare.toLocaleString()}</div>
-          </CardContent>
-        </Card>
+        <EnhancedStatCard
+          title="Licensee Share"
+          value=""
+          isCurrency={true}
+          rawValue={totalLicenseeShare}
+          icon={<CheckCircle className="h-6 w-6" />}
+          variant="success"
+        />
       </div>
 
       <Card>
@@ -178,6 +177,7 @@ export default function RevenuePage() {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </Hrm8PageLayout>
   );
 }

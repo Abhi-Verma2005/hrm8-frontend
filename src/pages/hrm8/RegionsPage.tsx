@@ -10,6 +10,7 @@ import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
 import { Plus, MapPin, Edit, Trash2, Building2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { toast } from 'sonner';
 import { FormDrawer } from '@/components/ui/form-drawer';
 import { RegionForm } from '@/components/hrm8/RegionForm';
@@ -122,27 +123,27 @@ export default function RegionsPage() {
 
   if (!isGlobalAdmin) {
     return (
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Regions Management</h1>
-          <p className="text-muted-foreground mt-2">Global Admin access required</p>
-        </div>
-      </div>
+      <Hrm8PageLayout
+        title="Regions Management"
+        subtitle="Global Admin access required"
+      >
+        <div className="p-6" />
+      </Hrm8PageLayout>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Regions Management</h1>
-          <p className="text-muted-foreground mt-2">Manage geographic regions</p>
-        </div>
+    <Hrm8PageLayout
+      title="Regions Management"
+      subtitle="Manage geographic regions"
+      actions={
         <Button onClick={handleCreate}>
           <Plus className="mr-2 h-4 w-4" />
           Create Region
         </Button>
-      </div>
+      }
+    >
+      <div className="p-6 space-y-6">
 
       <Card>
         <CardHeader>
@@ -185,6 +186,7 @@ export default function RegionsPage() {
         title="Delete Region"
         description="Are you sure you want to delete this region? This action cannot be undone."
       />
-    </div>
+      </div>
+    </Hrm8PageLayout>
   );
 }

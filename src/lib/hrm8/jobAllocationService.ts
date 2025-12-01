@@ -6,18 +6,6 @@
 import { apiClient } from '../api';
 
 class JobAllocationService {
-  async getAll(filters?: {
-    regionId?: string;
-    status?: string;
-  }) {
-    const queryParams = new URLSearchParams();
-    if (filters?.regionId) queryParams.append('regionId', filters.regionId);
-    if (filters?.status) queryParams.append('status', filters.status);
-
-    const query = queryParams.toString();
-    return apiClient.get<{ jobs: any[] }>(`/api/hrm8/jobs${query ? `?${query}` : ''}`);
-  }
-
   async assignConsultant(jobId: string, consultantId: string) {
     return apiClient.post(`/api/hrm8/jobs/${jobId}/assign-consultant`, { consultantId });
   }

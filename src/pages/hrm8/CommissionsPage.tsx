@@ -9,6 +9,7 @@ import { commissionService, Commission } from '@/lib/hrm8/commissionService';
 import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import { DollarSign, CheckCircle, Clock, XCircle } from 'lucide-react';
@@ -128,12 +129,10 @@ export default function CommissionsPage() {
   const totalPaid = commissions.filter(c => c.status === 'PAID').reduce((sum, c) => sum + c.amount, 0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Commissions</h1>
-          <p className="text-muted-foreground mt-2">Track and manage consultant commissions</p>
-        </div>
+    <Hrm8PageLayout
+      title="Commissions"
+      subtitle="Track and manage consultant commissions"
+      actions={
         <div className="flex items-center gap-2">
           <Label>Filter by Status:</Label>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -149,38 +148,35 @@ export default function CommissionsPage() {
             </SelectContent>
           </Select>
         </div>
-      </div>
+      }
+    >
+      <div className="p-6 space-y-6">
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Pending</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${totalPending.toLocaleString()}</div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <EnhancedStatCard
+          title="Total Pending"
+          value=""
+          isCurrency={true}
+          rawValue={totalPending}
+          icon={<Clock className="h-6 w-6" />}
+          variant="warning"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Paid</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">${totalPaid.toLocaleString()}</div>
-          </CardContent>
-        </Card>
+        <EnhancedStatCard
+          title="Total Paid"
+          value=""
+          isCurrency={true}
+          rawValue={totalPaid}
+          icon={<CheckCircle className="h-6 w-6" />}
+          variant="success"
+        />
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Commissions</CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{commissions.length}</div>
-          </CardContent>
-        </Card>
+        <EnhancedStatCard
+          title="Total Commissions"
+          value={commissions.length.toString()}
+          icon={<DollarSign className="h-6 w-6" />}
+          variant="neutral"
+        />
       </div>
 
       <Card>
@@ -201,6 +197,7 @@ export default function CommissionsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </Hrm8PageLayout>
   );
 }
