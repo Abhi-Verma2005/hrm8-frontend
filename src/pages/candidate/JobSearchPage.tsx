@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { jobService, PublicJob, JobFilterOptions } from '@/lib/jobService';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -142,16 +143,14 @@ export default function JobSearchPage() {
   };
 
   return (
-    <div className="bg-background">
-      {/* Page Header */}
-      <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold">Find Your Next Job</h1>
-            <p className="text-muted-foreground mt-1">
-              {totalJobs > 0 ? `${totalJobs} opportunities available` : 'Search for your dream job'}
-            </p>
-          </div>
+    <CandidatePageLayout
+      title="Find Your Next Job"
+      subtitle={totalJobs > 0 ? `${totalJobs} opportunities available` : 'Search for your dream job'}
+    >
+      <div className="bg-background">
+        {/* Search Section */}
+        <div className="border-b bg-card">
+          <div className="container mx-auto px-4 py-6">
 
           {/* Main Search Bar */}
           <div className="space-y-4">
@@ -437,6 +436,7 @@ export default function JobSearchPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </CandidatePageLayout>
   );
 }

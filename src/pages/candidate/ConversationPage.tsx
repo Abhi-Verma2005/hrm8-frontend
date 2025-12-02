@@ -11,6 +11,7 @@ import { messagingService } from '@/lib/messagingService';
 import { ConversationHeader } from '@/components/messages/ConversationHeader';
 import { MessageList } from '@/components/messages/MessageList';
 import { MessageInput } from '@/components/messages/MessageInput';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
 import { ConversationData } from '@/types/websocket';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -54,34 +55,50 @@ export default function CandidateConversationPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
+      <CandidatePageLayout
+        title="Messages"
+        subtitle="Loading..."
+      >
+        <div className="flex items-center justify-center h-full min-h-[400px]">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      </CandidatePageLayout>
     );
   }
 
   if (!conversation) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <p className="text-muted-foreground">Conversation not found</p>
-          <Button
-            variant="outline"
-            onClick={() => navigate('/candidate/messages')}
-            className="mt-4"
-          >
-            Back to Messages
-          </Button>
+      <CandidatePageLayout
+        title="Messages"
+        subtitle="Conversation not found"
+      >
+        <div className="flex items-center justify-center h-full min-h-[400px]">
+          <div className="text-center">
+            <p className="text-muted-foreground">Conversation not found</p>
+            <Button
+              variant="outline"
+              onClick={() => navigate('/candidate/messages')}
+              className="mt-4"
+            >
+              Back to Messages
+            </Button>
+          </div>
         </div>
-      </div>
+      </CandidatePageLayout>
     );
   }
 
   const conversationMessages = messages[conversationId] || [];
 
   return (
-    <div className="p-6 h-full">
-      <div className="mb-4 flex items-center gap-4">
+    <CandidatePageLayout
+      title="Messages"
+      subtitle={
+        conversation.candidate
+          ? `Conversation with ${conversation.candidate.firstName} ${conversation.candidate.lastName}`
+          : 'Conversation'
+      }
+      actions={
         <Button
           variant="ghost"
           size="icon"
@@ -89,15 +106,9 @@ export default function CandidateConversationPage() {
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold">Messages</h1>
-          <p className="text-muted-foreground">
-            {conversation.candidate
-              ? `Conversation with ${conversation.candidate.firstName} ${conversation.candidate.lastName}`
-              : 'Conversation'}
-          </p>
-        </div>
-      </div>
+      }
+    >
+      <div className="p-6 h-full">
       <div className="h-[calc(100vh-200px)] flex flex-col border rounded-lg overflow-hidden">
         <div className="border-b bg-card">
           <ConversationHeader
@@ -115,7 +126,8 @@ export default function CandidateConversationPage() {
           disabled={!isConnected}
         />
       </div>
-    </div>
+      </div>
+    </CandidatePageLayout>
   );
 }
 

@@ -45,7 +45,7 @@ const menuItems = [
 export function Hrm8Sidebar() {
   const location = useLocation();
   const { open } = useSidebar();
-  const { hrm8User, logout } = useHrm8Auth();
+  const { hrm8User } = useHrm8Auth();
   const [isHovering, setIsHovering] = useState(false);
 
   const isGlobalAdmin = hrm8User?.role === "GLOBAL_ADMIN";
