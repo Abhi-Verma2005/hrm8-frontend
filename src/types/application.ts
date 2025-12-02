@@ -132,8 +132,39 @@ export interface Application {
   
   // Scoring & Rating
   score?: number; // 0-100 fit score
+  rank?: number; // Rank within job (1, 2, 3...)
   rating?: number; // 1-5 stars
   aiMatchScore?: number; // 0-100 AI-generated match percentage
+  aiAnalysis?: {
+    scores: {
+      skills: number;
+      experience: number;
+      education: number;
+      interview: number;
+      culture: number;
+      overall: number;
+    };
+    strengths: string[];
+    concerns: string[];
+    recommendation: 'strong_hire' | 'hire' | 'maybe' | 'no_hire' | 'strong_no_hire';
+    justification: string;
+    improvementAreas: string[];
+    detailedAnalysis: {
+      skillsAnalysis: string;
+      experienceAnalysis: string;
+      educationAnalysis: string;
+      culturalFitAnalysis: string;
+      overallAssessment: string;
+    };
+    analyzedAt: string;
+  };
+  shortlisted: boolean;
+  shortlistedAt?: Date;
+  shortlistedBy?: string;
+  manuallyAdded: boolean;
+  addedBy?: string;
+  addedAt?: Date;
+  recruiterNotes?: string;
   
   // Read Status
   isRead?: boolean; // Track if application has been viewed

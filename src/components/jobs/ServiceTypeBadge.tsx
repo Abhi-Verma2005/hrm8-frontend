@@ -8,8 +8,6 @@ interface ServiceTypeBadgeProps {
 }
 
 export function ServiceTypeBadge({ type, className }: ServiceTypeBadgeProps) {
-  if (type === 'self-managed') return null;
-  
   return (
     <Badge variant={getServiceTypeVariant(type)} className={className}>
       {formatServiceType(type)}

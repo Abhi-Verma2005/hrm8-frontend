@@ -306,8 +306,13 @@ export function JobLifecycleActions({ job, onJobUpdate, onEdit }: JobLifecycleAc
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setUpgradeServiceDialogOpen(true)}>
-                <ArrowUpCircle className="h-4 w-4 mr-2" />
-                Upgrade to HRM8 Recruitment Service
+                <ArrowUpCircle className="h-4 w-4 mr-2 text-primary" />
+                <span className="flex flex-col">
+                  <span>Upgrade to HRM8 Recruitment Service</span>
+                  <span className="text-xs text-muted-foreground">
+                    Move this role into a managed recruitment workflow
+                  </span>
+                </span>
               </DropdownMenuItem>
             </>
           )}

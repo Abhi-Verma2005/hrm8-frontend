@@ -25,7 +25,8 @@ import {
   Megaphone,
   Sparkles,
   Video,
-  ArrowUpCircle
+  ArrowUpCircle,
+  UserPlus
 } from "lucide-react";
 import { getJobById } from "@/lib/mockJobStorage";
 import { mockJobActivities } from "@/data/mockJobsData";
@@ -41,6 +42,7 @@ import { formatSalaryRange, formatExperienceLevel, formatRelativeDate } from "@/
 import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
 import { JobApplicantsList } from "@/components/applications/JobApplicantsList";
 import { AllApplicantsCard } from "@/components/applications/AllApplicantsCard";
+import { InitialScreeningTab } from "@/components/applications/InitialScreeningTab";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,6 +67,7 @@ import { JobBoardVisibilityControl } from "@/components/jobs/JobBoardVisibilityC
 import { ArchiveJobDialog } from "@/components/jobs/ArchiveJobDialog";
 import { DeleteJobDialog } from "@/components/jobs/DeleteJobDialog";
 import { applicationService } from "@/lib/applicationService";
+import { TalentPoolSearchDialog } from "@/components/applications/TalentPoolSearchDialog";
 
 export default function JobDetail() {
   const { jobId } = useParams();
@@ -79,6 +82,7 @@ export default function JobDetail() {
   const [isProcessingArchive, setIsProcessingArchive] = useState(false);
   const [isProcessingDelete, setIsProcessingDelete] = useState(false);
   const [applicantsCount, setApplicantsCount] = useState<number | undefined>(undefined);
+  const [talentPoolDialogOpen, setTalentPoolDialogOpen] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -295,7 +299,7 @@ export default function JobDetail() {
         website: { included: false, required: false },
       },
     },
-    status: job.status === 'closed' || job.status === 'filled' || job.status === 'on-hold' ? 'draft' : job.status,
+    status: (job.status === 'open' ? 'open' : 'draft') as 'open' | 'draft',
     jobBoardDistribution: job.jobBoardDistribution,
   };
 
@@ -351,7 +355,13 @@ export default function JobDetail() {
                   <Badge variant="outline" className="h-5 px-1.5 text-xs rounded-full ml-1">{job.applicantsCount}</Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger
+              <TabsTrigger 
+                value="screening"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Initial Screening
+              </TabsTrigger>
+              <TabsTrigger 
                 value="matching"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
@@ -590,16 +600,40 @@ export default function JobDetail() {
 
           {/* Applicants Tab */}
           <TabsContent value="applicants" className="mt-6 space-y-6">
-            {/* All Applicants quick card styled like an application card */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Action Bar */}
+            <div className="flex items-center justify-between">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
               <AllApplicantsCard
                 onClick={() => navigate(`/jobs/${job.id}/applications`)}
                 count={applicantsCount ?? job.applicantsCount}
               />
+              </div>
+              <Button 
+                onClick={() => setTalentPoolDialogOpen(true)}
+                className="ml-4"
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                Add from Talent Pool
+              </Button>
             </div>
 
             {/* Kanban pipeline */}
-            <ApplicationPipeline jobId={job.id} jobTitle={job.title} />
+            <ApplicationPipeline 
+              jobId={job.id} 
+              jobTitle={job.title}
+              key={refreshKey}
+            />
+          </TabsContent>
+
+          {/* Initial Screening Tab */}
+          <TabsContent value="screening" className="mt-6">
+            <InitialScreeningTab
+              jobId={job.id}
+              jobTitle={job.title}
+              jobRequirements={job.requirements}
+              jobDescription={job.description}
+              job={job}
+            />
           </TabsContent>
 
           {/* Matching Tab */}
@@ -770,6 +804,30 @@ export default function JobDetail() {
             job={job}
             onConfirm={handleDelete}
             isProcessing={isProcessingDelete}
+          />
+        )}
+
+        {/* Talent Pool Search Dialog */}
+        {job && (
+          <TalentPoolSearchDialog
+            open={talentPoolDialogOpen}
+            onOpenChange={setTalentPoolDialogOpen}
+            jobId={job.id}
+            jobTitle={job.title}
+            onCandidateAdded={() => {
+              setRefreshKey(prev => prev + 1);
+              // Refresh applicants count
+              const loadCount = async () => {
+                try {
+                  const res = await applicationService.getJobApplications(job.id);
+                  const list = res.data?.applications || [];
+                  setApplicantsCount(list.length);
+                } catch (err) {
+                  console.error("[JobDetail] Failed to load applicants count", err);
+                }
+              };
+              loadCount();
+            }}
           />
         )}
       </div>

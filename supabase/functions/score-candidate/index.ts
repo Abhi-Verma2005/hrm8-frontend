@@ -24,9 +24,9 @@ serve(async (req) => {
       weights 
     } = await req.json();
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY is not configured");
     }
 
     // Build comprehensive analysis prompt
@@ -82,16 +82,16 @@ Provide a comprehensive analysis with:
 6. Detailed justification for the recommendation
 7. Specific areas for improvement or questions to explore`;
 
-    console.log('Calling Lovable AI for candidate scoring...');
+    console.log('Calling OpenAI for candidate scoring...');
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }
@@ -157,23 +157,38 @@ Provide a comprehensive analysis with:
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
-        console.error('Payment required');
+      if (response.status === 401) {
+        console.error('Invalid API key');
         return new Response(
-          JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
+          JSON.stringify({ error: "Invalid OpenAI API key. Please check your configuration." }),
+          { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+      if (response.status === 402 || response.status === 403) {
+        console.error('Payment/quota issue');
+        return new Response(
+          JSON.stringify({ error: "OpenAI API quota exceeded or payment required. Please check your OpenAI account." }),
           { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       
       const errorText = await response.text();
-      console.error('AI API error:', response.status, errorText);
-      throw new Error(`AI API error: ${response.status}`);
+      let errorMessage = `AI API error: ${response.status}`;
+      try {
+        const errorData = JSON.parse(errorText);
+        errorMessage = errorData.error?.message || errorData.error || errorMessage;
+      } catch {
+        // If parsing fails, use the text as is
+        errorMessage = errorText || errorMessage;
+      }
+      console.error('OpenAI API error:', response.status, errorMessage);
+      throw new Error(errorMessage);
     }
 
     const data = await response.json();
     console.log('AI response received');
 
-    // Extract tool call result
+    // Extract tool call result (OpenAI format)
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
     if (!toolCall) {
       console.error('No tool call in response:', JSON.stringify(data));

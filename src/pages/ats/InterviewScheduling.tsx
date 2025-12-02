@@ -1,62 +1,97 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Clock, Video, Users, Plus, Calendar as CalendarIcon } from "lucide-react";
-import { getInterviews, getInterviewStats, Interview } from "@/lib/interviewService";
+import { videoInterviewService, type VideoInterview } from "@/lib/videoInterviewService";
 import { format } from "date-fns";
-import { ScheduleInterviewDialog } from "@/components/interviews/ScheduleInterviewDialog";
+import { useToast } from "@/hooks/use-toast";
+import { AutoScheduleAIInterviewDialog } from "@/components/applications/AutoScheduleAIInterviewDialog";
 
 export default function InterviewScheduling() {
+  const { toast } = useToast();
   const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
   const [filter, setFilter] = useState<"all" | "upcoming" | "completed">("upcoming");
+  const [interviews, setInterviews] = useState<VideoInterview[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const allInterviews = getInterviews();
-  const stats = getInterviewStats();
+  useEffect(() => {
+    loadInterviews();
+  }, []);
 
-  const filteredInterviews = allInterviews.filter((interview) => {
+  const loadInterviews = async () => {
+    setIsLoading(true);
+    try {
+      const response = await videoInterviewService.getInterviews();
+      if (response.success && response.data) {
+        setInterviews(response.data.interviews);
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to load interviews',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load interviews:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load interviews',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filteredInterviews = interviews.filter((interview) => {
     const now = new Date();
     const interviewDate = new Date(interview.scheduledDate);
 
     if (filter === "upcoming") {
-      return interview.status === "scheduled" && interviewDate > now;
+      return interview.status === "SCHEDULED" && interviewDate > now;
     }
     if (filter === "completed") {
-      return interview.status === "completed";
+      return interview.status === "COMPLETED";
     }
     return true;
   });
 
-  const getStatusColor = (status: Interview["status"]) => {
+  const stats = {
+    total: interviews.length,
+    upcoming: interviews.filter(i => i.status === "SCHEDULED" && new Date(i.scheduledDate) > new Date()).length,
+    completed: interviews.filter(i => i.status === "COMPLETED").length,
+    scheduled: interviews.filter(i => i.status === "SCHEDULED").length,
+  };
+
+  const getStatusColor = (status: VideoInterview["status"]) => {
     switch (status) {
-      case "scheduled":
+      case "SCHEDULED":
         return "teal";
-      case "completed":
+      case "COMPLETED":
         return "default";
-      case "cancelled":
+      case "CANCELLED":
         return "destructive";
-      case "no-show":
+      case "NO_SHOW":
         return "orange";
-      case "rescheduled":
+      case "RESCHEDULED":
         return "secondary";
+      case "IN_PROGRESS":
+        return "blue";
       default:
         return "default";
     }
   };
 
-  const getTypeIcon = (type: Interview["type"]) => {
+  const getTypeIcon = (type: VideoInterview["type"]) => {
     switch (type) {
-      case "video":
+      case "VIDEO":
         return <Video className="h-4 w-4" />;
-      case "phone":
+      case "PHONE":
         return <Clock className="h-4 w-4" />;
-      case "in-person":
-        return <Users className="h-4 w-4" />;
-      case "technical":
-        return <CalendarIcon className="h-4 w-4" />;
-      case "panel":
+      case "IN_PERSON":
         return <Users className="h-4 w-4" />;
       default:
         return <Calendar className="h-4 w-4" />;
@@ -132,7 +167,13 @@ export default function InterviewScheduling() {
           </TabsList>
 
           <TabsContent value={filter} className="space-y-4 mt-4">
-            {filteredInterviews.length === 0 ? (
+            {isLoading ? (
+              <Card>
+                <CardContent className="py-12 text-center">
+                  <p className="text-muted-foreground">Loading interviews...</p>
+                </CardContent>
+              </Card>
+            ) : filteredInterviews.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
                   <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -152,82 +193,88 @@ export default function InterviewScheduling() {
               </Card>
             ) : (
               <div className="space-y-3">
-                {filteredInterviews.map((interview) => (
-                  <Card key={interview.id}>
-                    <CardContent className="pt-6">
-                      <div className="flex items-start gap-4">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary">
-                          {getTypeIcon(interview.type)}
-                        </div>
-
-                        <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
-                            <div>
-                              <h3 className="font-semibold">{interview.candidateName}</h3>
-                              <p className="text-sm text-muted-foreground">
-                                {interview.jobTitle} • Round {interview.round}
-                              </p>
-                            </div>
-                            <Badge variant={getStatusColor(interview.status)}>
-                              {interview.status}
-                            </Badge>
+                {filteredInterviews.map((interview) => {
+                  const candidateName = interview.application?.candidateName || 
+                                       (interview.candidate ? `${interview.candidate.firstName} ${interview.candidate.lastName}` : 'Unknown');
+                  const jobTitle = interview.application?.jobTitle || interview.job?.title || 'Unknown Position';
+                  
+                  return (
+                    <Card key={interview.id}>
+                      <CardContent className="pt-6">
+                        <div className="flex items-start gap-4">
+                          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary">
+                            {getTypeIcon(interview.type)}
                           </div>
 
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                            <div>
-                              <p className="text-muted-foreground">Date & Time</p>
-                              <p className="font-medium">
-                                {format(new Date(interview.scheduledDate), "MMM dd, yyyy")}
-                              </p>
-                              <p className="text-xs">
-                                {format(new Date(interview.scheduledDate), "hh:mm a")}
-                              </p>
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <h3 className="font-semibold">{candidateName}</h3>
+                                <p className="text-sm text-muted-foreground">
+                                  {jobTitle}
+                                </p>
+                              </div>
+                              <Badge variant={getStatusColor(interview.status)}>
+                                {interview.status.replace('_', ' ')}
+                              </Badge>
                             </div>
 
-                            <div>
-                              <p className="text-muted-foreground">Duration</p>
-                              <p className="font-medium">{interview.duration} minutes</p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                              <div>
+                                <p className="text-muted-foreground">Date & Time</p>
+                                <p className="font-medium">
+                                  {format(new Date(interview.scheduledDate), "MMM dd, yyyy")}
+                                </p>
+                                <p className="text-xs">
+                                  {format(new Date(interview.scheduledDate), "hh:mm a")}
+                                </p>
+                              </div>
+
+                              <div>
+                                <p className="text-muted-foreground">Duration</p>
+                                <p className="font-medium">{interview.duration} minutes</p>
+                              </div>
+
+                              <div>
+                                <p className="text-muted-foreground">Type</p>
+                                <p className="font-medium capitalize">{interview.type.replace('_', ' ').toLowerCase()}</p>
+                              </div>
+
+                              <div>
+                                <p className="text-muted-foreground">Interviewers</p>
+                                <p className="font-medium">
+                                  {interview.interviewerIds.length > 0 
+                                    ? `${interview.interviewerIds.length} assigned`
+                                    : 'Not assigned'}
+                                </p>
+                              </div>
                             </div>
 
-                            <div>
-                              <p className="text-muted-foreground">Type</p>
-                              <p className="font-medium capitalize">{interview.type}</p>
-                            </div>
-
-                            <div>
-                              <p className="text-muted-foreground">Interviewers</p>
-                              <p className="font-medium">
-                                {interview.interviewerNames.join(", ")}
-                              </p>
-                            </div>
+                            {interview.meetingLink && (
+                              <div className="mt-3 pt-3 border-t">
+                                <a
+                                  href={interview.meetingLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-primary hover:underline"
+                                >
+                                  Join Meeting →
+                                </a>
+                              </div>
+                            )}
                           </div>
-
-                          {interview.meetingLink && (
-                            <div className="mt-3 pt-3 border-t">
-                              <a
-                                href={interview.meetingLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-sm text-primary hover:underline"
-                              >
-                                Join Meeting →
-                              </a>
-                            </div>
-                          )}
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </TabsContent>
         </Tabs>
 
-        <ScheduleInterviewDialog
-          open={scheduleDialogOpen}
-          onOpenChange={setScheduleDialogOpen}
-        />
+        {/* Note: ScheduleInterviewDialog would need to be updated to use videoInterviewService
+            For now, this is a placeholder - you can create a new dialog or update the existing one */}
       </div>
     </DashboardPageLayout>
   );
