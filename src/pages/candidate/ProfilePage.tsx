@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -64,11 +65,11 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">My Profile</h1>
-        <p className="text-muted-foreground">Manage your candidate profile</p>
-      </div>
+    <CandidatePageLayout
+      title="My Profile"
+      subtitle="Manage your candidate profile"
+    >
+      <div className="p-6 space-y-6">
 
       <Card>
         <CardHeader>
@@ -179,7 +180,8 @@ export default function ProfilePage() {
           </p>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </CandidatePageLayout>
   );
 }
 

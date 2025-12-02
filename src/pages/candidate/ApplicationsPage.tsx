@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { applicationService, Application } from '@/lib/applicationService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -63,11 +64,11 @@ export default function ApplicationsPage() {
   });
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">My Applications</h1>
-        <p className="text-muted-foreground">Track your job applications</p>
-      </div>
+    <CandidatePageLayout
+      title="My Applications"
+      subtitle="Track your job applications"
+    >
+      <div className="p-6 space-y-6">
 
       <Card>
         <CardHeader>
@@ -157,7 +158,8 @@ export default function ApplicationsPage() {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </CandidatePageLayout>
   );
 }
 

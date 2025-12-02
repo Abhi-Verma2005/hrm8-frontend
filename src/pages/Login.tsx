@@ -9,6 +9,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +35,10 @@ export default function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
   const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const {
+    isAuthenticated: isCandidateAuthenticated,
+    isLoading: candidateAuthLoading,
+  } = useCandidateAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const defaultEmail = searchParams.get('email') || '';
@@ -57,6 +62,12 @@ export default function Login() {
       navigate('/home', { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate]);
+
+  useEffect(() => {
+    if (!candidateAuthLoading && isCandidateAuthenticated) {
+      navigate('/candidate/dashboard', { replace: true });
+    }
+  }, [candidateAuthLoading, isCandidateAuthenticated, navigate]);
 
   const pendingEmailParam = searchParams.get('pendingEmail');
   const verificationSuccess = searchParams.get('verified') === 'true';
@@ -135,7 +146,7 @@ export default function Login() {
     return () => window.removeEventListener('storage', handleStorage);
   }, [clearPendingVerification, navigate, pendingVerificationEmail, reset, searchParams]);
 
-  if (authLoading) {
+  if (authLoading || candidateAuthLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -143,7 +154,7 @@ export default function Login() {
     );
   }
 
-  if (isAuthenticated) {
+  if (isAuthenticated || isCandidateAuthenticated) {
     return null;
   }
 

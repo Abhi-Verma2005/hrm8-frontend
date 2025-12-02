@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2, User2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface JobApplicantsListProps {
   jobId: string;
@@ -87,17 +88,17 @@ export function JobApplicantsList({ jobId }: JobApplicantsListProps) {
   };
 
   return (
-    <Card>
-      <CardHeader className="flex items-center justify-between">
+    <Card className="border-none shadow-none bg-transparent">
+      <CardHeader className="px-0 pt-0 pb-4 flex flex-row items-center justify-between space-y-0">
         <div>
-          <CardTitle className="text-base font-semibold">All Applicants</CardTitle>
-          <CardDescription>List of all candidates who applied to this job</CardDescription>
+          <CardTitle className="text-lg font-semibold">All Applicants</CardTitle>
+          <CardDescription className="mt-1">List of all candidates who applied to this job</CardDescription>
         </div>
-        <Badge variant="outline" className="rounded-full">
+        <div className="bg-muted/50 px-3 py-1 rounded-full text-xs font-medium text-muted-foreground">
           {rows.length} applicant{rows.length !== 1 ? "s" : ""}
-        </Badge>
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         {isLoading ? (
           <div className="flex items-center justify-center py-10">
             <Loader2 className="h-6 w-6 animate-spin" />
@@ -108,39 +109,61 @@ export function JobApplicantsList({ jobId }: JobApplicantsListProps) {
             <p>No applicants yet for this job.</p>
           </div>
         ) : (
-          <div className="divide-y rounded-md border">
+          <div className="divide-y divide-border/50">
             {rows.map((row) => (
-              <button
+              <div
                 key={row.id}
-                type="button"
-                className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-muted/50 transition-colors"
+                className="group flex items-center justify-between py-4 px-1 hover:bg-muted/30 transition-colors cursor-pointer -mx-1 rounded-md"
                 onClick={() => navigate(`/jobs/${jobId}/applications/${row.id}`)}
               >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">
-                      {row.candidateName}
-                    </span>
-                    {renderStatus(row.status)}
+                <div className="flex items-start gap-4">
+                  <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
+                    <User2 className="h-5 w-5" />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Applied{" "}
-                    {row.appliedDate
-                      ? formatDistanceToNow(new Date(row.appliedDate), {
-                          addSuffix: true,
-                        })
-                      : "Unknown time"}
-                  </p>
-                  {row.candidateEmail && (
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {row.candidateEmail}
-                    </p>
-                  )}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm text-foreground">
+                        {row.candidateName}
+                      </span>
+                      <span className="text-muted-foreground text-xs">•</span>
+                      <span className={cn(
+                        "text-xs font-medium flex items-center gap-1.5",
+                        row.status === 'NEW' && "text-blue-600 dark:text-blue-400",
+                        row.status === 'HIRED' && "text-green-600 dark:text-green-400",
+                        row.status === 'REJECTED' && "text-red-600 dark:text-red-400",
+                        (row.status !== 'NEW' && row.status !== 'HIRED' && row.status !== 'REJECTED') && "text-muted-foreground"
+                      )}>
+                        <span className={cn(
+                          "h-1.5 w-1.5 rounded-full",
+                          row.status === 'NEW' && "bg-blue-600 dark:bg-blue-400",
+                          row.status === 'HIRED' && "bg-green-600 dark:bg-green-400",
+                          row.status === 'REJECTED' && "bg-red-600 dark:bg-red-400",
+                          (row.status !== 'NEW' && row.status !== 'HIRED' && row.status !== 'REJECTED') && "bg-muted-foreground"
+                        )} />
+                        {row.status.charAt(0) + row.status.slice(1).toLowerCase()}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 mt-1">
+                      <p className="text-xs text-muted-foreground">
+                        Applied {row.appliedDate ? formatDistanceToNow(new Date(row.appliedDate), { addSuffix: true }) : "Unknown time"}
+                      </p>
+                      {row.candidateEmail && (
+                        <>
+                          <span className="text-muted-foreground text-[10px]">•</span>
+                          <p className="text-xs text-muted-foreground">
+                            {row.candidateEmail}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <Button variant="ghost" size="sm">
-                  View
-                </Button>
-              </button>
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity pr-2">
+                  <Button variant="ghost" size="sm" className="h-8 text-xs">
+                    View Details
+                  </Button>
+                </div>
+              </div>
             ))}
           </div>
         )}

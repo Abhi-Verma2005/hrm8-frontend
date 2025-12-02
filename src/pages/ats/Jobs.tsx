@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { Plus, MoreVertical, Pencil, Copy, Trash2, Briefcase, FileText, Clock, CheckCircle, Download, Upload, Archive, BarChart3, Filter, X, Zap, Eye } from "lucide-react";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
@@ -36,7 +37,7 @@ import { SavedFiltersPanel } from "@/components/jobs/filters/SavedFiltersPanel";
 import { BulkActionsToolbar } from "@/components/jobs/bulk/BulkActionsToolbar";
 import { FilterCriteria, SavedFilter } from "@/lib/savedFiltersService";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { JobsPageSkeleton } from "@/components/jobs/JobsPageSkeleton";
+import { DashboardSkeleton } from "@/components/skeletons/DashboardSkeleton";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -61,14 +62,14 @@ export default function Jobs() {
   const [editingJobId, setEditingJobId] = useState<string | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   // Filter states
   const [searchValue, setSearchValue] = useState("");
   const [selectedConsultant, setSelectedConsultant] = useState("all");
   const [selectedLocation, setSelectedLocation] = useState("all");
   const [selectedService, setSelectedService] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
-  
+
   // Advanced filters
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [showSavedFilters, setShowSavedFilters] = useState(false);
@@ -150,7 +151,7 @@ export default function Jobs() {
       avgApplicants: avgApplicants || 0,
     };
   }, [jobs]);
-  
+
   // Auto-open job wizard when navigating with action=create
   useEffect(() => {
     if (searchParams.get('action') === 'create') {
@@ -182,7 +183,7 @@ export default function Jobs() {
       const country = getCountryFromLocation(job.location);
       jobCountries.add(country);
     });
-    
+
     // Group countries by region
     const optionsByRegion: Record<string, string[]> = {
       'Americas': [],
@@ -191,14 +192,14 @@ export default function Jobs() {
       'Middle East & Africa': [],
       'Global': []
     };
-    
+
     jobCountries.forEach(country => {
       const region = getRegionForCountry(country);
       if (region && optionsByRegion[region]) {
         optionsByRegion[region].push(country);
       }
     });
-    
+
     // Build hierarchical structure
     return Object.entries(optionsByRegion)
       .filter(([_, countries]) => countries.length > 0)
@@ -289,11 +290,11 @@ export default function Jobs() {
       try {
         const response = await jobService.deleteJob(jobToDelete);
         if (response.success) {
-      toast({
-        title: "Job Deleted",
-        description: "The job posting has been removed.",
-      });
-      setRefreshKey(prev => prev + 1);
+          toast({
+            title: "Job Deleted",
+            description: "The job posting has been removed.",
+          });
+          setRefreshKey(prev => prev + 1);
         } else {
           toast({
             title: "Error",
@@ -320,7 +321,7 @@ export default function Jobs() {
   const handleCreateJob = async (fromTemplate = false) => {
     // Refetch to get the latest draft and use the returned value
     const latestDraft = await refetchDraft();
-    
+
     // If coming from template, load the draft directly (template data already applied)
     if (latestDraft && fromTemplate) {
       setEditingJobId(latestDraft.id);
@@ -499,38 +500,38 @@ export default function Jobs() {
         // Use company name from job or fallback to user's company
         const companyName = job.employerName || user?.companyName || profileSummary?.name || "Company";
         const companyId = job.employerId || user?.companyId || "";
-        
+
         return (
-        <div className="flex items-center gap-3">
-          <EntityAvatar
+          <div className="flex items-center gap-3">
+            <EntityAvatar
               name={companyName}
-            src={job.employerLogo}
-            type="logo"
-          />
-          <div className="min-w-0 flex-1">
-            {(() => {
-              const parts = job.title.split(' - ');
-              const role = parts[0] || job.title;
-              const domain = parts.length > 1 ? parts.slice(1).join(' - ') : '';
-              return (
-                <>
-                  <div
-                    className="font-semibold text-base truncate block w-full"
-                  >
-                    {role}
-                  </div>
-                  {domain && (
+              src={job.employerLogo}
+              type="logo"
+            />
+            <div className="min-w-0 flex-1">
+              {(() => {
+                const parts = job.title.split(' - ');
+                const role = parts[0] || job.title;
+                const domain = parts.length > 1 ? parts.slice(1).join(' - ') : '';
+                return (
+                  <>
+                    <div
+                      className="font-semibold text-base truncate block w-full"
+                    >
+                      {role}
+                    </div>
+                    {domain && (
+                      <span className="text-sm text-muted-foreground truncate block w-full">
+                        {domain}
+                      </span>
+                    )}
                     <span className="text-sm text-muted-foreground truncate block w-full">
-                      {domain}
+                      {companyName}
                     </span>
-                  )}
-                  <span className="text-sm text-muted-foreground truncate block w-full">
-                    {companyName}
-                  </span>
-                </>
-              );
-            })()}
-          </div>
+                  </>
+                );
+              })()}
+            </div>
           </div>
         );
       }
@@ -553,7 +554,7 @@ export default function Jobs() {
             </div>
           );
         }
-        
+
         return (
           <div>
             <div className="text-sm">
@@ -586,7 +587,7 @@ export default function Jobs() {
       label: 'Applicants',
       sortable: true,
       render: (job) => (
-        <div 
+        <div
           className="flex items-center gap-2 group"
           onClick={(e) => {
             e.stopPropagation();
@@ -657,7 +658,7 @@ export default function Jobs() {
                 <Copy className="h-4 w-4 mr-2" />
                 Duplicate
               </DropdownMenuItem>
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 className="text-destructive"
                 onClick={() => handleDelete(job.id)}
               >
@@ -695,257 +696,259 @@ export default function Jobs() {
           </div>
         )}
         {loading ? (
-          <JobsPageSkeleton />
+          <DashboardSkeleton />
         ) : (
           <>
-          <div className="text-base font-semibold flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">Jobs</h1>
-            <p className="text-muted-foreground">Create and manage job postings</p>
-          </div>
-          <div className="flex gap-2">
-            <Button 
-              variant="outline"
-              onClick={() => setShowSavedFilters(!showSavedFilters)}
+            <AtsPageHeader
+              title="Jobs"
+              subtitle="Create and manage job postings"
             >
-              <Filter className="h-4 w-4 mr-2" />
-              Saved Filters
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to="/jobs/templates">
-                <FileText className="h-4 w-4 mr-2" />
-                Templates
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to="/jobs/automation">
-                <Zap className="h-4 w-4 mr-2" />
-                Automation
-              </Link>
-            </Button>
-            {canPostJobs ? (
-            <Button onClick={() => {
-              // Clear any URL params first to avoid interference
-              setSearchParams({}, { replace: true });
-              handleCreateJob(false);
-            }}>
-              <Plus className="h-4 w-4 mr-2" />
-              Post Job
-            </Button>
-            ) : (
-              <Button variant="outline" disabled title="Contact your administrator to request job posting permissions">
-                <Plus className="h-4 w-4 mr-2" />
-                Post Job
-              </Button>
-            )}
-            <Button variant="outline" asChild>
-              <Link to="/dashboard/jobs">
-                <BarChart3 className="mr-2 h-4 w-4" />
-                View Dashboard
-              </Link>
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <EnhancedStatCard
-            title="Total Jobs"
-            value={stats.total}
-            change="+8%"
-            trend="up"
-            icon={<Briefcase className="h-6 w-6" />}
-            variant="neutral"
-            showMenu={true}
-            menuItems={[
-              { label: "View all jobs", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-              { label: "View templates", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
-              { label: "Export data", icon: <Download className="h-4 w-4" />, onClick: () => {} },
-            ]}
-          />
-          <EnhancedStatCard
-            title="Active Postings"
-            value={stats.active}
-            change="+12%"
-            trend="up"
-            icon={<Clock className="h-6 w-6" />}
-            variant="success"
-            showMenu={true}
-            menuItems={[
-              { label: "View active jobs", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-              { label: "Post new job", icon: <Plus className="h-4 w-4" />, onClick: () => {
-                setSearchParams({}, { replace: true });
-                handleCreateJob(false);
-              }},
-            ]}
-          />
-          <EnhancedStatCard
-            title="Total Applicants"
-            value={stats.applicants}
-            change="+15%"
-            trend="up"
-            icon={<FileText className="h-6 w-6" />}
-            variant="primary"
-            showMenu={true}
-            menuItems={[
-              { label: "View applicants", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-              { label: "Export data", icon: <Download className="h-4 w-4" />, onClick: () => {} },
-            ]}
-          />
-          <EnhancedStatCard
-            title="Filled Positions"
-            value={stats.filled}
-            change="+5%"
-            trend="up"
-            icon={<CheckCircle className="h-6 w-6" />}
-            variant="warning"
-            showMenu={true}
-            menuItems={[
-              { label: "View filled", icon: <CheckCircle className="h-4 w-4" />, onClick: () => {} },
-              { label: "View analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-            ]}
-          />
-        </div>
-
-        {showSavedFilters && (
-          <SavedFiltersPanel onSelectFilter={handleSelectSavedFilter} />
-        )}
-
-        <div className="flex items-start gap-2">
-          <div className="flex-1 min-w-0">
-            <JobsFilterBar
-              searchValue={searchValue}
-              onSearchChange={setSearchValue}
-              selectedConsultants={selectedConsultant === 'all' ? [] : [selectedConsultant]}
-              onConsultantsChange={(consultants) => setSelectedConsultant(consultants[0] || 'all')}
-              selectedLocations={selectedLocation === 'all' ? [] : [selectedLocation]}
-              onLocationsChange={(locations) => setSelectedLocation(locations[0] || 'all')}
-              selectedService={selectedService}
-              onServiceChange={setSelectedService}
-              selectedStatus={selectedStatus}
-              onStatusChange={setSelectedStatus}
-              consultantOptions={uniqueConsultants}
-              locationOptions={locationOptions}
-              currentUserId="admin-1"
-            />
-          </div>
-          <Button
-            variant={showAdvancedFilters ? "default" : "outline"}
-            size="sm"
-            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-            className="shrink-0 h-9"
-          >
-            <Filter className="h-4 w-4 mr-2" />
-            Advanced
-            {activeFilterCount > 0 && (
-              <Badge variant="secondary" className="ml-2">
-                {activeFilterCount}
-              </Badge>
-            )}
-          </Button>
-        </div>
-
-        <Collapsible open={showAdvancedFilters} onOpenChange={setShowAdvancedFilters}>
-          <CollapsibleContent>
-            <AdvancedFilterBuilder
-              onApply={handleApplyAdvancedFilters}
-              initialFilters={advancedFilters}
-            />
-          </CollapsibleContent>
-        </Collapsible>
-
-        {selectedJobs.length > 0 && (
-          <BulkActionsToolbar
-            selectedCount={selectedJobs.length}
-            onClearSelection={() => setSelectedJobs([])}
-            onBulkAction={handleBulkAction}
-          />
-        )}
-
-        <DataTable
-          data={filteredJobs}
-          columns={columns}
-          searchable={false}
-          selectable
-          onSelectedRowsChange={setSelectedJobs}
-          onRowClick={(job) => {
-            navigate(`/jobs/${job.id}`);
-          }}
-          emptyMessage="No jobs found"
-          tableId="jobs"
-        />
-
-        <FormDrawer
-          open={drawerOpen}
-          onOpenChange={handleDrawerClose}
-          title={editingJobId ? "Edit Job" : "Post Job"}
-          description={editingJobId ? "Update the job posting details" : "Fill in the details to post a new job"}
-          width="2xl"
-        >
-          <JobWizard
-            key={editingJobId || 'new'}
-            jobId={editingJobId || undefined}
-            defaultValues={editingJobData || undefined}
-            onSuccess={handleJobSuccess}
-            onCancel={handleDrawerClose}
-            embedded
-          />
-        </FormDrawer>
-
-        <WarningConfirmationDialog
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-          onConfirm={confirmDelete}
-          type="delete"
-          title="Delete Job Posting"
-          description="This action cannot be undone. This will permanently delete the job posting and all associated data."
-          isProcessing={isDeleting}
-        />
-
-        <DeleteConfirmationDialog
-          open={showBulkDeleteDialog}
-          onOpenChange={setShowBulkDeleteDialog}
-          onConfirm={confirmBulkDelete}
-          title="Delete Jobs"
-          description={`Are you sure you want to delete ${selectedJobs.length} job(s)? This action cannot be undone.`}
-          isDeleting={isDeletingBulk}
-        />
-
-        <AlertDialog open={showDraftDialog} onOpenChange={setShowDraftDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Continue with Draft or Start New?</AlertDialogTitle>
-              <AlertDialogDescription>
-                You have an existing draft job: <strong>"{pendingDraft?.title || 'Untitled Job'}"</strong>.
-                <br /><br />
-                Would you like to continue editing your draft or start a new job posting?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-              <AlertDialogCancel onClick={() => {
-                setShowDraftDialog(false);
-                setPendingDraft(null);
-                setPendingFromTemplate(false);
-              }}>
-                Cancel
-              </AlertDialogCancel>
-              <div className="flex gap-2 w-full sm:w-auto">
+              <div className="flex items-center gap-2">
                 <Button
-                  onClick={handleContinueWithDraft}
-                  className="flex-1 sm:flex-initial"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSavedFilters(!showSavedFilters)}
                 >
-                  Continue Draft
+                  <Filter className="h-4 w-4 mr-2" />
+                  Saved Filters
                 </Button>
-                <Button
-                  onClick={handleStartNewJob}
-                  variant="default"
-                  className="flex-1 sm:flex-initial"
-                >
-                  Start New Job
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/jobs/templates">
+                    <FileText className="h-4 w-4 mr-2" />
+                    Templates
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/jobs/automation">
+                    <Zap className="h-4 w-4 mr-2" />
+                    Automation
+                  </Link>
+                </Button>
+                {canPostJobs ? (
+                  <Button size="sm" onClick={() => {
+                    // Clear any URL params first to avoid interference
+                    setSearchParams({}, { replace: true });
+                    handleCreateJob(false);
+                  }}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Post Job
+                  </Button>
+                ) : (
+                  <Button variant="outline" size="sm" disabled title="Contact your administrator to request job posting permissions">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Post Job
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/dashboard/jobs">
+                    <BarChart3 className="mr-2 h-4 w-4" />
+                    View Dashboard
+                  </Link>
                 </Button>
               </div>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+            </AtsPageHeader>
+
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <EnhancedStatCard
+                title="Total Jobs"
+                value={stats.total}
+                change="+8%"
+                trend="up"
+                icon={<Briefcase className="h-6 w-6" />}
+                variant="neutral"
+                showMenu={true}
+                menuItems={[
+                  { label: "View all jobs", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "View templates", icon: <FileText className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export data", icon: <Download className="h-4 w-4" />, onClick: () => { } },
+                ]}
+              />
+              <EnhancedStatCard
+                title="Active Postings"
+                value={stats.active}
+                change="+12%"
+                trend="up"
+                icon={<Clock className="h-6 w-6" />}
+                variant="success"
+                showMenu={true}
+                menuItems={[
+                  { label: "View active jobs", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  {
+                    label: "Post new job", icon: <Plus className="h-4 w-4" />, onClick: () => {
+                      setSearchParams({}, { replace: true });
+                      handleCreateJob(false);
+                    }
+                  },
+                ]}
+              />
+              <EnhancedStatCard
+                title="Total Applicants"
+                value={stats.applicants}
+                change="+15%"
+                trend="up"
+                icon={<FileText className="h-6 w-6" />}
+                variant="primary"
+                showMenu={true}
+                menuItems={[
+                  { label: "View applicants", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+                  { label: "Export data", icon: <Download className="h-4 w-4" />, onClick: () => { } },
+                ]}
+              />
+              <EnhancedStatCard
+                title="Filled Positions"
+                value={stats.filled}
+                change="+5%"
+                trend="up"
+                icon={<CheckCircle className="h-6 w-6" />}
+                variant="warning"
+                showMenu={true}
+                menuItems={[
+                  { label: "View filled", icon: <CheckCircle className="h-4 w-4" />, onClick: () => { } },
+                  { label: "View analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+                ]}
+              />
+            </div>
+
+            {showSavedFilters && (
+              <SavedFiltersPanel onSelectFilter={handleSelectSavedFilter} />
+            )}
+
+            <div className="flex items-start gap-2">
+              <div className="flex-1 min-w-0">
+                <JobsFilterBar
+                  searchValue={searchValue}
+                  onSearchChange={setSearchValue}
+                  selectedConsultants={selectedConsultant === 'all' ? [] : [selectedConsultant]}
+                  onConsultantsChange={(consultants) => setSelectedConsultant(consultants[0] || 'all')}
+                  selectedLocations={selectedLocation === 'all' ? [] : [selectedLocation]}
+                  onLocationsChange={(locations) => setSelectedLocation(locations[0] || 'all')}
+                  selectedService={selectedService}
+                  onServiceChange={setSelectedService}
+                  selectedStatus={selectedStatus}
+                  onStatusChange={setSelectedStatus}
+                  consultantOptions={uniqueConsultants}
+                  locationOptions={locationOptions}
+                  currentUserId="admin-1"
+                />
+              </div>
+              <Button
+                variant={showAdvancedFilters ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                className="shrink-0 h-9"
+              >
+                <Filter className="h-4 w-4 mr-2" />
+                Advanced
+                {activeFilterCount > 0 && (
+                  <Badge variant="secondary" className="ml-2">
+                    {activeFilterCount}
+                  </Badge>
+                )}
+              </Button>
+            </div>
+
+            <Collapsible open={showAdvancedFilters} onOpenChange={setShowAdvancedFilters}>
+              <CollapsibleContent>
+                <AdvancedFilterBuilder
+                  onApply={handleApplyAdvancedFilters}
+                  initialFilters={advancedFilters}
+                />
+              </CollapsibleContent>
+            </Collapsible>
+
+            {selectedJobs.length > 0 && (
+              <BulkActionsToolbar
+                selectedCount={selectedJobs.length}
+                onClearSelection={() => setSelectedJobs([])}
+                onBulkAction={handleBulkAction}
+              />
+            )}
+
+            <DataTable
+              data={filteredJobs}
+              columns={columns}
+              searchable={false}
+              selectable
+              onSelectedRowsChange={setSelectedJobs}
+              onRowClick={(job) => {
+                navigate(`/jobs/${job.id}`);
+              }}
+              emptyMessage="No jobs found"
+              tableId="jobs"
+            />
+
+            <FormDrawer
+              open={drawerOpen}
+              onOpenChange={handleDrawerClose}
+              title={editingJobId ? "Edit Job" : "Post Job"}
+              description={editingJobId ? "Update the job posting details" : "Fill in the details to post a new job"}
+              width="2xl"
+            >
+              <JobWizard
+                key={editingJobId || 'new'}
+                jobId={editingJobId || undefined}
+                defaultValues={editingJobData || undefined}
+                onSuccess={handleJobSuccess}
+                onCancel={handleDrawerClose}
+                embedded
+              />
+            </FormDrawer>
+
+            <WarningConfirmationDialog
+              open={deleteDialogOpen}
+              onOpenChange={setDeleteDialogOpen}
+              onConfirm={confirmDelete}
+              type="delete"
+              title="Delete Job Posting"
+              description="This action cannot be undone. This will permanently delete the job posting and all associated data."
+              isProcessing={isDeleting}
+            />
+
+            <DeleteConfirmationDialog
+              open={showBulkDeleteDialog}
+              onOpenChange={setShowBulkDeleteDialog}
+              onConfirm={confirmBulkDelete}
+              title="Delete Jobs"
+              description={`Are you sure you want to delete ${selectedJobs.length} job(s)? This action cannot be undone.`}
+              isDeleting={isDeletingBulk}
+            />
+
+            <AlertDialog open={showDraftDialog} onOpenChange={setShowDraftDialog}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Continue with Draft or Start New?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    You have an existing draft job: <strong>"{pendingDraft?.title || 'Untitled Job'}"</strong>.
+                    <br /><br />
+                    Would you like to continue editing your draft or start a new job posting?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                  <AlertDialogCancel onClick={() => {
+                    setShowDraftDialog(false);
+                    setPendingDraft(null);
+                    setPendingFromTemplate(false);
+                  }}>
+                    Cancel
+                  </AlertDialogCancel>
+                  <div className="flex gap-2 w-full sm:w-auto">
+                    <Button
+                      onClick={handleContinueWithDraft}
+                      className="flex-1 sm:flex-initial"
+                    >
+                      Continue Draft
+                    </Button>
+                    <Button
+                      onClick={handleStartNewJob}
+                      variant="default"
+                      className="flex-1 sm:flex-initial"
+                    >
+                      Start New Job
+                    </Button>
+                  </div>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </>
         )}
       </div>

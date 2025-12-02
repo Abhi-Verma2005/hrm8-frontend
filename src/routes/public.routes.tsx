@@ -11,6 +11,7 @@ import TakeAssessment from "@/pages/public/TakeAssessment";
 import PublicFeedbackForm from "@/pages/PublicFeedbackForm";
 import CandidateLogin from "@/pages/candidate/Login";
 import CandidateRegister from "@/pages/candidate/Register";
+import { RoleIsolationGate } from "@/components/common/RoleIsolationGate";
 
 export const publicRoutes = (
   <>
@@ -26,8 +27,22 @@ export const publicRoutes = (
     <Route path="/feedback/:feedbackId/:providerId" element={<PublicFeedbackForm />} />
     
     {/* Candidate Auth Routes (public, no auth required) */}
-    <Route path="/candidate/login" element={<CandidateLogin />} />
-    <Route path="/candidate/register" element={<CandidateRegister />} />
+    <Route
+      path="/candidate/login"
+      element={
+        <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
+          <CandidateLogin />
+        </RoleIsolationGate>
+      }
+    />
+    <Route
+      path="/candidate/register"
+      element={
+        <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
+          <CandidateRegister />
+        </RoleIsolationGate>
+      }
+    />
   </>
 );
 

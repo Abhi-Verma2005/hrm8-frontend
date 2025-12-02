@@ -7,6 +7,8 @@ import { HelmetProvider } from "react-helmet-async";
 import { CurrencyFormatProvider } from "@/contexts/CurrencyFormatContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CandidateAuthProvider } from "@/contexts/CandidateAuthContext";
+import { Hrm8AuthProvider } from "@/contexts/Hrm8AuthContext";
+import { ConsultantAuthProvider } from "@/contexts/ConsultantAuthContext";
 import { useGlobalKeyboardShortcuts, useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import { GlobalSearch } from "./components/common/GlobalSearch";
@@ -56,8 +58,12 @@ const App = () => (
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <AuthProvider>
                 <CandidateAuthProvider>
-                <ScrollToTop />
-                <AppContent />
+                  <Hrm8AuthProvider>
+                    <ConsultantAuthProvider>
+                    <ScrollToTop />
+                    <AppContent />
+                    </ConsultantAuthProvider>
+                  </Hrm8AuthProvider>
                 </CandidateAuthProvider>
               </AuthProvider>
             </BrowserRouter>

@@ -4,6 +4,7 @@
  */
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
 import { Button } from '@/components/ui/button';
 import { Bookmark, Briefcase } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -12,11 +13,11 @@ export default function SavedJobsPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Saved Jobs</h1>
-        <p className="text-muted-foreground">Jobs you've saved for later</p>
-      </div>
+    <CandidatePageLayout
+      title="Saved Jobs"
+      subtitle="Jobs you've saved for later"
+    >
+      <div className="p-6 space-y-6">
 
       <Card>
         <CardHeader>
@@ -40,7 +41,8 @@ export default function SavedJobsPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </CandidatePageLayout>
   );
 }
 

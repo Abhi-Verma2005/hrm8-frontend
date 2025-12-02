@@ -23,6 +23,18 @@ const routeMap: Record<string, string> = {
   calendar: 'Calendar',
   settings: 'Settings',
   help: 'Help Center',
+  hrm8: 'HRM8',
+  consultant: 'Consultant',
+  candidate: 'Candidate',
+  regions: 'Regions',
+  licensees: 'Licensees',
+  consultants: 'Consultants',
+  commissions: 'Commissions',
+  revenue: 'Revenue',
+  reports: 'Reports',
+  profile: 'Profile',
+  'saved-jobs': 'Saved Jobs',
+  messages: 'Messages',
 };
 
 export function Breadcrumbs() {
@@ -33,9 +45,20 @@ export function Breadcrumbs() {
     return null;
   }
 
+  // Determine home path based on route prefix
+  const firstSegment = pathSegments[0];
+  let homePath = '/home';
+  if (firstSegment === 'hrm8') {
+    homePath = '/hrm8/dashboard';
+  } else if (firstSegment === 'consultant') {
+    homePath = '/consultant/dashboard';
+  } else if (firstSegment === 'candidate') {
+    homePath = '/candidate/dashboard';
+  }
+
   const breadcrumbs: RouteInfo[] = pathSegments.map((segment, index) => {
     const path = '/' + pathSegments.slice(0, index + 1).join('/');
-    const title = routeMap[segment] || segment.charAt(0).toUpperCase() + segment.slice(1);
+    const title = routeMap[segment] || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ');
     return { title, path };
   });
 
@@ -44,7 +67,7 @@ export function Breadcrumbs() {
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to="/dashboard" className="flex items-center gap-1.5">
+            <Link to={homePath} className="flex items-center gap-1.5">
               <Home className="h-3.5 w-3.5" />
               <span>Home</span>
             </Link>
