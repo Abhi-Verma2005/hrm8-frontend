@@ -7,6 +7,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { useNavigate } from 'react-router-dom';
 import { consultantAuthService } from '@/lib/consultantAuthService';
 import { useToast } from '@/hooks/use-toast';
+import { consultantService, ConsultantProfile } from '@/lib/consultant/consultantService';
 
 export interface ConsultantUser {
   id: string;
@@ -54,6 +55,35 @@ export function ConsultantAuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const isProfileComplete = (profile: ConsultantProfile): boolean => {
+    const hasBasicInfo =
+      !!profile.firstName &&
+      !!profile.lastName &&
+      !!profile.phone &&
+      !!profile.address &&
+      !!profile.city &&
+      !!profile.stateProvince &&
+      !!profile.country;
+
+    const hasLanguages =
+      Array.isArray(profile.languages) &&
+      profile.languages.length > 0 &&
+      profile.languages.every((l) => l.language && l.proficiency);
+
+    const hasIndustries =
+      Array.isArray(profile.industryExpertise) &&
+      profile.industryExpertise.length > 0 &&
+      profile.industryExpertise.length <= 5;
+
+    const hasPayment =
+      !!profile.paymentMethod && Object.keys(profile.paymentMethod || {}).length > 0;
+
+    const hasTax =
+      !!profile.taxInformation && Object.keys(profile.taxInformation || {}).length > 0;
+
+    return hasBasicInfo && hasLanguages && hasIndustries && hasPayment && hasTax;
+  };
+
   const login = async (
     email: string,
     password: string
@@ -67,7 +97,18 @@ export function ConsultantAuthProvider({ children }: { children: ReactNode }) {
           title: 'Welcome back!',
           description: `Logged in as ${response.data.consultant.firstName} ${response.data.consultant.lastName}`,
         });
-        navigate('/consultant/dashboard');
+        // After login, check if profile is complete; if not, redirect to profile onboarding
+        try {
+          const profileResponse = await consultantService.getProfile();
+          const profile = profileResponse.success ? profileResponse.data?.consultant : null;
+          if (profile && !isProfileComplete(profile)) {
+            navigate('/consultant/profile?onboarding=1');
+          } else {
+            navigate('/consultant/dashboard');
+          }
+        } catch {
+          navigate('/consultant/dashboard');
+        }
         return { success: true };
       }
       const errorMessage = response.error || 'Login failed';
