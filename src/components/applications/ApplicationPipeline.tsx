@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors, useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Application, ApplicationStage } from "@/types/application";
 import { ApplicationCard } from "./ApplicationCard";
@@ -9,6 +9,8 @@ import { updateApplicationStatus, getApplications } from "@/lib/mockApplicationS
 import { applicationService } from "@/lib/applicationService";
 import { toast } from "sonner";
 import { CandidateAssessmentView } from "../jobs/candidate-assessment/CandidateAssessmentView";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ChevronDown } from "lucide-react";
 
 interface ApplicationPipelineProps {
   jobId?: string;
@@ -28,6 +30,100 @@ const pipelineStages: { stage: ApplicationStage; label: string; color: string }[
   { stage: "Offer Accepted", label: "Hired", color: "bg-emerald-50 dark:bg-emerald-950/30" },
   { stage: "Rejected", label: "Rejected", color: "bg-red-50 dark:bg-red-950/30" },
 ];
+
+// Stage Column Component with Droppable
+function StageColumn({
+  stage,
+  label,
+  color,
+  applications,
+  onApplicationClick,
+  isCompareMode,
+  selectedForComparison,
+  onToggleSelect,
+  onStageChange,
+  pipelineStages,
+}: {
+  stage: ApplicationStage;
+  label: string;
+  color: string;
+  applications: Application[];
+  onApplicationClick: (application: Application) => void;
+  isCompareMode: boolean;
+  selectedForComparison: string[];
+  onToggleSelect?: (applicationId: string) => void;
+  onStageChange: (applicationId: string, newStage: ApplicationStage) => void;
+  pipelineStages: typeof pipelineStages;
+}) {
+  const { setNodeRef, isOver } = useDroppable({
+    id: stage,
+  });
+
+  return (
+    <div className="min-w-0">
+      <Card className={`${color} border-2 h-full flex flex-col ${isOver ? 'ring-2 ring-primary' : ''}`}>
+        <div className="p-3 flex flex-col flex-1">
+          <div className="flex items-center justify-between mb-3 flex-shrink-0">
+            <h3 className="font-semibold text-sm">{label}</h3>
+            <Badge variant="outline" className="text-xs h-6 px-2 rounded-full">
+              {applications.length}
+            </Badge>
+          </div>
+          <div ref={setNodeRef} className="flex-1 min-h-[150px]">
+            <SortableContext items={applications.map((app) => app.id)} strategy={verticalListSortingStrategy}>
+              <div className="space-y-1.5 flex-1 overflow-y-auto min-h-[150px]">
+                {applications.map((application) => (
+                  <div key={application.id} className="relative group">
+                    <ApplicationCard
+                      application={application}
+                      onClick={() => onApplicationClick(application)}
+                      isCompareMode={isCompareMode}
+                      isSelected={selectedForComparison.includes(application.id)}
+                      onToggleSelect={onToggleSelect}
+                      showOnlyReview={true}
+                    />
+                    {/* Stage Dropdown - Alternative to drag-drop */}
+                    <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <Select
+                        value={application.stage}
+                        onValueChange={(value) => onStageChange(application.id, value as ApplicationStage)}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <SelectTrigger 
+                          className="h-6 text-[10px] px-1.5 w-auto bg-background/95 backdrop-blur-sm border"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <SelectValue />
+                          <ChevronDown className="h-3 w-3 ml-1" />
+                        </SelectTrigger>
+                        <SelectContent onClick={(e) => e.stopPropagation()}>
+                          {pipelineStages.map((s) => (
+                            <SelectItem 
+                              key={s.stage} 
+                              value={s.stage}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {s.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                ))}
+                {applications.length === 0 && (
+                  <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">
+                    No applications
+                  </div>
+                )}
+              </div>
+            </SortableContext>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+}
 
 export function ApplicationPipeline({ 
   jobId,
@@ -57,34 +153,58 @@ export function ApplicationPipeline({
         const response = await applicationService.getJobApplications(jobId);
         const apiApplications = response.data?.applications || [];
         // Map API applications to frontend Application type
-        const mappedApplications: Application[] = apiApplications.map((app: any) => ({
-          id: app.id,
-          candidateId: app.candidateId,
-          candidateName: app.candidate?.firstName && app.candidate?.lastName
-            ? `${app.candidate.firstName} ${app.candidate.lastName}`
-            : 'Unknown Candidate',
-          candidateEmail: app.candidate?.email || '',
-          candidatePhoto: app.candidate?.photo,
-          jobId: app.jobId,
-          jobTitle: app.job?.title || 'Unknown Job',
-          employerName: app.job?.company?.name || 'Unknown Company',
-          appliedDate: new Date(app.appliedDate),
-          status: mapApplicationStatus(app.status),
-          stage: mapApplicationStage(app.stage),
-          resumeUrl: app.resumeUrl,
-          coverLetterUrl: app.coverLetterUrl,
-          portfolioUrl: app.portfolioUrl,
-          linkedInUrl: app.linkedInUrl,
-          customAnswers: app.customAnswers || [],
-          isRead: app.isRead,
-          isNew: app.isNew,
-          tags: app.tags || [],
-          notes: [],
-          activities: [],
-          interviews: [],
-          createdAt: new Date(app.createdAt),
-          updatedAt: new Date(app.updatedAt),
-        }));
+        const mappedApplications: Application[] = apiApplications.map((app: any) => {
+          // Try multiple ways to get candidate name
+          let candidateName = 'Unknown Candidate';
+          if (app.candidate?.firstName && app.candidate?.lastName) {
+            candidateName = `${app.candidate.firstName} ${app.candidate.lastName}`;
+          } else if (app.candidate?.firstName) {
+            candidateName = app.candidate.firstName;
+          } else if (app.candidate?.email) {
+            // Use email username as fallback
+            candidateName = app.candidate.email.split('@')[0];
+          } else if (app.candidateName) {
+            candidateName = app.candidateName;
+          }
+
+          return {
+            id: app.id,
+            candidateId: app.candidateId,
+            candidateName,
+            candidateEmail: app.candidate?.email || app.candidateEmail || '',
+            candidatePhoto: app.candidate?.photo,
+            jobId: app.jobId,
+            jobTitle: app.job?.title || 'Unknown Job',
+            employerName: app.job?.company?.name || 'Unknown Company',
+            appliedDate: new Date(app.appliedDate),
+            status: mapApplicationStatus(app.status),
+            stage: mapApplicationStage(app.stage),
+            resumeUrl: app.resumeUrl,
+            coverLetterUrl: app.coverLetterUrl,
+            portfolioUrl: app.portfolioUrl,
+            linkedInUrl: app.linkedInUrl,
+            customAnswers: app.customAnswers || [],
+            isRead: app.isRead,
+            isNew: app.isNew,
+            tags: app.tags || [],
+            score: app.score,
+            rank: app.rank,
+            aiMatchScore: app.score, // Use score as AI match score if available
+            aiAnalysis: app.aiAnalysis || undefined, // Include AI analysis if available
+            shortlisted: app.shortlisted || false,
+            shortlistedAt: app.shortlistedAt ? new Date(app.shortlistedAt) : undefined,
+            shortlistedBy: app.shortlistedBy,
+            manuallyAdded: app.manuallyAdded || false,
+            addedBy: app.addedBy,
+            addedAt: app.addedAt ? new Date(app.addedAt) : undefined,
+            recruiterNotes: app.recruiterNotes,
+            notes: [],
+            activities: [],
+            interviews: [],
+            createdAt: new Date(app.createdAt),
+            updatedAt: new Date(app.updatedAt),
+          };
+        });
         setApplications(mappedApplications);
       } catch (error) {
         console.error('Failed to load applications:', error);
@@ -133,14 +253,67 @@ export function ApplicationPipeline({
     setActiveId(event.active.id as string);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (over && active.id !== over.id) {
-      const application = applications.find((app) => app.id === active.id);
-      const targetStage = over.id as ApplicationStage;
+    if (!over) {
+      setActiveId(null);
+      return;
+    }
 
-      if (application && targetStage) {
+    const application = applications.find((app) => app.id === active.id);
+    if (!application) {
+      setActiveId(null);
+      return;
+    }
+
+    // Check if dropped on a stage column (droppable area)
+    const stageIds = pipelineStages.map(s => s.stage);
+    let targetStage: ApplicationStage | null = null;
+
+    if (stageIds.includes(over.id as ApplicationStage)) {
+      // Dropped directly on a stage column
+      targetStage = over.id as ApplicationStage;
+    } else {
+      // Dropped on another card - find which stage that card belongs to
+      const targetApplication = applications.find((app) => app.id === over.id);
+      if (targetApplication) {
+        targetStage = targetApplication.stage;
+      }
+    }
+
+    // Only update if moving to a different stage
+    if (targetStage && targetStage !== application.stage) {
+      await handleStageChange(application.id, targetStage);
+    }
+
+    setActiveId(null);
+  };
+
+  const handleStageChange = async (applicationId: string, newStage: ApplicationStage) => {
+    try {
+      // Map frontend stage to backend stage format
+      const stageMap: Record<ApplicationStage, string> = {
+        "New Application": "NEW_APPLICATION",
+        "Resume Review": "RESUME_REVIEW",
+        "Phone Screen": "PHONE_SCREEN",
+        "Technical Interview": "TECHNICAL_INTERVIEW",
+        "Manager Interview": "ONSITE_INTERVIEW",
+        "Final Round": "ONSITE_INTERVIEW",
+        "Reference Check": "ONSITE_INTERVIEW",
+        "Offer Extended": "OFFER_EXTENDED",
+        "Offer Accepted": "OFFER_ACCEPTED",
+        "Rejected": "REJECTED",
+        "Withdrawn": "REJECTED",
+      };
+
+      const backendStage = stageMap[newStage] || "NEW_APPLICATION";
+
+      // Update via API
+      const response = await applicationService.updateStage(applicationId, backendStage);
+      
+      if (response.success) {
+        // Also update local mock storage for fallback
         const statusMap: Record<ApplicationStage, Application['status']> = {
           "New Application": "applied",
           "Resume Review": "screening",
@@ -154,35 +327,46 @@ export function ApplicationPipeline({
           "Rejected": "rejected",
           "Withdrawn": "withdrawn",
         };
-
-        updateApplicationStatus(application.id, statusMap[targetStage], targetStage);
+        updateApplicationStatus(applicationId, statusMap[newStage], newStage);
+        
+        // Reload applications
         loadApplications();
         
         // Auto-trigger AI interview notification for interview stages
         const interviewStages: ApplicationStage[] = ['Technical Interview', 'Manager Interview', 'Final Round'];
-        if (interviewStages.includes(targetStage)) {
-          // Dynamically import to check for existing interviews
-          import('@/lib/aiInterview/aiInterviewStorage').then(({ getAIInterviewsByCandidate }) => {
-            const existingInterviews = getAIInterviewsByCandidate(application.candidateId);
-            const hasScheduledInterview = existingInterviews.some(
-              i => i.jobId === application.jobId && (i.status === 'scheduled' || i.status === 'in-progress' || i.status === 'completed')
-            );
-            
-            if (!hasScheduledInterview) {
-              toast.success(`Moved to ${targetStage}`, {
-                description: 'Consider scheduling an AI interview for automated screening'
-              });
-            } else {
-              toast.success(`Moved to ${targetStage}`);
-            }
-          });
+        if (interviewStages.includes(newStage)) {
+          const application = applications.find((app) => app.id === applicationId);
+          if (application) {
+            // Dynamically import to check for existing interviews
+            import('@/lib/aiInterview/aiInterviewStorage').then(({ getAIInterviewsByCandidate }) => {
+              const existingInterviews = getAIInterviewsByCandidate(application.candidateId);
+              const hasScheduledInterview = existingInterviews.some(
+                i => i.jobId === application.jobId && (i.status === 'scheduled' || i.status === 'in-progress' || i.status === 'completed')
+              );
+              
+              if (!hasScheduledInterview) {
+                toast.success(`Moved to ${newStage}`, {
+                  description: 'Consider scheduling an AI interview for automated screening'
+                });
+              } else {
+                toast.success(`Moved to ${newStage}`);
+              }
+            });
+          }
         } else {
-          toast.success(`Moved to ${targetStage}`);
+          toast.success(`Moved to ${newStage}`);
         }
+      } else {
+        toast.error('Failed to update stage', {
+          description: response.error || 'Please try again'
+        });
       }
+    } catch (error) {
+      console.error('Failed to update stage:', error);
+      toast.error('Failed to update stage', {
+        description: 'Please try again'
+      });
     }
-
-    setActiveId(null);
   };
 
   const handleApplicationClick = (application: Application) => {
@@ -221,37 +405,19 @@ export function ApplicationPipeline({
           {pipelineStages.map((stageConfig) => {
             const stageApplications = applications.filter((app) => app.stage === stageConfig.stage);
             return (
-              <div key={stageConfig.stage} className="min-w-0">
-                <Card className={`${stageConfig.color} border-2 h-full flex flex-col`}>
-                  <div className="p-3 flex flex-col flex-1">
-                    <div className="flex items-center justify-between mb-3 flex-shrink-0">
-                      <h3 className="font-semibold text-sm">{stageConfig.label}</h3>
-                      <Badge variant="outline" className="text-xs h-6 px-2 rounded-full">
-                        {stageApplications.length}
-                      </Badge>
-                    </div>
-                    <SortableContext items={stageApplications.map((app) => app.id)} strategy={verticalListSortingStrategy}>
-                      <div className="space-y-1.5 flex-1 overflow-y-auto min-h-[150px]">
-                        {stageApplications.map((application) => (
-                          <ApplicationCard
-                            key={application.id}
-                            application={application}
-                            onClick={() => handleApplicationClick(application)}
-                            isCompareMode={isCompareMode}
-                            isSelected={selectedForComparison.includes(application.id)}
-                            onToggleSelect={onToggleSelect}
-                          />
-                        ))}
-                        {stageApplications.length === 0 && (
-                          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">
-                            No applications
-                          </div>
-                        )}
-                      </div>
-                    </SortableContext>
-                  </div>
-                </Card>
-              </div>
+              <StageColumn 
+                key={stageConfig.stage} 
+                stage={stageConfig.stage}
+                label={stageConfig.label}
+                color={stageConfig.color}
+                applications={stageApplications}
+                onApplicationClick={handleApplicationClick}
+                isCompareMode={isCompareMode}
+                selectedForComparison={selectedForComparison}
+                onToggleSelect={onToggleSelect}
+                onStageChange={handleStageChange}
+                pipelineStages={pipelineStages}
+              />
             );
           })}
         </div>

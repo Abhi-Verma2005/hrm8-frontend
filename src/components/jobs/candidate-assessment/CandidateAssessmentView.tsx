@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -75,12 +75,13 @@ export function CandidateAssessmentView({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
-        className="max-w-[95vw] h-[95vh] p-0 gap-0"
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent 
+        side="right"
+        className="w-full sm:max-w-4xl lg:max-w-5xl xl:max-w-6xl p-0 gap-0 h-full overflow-hidden"
         onKeyDown={handleKeyDown}
       >
-        <div ref={containerRef} className="flex flex-col h-full relative">
+        <div ref={containerRef} className="flex flex-col h-full relative overflow-hidden">
           <CursorOverlay cursors={cursors} />
           {/* Header */}
           <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -241,7 +242,7 @@ export function CandidateAssessmentView({
             </Tabs>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,10 +16,11 @@ import {
   CheckCircle2,
   Clock
 } from 'lucide-react';
-import { getAIInterviewsByJob } from '@/lib/aiInterview/aiInterviewStorage';
+import { videoInterviewService, type VideoInterview } from '@/lib/videoInterviewService';
 import { format } from 'date-fns';
 import { JobAIInterviewSettings } from './JobAIInterviewSettings';
 import { BulkScheduleDialog } from './BulkScheduleDialog';
+import { useToast } from '@/hooks/use-toast';
 import type { Job } from '@/types/job';
 
 interface JobAIInterviewsTabProps {
@@ -28,19 +29,44 @@ interface JobAIInterviewsTabProps {
 
 export function JobAIInterviewsTab({ job }: JobAIInterviewsTabProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [showSettings, setShowSettings] = useState(false);
   const [showBulkSchedule, setShowBulkSchedule] = useState(false);
-  const interviews = getAIInterviewsByJob(job.id);
-  
-  const completedInterviews = interviews.filter(i => i.status === 'completed');
-  const scheduledInterviews = interviews.filter(i => i.status === 'scheduled');
-  const inProgressInterviews = interviews.filter(i => i.status === 'in-progress');
-  
-  const avgScore = completedInterviews.length > 0
-    ? Math.round(completedInterviews.reduce((sum, i) => sum + (i.analysis?.overallScore || 0), 0) / completedInterviews.length)
-    : null;
+  const [interviews, setInterviews] = useState<VideoInterview[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const strongCandidates = completedInterviews.filter(i => (i.analysis?.overallScore || 0) >= 75).length;
+  useEffect(() => {
+    loadInterviews();
+  }, [job.id]);
+
+  const loadInterviews = async () => {
+    setIsLoading(true);
+    try {
+      const response = await videoInterviewService.getJobInterviews(job.id);
+      if (response.success && response.data) {
+        setInterviews(response.data.interviews);
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Failed to load interviews',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load interviews:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load interviews',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const completedInterviews = interviews.filter(i => i.status === 'COMPLETED');
+  const scheduledInterviews = interviews.filter(i => i.status === 'SCHEDULED');
+  const inProgressInterviews = interviews.filter(i => i.status === 'IN_PROGRESS');
 
   return (
     <div className="space-y-6">
@@ -54,28 +80,20 @@ export function JobAIInterviewsTab({ job }: JobAIInterviewsTabProps) {
         </Card>
         <Card>
           <CardHeader className="pb-3">
+            <CardDescription>Scheduled</CardDescription>
+            <CardTitle className="text-3xl text-blue-600">{scheduledInterviews.length}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription>In Progress</CardDescription>
+            <CardTitle className="text-3xl text-yellow-600">{inProgressInterviews.length}</CardTitle>
+          </CardHeader>
+        </Card>
+        <Card>
+          <CardHeader className="pb-3">
             <CardDescription>Completed</CardDescription>
-            <CardTitle className="text-3xl">{completedInterviews.length}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription>Average Score</CardDescription>
-            <CardTitle className="text-3xl">
-              {avgScore !== null ? (
-                <span className={avgScore >= 75 ? 'text-green-600' : avgScore >= 60 ? 'text-yellow-600' : 'text-red-600'}>
-                  {avgScore}
-                </span>
-              ) : (
-                <span className="text-muted-foreground text-xl">N/A</span>
-              )}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardDescription>Strong Candidates (75+)</CardDescription>
-            <CardTitle className="text-3xl text-green-600">{strongCandidates}</CardTitle>
+            <CardTitle className="text-3xl text-green-600">{completedInterviews.length}</CardTitle>
           </CardHeader>
         </Card>
       </div>
@@ -150,10 +168,14 @@ export function JobAIInterviewsTab({ job }: JobAIInterviewsTabProps) {
           </div>
         </CardHeader>
         <CardContent>
-          {interviews.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading interviews...</p>
+            </div>
+          ) : interviews.length === 0 ? (
             <div className="text-center py-12">
               <Video className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground mb-4">No AI interviews scheduled yet</p>
+              <p className="text-muted-foreground mb-4">No video interviews scheduled yet</p>
               <Button onClick={() => setShowBulkSchedule(true)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Schedule First Interview
@@ -187,65 +209,53 @@ export function JobAIInterviewsTab({ job }: JobAIInterviewsTabProps) {
 
               {/* Interview Cards */}
               <div className="space-y-3">
-                {interviews.slice(0, 10).map((interview) => (
-                  <div
-                    key={interview.id}
-                    className="border rounded-lg p-4 hover:bg-accent transition-colors cursor-pointer"
-                    onClick={() => navigate(`/ai-interviews/${interview.id}`)}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-semibold">{interview.candidateName}</h4>
-                          <Badge variant={interview.status === 'completed' ? 'outline' : 'secondary'}>
-                            {interview.status}
-                          </Badge>
-                        </div>
-                        
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            <span>{format(new Date(interview.scheduledDate), 'PPp')}</span>
-                          </div>
-                          <span className="capitalize">{interview.interviewMode}</span>
-                        </div>
-
-                        {interview.analysis && (
-                          <div className="flex items-center gap-4 pt-2">
-                            <div className="flex items-center gap-2">
-                              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                              <span className={`text-lg font-bold ${
-                                interview.analysis.overallScore >= 85 ? 'text-green-600' :
-                                interview.analysis.overallScore >= 70 ? 'text-blue-600' :
-                                interview.analysis.overallScore >= 60 ? 'text-yellow-600' :
-                                'text-red-600'
-                              }`}>
-                                {interview.analysis.overallScore}
-                              </span>
-                            </div>
-                            <Badge variant="outline" className="capitalize">
-                              {interview.analysis.recommendation.replace('-', ' ')}
+                {interviews.slice(0, 10).map((interview) => {
+                  const candidateName = interview.application?.candidateName || 
+                                       (interview.candidate ? `${interview.candidate.firstName} ${interview.candidate.lastName}` : 'Unknown');
+                  const jobTitle = interview.application?.jobTitle || interview.job?.title || 'Unknown Position';
+                  
+                  return (
+                    <div
+                      key={interview.id}
+                      className="border rounded-lg p-4 hover:bg-accent transition-colors cursor-pointer"
+                      onClick={() => navigate(`/ai-interviews/${interview.id}`)}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-semibold">{candidateName}</h4>
+                            <Badge variant={interview.status === 'COMPLETED' ? 'outline' : 'secondary'}>
+                              {interview.status.replace('_', ' ')}
                             </Badge>
                           </div>
-                        )}
+                          
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              <span>{format(new Date(interview.scheduledDate), 'PPp')}</span>
+                            </div>
+                            <span className="capitalize">{interview.type.replace('_', ' ').toLowerCase()}</span>
+                            <span>{interview.duration} min</span>
+                          </div>
+
+                          {interview.meetingLink && (
+                            <div className="pt-2">
+                              <a
+                                href={interview.meetingLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-primary hover:underline"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Join Meeting →
+                              </a>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      
-                      {interview.reportId && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/ai-interviews/reports/${interview.reportId}`);
-                          }}
-                        >
-                          <FileText className="h-4 w-4 mr-1" />
-                          Report
-                        </Button>
-                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {interviews.length > 10 && (
@@ -274,6 +284,7 @@ export function JobAIInterviewsTab({ job }: JobAIInterviewsTabProps) {
           job={job}
           open={showBulkSchedule}
           onOpenChange={setShowBulkSchedule}
+          onScheduled={loadInterviews}
         />
       )}
     </div>

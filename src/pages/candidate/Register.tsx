@@ -17,7 +17,12 @@ import logoLight from "@/assets/logo-light.png";
 
 const registerSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+    .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+    .regex(/[0-9]/, 'Password must contain at least one number'),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
   phone: z.string().optional(),
@@ -61,14 +66,20 @@ export default function CandidateRegister() {
 
   const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
-    await registerCandidate({
+    const result = await registerCandidate({
       email: data.email,
       password: data.password,
       firstName: data.firstName,
       lastName: data.lastName,
-      phone: data.phone,
+      phone: data.phone?.trim() || undefined,
     });
     setIsLoading(false);
+    
+    // If registration was successful, navigation is handled by the context
+    if (!result.success) {
+      // Error toast is already shown by the context
+      // User can try again
+    }
   };
 
   return (

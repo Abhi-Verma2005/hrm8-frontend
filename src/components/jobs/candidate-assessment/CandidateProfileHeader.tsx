@@ -47,7 +47,12 @@ export function CandidateProfileHeader({ application, jobTitle }: CandidateProfi
     return colors[stage] || "bg-muted text-muted-foreground";
   };
 
-  const initials = `${application.candidateName.split(' ')[0]?.[0] || ''}${application.candidateName.split(' ')[1]?.[0] || ''}`.toUpperCase();
+  const getInitials = (name: string | undefined) => {
+    if (!name) return "??";
+    const parts = name.split(' ');
+    return `${parts[0]?.[0] || ''}${parts[1]?.[0] || ''}`.toUpperCase();
+  };
+  const initials = getInitials(application.candidateName);
 
   return (
     <div className="px-6 py-4 space-y-4">
@@ -62,7 +67,7 @@ export function CandidateProfileHeader({ application, jobTitle }: CandidateProfi
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1 min-w-0">
-              <h2 className="text-2xl font-bold truncate">{application.candidateName}</h2>
+              <h2 className="text-2xl font-bold truncate">{application.candidateName || 'Unknown Candidate'}</h2>
               <p className="text-muted-foreground text-sm mt-1">
                 Applied for <span className="font-medium text-foreground">{jobTitle}</span>
               </p>

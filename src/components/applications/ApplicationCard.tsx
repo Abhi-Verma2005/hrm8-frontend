@@ -4,7 +4,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Star, Calendar, FileText, MoreVertical, Mail, Phone, Sparkles, MessageSquare, Users, Bell } from "lucide-react";
+import { Star, Calendar, FileText, MoreVertical, Mail, Phone, Sparkles, MessageSquare, Users, Bell, Info, Eye, CheckCircle2 } from "lucide-react";
+import { AIAnalysisView } from "./screening/AIAnalysisView";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDistanceToNow } from "date-fns";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -28,6 +30,8 @@ import { ApplicationReviewPanel } from "./ApplicationReviewPanel";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { getConsensusMetrics } from "@/lib/applications/collaborativeReview";
 import { isFollowing, followApplication, unfollowApplication } from "@/lib/applications/notifications";
+import { useToast } from "@/hooks/use-toast";
+import { applicationService } from "@/lib/applicationService";
 
 interface ApplicationCardProps {
   application: Application;
@@ -35,6 +39,7 @@ interface ApplicationCardProps {
   isCompareMode?: boolean;
   isSelected?: boolean;
   onToggleSelect?: (applicationId: string) => void;
+  showOnlyReview?: boolean; // If true, only show Review button (for pipeline view)
 }
 
 export function ApplicationCard({ 
@@ -42,9 +47,11 @@ export function ApplicationCard({
   onClick,
   isCompareMode = false,
   isSelected = false,
-  onToggleSelect
+  onToggleSelect,
+  showOnlyReview = false
 }: ApplicationCardProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [showQuestionDialog, setShowQuestionDialog] = useState(false);
   const [showScheduleAIInterview, setShowScheduleAIInterview] = useState(false);
   const [generatedQuestions, setGeneratedQuestions] = useState<ReturnType<typeof generateQuestionsFromApplication>>([]);
@@ -53,6 +60,8 @@ export function ApplicationCard({
   const [reviewCount, setReviewCount] = useState(0);
   const [voteCount, setVoteCount] = useState(0);
   const [following, setFollowing] = useState(false);
+  const [showAIAnalysis, setShowAIAnalysis] = useState(false);
+  const [isShortlisting, setIsShortlisting] = useState(false);
 
   useEffect(() => {
     const metrics = getConsensusMetrics(application.id);
@@ -101,6 +110,34 @@ export function ApplicationCard({
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleShortlist = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (application.shortlisted) {
+      return;
+    }
+
+    setIsShortlisting(true);
+    try {
+      await applicationService.shortlistCandidate(application.id);
+      toast({
+        title: "Candidate Shortlisted",
+        description: `${application.candidateName || "Candidate"} has been added to shortlist.`,
+      });
+      // Refresh if there's a refresh callback
+      if (onClick) {
+        onClick();
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to shortlist candidate.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsShortlisting(false);
+    }
   };
 
   const handleGenerateQuestions = (e: React.MouseEvent) => {
@@ -202,12 +239,52 @@ export function ApplicationCard({
 
             {/* AI Match Badge - Prominent */}
             {application.aiMatchScore && (
-              <div className="mt-1.5">
-                <AIMatchBadge score={application.aiMatchScore} size="sm" />
+              <div className="mt-1.5 space-y-1">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <AIMatchBadge score={application.aiMatchScore} size="sm" />
+                  {application.aiAnalysis?.recommendation && (
+                    <Badge 
+                      variant="outline" 
+                      className={`text-[10px] px-1 py-0 h-4 ${
+                        application.aiAnalysis.recommendation === 'strong_hire' || application.aiAnalysis.recommendation === 'hire' 
+                          ? 'border-green-500 text-green-700 dark:text-green-400' 
+                          : application.aiAnalysis.recommendation === 'maybe'
+                          ? 'border-yellow-500 text-yellow-700 dark:text-yellow-400'
+                          : 'border-red-500 text-red-700 dark:text-red-400'
+                      }`}
+                    >
+                      {application.aiAnalysis.recommendation === 'strong_hire' ? 'Strong Hire' :
+                       application.aiAnalysis.recommendation === 'hire' ? 'Hire' :
+                       application.aiAnalysis.recommendation === 'maybe' ? 'Maybe' :
+                       application.aiAnalysis.recommendation === 'no_hire' ? 'No Hire' :
+                       'Strong No Hire'}
+                    </Badge>
+                  )}
+                </div>
+                {/* AI Review/Justification - Compact */}
+                {application.aiAnalysis?.justification && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className="flex items-start gap-1 text-[10px] text-muted-foreground cursor-help group">
+                          <Info className="h-2.5 w-2.5 mt-0.5 flex-shrink-0 opacity-60 group-hover:opacity-100" />
+                          <p className="line-clamp-1 leading-tight">
+                            {application.aiAnalysis.justification.length > 80 
+                              ? `${application.aiAnalysis.justification.substring(0, 80)}...` 
+                              : application.aiAnalysis.justification}
+                          </p>
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-sm p-3">
+                        <p className="text-xs leading-relaxed">{application.aiAnalysis.justification}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </div>
             )}
 
-            {/* Compact Rating and Score */}
+            {/* Compact Rating, Score, Rank, and Shortlisted */}
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
               {application.rating && (
                 <div className="flex items-center gap-0.5">
@@ -223,9 +300,19 @@ export function ApplicationCard({
                   ))}
                 </div>
               )}
-              {application.score && (
+              {application.score !== undefined && (
                 <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">
-                  {application.score}% fit
+                  {Math.round(application.score)}% fit
+                </Badge>
+              )}
+              {application.rank !== undefined && (
+                <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
+                  #{application.rank}
+                </Badge>
+              )}
+              {application.shortlisted && (
+                <Badge variant="default" className="text-[10px] px-1 py-0 h-4 bg-green-500">
+                  Shortlisted
                 </Badge>
               )}
               <AIInterviewScoreBadge candidateId={application.candidateId} variant="compact" />
@@ -273,9 +360,94 @@ export function ApplicationCard({
                 {voteCount > 0 && ` • ${voteCount} votes`}
               </Button>
             )}
+
+            {/* Action Buttons */}
+            {!isCompareMode && (
+              <div className="flex flex-col gap-2 mt-2 pt-2 border-t">
+                {showOnlyReview ? (
+                  // Pipeline view - only show Review button
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full text-xs h-7"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onClick?.();
+                    }}
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
+                    Review
+                  </Button>
+                ) : (
+                  // Full view - show all buttons
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 text-xs h-7"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onClick?.();
+                        }}
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        Review
+                      </Button>
+                      {application.aiAnalysis && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1 text-xs h-7"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowAIAnalysis(true);
+                          }}
+                        >
+                          <Sparkles className="h-3 w-3 mr-1" />
+                          AI Analysis
+                        </Button>
+                      )}
+                    </div>
+                    {!application.shortlisted && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                        className="w-full text-xs h-7"
+                        onClick={handleShortlist}
+                        disabled={isShortlisting}
+                      >
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        Shortlist
+                      </Button>
+                    )}
+                    {application.shortlisted && (
+                      <Badge variant="default" className="bg-green-500 text-xs w-full justify-center h-7">
+                        Shortlisted
+                      </Badge>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </Card>
+
+      {/* AI Analysis Dialog */}
+      {application.aiAnalysis && (
+        <Dialog open={showAIAnalysis} onOpenChange={setShowAIAnalysis}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                AI Analysis: {application.candidateName}
+              </DialogTitle>
+            </DialogHeader>
+            <AIAnalysisView analysis={application.aiAnalysis} />
+          </DialogContent>
+        </Dialog>
+      )}
 
       <ApplicationReviewDialog
         applicationId={application.id}

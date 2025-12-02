@@ -608,7 +608,23 @@ export default function Jobs() {
       key: 'serviceType',
       label: 'Service',
       sortable: true,
-      render: (job) => <ServiceTypeBadge type={job.serviceType} />
+      render: (job) => (
+        <div className="flex flex-col gap-1">
+          <ServiceTypeBadge type={job.serviceType} />
+          {job.serviceType !== 'self-managed' && (
+            <button
+              type="button"
+              className="text-[11px] text-primary underline-offset-2 hover:underline text-left"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/jobs/${job.id}?tab=service`);
+              }}
+            >
+              View recruitment workflow
+            </button>
+          )}
+        </div>
+      )
     },
     {
       key: 'postedDate',

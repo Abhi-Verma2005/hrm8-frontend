@@ -52,6 +52,16 @@ export function CandidateAuthProvider({ children }: { children: ReactNode }) {
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await candidateAuthService.login({ email, password });
+      if (!response.success) {
+        const errorMessage = response.error || 'Login failed. Please check your credentials.';
+        toast({
+          title: 'Login failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return { success: false, error: errorMessage };
+      }
+      
       if (response.data?.candidate) {
         setCandidate(response.data.candidate);
         toast({
@@ -63,7 +73,7 @@ export function CandidateAuthProvider({ children }: { children: ReactNode }) {
       }
       return { success: false, error: 'Login failed' };
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || 'Login failed. Please check your credentials.';
+      const errorMessage = error?.message || 'Login failed. Please check your credentials.';
       toast({
         title: 'Login failed',
         description: errorMessage,
@@ -78,6 +88,16 @@ export function CandidateAuthProvider({ children }: { children: ReactNode }) {
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await candidateAuthService.register(data);
+      if (!response.success) {
+        const errorMessage = response.error || 'Registration failed. Please try again.';
+        toast({
+          title: 'Registration failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+        return { success: false, error: errorMessage };
+      }
+      
       if (response.data?.candidate) {
         setCandidate(response.data.candidate);
         toast({
@@ -89,7 +109,7 @@ export function CandidateAuthProvider({ children }: { children: ReactNode }) {
       }
       return { success: false, error: 'Registration failed' };
     } catch (error: any) {
-      const errorMessage = error.response?.data?.error || 'Registration failed. Please try again.';
+      const errorMessage = error?.message || 'Registration failed. Please try again.';
       toast({
         title: 'Registration failed',
         description: errorMessage,

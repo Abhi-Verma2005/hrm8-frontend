@@ -1,13 +1,9 @@
 import type { Application } from '@/types/application';
+import type { Job } from '@/types/job';
+import { applicationService } from './applicationService';
 
 export interface ScoringCriteria {
-  jobRequirements: string;
-  weights: {
-    skills: number;
-    experience: number;
-    education: number;
-    cultural_fit: number;
-  };
+  job: Job;
 }
 
 export interface BulkScoringProgress {
@@ -25,27 +21,38 @@ export interface BulkScoringResult {
   scoreDelta: number;
   success: boolean;
   error?: string;
+  fullAnalysis?: {
+    scores: {
+      skills: number;
+      experience: number;
+      education: number;
+      interview: number;
+      culture: number;
+      overall: number;
+    };
+    strengths: string[];
+    concerns: string[];
+    recommendation: string;
+    justification: string;
+    improvementAreas: string[];
+    detailedAnalysis: {
+      skillsAnalysis: string;
+      experienceAnalysis: string;
+      educationAnalysis: string;
+      culturalFitAnalysis: string;
+      overallAssessment: string;
+    };
+  };
 }
 
-// Mock AI scoring function - simulates scoring a single candidate
+// Note: Individual scoring is now handled by backend bulk endpoint
+// This function is kept for compatibility but bulk scoring happens server-side
 async function scoreCandidate(
   application: Application,
   criteria: ScoringCriteria
-): Promise<number> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 400));
-  
-  // Mock scoring algorithm based on criteria weights
-  const baseScore = Math.random() * 40 + 40; // 40-80 base
-  const skillsBonus = criteria.weights.skills * 0.15;
-  const experienceBonus = criteria.weights.experience * 0.1;
-  const educationBonus = criteria.weights.education * 0.05;
-  
-  const newScore = Math.min(100, Math.max(0, 
-    baseScore + skillsBonus + experienceBonus + educationBonus
-  ));
-  
-  return Math.round(newScore);
+): Promise<{ score: number; fullAnalysis?: any }> {
+  // This should not be called directly - use bulkScoreCandidates instead
+  throw new Error('Individual scoring should use backend bulk endpoint');
 }
 
 export async function bulkScoreCandidates(
@@ -53,54 +60,93 @@ export async function bulkScoreCandidates(
   criteria: ScoringCriteria,
   onProgress: (progress: BulkScoringProgress) => void
 ): Promise<BulkScoringResult[]> {
-  const results: BulkScoringResult[] = [];
-  let completed = 0;
-  let failed = 0;
-
-  for (const application of applications) {
-    onProgress({
-      total: applications.length,
-      completed,
-      failed,
-      currentCandidate: application.candidateName,
-    });
-
-    try {
-      const newScore = await scoreCandidate(application, criteria);
-      const oldScore = application.aiMatchScore;
-      
-      results.push({
-        applicationId: application.id,
-        candidateName: application.candidateName,
-        oldScore,
-        newScore,
-        scoreDelta: oldScore ? newScore - oldScore : 0,
-        success: true,
-      });
-      
-      completed++;
-    } catch (error) {
-      results.push({
-        applicationId: application.id,
-        candidateName: application.candidateName,
-        oldScore: application.aiMatchScore,
-        newScore: application.aiMatchScore || 0,
-        scoreDelta: 0,
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-      });
-      
-      failed++;
-    }
-  }
-
-  onProgress({
-    total: applications.length,
-    completed,
-    failed,
+  console.log('🚀 Starting bulk scoring via backend API...', {
+    candidateCount: applications.length,
+    jobId: criteria.job.id,
   });
 
-  return results;
+  const applicationIds = applications.map(app => app.id);
+  const jobId = criteria.job.id;
+
+  try {
+    // Call backend API for bulk scoring
+    const response = await applicationService.bulkScoreCandidates(applicationIds, jobId);
+    
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Bulk scoring failed');
+    }
+
+    const { results: backendResults, progress: backendProgress } = response.data;
+
+    // Map backend results to frontend format
+    const results: BulkScoringResult[] = applications.map((application) => {
+      const backendResult = backendResults.find(r => r.applicationId === application.id);
+      
+      if (backendResult && backendResult.success) {
+        return {
+          applicationId: application.id,
+          candidateName: application.candidateName,
+          oldScore: application.aiMatchScore,
+          newScore: backendResult.score,
+          scoreDelta: application.aiMatchScore ? backendResult.score - application.aiMatchScore : 0,
+          success: true,
+          fullAnalysis: backendResult.analysis,
+        };
+      } else {
+        return {
+          applicationId: application.id,
+          candidateName: application.candidateName,
+          oldScore: application.aiMatchScore,
+          newScore: application.aiMatchScore || 0,
+          scoreDelta: 0,
+          success: false,
+          error: backendResult ? 'Scoring failed on backend' : 'Result not found',
+        };
+      }
+    });
+
+    // Emit progress updates based on backend progress
+    if (backendProgress && backendProgress.length > 0) {
+      backendProgress.forEach((progress) => {
+        onProgress({
+          total: progress.total,
+          completed: progress.completed,
+          failed: progress.total - progress.completed,
+          currentCandidate: progress.current,
+        });
+      });
+    } else {
+      // Final progress update
+      const successful = results.filter(r => r.success).length;
+      const failed = results.filter(r => !r.success).length;
+      onProgress({
+        total: applications.length,
+        completed: successful,
+        failed,
+      });
+    }
+
+    console.log('✅ Bulk scoring completed:', {
+      total: results.length,
+      successful: results.filter(r => r.success).length,
+      failed: results.filter(r => !r.success).length,
+    });
+
+    return results;
+  } catch (error) {
+    console.error('❌ Bulk scoring failed:', error);
+    
+    // Return failed results for all candidates
+    return applications.map((application) => ({
+      applicationId: application.id,
+      candidateName: application.candidateName,
+      oldScore: application.aiMatchScore,
+      newScore: application.aiMatchScore || 0,
+      scoreDelta: 0,
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }));
+  }
 }
 
 export function getScoreChangeLabel(delta: number): string {
