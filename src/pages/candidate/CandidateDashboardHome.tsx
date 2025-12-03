@@ -17,16 +17,20 @@ import {
   Briefcase,
   FileText,
   User,
+  Bell,
 } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 export default function CandidateDashboardHome() {
   const { candidate } = useCandidateAuth();
   const navigate = useNavigate();
   const [recentApplications, setRecentApplications] = useState<Application[]>([]);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [profileCompleteness, setProfileCompleteness] = useState(0);
 
   useEffect(() => {
     loadRecentApplications();
+    loadNotifications();
     calculateProfileCompleteness();
   }, [candidate]);
 
@@ -37,6 +41,19 @@ export default function CandidateDashboardHome() {
       setRecentApplications(apps.slice(0, 5));
     } catch (error) {
       console.error('Failed to load applications:', error);
+    }
+  };
+
+  const loadNotifications = async () => {
+    try {
+      const { apiClient } = await import('@/lib/api');
+      const response = await apiClient.get('/candidate/notifications?limit=5');
+      const data = response.data as { success: boolean; data: { notifications: any[] } };
+      if (data.success) {
+        setNotifications(data.data.notifications);
+      }
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
     }
   };
 
@@ -114,32 +131,209 @@ export default function CandidateDashboardHome() {
           subtitle={`Welcome back, ${candidate?.firstName}!`}
         />
 
-        {/* Profile Completeness */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">Profile Completeness</CardTitle>
-            <CardDescription className="text-sm">
-              Complete your profile to improve your job matches
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>{profileCompleteness}% Complete</span>
-                <span className="text-muted-foreground">{100 - profileCompleteness}% remaining</span>
+        {/* Dashboard Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Profile Completeness */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold">Profile Completeness</CardTitle>
+              <CardDescription className="text-sm">
+                Complete your profile to improve your job matches
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span>{profileCompleteness}% Complete</span>
+                  <span className="text-muted-foreground">{100 - profileCompleteness}% remaining</span>
+                </div>
+                <Progress value={profileCompleteness} />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/candidate/profile')}
+                  className="mt-4 w-full"
+                >
+                  Complete Profile
+                </Button>
               </div>
-              <Progress value={profileCompleteness} />
+            </CardContent>
+          </Card>
+
+          {/* Browse Jobs */}
+          <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => navigate('/candidate/jobs')}>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <Briefcase className="h-5 w-5" />
+                Browse Jobs
+              </CardTitle>
+              <CardDescription className="text-sm">
+                Search and apply for new opportunities
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
               <Button
-                variant="outline"
                 size="sm"
-                onClick={() => navigate('/candidate/profile')}
-                className="mt-4"
+                className="w-full"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate('/candidate/jobs');
+                }}
               >
-                Complete Profile
+                <Briefcase className="h-4 w-4 mr-2" />
+                Browse Jobs
               </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recommended Jobs & Notifications */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Recommended Jobs */}
+          <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base font-semibold">Recommended Jobs</CardTitle>
+                    <CardDescription className="text-sm">Jobs matching your profile</CardDescription>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/candidate/jobs')}
+                  >
+                    View All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {[
+                    {
+                      id: '1',
+                      title: 'Senior Software Engineer',
+                      company: 'Tech Corp',
+                      location: 'Remote',
+                      type: 'Full-time',
+                      match: 95,
+                    },
+                    {
+                      id: '2',
+                      title: 'Full Stack Developer',
+                      company: 'StartupXYZ',
+                      location: 'New York, NY',
+                      type: 'Full-time',
+                      match: 88,
+                    },
+                    {
+                      id: '3',
+                      title: 'Frontend Engineer',
+                      company: 'Design Studio',
+                      location: 'San Francisco, CA',
+                      type: 'Contract',
+                      match: 82,
+                    },
+                  ].map((job) => (
+                    <div
+                      key={job.id}
+                      className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors"
+                      onClick={() => navigate('/candidate/jobs')}
+                    >
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
+                        <Briefcase className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{job.title}</p>
+                            <p className="text-xs text-muted-foreground">{job.company}</p>
+                          </div>
+                          <Badge variant="secondary" className="text-xs shrink-0">
+                            {job.match}% match
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {job.type}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground">
+                            {job.location}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Notifications Preview */}
+          <div>
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="text-base font-semibold">Notifications</CardTitle>
+                    <CardDescription className="text-sm">Recent updates</CardDescription>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 text-xs"
+                    onClick={() => navigate('/candidate/notifications')}
+                  >
+                    View All
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {notifications.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No new notifications</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {notifications.map((notification) => (
+                      <div
+                        key={notification.id}
+                        className="flex items-start gap-3 pb-3 border-b last:border-0 last:pb-0 cursor-pointer hover:bg-muted/50 p-2 rounded-md transition-colors"
+                        onClick={() => navigate('/candidate/notifications')}
+                      >
+                        <div className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${notification.type === 'JOB_ALERT' ? 'bg-blue-500/10' : 'bg-orange-500/10'
+                          }`}>
+                          {notification.type === 'JOB_ALERT' ? (
+                            <Briefcase className={`h-4 w-4 ${!notification.read ? 'text-blue-500' : 'text-blue-500/50'}`} />
+                          ) : (
+                            <Bell className={`h-4 w-4 ${!notification.read ? 'text-orange-500' : 'text-orange-500/50'}`} />
+                          )}
+                        </div>
+                        <div className="flex-1 space-y-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className={`text-sm ${!notification.read ? 'font-semibold' : 'font-medium'} truncate`}>
+                              {notification.title}
+                            </p>
+                            {!notification.read && (
+                              <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1" />
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground line-clamp-2">
+                            {notification.message}
+                          </p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         {/* Recent Applications */}
         <Card>
@@ -200,39 +394,7 @@ export default function CandidateDashboardHome() {
             )}
           </CardContent>
         </Card>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card className="cursor-pointer" onClick={() => navigate('/candidate/jobs')}>
-            <CardHeader>
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <Briefcase className="h-5 w-5" />
-                Browse Jobs
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Search and apply for new opportunities
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="cursor-pointer" onClick={() => navigate('/candidate/profile')}>
-            <CardHeader>
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Update Profile
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Keep your profile up to date
-              </p>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </CandidatePageLayout>
   );
 }
-

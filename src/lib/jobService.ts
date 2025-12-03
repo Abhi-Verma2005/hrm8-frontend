@@ -10,6 +10,7 @@ export interface PublicJob {
   title: string;
   description: string;
   jobSummary?: string;
+  category?: string;
   location: string;
   department?: string;
   workArrangement: string;
