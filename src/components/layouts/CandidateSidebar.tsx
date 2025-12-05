@@ -12,6 +12,7 @@ import {
   Briefcase,
   GraduationCap,
   Bell,
+  FolderOpen,
 } from "lucide-react";
 import {
   Sidebar,
@@ -35,6 +36,7 @@ const menuItems = [
   { path: "/candidate/profile", label: "My Profile", icon: User },
   { path: "/candidate/work-history", label: "Work History", icon: Briefcase },
   { path: "/candidate/qualifications", label: "Qualifications", icon: GraduationCap },
+  { path: "/candidate/documents", label: "Documents", icon: FolderOpen },
   { path: "/candidate/applications", label: "Applications", icon: FileText },
   { path: "/candidate/saved-jobs", label: "Saved Jobs", icon: Bookmark },
   { path: "/candidate/settings", label: "Settings", icon: Settings },

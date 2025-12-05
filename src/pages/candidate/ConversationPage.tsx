@@ -14,6 +14,8 @@ import { MessageInput } from '@/components/messages/MessageInput';
 import { ConversationData } from '@/types/websocket';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 
 export default function CandidateConversationPage() {
   const { conversationId } = useParams<{ conversationId: string }>();
@@ -80,24 +82,23 @@ export default function CandidateConversationPage() {
   const conversationMessages = messages[conversationId] || [];
 
   return (
-    <div className="p-6 h-full">
-      <div className="mb-4 flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/candidate/messages')}
+    <CandidatePageLayout>
+      <div className="p-6 space-y-6 h-full">
+        <AtsPageHeader
+          title="Messages"
+          subtitle={conversation.candidate
+            ? `Conversation with ${conversation.candidate.firstName} ${conversation.candidate.lastName}`
+            : 'Conversation'}
         >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold">Messages</h1>
-          <p className="text-muted-foreground">
-            {conversation.candidate
-              ? `Conversation with ${conversation.candidate.firstName} ${conversation.candidate.lastName}`
-              : 'Conversation'}
-          </p>
-        </div>
-      </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/candidate/messages')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+        </AtsPageHeader>
       <div className="h-[calc(100vh-200px)] flex flex-col border rounded-lg overflow-hidden">
         <div className="border-b bg-card">
           <ConversationHeader
@@ -115,7 +116,8 @@ export default function CandidateConversationPage() {
           disabled={!isConnected}
         />
       </div>
-    </div>
+      </div>
+    </CandidatePageLayout>
   );
 }
 

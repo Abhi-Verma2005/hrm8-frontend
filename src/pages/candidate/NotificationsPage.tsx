@@ -7,6 +7,8 @@ import { Separator } from '@/components/ui/separator';
 import { apiClient } from '@/lib/api';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 
 interface Notification {
     id: string;
@@ -107,23 +109,21 @@ export default function NotificationsPage() {
     };
 
     return (
-        <div className="container mx-auto p-6 max-w-4xl">
-            <div className="flex items-center justify-between mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold">Notifications</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Stay updated with job alerts and important updates
-                    </p>
-                </div>
-                {unreadCount > 0 && (
-                    <Button onClick={markAllAsRead} variant="outline">
-                        <Check className="h-4 w-4 mr-2" />
-                        Mark all as read
-                    </Button>
-                )}
-            </div>
+        <CandidatePageLayout>
+            <div className="p-6 space-y-6">
+                <AtsPageHeader
+                    title="Notifications"
+                    subtitle="Stay updated with job alerts and important updates"
+                >
+                    {unreadCount > 0 && (
+                        <Button onClick={markAllAsRead} variant="outline" size="sm">
+                            <Check className="h-4 w-4 mr-2" />
+                            Mark all as read
+                        </Button>
+                    )}
+                </AtsPageHeader>
 
-            {loading ? (
+                {loading ? (
                 <Card>
                     <CardContent className="flex items-center justify-center py-12">
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -144,7 +144,7 @@ export default function NotificationsPage() {
                     {notifications.map((notification) => (
                         <Card
                             key={notification.id}
-                            className={`cursor-pointer transition-all hover:shadow-md ${!notification.read ? 'border-l-4 border-l-blue-500 bg-accent/30' : ''
+                            className={`cursor-pointer ${!notification.read ? 'bg-accent/30' : ''
                                 }`}
                             onClick={() => handleNotificationClick(notification)}
                         >
@@ -154,9 +154,9 @@ export default function NotificationsPage() {
                                         <div className="mt-1">{getNotificationIcon(notification.type)}</div>
                                         <div className="flex-1">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <CardTitle className="text-base">{notification.title}</CardTitle>
+                                                <CardTitle className="text-base font-semibold">{notification.title}</CardTitle>
                                                 {!notification.read && (
-                                                    <Badge variant="default" className="h-5 px-2 text-xs">
+                                                    <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-primary/10 text-primary border-primary/20">
                                                         New
                                                     </Badge>
                                                 )}
@@ -196,13 +196,13 @@ export default function NotificationsPage() {
                                                 {notification.data.workArrangement && (
                                                     <>
                                                         <span>•</span>
-                                                        <Badge variant="secondary" className="h-5 px-2 text-xs">
+                                                        <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
                                                             {notification.data.workArrangement}
                                                         </Badge>
                                                     </>
                                                 )}
                                                 {notification.data.employmentType && (
-                                                    <Badge variant="outline" className="h-5 px-2 text-xs">
+                                                    <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
                                                         {notification.data.employmentType}
                                                     </Badge>
                                                 )}
@@ -221,6 +221,7 @@ export default function NotificationsPage() {
                     ))}
                 </div>
             )}
-        </div>
+            </div>
+        </CandidatePageLayout>
     );
 }

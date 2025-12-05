@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -251,11 +252,12 @@ export default function QualificationsPage() {
     };
 
     return (
-        <CandidatePageLayout
-            title="Qualifications"
-            subtitle="Manage your education, certifications, and training"
-        >
-            <div className="space-y-6 p-6">
+        <CandidatePageLayout>
+            <div className="p-6 space-y-6">
+                <AtsPageHeader
+                    title="Qualifications"
+                    subtitle="Manage your education, certifications, and training"
+                />
                 {/* Expiring Certifications Alert */}
                 {expiringCerts.length > 0 && (
                     <Card className="border-warning bg-warning/5">
@@ -264,6 +266,7 @@ export default function QualificationsPage() {
                                 <AlertCircle className="h-5 w-5" />
                                 Certifications Expiring Soon
                             </CardTitle>
+                            <CardDescription className="text-sm">Review and renew certifications expiring within 30 days</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
@@ -283,11 +286,11 @@ export default function QualificationsPage() {
                 {/* Education Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold flex items-center gap-2">
+                        <h2 className="text-base font-semibold flex items-center gap-2">
                             <GraduationCap className="h-5 w-5" />
                             Education
                         </h2>
-                        <Button onClick={() => { setEduForm({}); setEditingId(null); setEduDialogOpen(true); }}>
+                        <Button onClick={() => { setEduForm({}); setEditingId(null); setEduDialogOpen(true); }} size="sm">
                             <Plus className="h-4 w-4 mr-2" />
                             Add Education
                         </Button>
@@ -352,7 +355,7 @@ export default function QualificationsPage() {
                                                 </span>
                                             </div>
                                             {edu.grade && (
-                                                <Badge variant="outline">{edu.grade}</Badge>
+                                                <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">{edu.grade}</Badge>
                                             )}
                                         </div>
                                         {edu.description && (
@@ -368,11 +371,11 @@ export default function QualificationsPage() {
                 {/* Certifications Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold flex items-center gap-2">
+                        <h2 className="text-base font-semibold flex items-center gap-2">
                             <Award className="h-5 w-5" />
                             Certifications & Licenses
                         </h2>
-                        <Button onClick={() => { setCertForm({ doesNotExpire: false }); setEditingId(null); setCertDialogOpen(true); }}>
+                        <Button onClick={() => { setCertForm({ doesNotExpire: false }); setEditingId(null); setCertDialogOpen(true); }} size="sm">
                             <Plus className="h-4 w-4 mr-2" />
                             Add Certification
                         </Button>
@@ -443,7 +446,7 @@ export default function QualificationsPage() {
                                                 </div>
                                             )}
                                             {cert.doesNotExpire ? (
-                                                <Badge variant="outline">No Expiry</Badge>
+                                                <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">No Expiry</Badge>
                                             ) : cert.expiryDate && (
                                                 <div className="flex items-center gap-1">
                                                     <span className={isExpiringSoon(cert.expiryDate) ? 'text-warning font-medium' : ''}>
@@ -465,11 +468,11 @@ export default function QualificationsPage() {
                 {/* Training Section */}
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold flex items-center gap-2">
+                        <h2 className="text-base font-semibold flex items-center gap-2">
                             <BookOpen className="h-5 w-5" />
                             Training & Courses
                         </h2>
-                        <Button onClick={() => { setTrainingForm({}); setEditingId(null); setTrainingDialogOpen(true); }}>
+                        <Button onClick={() => { setTrainingForm({}); setEditingId(null); setTrainingDialogOpen(true); }} size="sm">
                             <Plus className="h-4 w-4 mr-2" />
                             Add Training
                         </Button>
@@ -540,7 +543,7 @@ export default function QualificationsPage() {
                                                 </div>
                                             )}
                                             {train.duration && (
-                                                <Badge variant="outline">{train.duration}</Badge>
+                                                <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">{train.duration}</Badge>
                                             )}
                                         </div>
                                         {train.description && (

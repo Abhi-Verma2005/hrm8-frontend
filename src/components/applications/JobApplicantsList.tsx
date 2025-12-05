@@ -30,8 +30,11 @@ export function JobApplicantsList({ jobId }: JobApplicantsListProps) {
     const load = async () => {
       setIsLoading(true);
       try {
+        console.log('[JobApplicantsList] Loading applications for jobId:', jobId);
         const res = await applicationService.getJobApplications(jobId);
+        console.log('[JobApplicantsList] API response:', res);
         const apps: RawApplication[] = res.data?.applications || [];
+        console.log('[JobApplicantsList] Applications received:', apps.length, apps);
         const mapped: JobApplicantRow[] = apps.map((app: any) => ({
           id: app.id,
           candidateName:

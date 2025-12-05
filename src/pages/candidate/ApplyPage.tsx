@@ -5,6 +5,7 @@
 
 import { useParams, useNavigate } from 'react-router-dom';
 import { JobApplicationForm } from '@/components/candidate/JobApplicationForm';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
 
 export default function ApplyPage() {
   const { id } = useParams<{ id: string }>();
@@ -19,16 +20,22 @@ export default function ApplyPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="container mx-auto max-w-3xl">
-        <JobApplicationForm
-          jobId={id}
-          onSuccess={(applicationId) => {
-            navigate(`/candidate/applications/${applicationId}/confirmation`);
-          }}
-        />
+    <CandidatePageLayout>
+      <div className="p-6 space-y-6">
+        <div className="max-w-3xl mx-auto">
+          <JobApplicationForm
+            jobId={id}
+            onSuccess={(applicationId) => {
+              if (applicationId) {
+                navigate(`/candidate/applications/${applicationId}/confirmation`);
+              } else {
+                navigate(`/candidate/applications/confirmation`);
+              }
+            }}
+          />
+        </div>
       </div>
-    </div>
+    </CandidatePageLayout>
   );
 }
 

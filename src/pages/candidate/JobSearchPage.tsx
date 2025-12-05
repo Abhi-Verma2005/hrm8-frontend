@@ -3,9 +3,10 @@
  * Comprehensive job search with advanced filtering
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { jobService, PublicJob, JobFilterOptions } from '@/lib/jobService';
+import { applicationService } from '@/lib/applicationService';
 import { apiClient } from '@/lib/api';
 import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
@@ -74,20 +75,25 @@ export default function JobSearchPage() {
 
   // Saved Jobs State (to show filled heart)
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+  
+  // Applied Jobs State (to filter out jobs already applied to)
+  const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
+  const appliedJobIdsRef = useRef<Set<string>>(new Set());
+  const isInitializedRef = useRef(false);
 
   useEffect(() => {
     if (locationState.state) {
-      const { filters } = locationState.state as { filters: any };
+      const { filters } = locationState.state as { filters: Record<string, unknown> };
       if (filters) {
-        if (filters.search) setSearchQuery(filters.search);
-        if (filters.location) setLocation(filters.location);
-        if (filters.employmentType) setEmploymentType(filters.employmentType);
-        if (filters.workArrangement) setWorkArrangement(filters.workArrangement);
-        if (filters.category) setCategory(filters.category);
-        if (filters.department) setDepartment(filters.department);
-        if (filters.salaryMin) setSalaryMin(filters.salaryMin.toString());
-        if (filters.salaryMax) setSalaryMax(filters.salaryMax.toString());
-        if (filters.featured) setFeaturedOnly(filters.featured);
+        if (filters.search && typeof filters.search === 'string') setSearchQuery(filters.search);
+        if (filters.location && typeof filters.location === 'string') setLocation(filters.location);
+        if (filters.employmentType && typeof filters.employmentType === 'string') setEmploymentType(filters.employmentType);
+        if (filters.workArrangement && typeof filters.workArrangement === 'string') setWorkArrangement(filters.workArrangement);
+        if (filters.category && typeof filters.category === 'string') setCategory(filters.category);
+        if (filters.department && typeof filters.department === 'string') setDepartment(filters.department);
+        if (filters.salaryMin) setSalaryMin(String(filters.salaryMin));
+        if (filters.salaryMax) setSalaryMax(String(filters.salaryMax));
+        if (filters.featured && typeof filters.featured === 'boolean') setFeaturedOnly(filters.featured);
 
         // If there are advanced filters, show them
         if (filters.category || filters.department || filters.salaryMin || filters.salaryMax || filters.featured) {
@@ -96,7 +102,24 @@ export default function JobSearchPage() {
       }
     }
     fetchSavedJobs();
+    fetchAppliedJobs();
   }, [locationState.state]);
+
+  // Refresh applied jobs when page becomes visible (user returns from applying)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchAppliedJobs().then(() => {
+          // Reload jobs after fetching applied jobs to apply filter
+          loadJobs();
+        });
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchSavedJobs = async () => {
     try {
@@ -106,7 +129,7 @@ export default function JobSearchPage() {
         // Backend returns { success: true, data: jobs[] }
         // API client returns { success: true, data: jobs[] }
         const jobs = Array.isArray(response.data) ? response.data : [];
-        const ids = new Set(jobs.map((item: any) => item.job?.id || item.jobId).filter(Boolean));
+        const ids = new Set(jobs.map((item: { job?: { id: string }; jobId?: string }) => item.job?.id || item.jobId).filter(Boolean));
         console.log('JobSearchPage - Saved job IDs:', Array.from(ids));
         setSavedJobIds(ids as Set<string>);
       }
@@ -115,7 +138,23 @@ export default function JobSearchPage() {
     }
   };
 
-  const trackSearch = async (filters: any) => {
+  const fetchAppliedJobs = async () => {
+    try {
+      const response = await applicationService.getCandidateApplications();
+      if (response.success && response.data?.applications) {
+        const appliedIds = new Set(
+          response.data.applications.map((app: { jobId?: string }) => app.jobId).filter(Boolean)
+        );
+        console.log('JobSearchPage - Applied job IDs:', Array.from(appliedIds));
+        appliedJobIdsRef.current = appliedIds;
+        setAppliedJobIds(appliedIds);
+      }
+    } catch (error) {
+      console.error('Failed to fetch applied jobs:', error);
+    }
+  };
+
+  const trackSearch = useCallback(async (filters: Record<string, unknown>) => {
     // Only track if there's at least one filter or search query
     const hasFilters = Object.values(filters).some(val => val !== undefined && val !== '');
     if (!hasFilters) return;
@@ -128,7 +167,7 @@ export default function JobSearchPage() {
     } catch (error) {
       console.error('Failed to track search:', error);
     }
-  };
+  }, [searchQuery]);
 
   const toggleSaveJob = async (e: React.MouseEvent, jobId: string) => {
     e.stopPropagation();
@@ -164,20 +203,6 @@ export default function JobSearchPage() {
     }
   };
 
-  useEffect(() => {
-    loadFilterOptions();
-    loadJobs();
-  }, []);
-
-  useEffect(() => {
-    // Debounce search - reload jobs when filters change
-    const timer = setTimeout(() => {
-      loadJobs();
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [location, employmentType, workArrangement, category, department, salaryMin, salaryMax, featuredOnly]);
-
   const loadFilterOptions = async () => {
     try {
       const response = await jobService.getFilterOptions();
@@ -187,7 +212,7 @@ export default function JobSearchPage() {
     }
   };
 
-  const loadJobs = async () => {
+  const loadJobs = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await jobService.getPublicJobs({
@@ -220,14 +245,49 @@ export default function JobSearchPage() {
       // Don't await tracking to avoid blocking UI
       trackSearch(currentFilters);
 
-      setJobs(response.data?.jobs || []);
-      setTotalJobs(response.data?.total || 0);
+      // Filter out jobs that the candidate has already applied to
+      const allJobs = response.data?.jobs || [];
+      const filteredJobs = allJobs.filter((job: PublicJob) => !appliedJobIdsRef.current.has(job.id));
+      
+      console.log('JobSearchPage - Filtering jobs:', {
+        totalJobs: allJobs.length,
+        appliedJobIds: Array.from(appliedJobIdsRef.current),
+        filteredJobs: filteredJobs.length,
+      });
+      
+      setJobs(filteredJobs);
+      // Update total to reflect filtered count
+      setTotalJobs(filteredJobs.length);
     } catch (error) {
       console.error('Failed to load jobs:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [searchQuery, location, employmentType, workArrangement, category, department, salaryMin, salaryMax, featuredOnly, trackSearch]);
+
+  useEffect(() => {
+    if (isInitializedRef.current) return;
+    
+    const initialize = async () => {
+      await loadFilterOptions();
+      await fetchAppliedJobs();
+      // Load jobs after fetching applied jobs
+      isInitializedRef.current = true;
+      await loadJobs();
+    };
+    initialize();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Load jobs when filters change (debounced) - but not when appliedJobIds changes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadJobs();
+    }, 300);
+
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, location, employmentType, workArrangement, category, department, salaryMin, salaryMax, featuredOnly]);
 
   const handleSearch = () => {
     loadJobs();

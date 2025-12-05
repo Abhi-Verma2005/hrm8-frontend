@@ -54,8 +54,11 @@ export function ApplicationPipeline({
     } else if (jobId) {
       // Load from API if jobId is provided
       try {
+        console.log('[ApplicationPipeline] Loading applications for jobId:', jobId);
         const response = await applicationService.getJobApplications(jobId);
+        console.log('[ApplicationPipeline] API response:', response);
         const apiApplications = response.data?.applications || [];
+        console.log('[ApplicationPipeline] Applications received:', apiApplications.length, apiApplications);
         // Map API applications to frontend Application type
         const mappedApplications: Application[] = apiApplications.map((app: any) => ({
           id: app.id,
@@ -68,7 +71,7 @@ export function ApplicationPipeline({
           jobId: app.jobId,
           jobTitle: app.job?.title || 'Unknown Job',
           employerName: app.job?.company?.name || 'Unknown Company',
-          appliedDate: new Date(app.appliedDate),
+          appliedDate: app.appliedDate ? new Date(app.appliedDate) : new Date(),
           status: mapApplicationStatus(app.status),
           stage: mapApplicationStage(app.stage),
           resumeUrl: app.resumeUrl,
@@ -82,8 +85,8 @@ export function ApplicationPipeline({
           notes: [],
           activities: [],
           interviews: [],
-          createdAt: new Date(app.createdAt),
-          updatedAt: new Date(app.updatedAt),
+          createdAt: app.createdAt ? new Date(app.createdAt) : new Date(),
+          updatedAt: app.updatedAt ? new Date(app.updatedAt) : new Date(),
         }));
         setApplications(mappedApplications);
       } catch (error) {

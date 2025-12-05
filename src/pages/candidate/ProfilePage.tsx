@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -121,21 +122,22 @@ export default function ProfilePage() {
   };
 
   return (
-    <CandidatePageLayout
-      title="My Profile"
-      subtitle="Manage your candidate profile and preferences"
-    >
+    <CandidatePageLayout>
       <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title="My Profile"
+          subtitle="Manage your candidate profile and preferences"
+        />
         <form onSubmit={handleSubmit} className="space-y-6">
 
           {/* Personal Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <User className="h-5 w-5" />
                 Personal Information
               </CardTitle>
-              <CardDescription>Your basic contact and location details</CardDescription>
+              <CardDescription className="text-sm">Your basic contact and location details</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -215,11 +217,11 @@ export default function ProfilePage() {
           {/* LinkedIn Profile */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <Globe className="h-5 w-5" />
                 LinkedIn Profile
               </CardTitle>
-              <CardDescription>Connect your LinkedIn profile for better job matches</CardDescription>
+              <CardDescription className="text-sm">Connect your LinkedIn profile for better job matches</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
@@ -238,11 +240,11 @@ export default function ProfilePage() {
           {/* Work Eligibility & Visa Status */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <Briefcase className="h-5 w-5" />
                 Work Eligibility & Visa Status
               </CardTitle>
-              <CardDescription>Your authorization to work and visa requirements</CardDescription>
+              <CardDescription className="text-sm">Your authorization to work and visa requirements</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -294,11 +296,11 @@ export default function ProfilePage() {
           {/* Job Preferences */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <MapPin className="h-5 w-5" />
                 Job Preferences
               </CardTitle>
-              <CardDescription>Your ideal job type, location, and work arrangement</CardDescription>
+              <CardDescription className="text-sm">Your ideal job type, location, and work arrangement</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Job Types */}
@@ -440,11 +442,11 @@ export default function ProfilePage() {
           {/* Privacy & Visibility Settings */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <Shield className="h-5 w-5" />
                 Privacy & Visibility Settings
               </CardTitle>
-              <CardDescription>Control who can see your profile and contact you</CardDescription>
+              <CardDescription className="text-sm">Control who can see your profile and contact you</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -511,10 +513,10 @@ export default function ProfilePage() {
 
           {/* Save Button */}
           <div className="flex justify-end gap-3">
-            <Button type="button" variant="outline">
+            <Button type="button" variant="outline" size="sm">
               Cancel
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button type="submit" disabled={isLoading} size="sm">
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Changes
             </Button>

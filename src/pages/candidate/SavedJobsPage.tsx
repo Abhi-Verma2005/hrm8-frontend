@@ -229,7 +229,7 @@ export default function SavedJobsPage() {
       const response = await apiClient.delete(`/api/candidate/saved-jobs/${jobId}`);
       console.log('Unsave job response:', response);
       if (response.success) {
-        toast({ title: 'Job removed from saved list' });
+      toast({ title: 'Job removed from saved list' });
         await fetchSavedJobs();
       } else {
         toast({ title: 'Failed to remove job', variant: 'destructive', description: response.error });
@@ -327,8 +327,8 @@ export default function SavedJobsPage() {
     <CandidatePageLayout>
       <div className="p-6 space-y-6">
         <AtsPageHeader
-          title="Saved Items"
-          subtitle="Manage your saved jobs, searches, and alerts"
+      title="Saved Items"
+      subtitle="Manage your saved jobs, searches, and alerts"
         />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -339,13 +339,13 @@ export default function SavedJobsPage() {
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 <Bookmark className="h-3.5 w-3.5 flex-shrink-0" />
-                Saved Jobs
+              Saved Jobs
                 {savedJobs.length > 0 && (
                   <Badge variant="outline" className="h-4 px-1.5 text-xs rounded-full ml-1">
                     {savedJobs.length}
                   </Badge>
                 )}
-              </TabsTrigger>
+            </TabsTrigger>
               <TabsTrigger
                 value="saved-searches"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
@@ -357,20 +357,20 @@ export default function SavedJobsPage() {
                     {savedSearches.length}
                   </Badge>
                 )}
-              </TabsTrigger>
+            </TabsTrigger>
               <TabsTrigger
                 value="job-alerts"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 <Bell className="h-3.5 w-3.5 flex-shrink-0" />
-                Job Alerts
+              Job Alerts
                 {jobAlerts.length > 0 && (
                   <Badge variant="outline" className="h-4 px-1.5 text-xs rounded-full ml-1">
                     {jobAlerts.length}
                   </Badge>
                 )}
-              </TabsTrigger>
-            </TabsList>
+            </TabsTrigger>
+          </TabsList>
           </div>
 
           {/* Saved Jobs Tab */}
@@ -549,9 +549,9 @@ export default function SavedJobsPage() {
                       Clear Filters
                     </Button>
                   ) : (
-                    <Button onClick={() => navigate('/candidate/jobs')}>
-                      Browse Jobs
-                    </Button>
+                  <Button onClick={() => navigate('/candidate/jobs')}>
+                    Browse Jobs
+                  </Button>
                   )}
                 </CardContent>
               </Card>
@@ -694,54 +694,54 @@ export default function SavedJobsPage() {
                     <div className="grid grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name" className="text-sm font-medium">Alert Name *</Label>
-                        <Input
-                          id="name"
-                          placeholder="e.g., Remote React Jobs"
-                          value={newAlert.name || ''}
-                          onChange={(e) => setNewAlert({ ...newAlert, name: e.target.value })}
-                        />
-                      </div>
+                      <Input
+                        id="name"
+                        placeholder="e.g., Remote React Jobs"
+                        value={newAlert.name || ''}
+                        onChange={(e) => setNewAlert({ ...newAlert, name: e.target.value })}
+                      />
+                    </div>
                       <div className="space-y-2">
                         <Label htmlFor="frequency" className="text-sm font-medium">Frequency</Label>
-                        <Select
-                          value={newAlert.frequency}
-                          onValueChange={(val: any) => setNewAlert({ ...newAlert, frequency: val })}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
+                      <Select
+                        value={newAlert.frequency}
+                        onValueChange={(val: any) => setNewAlert({ ...newAlert, frequency: val })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
                             <SelectItem value="INSTANT">Instant</SelectItem>
-                            <SelectItem value="DAILY">Daily</SelectItem>
-                            <SelectItem value="WEEKLY">Weekly</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
+                          <SelectItem value="DAILY">Daily</SelectItem>
+                          <SelectItem value="WEEKLY">Weekly</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
                         <Label className="text-sm font-medium">Delivery Channels</Label>
                         <div className="flex gap-4 pt-2">
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="email"
-                              checked={newAlert.channels?.includes('EMAIL')}
-                              onCheckedChange={(checked) => {
-                                const channels = newAlert.channels || [];
-                                if (checked) setNewAlert({ ...newAlert, channels: [...channels, 'EMAIL'] });
-                                else setNewAlert({ ...newAlert, channels: channels.filter(c => c !== 'EMAIL') });
-                              }}
-                            />
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="email"
+                            checked={newAlert.channels?.includes('EMAIL')}
+                            onCheckedChange={(checked) => {
+                              const channels = newAlert.channels || [];
+                              if (checked) setNewAlert({ ...newAlert, channels: [...channels, 'EMAIL'] });
+                              else setNewAlert({ ...newAlert, channels: channels.filter(c => c !== 'EMAIL') });
+                            }}
+                          />
                             <label htmlFor="email" className="text-sm cursor-pointer">Email</label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="in_app"
-                              checked={newAlert.channels?.includes('IN_APP')}
-                              onCheckedChange={(checked) => {
-                                const channels = newAlert.channels || [];
-                                if (checked) setNewAlert({ ...newAlert, channels: [...channels, 'IN_APP'] });
-                                else setNewAlert({ ...newAlert, channels: channels.filter(c => c !== 'IN_APP') });
-                              }}
-                            />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="in_app"
+                            checked={newAlert.channels?.includes('IN_APP')}
+                            onCheckedChange={(checked) => {
+                              const channels = newAlert.channels || [];
+                              if (checked) setNewAlert({ ...newAlert, channels: [...channels, 'IN_APP'] });
+                              else setNewAlert({ ...newAlert, channels: channels.filter(c => c !== 'IN_APP') });
+                            }}
+                          />
                             <label htmlFor="in_app" className="text-sm cursor-pointer">In-App</label>
                           </div>
                         </div>

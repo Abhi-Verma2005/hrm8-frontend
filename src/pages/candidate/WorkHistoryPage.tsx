@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { apiClient } from '@/lib/api';
-import { Loader2, Upload, Plus, Trash2, Briefcase, Calendar, MapPin, Edit2, FileText, ExternalLink } from 'lucide-react';
+import { Loader2, Upload, Plus, Trash2, Briefcase, Calendar, MapPin, Edit2, FileText, ExternalLink, Sparkles } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
@@ -205,6 +206,18 @@ export default function WorkHistoryPage() {
                 totalItems += parsedData.training.length;
             }
 
+            // Store the resume file in documents (so it appears in the Documents list)
+            if (parsedData.resumeUrl) {
+                try {
+                    const documentFormData = new FormData();
+                    documentFormData.append('file', file);
+                    await apiClient.upload('/api/candidate/documents/resumes', documentFormData);
+                } catch (docError) {
+                    console.error('Failed to store resume in documents:', docError);
+                    // Continue even if document storage fails - parsing was successful
+                }
+            }
+
             // Show success message
             toast({
                 title: 'Resume Parsed Successfully',
@@ -313,94 +326,90 @@ export default function WorkHistoryPage() {
     };
 
     return (
-        <CandidatePageLayout
-            title="Work History & Skills"
-            subtitle="Manage your professional experience and competencies"
-        >
-            <div className="space-y-6 p-6">
+        <CandidatePageLayout>
+            <div className="p-6 space-y-6">
+                <AtsPageHeader
+                    title="Work History & Skills"
+                    subtitle="Manage your professional experience and competencies"
+                />
 
-                {/* Resume Upload Section */}
-                <Card className="border-dashed border-2">
-                    <CardHeader>
-                        <CardTitle className="text-base font-semibold flex items-center gap-2">
-                            <Upload className="h-5 w-5" />
-                            Auto-fill from Resume
-                        </CardTitle>
-                        <CardDescription>
-                            Upload your resume (PDF, DOCX) to automatically extract your work history and skills.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center justify-center p-6 bg-muted/30 rounded-lg">
-                            <div className="text-center space-y-4">
-                                {isParsing ? (
-                                    <div className="flex flex-col items-center gap-2">
-                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                                        <p className="text-sm text-muted-foreground">Parsing resume with AI...</p>
-                                    </div>
-                                ) : (
-                                    <>
-                                        <Input
-                                            type="file"
-                                            accept=".pdf,.docx,.doc"
-                                            className="hidden"
-                                            id="resume-upload"
-                                            onChange={handleFileUpload}
-                                        />
-                                        <Label
-                                            htmlFor="resume-upload"
-                                            className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
-                                        >
-                                            <Upload className="mr-2 h-4 w-4" />
-                                            Upload Resume
-                                        </Label>
-                                        <p className="text-xs text-muted-foreground">Supported formats: PDF, DOCX, DOC</p>
-                                    </>
-                                )}
+                {/* Resume Upload Section - Compact AI-Powered Design */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                    <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3 flex-1">
+                            <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-500/10 shrink-0">
+                                <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                                        Auto-fill with AI
+                                    </h3>
+                                    <Badge variant="secondary" className="h-5 px-2 text-[10px] bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                        AI-Powered
+                                    </Badge>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                    Upload your resume to automatically extract work history, skills & qualifications
+                                </p>
                             </div>
                         </div>
 
-                        {candidate?.resumeUrl && (
-                            <div className="mt-6 pt-6 border-t">
-                                <h3 className="text-sm font-medium mb-3">Current Resume</h3>
-                                <a
-                                    href={candidate.resumeUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center justify-between p-3 bg-background border rounded-md hover:bg-muted/50 transition-colors cursor-pointer group"
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 bg-primary/10 rounded flex items-center justify-center text-primary">
-                                            <FileText className="h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium group-hover:text-primary transition-colors">
-                                                {uploadedFileName || 'Resume.pdf'}
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">Click to view • Stored on Cloudinary</p>
-                                        </div>
-                                    </div>
-                                    <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-                                </a>
+                        {isParsing ? (
+                            <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700">
+                                <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Parsing...</span>
                             </div>
+                        ) : (
+                            <>
+                                <Input
+                                    type="file"
+                                    accept=".pdf,.docx,.doc"
+                                    className="hidden"
+                                    id="resume-upload"
+                                    onChange={handleFileUpload}
+                                />
+                                <Label
+                                    htmlFor="resume-upload"
+                                    className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors shrink-0"
+                                >
+                                    <Upload className="h-4 w-4" />
+                                    Upload Resume
+                                </Label>
+                            </>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+
+                    {candidate?.resumeUrl && !isParsing && (
+                        <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+                            <a
+                                href={candidate.resumeUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                            >
+                                <FileText className="h-3.5 w-3.5" />
+                                <span className="font-medium">{uploadedFileName || 'Current Resume'}</span>
+                                <ExternalLink className="h-3 w-3" />
+                            </a>
+                        </div>
+                    )}
+                </div>
 
                 {/* Work History Timeline */}
                 <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold flex items-center gap-2">
+                        <h2 className="text-base font-semibold flex items-center gap-2">
                             <Briefcase className="h-5 w-5" />
                             Work Experience
                         </h2>
-                        <Button onClick={() => { resetForm(); setIsAddDialogOpen(true); }}>
+                        <Button onClick={() => { resetForm(); setIsAddDialogOpen(true); }} size="sm">
                             <Plus className="h-4 w-4 mr-2" />
                             Add Experience
                         </Button>
                     </div>
 
-                    <div className="space-y-4 relative pl-4 border-l-2 border-muted">
+                    <div className="space-y-4 relative pl-4 border-l border-muted">
                         {isLoading ? (
                             // Skeleton loading
                             Array.from({ length: 2 }).map((_, i) => (
@@ -471,10 +480,10 @@ export default function WorkHistoryPage() {
                             ))
                         )}
                     </div>
-                </div>
+                </div >
 
                 {/* Skills Section */}
-                <Card>
+                < Card >
                     <CardHeader>
                         <CardTitle className="text-base font-semibold">Skills & Competencies</CardTitle>
                         <CardDescription>Add skills to highlight your expertise</CardDescription>
@@ -502,7 +511,7 @@ export default function WorkHistoryPage() {
                                 <p className="text-sm text-muted-foreground italic">No skills added yet.</p>
                             ) : (
                                 skills.map((skill) => (
-                                    <Badge key={skill.id || skill.name} variant="secondary" className="px-3 py-1 text-sm flex items-center gap-2">
+                                    <Badge key={skill.id || skill.name} variant="outline" className="h-6 px-2 text-xs rounded-full flex items-center gap-2">
                                         {skill.name}
                                         <button onClick={() => handleDeleteSkill(skill.name)} className="hover:text-destructive">
                                             <Trash2 className="h-3 w-3" />
@@ -512,10 +521,10 @@ export default function WorkHistoryPage() {
                             )}
                         </div>
                     </CardContent>
-                </Card>
+                </Card >
 
                 {/* Add/Edit Experience Dialog */}
-                <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+                < Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} >
                     <DialogContent className="sm:max-w-[600px]">
                         <DialogHeader>
                             <DialogTitle>{editingId ? 'Edit Work Experience' : 'Add Work Experience'}</DialogTitle>
@@ -602,9 +611,9 @@ export default function WorkHistoryPage() {
                             <Button onClick={handleSaveExperience}>Save Experience</Button>
                         </DialogFooter>
                     </DialogContent>
-                </Dialog>
+                </Dialog >
 
-            </div>
-        </CandidatePageLayout>
+            </div >
+        </CandidatePageLayout >
     );
 }

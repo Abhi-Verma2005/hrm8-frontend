@@ -11,6 +11,8 @@ import { messagingService } from '@/lib/messagingService';
 import { ConversationList } from '@/components/messages/ConversationList';
 import { Card } from '@/components/ui/card';
 import { Loader2, MessageSquare } from 'lucide-react';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 
 export default function CandidateMessagesPage() {
   const { candidate, isAuthenticated } = useCandidateAuth();
@@ -51,11 +53,12 @@ export default function CandidateMessagesPage() {
   }
 
   return (
-    <div className="p-6 h-full">
-      <div className="mb-4">
-        <h1 className="text-3xl font-bold">Messages</h1>
-        <p className="text-muted-foreground">Communicate with recruiters about your applications</p>
-      </div>
+    <CandidatePageLayout>
+      <div className="p-6 space-y-6 h-full">
+        <AtsPageHeader
+          title="Messages"
+          subtitle="Communicate with recruiters about your applications"
+        />
       <div className="h-[calc(100vh-200px)] flex border rounded-lg overflow-hidden">
         <div className="w-full md:w-1/3 lg:w-1/4 border-r bg-card">
           {isLoading ? (
@@ -81,7 +84,8 @@ export default function CandidateMessagesPage() {
           </Card>
         </div>
       </div>
-    </div>
+      </div>
+    </CandidatePageLayout>
   );
 }
 

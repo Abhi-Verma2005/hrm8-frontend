@@ -17,6 +17,7 @@ import ConversationPage from "@/pages/candidate/ConversationPage";
 import WorkHistoryPage from "@/pages/candidate/WorkHistoryPage";
 import QualificationsPage from "@/pages/candidate/QualificationsPage";
 import NotificationsPage from "@/pages/candidate/NotificationsPage";
+import DocumentsPage from "@/pages/candidate/DocumentsPage";
 import { RoleIsolationGate } from "@/components/common/RoleIsolationGate";
 
 export const candidateRoutes = (
@@ -37,7 +38,9 @@ export const candidateRoutes = (
       <Route path="profile" element={<ProfilePage />} />
       <Route path="work-history" element={<WorkHistoryPage />} />
       <Route path="qualifications" element={<QualificationsPage />} />
+      <Route path="documents" element={<DocumentsPage />} />
       <Route path="applications" element={<ApplicationsPage />} />
+      <Route path="applications/confirmation" element={<ApplicationConfirmation />} />
       <Route path="applications/:id/confirmation" element={<ApplicationConfirmation />} />
       <Route path="saved-jobs" element={<SavedJobsPage />} />
       <Route path="notifications" element={<NotificationsPage />} />

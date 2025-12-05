@@ -121,68 +121,68 @@ export default function ConsultantOverview() {
           subtitle={`Welcome back, ${consultant?.firstName}! Here's your overview.`}
         />
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <EnhancedStatCard
-            title="Active Jobs"
-            value={jobCount.toString()}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <EnhancedStatCard
+          title="Active Jobs"
+          value={jobCount.toString()}
             icon={<Briefcase className="h-5 w-5" />}
             variant="neutral"
-          />
+        />
 
-          <EnhancedStatCard
-            title="Total Placements"
-            value={(metrics?.totalPlacements || 0).toString()}
+        <EnhancedStatCard
+          title="Total Placements"
+          value={(metrics?.totalPlacements || 0).toString()}
             icon={<Users className="h-5 w-5" />}
             variant="neutral"
-          />
+        />
 
-          <EnhancedStatCard
-            title="Pending Commissions"
-            value=""
-            isCurrency={true}
-            rawValue={metrics?.pendingCommissions || 0}
+        <EnhancedStatCard
+          title="Pending Commissions"
+          value=""
+          isCurrency={true}
+          rawValue={metrics?.pendingCommissions || 0}
             icon={<DollarSign className="h-5 w-5" />}
             variant="neutral"
-          />
+        />
 
-          <EnhancedStatCard
-            title="Success Rate"
-            value={metrics?.successRate ? `${metrics.successRate.toFixed(1)}%` : '0%'}
+        <EnhancedStatCard
+          title="Success Rate"
+          value={metrics?.successRate ? `${metrics.successRate.toFixed(1)}%` : '0%'}
             icon={<TrendingUp className="h-5 w-5" />}
             variant="neutral"
-          />
-        </div>
+        />
+      </div>
 
-        <Card>
-          <CardHeader>
+      <Card>
+        <CardHeader>
             <CardTitle className="text-base font-semibold">Performance Summary</CardTitle>
             <CardDescription className="text-sm">
               Key performance indicators and metrics
             </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-3">
-              <div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
                 <p className="text-xs text-muted-foreground mb-1">Total Revenue</p>
-                <p className="text-2xl font-bold">
-                  ${(metrics?.totalRevenue || 0).toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Total Commissions Paid</p>
-                <p className="text-2xl font-bold">
-                  ${(metrics?.totalCommissionsPaid || 0).toLocaleString()}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-1">Average Days to Fill</p>
-                <p className="text-2xl font-bold">
-                  {metrics?.averageDaysToFill ? `${metrics.averageDaysToFill.toFixed(1)} days` : 'N/A'}
-                </p>
-              </div>
+              <p className="text-2xl font-bold">
+                ${(metrics?.totalRevenue || 0).toLocaleString()}
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            <div>
+                <p className="text-xs text-muted-foreground mb-1">Total Commissions Paid</p>
+              <p className="text-2xl font-bold">
+                ${(metrics?.totalCommissionsPaid || 0).toLocaleString()}
+              </p>
+            </div>
+            <div>
+                <p className="text-xs text-muted-foreground mb-1">Average Days to Fill</p>
+              <p className="text-2xl font-bold">
+                {metrics?.averageDaysToFill ? `${metrics.averageDaysToFill.toFixed(1)} days` : 'N/A'}
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
         {/* Charts Section */}
         <div className="grid gap-4 md:grid-cols-2">

@@ -47,13 +47,13 @@ export default function CandidateDashboardHome() {
   const loadNotifications = async () => {
     try {
       const { apiClient } = await import('@/lib/api');
-      const response = await apiClient.get('/candidate/notifications?limit=5');
-      const data = response.data as { success: boolean; data: { notifications: any[] } };
-      if (data.success) {
-        setNotifications(data.data.notifications);
+      const response = await apiClient.get<{ notifications: any[]; total: number; unreadCount: number }>('/candidate/notifications?limit=5');
+      if (response.success && response.data) {
+        setNotifications(response.data.notifications || []);
       }
     } catch (error) {
       console.error('Failed to load notifications:', error);
+      setNotifications([]);
     }
   };
 
@@ -161,7 +161,7 @@ export default function CandidateDashboardHome() {
           </Card>
 
           {/* Browse Jobs */}
-          <Card className="cursor-pointer hover:bg-muted/50 transition-colors" onClick={() => navigate('/candidate/jobs')}>
+          <Card className="cursor-pointer" onClick={() => navigate('/candidate/jobs')}>
             <CardHeader>
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <Briefcase className="h-5 w-5" />
@@ -237,7 +237,7 @@ export default function CandidateDashboardHome() {
                   ].map((job) => (
                     <div
                       key={job.id}
-                      className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors"
+                      className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer"
                       onClick={() => navigate('/candidate/jobs')}
                     >
                       <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
@@ -249,12 +249,12 @@ export default function CandidateDashboardHome() {
                             <p className="text-sm font-medium truncate">{job.title}</p>
                             <p className="text-xs text-muted-foreground">{job.company}</p>
                           </div>
-                          <Badge variant="secondary" className="text-xs shrink-0">
+                          <Badge variant="outline" className="h-6 px-2 text-xs rounded-full shrink-0">
                             {job.match}% match
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
                             {job.type}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
@@ -299,7 +299,7 @@ export default function CandidateDashboardHome() {
                     {notifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className="flex items-start gap-3 pb-3 border-b last:border-0 last:pb-0 cursor-pointer hover:bg-muted/50 p-2 rounded-md transition-colors"
+                        className="flex items-start gap-3 pb-3 border-b last:border-0 last:pb-0 cursor-pointer p-2 rounded-md"
                         onClick={() => navigate('/candidate/notifications')}
                       >
                         <div className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${notification.type === 'JOB_ALERT' ? 'bg-blue-500/10' : 'bg-orange-500/10'
@@ -371,7 +371,7 @@ export default function CandidateDashboardHome() {
                 {recentApplications.map((app) => (
                   <div
                     key={app.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 cursor-pointer transition-colors"
+                    className="flex items-center justify-between p-4 border rounded-lg cursor-pointer"
                     onClick={() => navigate(`/candidate/applications/${app.id}`)}
                   >
                     <div className="flex-1">

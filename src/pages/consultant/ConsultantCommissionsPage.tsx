@@ -128,61 +128,61 @@ export default function ConsultantCommissionsPage() {
           subtitle="View your commission history"
         />
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <EnhancedStatCard
-            title="Pending Commissions"
-            value=""
-            isCurrency={true}
-            rawValue={totalPending}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <EnhancedStatCard
+          title="Pending Commissions"
+          value=""
+          isCurrency={true}
+          rawValue={totalPending}
             icon={<Clock className="h-5 w-5" />}
             variant="neutral"
-          />
+        />
 
-          <EnhancedStatCard
-            title="Total Paid"
-            value=""
-            isCurrency={true}
-            rawValue={totalPaid}
+        <EnhancedStatCard
+          title="Total Paid"
+          value=""
+          isCurrency={true}
+          rawValue={totalPaid}
             icon={<CheckCircle className="h-5 w-5" />}
             variant="neutral"
-          />
+        />
 
-          <EnhancedStatCard
-            title="Total Commissions"
-            value={commissions.length.toString()}
+        <EnhancedStatCard
+          title="Total Commissions"
+          value={commissions.length.toString()}
             icon={<DollarSign className="h-5 w-5" />}
-            variant="neutral"
-          />
-        </div>
+          variant="neutral"
+        />
+      </div>
 
-        <Card>
-          <CardHeader>
+      <Card>
+        <CardHeader>
             <CardTitle className="text-base font-semibold">Commission History</CardTitle>
             <CardDescription className="text-sm">
               {commissions.length} total commission{commissions.length !== 1 ? 's' : ''}
             </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
+        </CardHeader>
+        <CardContent>
+          {loading ? (
               <div className="text-center py-8 text-muted-foreground">
                 <div className="text-sm">Loading commissions...</div>
               </div>
-            ) : commissions.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+          ) : commissions.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
                 <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p className="text-sm">No commissions yet</p>
-              </div>
-            ) : (
-              <DataTable
-                data={commissions}
-                columns={columns}
-                searchable
-                searchKeys={['commissionType', 'status']}
-                emptyMessage="No commissions found"
-              />
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          ) : (
+            <DataTable
+              data={commissions}
+              columns={columns}
+              searchable
+              searchKeys={['commissionType', 'status']}
+              emptyMessage="No commissions found"
+            />
+          )}
+        </CardContent>
+      </Card>
       </div>
     </ConsultantPageLayout>
   );
