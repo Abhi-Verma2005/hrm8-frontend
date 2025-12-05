@@ -5,6 +5,7 @@
 
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { CandidateAuthGuard } from '@/components/auth/CandidateAuthGuard';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, ArrowRight, User, FileText, Briefcase } from 'lucide-react';
@@ -15,7 +16,11 @@ export default function ApplicationConfirmation() {
 
   return (
     <CandidateAuthGuard>
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <CandidatePageLayout
+        title="Application Submitted!"
+        subtitle="Your application has been successfully submitted"
+      >
+        <div className="flex items-center justify-center p-4">
         <Card className="w-full max-w-2xl">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
@@ -100,7 +105,8 @@ export default function ApplicationConfirmation() {
             </div>
           </CardContent>
         </Card>
-      </div>
+        </div>
+      </CandidatePageLayout>
     </CandidateAuthGuard>
   );
 }

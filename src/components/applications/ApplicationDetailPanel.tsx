@@ -8,15 +8,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Mail, Phone, MapPin, Briefcase, FileText, Calendar, 
-  Star, MessageSquare, Clock, ArrowRight, Download, Video, Send 
+  Star, MessageSquare, Clock, ArrowRight, Download, Video, Send,
+  Award, TrendingUp, Bookmark, BookmarkCheck, Sparkles
 } from "lucide-react";
+import { AIAnalysisView } from "./screening/AIAnalysisView";
 import { formatDistanceToNow, format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ApplicationStage } from "@/types/application";
 import { updateApplicationStatus } from "@/lib/mockApplicationStorage";
+import { applicationService } from "@/lib/applicationService";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
-import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
 import { OfferForm } from "@/components/offers/OfferForm";
@@ -33,6 +38,19 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
   const [newNote, setNewNote] = useState("");
   const [isInterviewDialogOpen, setIsInterviewDialogOpen] = useState(false);
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
+  const [editingScore, setEditingScore] = useState<string>("");
+  const [editingRank, setEditingRank] = useState<string>("");
+  const [isUpdatingScore, setIsUpdatingScore] = useState(false);
+  const [isUpdatingRank, setIsUpdatingRank] = useState(false);
+  const [isShortlisting, setIsShortlisting] = useState(false);
+
+  // Update editing values when application changes
+  useEffect(() => {
+    if (application) {
+      setEditingScore(application.score?.toString() || "");
+      setEditingRank(application.rank?.toString() || "");
+    }
+  }, [application]);
 
   if (!application) return null;
 
@@ -40,7 +58,28 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
     return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
-  const handleStageChange = (newStage: ApplicationStage) => {
+  const handleStageChange = async (newStage: ApplicationStage) => {
+    try {
+      // Map frontend stage to backend stage format
+      const stageMap: Record<ApplicationStage, string> = {
+        "New Application": "NEW_APPLICATION",
+        "Resume Review": "RESUME_REVIEW",
+        "Phone Screen": "PHONE_SCREEN",
+        "Technical Interview": "TECHNICAL_INTERVIEW",
+        "Manager Interview": "ONSITE_INTERVIEW",
+        "Final Round": "ONSITE_INTERVIEW",
+        "Reference Check": "ONSITE_INTERVIEW",
+        "Offer Extended": "OFFER_EXTENDED",
+        "Offer Accepted": "OFFER_ACCEPTED",
+        "Rejected": "REJECTED",
+        "Withdrawn": "REJECTED",
+      };
+
+      const backendStage = stageMap[newStage] || "NEW_APPLICATION";
+      const response = await applicationService.updateStage(application.id, backendStage);
+
+      if (response.success) {
+        // Also update local mock storage for fallback
     const statusMap: Record<ApplicationStage, Application['status']> = {
       "New Application": "applied",
       "Resume Review": "screening",
@@ -54,17 +93,117 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
       "Rejected": "rejected",
       "Withdrawn": "withdrawn",
     };
-
     updateApplicationStatus(application.id, statusMap[newStage], newStage);
     toast.success("Application stage updated");
     onRefresh();
+      } else {
+        toast.error("Failed to update stage", {
+          description: response.error || "Please try again"
+        });
+      }
+    } catch (error) {
+      console.error('Failed to update stage:', error);
+      toast.error("Failed to update stage");
+    }
   };
 
-  const handleAddNote = () => {
+  const handleScoreUpdate = async () => {
+    const score = parseFloat(editingScore);
+    if (isNaN(score) || score < 0 || score > 100) {
+      toast.error("Score must be between 0 and 100");
+      return;
+    }
+
+    setIsUpdatingScore(true);
+    try {
+      const response = await applicationService.updateScore(application.id, score);
+      if (response.success) {
+        toast.success("Score updated");
+        onRefresh();
+      } else {
+        toast.error("Failed to update score", {
+          description: response.error || "Please try again"
+        });
+        setEditingScore(application.score?.toString() || "");
+      }
+    } catch (error) {
+      console.error('Failed to update score:', error);
+      toast.error("Failed to update score");
+      setEditingScore(application.score?.toString() || "");
+    } finally {
+      setIsUpdatingScore(false);
+    }
+  };
+
+  const handleRankUpdate = async () => {
+    const rank = parseInt(editingRank);
+    if (isNaN(rank) || rank < 1) {
+      toast.error("Rank must be at least 1");
+      return;
+    }
+
+    setIsUpdatingRank(true);
+    try {
+      const response = await applicationService.updateRank(application.id, rank);
+      if (response.success) {
+        toast.success("Rank updated");
+        onRefresh();
+      } else {
+        toast.error("Failed to update rank", {
+          description: response.error || "Please try again"
+        });
+        setEditingRank(application.rank?.toString() || "");
+      }
+    } catch (error) {
+      console.error('Failed to update rank:', error);
+      toast.error("Failed to update rank");
+      setEditingRank(application.rank?.toString() || "");
+    } finally {
+      setIsUpdatingRank(false);
+    }
+  };
+
+  const handleShortlist = async () => {
+    setIsShortlisting(true);
+    try {
+      const response = application.shortlisted
+        ? await applicationService.unshortlistCandidate(application.id)
+        : await applicationService.shortlistCandidate(application.id);
+      
+      if (response.success) {
+        toast.success(application.shortlisted ? "Candidate unshortlisted" : "Candidate shortlisted");
+        onRefresh();
+      } else {
+        toast.error("Failed to update shortlist status", {
+          description: response.error || "Please try again"
+        });
+      }
+    } catch (error) {
+      console.error('Failed to update shortlist:', error);
+      toast.error("Failed to update shortlist status");
+    } finally {
+      setIsShortlisting(false);
+    }
+  };
+
+  const handleNotesUpdate = async () => {
     if (!newNote.trim()) return;
-    // In a real app, this would call an API
+    
+    try {
+      const response = await applicationService.updateNotes(application.id, newNote);
+      if (response.success) {
     toast.success("Note added");
     setNewNote("");
+        onRefresh();
+      } else {
+        toast.error("Failed to add note", {
+          description: response.error || "Please try again"
+        });
+      }
+    } catch (error) {
+      console.error('Failed to add note:', error);
+      toast.error("Failed to add note");
+    }
   };
 
   return (
@@ -123,6 +262,101 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
             </Button>
           </div>
 
+          {/* Shortlisting & Scoring Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Shortlisting & Scoring</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Shortlist Button */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm font-medium">Shortlist Status</Label>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {application.shortlisted ? "Candidate is shortlisted" : "Not shortlisted"}
+                  </p>
+                </div>
+                <Button
+                  variant={application.shortlisted ? "default" : "outline"}
+                  size="sm"
+                  onClick={handleShortlist}
+                  disabled={isShortlisting}
+                >
+                  {application.shortlisted ? (
+                    <>
+                      <BookmarkCheck className="h-4 w-4 mr-2" />
+                      Unshortlist
+                    </>
+                  ) : (
+                    <>
+                      <Bookmark className="h-4 w-4 mr-2" />
+                      Shortlist
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <Separator />
+
+              {/* Score Input */}
+              <div className="space-y-2">
+                <Label htmlFor="score">Fit Score (0-100)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="score"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={editingScore}
+                    onChange={(e) => setEditingScore(e.target.value)}
+                    placeholder="Enter score"
+                    className="flex-1"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleScoreUpdate}
+                    disabled={isUpdatingScore || editingScore === (application.score?.toString() || "")}
+                  >
+                    {isUpdatingScore ? "Updating..." : "Update"}
+                  </Button>
+                </div>
+                {application.score !== undefined && (
+                  <p className="text-xs text-muted-foreground">
+                    Current score: {Math.round(application.score)}%
+                  </p>
+                )}
+              </div>
+
+              {/* Rank Input */}
+              <div className="space-y-2">
+                <Label htmlFor="rank">Rank</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="rank"
+                    type="number"
+                    min="1"
+                    value={editingRank}
+                    onChange={(e) => setEditingRank(e.target.value)}
+                    placeholder="Enter rank"
+                    className="flex-1"
+                  />
+                  <Button
+                    size="sm"
+                    onClick={handleRankUpdate}
+                    disabled={isUpdatingRank || editingRank === (application.rank?.toString() || "")}
+                  >
+                    {isUpdatingRank ? "Updating..." : "Update"}
+                  </Button>
+                </div>
+                {application.rank !== undefined && (
+                  <p className="text-xs text-muted-foreground">
+                    Current rank: #{application.rank}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Stage Selector */}
           <Card>
             <CardHeader>
@@ -151,10 +385,16 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
 
           {/* Tabs */}
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className={`grid w-full ${application.aiAnalysis ? 'grid-cols-4' : 'grid-cols-3'}`}>
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="notes">Notes</TabsTrigger>
+              {application.aiAnalysis && (
+                <TabsTrigger value="ai-analysis" className="flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  AI Analysis
+                </TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="overview" className="space-y-4 mt-4">
@@ -223,6 +463,18 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
               ))}
             </TabsContent>
 
+            <TabsContent value="ai-analysis" className="mt-4">
+              {application.aiAnalysis ? (
+                <AIAnalysisView analysis={application.aiAnalysis} />
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Sparkles className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No AI analysis available</p>
+                  <p className="text-sm mt-2">Run AI screening to generate analysis</p>
+                </div>
+              )}
+            </TabsContent>
+
             <TabsContent value="notes" className="space-y-4 mt-4">
               <div className="space-y-2">
                 <Textarea
@@ -231,7 +483,7 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
                   onChange={(e) => setNewNote(e.target.value)}
                   rows={3}
                 />
-                <Button onClick={handleAddNote} size="sm">
+                <Button onClick={handleNotesUpdate} size="sm">
                   Add Note
                 </Button>
               </div>

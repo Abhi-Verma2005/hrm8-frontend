@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -46,6 +47,7 @@ interface JobLifecycleActionsProps {
 
 export function JobLifecycleActions({ job, onJobUpdate, onEdit }: JobLifecycleActionsProps) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [extendDialogOpen, setExtendDialogOpen] = useState(false);
   const [markFilledDialogOpen, setMarkFilledDialogOpen] = useState(false);
   const [closeJobDialogOpen, setCloseJobDialogOpen] = useState(false);
@@ -225,45 +227,10 @@ export function JobLifecycleActions({ job, onJobUpdate, onEdit }: JobLifecycleAc
     }
   };
 
-  const handleServiceUpgrade = async (serviceType: 'shortlisting' | 'full-service' | 'executive-search') => {
-    setIsProcessing(true);
-    try {
-      // Convert frontend service type to backend hiring mode
-      const hiringMode = serviceTypeToHiringMode(serviceType);
-
-      const response = await jobService.updateJob(job.id, {
-        hiringMode: hiringMode as any,
-      });
-      
-      if (response.success) {
-        const serviceName = serviceType === 'shortlisting' 
-          ? 'Shortlisting Service' 
-          : serviceType === 'full-service' 
-          ? 'Full Recruitment Service' 
-          : 'Executive Search';
-        
-        toast({
-          title: "Service upgraded",
-          description: `Job has been upgraded to ${serviceName}.`,
-        });
-        onJobUpdate();
-        setUpgradeServiceDialogOpen(false);
-      } else {
-        toast({
-          title: "Error",
-          description: response.error || "Failed to upgrade service",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upgrade service",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleServiceUpgrade = (serviceType: 'shortlisting' | 'full-service' | 'executive-search') => {
+    // For now, redirect to the managed recruitment mock checkout
+    navigate(`/jobs/${job.id}/managed-recruitment-checkout?serviceType=${serviceType}`);
+    setUpgradeServiceDialogOpen(false);
   };
 
   const canEdit = job.status !== 'filled' && job.status !== 'closed' && job.status !== 'cancelled';
@@ -339,8 +306,13 @@ export function JobLifecycleActions({ job, onJobUpdate, onEdit }: JobLifecycleAc
             <>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setUpgradeServiceDialogOpen(true)}>
-                <ArrowUpCircle className="h-4 w-4 mr-2" />
-                Upgrade to HRM8 Recruitment Service
+                <ArrowUpCircle className="h-4 w-4 mr-2 text-primary" />
+                <span className="flex flex-col">
+                  <span>Upgrade to HRM8 Recruitment Service</span>
+                  <span className="text-xs text-muted-foreground">
+                    Move this role into a managed recruitment workflow
+                  </span>
+                </span>
               </DropdownMenuItem>
             </>
           )}

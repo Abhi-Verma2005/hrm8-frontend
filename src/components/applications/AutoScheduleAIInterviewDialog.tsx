@@ -6,10 +6,8 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Video, Phone, MessageSquare, Calendar } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import { saveAIInterviewSession } from '@/lib/aiInterview/aiInterviewStorage';
-import { v4 as uuidv4 } from 'uuid';
+import { videoInterviewService } from '@/lib/videoInterviewService';
 import type { Application } from '@/types/application';
-import type { InterviewMode } from '@/types/aiInterview';
 
 interface AutoScheduleAIInterviewDialogProps {
   application: Application;
@@ -24,8 +22,9 @@ export function AutoScheduleAIInterviewDialog({
   onOpenChange,
   onScheduled 
 }: AutoScheduleAIInterviewDialogProps) {
-  const [interviewMode, setInterviewMode] = useState<InterviewMode>('text');
+  const [interviewType, setInterviewType] = useState<'VIDEO' | 'PHONE' | 'IN_PERSON'>('VIDEO');
   const [scheduledDate, setScheduledDate] = useState('');
+  const [duration, setDuration] = useState(60);
   const [isScheduling, setIsScheduling] = useState(false);
 
   const handleSchedule = async () => {
@@ -40,37 +39,38 @@ export function AutoScheduleAIInterviewDialog({
 
     setIsScheduling(true);
 
-    const interview = {
-      id: uuidv4(),
-      candidateId: application.candidateId,
-      candidateName: application.candidateName,
-      candidateEmail: application.candidateEmail,
-      applicationId: application.id,
-      jobId: application.jobId,
-      jobTitle: application.jobTitle,
-      status: 'scheduled' as const,
-      scheduledDate,
-      interviewMode,
-      questionSource: 'hybrid' as const,
-      questions: [],
-      currentQuestionIndex: 0,
-      transcript: [],
-      invitationToken: uuidv4(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdBy: 'current-user',
-    };
+    try {
+      // Convert datetime-local to ISO string
+      const scheduledDateTime = new Date(scheduledDate).toISOString();
 
-    saveAIInterviewSession(interview);
+      const response = await videoInterviewService.createInterview({
+        applicationId: application.id,
+        scheduledDate: scheduledDateTime,
+        duration,
+        type: interviewType,
+        interviewerIds: [], // TODO: Get from user context or selection
+      });
 
-    toast({
-      title: 'AI Interview scheduled',
-      description: `${application.candidateName} will receive an interview invitation`,
-    });
-
-    setIsScheduling(false);
-    onScheduled?.();
-    onOpenChange(false);
+      if (response.success && response.data) {
+        toast({
+          title: 'Video Interview scheduled',
+          description: `${application.candidateName} will receive an interview invitation`,
+        });
+        onScheduled?.();
+        onOpenChange(false);
+      } else {
+        throw new Error(response.error || 'Failed to schedule interview');
+      }
+    } catch (error) {
+      console.error('Failed to schedule interview:', error);
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to schedule interview',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsScheduling(false);
+    }
   };
 
   const minDate = new Date().toISOString().slice(0, 16);
@@ -86,47 +86,61 @@ export function AutoScheduleAIInterviewDialog({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Interview Mode */}
+          {/* Interview Type */}
           <div className="space-y-3">
-            <Label>Interview Mode</Label>
-            <RadioGroup value={interviewMode} onValueChange={(value) => setInterviewMode(value as InterviewMode)}>
+            <Label>Interview Type</Label>
+            <RadioGroup value={interviewType} onValueChange={(value) => setInterviewType(value as 'VIDEO' | 'PHONE' | 'IN_PERSON')}>
               <div className="flex items-center space-x-2 border rounded-lg p-3 hover:bg-accent cursor-pointer">
-                <RadioGroupItem value="text" id="text" />
-                <Label htmlFor="text" className="flex-1 cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    <div>
-                      <div className="font-medium">Text Interview</div>
-                      <div className="text-sm text-muted-foreground">Chat-based AI interview</div>
-                    </div>
-                  </div>
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2 border rounded-lg p-3 hover:bg-accent cursor-pointer">
-                <RadioGroupItem value="video" id="video" />
+                <RadioGroupItem value="VIDEO" id="video" />
                 <Label htmlFor="video" className="flex-1 cursor-pointer">
                   <div className="flex items-center gap-2">
                     <Video className="h-4 w-4" />
                     <div>
                       <div className="font-medium">Video Interview</div>
-                      <div className="text-sm text-muted-foreground">Face-to-face AI interview</div>
+                      <div className="text-sm text-muted-foreground">Face-to-face video call</div>
                     </div>
                   </div>
                 </Label>
               </div>
               <div className="flex items-center space-x-2 border rounded-lg p-3 hover:bg-accent cursor-pointer">
-                <RadioGroupItem value="phone" id="phone" />
+                <RadioGroupItem value="PHONE" id="phone" />
                 <Label htmlFor="phone" className="flex-1 cursor-pointer">
                   <div className="flex items-center gap-2">
                     <Phone className="h-4 w-4" />
                     <div>
                       <div className="font-medium">Phone Interview</div>
-                      <div className="text-sm text-muted-foreground">Voice-only AI interview</div>
+                      <div className="text-sm text-muted-foreground">Voice-only call</div>
+                    </div>
+                  </div>
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2 border rounded-lg p-3 hover:bg-accent cursor-pointer">
+                <RadioGroupItem value="IN_PERSON" id="in-person" />
+                <Label htmlFor="in-person" className="flex-1 cursor-pointer">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="h-4 w-4" />
+                    <div>
+                      <div className="font-medium">In-Person Interview</div>
+                      <div className="text-sm text-muted-foreground">Physical meeting</div>
                     </div>
                   </div>
                 </Label>
               </div>
             </RadioGroup>
+          </div>
+
+          {/* Duration */}
+          <div className="space-y-2">
+            <Label htmlFor="duration">Duration (minutes)</Label>
+            <Input
+              id="duration"
+              type="number"
+              min="15"
+              max="180"
+              step="15"
+              value={duration}
+              onChange={(e) => setDuration(parseInt(e.target.value) || 60)}
+            />
           </div>
 
           {/* Date Selection */}

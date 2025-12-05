@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { DashboardLayout } from "@/components/layouts/DashboardLayout";
 import { AuthGuard } from "@/components/common/AuthGuard";
+import { AnyAuthRedirectGate } from "@/components/common/AnyAuthRedirectGate";
 import { dashboardRoutes } from "./dashboard.routes";
 import { atsRoutes } from "./ats.routes";
 import { hrmsRoutes } from "./hrms.routes";
@@ -23,12 +24,47 @@ export const AppRoutes = () => {
   return (
     <Routes>
       {/* Auth routes (public, no sidebar) */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/signup" element={<EmployeeSignup />} />
+      <Route
+        path="/login"
+        element={
+          <AnyAuthRedirectGate>
+            <Login />
+          </AnyAuthRedirectGate>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <AnyAuthRedirectGate>
+            <Register />
+          </AnyAuthRedirectGate>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <AnyAuthRedirectGate>
+            <EmployeeSignup />
+          </AnyAuthRedirectGate>
+        }
+      />
       <Route path="/accept-invitation" element={<AcceptInvitation />} />
-      <Route path="/hrm8/login" element={<Hrm8Login />} />
-      <Route path="/consultant/login" element={<ConsultantLogin />} />
+      <Route
+        path="/consultant/login"
+        element={
+          <AnyAuthRedirectGate>
+            <ConsultantLogin />
+          </AnyAuthRedirectGate>
+        }
+      />
+      <Route
+        path="/hrm8/login"
+        element={
+          <AnyAuthRedirectGate>
+            <Hrm8Login />
+          </AnyAuthRedirectGate>
+        }
+      />
       
       {/* Redirect root to home page (protected) */}
       <Route path="/" element={<Navigate to="/home" replace />} />
