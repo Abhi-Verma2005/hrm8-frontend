@@ -11,10 +11,11 @@ import { messagingService } from '@/lib/messagingService';
 import { ConversationHeader } from '@/components/messages/ConversationHeader';
 import { MessageList } from '@/components/messages/MessageList';
 import { MessageInput } from '@/components/messages/MessageInput';
-import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
 import { ConversationData } from '@/types/websocket';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 
 export default function CandidateConversationPage() {
   const { conversationId } = useParams<{ conversationId: string }>();
@@ -55,60 +56,49 @@ export default function CandidateConversationPage() {
 
   if (isLoading) {
     return (
-      <CandidatePageLayout
-        title="Messages"
-        subtitle="Loading..."
-      >
-        <div className="flex items-center justify-center h-full min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      </CandidatePageLayout>
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
     );
   }
 
   if (!conversation) {
     return (
-      <CandidatePageLayout
-        title="Messages"
-        subtitle="Conversation not found"
-      >
-        <div className="flex items-center justify-center h-full min-h-[400px]">
-          <div className="text-center">
-            <p className="text-muted-foreground">Conversation not found</p>
-            <Button
-              variant="outline"
-              onClick={() => navigate('/candidate/messages')}
-              className="mt-4"
-            >
-              Back to Messages
-            </Button>
-          </div>
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <p className="text-muted-foreground">Conversation not found</p>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/candidate/messages')}
+            className="mt-4"
+          >
+            Back to Messages
+          </Button>
         </div>
-      </CandidatePageLayout>
+      </div>
     );
   }
 
   const conversationMessages = messages[conversationId] || [];
 
   return (
-    <CandidatePageLayout
-      title="Messages"
-      subtitle={
-        conversation.candidate
-          ? `Conversation with ${conversation.candidate.firstName} ${conversation.candidate.lastName}`
-          : 'Conversation'
-      }
-      actions={
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate('/candidate/messages')}
+    <CandidatePageLayout>
+      <div className="p-6 space-y-6 h-full">
+        <AtsPageHeader
+          title="Messages"
+          subtitle={conversation.candidate
+            ? `Conversation with ${conversation.candidate.firstName} ${conversation.candidate.lastName}`
+            : 'Conversation'}
         >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-      }
-    >
-      <div className="p-6 h-full">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/candidate/messages')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+        </AtsPageHeader>
       <div className="h-[calc(100vh-200px)] flex flex-col border rounded-lg overflow-hidden">
         <div className="border-b bg-card">
           <ConversationHeader

@@ -6,12 +6,13 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 import { jobService, PublicJob } from '@/lib/jobService';
-import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Briefcase, Clock, DollarSign, Building2, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -58,57 +59,49 @@ export default function JobDetailPage() {
 
   if (isLoading) {
     return (
-      <CandidatePageLayout
-        title="Job Details"
-        subtitle="Loading..."
-      >
-        <div className="flex items-center justify-center min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      </CandidatePageLayout>
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
     );
   }
 
   if (!job) {
     return (
-      <CandidatePageLayout
-        title="Job Not Found"
-        subtitle="The job you're looking for doesn't exist or has been removed."
-        actions={
+      <div className="p-6 flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-2">Job Not Found</h2>
+          <p className="text-muted-foreground mb-4">The job you're looking for doesn't exist or has been removed.</p>
           <Button onClick={() => navigate('/candidate/jobs')}>Browse Jobs</Button>
-        }
-      >
-        <div className="p-6" />
-      </CandidatePageLayout>
+        </div>
+      </div>
     );
   }
 
   return (
-    <CandidatePageLayout
-      title={job.title}
-      subtitle={`${job.company.name} • ${job.location}`}
-      actions={
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/candidate/jobs')}
+    <CandidatePageLayout>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title={job.title}
+          subtitle={`${job.company.name} • ${job.location}`}
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Jobs
-        </Button>
-      }
-    >
-      <div className="p-6">
-        <div className="container mx-auto max-w-5xl">
+          <Button
+            variant="ghost"
+            onClick={() => navigate('/candidate/jobs')}
+            size="sm"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Jobs
+          </Button>
+        </AtsPageHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Job Header */}
+            {/* Job Details */}
             <Card>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-3xl mb-2">{job.title}</CardTitle>
                     <CardDescription className="flex items-center gap-4 flex-wrap mt-2">
                       <span className="flex items-center gap-1">
                         <Building2 className="h-4 w-4" />
@@ -131,7 +124,7 @@ export default function JobDetailPage() {
                     </CardDescription>
                   </div>
                   {job.featured && (
-                    <Badge variant="default" className="ml-4">
+                    <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-primary/10 text-primary border-primary/20 ml-4">
                       Featured
                     </Badge>
                   )}
@@ -142,7 +135,7 @@ export default function JobDetailPage() {
             {/* Job Description */}
             <Card>
               <CardHeader>
-                <CardTitle>Job Description</CardTitle>
+                <CardTitle className="text-base font-semibold">Job Description</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="prose dark:prose-invert max-w-none">
@@ -155,7 +148,7 @@ export default function JobDetailPage() {
             {job.requirements.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Requirements</CardTitle>
+                  <CardTitle className="text-base font-semibold">Requirements</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="list-disc list-inside space-y-2">
@@ -171,7 +164,7 @@ export default function JobDetailPage() {
             {job.responsibilities.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Responsibilities</CardTitle>
+                  <CardTitle className="text-base font-semibold">Responsibilities</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="list-disc list-inside space-y-2">
@@ -187,12 +180,12 @@ export default function JobDetailPage() {
             {job.promotionalTags.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Tags</CardTitle>
+                  <CardTitle className="text-base font-semibold">Tags</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex gap-2 flex-wrap">
                     {job.promotionalTags.map((tag, idx) => (
-                      <Badge key={idx} variant="outline">
+                      <Badge key={idx} variant="outline" className="h-6 px-2 text-xs rounded-full">
                         {tag}
                       </Badge>
                     ))}
@@ -207,7 +200,7 @@ export default function JobDetailPage() {
             {/* Apply Card */}
             <Card>
               <CardHeader>
-                <CardTitle>Apply for this Job</CardTitle>
+                <CardTitle className="text-base font-semibold">Apply for this Job</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -242,7 +235,7 @@ export default function JobDetailPage() {
             {/* Company Info */}
             <Card>
               <CardHeader>
-                <CardTitle>About {job.company.name}</CardTitle>
+                <CardTitle className="text-base font-semibold">About {job.company.name}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
@@ -261,7 +254,6 @@ export default function JobDetailPage() {
             </Card>
           </div>
         </div>
-      </div>
       </div>
     </CandidatePageLayout>
   );

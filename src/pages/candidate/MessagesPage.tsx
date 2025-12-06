@@ -9,9 +9,10 @@ import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 import { useWebSocket } from '@/contexts/WebSocketContext';
 import { messagingService } from '@/lib/messagingService';
 import { ConversationList } from '@/components/messages/ConversationList';
-import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
 import { Card } from '@/components/ui/card';
 import { Loader2, MessageSquare } from 'lucide-react';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 
 export default function CandidateMessagesPage() {
   const { candidate, isAuthenticated } = useCandidateAuth();
@@ -45,23 +46,19 @@ export default function CandidateMessagesPage() {
 
   if (isLoading) {
     return (
-      <CandidatePageLayout
-        title="Messages"
-        subtitle="Loading..."
-      >
-        <div className="flex items-center justify-center h-full min-h-[400px]">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      </CandidatePageLayout>
+      <div className="flex items-center justify-center h-full">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
     );
   }
 
   return (
-    <CandidatePageLayout
-      title="Messages"
-      subtitle="Communicate with recruiters about your applications"
-    >
-      <div className="p-6 h-full">
+    <CandidatePageLayout>
+      <div className="p-6 space-y-6 h-full">
+        <AtsPageHeader
+          title="Messages"
+          subtitle="Communicate with recruiters about your applications"
+        />
       <div className="h-[calc(100vh-200px)] flex border rounded-lg overflow-hidden">
         <div className="w-full md:w-1/3 lg:w-1/4 border-r bg-card">
           {isLoading ? (

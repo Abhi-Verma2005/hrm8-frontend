@@ -138,8 +138,11 @@ export default function JobDetail() {
     const loadCount = async () => {
       if (!jobId) return;
       try {
+        console.log('[JobDetail] Loading applicant count for jobId:', jobId);
         const res = await applicationService.getJobApplications(jobId);
+        console.log('[JobDetail] Applicant count API response:', res);
         const list = res.data?.applications || [];
+        console.log('[JobDetail] Applications found:', list.length, list);
         setApplicantsCount(list.length);
       } catch (err) {
         console.error("[JobDetail] Failed to load applicants count", err);

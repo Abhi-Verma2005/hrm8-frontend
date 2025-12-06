@@ -18,6 +18,32 @@ export interface Candidate {
   country?: string;
   emailVerified: boolean;
   status: string;
+
+  // Work Eligibility
+  visaStatus?: string;
+  workEligibility?: string;
+  requiresSponsorship?: boolean;
+
+  // Job Preferences
+  jobTypePreference?: string[];
+  expectedSalaryMin?: string;
+  expectedSalaryMax?: string;
+  salaryCurrency?: string;
+  salaryPreference?: {
+    min?: number;
+    max?: number;
+    currency?: string;
+  };
+  relocationWilling?: boolean;
+  preferredLocations?: string;
+  remotePreference?: string;
+  resumeUrl?: string;
+
+  // Privacy & Visibility
+  profileVisibility?: string;
+  showContactInfo?: boolean;
+  showSalaryExpectations?: boolean;
+  allowRecruiterContact?: boolean;
 }
 
 export interface CandidateLoginRequest {

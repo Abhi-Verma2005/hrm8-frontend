@@ -13,28 +13,24 @@ export default function ApplyPage() {
 
   if (!id) {
     return (
-      <CandidatePageLayout
-        title="Apply"
-        subtitle="Invalid job ID"
-      >
-        <div className="flex items-center justify-center min-h-[400px]">
-          <p className="text-muted-foreground">Invalid job ID</p>
-        </div>
-      </CandidatePageLayout>
+      <div className="min-h-screen flex items-center justify-center">
+        <p>Invalid job ID</p>
+      </div>
     );
   }
 
   return (
-    <CandidatePageLayout
-      title="Apply for Job"
-      subtitle="Submit your application"
-    >
-      <div className="p-6">
-        <div className="container mx-auto max-w-3xl">
+    <CandidatePageLayout>
+      <div className="p-6 space-y-6">
+        <div className="max-w-3xl mx-auto">
           <JobApplicationForm
             jobId={id}
             onSuccess={(applicationId) => {
-              navigate(`/candidate/applications/${applicationId}/confirmation`);
+              if (applicationId) {
+                navigate(`/candidate/applications/${applicationId}/confirmation`);
+              } else {
+                navigate(`/candidate/applications/confirmation`);
+              }
             }}
           />
         </div>

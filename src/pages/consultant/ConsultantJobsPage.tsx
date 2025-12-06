@@ -84,8 +84,8 @@ export default function ConsultantJobsPage() {
         }
         return (
           <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
-            {job.status}
-          </Badge>
+          {job.status}
+        </Badge>
         );
       },
     },
@@ -108,50 +108,50 @@ export default function ConsultantJobsPage() {
           subtitle="View and manage your assigned jobs"
         />
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <EnhancedStatCard
-            title="Total Jobs"
-            value={jobs.length.toString()}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <EnhancedStatCard
+          title="Total Jobs"
+          value={jobs.length.toString()}
             icon={<Briefcase className="h-5 w-5" />}
-            variant="neutral"
-          />
+          variant="neutral"
+        />
 
-          <EnhancedStatCard
-            title="Active Jobs"
-            value={jobs.filter(j => j.status === 'ACTIVE').length.toString()}
+        <EnhancedStatCard
+          title="Active Jobs"
+          value={jobs.filter(j => j.status === 'ACTIVE').length.toString()}
             icon={<Clock className="h-5 w-5" />}
             variant="neutral"
-          />
-        </div>
+        />
+      </div>
 
-        <Card>
-          <CardHeader>
+      <Card>
+        <CardHeader>
             <CardTitle className="text-base font-semibold">Assigned Jobs</CardTitle>
             <CardDescription className="text-sm">
               {jobs.length} total job{jobs.length !== 1 ? 's' : ''} assigned
             </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
+        </CardHeader>
+        <CardContent>
+          {loading ? (
               <div className="text-center py-8 text-muted-foreground">
                 <div className="text-sm">Loading jobs...</div>
               </div>
-            ) : jobs.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+          ) : jobs.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
                 <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p className="text-sm">No jobs assigned yet</p>
-              </div>
-            ) : (
-              <DataTable
-                data={jobs}
-                columns={columns}
-                searchable
-                searchKeys={['title', 'location', 'department']}
-                emptyMessage="No jobs found"
-              />
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          ) : (
+            <DataTable
+              data={jobs}
+              columns={columns}
+              searchable
+              searchKeys={['title', 'location', 'department']}
+              emptyMessage="No jobs found"
+            />
+          )}
+        </CardContent>
+      </Card>
       </div>
     </ConsultantPageLayout>
   );
