@@ -131,7 +131,7 @@ export default function JobSearchPage() {
         const jobs = Array.isArray(response.data) ? response.data : [];
         const ids = new Set(jobs.map((item: { job?: { id: string }; jobId?: string }) => item.job?.id || item.jobId).filter(Boolean));
         console.log('JobSearchPage - Saved job IDs:', Array.from(ids));
-        setSavedJobIds(ids as Set<string>);
+      setSavedJobIds(ids as Set<string>);
       }
     } catch (error) {
       console.error('Failed to fetch saved jobs:', error);

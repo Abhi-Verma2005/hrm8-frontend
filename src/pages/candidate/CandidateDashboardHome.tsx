@@ -133,32 +133,32 @@ export default function CandidateDashboardHome() {
 
         {/* Dashboard Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Profile Completeness */}
-          <Card>
-            <CardHeader>
+        {/* Profile Completeness */}
+        <Card>
+          <CardHeader>
               <CardTitle className="text-base font-semibold">Profile Completeness</CardTitle>
               <CardDescription className="text-sm">
-                Complete your profile to improve your job matches
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span>{profileCompleteness}% Complete</span>
+              Complete your profile to improve your job matches
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span>{profileCompleteness}% Complete</span>
                   <span className="text-muted-foreground">{100 - profileCompleteness}% remaining</span>
-                </div>
-                <Progress value={profileCompleteness} />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/candidate/profile')}
-                  className="mt-4 w-full"
-                >
-                  Complete Profile
-                </Button>
               </div>
-            </CardContent>
-          </Card>
+              <Progress value={profileCompleteness} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/candidate/profile')}
+                  className="mt-4 w-full"
+              >
+                Complete Profile
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
           {/* Browse Jobs */}
           <Card className="cursor-pointer" onClick={() => navigate('/candidate/jobs')}>

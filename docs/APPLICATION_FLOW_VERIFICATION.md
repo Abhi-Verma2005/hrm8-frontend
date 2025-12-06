@@ -148,3 +148,4 @@ To verify the complete flow:
 - Is displayed in the employer's job detail page (Applicants tab)
 - Shows candidate information (name, email, status, stage)
 
+

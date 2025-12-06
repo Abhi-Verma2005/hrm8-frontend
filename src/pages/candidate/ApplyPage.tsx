@@ -23,18 +23,18 @@ export default function ApplyPage() {
     <CandidatePageLayout>
       <div className="p-6 space-y-6">
         <div className="max-w-3xl mx-auto">
-          <JobApplicationForm
-            jobId={id}
-            onSuccess={(applicationId) => {
+        <JobApplicationForm
+          jobId={id}
+          onSuccess={(applicationId) => {
               if (applicationId) {
-                navigate(`/candidate/applications/${applicationId}/confirmation`);
+            navigate(`/candidate/applications/${applicationId}/confirmation`);
               } else {
                 navigate(`/candidate/applications/confirmation`);
               }
-            }}
-          />
-        </div>
+          }}
+        />
       </div>
+    </div>
     </CandidatePageLayout>
   );
 }

@@ -249,12 +249,23 @@ export default function ApplicationsPage() {
 
   const handleDelete = async (applicationId: string) => {
     try {
-      // Note: Delete endpoint may need to be added to backend
+      // First, withdraw the application if it's not already withdrawn
+      const app = applications.find(a => a.id === applicationId);
+      if (app && app.status !== 'WITHDRAWN' && app.status !== 'REJECTED') {
+        try {
+          await applicationService.withdrawApplication(applicationId);
+        } catch (withdrawError) {
+          console.error('Failed to withdraw before delete:', withdrawError);
+          // Continue with delete even if withdraw fails
+        }
+      }
+
+      // Then delete the application
       const response = await apiClient.delete(`/api/applications/${applicationId}`);
       if (response.success) {
         toast({
           title: 'Application deleted',
-          description: 'Your application has been deleted successfully',
+          description: 'Your application has been withdrawn and deleted successfully',
         });
         setDeleteDialogOpen(null);
         loadApplications();
@@ -358,7 +369,8 @@ export default function ApplicationsPage() {
   };
 
   const canDelete = (status: string) => {
-    return ['WITHDRAWN', 'REJECTED'].includes(status);
+    // Allow deletion for all statuses except HIRED
+    return status !== 'HIRED';
   };
 
   const handleDownloadFile = async (url: string, filename: string) => {
@@ -404,15 +416,15 @@ export default function ApplicationsPage() {
           subtitle="Track your job applications, interviews, and documents"
         >
           <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
                 placeholder="Search by job title, company..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 w-64"
-              />
-            </div>
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8 w-64"
+                />
+              </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="All statuses" />
@@ -429,8 +441,8 @@ export default function ApplicationsPage() {
               </SelectContent>
             </Select>
             <Button size="sm" onClick={() => navigate('/candidate/jobs')}>
-              Browse Jobs
-            </Button>
+                Browse Jobs
+              </Button>
           </div>
         </AtsPageHeader>
 
@@ -442,11 +454,11 @@ export default function ApplicationsPage() {
                 <CardDescription className="text-sm">
                   {filteredApplications.length} of {applications.length} application{applications.length !== 1 ? 's' : ''}
                 </CardDescription>
-              </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map(i => (
                   <Card key={i} className="p-4">
@@ -454,28 +466,28 @@ export default function ApplicationsPage() {
                     <Skeleton className="h-4 w-1/2" />
                   </Card>
                 ))}
-              </div>
-            ) : filteredApplications.length === 0 ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            </div>
+          ) : filteredApplications.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p className="mb-2 text-sm">
                   {searchQuery || statusFilter !== 'all' 
                     ? 'No applications match your filters' 
                     : 'No applications yet'}
-                </p>
+              </p>
                 {!searchQuery && statusFilter === 'all' && (
-                  <Button
-                    variant="outline"
+                <Button
+                  variant="outline"
                     size="sm"
-                    className="mt-4"
-                    onClick={() => navigate('/candidate/jobs')}
-                  >
-                    Browse Jobs
-                  </Button>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-4">
+                  className="mt-4"
+                  onClick={() => navigate('/candidate/jobs')}
+                >
+                  Browse Jobs
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
                 {filteredApplications.map((app) => {
                   const isExpanded = expandedApplications.has(app.id);
                   const hasInterviews = app.interviews && app.interviews.length > 0;
@@ -489,13 +501,13 @@ export default function ApplicationsPage() {
                               <h3 className="text-sm font-semibold">
                                 {app.jobDetails?.title || 'Loading job details...'}
                               </h3>
-                              {getStatusBadge(app.status)}
-                              {app.isNew && (
+                      {getStatusBadge(app.status)}
+                      {app.isNew && (
                                 <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-primary/10 text-primary border-primary/20">
-                                  New
-                                </Badge>
-                              )}
-                            </div>
+                          New
+                        </Badge>
+                      )}
+                    </div>
                             
                             {app.jobDetails?.company && (
                               <div className="flex items-center gap-1 text-sm text-muted-foreground">
@@ -507,7 +519,7 @@ export default function ApplicationsPage() {
                             <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
                               <span className="flex items-center gap-1">
                                 <Clock className="h-3.5 w-3.5" />
-                                Applied {formatDistanceToNow(new Date(app.appliedDate), { addSuffix: true })}
+                      Applied {formatDistanceToNow(new Date(app.appliedDate), { addSuffix: true })}
                               </span>
                               {app.jobDetails?.location && (
                                 <span className="flex items-center gap-1">
@@ -742,19 +754,19 @@ export default function ApplicationsPage() {
                                       >
                                         LinkedIn Profile
                                       </a>
-                                    </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
                                         window.open(app.linkedInUrl, '_blank', 'noopener,noreferrer');
-                                      }}
-                                    >
+                    }}
+                  >
                                       <ExternalLink className="h-3.5 w-3.5 mr-1" />
                                       Open
-                                    </Button>
-                                  </div>
+                  </Button>
+                </div>
                                 )}
                               </div>
                             </div>
@@ -850,10 +862,10 @@ export default function ApplicationsPage() {
                     </Card>
                   );
                 })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            </div>
+          )}
+        </CardContent>
+      </Card>
       </div>
       
       {/* Withdraw Dialog */}
@@ -885,7 +897,7 @@ export default function ApplicationsPage() {
           <DialogHeader>
             <DialogTitle>Delete Application</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this application? This action cannot be undone.
+              Are you sure you want to delete this application? This will automatically withdraw the application (if not already withdrawn) and then delete it. This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
