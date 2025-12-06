@@ -116,6 +116,14 @@ export function transformJobFormDataToCreateRequest(
     (jobRequest as any).status = status;
   }
 
+  if (data.assignmentMode) {
+    (jobRequest as any).assignmentMode = data.assignmentMode;
+  }
+
+  if (data.regionId) {
+    (jobRequest as any).regionId = data.regionId;
+  }
+
   return jobRequest;
 }
 

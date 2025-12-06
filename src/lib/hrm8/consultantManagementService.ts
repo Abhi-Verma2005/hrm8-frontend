@@ -42,6 +42,21 @@ export interface Consultant {
   updatedAt: string;
 }
 
+export interface ConsultantEmailProvisioningInfo {
+  success: boolean;
+  provider?: 'google' | 'microsoft';
+  email?: string;
+  providerUserId?: string;
+  tempPassword?: string;
+  errorCode?: string;
+  errorMessage?: string;
+}
+
+export interface ConsultantCreateResponse {
+  consultant: Consultant;
+  emailProvisioning?: ConsultantEmailProvisioningInfo;
+}
+
 class ConsultantManagementService {
   async getAll(filters?: {
     regionId?: string;
@@ -71,7 +86,7 @@ class ConsultantManagementService {
     role: 'RECRUITER' | 'SALES_AGENT' | 'CONSULTANT_360';
     regionId?: string;
   }) {
-    return apiClient.post<{ consultant: Consultant }>('/api/hrm8/consultants', data);
+    return apiClient.post<ConsultantCreateResponse>('/api/hrm8/consultants', data);
   }
 
   async update(id: string, data: Partial<Consultant>) {
@@ -88,6 +103,14 @@ class ConsultantManagementService {
 
   async reactivate(id: string) {
     return apiClient.post(`/api/hrm8/consultants/${id}/reactivate`);
+  }
+
+  async generateEmail(data: {
+    firstName: string;
+    lastName: string;
+    consultantId?: string;
+  }) {
+    return apiClient.post<{ email: string }>('/api/hrm8/consultants/generate-email', data);
   }
 }
 

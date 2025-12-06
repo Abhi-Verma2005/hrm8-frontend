@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { FileText, Building2, Check, DollarSign, MapPin, Briefcase as BriefcaseIcon, Plus } from "lucide-react";
 import { ComboboxWithAdd } from "@/components/ui/combobox-with-add";
 import { formatSalaryRange } from "@/lib/jobUtils";
@@ -20,11 +21,17 @@ import { Separator } from "@/components/ui/separator";
 import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { CompanyProfileLocation } from "@/types/companyProfile";
 import { AIJobGenerator } from "./AIJobGenerator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 interface JobWizardStep1Props {
   form: UseFormReturn<JobFormData>;
+  companyAssignmentMode?: 'AUTO_RULES_ONLY' | 'MANUAL_ONLY';
+  loadingCompanySettings?: boolean;
 }
 export function JobWizardStep1({
-  form
+  form,
+  companyAssignmentMode,
+  loadingCompanySettings
 }: JobWizardStep1Props) {
   const [departmentDialogOpen, setDepartmentDialogOpen] = useState(false);
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
@@ -525,5 +532,51 @@ export function JobWizardStep1({
 
       {/* Add Location Dialog */}
       <AddLocationDialog open={locationDialogOpen} onOpenChange={setLocationDialogOpen} onAdd={handleAddLocation} employerName={companyName} />
+
+      {/* Job Assignment Settings */}
+      {!loadingCompanySettings && companyAssignmentMode && (
+        <div className="space-y-2">
+          <Separator />
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              <div className="space-y-2">
+                <p>
+                  <span className="font-medium">Company Assignment Mode:</span>{' '}
+                  {companyAssignmentMode === 'AUTO_RULES_ONLY' 
+                    ? 'Auto Assignment by Rules' 
+                    : 'Manual Assignment Only'}
+                </p>
+                <FormField
+                  control={form.control}
+                  name="assignmentMode"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value === 'AUTO'}
+                          onCheckedChange={(checked) => {
+                            field.onChange(checked ? 'AUTO' : 'MANUAL');
+                          }}
+                        />
+                      </FormControl>
+                      <div className="space-y-1 leading-none">
+                        <FormLabel className="text-sm font-normal cursor-pointer">
+                          Auto-assign consultant for this job
+                        </FormLabel>
+                        <p className="text-xs text-muted-foreground">
+                          {companyAssignmentMode === 'AUTO_RULES_ONLY'
+                            ? 'This job will be automatically assigned to a consultant based on region, expertise, and availability.'
+                            : 'Note: Your company is set to manual assignment, but you can enable auto-assignment for this specific job.'}
+                        </p>
+                      </div>
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
     </div>;
 }

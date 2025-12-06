@@ -213,4 +213,8 @@ export interface JobFormData {
   
   // Video Interviewing
   videoInterviewingEnabled?: boolean;
+  
+  // Job Assignment
+  assignmentMode?: 'AUTO' | 'MANUAL';
+  regionId?: string;
 }

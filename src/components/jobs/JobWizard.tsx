@@ -60,6 +60,8 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
   const [currentJobId, setCurrentJobId] = useState<string | null>(initialJobId || null);
   const [isPublishing, setIsPublishing] = useState(false);
   const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+  const [companyAssignmentMode, setCompanyAssignmentMode] = useState<JobAssignmentMode>('AUTO_RULES_ONLY');
+  const [loadingCompanySettings, setLoadingCompanySettings] = useState(true);
   
   const findScrollContainer = (): HTMLElement | null => {
     const scrollAreaViewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
@@ -131,8 +133,36 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
       selectedPaymentMethod: defaultValues?.selectedPaymentMethod,
       paymentInvoiceRequested: defaultValues?.paymentInvoiceRequested || false,
       videoInterviewingEnabled: defaultValues?.videoInterviewingEnabled || false,
+      assignmentMode: defaultValues?.assignmentMode,
+      regionId: defaultValues?.regionId,
     },
   });
+
+  // Load company assignment settings
+  useEffect(() => {
+    const loadCompanySettings = async () => {
+      if (user?.companyId) {
+        try {
+          setLoadingCompanySettings(true);
+          const settings = await companySettingsService.getJobAssignmentSettings(user.companyId);
+          setCompanyAssignmentMode(settings.jobAssignmentMode);
+          
+          // Set default assignment mode based on company settings if not already set
+          const currentAssignmentMode = form.getValues('assignmentMode');
+          if (!currentAssignmentMode && !defaultValues?.assignmentMode) {
+            const defaultMode = settings.jobAssignmentMode === 'AUTO_RULES_ONLY' ? 'AUTO' : 'MANUAL';
+            form.setValue('assignmentMode', defaultMode as 'AUTO' | 'MANUAL');
+          }
+        } catch (error) {
+          console.error('Failed to load company assignment settings:', error);
+        } finally {
+          setLoadingCompanySettings(false);
+        }
+      }
+    };
+    
+    loadCompanySettings();
+  }, [user?.companyId]);
 
   // Reset form when defaultValues change (e.g., when loading a draft)
   useEffect(() => {
@@ -334,6 +364,8 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
         closeDate: formData.closeDate ? new Date(formData.closeDate) : undefined,
         category: formData.experienceLevel || undefined, // Store experienceLevel in category field
         applicationForm: formData.applicationForm,
+        assignmentMode: formData.assignmentMode || (companyAssignmentMode === 'AUTO_RULES_ONLY' ? 'AUTO' : 'MANUAL'),
+        regionId: formData.regionId,
       };
 
       if (currentJobId) {
@@ -638,6 +670,8 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
             category: data.experienceLevel || undefined,
             applicationForm: data.applicationForm,
             status: 'DRAFT' as const,
+            assignmentMode: data.assignmentMode || (companyAssignmentMode === 'AUTO_RULES_ONLY' ? 'AUTO' : 'MANUAL'),
+            regionId: data.regionId,
           };
           
           if (currentJobId) {
@@ -1017,7 +1051,7 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
           </div>
         </div>
 
-        {step === 1 && <JobWizardStep1 form={form} />}
+        {step === 1 && <JobWizardStep1 form={form} companyAssignmentMode={companyAssignmentMode} loadingCompanySettings={loadingCompanySettings} />}
         {step === 2 && !isHRM8Service && <JobWizardStep2 form={form} />}
         {!isHRM8Service && step === 3 && <JobWizardStep3 form={form} jobId={currentJobId} />}
         {!isHRM8Service && step === 4 && <JobWizardStep4 form={form} jobId={currentJobId} />}

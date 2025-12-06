@@ -33,6 +33,8 @@ export interface CreateJobRequest {
   visibility?: string;
   expiryDate?: string;
   videoInterviewingEnabled?: boolean;
+  assignmentMode?: 'AUTO' | 'MANUAL';
+  regionId?: string;
 }
 
 export interface UpdateJobRequest extends Partial<CreateJobRequest> {

@@ -52,3 +52,14 @@ export function CandidateHeader({ breadcrumbActions }: CandidateHeaderProps = {}
 
 
 
+
+
+
+
+
+
+
+
+
+
+
