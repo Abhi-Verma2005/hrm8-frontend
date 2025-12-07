@@ -22,6 +22,24 @@ import { RoleIsolationGate } from "@/components/common/RoleIsolationGate";
 
 export const candidateRoutes = (
   <>
+    {/* Public job browsing routes (no authentication required) */}
+    <Route path="/candidate/jobs" element={
+      <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
+        <JobSearchPage />
+      </RoleIsolationGate>
+    } />
+    <Route path="/candidate/jobs/:id" element={
+      <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
+        <JobDetailPage />
+      </RoleIsolationGate>
+    } />
+    <Route path="/candidate/jobs/:id/apply" element={
+      <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
+        <ApplyPage />
+      </RoleIsolationGate>
+    } />
+
+    {/* Protected candidate routes (authentication required) */}
     <Route
       path="/candidate"
       element={
@@ -32,9 +50,6 @@ export const candidateRoutes = (
     >
       <Route index element={<CandidateDashboardHome />} />
       <Route path="dashboard" element={<CandidateDashboardHome />} />
-      <Route path="jobs" element={<JobSearchPage />} />
-      <Route path="jobs/:id" element={<JobDetailPage />} />
-      <Route path="jobs/:id/apply" element={<ApplyPage />} />
       <Route path="profile" element={<ProfilePage />} />
       <Route path="work-history" element={<WorkHistoryPage />} />
       <Route path="qualifications" element={<QualificationsPage />} />

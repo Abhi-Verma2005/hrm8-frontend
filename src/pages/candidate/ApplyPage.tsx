@@ -6,10 +6,13 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { JobApplicationForm } from '@/components/candidate/JobApplicationForm';
 import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { PublicCandidatePageLayout } from '@/components/layouts/PublicCandidatePageLayout';
+import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 
 export default function ApplyPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { isAuthenticated } = useCandidateAuth();
 
   if (!id) {
     return (
@@ -19,8 +22,10 @@ export default function ApplyPage() {
     );
   }
 
+  const Layout = isAuthenticated ? CandidatePageLayout : PublicCandidatePageLayout;
+
   return (
-    <CandidatePageLayout>
+    <Layout>
       <div className="p-6 space-y-6">
         <div className="max-w-3xl mx-auto">
         <JobApplicationForm
@@ -35,7 +40,7 @@ export default function ApplyPage() {
         />
       </div>
     </div>
-    </CandidatePageLayout>
+    </Layout>
   );
 }
 

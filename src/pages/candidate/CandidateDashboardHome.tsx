@@ -47,7 +47,7 @@ export default function CandidateDashboardHome() {
   const loadNotifications = async () => {
     try {
       const { apiClient } = await import('@/lib/api');
-      const response = await apiClient.get<{ notifications: any[]; total: number; unreadCount: number }>('/candidate/notifications?limit=5');
+      const response = await apiClient.get<{ notifications: any[]; total: number; unreadCount: number }>('/api/candidate/notifications?limit=5');
       if (response.success && response.data) {
         setNotifications(response.data.notifications || []);
       }

@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { MapPin, Briefcase, Clock, DollarSign, Building2, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { PublicCandidatePageLayout } from '@/components/layouts/PublicCandidatePageLayout';
 import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 
 export default function JobDetailPage() {
@@ -41,11 +42,8 @@ export default function JobDetailPage() {
   };
 
   const handleApply = () => {
-    if (!isAuthenticated) {
-      navigate('/candidate/login', { state: { from: `/candidate/jobs/${id}`, action: 'apply' } });
-    } else {
-      navigate(`/candidate/jobs/${id}/apply`);
-    }
+    // Allow unauthenticated users to apply (they'll create account during application)
+    navigate(`/candidate/jobs/${id}/apply`);
   };
 
   const formatSalary = (job: PublicJob) => {
@@ -77,8 +75,10 @@ export default function JobDetailPage() {
     );
   }
 
+  const Layout = isAuthenticated ? CandidatePageLayout : PublicCandidatePageLayout;
+
   return (
-    <CandidatePageLayout>
+    <Layout>
       <div className="p-6 space-y-6">
         <AtsPageHeader
           title={job.title}
@@ -226,7 +226,7 @@ export default function JobDetailPage() {
                 </Button>
                 {!isAuthenticated && (
                   <p className="text-xs text-center text-muted-foreground">
-                    You'll need to sign in or create an account to apply
+                    You can apply without an account - we'll create one for you during the application process
                   </p>
                 )}
               </CardContent>
@@ -255,7 +255,7 @@ export default function JobDetailPage() {
           </div>
         </div>
       </div>
-    </CandidatePageLayout>
+    </Layout>
   );
 }
 

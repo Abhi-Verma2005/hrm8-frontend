@@ -43,6 +43,9 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { PublicCandidatePageLayout } from '@/components/layouts/PublicCandidatePageLayout';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 
 export default function JobSearchPage() {
   const [jobs, setJobs] = useState<PublicJob[]>([]);
@@ -69,6 +72,7 @@ export default function JobSearchPage() {
   const navigate = useNavigate();
   const locationState = useLocation();
   const { toast } = useToast();
+  const { isAuthenticated } = useCandidateAuth();
 
   // Save Search State
 
@@ -123,6 +127,7 @@ export default function JobSearchPage() {
 
   const fetchSavedJobs = async () => {
     try {
+      // Only fetch if user is authenticated (check for session cookie or auth context)
       const response = await apiClient.get('/api/candidate/saved-jobs');
       console.log('JobSearchPage - Saved jobs response:', response);
       if (response.success && response.data) {
@@ -133,13 +138,17 @@ export default function JobSearchPage() {
         console.log('JobSearchPage - Saved job IDs:', Array.from(ids));
       setSavedJobIds(ids as Set<string>);
       }
-    } catch (error) {
-      console.error('Failed to fetch saved jobs:', error);
+    } catch (error: any) {
+      // Silently fail for unauthenticated users (401/403 errors are expected)
+      if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+        console.error('Failed to fetch saved jobs:', error);
+      }
     }
   };
 
   const fetchAppliedJobs = async () => {
     try {
+      // Only fetch if user is authenticated
       const response = await applicationService.getCandidateApplications();
       if (response.success && response.data?.applications) {
         const appliedIds = new Set(
@@ -149,13 +158,18 @@ export default function JobSearchPage() {
         appliedJobIdsRef.current = appliedIds;
         setAppliedJobIds(appliedIds);
       }
-    } catch (error) {
-      console.error('Failed to fetch applied jobs:', error);
+    } catch (error: any) {
+      // Silently fail for unauthenticated users (401/403 errors are expected)
+      if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+        console.error('Failed to fetch applied jobs:', error);
+      }
     }
   };
 
   const trackSearch = useCallback(async (filters: Record<string, unknown>) => {
-    // Only track if there's at least one filter or search query
+    // Only track if user is authenticated and there's at least one filter or search query
+    if (!isAuthenticated) return;
+    
     const hasFilters = Object.values(filters).some(val => val !== undefined && val !== '');
     if (!hasFilters) return;
 
@@ -164,13 +178,28 @@ export default function JobSearchPage() {
         query: searchQuery || undefined,
         filters,
       });
-    } catch (error) {
-      console.error('Failed to track search:', error);
+    } catch (error: any) {
+      // Silently fail for unauthenticated users (401/403 errors are expected)
+      if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+        console.error('Failed to track search:', error);
+      }
     }
-  }, [searchQuery]);
+  }, [searchQuery, isAuthenticated]);
 
   const toggleSaveJob = async (e: React.MouseEvent, jobId: string) => {
     e.stopPropagation();
+    
+    // For unauthenticated users, prompt them to sign in
+    if (!isAuthenticated) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to save jobs",
+        variant: "default",
+      });
+      navigate('/candidate/login', { state: { from: '/candidate/jobs' } });
+      return;
+    }
+    
     const isSaved = savedJobIds.has(jobId);
 
     try {
@@ -193,11 +222,11 @@ export default function JobSearchPage() {
           description: "Job added to your saved jobs.",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to toggle save job:', error);
       toast({
         title: "Error",
-        description: "Failed to update saved job status.",
+        description: error?.response?.data?.error || "Failed to update saved job status.",
         variant: "destructive",
       });
     }
@@ -269,11 +298,18 @@ export default function JobSearchPage() {
     if (isInitializedRef.current) return;
     
     const initialize = async () => {
-      await loadFilterOptions();
-      await fetchAppliedJobs();
-      // Load jobs after fetching applied jobs
-      isInitializedRef.current = true;
-      await loadJobs();
+      try {
+        await loadFilterOptions();
+        await fetchAppliedJobs();
+        // Load jobs after fetching applied jobs
+        isInitializedRef.current = true;
+        await loadJobs();
+      } catch (error) {
+        console.error('Failed to initialize job search page:', error);
+        // Still try to load jobs even if filter options or applied jobs fail
+        isInitializedRef.current = true;
+        await loadJobs();
+      }
     };
     initialize();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -328,10 +364,13 @@ export default function JobSearchPage() {
     return `${job.salaryCurrency} ${min}${max ? ` - ${max}` : '+'}`;
   };
 
+  const Layout = isAuthenticated ? CandidatePageLayout : PublicCandidatePageLayout;
+
   return (
-    <div className="bg-background">
-      {/* Page Header */}
-      <div className="border-b bg-card">
+    <Layout>
+      <div className="bg-background">
+        {/* Page Header */}
+        <div className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
           <div className="mb-6">
             <h1 className="text-3xl font-bold">Find Your Next Job</h1>
@@ -644,6 +683,7 @@ export default function JobSearchPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </Layout>
   );
 }
