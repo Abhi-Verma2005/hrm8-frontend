@@ -25,7 +25,7 @@ export default function ApplyPage() {
   const Layout = isAuthenticated ? CandidatePageLayout : PublicCandidatePageLayout;
 
   return (
-    <Layout>
+    <Layout showSidebarTrigger={false}>
       <div className="p-6 space-y-6">
         <div className="max-w-3xl mx-auto">
         <JobApplicationForm

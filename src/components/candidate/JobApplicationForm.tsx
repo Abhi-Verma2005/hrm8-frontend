@@ -108,6 +108,7 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
 
   const loadCandidateDocuments = async () => {
     try {
+      console.log('[JobApplicationForm] Loading candidate documents...');
       // Fetch all candidate documents
       const [resumesRes, coverLettersRes, portfolioRes] = await Promise.all([
         apiClient.get<CandidateResume[]>('/api/candidate/documents/resumes'),
@@ -115,12 +116,19 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
         apiClient.get<CandidatePortfolio[]>('/api/candidate/documents/portfolio'),
       ]);
 
+      console.log('[JobApplicationForm] Documents response:', {
+        resumes: resumesRes.success ? resumesRes.data?.length : 0,
+        coverLetters: coverLettersRes.success ? coverLettersRes.data?.length : 0,
+        portfolio: portfolioRes.success ? portfolioRes.data?.length : 0,
+      });
+
       if (resumesRes.success && resumesRes.data) {
         const resumes = Array.isArray(resumesRes.data) ? resumesRes.data : [];
         setAvailableResumes(resumes);
         // Auto-select default resume if available, otherwise select the first one
         if (resumes.length > 0) {
           const defaultResume = resumes.find(r => r.isDefault) || resumes[0];
+          console.log('[JobApplicationForm] Auto-selecting resume:', defaultResume.fileName, defaultResume.id);
           setSelectedResumeId(defaultResume.id);
           setUseExistingResume(true);
         }
@@ -132,9 +140,16 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
         // Auto-select default cover letter if available, otherwise select the first one
         if (coverLetters.length > 0) {
           const defaultCoverLetter = coverLetters.find(cl => cl.isDefault) || coverLetters[0];
+          console.log('[JobApplicationForm] Auto-selecting cover letter:', defaultCoverLetter.title, defaultCoverLetter.id, 'hasContent:', !!defaultCoverLetter.content);
           setSelectedCoverLetterId(defaultCoverLetter.id);
           setUseExistingCoverLetter(true);
-          // Note: Content will be auto-filled by the useEffect hook below
+          // Auto-fill content immediately if available
+          if (defaultCoverLetter.content) {
+            setTimeout(() => {
+              setValue('coverLetter', defaultCoverLetter.content || '', { shouldValidate: false });
+              console.log('[JobApplicationForm] Auto-filled cover letter content');
+            }, 200);
+          }
         }
       }
 
@@ -145,12 +160,13 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
         setAvailablePortfolio(filePortfolio);
         // Auto-select first portfolio file if available
         if (filePortfolio.length > 0) {
+          console.log('[JobApplicationForm] Auto-selecting portfolio:', filePortfolio[0].title, filePortfolio[0].id);
           setSelectedPortfolioId(filePortfolio[0].id);
           setUseExistingPortfolio(true);
         }
       }
     } catch (error) {
-      console.error('Failed to load candidate documents:', error);
+      console.error('[JobApplicationForm] Failed to load candidate documents:', error);
       // Don't show error toast - documents are optional
     }
   };
@@ -294,10 +310,11 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
     if (useExistingCoverLetter && selectedCoverLetterId && availableCoverLetters.length > 0) {
       const selectedCoverLetter = availableCoverLetters.find(cl => cl.id === selectedCoverLetterId);
       if (selectedCoverLetter?.content) {
+        console.log('[JobApplicationForm] Auto-filling cover letter from useEffect:', selectedCoverLetter.title);
         // Use setTimeout to ensure form is fully initialized
         const timer = setTimeout(() => {
           setValue('coverLetter', selectedCoverLetter.content || '', { shouldValidate: false });
-        }, 100);
+        }, 300);
         return () => clearTimeout(timer);
       }
     }
@@ -1058,6 +1075,11 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                     />
                     <Label htmlFor="use-existing-resume" className="text-sm font-normal cursor-pointer">
                       Use an existing resume from My Documents
+                      {useExistingResume && selectedResumeId && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          ({availableResumes.find(r => r.id === selectedResumeId)?.fileName})
+                        </span>
+                      )}
                     </Label>
                   </div>
                   {useExistingResume && (
@@ -1163,6 +1185,11 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                     />
                     <Label htmlFor="use-existing-cover-letter" className="text-sm font-normal cursor-pointer">
                       Use an existing cover letter from My Documents
+                      {useExistingCoverLetter && selectedCoverLetterId && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          ({availableCoverLetters.find(cl => cl.id === selectedCoverLetterId)?.title})
+                        </span>
+                      )}
                     </Label>
                   </div>
                   {useExistingCoverLetter && (
@@ -1174,15 +1201,18 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                         if (selected) {
                           // Fill content if available, otherwise clear
                           if (selected.content) {
-                            setValue('coverLetter', selected.content);
+                            console.log('[JobApplicationForm] Setting cover letter content from select:', selected.title);
+                            setValue('coverLetter', selected.content, { shouldValidate: false });
                           } else {
-                            setValue('coverLetter', '');
+                            setValue('coverLetter', '', { shouldValidate: false });
                           }
                         }
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a cover letter" />
+                        <SelectValue placeholder="Select a cover letter">
+                          {selectedCoverLetterId && availableCoverLetters.find(cl => cl.id === selectedCoverLetterId)?.title}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {availableCoverLetters.map((coverLetter) => (

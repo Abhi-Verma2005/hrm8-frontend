@@ -105,9 +105,11 @@ export default function JobSearchPage() {
         }
       }
     }
-    fetchSavedJobs();
-    fetchAppliedJobs();
-  }, [locationState.state]);
+    if (isAuthenticated) {
+      fetchSavedJobs();
+      fetchAppliedJobs();
+    }
+  }, [locationState.state, isAuthenticated]);
 
   // Refresh applied jobs when page becomes visible (user returns from applying)
   useEffect(() => {
@@ -126,23 +128,33 @@ export default function JobSearchPage() {
   }, []);
 
   const fetchSavedJobs = async () => {
+    if (!isAuthenticated) {
+      setSavedJobIds(new Set());
+      return;
+    }
+    
     try {
-      // Only fetch if user is authenticated (check for session cookie or auth context)
       const response = await apiClient.get('/api/candidate/saved-jobs');
-      console.log('JobSearchPage - Saved jobs response:', response);
+      console.log('[JobSearchPage] Saved jobs response:', response);
       if (response.success && response.data) {
-        // Backend returns { success: true, data: jobs[] }
-        // API client returns { success: true, data: jobs[] }
+        // Backend returns { success: true, data: [{ id, job: { id, ... } }] }
         const jobs = Array.isArray(response.data) ? response.data : [];
-        const ids = new Set(jobs.map((item: { job?: { id: string }; jobId?: string }) => item.job?.id || item.jobId).filter(Boolean));
-        console.log('JobSearchPage - Saved job IDs:', Array.from(ids));
-      setSavedJobIds(ids as Set<string>);
+        const ids = new Set(
+          jobs
+            .map((item: { job?: { id: string }; jobId?: string }) => item.job?.id || item.jobId)
+            .filter(Boolean)
+        );
+        console.log('[JobSearchPage] Saved job IDs:', Array.from(ids));
+        setSavedJobIds(ids);
+      } else {
+        setSavedJobIds(new Set());
       }
     } catch (error: any) {
       // Silently fail for unauthenticated users (401/403 errors are expected)
       if (error?.response?.status !== 401 && error?.response?.status !== 403) {
-        console.error('Failed to fetch saved jobs:', error);
+        console.error('[JobSearchPage] Failed to fetch saved jobs:', error);
       }
+      setSavedJobIds(new Set());
     }
   };
 
@@ -204,23 +216,31 @@ export default function JobSearchPage() {
 
     try {
       if (isSaved) {
-        await apiClient.delete(`/api/candidate/saved-jobs/${jobId}`);
-        const newSet = new Set(savedJobIds);
-        newSet.delete(jobId);
-        setSavedJobIds(newSet);
-        toast({
-          title: "Job Removed",
-          description: "Job removed from your saved jobs.",
-        });
+        const response = await apiClient.delete(`/api/candidate/saved-jobs/${jobId}`);
+        if (response.success) {
+          const newSet = new Set(savedJobIds);
+          newSet.delete(jobId);
+          setSavedJobIds(newSet);
+          toast({
+            title: "Job Removed",
+            description: "Job removed from your saved jobs.",
+          });
+        } else {
+          throw new Error(response.error || 'Failed to remove job');
+        }
       } else {
-        await apiClient.post(`/api/candidate/saved-jobs/${jobId}`);
-        const newSet = new Set(savedJobIds);
-        newSet.add(jobId);
-        setSavedJobIds(newSet);
-        toast({
-          title: "Job Saved",
-          description: "Job added to your saved jobs.",
-        });
+        const response = await apiClient.post(`/api/candidate/saved-jobs/${jobId}`);
+        if (response.success) {
+          const newSet = new Set(savedJobIds);
+          newSet.add(jobId);
+          setSavedJobIds(newSet);
+          toast({
+            title: "Job Saved",
+            description: "Job added to your saved jobs.",
+          });
+        } else {
+          throw new Error(response.error || 'Failed to save job');
+        }
       }
     } catch (error: any) {
       console.error('Failed to toggle save job:', error);
@@ -367,7 +387,7 @@ export default function JobSearchPage() {
   const Layout = isAuthenticated ? CandidatePageLayout : PublicCandidatePageLayout;
 
   return (
-    <Layout>
+    <Layout showSidebarTrigger={false}>
       <div className="bg-background">
         {/* Page Header */}
         <div className="border-b bg-card">
@@ -626,14 +646,23 @@ export default function JobSearchPage() {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-primary"
-                      onClick={(e) => toggleSaveJob(e, job.id)}
-                    >
-                      <Heart className={cn("h-5 w-5", savedJobIds.has(job.id) ? "fill-current text-red-500" : "")} />
-                    </Button>
+                    {isAuthenticated && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={cn(
+                          "text-muted-foreground hover:text-primary",
+                          savedJobIds.has(job.id) && "text-red-500 hover:text-red-600"
+                        )}
+                        onClick={(e) => toggleSaveJob(e, job.id)}
+                        title={savedJobIds.has(job.id) ? "Remove from saved jobs" : "Save job"}
+                      >
+                        <Heart className={cn(
+                          "h-5 w-5 transition-all",
+                          savedJobIds.has(job.id) ? "fill-current text-red-500" : "text-muted-foreground"
+                        )} />
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent>
