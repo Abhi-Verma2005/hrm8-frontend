@@ -39,9 +39,18 @@ export default function ApplicationConfirmation() {
                 We've received your application and will review it shortly.
               </p>
               {id && (
-                <p className="text-sm text-muted-foreground">
-                  Application ID: <span className="font-mono">{id}</span>
-                </p>
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    Application ID: <span className="font-mono">{id}</span>
+                  </p>
+                  <Button
+                    variant="link"
+                    className="text-primary"
+                    onClick={() => navigate(`/candidate/applications/${id}`)}
+                  >
+                    Track Your Application Status →
+                  </Button>
+                </>
               )}
             </div>
 

@@ -43,6 +43,9 @@ import {
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { PublicCandidatePageLayout } from '@/components/layouts/PublicCandidatePageLayout';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 
 export default function JobSearchPage() {
   const [jobs, setJobs] = useState<PublicJob[]>([]);
@@ -69,6 +72,7 @@ export default function JobSearchPage() {
   const navigate = useNavigate();
   const locationState = useLocation();
   const { toast } = useToast();
+  const { isAuthenticated } = useCandidateAuth();
 
   // Save Search State
 
@@ -101,9 +105,11 @@ export default function JobSearchPage() {
         }
       }
     }
-    fetchSavedJobs();
-    fetchAppliedJobs();
-  }, [locationState.state]);
+    if (isAuthenticated) {
+      fetchSavedJobs();
+      fetchAppliedJobs();
+    }
+  }, [locationState.state, isAuthenticated]);
 
   // Refresh applied jobs when page becomes visible (user returns from applying)
   useEffect(() => {
@@ -122,24 +128,39 @@ export default function JobSearchPage() {
   }, []);
 
   const fetchSavedJobs = async () => {
+    if (!isAuthenticated) {
+      setSavedJobIds(new Set());
+      return;
+    }
+    
     try {
       const response = await apiClient.get('/api/candidate/saved-jobs');
-      console.log('JobSearchPage - Saved jobs response:', response);
+      console.log('[JobSearchPage] Saved jobs response:', response);
       if (response.success && response.data) {
-        // Backend returns { success: true, data: jobs[] }
-        // API client returns { success: true, data: jobs[] }
+        // Backend returns { success: true, data: [{ id, job: { id, ... } }] }
         const jobs = Array.isArray(response.data) ? response.data : [];
-        const ids = new Set(jobs.map((item: { job?: { id: string }; jobId?: string }) => item.job?.id || item.jobId).filter(Boolean));
-        console.log('JobSearchPage - Saved job IDs:', Array.from(ids));
-        setSavedJobIds(ids as Set<string>);
+        const ids = new Set(
+          jobs
+            .map((item: { job?: { id: string }; jobId?: string }) => item.job?.id || item.jobId)
+            .filter(Boolean)
+        );
+        console.log('[JobSearchPage] Saved job IDs:', Array.from(ids));
+        setSavedJobIds(ids);
+      } else {
+        setSavedJobIds(new Set());
       }
-    } catch (error) {
-      console.error('Failed to fetch saved jobs:', error);
+    } catch (error: any) {
+      // Silently fail for unauthenticated users (401/403 errors are expected)
+      if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+        console.error('[JobSearchPage] Failed to fetch saved jobs:', error);
+      }
+      setSavedJobIds(new Set());
     }
   };
 
   const fetchAppliedJobs = async () => {
     try {
+      // Only fetch if user is authenticated
       const response = await applicationService.getCandidateApplications();
       if (response.success && response.data?.applications) {
         const appliedIds = new Set(
@@ -149,13 +170,18 @@ export default function JobSearchPage() {
         appliedJobIdsRef.current = appliedIds;
         setAppliedJobIds(appliedIds);
       }
-    } catch (error) {
-      console.error('Failed to fetch applied jobs:', error);
+    } catch (error: any) {
+      // Silently fail for unauthenticated users (401/403 errors are expected)
+      if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+        console.error('Failed to fetch applied jobs:', error);
+      }
     }
   };
 
   const trackSearch = useCallback(async (filters: Record<string, unknown>) => {
-    // Only track if there's at least one filter or search query
+    // Only track if user is authenticated and there's at least one filter or search query
+    if (!isAuthenticated) return;
+    
     const hasFilters = Object.values(filters).some(val => val !== undefined && val !== '');
     if (!hasFilters) return;
 
@@ -164,40 +190,63 @@ export default function JobSearchPage() {
         query: searchQuery || undefined,
         filters,
       });
-    } catch (error) {
-      console.error('Failed to track search:', error);
+    } catch (error: any) {
+      // Silently fail for unauthenticated users (401/403 errors are expected)
+      if (error?.response?.status !== 401 && error?.response?.status !== 403) {
+        console.error('Failed to track search:', error);
+      }
     }
-  }, [searchQuery]);
+  }, [searchQuery, isAuthenticated]);
 
   const toggleSaveJob = async (e: React.MouseEvent, jobId: string) => {
     e.stopPropagation();
+    
+    // For unauthenticated users, prompt them to sign in
+    if (!isAuthenticated) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to save jobs",
+        variant: "default",
+      });
+      navigate('/candidate/login', { state: { from: '/candidate/jobs' } });
+      return;
+    }
+    
     const isSaved = savedJobIds.has(jobId);
 
     try {
       if (isSaved) {
-        await apiClient.delete(`/api/candidate/saved-jobs/${jobId}`);
-        const newSet = new Set(savedJobIds);
-        newSet.delete(jobId);
-        setSavedJobIds(newSet);
-        toast({
-          title: "Job Removed",
-          description: "Job removed from your saved jobs.",
-        });
+        const response = await apiClient.delete(`/api/candidate/saved-jobs/${jobId}`);
+        if (response.success) {
+          const newSet = new Set(savedJobIds);
+          newSet.delete(jobId);
+          setSavedJobIds(newSet);
+          toast({
+            title: "Job Removed",
+            description: "Job removed from your saved jobs.",
+          });
+        } else {
+          throw new Error(response.error || 'Failed to remove job');
+        }
       } else {
-        await apiClient.post(`/api/candidate/saved-jobs/${jobId}`);
-        const newSet = new Set(savedJobIds);
-        newSet.add(jobId);
-        setSavedJobIds(newSet);
-        toast({
-          title: "Job Saved",
-          description: "Job added to your saved jobs.",
-        });
+        const response = await apiClient.post(`/api/candidate/saved-jobs/${jobId}`);
+        if (response.success) {
+          const newSet = new Set(savedJobIds);
+          newSet.add(jobId);
+          setSavedJobIds(newSet);
+          toast({
+            title: "Job Saved",
+            description: "Job added to your saved jobs.",
+          });
+        } else {
+          throw new Error(response.error || 'Failed to save job');
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to toggle save job:', error);
       toast({
         title: "Error",
-        description: "Failed to update saved job status.",
+        description: error?.response?.data?.error || "Failed to update saved job status.",
         variant: "destructive",
       });
     }
@@ -269,11 +318,18 @@ export default function JobSearchPage() {
     if (isInitializedRef.current) return;
     
     const initialize = async () => {
-      await loadFilterOptions();
-      await fetchAppliedJobs();
-      // Load jobs after fetching applied jobs
-      isInitializedRef.current = true;
-      await loadJobs();
+      try {
+        await loadFilterOptions();
+        await fetchAppliedJobs();
+        // Load jobs after fetching applied jobs
+        isInitializedRef.current = true;
+        await loadJobs();
+      } catch (error) {
+        console.error('Failed to initialize job search page:', error);
+        // Still try to load jobs even if filter options or applied jobs fail
+        isInitializedRef.current = true;
+        await loadJobs();
+      }
     };
     initialize();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -328,10 +384,13 @@ export default function JobSearchPage() {
     return `${job.salaryCurrency} ${min}${max ? ` - ${max}` : '+'}`;
   };
 
+  const Layout = isAuthenticated ? CandidatePageLayout : PublicCandidatePageLayout;
+
   return (
-    <div className="bg-background">
-      {/* Page Header */}
-      <div className="border-b bg-card">
+    <Layout showSidebarTrigger={false}>
+      <div className="bg-background">
+        {/* Page Header */}
+        <div className="border-b bg-card">
         <div className="container mx-auto px-4 py-6">
           <div className="mb-6">
             <h1 className="text-3xl font-bold">Find Your Next Job</h1>
@@ -587,14 +646,23 @@ export default function JobSearchPage() {
                         </div>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-muted-foreground hover:text-primary"
-                      onClick={(e) => toggleSaveJob(e, job.id)}
-                    >
-                      <Heart className={cn("h-5 w-5", savedJobIds.has(job.id) ? "fill-current text-red-500" : "")} />
-                    </Button>
+                    {isAuthenticated && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={cn(
+                          "text-muted-foreground hover:text-primary",
+                          savedJobIds.has(job.id) && "text-red-500 hover:text-red-600"
+                        )}
+                        onClick={(e) => toggleSaveJob(e, job.id)}
+                        title={savedJobIds.has(job.id) ? "Remove from saved jobs" : "Save job"}
+                      >
+                        <Heart className={cn(
+                          "h-5 w-5 transition-all",
+                          savedJobIds.has(job.id) ? "fill-current text-red-500" : "text-muted-foreground"
+                        )} />
+                      </Button>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -644,6 +712,7 @@ export default function JobSearchPage() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </Layout>
   );
 }

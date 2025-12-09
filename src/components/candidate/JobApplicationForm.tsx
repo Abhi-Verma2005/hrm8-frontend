@@ -68,7 +68,7 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<Record<string, FileUpload>>({});
   const [uploadingFiles, setUploadingFiles] = useState<Set<string>>(new Set());
-  const { candidate } = useCandidateAuth();
+  const { candidate, isAuthenticated, refreshCandidate } = useCandidateAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -85,8 +85,10 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
 
   useEffect(() => {
     loadJob();
-    loadCandidateDocuments();
-  }, [jobId]);
+    if (isAuthenticated && candidate) {
+      loadCandidateDocuments();
+    }
+  }, [jobId, isAuthenticated, candidate]);
 
   const loadJob = async () => {
     setIsLoading(true);
@@ -106,6 +108,7 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
 
   const loadCandidateDocuments = async () => {
     try {
+      console.log('[JobApplicationForm] Loading candidate documents...');
       // Fetch all candidate documents
       const [resumesRes, coverLettersRes, portfolioRes] = await Promise.all([
         apiClient.get<CandidateResume[]>('/api/candidate/documents/resumes'),
@@ -113,12 +116,19 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
         apiClient.get<CandidatePortfolio[]>('/api/candidate/documents/portfolio'),
       ]);
 
+      console.log('[JobApplicationForm] Documents response:', {
+        resumes: resumesRes.success ? resumesRes.data?.length : 0,
+        coverLetters: coverLettersRes.success ? coverLettersRes.data?.length : 0,
+        portfolio: portfolioRes.success ? portfolioRes.data?.length : 0,
+      });
+
       if (resumesRes.success && resumesRes.data) {
         const resumes = Array.isArray(resumesRes.data) ? resumesRes.data : [];
         setAvailableResumes(resumes);
         // Auto-select default resume if available, otherwise select the first one
         if (resumes.length > 0) {
           const defaultResume = resumes.find(r => r.isDefault) || resumes[0];
+          console.log('[JobApplicationForm] Auto-selecting resume:', defaultResume.fileName, defaultResume.id);
           setSelectedResumeId(defaultResume.id);
           setUseExistingResume(true);
         }
@@ -130,9 +140,16 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
         // Auto-select default cover letter if available, otherwise select the first one
         if (coverLetters.length > 0) {
           const defaultCoverLetter = coverLetters.find(cl => cl.isDefault) || coverLetters[0];
+          console.log('[JobApplicationForm] Auto-selecting cover letter:', defaultCoverLetter.title, defaultCoverLetter.id, 'hasContent:', !!defaultCoverLetter.content);
           setSelectedCoverLetterId(defaultCoverLetter.id);
           setUseExistingCoverLetter(true);
-          // Note: Content will be auto-filled by the useEffect hook below
+          // Auto-fill content immediately if available
+          if (defaultCoverLetter.content) {
+            setTimeout(() => {
+              setValue('coverLetter', defaultCoverLetter.content || '', { shouldValidate: false });
+              console.log('[JobApplicationForm] Auto-filled cover letter content');
+            }, 200);
+          }
         }
       }
 
@@ -143,12 +160,13 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
         setAvailablePortfolio(filePortfolio);
         // Auto-select first portfolio file if available
         if (filePortfolio.length > 0) {
+          console.log('[JobApplicationForm] Auto-selecting portfolio:', filePortfolio[0].title, filePortfolio[0].id);
           setSelectedPortfolioId(filePortfolio[0].id);
           setUseExistingPortfolio(true);
         }
       }
     } catch (error) {
-      console.error('Failed to load candidate documents:', error);
+      console.error('[JobApplicationForm] Failed to load candidate documents:', error);
       // Don't show error toast - documents are optional
     }
   };
@@ -157,6 +175,18 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
   // Build form schema dynamically
   const buildFormSchema = (config: ApplicationFormConfig) => {
     const schemaFields: Record<string, z.ZodTypeAny> = {};
+
+    // Account creation fields (for unauthenticated users)
+    if (!isAuthenticated || !candidate) {
+      schemaFields.email = z.string().email('Invalid email address');
+      schemaFields.password = z.string().min(8, 'Password must be at least 8 characters')
+        .regex(/[A-Z]/, 'Password must contain at least one uppercase letter')
+        .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
+        .regex(/[0-9]/, 'Password must contain at least one number');
+      schemaFields.firstName = z.string().optional();
+      schemaFields.lastName = z.string().optional();
+      schemaFields.phone = z.string().optional();
+    }
 
     // Standard fields
     if (config.includeStandardFields.resume.included) {
@@ -280,10 +310,11 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
     if (useExistingCoverLetter && selectedCoverLetterId && availableCoverLetters.length > 0) {
       const selectedCoverLetter = availableCoverLetters.find(cl => cl.id === selectedCoverLetterId);
       if (selectedCoverLetter?.content) {
+        console.log('[JobApplicationForm] Auto-filling cover letter from useEffect:', selectedCoverLetter.title);
         // Use setTimeout to ensure form is fully initialized
         const timer = setTimeout(() => {
           setValue('coverLetter', selectedCoverLetter.content || '', { shouldValidate: false });
-        }, 100);
+        }, 300);
         return () => clearTimeout(timer);
       }
     }
@@ -303,6 +334,20 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
       return;
     }
 
+    // For unauthenticated users, just store the file locally (will be uploaded with form submission)
+    if (!isAuthenticated || !candidate) {
+      setUploadedFiles({
+        ...uploadedFiles,
+        [fieldName]: { file, url: '', uploading: false },
+      });
+      setValue(fieldName, file);
+      toast({
+        title: 'File selected',
+        description: `${file.name} will be uploaded when you submit your application`,
+      });
+      return;
+    }
+
     // Mark as uploading
     setUploadingFiles(prev => new Set(prev).add(fieldName));
     setUploadedFiles({
@@ -310,7 +355,7 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
       [fieldName]: { file, url: '', uploading: true },
     });
 
-    // Actually upload the file to the backend
+    // Actually upload the file to the backend (for authenticated users)
     try {
       const formData = new FormData();
       formData.append('file', file);
@@ -357,8 +402,134 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
     }
   };
 
+  const submitAnonymousApplication = async (data: any) => {
+    if (!job) return;
+
+    setIsSubmitting(true);
+    try {
+      // Validate email and password
+      if (!data.email || !data.password) {
+        toast({
+          title: 'Missing required fields',
+          description: 'Please provide your email and password to create an account.',
+          variant: 'destructive',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Prepare FormData for file uploads
+      const formData = new FormData();
+      formData.append('email', data.email);
+      formData.append('password', data.password);
+      formData.append('firstName', data.firstName || '');
+      formData.append('lastName', data.lastName || '');
+      formData.append('phone', data.phone || '');
+      formData.append('jobId', job.id);
+
+      // Add files if uploaded
+      console.log('[JobApplicationForm] Uploaded files:', {
+        resume: uploadedFiles.resume ? { fileName: uploadedFiles.resume.file?.name, size: uploadedFiles.resume.file?.size, url: uploadedFiles.resume.url } : null,
+        coverLetter: uploadedFiles.coverLetter ? { fileName: uploadedFiles.coverLetter.file?.name, size: uploadedFiles.coverLetter.file?.size, url: uploadedFiles.coverLetter.url } : null,
+        portfolio: uploadedFiles.portfolio ? { fileName: uploadedFiles.portfolio.file?.name, size: uploadedFiles.portfolio.file?.size, url: uploadedFiles.portfolio.url } : null,
+      });
+      
+      if (uploadedFiles.resume?.file) {
+        console.log('[JobApplicationForm] Appending resume file:', uploadedFiles.resume.file.name, uploadedFiles.resume.file.size);
+        formData.append('resume', uploadedFiles.resume.file);
+      }
+      if (uploadedFiles.coverLetter?.file) {
+        console.log('[JobApplicationForm] Appending cover letter file:', uploadedFiles.coverLetter.file.name);
+        formData.append('coverLetter', uploadedFiles.coverLetter.file);
+      }
+      if (uploadedFiles.portfolio?.file) {
+        console.log('[JobApplicationForm] Appending portfolio file:', uploadedFiles.portfolio.file.name);
+        formData.append('portfolio', uploadedFiles.portfolio.file);
+      }
+
+      // Add URLs if files were already uploaded
+      if (uploadedFiles.resume?.url) {
+        formData.append('resumeUrl', uploadedFiles.resume.url);
+      }
+      if (uploadedFiles.coverLetter?.url) {
+        formData.append('coverLetterUrl', uploadedFiles.coverLetter.url);
+      }
+      if (uploadedFiles.portfolio?.url) {
+        formData.append('portfolioUrl', uploadedFiles.portfolio.url);
+      }
+
+      // Add cover letter text if provided
+      if (data.coverLetter) {
+        formData.append('questionnaireData', JSON.stringify({
+          coverLetterMarkdown: data.coverLetter,
+        }));
+      }
+
+      // Add custom answers
+      const customAnswers: Array<{ questionId: string; answer: string | string[] }> = [];
+      if (normalizedFormConfig) {
+        normalizedFormConfig.questions.forEach((question) => {
+          const fieldName = `question_${question.id}`;
+          const answer = data[fieldName];
+          if (answer !== undefined && answer !== null && answer !== '') {
+            customAnswers.push({
+              questionId: question.id,
+              answer: Array.isArray(answer) ? answer : String(answer),
+            });
+          }
+        });
+      }
+      if (customAnswers.length > 0) {
+        formData.append('customAnswers', JSON.stringify(customAnswers));
+      }
+
+      // Submit to anonymous endpoint
+      const response = await apiClient.upload('/api/applications/anonymous', formData);
+
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to submit application');
+      }
+
+      // Refresh candidate to get the new session
+      if (response.data?.candidate) {
+        await refreshCandidate();
+      }
+
+      toast({
+        title: 'Application submitted!',
+        description: 'Your application has been submitted successfully. Check your email for login details.',
+      });
+
+      const applicationId = response.data?.application?.id;
+
+      if (onSuccess) {
+        onSuccess(applicationId || '');
+      } else {
+        if (applicationId) {
+          navigate(`/candidate/applications/${applicationId}/confirmation`);
+        } else {
+          navigate(`/candidate/applications/confirmation`);
+        }
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Submission failed',
+        description: error.response?.data?.error || error.message || 'Failed to submit application. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const onSubmit = async (data: any) => {
-    if (!job || !candidate) return;
+    if (!job) return;
+
+    // If not authenticated, submit as anonymous application
+    if (!isAuthenticated || !candidate) {
+      await submitAnonymousApplication(data);
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -478,7 +649,7 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
       });
 
       const applicationId = response.data?.application?.id;
-      
+
       if (onSuccess) {
         onSuccess(applicationId || '');
       } else {
@@ -802,6 +973,76 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Account Creation Fields (for unauthenticated users) */}
+          {(!isAuthenticated || !candidate) && (
+            <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+              <h3 className="text-lg font-semibold">Create Your Account</h3>
+              <p className="text-sm text-muted-foreground">
+                We'll create an account for you so you can track your application and apply to more jobs.
+              </p>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="email">
+                    Email <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    {...register('email')}
+                    placeholder="your.email@example.com"
+                  />
+                  {errors.email && (
+                    <p className="text-sm text-destructive">{errors.email.message as string}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">
+                    Password <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    {...register('password')}
+                    placeholder="At least 8 characters"
+                  />
+                  {errors.password && (
+                    <p className="text-sm text-destructive">{errors.password.message as string}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Must contain uppercase, lowercase, and number
+                  </p>
+                </div>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input
+                    id="firstName"
+                    {...register('firstName')}
+                    placeholder="John"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input
+                    id="lastName"
+                    {...register('lastName')}
+                    placeholder="Doe"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  {...register('phone')}
+                  placeholder="+1 (555) 123-4567"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Standard Fields */}
           {normalizedFormConfig.includeStandardFields.resume.included && (
             <div className="space-y-2">
@@ -834,6 +1075,11 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                     />
                     <Label htmlFor="use-existing-resume" className="text-sm font-normal cursor-pointer">
                       Use an existing resume from My Documents
+                      {useExistingResume && selectedResumeId && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          ({availableResumes.find(r => r.id === selectedResumeId)?.fileName})
+                        </span>
+                      )}
                     </Label>
                   </div>
                   {useExistingResume && (
@@ -862,22 +1108,22 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                 </div>
               )}
               {(!useExistingResume || availableResumes.length === 0) && (
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="resume"
-                    type="file"
-                    accept=".pdf,.doc,.docx"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      handleFileUpload('resume', file);
+              <div className="flex items-center gap-2">
+                <Input
+                  id="resume"
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    handleFileUpload('resume', file);
                       if (file) {
                         setUseExistingResume(false);
                         setSelectedResumeId('');
                       }
-                    }}
-                  />
-                  {uploadedFiles.resume && (
-                    <div className="flex items-center gap-2 text-sm">
+                  }}
+                />
+                {uploadedFiles.resume && (
+                  <div className="flex items-center gap-2 text-sm">
                       {uploadedFiles.resume.uploading ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -885,21 +1131,21 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                         </>
                       ) : (
                         <>
-                          <File className="h-4 w-4" />
-                          <span>{uploadedFiles.resume.file.name}</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleFileUpload('resume', null)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
+                    <File className="h-4 w-4" />
+                    <span>{uploadedFiles.resume.file.name}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleFileUpload('resume', null)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                         </>
                       )}
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
+              </div>
               )}
               {errors.resume && (
                 <p className="text-sm text-destructive">{errors.resume.message as string}</p>
@@ -939,6 +1185,11 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                     />
                     <Label htmlFor="use-existing-cover-letter" className="text-sm font-normal cursor-pointer">
                       Use an existing cover letter from My Documents
+                      {useExistingCoverLetter && selectedCoverLetterId && (
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          ({availableCoverLetters.find(cl => cl.id === selectedCoverLetterId)?.title})
+                        </span>
+                      )}
                     </Label>
                   </div>
                   {useExistingCoverLetter && (
@@ -950,15 +1201,18 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                         if (selected) {
                           // Fill content if available, otherwise clear
                           if (selected.content) {
-                            setValue('coverLetter', selected.content);
+                            console.log('[JobApplicationForm] Setting cover letter content from select:', selected.title);
+                            setValue('coverLetter', selected.content, { shouldValidate: false });
                           } else {
-                            setValue('coverLetter', '');
+                            setValue('coverLetter', '', { shouldValidate: false });
                           }
                         }
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a cover letter" />
+                        <SelectValue placeholder="Select a cover letter">
+                          {selectedCoverLetterId && availableCoverLetters.find(cl => cl.id === selectedCoverLetterId)?.title}
+                        </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
                         {availableCoverLetters.map((coverLetter) => (
@@ -973,15 +1227,15 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
               )}
               {!useExistingCoverLetter && (
                 <>
-                  <p className="text-xs text-muted-foreground">
-                    You can use basic markdown (**, *, -, #) to format your cover letter.
-                  </p>
-                  <Textarea
-                    id="coverLetter"
-                    rows={6}
-                    placeholder="Write your cover letter here..."
-                    {...register('coverLetter')}
-                  />
+              <p className="text-xs text-muted-foreground">
+                You can use basic markdown (**, *, -, #) to format your cover letter.
+              </p>
+              <Textarea
+                id="coverLetter"
+                rows={6}
+                placeholder="Write your cover letter here..."
+                {...register('coverLetter')}
+              />
                 </>
               )}
               {useExistingCoverLetter && selectedCoverLetterId && (
@@ -1063,22 +1317,22 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                 </div>
               )}
               {(!useExistingPortfolio || availablePortfolio.length === 0) && (
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="portfolio"
-                    type="file"
-                    accept=".pdf,.zip"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      handleFileUpload('portfolio', file);
+              <div className="flex items-center gap-2">
+                <Input
+                  id="portfolio"
+                  type="file"
+                  accept=".pdf,.zip"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0] || null;
+                    handleFileUpload('portfolio', file);
                       if (file) {
                         setUseExistingPortfolio(false);
                         setSelectedPortfolioId('');
                       }
-                    }}
-                  />
-                  {uploadedFiles.portfolio && (
-                    <div className="flex items-center gap-2 text-sm">
+                  }}
+                />
+                {uploadedFiles.portfolio && (
+                  <div className="flex items-center gap-2 text-sm">
                       {uploadedFiles.portfolio.uploading ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1086,21 +1340,21 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                         </>
                       ) : (
                         <>
-                          <File className="h-4 w-4" />
-                          <span>{uploadedFiles.portfolio.file.name}</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleFileUpload('portfolio', null)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
+                    <File className="h-4 w-4" />
+                    <span>{uploadedFiles.portfolio.file.name}</span>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleFileUpload('portfolio', null)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                         </>
                       )}
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
+              </div>
               )}
               {errors.portfolio && (
                 <p className="text-sm text-destructive">{errors.portfolio.message as string}</p>

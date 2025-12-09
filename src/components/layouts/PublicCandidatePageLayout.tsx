@@ -1,28 +1,26 @@
 import { ReactNode } from 'react';
-import { CandidateHeader } from './CandidateHeader';
+import { PublicCandidateHeader } from './PublicCandidateHeader';
 
-interface CandidatePageLayoutProps {
+interface PublicCandidatePageLayoutProps {
   title?: string;
   subtitle?: string;
   actions?: ReactNode;
   children: ReactNode;
   breadcrumbActions?: ReactNode;
   fullWidth?: boolean;
-  showSidebarTrigger?: boolean;
 }
 
-export function CandidatePageLayout({
+export function PublicCandidatePageLayout({
   title,
   subtitle,
   actions,
   children,
   breadcrumbActions,
   fullWidth = true,
-  showSidebarTrigger = true,
-}: CandidatePageLayoutProps) {
+}: PublicCandidatePageLayoutProps) {
   return (
-    <>
-      <CandidateHeader breadcrumbActions={breadcrumbActions} showSidebarTrigger={showSidebarTrigger} />
+    <div className="min-h-screen flex flex-col">
+      <PublicCandidateHeader breadcrumbActions={breadcrumbActions} />
 
       <div className="flex-1">
         {(title || subtitle || actions) && (
@@ -40,26 +38,7 @@ export function CandidatePageLayout({
           {children}
         </div>
       </div>
-    </>
+    </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
