@@ -48,6 +48,7 @@ import { FormMultiSelect } from '@/components/common/form-fields';
 import { PhoneCountrySelect } from '@/components/common/PhoneCountrySelect';
 import { LocationSelect } from '@/components/common/LocationSelect';
 import { useToast } from '@/hooks/use-toast';
+import { DeveloperTools } from '@/components/dev/DeveloperTools';
 
 const enumToKeyMap = Object.entries(COMPANY_PROFILE_SECTION_ENUM).reduce(
   (acc, [key, value]) => ({
@@ -672,6 +673,9 @@ export default function CompanyProfile() {
               </Card>
             </TabsContent>
           </Tabs>
+
+          {/* Developer Tools - Only visible in development mode */}
+          <DeveloperTools />
         </div>
       </div>
     </DashboardPageLayout>

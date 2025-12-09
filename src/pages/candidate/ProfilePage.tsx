@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { apiClient } from '@/lib/api';
 import { Loader2, User, Briefcase, Shield, Globe, DollarSign, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { DeveloperTools } from '@/components/dev/DeveloperTools';
 
 export default function ProfilePage() {
   const { candidate, refreshCandidate } = useCandidateAuth();
@@ -522,6 +523,9 @@ export default function ProfilePage() {
             </Button>
           </div>
         </form>
+
+        {/* Developer Tools - Only visible in development mode */}
+        <DeveloperTools />
       </div>
     </CandidatePageLayout>
   );

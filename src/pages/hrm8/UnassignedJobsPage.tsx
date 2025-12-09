@@ -28,7 +28,7 @@ export default function UnassignedJobsPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   
   // Filters
-  const [regionFilter, setRegionFilter] = useState<string>('');
+  const [regionFilter, setRegionFilter] = useState<string>('all');
   const [companyFilter, setCompanyFilter] = useState<string>('');
   const [industryFilter, setIndustryFilter] = useState<string>('');
 
@@ -56,7 +56,7 @@ export default function UnassignedJobsPage() {
     try {
       setLoading(true);
       const filters: { regionId?: string; companyId?: string } = {};
-      if (regionFilter) filters.regionId = regionFilter;
+      if (regionFilter && regionFilter !== 'all') filters.regionId = regionFilter;
       if (companyFilter) filters.companyId = companyFilter;
 
       const response = await jobAllocationService.getUnassignedJobs(filters);
@@ -91,12 +91,12 @@ export default function UnassignedJobsPage() {
   };
 
   const clearFilters = () => {
-    setRegionFilter('');
+    setRegionFilter('all');
     setCompanyFilter('');
     setIndustryFilter('');
   };
 
-  const hasActiveFilters = regionFilter || companyFilter || industryFilter;
+  const hasActiveFilters = (regionFilter && regionFilter !== 'all') || companyFilter || industryFilter;
 
   const columns = [
     {
@@ -132,6 +132,23 @@ export default function UnassignedJobsPage() {
       key: 'category',
       label: 'Industry',
       render: (job: UnassignedJob) => job.category || '-',
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (job: UnassignedJob) => {
+        const status = job.status || 'UNKNOWN';
+        const isOpen = status === 'OPEN';
+        const isOnHold = status === 'ON_HOLD';
+        return (
+          <Badge 
+            variant={isOpen ? 'default' : isOnHold ? 'secondary' : 'outline'}
+            className={isOpen ? 'bg-green-500 hover:bg-green-600' : isOnHold ? 'bg-yellow-500 hover:bg-yellow-600' : ''}
+          >
+            {isOpen ? 'Open' : isOnHold ? 'On Hold' : status}
+          </Badge>
+        );
+      },
     },
     {
       key: 'assignmentMode',
@@ -186,7 +203,7 @@ export default function UnassignedJobsPage() {
                     <SelectValue placeholder="All regions" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All regions</SelectItem>
+                    <SelectItem value="all">All regions</SelectItem>
                     {regions.map((region) => (
                       <SelectItem key={region.id} value={region.id}>
                         {region.name}
