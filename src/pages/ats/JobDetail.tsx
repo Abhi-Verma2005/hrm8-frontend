@@ -316,7 +316,18 @@ export default function JobDetail() {
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 mr-4">
               <JobStatusBadge status={job.status} />
-              <ServiceTypeBadge type={job.serviceType} />
+              {job.assignedConsultantName ? (
+                <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
+                  Consultant: {job.assignedConsultantName}
+                </Badge>
+              ) : (
+                <ServiceTypeBadge type="self-managed" />
+              )}
+              {job.pipeline?.stage && (
+                <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
+                  Pipeline: {job.pipeline.stage.replace(/_/g, ' ')}
+                </Badge>
+              )}
             </div>
             <Button variant="ghost" size="sm" asChild>
               <Link to="/jobs">

@@ -17,6 +17,26 @@ export interface HiringTeamMember {
   addedBy?: string;
 }
 
+export type JobPipelineStage =
+  | 'INTAKE'
+  | 'SOURCING'
+  | 'SCREENING'
+  | 'SHORTLIST_SENT'
+  | 'INTERVIEW'
+  | 'OFFER'
+  | 'PLACED'
+  | 'ON_HOLD'
+  | 'CLOSED';
+
+export interface JobPipelineStatus {
+  stage: JobPipelineStage;
+  progress?: number;
+  note?: string | null;
+  updatedAt?: string | null;
+  updatedBy?: string | null;
+  consultantId?: string;
+}
+
 export interface Job {
   id: string;
   employerId: string;
@@ -52,6 +72,7 @@ export interface Job {
   serviceStatus?: 'pending' | 'in-progress' | 'completed' | 'cancelled';
   assignedConsultantId?: string;
   assignedConsultantName?: string;
+  pipeline?: JobPipelineStatus;
   jobBoardDistribution: string[];
   applicantsCount: number;
   unreadApplicants?: number;

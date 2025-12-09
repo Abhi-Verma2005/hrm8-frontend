@@ -39,6 +39,12 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
+        console.error('[apiClient] request failed', {
+          url,
+          status: response.status,
+          statusText: response.statusText,
+          data,
+        });
         return {
           success: false,
           error: data.error || `HTTP ${response.status}: ${response.statusText}`,
@@ -48,6 +54,7 @@ class ApiClient {
 
       return data as ApiResponse<T>;
     } catch (error) {
+      console.error('[apiClient] network error', { url, error });
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Network error',
@@ -100,6 +107,13 @@ class ApiClient {
   async put<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
       method: 'PUT',
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  }
+
+  async patch<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'PATCH',
       body: body ? JSON.stringify(body) : undefined,
     });
   }

@@ -227,3 +227,10 @@ export default function ApplicationDetailPage() {
 
 
 
+
+
+
+
+
+
+

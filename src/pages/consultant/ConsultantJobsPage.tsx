@@ -6,7 +6,6 @@
 import { useState, useEffect } from 'react';
 import { useConsultantAuth } from '@/contexts/ConsultantAuthContext';
 import { consultantService } from '@/lib/consultant/consultantService';
-import { jobService } from '@/lib/api/jobService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { ConsultantPageLayout } from '@/components/layouts/ConsultantPageLayout';
@@ -15,11 +14,14 @@ import { DataTable } from '@/components/tables/DataTable';
 import { Badge } from '@/components/ui/badge';
 import { Briefcase, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { JobPipelineStage } from '@/types/job';
 
 export default function ConsultantJobsPage() {
   const { consultant } = useConsultantAuth();
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [updatingJobId, setUpdatingJobId] = useState<string | null>(null);
 
   useEffect(() => {
     loadJobs();
@@ -29,22 +31,55 @@ export default function ConsultantJobsPage() {
     try {
       setLoading(true);
       const response = await consultantService.getJobs();
-      if (response.success && response.data?.jobIds) {
-        const jobIds = response.data.jobIds;
-        
-        // Fetch full job details
-        const jobPromises = jobIds.map(async (jobId: string) => {
-          const jobResponse = await jobService.getJobById(jobId);
-          return jobResponse.success && jobResponse.data?.job ? jobResponse.data.job : null;
-        });
-        
-        const jobDetails = (await Promise.all(jobPromises)).filter(Boolean);
-        setJobs(jobDetails);
+      if (response.success && response.data?.jobs) {
+        setJobs(response.data.jobs);
       }
     } catch (error) {
       toast.error('Failed to load jobs');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const pipelineStages: JobPipelineStage[] = [
+    'INTAKE',
+    'SOURCING',
+    'SCREENING',
+    'SHORTLIST_SENT',
+    'INTERVIEW',
+    'OFFER',
+    'PLACED',
+    'ON_HOLD',
+    'CLOSED',
+  ];
+
+  const handleStageChange = async (jobId: string, stage: JobPipelineStage) => {
+    try {
+      setUpdatingJobId(jobId);
+      const response = await consultantService.updateJobPipeline(jobId, { stage });
+      if (!response.success) {
+        toast.error(response.error || 'Failed to update pipeline');
+        return;
+      }
+      setJobs((prev) =>
+        prev.map((job) =>
+          job.id === jobId
+            ? {
+                ...job,
+                pipeline: {
+                  ...(job.pipeline || {}),
+                  stage,
+                  updatedAt: new Date().toISOString(),
+                },
+              }
+            : job
+        )
+      );
+      toast.success('Pipeline updated');
+    } catch (error) {
+      toast.error('Failed to update pipeline');
+    } finally {
+      setUpdatingJobId(null);
     }
   };
 
@@ -86,6 +121,36 @@ export default function ConsultantJobsPage() {
           <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
           {job.status}
         </Badge>
+        );
+      },
+    },
+    {
+      key: 'pipeline',
+      label: 'Pipeline',
+      render: (job: any) => {
+        const currentStage: JobPipelineStage = job.pipeline?.stage || 'INTAKE';
+        return (
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
+              {currentStage}
+            </Badge>
+            <Select
+              value={currentStage}
+              onValueChange={(value) => handleStageChange(job.id, value as JobPipelineStage)}
+              disabled={updatingJobId === job.id}
+            >
+              <SelectTrigger className="h-8 w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {pipelineStages.map((stage) => (
+                  <SelectItem key={stage} value={stage}>
+                    {stage.replace(/_/g, ' ')}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         );
       },
     },

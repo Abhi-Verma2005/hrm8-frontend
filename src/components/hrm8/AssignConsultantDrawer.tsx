@@ -3,7 +3,7 @@
  * Drawer component for assigning a consultant to a job
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -37,8 +37,10 @@ export function AssignConsultantDrawer({
   onSuccess,
 }: AssignConsultantDrawerProps) {
   const [loading, setLoading] = useState(true);
+  const [loadingConsultants, setLoadingConsultants] = useState(false);
   const [assigning, setAssigning] = useState(false);
   const [jobInfo, setJobInfo] = useState<JobAssignmentInfo | null>(null);
+  const jobInfoRef = useRef<JobAssignmentInfo | null>(null);
   const [consultants, setConsultants] = useState<ConsultantForAssignment[]>([]);
   const [selectedConsultantId, setSelectedConsultantId] = useState<string>('');
   const [showOverrideModal, setShowOverrideModal] = useState(false);
@@ -46,79 +48,81 @@ export function AssignConsultantDrawer({
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
-  const [roleFilter, setRoleFilter] = useState<string>('');
-  const [availabilityFilter, setAvailabilityFilter] = useState<string>('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const [availabilityFilter, setAvailabilityFilter] = useState<string>('all');
   const [industryFilter, setIndustryFilter] = useState<string>('');
   const [languageFilter, setLanguageFilter] = useState<string>('');
 
+  const loadJobInfo = useCallback(async () => {
+    try {
+      setLoading(true);
+      const jobInfoRes = await jobAllocationService.getAssignmentInfo(jobId);
+      if (jobInfoRes.success && jobInfoRes.data) {
+        setJobInfo(jobInfoRes.data);
+        jobInfoRef.current = jobInfoRes.data;
+      }
+    } catch (error) {
+      toast.error('Failed to load job info');
+    } finally {
+      setLoading(false);
+    }
+  }, [jobId]);
+
+  const loadConsultants = useCallback(
+    async (searchTerm?: string) => {
+      try {
+        const regionId = jobInfoRef.current?.job.regionId;
+        if (!regionId) return;
+        setLoadingConsultants(true);
+        const appliedSearch = searchTerm ?? searchQuery;
+        const consultantsRes = await jobAllocationService.getConsultantsForAssignment({
+          regionId,
+          role: roleFilter && roleFilter !== 'all' ? roleFilter : undefined,
+          availability: availabilityFilter && availabilityFilter !== 'all' ? availabilityFilter : undefined,
+          industry: industryFilter || undefined,
+          language: languageFilter || undefined,
+          search: appliedSearch?.trim() ? appliedSearch.trim() : undefined,
+        });
+        if (consultantsRes.success && consultantsRes.data) {
+          setConsultants(consultantsRes.data.consultants);
+        } else {
+          setConsultants([]);
+        }
+      } catch (error) {
+        toast.error('Failed to load consultants');
+      } finally {
+        setLoadingConsultants(false);
+      }
+    },
+    [availabilityFilter, industryFilter, languageFilter, roleFilter, searchQuery]
+  );
+
   useEffect(() => {
     if (open && jobId) {
-      loadData();
+      loadJobInfo();
     } else {
       // Reset state when drawer closes
       setSelectedConsultantId('');
       setSearchQuery('');
-      setRoleFilter('');
-      setAvailabilityFilter('');
+      setRoleFilter('all');
+      setAvailabilityFilter('all');
       setIndustryFilter('');
       setLanguageFilter('');
+      setConsultants([]);
+      setJobInfo(null);
+      jobInfoRef.current = null;
     }
-  }, [open, jobId]);
+  }, [open, jobId, loadJobInfo]);
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      
-      // Load job assignment info and consultants in parallel
-      const [jobInfoRes, consultantsRes] = await Promise.all([
-        jobAllocationService.getAssignmentInfo(jobId),
-        jobAllocationService.getConsultantsForAssignment({
-          regionId: '', // Will be set from jobInfo
-          role: roleFilter || undefined,
-          availability: availabilityFilter || undefined,
-          industry: industryFilter || undefined,
-          language: languageFilter || undefined,
-          search: searchQuery || undefined,
-        }),
-      ]);
-
-      if (jobInfoRes.success && jobInfoRes.data) {
-        setJobInfo(jobInfoRes.data);
-        
-        // Reload consultants with correct regionId
-        if (jobInfoRes.data.job.regionId) {
-          const consultantsWithRegion = await jobAllocationService.getConsultantsForAssignment({
-            regionId: jobInfoRes.data.job.regionId,
-            role: roleFilter || undefined,
-            availability: availabilityFilter || undefined,
-            industry: industryFilter || undefined,
-            language: languageFilter || undefined,
-            search: searchQuery || undefined,
-          });
-          
-          if (consultantsWithRegion.success && consultantsWithRegion.data) {
-            setConsultants(consultantsWithRegion.data.consultants);
-          }
-        } else if (consultantsRes.success && consultantsRes.data) {
-          setConsultants(consultantsRes.data.consultants);
-        }
-      }
-    } catch (error) {
-      toast.error('Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // Reload consultants when filters or search change (debounced) without resetting the drawer
   useEffect(() => {
-    if (open && jobInfo?.job.regionId) {
-      // Debounce filter changes
+    if (open && jobInfoRef.current) {
       const timeoutId = setTimeout(() => {
-        loadData();
+        loadConsultants(searchQuery);
       }, 300);
       return () => clearTimeout(timeoutId);
     }
-  }, [searchQuery, roleFilter, availabilityFilter, industryFilter, languageFilter]);
+  }, [open, jobInfo?.job.id, roleFilter, availabilityFilter, industryFilter, languageFilter, loadConsultants, searchQuery]);
 
   const handleAssign = async (consultantId: string) => {
     if (!jobInfo) return;
@@ -183,10 +187,44 @@ export function AssignConsultantDrawer({
     }
   };
 
-  const filteredConsultants = consultants.filter(consultant => {
-    if (selectedConsultantId && consultant.id === selectedConsultantId) return true;
-    return true; // Additional client-side filtering can be added here
-  });
+  // Client-side filtering for search (instant, no reload)
+  const filteredConsultants = useMemo(() => {
+    // If no consultants loaded yet, return empty array
+    if (!consultants || consultants.length === 0) {
+      return [];
+    }
+    
+    // If no search query, return all consultants
+    if (!searchQuery || !searchQuery.trim()) {
+      return consultants;
+    }
+    
+    // Filter consultants by search query
+    const query = searchQuery.toLowerCase().trim();
+    const filtered = consultants.filter(consultant => {
+      if (!consultant) return false;
+      
+      // Search in first name
+      const firstName = (consultant.firstName || '').toLowerCase();
+      if (firstName.includes(query)) return true;
+      
+      // Search in last name
+      const lastName = (consultant.lastName || '').toLowerCase();
+      if (lastName.includes(query)) return true;
+      
+      // Search in full name
+      const fullName = `${firstName} ${lastName}`.trim();
+      if (fullName.includes(query)) return true;
+      
+      // Search in email
+      const email = (consultant.email || '').toLowerCase();
+      if (email.includes(query)) return true;
+      
+      return false;
+    });
+    
+    return filtered;
+  }, [consultants, searchQuery]);
 
   const selectedConsultant = consultants.find(c => c.id === selectedConsultantId);
 
@@ -257,7 +295,10 @@ export function AssignConsultantDrawer({
                     <Input
                       placeholder="Search by name or email..."
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setSearchQuery(value);
+                      }}
                       className="pl-10"
                     />
                   </div>
@@ -271,7 +312,7 @@ export function AssignConsultantDrawer({
                         <SelectValue placeholder="All roles" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All roles</SelectItem>
+                        <SelectItem value="all">All roles</SelectItem>
                         <SelectItem value="RECRUITER">Recruiter</SelectItem>
                         <SelectItem value="CONSULTANT_360">360 Consultant</SelectItem>
                       </SelectContent>
@@ -285,7 +326,7 @@ export function AssignConsultantDrawer({
                         <SelectValue placeholder="All" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All</SelectItem>
+                        <SelectItem value="all">All</SelectItem>
                         <SelectItem value="AVAILABLE">Available</SelectItem>
                         <SelectItem value="AT_CAPACITY">At Capacity</SelectItem>
                       </SelectContent>
@@ -296,11 +337,28 @@ export function AssignConsultantDrawer({
 
               {/* Consultants List */}
               <div className="space-y-2">
-                <Label>Select Consultant</Label>
+                <div className="flex items-center justify-between">
+                  <Label>
+                    Select Consultant
+                    {searchQuery && (
+                      <span className="text-sm text-muted-foreground ml-2">
+                        ({filteredConsultants.length} of {consultants.length})
+                      </span>
+                    )}
+                  </Label>
+                  {loadingConsultants && (
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                </div>
                 <div className="space-y-2 max-h-[400px] overflow-y-auto">
-                  {filteredConsultants.length === 0 ? (
+                  {loadingConsultants ? (
                     <div className="text-center py-8 text-muted-foreground">
-                      No consultants found
+                      <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2" />
+                      Loading consultants...
+                    </div>
+                  ) : filteredConsultants.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      {searchQuery ? 'No consultants match your search' : 'No consultants found'}
                     </div>
                   ) : (
                     filteredConsultants.map((consultant) => {

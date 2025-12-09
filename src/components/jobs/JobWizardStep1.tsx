@@ -22,7 +22,10 @@ import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { CompanyProfileLocation } from "@/types/companyProfile";
 import { AIJobGenerator } from "./AIJobGenerator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+import { Info, Sparkles } from "lucide-react";
+import { canOffloadToConsultants } from "@/lib/packageUtils";
+import { cn } from "@/lib/utils";
+import { PackageUpgradeDialog } from "@/components/subscription/PackageUpgradeDialog";
 interface JobWizardStep1Props {
   form: UseFormReturn<JobFormData>;
   companyAssignmentMode?: 'AUTO_RULES_ONLY' | 'MANUAL_ONLY';
@@ -35,6 +38,7 @@ export function JobWizardStep1({
 }: JobWizardStep1Props) {
   const [departmentDialogOpen, setDepartmentDialogOpen] = useState(false);
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const {
     toast
   } = useToast();
@@ -533,6 +537,19 @@ export function JobWizardStep1({
       {/* Add Location Dialog */}
       <AddLocationDialog open={locationDialogOpen} onOpenChange={setLocationDialogOpen} onAdd={handleAddLocation} employerName={companyName} />
 
+      {/* Package Upgrade Dialog */}
+      {user?.companyId && (
+        <PackageUpgradeDialog
+          open={upgradeDialogOpen}
+          onOpenChange={setUpgradeDialogOpen}
+          companyId={user.companyId}
+          onUpgradeSuccess={() => {
+            // Reload the page or refresh company data to reflect the upgrade
+            window.location.reload();
+          }}
+        />
+      )}
+
       {/* Job Assignment Settings */}
       {!loadingCompanySettings && companyAssignmentMode && (
         <div className="space-y-2">
@@ -550,28 +567,54 @@ export function JobWizardStep1({
                 <FormField
                   control={form.control}
                   name="assignmentMode"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value === 'AUTO'}
-                          onCheckedChange={(checked) => {
-                            field.onChange(checked ? 'AUTO' : 'MANUAL');
-                          }}
-                        />
-                      </FormControl>
-                      <div className="space-y-1 leading-none">
-                        <FormLabel className="text-sm font-normal cursor-pointer">
-                          Auto-assign consultant for this job
-                        </FormLabel>
-                        <p className="text-xs text-muted-foreground">
-                          {companyAssignmentMode === 'AUTO_RULES_ONLY'
-                            ? 'This job will be automatically assigned to a consultant based on region, expertise, and availability.'
-                            : 'Note: Your company is set to manual assignment, but you can enable auto-assignment for this specific job.'}
-                        </p>
-                      </div>
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    // Check if company can offload to consultants
+                    const companyId = user?.companyId;
+                    const canOffload = companyId ? canOffloadToConsultants(companyId) : false;
+                    
+                    return (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value === 'AUTO'}
+                            disabled={!canOffload}
+                            onCheckedChange={(checked) => {
+                              if (canOffload) {
+                                field.onChange(checked ? 'AUTO' : 'MANUAL');
+                              }
+                            }}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel className={cn(
+                            "text-sm font-normal",
+                            canOffload ? "cursor-pointer" : "cursor-not-allowed opacity-60"
+                          )}>
+                            Auto-assign consultant for this job
+                          </FormLabel>
+                          <p className="text-xs text-muted-foreground">
+                            {!canOffload 
+                              ? 'Consultant assignment is only available for paid subscription packages. Upgrade to access consultant services.'
+                              : companyAssignmentMode === 'AUTO_RULES_ONLY'
+                              ? 'This job will be automatically assigned to a consultant based on region, expertise, and availability.'
+                              : 'Note: Your company is set to manual assignment, but you can enable auto-assignment for this specific job.'}
+                          </p>
+                          {!canOffload && companyId && (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setUpgradeDialogOpen(true)}
+                              className="mt-2"
+                            >
+                              <Sparkles className="h-3 w-3 mr-1" />
+                              Upgrade Package
+                            </Button>
+                          )}
+                        </div>
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
             </AlertDescription>

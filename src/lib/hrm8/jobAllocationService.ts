@@ -4,6 +4,7 @@
  */
 
 import { apiClient } from '../api';
+import { JobPipelineStatus } from '@/types/job';
 
 export interface UnassignedJob {
   id: string;
@@ -49,6 +50,7 @@ export interface JobAssignmentInfo {
     lastName: string;
     email: string;
   }>;
+  pipeline?: JobPipelineStatus;
 }
 
 class JobAllocationService {
@@ -102,6 +104,7 @@ class JobAllocationService {
     language?: string;
     search?: string;
   }) {
+    console.debug('[jobAllocationService] getConsultantsForAssignment', filters);
     const queryParams = new URLSearchParams();
     queryParams.append('regionId', filters.regionId);
     if (filters.role) queryParams.append('role', filters.role);

@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { Loader2, Save } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Skeleton } from '@/components/ui/skeleton';
+import { DeveloperTools } from '@/components/dev/DeveloperTools';
 
 export default function ConsultantProfilePage() {
   const { consultant } = useConsultantAuth();
@@ -213,6 +214,9 @@ export default function ConsultantProfilePage() {
           </Button>
         </div>
       </form>
+
+        {/* Developer Tools - Only visible in development mode */}
+        <DeveloperTools />
       </div>
     </ConsultantPageLayout>
   );
