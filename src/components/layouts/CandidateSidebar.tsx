@@ -13,6 +13,7 @@ import {
   GraduationCap,
   Bell,
   FolderOpen,
+  MessageSquare,
 } from "lucide-react";
 import {
   Sidebar,
@@ -39,6 +40,7 @@ const menuItems = [
   { path: "/candidate/documents", label: "Documents", icon: FolderOpen },
   { path: "/candidate/applications", label: "Applications", icon: FileText },
   { path: "/candidate/saved-jobs", label: "Saved Jobs", icon: Bookmark },
+  { path: "/candidate/messages", label: "Messages", icon: MessageSquare },
   { path: "/candidate/settings", label: "Settings", icon: Settings },
 ];
 

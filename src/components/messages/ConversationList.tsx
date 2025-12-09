@@ -30,7 +30,7 @@ export function ConversationList({
   const getUnreadCount = (conversationId: string): number => {
     const conversationMessages = messages[conversationId] || [];
     return conversationMessages.filter(
-      (m) => !m.isRead && m.senderEmail !== currentUserEmail
+      (m) => !(m.readBy || []).includes(currentUserEmail || '') && m.senderEmail !== currentUserEmail
     ).length;
   };
 
@@ -49,13 +49,14 @@ export function ConversationList({
   };
 
   const getDisplayName = (conversation: ConversationData): string => {
-    if (conversation.candidate) {
-      return `${conversation.candidate.firstName} ${conversation.candidate.lastName}`;
-    }
     const otherParticipant = conversation.participants.find(
-      (p) => p !== currentUserEmail
+      (p) => p.participantEmail !== currentUserEmail
     );
-    return otherParticipant?.split('@')[0] || 'Unknown';
+    return (
+      otherParticipant?.displayName ||
+      otherParticipant?.participantEmail?.split('@')[0] ||
+      'Conversation'
+    );
   };
 
   const getInitials = (name: string): string => {
@@ -85,8 +86,13 @@ export function ConversationList({
 
   return (
     <div className={cn('flex flex-col h-full', className)}>
-      <div className="p-4 border-b">
-        <h2 className="text-lg font-semibold">Messages</h2>
+      <div className="p-4 border-b bg-card/60 backdrop-blur-sm">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <h2 className="text-lg font-semibold leading-tight">Messages</h2>
+            <p className="text-xs text-muted-foreground">Keep in sync with recruiters</p>
+          </div>
+        </div>
       </div>
       <div className="flex-1 overflow-y-auto">
         {conversations.map((conversation) => {
@@ -110,8 +116,8 @@ export function ConversationList({
                 navigate(path);
               }}
               className={cn(
-                'w-full p-4 text-left hover:bg-muted/50 transition-colors border-b',
-                isActive && 'bg-muted'
+                'w-full p-4 text-left transition-colors border-b border-border/70 hover:bg-muted/40',
+                isActive && 'bg-muted/60'
               )}
             >
               <div className="flex items-start gap-3">
@@ -145,7 +151,7 @@ export function ConversationList({
                     </p>
                     {unreadCount > 0 && (
                       <Badge
-                        variant="primary"
+                        variant="outline"
                         className="h-5 min-w-5 flex items-center justify-center px-1.5 shrink-0"
                       >
                         {unreadCount > 99 ? '99+' : unreadCount}

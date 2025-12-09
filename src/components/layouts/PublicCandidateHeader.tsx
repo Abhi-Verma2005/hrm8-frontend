@@ -67,3 +67,4 @@ export function PublicCandidateHeader({ breadcrumbActions }: PublicCandidateHead
   );
 }
 
+

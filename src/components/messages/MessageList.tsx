@@ -87,17 +87,17 @@ export function MessageList({
               >
                 <div
                   className={cn(
-                    'rounded-lg px-4 py-2 text-sm',
+                    'rounded-2xl px-4 py-2 text-sm shadow-sm',
                     isOwn
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted text-foreground'
+                      ? 'bg-gradient-to-br from-primary to-primary/80 text-primary-foreground'
+                      : 'bg-muted text-foreground border border-border/60'
                   )}
                 >
                   <p className="whitespace-pre-wrap break-words">
                     {message.content}
                   </p>
                 </div>
-                <span className="text-xs text-muted-foreground px-1">
+                <span className="text-[11px] text-muted-foreground px-1">
                   {formatDistanceToNow(new Date(message.createdAt), {
                     addSuffix: true,
                   })}

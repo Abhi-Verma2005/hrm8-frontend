@@ -26,8 +26,8 @@ export type WSMessageType =
   | 'online_users_list'
   | 'error';
 
-export type MessageSenderType = 'USER' | 'CANDIDATE' | 'SYSTEM';
-export type MessageType = 'TEXT' | 'SYSTEM' | 'APPLICATION_SUBMITTED';
+export type MessageSenderType = 'CANDIDATE' | 'EMPLOYER' | 'CONSULTANT' | 'SYSTEM';
+export type MessageContentType = 'TEXT' | 'FILE' | 'SYSTEM';
 
 export interface WSMessage {
   type: WSMessageType;
@@ -46,31 +46,36 @@ export interface MessageData {
   senderType: MessageSenderType;
   senderId?: string;
   content: string;
-  type: MessageType;
-  isRead: boolean;
+  contentType: MessageContentType;
+  readBy?: string[];
+  deliveredAt?: string;
   readAt?: string;
   createdAt: string;
   updatedAt: string;
   isOwn?: boolean;
 }
 
+export interface ConversationParticipant {
+  participantType: 'CANDIDATE' | 'EMPLOYER' | 'CONSULTANT' | 'SYSTEM';
+  participantId: string;
+  participantEmail: string;
+  displayName?: string | null;
+}
+
+export type ConversationStatus = 'ACTIVE' | 'ARCHIVED' | 'CLOSED';
+
 export interface ConversationData {
   id: string;
-  jobId: string;
-  candidateId: string;
-  participants: string[];
+  jobId?: string | null;
+  candidateId?: string | null;
+  participants: ConversationParticipant[];
+  status: ConversationStatus;
   lastMessageId?: string;
   createdAt: string;
   updatedAt: string;
   job?: {
     id: string;
     title: string;
-  };
-  candidate?: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
   };
   lastMessage?: MessageData;
 }
