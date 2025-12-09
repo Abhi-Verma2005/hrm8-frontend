@@ -67,8 +67,17 @@ class CommissionService {
     return apiClient.put<{ commission: Commission }>(`/api/hrm8/commissions/${id}/confirm`);
   }
 
-  async markAsPaid(id: string, paidTo?: string) {
-    return apiClient.put<{ commission: Commission }>(`/api/hrm8/commissions/${id}/pay`, { paidTo });
+  async markAsPaid(id: string, paymentReference?: string) {
+    return apiClient.put<{ commission: Commission }>(`/api/hrm8/commissions/${id}/pay`, { 
+      paymentReference: paymentReference || `PMT-${Date.now()}` 
+    });
+  }
+
+  async processPayments(commissionIds: string[], paymentReference: string) {
+    return apiClient.post<{ processed: number; total: number; errors: string[] }>(
+      '/api/hrm8/commissions/pay',
+      { commissionIds, paymentReference }
+    );
   }
 
   async getRegional(regionId: string, status?: string) {

@@ -87,3 +87,5 @@ export function AllApplicantsCard({ onClick, count }: AllApplicantsCardProps) {
 
 
 
+
+

@@ -12,9 +12,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { DollarSign, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { DollarSign, CheckCircle, Clock, XCircle, CreditCard } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
+import { CommissionPaymentDialog } from '@/components/hrm8/CommissionPaymentDialog';
 
 const columns = [
   {
@@ -71,6 +73,8 @@ export default function CommissionsPage() {
   const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [selectedCommissions, setSelectedCommissions] = useState<Commission[]>([]);
 
   const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
 
@@ -111,9 +115,9 @@ export default function CommissionsPage() {
     }
   };
 
-  const handleMarkAsPaid = async (id: string) => {
+  const handleMarkAsPaid = async (id: string, paymentReference?: string) => {
     try {
-      const response = await commissionService.markAsPaid(id);
+      const response = await commissionService.markAsPaid(id, paymentReference);
       if (response.success) {
         toast.success('Commission marked as paid');
         await loadCommissions();
@@ -123,6 +127,21 @@ export default function CommissionsPage() {
     } catch (error) {
       toast.error('Failed to mark commission as paid');
     }
+  };
+
+  const handleOpenPaymentDialog = () => {
+    // Get pending/confirmed commissions that can be paid
+    const payableCommissions = commissions.filter(
+      c => c.status === 'PENDING' || c.status === 'CONFIRMED'
+    );
+    setSelectedCommissions(payableCommissions);
+    setPaymentDialogOpen(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    setPaymentDialogOpen(false);
+    setSelectedCommissions([]);
+    loadCommissions();
   };
 
   const totalPending = commissions.filter(c => c.status === 'PENDING').reduce((sum, c) => sum + c.amount, 0);
@@ -147,6 +166,12 @@ export default function CommissionsPage() {
               <SelectItem value="CANCELLED">Cancelled</SelectItem>
             </SelectContent>
           </Select>
+          {commissions.filter(c => c.status === 'PENDING' || c.status === 'CONFIRMED').length > 0 && (
+            <Button onClick={handleOpenPaymentDialog} className="ml-2">
+              <CreditCard className="h-4 w-4 mr-2" />
+              Process Payments
+            </Button>
+          )}
         </div>
       }
     >
@@ -197,6 +222,13 @@ export default function CommissionsPage() {
           )}
         </CardContent>
       </Card>
+
+      <CommissionPaymentDialog
+        open={paymentDialogOpen}
+        onOpenChange={setPaymentDialogOpen}
+        commissions={selectedCommissions}
+        onSuccess={handlePaymentSuccess}
+      />
       </div>
     </Hrm8PageLayout>
   );
