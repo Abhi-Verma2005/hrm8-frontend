@@ -1,20 +1,14 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, Lock, CheckCircle2, XCircle, Sparkles, Check } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Sparkles, Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { SUBSCRIPTION_TIERS, type SubscriptionTier } from "@/lib/subscriptionConfig";
-import { getPackageTier, getPackageDisplayName, type SubscriptionTier as PackageTier } from "@/lib/packageUtils";
-import { updateEmployer } from "@/lib/employerService";
 import { cn } from "@/lib/utils";
-
-const MOCK_PAYMENT_PASSWORD = "vAbhi2678";
+import { createUpgradeCheckoutSession, type UpgradeTier } from "@/lib/payments";
 
 interface PackageUpgradeDialogProps {
   open: boolean;
@@ -30,69 +24,69 @@ export function PackageUpgradeDialog({
   onUpgradeSuccess,
 }: PackageUpgradeDialogProps) {
   const { toast } = useToast();
-  const [selectedTier, setSelectedTier] = useState<SubscriptionTier | null>(null);
-  const [paymentPassword, setPaymentPassword] = useState("");
+  const [selectedTier, setSelectedTier] = useState<UpgradeTier | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const currentTier = getPackageTier(companyId) as SubscriptionTier;
-  const isFreePackage = currentTier === 'ats-lite';
-
-  // Available upgrade tiers (excluding current tier and payg)
-  const availableTiers: SubscriptionTier[] = ['small', 'medium', 'large', 'enterprise'].filter(
-    tier => tier !== currentTier
-  ) as SubscriptionTier[];
+  const upgradePackages: Array<{
+    id: UpgradeTier;
+    name: string;
+    price: number;
+    description: string;
+    features: string[];
+  }> = useMemo(() => ([
+    {
+      id: "shortlisting",
+      name: "Shortlisting",
+      price: 1990,
+      description: "We screen candidates and deliver a shortlist.",
+      features: ["Job board advertising", "Applicant screening", "Shortlist delivered"],
+    },
+    {
+      id: "full_service",
+      name: "Full Service",
+      price: 5990,
+      description: "Complete recruitment with interview coordination and offers.",
+      features: ["End-to-end support", "Interview coordination", "Offer negotiation"],
+    },
+    {
+      id: "executive_search",
+      name: "Executive Search",
+      price: 9990,
+      description: "Leadership roles with confidential search and assessment.",
+      features: ["C-level positions", "Confidential search", "Executive assessment"],
+    },
+  ]), []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     if (!selectedTier) {
-      setError("Please select a subscription tier.");
-      return;
-    }
-
-    if (!paymentPassword) {
-      setError("Please enter the mock payment password.");
-      return;
-    }
-
-    if (paymentPassword !== MOCK_PAYMENT_PASSWORD) {
-      setError("Payment failed. Invalid mock payment password.");
+      setError("Please select a package.");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Simulate payment processing delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Update employer subscription tier
-      const updated = updateEmployer(companyId, {
-        subscriptionTier: selectedTier,
-        subscriptionStatus: 'active',
-        subscriptionStartDate: new Date(),
+      const response = await createUpgradeCheckoutSession({
+        tier: selectedTier,
+        companyId,
       });
 
-      if (!updated) {
-        throw new Error('Failed to update subscription. Company not found.');
+      if (!response.success || !response.data?.checkoutUrl) {
+        throw new Error(response.error || "Failed to create checkout session.");
       }
 
       setSuccess(true);
       toast({
-        title: "Upgrade successful!",
-        description: `Your subscription has been upgraded to ${SUBSCRIPTION_TIERS[selectedTier].name}.`,
+        title: "Redirecting to payment",
+        description: "Secure checkout is opening in a new tab.",
       });
 
-      setTimeout(() => {
-        setSuccess(false);
-        setPaymentPassword("");
-        setSelectedTier(null);
-        onUpgradeSuccess?.();
-        onOpenChange(false);
-      }, 2000);
+      window.location.href = response.data.checkoutUrl;
     } catch (err: any) {
       setError(err?.message || "Unexpected error during upgrade.");
       toast({
@@ -104,9 +98,6 @@ export function PackageUpgradeDialog({
       setIsSubmitting(false);
     }
   };
-
-  const selectedTierConfig = selectedTier ? SUBSCRIPTION_TIERS[selectedTier] : null;
-  const currentTierConfig = SUBSCRIPTION_TIERS[currentTier];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -123,33 +114,10 @@ export function PackageUpgradeDialog({
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* Current Package */}
-            <div className="space-y-2">
-              <Label>Current Package</Label>
-              <Card className="bg-muted/50">
-                <CardContent className="pt-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-semibold">{getPackageDisplayName(currentTier)}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {currentTierConfig.description}
-                      </p>
-                    </div>
-                    <Badge variant={isFreePackage ? "secondary" : "default"}>
-                      {isFreePackage ? "Free" : "Paid"}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Mock Payment Alert */}
-            <Alert className="bg-muted/60">
-              <Lock className="h-4 w-4" />
-              <AlertTitle>Mock payment flow</AlertTitle>
+            <Alert className="bg-primary/5 border-primary/40">
+              <AlertTitle>Secure checkout</AlertTitle>
               <AlertDescription>
-                To simulate a successful payment, enter the password{" "}
-                <span className="font-mono font-semibold">vAbhi2678</span>. Any other value will simulate a failed payment.
+                Choose a package and you&apos;ll be redirected to Stripe Checkout to complete payment.
               </AlertDescription>
             </Alert>
 
@@ -173,113 +141,70 @@ export function PackageUpgradeDialog({
               </Alert>
             )}
 
-            {/* Select Upgrade Tier */}
-            {availableTiers.length > 0 && (
-              <div className="space-y-3">
-                <Label>Select Upgrade Package</Label>
-                <RadioGroup value={selectedTier || ""} onValueChange={(value) => setSelectedTier(value as SubscriptionTier)}>
-                  {availableTiers.map((tier) => {
-                    const tierConfig = SUBSCRIPTION_TIERS[tier];
-                    return (
-                      <div
-                        key={tier}
-                        className={cn(
-                          "flex items-center space-x-3 border rounded-lg p-4 cursor-pointer transition-colors",
-                          selectedTier === tier
-                            ? "border-primary bg-primary/5"
-                            : "hover:bg-muted/50"
-                        )}
-                        onClick={() => setSelectedTier(tier)}
-                      >
-                        <RadioGroupItem value={tier} id={tier} />
-                        <Label htmlFor={tier} className="flex-1 cursor-pointer">
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <p className="font-semibold">{tierConfig.name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {tierConfig.maxOpenJobs === 9999 ? "Unlimited" : tierConfig.maxOpenJobs} open jobs
-                              </p>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-bold">${tierConfig.monthlyPrice}</p>
-                              <p className="text-xs text-muted-foreground">/month</p>
-                            </div>
-                          </div>
-                        </Label>
+            <div className="space-y-3">
+              <Label>Select Upgrade Package</Label>
+              <RadioGroup value={selectedTier || ""} onValueChange={(value) => setSelectedTier(value as UpgradeTier)}>
+                {upgradePackages.map((pkg) => (
+                  <div
+                    key={pkg.id}
+                    className={cn(
+                      "flex items-center space-x-3 border rounded-lg p-4 cursor-pointer transition-colors",
+                      selectedTier === pkg.id
+                        ? "border-primary bg-primary/5"
+                        : "hover:bg-muted/50"
+                    )}
+                    onClick={() => setSelectedTier(pkg.id)}
+                  >
+                    <RadioGroupItem value={pkg.id} id={pkg.id} />
+                    <Label htmlFor={pkg.id} className="flex-1 cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-semibold">{pkg.name}</p>
+                          <p className="text-sm text-muted-foreground">{pkg.description}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold">${pkg.price.toLocaleString("en-US")}</p>
+                          <p className="text-xs text-muted-foreground">one-time</p>
+                        </div>
                       </div>
-                    );
-                  })}
-                </RadioGroup>
-              </div>
-            )}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
 
             {/* Selected Tier Details */}
-            {selectedTierConfig && (
+            {selectedTier && (
               <Card className="bg-primary/5 border-primary/20">
                 <CardContent className="pt-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold">Selected Package:</span>
-                      <span className="font-bold text-primary">{selectedTierConfig.name}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Monthly Price:</span>
-                      <span className="font-semibold">${selectedTierConfig.monthlyPrice}/month</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">Max Open Jobs:</span>
-                      <span className="font-semibold">
-                        {selectedTierConfig.maxOpenJobs === 9999 ? "Unlimited" : selectedTierConfig.maxOpenJobs}
-                      </span>
-                    </div>
-                    <div className="pt-2 border-t">
-                      <p className="text-xs font-medium mb-1">Key Features:</p>
-                      <ul className="text-xs text-muted-foreground space-y-1">
-                        {selectedTierConfig.features.coreATS && (
-                          <li className="flex items-center gap-1">
-                            <Check className="h-3 w-3" />
-                            Core ATS Features
-                          </li>
-                        )}
-                        {selectedTierConfig.features.aiScreening && (
-                          <li className="flex items-center gap-1">
-                            <Check className="h-3 w-3" />
-                            AI Screening & Matching
-                          </li>
-                        )}
-                        {selectedTierConfig.features.teamCollaboration && (
-                          <li className="flex items-center gap-1">
-                            <Check className="h-3 w-3" />
-                            Team Collaboration
-                          </li>
-                        )}
-                        <li className="flex items-center gap-1">
-                          <Check className="h-3 w-3" />
-                          Consultant Services Access
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
+                  {upgradePackages
+                    .filter((pkg) => pkg.id === selectedTier)
+                    .map((pkg) => (
+                      <div key={pkg.id} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold">Selected Package:</span>
+                          <span className="font-bold text-primary">{pkg.name}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground">Price:</span>
+                          <span className="font-semibold">${pkg.price.toLocaleString("en-US")}</span>
+                        </div>
+                        <div className="pt-2 border-t">
+                          <p className="text-xs font-medium mb-1">Key Features:</p>
+                          <ul className="text-xs text-muted-foreground space-y-1">
+                            {pkg.features.map((feature) => (
+                              <li key={feature} className="flex items-center gap-1">
+                                <Check className="h-3 w-3" />
+                                {feature}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    ))}
                 </CardContent>
               </Card>
             )}
-
-            {/* Payment Password */}
-            <div className="space-y-2">
-              <Label htmlFor="payment-password">Mock Payment Password *</Label>
-              <Input
-                id="payment-password"
-                type="password"
-                placeholder="Enter mock payment password"
-                value={paymentPassword}
-                onChange={(e) => setPaymentPassword(e.target.value)}
-                required
-                disabled={isSubmitting || success}
-              />
-              <p className="text-xs text-muted-foreground">
-                Use password: <span className="font-mono">vAbhi2678</span> for successful payment
-              </p>
-            </div>
           </div>
 
           <DialogFooter>
@@ -296,7 +221,7 @@ export function PackageUpgradeDialog({
               disabled={isSubmitting || success || !selectedTier}
             >
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSubmitting ? "Processing..." : "Upgrade & Pay"}
+              {isSubmitting ? "Redirecting..." : "Upgrade & Pay"}
             </Button>
           </DialogFooter>
         </form>
@@ -304,3 +229,6 @@ export function PackageUpgradeDialog({
     </Dialog>
   );
 }
+
+
+

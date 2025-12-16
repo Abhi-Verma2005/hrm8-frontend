@@ -5,13 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, Lock, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { commissionService, Commission } from "@/lib/hrm8/commissionService";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-
-const MOCK_PAYMENT_PASSWORD = "vAbhi2678";
 
 interface CommissionPaymentDialogProps {
   open: boolean;
@@ -28,7 +26,6 @@ export function CommissionPaymentDialog({
 }: CommissionPaymentDialogProps) {
   const { toast } = useToast();
   const [selectedCommissions, setSelectedCommissions] = useState<string[]>([]);
-  const [paymentPassword, setPaymentPassword] = useState("");
   const [paymentReference, setPaymentReference] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,18 +58,8 @@ export function CommissionPaymentDialog({
       return;
     }
 
-    if (!paymentPassword) {
-      setError("Please enter the mock payment password.");
-      return;
-    }
-
     if (!paymentReference.trim()) {
       setError("Please enter a payment reference.");
-      return;
-    }
-
-    if (paymentPassword !== MOCK_PAYMENT_PASSWORD) {
-      setError("Payment failed. Invalid mock payment password.");
       return;
     }
 
@@ -99,13 +86,12 @@ export function CommissionPaymentDialog({
 
       setSuccess(true);
       toast({
-        title: "Payment successful",
-        description: `Successfully processed ${selectedCommissions.length} commission payment(s).`,
+        title: "Payments processed",
+        description: `Processed ${selectedCommissions.length} commission payment(s).`,
       });
 
       setTimeout(() => {
         setSuccess(false);
-        setPaymentPassword("");
         setPaymentReference("");
         setSelectedCommissions([]);
         onSuccess?.();
@@ -135,16 +121,6 @@ export function CommissionPaymentDialog({
           </DialogHeader>
 
           <div className="space-y-6 py-4">
-            {/* Mock Payment Alert */}
-            <Alert className="bg-muted/60">
-              <Lock className="h-4 w-4" />
-              <AlertTitle>Mock payment flow</AlertTitle>
-              <AlertDescription>
-                To simulate a successful payment, enter the password{" "}
-                <span className="font-mono font-semibold">vAbhi2678</span>. Any other value will simulate a failed payment.
-              </AlertDescription>
-            </Alert>
-
             {error && (
               <Alert variant="destructive">
                 <XCircle className="h-4 w-4" />
@@ -246,21 +222,6 @@ export function CommissionPaymentDialog({
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="payment-password">Mock Payment Password *</Label>
-                    <Input
-                      id="payment-password"
-                      type="password"
-                      placeholder="Enter mock payment password"
-                      value={paymentPassword}
-                      onChange={(e) => setPaymentPassword(e.target.value)}
-                      required
-                      disabled={isSubmitting || success}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Use password: <span className="font-mono">vAbhi2678</span> for successful payment
-                    </p>
-                  </div>
                 </div>
               </>
             )}
