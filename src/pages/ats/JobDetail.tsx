@@ -38,6 +38,7 @@ import { JobQuickStats } from "@/components/jobs/JobQuickStats";
 import { DetailSkeleton } from "@/components/skeletons/DetailSkeleton";
 import { JobActivityFeed } from "@/components/jobs/JobActivityFeed";
 import { JobLifecycleActions } from "@/components/jobs/JobLifecycleActions";
+import { JobPaymentStatus } from "@/components/jobs/JobPaymentStatus";
 import { formatSalaryRange, formatExperienceLevel, formatRelativeDate } from "@/lib/jobUtils";
 import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
 import { JobApplicantsList } from "@/components/applications/JobApplicantsList";
@@ -418,6 +419,11 @@ export default function JobDetail() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="mt-6 space-y-6">
+            {/* Payment Status - Show for paid packages */}
+            {(job.serviceType !== 'self-managed' && job.serviceType !== 'rpo') && (
+              <JobPaymentStatus job={job} onPaymentComplete={handleJobUpdate} />
+            )}
+
             {/* Upgrade to Recruitment Service Banner for Self-Managed Jobs */}
             {job.serviceType === 'self-managed' && (job.status === 'open' || job.status === 'draft') && (
               <Card className="border-primary/20 bg-primary/5">

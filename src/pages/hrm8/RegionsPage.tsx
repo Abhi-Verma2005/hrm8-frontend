@@ -8,15 +8,22 @@ import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
 import { regionService, Region } from '@/lib/hrm8/regionService';
 import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
-import { Plus, MapPin, Edit, Trash2, Building2 } from 'lucide-react';
+import { Plus, Edit, Trash2, MoreVertical, Link2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { toast } from 'sonner';
 import { FormDrawer } from '@/components/ui/form-drawer';
 import { RegionForm } from '@/components/hrm8/RegionForm';
 import { DeleteConfirmationDialog } from '@/components/ui/delete-confirmation-dialog';
+import { AssignLicenseeDialog } from '@/components/hrm8/AssignLicenseeDialog';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import { Badge } from '@/components/ui/badge';
 
-const columns = [
+const createColumns = (
+  onEdit: (region: Region) => void,
+  onDelete: (region: Region) => void,
+  onAssignLicensee: (region: Region) => void
+) => [
   {
     key: 'code',
     label: 'Code',
@@ -42,12 +49,72 @@ const columns = [
     ),
   },
   {
+    key: 'licensee',
+    label: 'Licensee',
+    render: (region: Region) => {
+      if (!region.licensee) {
+        return (
+          <span className="text-muted-foreground text-sm">—</span>
+        );
+      }
+      return (
+        <div className="flex flex-col">
+          <span className="font-medium text-sm">{region.licensee.name}</span>
+          <span className="text-xs text-muted-foreground">{region.licensee.legalEntityName}</span>
+        </div>
+      );
+    },
+  },
+  {
     key: 'isActive',
     label: 'Status',
     render: (region: Region) => (
-      <span className={region.isActive ? 'text-green-600' : 'text-gray-500'}>
+      <Badge variant={region.isActive ? 'default' : 'secondary'}>
         {region.isActive ? 'Active' : 'Inactive'}
-      </span>
+      </Badge>
+    ),
+  },
+  {
+    key: 'actions',
+    label: 'Actions',
+    width: '100px',
+    render: (region: Region) => (
+      <div onClick={(e) => e.stopPropagation()}>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <MoreVertical className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => onEdit(region)}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Region
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onAssignLicensee(region)}>
+              {region.licensee ? (
+                <>
+                  <Link2 className="h-4 w-4 mr-2" />
+                  Change Licensee
+                </>
+              ) : (
+                <>
+                  <Link2 className="h-4 w-4 mr-2" />
+                  Assign Licensee
+                </>
+              )}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={() => onDelete(region)}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     ),
   },
 ];
@@ -60,6 +127,8 @@ export default function RegionsPage() {
   const [editingRegionId, setEditingRegionId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [regionToDelete, setRegionToDelete] = useState<string | null>(null);
+  const [assignLicenseeDialogOpen, setAssignLicenseeDialogOpen] = useState(false);
+  const [regionForLicensee, setRegionForLicensee] = useState<Region | null>(null);
 
   const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
 
@@ -120,6 +189,17 @@ export default function RegionsPage() {
     setDrawerOpen(false);
     setEditingRegionId(null);
   };
+
+  const handleAssignLicensee = (region: Region) => {
+    setRegionForLicensee(region);
+    setAssignLicenseeDialogOpen(true);
+  };
+
+  const handleLicenseeAssigned = async () => {
+    await loadRegions();
+  };
+
+  const columns = createColumns(handleEdit, handleDelete, handleAssignLicensee);
 
   if (!isGlobalAdmin) {
     return (
@@ -185,6 +265,13 @@ export default function RegionsPage() {
         onConfirm={confirmDelete}
         title="Delete Region"
         description="Are you sure you want to delete this region? This action cannot be undone."
+      />
+
+      <AssignLicenseeDialog
+        open={assignLicenseeDialogOpen}
+        onOpenChange={setAssignLicenseeDialogOpen}
+        region={regionForLicensee}
+        onSuccess={handleLicenseeAssigned}
       />
       </div>
     </Hrm8PageLayout>

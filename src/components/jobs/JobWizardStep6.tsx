@@ -9,6 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { RECRUITMENT_SERVICES } from '@/lib/subscriptionConfig';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface JobWizardStep6Props {
   form: UseFormReturn<JobFormData>;
@@ -16,29 +17,30 @@ interface JobWizardStep6Props {
 
 export function JobWizardStep6({ form }: JobWizardStep6Props) {
   const formData = form.watch();
-  
+  const { user } = useAuth();
+
   const [termsAccepted, setTermsAccepted] = useState(formData.termsAccepted || false);
-  
+
   const isSelfManaged = formData.serviceType === 'self-managed' || formData.serviceType === 'rpo';
-  
+
   const costBreakdown = calculateTotalJobCost(
-    formData.employerId,
+    user?.companyId || '',
     formData.serviceType,
     { min: formData.salaryMin || 0, max: formData.salaryMax || 0 }
   );
 
   const serviceName = RECRUITMENT_SERVICES[formData.serviceType as keyof typeof RECRUITMENT_SERVICES]?.name || '';
-  
+
   const handlePaymentMethodSelect = (method: 'account' | 'credit_card', invoiceRequested?: boolean) => {
     form.setValue('selectedPaymentMethod', method);
     form.setValue('paymentInvoiceRequested', invoiceRequested);
   };
-  
+
   const handleTermsAcceptChange = (accepted: boolean) => {
     setTermsAccepted(accepted);
     form.setValue('termsAccepted', accepted);
   };
-  
+
   return (
     <div className="space-y-6">
       <div>
@@ -77,62 +79,69 @@ export function JobWizardStep6({ form }: JobWizardStep6Props) {
               Complete payment to activate your job posting
             </CardDescription>
           </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Job Posting Cost */}
-          <div className="flex justify-between items-center pb-3 border-b">
-            <div>
-              <p className="font-medium">Job Posting</p>
-              <p className="text-sm text-muted-foreground">
-                {costBreakdown.jobPostingCost === 0 
-                  ? 'Included in your plan' 
-                  : '30-day HRM8 posting'}
-              </p>
-            </div>
-            <p className="text-lg font-semibold">
-              {costBreakdown.jobPostingCost === 0 ? 'FREE' : `$${costBreakdown.jobPostingCost}`}
-            </p>
-          </div>
-
-          {/* Recruitment Service Cost (if not self-managed) */}
-          {!isSelfManaged && costBreakdown.recruitmentServiceCost > 0 && (
+          <CardContent className="space-y-4">
+            {/* Job Posting Cost */}
             <div className="flex justify-between items-center pb-3 border-b">
               <div>
-                <p className="font-medium">Recruitment Service</p>
+                <p className="font-medium">Job Posting</p>
                 <p className="text-sm text-muted-foreground">
-                  {serviceName} - Upfront payment (50%)
+                  {costBreakdown.jobPostingCost === 0
+                    ? 'Included in your plan'
+                    : '30-day HRM8 posting'}
                 </p>
               </div>
               <p className="text-lg font-semibold">
-                ${costBreakdown.upfrontRecruitmentCost}
+                {costBreakdown.jobPostingCost === 0 ? 'FREE' : `$${costBreakdown.jobPostingCost}`}
               </p>
             </div>
-          )}
 
-          {/* Total Due Now */}
-          <div className="flex justify-between items-center pt-3">
-            <p className="text-lg font-semibold">Total Due Now</p>
-            <p className="text-2xl font-bold text-primary">
-              {costBreakdown.totalUpfront === 0 ? 'FREE' : `$${costBreakdown.totalUpfront}`}
-            </p>
-          </div>
+            {/* Recruitment Service Cost (if not self-managed) */}
+            {!isSelfManaged && costBreakdown.recruitmentServiceCost > 0 && (
+              <div className="flex justify-between items-center pb-3 border-b">
+                <div>
+                  <p className="font-medium">Recruitment Service</p>
+                  <p className="text-sm text-muted-foreground">
+                    {serviceName} - Full payment
+                  </p>
+                </div>
+                <p className="text-lg font-semibold">
+                  ${costBreakdown.upfrontRecruitmentCost}
+                </p>
+              </div>
+            )}
 
-          {/* Balance on Completion (if applicable) */}
-          {costBreakdown.balanceRecruitmentCost > 0 && (
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertDescription>
-                Balance of ${costBreakdown.balanceRecruitmentCost} due upon successful hire
-              </AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
+            {/* Total Due Now */}
+            <div className="flex justify-between items-center pt-3">
+              <p className="text-lg font-semibold">Total Due Now</p>
+              <p className="text-2xl font-bold text-primary">
+                {costBreakdown.totalUpfront === 0 ? 'FREE' : `$${costBreakdown.totalUpfront}`}
+              </p>
+            </div>
+
+          </CardContent>
         </Card>
       )}
 
-      {/* Payment Method (only if totalUpfront > 0) */}
-      {costBreakdown.totalUpfront > 0 && (
+      {/* Payment Info for Paid Packages */}
+      {costBreakdown.totalUpfront > 0 && !isSelfManaged && (
+        <Alert className="border-2 border-primary/30 bg-primary/5">
+          <Info className="h-5 w-5 text-primary" />
+          <AlertTitle className="text-base font-semibold">Payment Required</AlertTitle>
+          <AlertDescription className="text-base mt-2">
+            <p className="mb-2">
+              When you click "Pay & Publish", you will be redirected to a secure payment page to complete your payment via Stripe.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Your job will be published automatically after successful payment.
+            </p>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Payment Method (only for self-managed jobs with payment) */}
+      {costBreakdown.totalUpfront > 0 && isSelfManaged && (
         <PaymentMethodSelector
-          employerId={formData.employerId}
+          employerId={user?.companyId || ''}
           amount={costBreakdown.totalUpfront}
           selectedMethod={formData.selectedPaymentMethod}
           onMethodSelect={handlePaymentMethodSelect}
@@ -155,13 +164,13 @@ export function JobWizardStep6({ form }: JobWizardStep6Props) {
           </CardContent>
         </Card>
       )}
-      
+
       <TermsAndConditions
         accepted={termsAccepted}
         onAcceptChange={handleTermsAcceptChange}
         required={true}
       />
-      
+
       {isSelfManaged && costBreakdown.jobPostingCost === 0 && (
         <Alert className="border-2 border-primary/30 bg-primary/5">
           <Megaphone className="h-5 w-5 text-primary" />

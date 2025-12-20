@@ -258,18 +258,18 @@ export const RECRUITMENT_SERVICES = {
   },
   'shortlisting': {
     baseFee: 1990,
-    upfrontPercentage: 0.5,
+    upfrontPercentage: 1.0,
     name: 'Shortlisting Service'
   },
   'full-service': {
     baseFee: 5990,
-    upfrontPercentage: 0.5,
+    upfrontPercentage: 1.0,
     name: 'Standard Recruitment Service'
   },
   'executive-search': {
     baseFeeUnder100k: 9990,
     baseFeeOver100k: 14990,
-    upfrontPercentage: 0.5,
+    upfrontPercentage: 1.0,
     name: 'Executive Search'
   },
   'rpo': {
@@ -325,12 +325,12 @@ export function calculateRPOGuidePricing(
 } {
   const GUIDE_CONSULTANT_RATE = RECRUITMENT_SERVICES.rpo.baseMonthlyPerConsultant;
   const GUIDE_VACANCY_FEE = RECRUITMENT_SERVICES.rpo.basePerVacancy;
-  
+
   const monthlyRetainer = consultants * GUIDE_CONSULTANT_RATE;
   const totalMonthlyFees = monthlyRetainer * months;
   const perVacancyFees = estimatedVacancies * GUIDE_VACANCY_FEE;
   const totalEstimated = totalMonthlyFees + perVacancyFees;
-  
+
   return {
     monthlyRetainer,
     totalMonthlyFees,

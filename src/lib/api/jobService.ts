@@ -35,11 +35,13 @@ export interface CreateJobRequest {
   videoInterviewingEnabled?: boolean;
   assignmentMode?: 'AUTO' | 'MANUAL';
   regionId?: string;
+  servicePackage?: string;
 }
 
 export interface UpdateJobRequest extends Partial<CreateJobRequest> {
   status?: JobStatus;
   closeDate?: string;
+  servicePackage?: string;
 }
 
 export interface GetJobsFilters {
@@ -73,7 +75,7 @@ class JobService {
 
     const queryString = queryParams.toString();
     const endpoint = `/api/jobs${queryString ? `?${queryString}` : ''}`;
-    
+
     return apiClient.get<Job[]>(endpoint);
   }
 

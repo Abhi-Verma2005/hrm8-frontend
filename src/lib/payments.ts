@@ -15,4 +15,21 @@ export async function createUpgradeCheckoutSession(params: {
   return apiClient.post<CheckoutResponse>("/api/payments/upgrade-checkout", params);
 }
 
+export async function createJobCheckoutSession(params: {
+  jobId: string;
+  servicePackage: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search';
+  companyId: string;
+  customerEmail?: string;
+}) {
+  return apiClient.post<CheckoutResponse>("/api/payments/job-checkout", params);
+}
+
+
+
+
+
+
+
+
+
 

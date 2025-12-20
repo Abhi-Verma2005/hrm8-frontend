@@ -79,6 +79,7 @@ export default function Settings() {
     );
   };
 
+
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
@@ -87,6 +88,48 @@ export default function Settings() {
             title="Settings"
             subtitle="Manage your application preferences and configurations"
           />
+
+          {/* Payment Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                Payment & Billing
+              </CardTitle>
+              <CardDescription className="text-sm">
+                Payment is now handled per job posting
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="rounded-lg border bg-muted/50 p-4">
+                <h4 className="font-medium mb-2">Job-Specific Payments</h4>
+                <p className="text-sm text-muted-foreground mb-4">
+                  HRM8 now uses a pay-per-job model. When you create a job posting, you can choose:
+                </p>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span><strong>Self-Managed:</strong> Free - Post and manage the job yourself</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span><strong>Shortlisting:</strong> $1,990 - We provide pre-screened candidates</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span><strong>Full Service:</strong> $5,990 - End-to-end recruitment support</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span><strong>Executive Search:</strong> $9,990 - Premium executive recruitment</span>
+                  </li>
+                </ul>
+                <p className="text-sm text-muted-foreground mt-4">
+                  Payment is required before publishing paid service jobs. You can view payment status on each job's detail page.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Display & Formatting */}
           <Card>
@@ -232,6 +275,7 @@ export default function Settings() {
           </Card>
         </div>
       </div>
+
     </DashboardPageLayout>
   );
 }

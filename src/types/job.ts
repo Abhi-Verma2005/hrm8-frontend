@@ -97,8 +97,15 @@ export interface Job {
   jobTargetPromotions?: string[];
   paymentId?: string;
   requiresPayment?: boolean;
-  paymentStatus?: 'pending' | 'paid' | 'failed';
+  paymentStatus?: 'pending' | 'paid' | 'failed' | 'PENDING' | 'PAID' | 'FAILED' | 'PROCESSING' | 'REFUNDED';
   serviceFee?: number;
+  servicePackage?: string;
+  paymentAmount?: number;
+  paymentCurrency?: string;
+  stripeSessionId?: string;
+  stripePaymentIntentId?: string;
+  paymentCompletedAt?: Date | string;
+  paymentFailedAt?: Date | string;
   termsAccepted?: boolean;
   termsAcceptedAt?: Date;
   termsAcceptedBy?: string;
