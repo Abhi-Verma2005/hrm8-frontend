@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, Users, Star, Check, ArrowRight, Crown } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Briefcase, Users, Star, Check, ArrowRight, Crown, Lock, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { canOffloadToConsultants, getPackageDisplayName, getPackageTier } from "@/lib/packageUtils";
+import { PackageUpgradeDialog } from "@/components/subscription/PackageUpgradeDialog";
 
 interface ServiceTypeSelectionDialogProps {
   open: boolean;
+  companyId?: string;
   onServiceTypeSelect: (serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search') => void;
   onCancel?: () => void;
 }
@@ -80,8 +84,30 @@ const services = [
   }
 ];
 
-export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect, onCancel }: ServiceTypeSelectionDialogProps) {
+export function ServiceTypeSelectionDialog({ open, companyId, onServiceTypeSelect, onCancel }: ServiceTypeSelectionDialogProps) {
   const [selectedService, setSelectedService] = useState<'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | null>(null);
+  const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
+
+  // Check if company can offload to consultants
+  const canOffload = useMemo(() => {
+    if (!companyId) return false;
+    return canOffloadToConsultants(companyId);
+  }, [companyId]);
+
+  const packageTier = useMemo(() => {
+    if (!companyId) return null;
+    return getPackageTier(companyId);
+  }, [companyId]);
+
+  // Filter services based on package
+  const availableServices = useMemo(() => {
+    if (canOffload) {
+      // Paid packages can see all services
+      return services;
+    }
+    // Free packages can only use self-managed
+    return services.filter(s => s.id === 'self-managed');
+  }, [canOffload]);
 
   const handleContinue = () => {
     if (selectedService) {
@@ -89,7 +115,7 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect, onCancel
     }
   };
 
-  const selectedServiceDetails = services.find(s => s.id === selectedService);
+  const selectedServiceDetails = availableServices.find(s => s.id === selectedService);
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
@@ -101,8 +127,33 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect, onCancel
           </DialogDescription>
         </DialogHeader>
 
+        {!canOffload && companyId && (
+          <Alert className="bg-muted/60 border-muted">
+            <Lock className="h-4 w-4" />
+            <AlertDescription>
+              <div className="space-y-3">
+                <div>
+                  <p className="font-medium">Consultant services are not available for your current package ({getPackageDisplayName(packageTier || 'ats-lite')}).</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Upgrade to a paid subscription to access consultant recruitment services.
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => setUpgradeDialogOpen(true)}
+                  size="sm"
+                  className="w-full"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Upgrade Package
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="space-y-3 py-4">
-          {services.map((service) => {
+          {availableServices.map((service) => {
             const Icon = service.icon;
             const isSelected = selectedService === service.id;
             
@@ -231,6 +282,18 @@ export function ServiceTypeSelectionDialog({ open, onServiceTypeSelect, onCancel
           </Button>
         </div>
       </DialogContent>
+
+      {companyId && (
+        <PackageUpgradeDialog
+          open={upgradeDialogOpen}
+          onOpenChange={setUpgradeDialogOpen}
+          companyId={companyId}
+          onUpgradeSuccess={() => {
+            // Reload the page or refresh company data to reflect the upgrade
+            window.location.reload();
+          }}
+        />
+      )}
     </Dialog>
   );
 }

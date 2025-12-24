@@ -11,7 +11,8 @@ import TakeAssessment from "@/pages/public/TakeAssessment";
 import PublicFeedbackForm from "@/pages/PublicFeedbackForm";
 import CandidateLogin from "@/pages/candidate/Login";
 import CandidateRegister from "@/pages/candidate/Register";
-import { RoleIsolationGate } from "@/components/common/RoleIsolationGate";
+import { AnyAuthRedirectGate } from "@/components/common/AnyAuthRedirectGate";
+import UpgradeCheckoutResult from "@/pages/UpgradeCheckoutResult";
 
 export const publicRoutes = (
   <>
@@ -30,19 +31,21 @@ export const publicRoutes = (
     <Route
       path="/candidate/login"
       element={
-        <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
+        <AnyAuthRedirectGate>
           <CandidateLogin />
-        </RoleIsolationGate>
+        </AnyAuthRedirectGate>
       }
     />
     <Route
       path="/candidate/register"
       element={
-        <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
+        <AnyAuthRedirectGate>
           <CandidateRegister />
-        </RoleIsolationGate>
+        </AnyAuthRedirectGate>
       }
     />
+    <Route path="/upgrade-success" element={<UpgradeCheckoutResult />} />
+    <Route path="/upgrade-cancelled" element={<UpgradeCheckoutResult />} />
   </>
 );
 

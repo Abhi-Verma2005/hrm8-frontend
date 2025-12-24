@@ -9,6 +9,11 @@ import {
   FileText,
   Bookmark,
   Settings,
+  Briefcase,
+  GraduationCap,
+  Bell,
+  FolderOpen,
+  MessageSquare,
 } from "lucide-react";
 import {
   Sidebar,
@@ -25,12 +30,17 @@ import {
 import { cn } from "@/lib/utils";
 import { useCandidateAuth } from "@/contexts/CandidateAuthContext";
 import { CandidateSidebarFooter } from "./CandidateSidebarFooter";
+import { NotificationBell } from "@/components/candidate/NotificationBell";
 
 const menuItems = [
   { path: "/candidate/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/candidate/profile", label: "My Profile", icon: User },
+  { path: "/candidate/work-history", label: "Work History", icon: Briefcase },
+  { path: "/candidate/qualifications", label: "Qualifications", icon: GraduationCap },
+  { path: "/candidate/documents", label: "Documents", icon: FolderOpen },
   { path: "/candidate/applications", label: "Applications", icon: FileText },
   { path: "/candidate/saved-jobs", label: "Saved Jobs", icon: Bookmark },
+  { path: "/candidate/messages", label: "Messages", icon: MessageSquare },
   { path: "/candidate/settings", label: "Settings", icon: Settings },
 ];
 
@@ -149,4 +159,36 @@ export function CandidateSidebar() {
     </Sidebar>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

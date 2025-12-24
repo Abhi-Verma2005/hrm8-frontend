@@ -30,31 +30,22 @@ export function JobApplicantsList({ jobId }: JobApplicantsListProps) {
     const load = async () => {
       setIsLoading(true);
       try {
+        console.log('[JobApplicantsList] Loading applications for jobId:', jobId);
         const res = await applicationService.getJobApplications(jobId);
+        console.log('[JobApplicantsList] API response:', res);
         const apps: RawApplication[] = res.data?.applications || [];
-        const mapped: JobApplicantRow[] = apps.map((app: any) => {
-          // Try multiple ways to get candidate name
-          let candidateName = "Unknown Candidate";
-          if (app.candidate?.firstName && app.candidate?.lastName) {
-            candidateName = `${app.candidate.firstName} ${app.candidate.lastName}`;
-          } else if (app.candidate?.firstName) {
-            candidateName = app.candidate.firstName;
-          } else if (app.candidate?.email) {
-            // Use email as fallback
-            candidateName = app.candidate.email.split('@')[0];
-          } else if (app.candidateName) {
-            candidateName = app.candidateName;
-          }
-
-          return {
-            id: app.id,
-            candidateName,
-            candidateEmail: app.candidate?.email || app.candidateEmail || "",
-            appliedDate: app.appliedDate,
-            status: app.status,
-            stage: app.stage,
-          };
-        });
+        console.log('[JobApplicantsList] Applications received:', apps.length, apps);
+        const mapped: JobApplicantRow[] = apps.map((app: any) => ({
+          id: app.id,
+          candidateName:
+            app.candidate?.firstName && app.candidate?.lastName
+              ? `${app.candidate.firstName} ${app.candidate.lastName}`
+              : "Unknown Candidate",
+          candidateEmail: app.candidate?.email || "",
+          appliedDate: app.appliedDate,
+          status: app.status,
+          stage: app.stage,
+        }));
         setRows(mapped);
       } catch {
         setRows([]);

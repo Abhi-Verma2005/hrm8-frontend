@@ -12,14 +12,51 @@ import { Separator } from "@/components/ui/separator";
 import { 
   User, Mail, Phone, MapPin, Building2, Calendar, 
   Bell, Lock, Palette, Globe, Shield, Camera,
-  Save, KeyRound, Eye, EyeOff
+  Save, KeyRound, Eye, EyeOff, Code, Copy, Check
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { isDevelopmentMode } from "@/lib/rbacService";
 
 export default function UserProfile() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+  const [copiedCookie, setCopiedCookie] = useState<string | null>(null);
+  const isDev = isDevelopmentMode();
+  
+  // Get all cookies
+  const getAllCookies = (): string => {
+    return document.cookie;
+  };
+  
+  // Parse cookies into an object for display
+  const parseCookies = (): Record<string, string> => {
+    const cookies: Record<string, string> = {};
+    document.cookie.split(';').forEach(cookie => {
+      const [name, value] = cookie.trim().split('=');
+      if (name && value) {
+        cookies[name] = value;
+      }
+    });
+    return cookies;
+  };
+  
+  const copyToClipboard = (text: string, label: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopiedCookie(label);
+      toast({
+        title: "Copied!",
+        description: `${label} copied to clipboard`,
+      });
+      setTimeout(() => setCopiedCookie(null), 2000);
+    }).catch(() => {
+      toast({
+        title: "Failed to copy",
+        description: "Please copy manually",
+        variant: "destructive",
+      });
+    });
+  };
   
   // Profile state
   const [profile, setProfile] = useState({
@@ -139,6 +176,12 @@ export default function UserProfile() {
               <Palette className="mr-2 h-4 w-4" />
               Appearance
             </TabsTrigger>
+            {isDev && (
+              <TabsTrigger value="developer">
+                <Code className="mr-2 h-4 w-4" />
+                Developer Tools
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Profile Tab */}
@@ -636,6 +679,95 @@ export default function UserProfile() {
               </Button>
             </div>
           </TabsContent>
+
+          {/* Developer Tools Tab - Only visible in development mode */}
+          {isDev && (
+            <TabsContent value="developer" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base font-semibold">Session Cookies</CardTitle>
+                  <CardDescription>
+                    Copy these cookies to use with curl commands for testing backend endpoints
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>All Cookies (for curl -H "Cookie: ...")</Label>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        readOnly
+                        value={getAllCookies()}
+                        className="font-mono text-sm"
+                      />
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => copyToClipboard(getAllCookies(), "Cookie string")}
+                      >
+                        {copiedCookie === "Cookie string" ? (
+                          <Check className="h-4 w-4 text-green-600" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-3">
+                    <Label>Individual Session Cookies</Label>
+                    {Object.entries(parseCookies()).map(([name, value]) => (
+                      <div key={name} className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-mono">{name}</Label>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(`${name}=${value}`, name)}
+                          >
+                            {copiedCookie === name ? (
+                              <Check className="h-3 w-3 text-green-600 mr-1" />
+                            ) : (
+                              <Copy className="h-3 w-3 mr-1" />
+                            )}
+                            Copy
+                          </Button>
+                        </div>
+                        <Input
+                          readOnly
+                          value={value}
+                          className="font-mono text-xs"
+                        />
+                      </div>
+                    ))}
+                    {Object.keys(parseCookies()).length === 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        No cookies found. Please log in first.
+                      </p>
+                    )}
+                  </div>
+
+                  <Separator />
+
+                  <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
+                    <Label className="text-sm font-semibold">Usage Instructions</Label>
+                    <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+                      <li>Copy the cookie string from above</li>
+                      <li>Use it with the curl test script:</li>
+                      <li className="ml-4 font-mono text-xs bg-background p-2 rounded">
+                        cd backend && npx ts-node test-scripts/curl-test-template.ts "{getAllCookies()}"
+                      </li>
+                      <li>Or use it directly with curl:</li>
+                      <li className="ml-4 font-mono text-xs bg-background p-2 rounded">
+                        curl -H "Cookie: {getAllCookies()}" http://localhost:3000/api/auth/me
+                      </li>
+                    </ol>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </DashboardPageLayout>

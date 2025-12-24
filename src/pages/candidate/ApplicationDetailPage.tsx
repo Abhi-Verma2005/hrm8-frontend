@@ -7,6 +7,8 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { applicationService, Application } from '@/lib/applicationService';
 import { CandidateAuthGuard } from '@/components/auth/CandidateAuthGuard';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -41,21 +43,21 @@ export default function ApplicationDetailPage() {
   const renderStatus = (status: string) => {
     switch (status) {
       case 'NEW':
-        return <Badge variant="default">New</Badge>;
+        return <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-primary/10 text-primary border-primary/20">New</Badge>;
       case 'SCREENING':
-        return <Badge variant="secondary">Screening</Badge>;
+        return <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">Screening</Badge>;
       case 'INTERVIEW':
-        return <Badge variant="outline">Interview</Badge>;
+        return <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-warning/10 text-warning border-warning/20">Interview</Badge>;
       case 'OFFER':
-        return <Badge className="bg-green-500">Offer</Badge>;
+        return <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-success/10 text-success border-success/20">Offer</Badge>;
       case 'HIRED':
-        return <Badge className="bg-green-600">Hired</Badge>;
+        return <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-success/10 text-success border-success/20">Hired</Badge>;
       case 'REJECTED':
-        return <Badge variant="destructive">Rejected</Badge>;
+        return <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-destructive/10 text-destructive border-destructive/20">Rejected</Badge>;
       case 'WITHDRAWN':
-        return <Badge variant="outline">Withdrawn</Badge>;
+        return <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">Withdrawn</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">{status}</Badge>;
     }
   };
 
@@ -86,32 +88,32 @@ export default function ApplicationDetailPage() {
 
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">
-              Application #{application.id.slice(0, 8)}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Applied{' '}
-              {createdAt
-                ? format(new Date(createdAt), 'PPP p')
-                : 'Unknown date'}
-            </p>
-          </div>
+        <AtsPageHeader
+          title={`Application #${application.id.slice(0, 8)}`}
+          subtitle={`Applied ${createdAt ? format(new Date(createdAt), 'PPP p') : 'Unknown date'}`}
+        >
           <div className="flex items-center gap-2">
             {renderStatus(application.status)}
             {application.stage && (
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
                 {application.stage.replace(/_/g, ' ')}
               </Badge>
             )}
           </div>
-        </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/candidate/applications')}
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+        </AtsPageHeader>
 
         <Card>
           <CardHeader>
-            <CardTitle>Job</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-base font-semibold">Job</CardTitle>
+            <CardDescription className="text-sm">
               Job ID: <span className="font-mono">{application.jobId}</span>
             </CardDescription>
           </CardHeader>
@@ -126,7 +128,7 @@ export default function ApplicationDetailPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Documents & Links</CardTitle>
+            <CardTitle className="text-base font-semibold">Documents & Links</CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-1">
             <p>
@@ -174,7 +176,7 @@ export default function ApplicationDetailPage() {
         {q.coverLetterMarkdown && (
           <Card>
             <CardHeader>
-              <CardTitle>Cover Letter</CardTitle>
+              <CardTitle className="text-base font-semibold">Cover Letter</CardTitle>
             </CardHeader>
             <CardContent>
               <pre className="whitespace-pre-wrap text-sm bg-muted/50 p-3 rounded-md">
@@ -189,21 +191,46 @@ export default function ApplicationDetailPage() {
 
   return (
     <CandidateAuthGuard>
-      <div className="p-6 space-y-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="mb-2"
-          onClick={() => navigate('/candidate/applications')}
-        >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to My Applications
-        </Button>
-        {content()}
-      </div>
+      <CandidatePageLayout>
+        <div className="p-6 space-y-6">
+          {content()}
+        </div>
+      </CandidatePageLayout>
     </CandidateAuthGuard>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

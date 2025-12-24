@@ -11,10 +11,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { consultantManagementService, Consultant } from '@/lib/hrm8/consultantManagementService';
+import { consultantManagementService, ConsultantCreateResponse } from '@/lib/hrm8/consultantManagementService';
 import { regionService } from '@/lib/hrm8/regionService';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Mail } from 'lucide-react';
 
 const consultantSchema = z.object({
   email: z.string().email('Invalid email'),
@@ -23,7 +23,7 @@ const consultantSchema = z.object({
   lastName: z.string().min(1, 'Last name is required'),
   phone: z.string().optional(),
   role: z.enum(['RECRUITER', 'SALES_AGENT', 'CONSULTANT_360']),
-  regionId: z.string().optional(),
+  regionId: z.string().min(1, 'Region is required'),
 });
 
 type ConsultantFormData = z.infer<typeof consultantSchema>;
@@ -37,6 +37,7 @@ interface ConsultantFormProps {
 export function ConsultantForm({ consultantId, onSave, onCancel }: ConsultantFormProps) {
   const [loading, setLoading] = useState(false);
   const [loadingConsultant, setLoadingConsultant] = useState(!!consultantId);
+  const [generatingEmail, setGeneratingEmail] = useState(false);
   const [regions, setRegions] = useState<Array<{ id: string; name: string }>>([]);
 
   const {
@@ -49,6 +50,7 @@ export function ConsultantForm({ consultantId, onSave, onCancel }: ConsultantFor
     resolver: zodResolver(consultantSchema),
     defaultValues: {
       role: 'RECRUITER',
+      regionId: '',
     },
   });
 
@@ -92,6 +94,36 @@ export function ConsultantForm({ consultantId, onSave, onCancel }: ConsultantFor
     }
   };
 
+  const handleGenerateEmail = async () => {
+    const firstName = watch('firstName');
+    const lastName = watch('lastName');
+
+    if (!firstName || !lastName) {
+      toast.error('Please enter first name and last name first');
+      return;
+    }
+
+    try {
+      setGeneratingEmail(true);
+      const response = await consultantManagementService.generateEmail({
+        firstName,
+        lastName,
+        consultantId: consultantId || undefined,
+      });
+
+      if (response.success && response.data?.email) {
+        setValue('email', response.data.email);
+        toast.success('Email generated successfully');
+      } else {
+        toast.error(response.error || 'Failed to generate email');
+      }
+    } catch (error) {
+      toast.error('Failed to generate email');
+    } finally {
+      setGeneratingEmail(false);
+    }
+  };
+
   const onSubmit = async (data: ConsultantFormData) => {
     try {
       setLoading(true);
@@ -115,7 +147,24 @@ export function ConsultantForm({ consultantId, onSave, onCancel }: ConsultantFor
         }
         const response = await consultantManagementService.create(data);
         if (response.success) {
+          const payload = response.data as ConsultantCreateResponse | undefined;
+
+          // Optional feedback about mailbox provisioning
+          const provisioning = payload?.emailProvisioning;
+          if (provisioning && provisioning.provider) {
+            if (provisioning.success) {
+              toast.success(
+                `Consultant and ${provisioning.provider === 'google' ? 'Google Workspace' : 'Microsoft 365'} mailbox created`
+              );
+            } else {
+              toast.warning?.(
+                `Consultant created, but mailbox creation in ${provisioning.provider === 'google' ? 'Google Workspace' : 'Microsoft 365'} failed`
+              );
+            }
+          } else {
           toast.success('Consultant created successfully');
+          }
+
           onSave();
         } else {
           toast.error(response.error || 'Failed to create consultant');
@@ -139,9 +188,38 @@ export function ConsultantForm({ consultantId, onSave, onCancel }: ConsultantFor
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
+        <div className="flex items-center justify-between">
         <Label htmlFor="email">Email *</Label>
+          {!consultantId && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleGenerateEmail}
+              disabled={generatingEmail || !watch('firstName') || !watch('lastName')}
+              className="h-8"
+            >
+              {generatingEmail ? (
+                <>
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Mail className="mr-2 h-3 w-3" />
+                  Generate Email
+                </>
+              )}
+            </Button>
+          )}
+        </div>
         <Input id="email" type="email" {...register('email')} />
         {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+        {!consultantId && (
+          <p className="text-xs text-muted-foreground">
+            Click "Generate Email" to automatically create an HRM8 email address (firstname.lastname@hrm8.com)
+          </p>
+        )}
       </div>
 
       {!consultantId && (
@@ -182,10 +260,10 @@ export function ConsultantForm({ consultantId, onSave, onCancel }: ConsultantFor
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="regionId">Region</Label>
+        <Label htmlFor="regionId">Region *</Label>
         <Select
+          value={watch('regionId') || ''}
           onValueChange={(value) => setValue('regionId', value)}
-          defaultValue={watch('regionId') || ''}
         >
           <SelectTrigger>
             <SelectValue placeholder="Select region" />
@@ -198,6 +276,10 @@ export function ConsultantForm({ consultantId, onSave, onCancel }: ConsultantFor
             ))}
           </SelectContent>
         </Select>
+        {errors.regionId && <p className="text-sm text-destructive">{errors.regionId.message}</p>}
+        <p className="text-xs text-muted-foreground">
+          Consultants must be assigned to a region for job assignment to work
+        </p>
       </div>
 
       <div className="flex justify-end gap-2 pt-4">

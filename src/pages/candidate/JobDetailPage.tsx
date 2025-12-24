@@ -6,24 +6,36 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 import { jobService, PublicJob } from '@/lib/jobService';
+import { apiClient } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Briefcase, Clock, DollarSign, Building2, ArrowLeft, Loader2, CheckCircle2 } from 'lucide-react';
+import { MapPin, Briefcase, Clock, DollarSign, Building2, ArrowLeft, Loader2, CheckCircle2, Heart } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { CandidatePageLayout } from '@/components/layouts/CandidatePageLayout';
+import { PublicCandidatePageLayout } from '@/components/layouts/PublicCandidatePageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
+import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [job, setJob] = useState<PublicJob | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { isAuthenticated } = useCandidateAuth();
+  const [isSaved, setIsSaved] = useState(false);
+  const [isCheckingSaved, setIsCheckingSaved] = useState(false);
+  const { isAuthenticated, candidate } = useCandidateAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (id) {
       loadJob();
+      if (isAuthenticated && candidate) {
+        checkIfSaved();
+      }
     }
-  }, [id]);
+  }, [id, isAuthenticated, candidate]);
 
   const loadJob = async () => {
     if (!id) return;
@@ -38,12 +50,63 @@ export default function JobDetailPage() {
     }
   };
 
-  const handleApply = () => {
-    if (!isAuthenticated) {
-      navigate('/candidate/login', { state: { from: `/candidate/jobs/${id}`, action: 'apply' } });
-    } else {
-      navigate(`/candidate/jobs/${id}/apply`);
+  const checkIfSaved = async () => {
+    if (!id || !isAuthenticated) return;
+    setIsCheckingSaved(true);
+    try {
+      const response = await apiClient.get('/api/candidate/saved-jobs');
+      if (response.success && response.data) {
+        const savedJobs = Array.isArray(response.data) ? response.data : [];
+        const savedJobIds = savedJobs.map((item: { job?: { id: string }; jobId?: string }) => item.job?.id || item.jobId).filter(Boolean);
+        setIsSaved(savedJobIds.includes(id));
+      }
+    } catch (error) {
+      console.error('Failed to check if job is saved:', error);
+    } finally {
+      setIsCheckingSaved(false);
     }
+  };
+
+  const toggleSaveJob = async () => {
+    if (!id || !isAuthenticated) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to save jobs",
+        variant: "default",
+      });
+      navigate('/candidate/login', { state: { from: `/candidate/jobs/${id}` } });
+      return;
+    }
+
+    try {
+      if (isSaved) {
+        await apiClient.delete(`/api/candidate/saved-jobs/${id}`);
+        setIsSaved(false);
+        toast({
+          title: "Job Removed",
+          description: "Job removed from your saved jobs.",
+        });
+      } else {
+        await apiClient.post(`/api/candidate/saved-jobs/${id}`);
+        setIsSaved(true);
+        toast({
+          title: "Job Saved",
+          description: "Job added to your saved jobs.",
+        });
+      }
+    } catch (error: any) {
+      console.error('Failed to toggle save job:', error);
+      toast({
+        title: "Error",
+        description: error?.response?.data?.error || "Failed to update saved job status.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleApply = () => {
+    // Allow unauthenticated users to apply (they'll create account during application)
+    navigate(`/candidate/jobs/${id}/apply`);
   };
 
   const formatSalary = (job: PublicJob) => {
@@ -75,28 +138,46 @@ export default function JobDetailPage() {
     );
   }
 
+  const Layout = isAuthenticated ? CandidatePageLayout : PublicCandidatePageLayout;
+
   return (
-    <div className="p-6">
-      <div className="container mx-auto max-w-5xl">
-        {/* Back Button */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/candidate/jobs')}
-          className="mb-4"
+    <Layout showSidebarTrigger={false}>
+      <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title={job.title}
+          subtitle={`${job.company.name} • ${job.location}`}
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Jobs
-        </Button>
+          <div className="flex items-center gap-2">
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleSaveJob}
+                disabled={isCheckingSaved}
+                title={isSaved ? "Remove from saved jobs" : "Save job"}
+              >
+                <Heart className={cn("h-4 w-4", isSaved ? "fill-current text-red-500" : "")} />
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/candidate/jobs')}
+              size="sm"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Jobs
+            </Button>
+          </div>
+        </AtsPageHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Job Header */}
+            {/* Job Details */}
             <Card>
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-3xl mb-2">{job.title}</CardTitle>
                     <CardDescription className="flex items-center gap-4 flex-wrap mt-2">
                       <span className="flex items-center gap-1">
                         <Building2 className="h-4 w-4" />
@@ -119,7 +200,7 @@ export default function JobDetailPage() {
                     </CardDescription>
                   </div>
                   {job.featured && (
-                    <Badge variant="default" className="ml-4">
+                    <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-primary/10 text-primary border-primary/20 ml-4">
                       Featured
                     </Badge>
                   )}
@@ -130,7 +211,7 @@ export default function JobDetailPage() {
             {/* Job Description */}
             <Card>
               <CardHeader>
-                <CardTitle>Job Description</CardTitle>
+                <CardTitle className="text-base font-semibold">Job Description</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="prose dark:prose-invert max-w-none">
@@ -143,7 +224,7 @@ export default function JobDetailPage() {
             {job.requirements.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Requirements</CardTitle>
+                  <CardTitle className="text-base font-semibold">Requirements</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="list-disc list-inside space-y-2">
@@ -159,7 +240,7 @@ export default function JobDetailPage() {
             {job.responsibilities.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Responsibilities</CardTitle>
+                  <CardTitle className="text-base font-semibold">Responsibilities</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="list-disc list-inside space-y-2">
@@ -175,12 +256,12 @@ export default function JobDetailPage() {
             {job.promotionalTags.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Tags</CardTitle>
+                  <CardTitle className="text-base font-semibold">Tags</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex gap-2 flex-wrap">
                     {job.promotionalTags.map((tag, idx) => (
-                      <Badge key={idx} variant="outline">
+                      <Badge key={idx} variant="outline" className="h-6 px-2 text-xs rounded-full">
                         {tag}
                       </Badge>
                     ))}
@@ -195,7 +276,7 @@ export default function JobDetailPage() {
             {/* Apply Card */}
             <Card>
               <CardHeader>
-                <CardTitle>Apply for this Job</CardTitle>
+                <CardTitle className="text-base font-semibold">Apply for this Job</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
@@ -212,16 +293,29 @@ export default function JobDetailPage() {
                     <span>{job.workArrangement.replace('_', ' ')}</span>
                   </div>
                 </div>
-                <Button
-                  onClick={handleApply}
-                  className="w-full"
-                  size="lg"
-                >
-                  Apply Now
-                </Button>
+                <div className="space-y-2">
+                  <Button
+                    onClick={handleApply}
+                    className="w-full"
+                    size="lg"
+                  >
+                    Apply Now
+                  </Button>
+                  {isAuthenticated && (
+                    <Button
+                      variant={isSaved ? "outline" : "secondary"}
+                      onClick={toggleSaveJob}
+                      className="w-full"
+                      disabled={isCheckingSaved}
+                    >
+                      <Heart className={cn("h-4 w-4 mr-2", isSaved ? "fill-current text-red-500" : "")} />
+                      {isSaved ? "Saved" : "Save Job"}
+                    </Button>
+                  )}
+                </div>
                 {!isAuthenticated && (
                   <p className="text-xs text-center text-muted-foreground">
-                    You'll need to sign in or create an account to apply
+                    You can apply without an account - we'll create one for you during the application process
                   </p>
                 )}
               </CardContent>
@@ -230,7 +324,7 @@ export default function JobDetailPage() {
             {/* Company Info */}
             <Card>
               <CardHeader>
-                <CardTitle>About {job.company.name}</CardTitle>
+                <CardTitle className="text-base font-semibold">About {job.company.name}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
@@ -250,7 +344,7 @@ export default function JobDetailPage() {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }
 

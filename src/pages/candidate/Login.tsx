@@ -15,6 +15,8 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import logoLight from "@/assets/logo-light.png";
+import logoDark from "@/assets/logo-dark.png";
+import { AuthLayout } from "@/components/auth/AuthLayout";
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -74,65 +76,95 @@ export default function CandidateLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-4">
-            <img src={logoLight} alt="HRM8" className="h-8" />
+    <AuthLayout>
+      {/* Mobile logo */}
+      <div className="lg:hidden mb-8 flex justify-center">
+        <Link to="/" className="inline-block">
+          <img
+            src={logoLight}
+            alt="HRM8"
+            className="h-8 dark:hidden"
+            style={{
+              filter:
+                'brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2878%) hue-rotate(224deg) brightness(96%) contrast(95%)',
+            }}
+          />
+          <img
+            src={logoDark}
+            alt="HRM8"
+            className="h-8 hidden dark:block opacity-100"
+            style={{
+              filter:
+                'brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(2878%) hue-rotate(224deg) brightness(96%) contrast(95%)',
+            }}
+          />
+        </Link>
+      </div>
+
+      <Card className="border-0 shadow-none bg-transparent">
+        <CardHeader className="space-y-3 pb-6">
+          <div>
+            <CardTitle className="text-3xl font-bold tracking-tight">Candidate Sign In</CardTitle>
+            <CardDescription className="text-base mt-2">Access your profile and apply for jobs</CardDescription>
           </div>
-          <CardTitle className="text-2xl font-bold">Candidate Login</CardTitle>
-          <CardDescription>
-            Sign in to your candidate account to apply for jobs
-          </CardDescription>
         </CardHeader>
+
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium">
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="you@example.com"
+                className="h-11"
                 {...register('email')}
                 disabled={isLoading}
               />
-              {errors.email && (
-                <p className="text-sm text-destructive">{errors.email.message}</p>
-              )}
+              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-sm font-medium">
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
+                placeholder="••••••••"
+                className="h-11"
                 {...register('password')}
                 disabled={isLoading}
               />
-              {errors.password && (
-                <p className="text-sm text-destructive">{errors.password.message}</p>
-              )}
+              {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
+
+            <Button type="submit" className="w-full h-11 text-base" disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign In
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
         </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <div className="text-sm text-center text-muted-foreground">
-            Don't have an account?{' '}
-            <Link to="/candidate/register" className="text-primary hover:underline">
-              Sign up
-            </Link>
-          </div>
-          <div className="text-sm text-center text-muted-foreground">
-            <Link to="/candidate/jobs" className="text-primary hover:underline">
-              Browse jobs without an account
-            </Link>
+
+        <CardFooter className="flex flex-col space-y-4 pt-6">
+          <div className="text-sm text-center text-muted-foreground space-y-2">
+            <div>
+              Don't have an account?{' '}
+              <Link to="/candidate/register" className="text-primary hover:underline font-medium">
+                Sign up
+              </Link>
+            </div>
+            <div>
+              <Link to="/candidate/jobs" className="text-primary hover:underline font-medium">
+                Browse jobs without an account
+              </Link>
+            </div>
           </div>
         </CardFooter>
       </Card>
-    </div>
+    </AuthLayout>
   );
 }
 

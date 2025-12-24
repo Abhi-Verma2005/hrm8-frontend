@@ -1,4 +1,4 @@
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import * as React from "react";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -10,15 +10,76 @@ import { ReactNode } from "react";
 
 interface CandidateHeaderProps {
   breadcrumbActions?: ReactNode;
+  showSidebarTrigger?: boolean;
 }
 
-export function CandidateHeader({ breadcrumbActions }: CandidateHeaderProps = {}) {
+// Error boundary component for SidebarTrigger
+class SidebarTriggerErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error) {
+    // Silently handle the error - we're not in a SidebarProvider
+    if (error.message.includes("useSidebar must be used within a SidebarProvider")) {
+      // This is expected, do nothing
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return null;
+    }
+
+    return this.props.children;
+  }
+}
+
+// Safe wrapper for SidebarTrigger that handles missing provider gracefully
+function SafeSidebarTrigger() {
+  const [SidebarTriggerComponent, setSidebarTriggerComponent] = React.useState<React.ComponentType | null>(null);
+  
+  React.useEffect(() => {
+    // Dynamically import SidebarTrigger
+    import("@/components/ui/sidebar")
+      .then((module) => {
+        setSidebarTriggerComponent(() => module.SidebarTrigger);
+      })
+      .catch(() => {
+        // Failed to import, component will not render
+      });
+  }, []);
+  
+  if (!SidebarTriggerComponent) {
+    return null;
+  }
+  
+  return (
+    <SidebarTriggerErrorBoundary>
+      <SidebarTriggerComponent />
+    </SidebarTriggerErrorBoundary>
+  );
+}
+
+export function CandidateHeader({ breadcrumbActions, showSidebarTrigger = true }: CandidateHeaderProps = {}) {
   return (
     <TooltipProvider>
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-14 items-center gap-3 px-5">
-          <SidebarTrigger />
-          <Separator orientation="vertical" className="h-6" />
+          {showSidebarTrigger && (
+            <>
+              <SafeSidebarTrigger />
+              <Separator orientation="vertical" className="h-6" />
+            </>
+          )}
 
           <div className="flex-1 flex items-center gap-4">
             <div className="relative max-w-md w-full hidden md:block">
@@ -48,4 +109,36 @@ export function CandidateHeader({ breadcrumbActions }: CandidateHeaderProps = {}
     </TooltipProvider>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

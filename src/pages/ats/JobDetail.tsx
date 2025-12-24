@@ -38,6 +38,7 @@ import { JobQuickStats } from "@/components/jobs/JobQuickStats";
 import { DetailSkeleton } from "@/components/skeletons/DetailSkeleton";
 import { JobActivityFeed } from "@/components/jobs/JobActivityFeed";
 import { JobLifecycleActions } from "@/components/jobs/JobLifecycleActions";
+import { JobPaymentStatus } from "@/components/jobs/JobPaymentStatus";
 import { formatSalaryRange, formatExperienceLevel, formatRelativeDate } from "@/lib/jobUtils";
 import { ApplicationPipeline } from "@/components/applications/ApplicationPipeline";
 import { JobApplicantsList } from "@/components/applications/JobApplicantsList";
@@ -349,10 +350,10 @@ export default function JobDetail() {
     const loadApplications = async () => {
       if (!jobId) return;
       try {
+        console.log('[JobDetail] Loading applicant count for jobId:', jobId);
         const res = await applicationService.getJobApplications(jobId);
         const apiApplications = res.data?.applications || [];
         
-        // Map API applications to frontend Application type
         // Map API applications to frontend Application type
         const mappedApplications: Application[] = apiApplications.map((app: any) => {
           let candidateName = 'Unknown Candidate';
@@ -576,7 +577,18 @@ export default function JobDetail() {
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 mr-4">
               <JobStatusBadge status={job.status} />
-              <ServiceTypeBadge type={job.serviceType} />
+              {job.assignedConsultantName ? (
+                <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
+                  Consultant: {job.assignedConsultantName}
+                </Badge>
+              ) : (
+                <ServiceTypeBadge type="self-managed" />
+              )}
+              {job.pipeline?.stage && (
+                <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
+                  Pipeline: {job.pipeline.stage.replace(/_/g, ' ')}
+                </Badge>
+              )}
             </div>
             <Button variant="ghost" size="sm" asChild>
               <Link to="/jobs">
@@ -671,6 +683,11 @@ export default function JobDetail() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="mt-6 space-y-6">
+            {/* Payment Status - Show for paid packages */}
+            {(job.serviceType !== 'self-managed' && job.serviceType !== 'rpo') && (
+              <JobPaymentStatus job={job} onPaymentComplete={handleJobUpdate} />
+            )}
+
             {/* Upgrade to Recruitment Service Banner for Self-Managed Jobs */}
             {job.serviceType === 'self-managed' && (job.status === 'open' || job.status === 'draft') && (
               <Card className="border-primary/20 bg-primary/5">

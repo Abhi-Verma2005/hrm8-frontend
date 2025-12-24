@@ -1,45 +1,45 @@
 // Job Board Promotion Budget Tiers
 export const JOBTARGET_BUDGET_TIERS = [
-  { 
-    id: 'none', 
-    name: 'No Promotion', 
-    amount: 0, 
+  {
+    id: 'none',
+    name: 'No Promotion',
+    amount: 0,
     description: 'Post to HRM8 only',
     warning: 'Job will not be advertised on external job boards'
   },
-  { 
-    id: 'basic', 
-    name: 'Basic', 
-    amount: 500, 
+  {
+    id: 'basic',
+    name: 'Basic',
+    amount: 500,
     description: '1-2 job boards, 30 days',
     reach: '5M+ candidates'
   },
-  { 
-    id: 'standard', 
-    name: 'Standard', 
-    amount: 1000, 
-    description: '3-4 job boards, 30 days', 
+  {
+    id: 'standard',
+    name: 'Standard',
+    amount: 1000,
+    description: '3-4 job boards, 30 days',
     recommended: true,
     reach: '15M+ candidates'
   },
-  { 
-    id: 'premium', 
-    name: 'Premium', 
-    amount: 2000, 
+  {
+    id: 'premium',
+    name: 'Premium',
+    amount: 2000,
     description: '5-6 job boards, 60 days',
     reach: '30M+ candidates'
   },
-  { 
-    id: 'executive', 
-    name: 'Executive', 
-    amount: 3000, 
+  {
+    id: 'executive',
+    name: 'Executive',
+    amount: 3000,
     description: 'All major boards, 90 days',
     reach: '50M+ candidates'
   },
-  { 
-    id: 'custom', 
-    name: 'Custom', 
-    amount: 0, 
+  {
+    id: 'custom',
+    name: 'Custom',
+    amount: 0,
     description: 'Enter your own budget'
   }
 ];
@@ -53,18 +53,18 @@ export const SERVICE_PRICING = {
   },
   'shortlisting': {
     baseFee: 1990,
-    upfrontPercentage: 0.5,
+    upfrontPercentage: 1.0,
     name: 'Shortlisting Service'
   },
   'full-service': {
     baseFee: 5990,
-    upfrontPercentage: 0.5,
+    upfrontPercentage: 1.0,
     name: 'Full Service'
   },
   'executive-search': {
     baseFeeUnder100k: 9990,
     baseFeeOver100k: 14990,
-    upfrontPercentage: 0.5,
+    upfrontPercentage: 1.0,
     name: 'Executive Search'
   }
 };
@@ -83,35 +83,35 @@ export interface JobPayment {
   jobId: string;
   employerId: string;
   employerName: string;
-  
+
   // Job Posting Cost (Platform Fee)
   jobPostingCost: number;
   jobPostingPaymentStatus: 'pending' | 'paid' | 'waived';
   jobPostingPaymentMethod?: 'account' | 'credit_card';
-  
+
   // Recruitment Service Cost (Add-on)
   serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
   serviceFee: number;
   upfrontServiceAmount: number;
   balanceServiceAmount: number;
-  
+
   upfrontServicePaymentStatus: 'pending' | 'paid' | 'not_applicable';
   upfrontServicePaymentMethod?: 'account' | 'credit_card';
   upfrontServicePaymentDate?: Date;
   upfrontStripePaymentIntentId?: string;
-  
+
   balanceServicePaymentStatus: 'pending' | 'paid' | 'waived' | 'not_applicable';
   balanceServicePaymentDate?: Date;
-  
+
   // Total
   totalUpfront: number;
   totalAmount: number;
-  
+
   invoiceRequested: boolean;
   invoiceRequestedAt?: Date;
   upfrontInvoiceId?: string;
   balanceInvoiceId?: string;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -121,7 +121,7 @@ export interface JobTargetPromotion {
   jobId: string;
   jobTitle: string;
   paymentId: string;
-  
+
   boards: Array<{
     name: string;
     cost: number;
@@ -130,13 +130,13 @@ export interface JobTargetPromotion {
     endDate: Date;
     status: 'pending' | 'active' | 'expired' | 'cancelled';
   }>;
-  
+
   totalCost: number;
   remainingBudget: number;
   status: 'draft' | 'submitted' | 'active' | 'completed';
   submittedAt?: Date;
   submittedBy?: string;
-  
+
   createdAt: Date;
   updatedAt: Date;
 }

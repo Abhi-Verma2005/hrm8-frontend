@@ -3,112 +3,109 @@
  * HRM8 Global Admin job allocation management
  */
 
-import { useState, useEffect } from 'react';
-import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
-import { jobAllocationService } from '@/lib/hrm8/jobAllocationService';
+import { useEffect, useMemo, useState } from 'react';
+import { jobAllocationService, UnassignedJob } from '@/lib/hrm8/jobAllocationService';
 import { regionService } from '@/lib/hrm8/regionService';
-import { consultantManagementService } from '@/lib/hrm8/consultantManagementService';
-import { jobService } from '@/lib/api/jobService';
 import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { AssignConsultantDrawer } from '@/components/hrm8/AssignConsultantDrawer';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Briefcase, Users, MapPin, CheckCircle, XCircle } from 'lucide-react';
+import { Briefcase, Users, MapPin, Filter, X } from 'lucide-react';
 
 export default function JobAllocationPage() {
-  const { hrm8User } = useHrm8Auth();
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<UnassignedJob[]>([]);
   const [regions, setRegions] = useState<Array<{ id: string; name: string }>>([]);
-  const [consultants, setConsultants] = useState<Array<{ id: string; firstName: string; lastName: string; regionId?: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
-  const [selectedRegionId, setSelectedRegionId] = useState<string>('');
-  const [selectedConsultantId, setSelectedConsultantId] = useState<string>('');
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
+  // Filters
+  const [regionFilter, setRegionFilter] = useState<string>('all');
+  const [companyFilter, setCompanyFilter] = useState<string>('');
+  const [industryFilter, setIndustryFilter] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
-    loadData();
+    loadRegions();
+    loadJobs();
   }, []);
 
-  const loadData = async () => {
-    try {
-      setLoading(true);
-      
-      // Load jobs, regions, and consultants in parallel
-      const [jobsRes, regionsRes, consultantsRes] = await Promise.all([
-        jobService.getAllJobs(),
-        regionService.getAll({ isActive: true }),
-        consultantManagementService.getAll({ status: 'ACTIVE' }),
-      ]);
+  useEffect(() => {
+    loadJobs();
+  }, [regionFilter, companyFilter, industryFilter]);
 
-      if (jobsRes.success && jobsRes.data?.jobs) {
-        setJobs(jobsRes.data.jobs);
-      }
-      
-      if (regionsRes.success && regionsRes.data?.regions) {
-        setRegions(regionsRes.data.regions.map(r => ({ id: r.id, name: r.name })));
-      }
-      
-      if (consultantsRes.success && consultantsRes.data?.consultants) {
-        setConsultants(consultantsRes.data.consultants.map(c => ({
-          id: c.id,
-          firstName: c.firstName,
-          lastName: c.lastName,
-          regionId: c.regionId,
-        })));
+  const loadRegions = async () => {
+    try {
+      const response = await regionService.getAll({ isActive: true });
+      if (response.success && response.data?.regions) {
+        setRegions(response.data.regions.map((r) => ({ id: r.id, name: r.name })));
       }
     } catch (error) {
-      toast.error('Failed to load data');
+      console.error('Failed to load regions:', error);
+    }
+  };
+
+  const loadJobs = async () => {
+    try {
+      setLoading(true);
+      const filters: { regionId?: string; companyId?: string } = {};
+      if (regionFilter && regionFilter !== 'all') filters.regionId = regionFilter;
+      if (companyFilter) filters.companyId = companyFilter;
+
+      const response = await jobAllocationService.getUnassignedJobs(filters);
+      if (response.success && response.data?.jobs) {
+        let filteredJobs = response.data.jobs;
+
+        if (industryFilter) {
+          filteredJobs = filteredJobs.filter((job) =>
+            job.category?.toLowerCase().includes(industryFilter.toLowerCase())
+          );
+        }
+
+        setJobs(filteredJobs);
+      }
+    } catch (error) {
+      toast.error('Failed to load jobs');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAssignToRegion = async () => {
-    if (!selectedJobId || !selectedRegionId) {
-      toast.error('Please select a job and region');
-      return;
-    }
-
-    try {
-      const response = await jobAllocationService.assignRegion(selectedJobId, selectedRegionId);
-      if (response.success) {
-        toast.success('Job assigned to region successfully');
-        setSelectedJobId(null);
-        setSelectedRegionId('');
-        await loadData();
-      } else {
-        toast.error(response.error || 'Failed to assign job');
-      }
-    } catch (error) {
-      toast.error('Failed to assign job to region');
-    }
+  const clearFilters = () => {
+    setRegionFilter('all');
+    setCompanyFilter('');
+    setIndustryFilter('');
+    setSearchTerm('');
   };
 
-  const handleAssignToConsultant = async () => {
-    if (!selectedJobId || !selectedConsultantId) {
-      toast.error('Please select a job and consultant');
-      return;
-    }
-
-    try {
-      const response = await jobAllocationService.assignConsultant(selectedJobId, selectedConsultantId);
-      if (response.success) {
-        toast.success('Job assigned to consultant successfully');
-        setSelectedJobId(null);
-        setSelectedConsultantId('');
-        await loadData();
-      } else {
-        toast.error(response.error || 'Failed to assign job');
-      }
-    } catch (error) {
-      toast.error('Failed to assign job to consultant');
-    }
+  const handleAssignClick = (jobId: string) => {
+    setSelectedJobId(jobId);
+    setDrawerOpen(true);
   };
+
+  const handleAssignSuccess = () => {
+    setDrawerOpen(false);
+    setSelectedJobId(null);
+    loadJobs();
+  };
+
+  const hasActiveFilters = (regionFilter && regionFilter !== 'all') || companyFilter || industryFilter || searchTerm;
+
+  const filteredJobs = useMemo(() => {
+    if (!searchTerm) return jobs;
+    const term = searchTerm.toLowerCase();
+    return jobs.filter((job) =>
+      [job.title, job.location, job.companyName].some((field) =>
+        field?.toLowerCase().includes(term)
+      )
+    );
+  }, [jobs, searchTerm]);
 
   const columns = [
     {
@@ -121,15 +118,6 @@ export default function JobAllocationPage() {
       label: 'Location',
     },
     {
-      key: 'status',
-      label: 'Status',
-      render: (job: any) => (
-        <span className={job.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-500'}>
-          {job.status}
-        </span>
-      ),
-    },
-    {
       key: 'regionId',
       label: 'Assigned Region',
       render: (job: any) => {
@@ -138,51 +126,82 @@ export default function JobAllocationPage() {
         return region ? region.name : 'Unknown';
       },
     },
+    {
+      key: 'category',
+      label: 'Industry',
+      render: (job: UnassignedJob) => job.category || '-',
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (job: UnassignedJob) => {
+        const status = job.status || 'UNKNOWN';
+        const isOpen = status === 'OPEN';
+        const isOnHold = status === 'ON_HOLD';
+        return (
+          <Badge 
+            variant={isOpen ? 'default' : isOnHold ? 'secondary' : 'outline'}
+            className={isOpen ? 'bg-green-500 hover:bg-green-600' : isOnHold ? 'bg-yellow-500 hover:bg-yellow-600' : ''}
+          >
+            {isOpen ? 'Open' : isOnHold ? 'On Hold' : status}
+          </Badge>
+        );
+      },
+    },
+    {
+      key: 'assignmentMode',
+      label: 'Mode',
+      render: (job: UnassignedJob) => (
+        <Badge variant={job.assignmentMode === 'AUTO' ? 'default' : 'secondary'}>
+          {job.assignmentMode === 'AUTO' ? 'Auto' : 'Manual'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      render: (job: UnassignedJob) => new Date(job.createdAt).toLocaleDateString(),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (job: UnassignedJob) => (
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => handleAssignClick(job.id)}
+        >
+          <Users className="mr-2 h-4 w-4" />
+          Assign
+        </Button>
+      ),
+    },
   ];
 
   return (
     <Hrm8PageLayout
       title="Job Allocation"
-      subtitle="Allocate jobs to consultants and regions"
+      subtitle="Find unassigned jobs and assign the best consultant"
     >
       <div className="p-6 space-y-6">
-
-      {isGlobalAdmin && (
+        {/* Filters */}
         <Card>
           <CardHeader>
-            <CardTitle>Allocate Job</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              Filters
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>Select Job</Label>
-              <Select
-                value={selectedJobId || ''}
-                onValueChange={setSelectedJobId}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a job" />
-                </SelectTrigger>
-                <SelectContent>
-                  {jobs.map((job) => (
-                    <SelectItem key={job.id} value={job.id}>
-                      {job.title} - {job.location}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div className="space-y-2">
-                <Label>Assign to Region</Label>
-                <Select
-                  value={selectedRegionId}
-                  onValueChange={setSelectedRegionId}
-                >
+                <Label>Region</Label>
+                <Select value={regionFilter} onValueChange={setRegionFilter}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select region" />
+                    <SelectValue placeholder="All regions" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="all">All regions</SelectItem>
                     {regions.map((region) => (
                       <SelectItem key={region.id} value={region.id}>
                         {region.name}
@@ -190,65 +209,78 @@ export default function JobAllocationPage() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Button
-                  onClick={handleAssignToRegion}
-                  disabled={!selectedJobId || !selectedRegionId}
-                  className="w-full"
-                >
-                  <MapPin className="mr-2 h-4 w-4" />
-                  Assign to Region
-                </Button>
               </div>
 
               <div className="space-y-2">
-                <Label>Assign to Consultant</Label>
-                <Select
-                  value={selectedConsultantId}
-                  onValueChange={setSelectedConsultantId}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select consultant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {consultants.map((consultant) => (
-                      <SelectItem key={consultant.id} value={consultant.id}>
-                        {consultant.firstName} {consultant.lastName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  onClick={handleAssignToConsultant}
-                  disabled={!selectedJobId || !selectedConsultantId}
-                  className="w-full"
-                >
-                  <Users className="mr-2 h-4 w-4" />
-                  Assign to Consultant
-                </Button>
+                <Label>Company</Label>
+                <Input
+                  placeholder="Filter by company..."
+                  value={companyFilter}
+                  onChange={(e) => setCompanyFilter(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Industry</Label>
+                <Input
+                  placeholder="Filter by industry..."
+                  value={industryFilter}
+                  onChange={(e) => setIndustryFilter(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Search</Label>
+                <Input
+                  placeholder="Search job title or location..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
             </div>
+
+            {hasActiveFilters && (
+              <div className="flex justify-end mt-4">
+                <Button variant="outline" onClick={clearFilters}>
+                  <X className="mr-2 h-4 w-4" />
+                  Clear Filters
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
-      )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Jobs</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="text-center py-8">Loading jobs...</div>
-          ) : (
-            <DataTable
-              data={jobs}
-              columns={columns}
-              searchable
-              searchKeys={['title', 'location']}
-              emptyMessage="No jobs found"
-            />
-          )}
-        </CardContent>
-      </Card>
+        {/* Jobs Table */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Briefcase className="h-5 w-5" />
+              Unassigned Jobs ({filteredJobs.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="text-center py-8">Loading jobs...</div>
+            ) : (
+              <DataTable
+                data={filteredJobs}
+                columns={columns}
+                searchable={false}
+                emptyMessage="No unassigned jobs found"
+              />
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Assign Drawer */}
+        {selectedJobId && (
+          <AssignConsultantDrawer
+            open={drawerOpen}
+            onOpenChange={setDrawerOpen}
+            jobId={selectedJobId}
+            onSuccess={handleAssignSuccess}
+          />
+        )}
       </div>
     </Hrm8PageLayout>
   );

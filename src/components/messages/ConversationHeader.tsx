@@ -23,17 +23,22 @@ export function ConversationHeader({
   const { onlineUsers } = useWebSocket();
 
   // Get the other participant (not current user)
-  const otherParticipant = conversation.participants.find(
-    (p) => p !== currentUserEmail
+  // participants is an array of ConversationParticipant objects
+  const participants = conversation.participants || [];
+  const otherParticipant = participants.find(
+    (p) => p.participantEmail !== currentUserEmail
   );
-  const isOnline = onlineUsers.some((u) => u.userEmail === otherParticipant);
+  const otherParticipantEmail = otherParticipant?.participantEmail;
+  const isOnline = otherParticipantEmail
+    ? onlineUsers.some((u) => u.userEmail === otherParticipantEmail)
+    : false;
 
-  // Get display name
+  // Get display name from participant data
   let displayName = 'Unknown';
-  if (conversation.candidate) {
-    displayName = `${conversation.candidate.firstName} ${conversation.candidate.lastName}`;
-  } else if (otherParticipant) {
-    displayName = otherParticipant.split('@')[0];
+  if (otherParticipant?.displayName) {
+    displayName = otherParticipant.displayName;
+  } else if (otherParticipantEmail) {
+    displayName = otherParticipantEmail.split('@')[0];
   }
 
   // Get initials for avatar
@@ -47,19 +52,27 @@ export function ConversationHeader({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 p-4 border-b bg-card',
+        'flex items-center gap-4 p-4 bg-card/70 backdrop-blur-sm',
         className
       )}
     >
-      <Avatar className="h-10 w-10">
-        <AvatarImage src={conversation.candidate?.photo} />
+      <Avatar className="h-12 w-12 ring-2 ring-muted">
+        <AvatarImage src={undefined} />
         <AvatarFallback>{initials}</AvatarFallback>
       </Avatar>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-sm truncate">{displayName}</h3>
-          {isOnline && (
+          <h3 className="font-semibold text-base truncate">{displayName}</h3>
+          {isOnline && conversation.status === 'ACTIVE' && (
             <Badge variant="success" className="h-2 w-2 p-0 rounded-full" />
+          )}
+          {conversation.status !== 'ACTIVE' && (
+            <Badge
+              variant={conversation.status === 'ARCHIVED' ? 'secondary' : 'destructive'}
+              className="text-xs"
+            >
+              {conversation.status}
+            </Badge>
           )}
         </div>
         {conversation.job && (
@@ -71,6 +84,24 @@ export function ConversationHeader({
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

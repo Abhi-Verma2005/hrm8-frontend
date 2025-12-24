@@ -29,12 +29,12 @@ class MessagingService {
   }> {
     try {
       const response = await apiClient.get<GetConversationsResponse>(
-        '/api/conversations'
+        '/api/candidate/messages/conversations'
       );
       if (response.success && response.data) {
         return {
           success: true,
-          data: response.data.conversations,
+          data: response.data,
         };
       }
       return {
@@ -61,12 +61,12 @@ class MessagingService {
   }> {
     try {
       const response = await apiClient.get<GetConversationResponse>(
-        `/api/conversations/${conversationId}`
+        `/api/candidate/messages/conversations/${conversationId}`
       );
       if (response.success && response.data) {
         return {
           success: true,
-          data: response.data.conversation,
+          data: response.data,
         };
       }
       return {
@@ -93,18 +93,41 @@ class MessagingService {
   }> {
     try {
       const response = await apiClient.get<GetMessagesResponse>(
-        `/api/conversations/${conversationId}/messages`
+        `/api/candidate/messages/conversations/${conversationId}`
       );
       if (response.success && response.data) {
+        // Backend returns newest-first; keep as-is for UI to handle ordering
         return {
           success: true,
-          data: response.data.messages,
+          data: response.data as unknown as MessageData[],
         };
       }
       return {
         success: false,
         error: response.error || 'Failed to fetch messages',
       };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error',
+      };
+    }
+  }
+
+  /**
+   * Mark a conversation as read
+   */
+  async markConversationRead(
+    conversationId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      const response = await apiClient.put(
+        `/api/candidate/messages/conversations/${conversationId}/read`
+      );
+      if (response.success) {
+        return { success: true };
+      }
+      return { success: false, error: response.error || 'Failed to mark as read' };
     } catch (error) {
       return {
         success: false,
@@ -148,6 +171,38 @@ class MessagingService {
 }
 
 export const messagingService = new MessagingService();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

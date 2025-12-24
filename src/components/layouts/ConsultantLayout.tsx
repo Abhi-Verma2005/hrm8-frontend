@@ -5,6 +5,7 @@ import { CommandPalette } from "@/components/common/CommandPalette";
 import { KeyboardShortcutsDialog } from "@/components/dialogs/KeyboardShortcutsDialog";
 import { useNavigationShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useSidebarState } from "@/hooks/useSidebarState";
+import { ConsultantProfileCompletionDialog } from "@/components/consultants/ConsultantProfileCompletionDialog";
 
 export function ConsultantLayout() {
   const { open, setOpen } = useSidebarState("consultant");
@@ -17,6 +18,7 @@ export function ConsultantLayout() {
         <SidebarInset className="flex-1">
           <div className="min-w-0">
             <Outlet />
+            <ConsultantProfileCompletionDialog />
           </div>
         </SidebarInset>
       </div>
@@ -25,4 +27,7 @@ export function ConsultantLayout() {
     </SidebarProvider>
   );
 }
+
+
+
 

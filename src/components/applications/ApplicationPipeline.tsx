@@ -535,61 +535,40 @@ export function ApplicationPipeline({
     } else if (jobId) {
       // Load from API if jobId is provided
       try {
+        console.log('[ApplicationPipeline] Loading applications for jobId:', jobId);
         const response = await applicationService.getJobApplications(jobId);
+        console.log('[ApplicationPipeline] API response:', response);
         const apiApplications = response.data?.applications || [];
+        console.log('[ApplicationPipeline] Applications received:', apiApplications.length, apiApplications);
         // Map API applications to frontend Application type
-        const mappedApplications: Application[] = apiApplications.map((app: any) => {
-          // Try multiple ways to get candidate name
-          let candidateName = 'Unknown Candidate';
-          if (app.candidate?.firstName && app.candidate?.lastName) {
-            candidateName = `${app.candidate.firstName} ${app.candidate.lastName}`;
-          } else if (app.candidate?.firstName) {
-            candidateName = app.candidate.firstName;
-          } else if (app.candidate?.email) {
-            // Use email username as fallback
-            candidateName = app.candidate.email.split('@')[0];
-          } else if (app.candidateName) {
-            candidateName = app.candidateName;
-          }
-
-          return {
-            id: app.id,
-            candidateId: app.candidateId,
-            candidateName,
-            candidateEmail: app.candidate?.email || app.candidateEmail || '',
-            candidatePhoto: app.candidate?.photo,
-            jobId: app.jobId,
-            jobTitle: app.job?.title || 'Unknown Job',
-            employerName: app.job?.company?.name || 'Unknown Company',
-            appliedDate: new Date(app.appliedDate),
-            status: mapApplicationStatus(app.status),
-            stage: mapApplicationStage(app.stage),
-            resumeUrl: app.resumeUrl,
-            coverLetterUrl: app.coverLetterUrl,
-            portfolioUrl: app.portfolioUrl,
-            linkedInUrl: app.linkedInUrl,
-            customAnswers: app.customAnswers || [],
-            isRead: app.isRead,
-            isNew: app.isNew,
-            tags: app.tags || [],
-            score: app.score,
-            rank: app.rank,
-            aiMatchScore: app.score, // Use score as AI match score if available
-            aiAnalysis: app.aiAnalysis || undefined, // Include AI analysis if available
-            shortlisted: app.shortlisted || false,
-            shortlistedAt: app.shortlistedAt ? new Date(app.shortlistedAt) : undefined,
-            shortlistedBy: app.shortlistedBy,
-            manuallyAdded: app.manuallyAdded || false,
-            addedBy: app.addedBy,
-            addedAt: app.addedAt ? new Date(app.addedAt) : undefined,
-            recruiterNotes: app.recruiterNotes,
-            notes: [],
-            activities: [],
-            interviews: [],
-            createdAt: new Date(app.createdAt),
-            updatedAt: new Date(app.updatedAt),
-          };
-        });
+        const mappedApplications: Application[] = apiApplications.map((app: any) => ({
+          id: app.id,
+          candidateId: app.candidateId,
+          candidateName: app.candidate?.firstName && app.candidate?.lastName
+            ? `${app.candidate.firstName} ${app.candidate.lastName}`
+            : 'Unknown Candidate',
+          candidateEmail: app.candidate?.email || '',
+          candidatePhoto: app.candidate?.photo,
+          jobId: app.jobId,
+          jobTitle: app.job?.title || 'Unknown Job',
+          employerName: app.job?.company?.name || 'Unknown Company',
+          appliedDate: app.appliedDate ? new Date(app.appliedDate) : new Date(),
+          status: mapApplicationStatus(app.status),
+          stage: mapApplicationStage(app.stage),
+          resumeUrl: app.resumeUrl,
+          coverLetterUrl: app.coverLetterUrl,
+          portfolioUrl: app.portfolioUrl,
+          linkedInUrl: app.linkedInUrl,
+          customAnswers: app.customAnswers || [],
+          isRead: app.isRead,
+          isNew: app.isNew,
+          tags: app.tags || [],
+          notes: [],
+          activities: [],
+          interviews: [],
+          createdAt: app.createdAt ? new Date(app.createdAt) : new Date(),
+          updatedAt: app.updatedAt ? new Date(app.updatedAt) : new Date(),
+        }));
         setApplications(mappedApplications);
         
         // Store round progress mapping if available
@@ -803,19 +782,6 @@ export function ApplicationPipeline({
       
       if (response.success) {
         // Also update local mock storage for fallback
-        const statusMap: Record<ApplicationStage, Application['status']> = {
-          "New Application": "applied",
-          "Resume Review": "screening",
-          "Phone Screen": "screening",
-          "Technical Interview": "interview",
-          "Manager Interview": "interview",
-          "Final Round": "interview",
-          "Reference Check": "interview",
-          "Offer Extended": "offer",
-          "Offer Accepted": "hired",
-          "Rejected": "rejected",
-          "Withdrawn": "withdrawn",
-        };
         updateApplicationStatus(applicationId, statusMap[newStage], newStage);
         
         // Reload applications only if not using providedApplications (parent handles refresh)
@@ -825,41 +791,10 @@ export function ApplicationPipeline({
           // Notify parent to refresh filtered applications
           onApplicationMoved?.();
         }
-        
-        // Auto-trigger AI interview notification for interview stages
-        const interviewStages: ApplicationStage[] = ['Technical Interview', 'Manager Interview', 'Final Round'];
-        if (interviewStages.includes(newStage)) {
-          const application = applications.find((app) => app.id === applicationId);
-          if (application) {
-            // Dynamically import to check for existing interviews
-            import('@/lib/aiInterview/aiInterviewStorage').then(({ getAIInterviewsByCandidate }) => {
-              const existingInterviews = getAIInterviewsByCandidate(application.candidateId);
-              const hasScheduledInterview = existingInterviews.some(
-                i => i.jobId === application.jobId && (i.status === 'scheduled' || i.status === 'in-progress' || i.status === 'completed')
-              );
-              
-              if (!hasScheduledInterview) {
-                toast.success(`Moved to ${newStage}`, {
-                  description: 'Consider scheduling an AI interview for automated screening'
-                });
-              } else {
-                toast.success(`Moved to ${newStage}`);
-              }
-            });
-          }
-        } else {
-          toast.success(`Moved to ${newStage}`);
-        }
-      } else {
-        toast.error('Failed to update stage', {
-          description: response.error || 'Please try again'
-        });
       }
     } catch (error) {
       console.error('Failed to update stage:', error);
-      toast.error('Failed to update stage', {
-        description: 'Please try again'
-      });
+      toast.error('Failed to update application stage');
     }
   };
 
@@ -1222,6 +1157,18 @@ export function ApplicationPipeline({
   const newApplicationsCount = applications.filter(app => 
     app.stage === 'New Application' || !app.isRead
   ).length;
+
+  // Handle multi-select if enabled
+  const handleToggleSelection = (applicationId: string) => {
+    if (onSelectionChange && selectedApplicationIds) {
+      const newSelection = selectedApplicationIds.includes(applicationId)
+        ? selectedApplicationIds.filter(id => id !== applicationId)
+        : [...selectedApplicationIds, applicationId];
+      onSelectionChange(newSelection);
+    }
+  };
+
+  const selectedIds = enableMultiSelect ? (selectedApplicationIds || []) : selectedForComparison;
 
   return (
     <>

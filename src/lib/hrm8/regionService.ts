@@ -18,6 +18,12 @@ export interface Region {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+  licensee?: {
+    id: string;
+    name: string;
+    legalEntityName: string;
+    email: string;
+  } | null;
 }
 
 class RegionService {

@@ -100,6 +100,20 @@ export function mapBackendJobToFrontend(backendJob: any): Job {
     serviceStatus: backendJob.serviceStatus,
     assignedConsultantId: backendJob.assignedConsultantId,
     assignedConsultantName: backendJob.assignedConsultantName,
+    pipeline: backendJob.pipeline
+      ? {
+          stage: backendJob.pipeline.stage,
+          progress: backendJob.pipeline.progress,
+          note: backendJob.pipeline.note,
+          updatedAt: backendJob.pipeline.updatedAt
+            ? (typeof backendJob.pipeline.updatedAt === 'string'
+                ? backendJob.pipeline.updatedAt
+                : backendJob.pipeline.updatedAt.toISOString())
+            : null,
+          updatedBy: backendJob.pipeline.updatedBy,
+          consultantId: backendJob.pipeline.consultantId,
+        }
+      : undefined,
     jobBoardDistribution: backendJob.jobBoardDistribution || ['HRM8 Job Board'],
     applicantsCount: backendJob.applicantsCount || 0,
     unreadApplicants: backendJob.unreadApplicants,

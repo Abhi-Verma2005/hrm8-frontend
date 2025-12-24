@@ -6,12 +6,13 @@
 import { useState, useEffect } from 'react';
 import { useConsultantAuth } from '@/contexts/ConsultantAuthContext';
 import { consultantService } from '@/lib/consultant/consultantService';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { ConsultantPageLayout } from '@/components/layouts/ConsultantPageLayout';
+import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { DataTable } from '@/components/tables/DataTable';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { DollarSign, Clock, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function ConsultantCommissionsPage() {
@@ -42,7 +43,7 @@ export default function ConsultantCommissionsPage() {
       key: 'amount',
       label: 'Amount',
       render: (commission: any) => (
-        <span className="font-semibold">
+        <span className="text-sm font-semibold">
           {commission.currency || 'USD'} {commission.amount?.toLocaleString() || 0}
         </span>
       ),
@@ -51,7 +52,7 @@ export default function ConsultantCommissionsPage() {
       key: 'commissionType',
       label: 'Type',
       render: (commission: any) => (
-        <Badge variant="outline">
+        <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
           {commission.commissionType?.replace('_', ' ') || 'N/A'}
         </Badge>
       ),
@@ -60,19 +61,43 @@ export default function ConsultantCommissionsPage() {
       key: 'status',
       label: 'Status',
       render: (commission: any) => {
-        const statusConfig: Record<string, { icon: any; color: string; bg: string }> = {
-          PENDING: { icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-50' },
-          CONFIRMED: { icon: CheckCircle, color: 'text-blue-600', bg: 'bg-blue-50' },
-          PAID: { icon: CheckCircle, color: 'text-green-600', bg: 'bg-green-50' },
-          CANCELLED: { icon: XCircle, color: 'text-red-600', bg: 'bg-red-50' },
-        };
-        const config = statusConfig[commission.status] || statusConfig.PENDING;
-        const Icon = config.icon;
+        const status = commission.status || 'PENDING';
+        
+        if (status === 'PENDING') {
+          return (
+            <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-warning/10 text-warning border-warning/20">
+              Pending
+            </Badge>
+          );
+        }
+        
+        if (status === 'CONFIRMED') {
+          return (
+            <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-primary/10 text-primary border-primary/20">
+              Confirmed
+            </Badge>
+          );
+        }
+        
+        if (status === 'PAID') {
+          return (
+            <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-success/10 text-success border-success/20">
+              Paid
+            </Badge>
+          );
+        }
+        
+        if (status === 'CANCELLED') {
+          return (
+            <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-destructive/10 text-destructive border-destructive/20">
+              Cancelled
+            </Badge>
+          );
+        }
         
         return (
-          <Badge className={`${config.color} ${config.bg}`}>
-            <Icon className="mr-1 h-3 w-3" />
-            {commission.status || 'PENDING'}
+          <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
+            {status}
           </Badge>
         );
       },
@@ -80,8 +105,11 @@ export default function ConsultantCommissionsPage() {
     {
       key: 'createdAt',
       label: 'Created',
-      render: (commission: any) => 
-        commission.createdAt ? new Date(commission.createdAt).toLocaleDateString() : 'N/A',
+      render: (commission: any) => (
+        <span className="text-sm text-muted-foreground">
+          {commission.createdAt ? new Date(commission.createdAt).toLocaleDateString() : 'N/A'}
+        </span>
+      ),
     },
   ];
 
@@ -93,11 +121,12 @@ export default function ConsultantCommissionsPage() {
     .reduce((sum, c) => sum + (c.amount || 0), 0);
 
   return (
-    <ConsultantPageLayout
-      title="Commissions"
-      subtitle="View your commission history"
-    >
+    <ConsultantPageLayout>
       <div className="p-6 space-y-6">
+        <AtsPageHeader
+          title="Commissions"
+          subtitle="View your commission history"
+        />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <EnhancedStatCard
@@ -105,8 +134,8 @@ export default function ConsultantCommissionsPage() {
           value=""
           isCurrency={true}
           rawValue={totalPending}
-          icon={<Clock className="h-6 w-6" />}
-          variant="warning"
+            icon={<Clock className="h-5 w-5" />}
+            variant="neutral"
         />
 
         <EnhancedStatCard
@@ -114,28 +143,34 @@ export default function ConsultantCommissionsPage() {
           value=""
           isCurrency={true}
           rawValue={totalPaid}
-          icon={<CheckCircle className="h-6 w-6" />}
-          variant="success"
+            icon={<CheckCircle className="h-5 w-5" />}
+            variant="neutral"
         />
 
         <EnhancedStatCard
           title="Total Commissions"
           value={commissions.length.toString()}
-          icon={<DollarSign className="h-6 w-6" />}
+            icon={<DollarSign className="h-5 w-5" />}
           variant="neutral"
         />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Commission History</CardTitle>
+            <CardTitle className="text-base font-semibold">Commission History</CardTitle>
+            <CardDescription className="text-sm">
+              {commissions.length} total commission{commissions.length !== 1 ? 's' : ''}
+            </CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8">Loading commissions...</div>
+              <div className="text-center py-8 text-muted-foreground">
+                <div className="text-sm">Loading commissions...</div>
+              </div>
           ) : commissions.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              No commissions yet
+                <DollarSign className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p className="text-sm">No commissions yet</p>
             </div>
           ) : (
             <DataTable
@@ -152,6 +187,3 @@ export default function ConsultantCommissionsPage() {
     </ConsultantPageLayout>
   );
 }
-
-
-

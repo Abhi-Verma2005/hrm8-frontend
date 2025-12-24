@@ -11,6 +11,7 @@ import RegionsPage from "@/pages/hrm8/RegionsPage";
 import LicenseesPage from "@/pages/hrm8/LicenseesPage";
 import ConsultantsPage from "@/pages/hrm8/ConsultantsPage";
 import JobAllocationPage from "@/pages/hrm8/JobAllocationPage";
+import UnassignedJobsPage from "@/pages/hrm8/UnassignedJobsPage";
 import CommissionsPage from "@/pages/hrm8/CommissionsPage";
 import RevenuePage from "@/pages/hrm8/RevenuePage";
 import ReportsPage from "@/pages/hrm8/ReportsPage";
@@ -30,6 +31,7 @@ export const hrm8Routes = (
     <Route path="licensees" element={<LicenseesPage />} />
     <Route path="consultants" element={<ConsultantsPage />} />
     <Route path="jobs" element={<JobAllocationPage />} />
+    <Route path="jobs/unassigned" element={<UnassignedJobsPage />} />
     <Route path="commissions" element={<CommissionsPage />} />
     <Route path="revenue" element={<RevenuePage />} />
     <Route path="reports" element={<ReportsPage />} />

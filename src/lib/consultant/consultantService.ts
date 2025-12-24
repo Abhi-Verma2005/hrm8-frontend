@@ -4,6 +4,7 @@
  */
 
 import { apiClient } from '../api';
+import { JobPipelineStage, JobPipelineStatus } from '@/types/job';
 
 export interface ConsultantProfile {
   id: string;
@@ -52,7 +53,7 @@ class ConsultantService {
   }
 
   async getJobs() {
-    return apiClient.get<{ jobIds: string[] }>('/api/consultant/jobs');
+    return apiClient.get<{ jobs: any[] }>('/api/consultant/jobs');
   }
 
   async getCommissions(filters?: { status?: string; commissionType?: string }) {
@@ -73,6 +74,14 @@ class ConsultantService {
       pendingCommissions: number;
       totalCommissionsPaid: number;
     } }>('/api/consultant/performance');
+  }
+
+  async getJobPipeline(jobId: string) {
+    return apiClient.get<{ pipeline: JobPipelineStatus }>(`/api/consultant/jobs/${jobId}/pipeline`);
+  }
+
+  async updateJobPipeline(jobId: string, payload: { stage: JobPipelineStage; progress?: number; note?: string | null }) {
+    return apiClient.patch<{ pipeline: JobPipelineStatus }>(`/api/consultant/jobs/${jobId}/pipeline`, payload);
   }
 }
 

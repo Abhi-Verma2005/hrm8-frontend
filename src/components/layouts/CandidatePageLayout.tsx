@@ -8,6 +8,7 @@ interface CandidatePageLayoutProps {
   children: ReactNode;
   breadcrumbActions?: ReactNode;
   fullWidth?: boolean;
+  showSidebarTrigger?: boolean;
 }
 
 export function CandidatePageLayout({
@@ -17,10 +18,11 @@ export function CandidatePageLayout({
   children,
   breadcrumbActions,
   fullWidth = true,
+  showSidebarTrigger = true,
 }: CandidatePageLayoutProps) {
   return (
     <>
-      <CandidateHeader breadcrumbActions={breadcrumbActions} />
+      <CandidateHeader breadcrumbActions={breadcrumbActions} showSidebarTrigger={showSidebarTrigger} />
 
       <div className="flex-1">
         {(title || subtitle || actions) && (
@@ -41,4 +43,36 @@ export function CandidatePageLayout({
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

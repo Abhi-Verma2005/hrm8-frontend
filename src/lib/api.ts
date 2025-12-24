@@ -24,7 +24,7 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const config: RequestInit = {
       ...options,
       headers: {
@@ -32,6 +32,55 @@ class ApiClient {
         ...options.headers,
       },
       credentials: 'include', // Important for cookies
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error('[apiClient] request failed', {
+          url,
+          status: response.status,
+          statusText: response.statusText,
+          data,
+        });
+        return {
+          success: false,
+          error: data.error || `HTTP ${response.status}: ${response.statusText}`,
+          details: data.details,
+        };
+      }
+
+      return data as ApiResponse<T>;
+    } catch (error) {
+      console.error('[apiClient] network error', { url, error });
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error',
+      };
+    }
+  }
+
+  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { method: 'GET' });
+  }
+
+  async post<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      method: 'POST',
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  }
+
+  async upload<T>(endpoint: string, formData: FormData): Promise<ApiResponse<T>> {
+    const url = `${this.baseURL}${endpoint}`;
+
+    // Do not set Content-Type header for FormData, browser sets it with boundary
+    const config: RequestInit = {
+      method: 'POST',
+      body: formData,
+      credentials: 'include',
     };
 
     try {
@@ -55,20 +104,16 @@ class ApiClient {
     }
   }
 
-  async get<T>(endpoint: string): Promise<ApiResponse<T>> {
-    return this.request<T>(endpoint, { method: 'GET' });
-  }
-
-  async post<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
+  async put<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
-      method: 'POST',
+      method: 'PUT',
       body: body ? JSON.stringify(body) : undefined,
     });
   }
 
-  async put<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
+  async patch<T>(endpoint: string, body?: unknown): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
-      method: 'PUT',
+      method: 'PATCH',
       body: body ? JSON.stringify(body) : undefined,
     });
   }
