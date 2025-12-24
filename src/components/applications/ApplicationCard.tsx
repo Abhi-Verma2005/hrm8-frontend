@@ -1,10 +1,10 @@
-import { Application } from "@/types/application";
+import { Application, ApplicationStage } from "@/types/application";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Star, Calendar, FileText, MoreVertical, Mail, Phone, Sparkles, MessageSquare, Users, Bell, Info, Eye, CheckCircle2 } from "lucide-react";
+import { Star, Calendar, FileText, MoreVertical, Mail, Phone, Sparkles, MessageSquare, Users, Bell, Info, Eye, CheckCircle2, CalendarClock, CheckCircle, Clock } from "lucide-react";
 import { AIAnalysisView } from "./screening/AIAnalysisView";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { formatDistanceToNow } from "date-fns";
@@ -13,6 +13,11 @@ import { CSS } from "@dnd-kit/utilities";
 import { AIMatchBadge } from "./AIMatchBadge";
 import { AIInterviewScoreBadge } from "./AIInterviewScoreBadge";
 import { TagManager } from "./TagManager";
+import { QuickScoringWidget } from "./shortlisting/QuickScoringWidget";
+import { RankingWidget } from "./shortlisting/RankingWidget";
+import { ShortlistButton } from "./shortlisting/ShortlistButton";
+import { StageDropdownMenu } from "./stages/StageDropdownMenu";
+import { ProfileCompletenessIndicator } from "./parsing/ProfileCompletenessIndicator";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,6 +45,11 @@ interface ApplicationCardProps {
   isSelected?: boolean;
   onToggleSelect?: (applicationId: string) => void;
   showOnlyReview?: boolean; // If true, only show Review button (for pipeline view)
+  onViewInterviews?: (application: Application) => void; // New prop for viewing interviews
+  onStageChange?: (applicationId: string, newStage: ApplicationStage) => void; // New prop for stage changes
+  onScoreUpdate?: (applicationId: string, newScore: number) => void; // New prop for score updates
+  onRankUpdate?: (applicationId: string, newRank: number) => void; // New prop for rank updates
+  onShortlistChange?: (applicationId: string, shortlisted: boolean) => void; // New prop for shortlist changes
 }
 
 export function ApplicationCard({ 
@@ -48,7 +58,12 @@ export function ApplicationCard({
   isCompareMode = false,
   isSelected = false,
   onToggleSelect,
-  showOnlyReview = false
+  showOnlyReview = false,
+  onViewInterviews,
+  onStageChange,
+  onScoreUpdate,
+  onRankUpdate,
+  onShortlistChange
 }: ApplicationCardProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -185,6 +200,19 @@ export function ApplicationCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" onClick={(e) => e.stopPropagation()}>
+              {onStageChange && (
+                <>
+                  <div className="px-2 py-1.5" onClick={(e) => e.stopPropagation()}>
+                    <StageDropdownMenu
+                      currentStage={application.stage}
+                      onStageChange={(stage) => onStageChange(application.id, stage)}
+                      variant="trigger"
+                      size="sm"
+                    />
+                  </div>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               <DropdownMenuItem onClick={handleGenerateQuestions}>
                 <Sparkles className="mr-2 h-3.5 w-3.5" />
                 Generate Interview Questions
@@ -284,6 +312,59 @@ export function ApplicationCard({
               </div>
             )}
 
+            {/* Screening Status Indicator */}
+            {(application.aiMatchScore || application.score) && (
+              <div className="mt-1 flex items-center gap-1">
+                {application.score && application.score > 0 ? (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4 bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 flex items-center gap-0.5">
+                          <CheckCircle className="h-2.5 w-2.5" />
+                          Screened
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">Manually screened: {application.score}%</p>
+                        {application.aiMatchScore && (
+                          <p className="text-xs">AI score: {application.aiMatchScore}%</p>
+                        )}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ) : application.aiMatchScore && application.aiMatchScore > 0 ? (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 border-blue-500 text-blue-700 dark:text-blue-400 flex items-center gap-0.5">
+                          <Sparkles className="h-2.5 w-2.5" />
+                          AI Scored
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">AI scored: {application.aiMatchScore}%</p>
+                        <p className="text-xs">Pending manual review</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                ) : (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 border-amber-500 text-amber-700 dark:text-amber-400 flex items-center gap-0.5">
+                          <Clock className="h-2.5 w-2.5" />
+                          Pending
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">Awaiting screening</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
+            )}
+
             {/* Compact Rating, Score, Rank, and Shortlisted */}
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
               {application.rating && (
@@ -300,17 +381,37 @@ export function ApplicationCard({
                   ))}
                 </div>
               )}
-              {application.score !== undefined && (
-                <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">
-                  {Math.round(application.score)}% fit
+              {!isCompareMode && application.score !== undefined && (
+                <QuickScoringWidget
+                  applicationId={application.id}
+                  score={application.score}
+                  onScoreUpdate={(newScore) => onScoreUpdate?.(application.id, newScore)}
+                  variant="inline"
+                />
+              )}
+              {application.score === undefined && application.aiMatchScore && (
+                <Badge variant="outline" className="text-[10px] px-1 py-0 h-4 border-blue-500 text-blue-700">
+                  AI: {Math.round(application.aiMatchScore)}%
                 </Badge>
               )}
-              {application.rank !== undefined && (
-                <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
-                  #{application.rank}
-                </Badge>
+              {!isCompareMode && application.rank !== undefined && (
+                <RankingWidget
+                  applicationId={application.id}
+                  rank={application.rank}
+                  onRankUpdate={(newRank) => onRankUpdate?.(application.id, newRank)}
+                  variant="inline"
+                />
               )}
-              {application.shortlisted && (
+              {!isCompareMode && (
+                <ShortlistButton
+                  applicationId={application.id}
+                  shortlisted={application.shortlisted}
+                  onShortlistChange={(shortlisted) => onShortlistChange?.(application.id, shortlisted)}
+                  variant="icon"
+                  size="sm"
+                />
+              )}
+              {application.shortlisted && isCompareMode && (
                 <Badge variant="default" className="text-[10px] px-1 py-0 h-4 bg-green-500">
                   Shortlisted
                 </Badge>
@@ -365,19 +466,35 @@ export function ApplicationCard({
             {!isCompareMode && (
               <div className="flex flex-col gap-2 mt-2 pt-2 border-t">
                 {showOnlyReview ? (
-                  // Pipeline view - only show Review button
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full text-xs h-7"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onClick?.();
-                    }}
-                  >
-                    <Eye className="h-3 w-3 mr-1" />
-                    Review
-                  </Button>
+                  // Pipeline view - show Review and View Interviews buttons
+                  <>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full text-xs h-7"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onClick?.();
+                      }}
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      Review
+                    </Button>
+                    {onViewInterviews && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs h-7"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onViewInterviews(application);
+                        }}
+                      >
+                        <CalendarClock className="h-3 w-3 mr-1" />
+                        View
+                      </Button>
+                    )}
+                  </>
                 ) : (
                   // Full view - show all buttons
                   <>

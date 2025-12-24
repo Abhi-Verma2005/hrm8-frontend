@@ -13,7 +13,7 @@ import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
 import { getTemplateById } from "@/lib/mockTemplateStorage";
 import { InterviewKanbanBoard } from "@/components/interviews/InterviewKanbanBoard";
 import { InterviewDetailPanel } from "@/components/interviews/InterviewDetailPanel";
-import { InterviewCalendarView } from "@/components/interviews/InterviewCalendarView";
+import { InterviewCalendarView } from "@/components/interviews/InterviewCalendarViewNew";
 import { InterviewAnalyticsDashboard } from "@/components/interviews/InterviewAnalyticsDashboard";
 import { InterviewTemplateManager } from "@/components/interviews/InterviewTemplateManager";
 import { InterviewCalibrationReport } from "@/components/interviews/InterviewCalibrationReport";
@@ -212,9 +212,11 @@ export default function Interviews() {
         ) : viewMode === "calendar" ? (
           <div className="overflow-x-auto -mx-1 px-1">
             <InterviewCalendarView
-            interviews={interviews}
-            onViewDetails={handleViewDetails}
-            onReschedule={handleReschedule}
+              onInterviewClick={handleViewDetails}
+              onReschedule={(interview, newDate) => {
+                // Handle reschedule - you may need to adjust this based on your API
+                handleReschedule(interview, newDate, format(newDate, 'HH:mm'));
+              }}
             />
           </div>
         ) : viewMode === "analytics" ? (

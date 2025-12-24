@@ -49,8 +49,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FormDrawer } from "@/components/ui/form-drawer";
-import { JobWizard } from "@/components/jobs/JobWizard";
+import { JobEditDrawer } from "@/components/jobs/JobEditDrawer";
 import { ExternalPromotionDialog } from "@/components/jobs/ExternalPromotionDialog";
 import { JobAnalyticsDashboard } from "@/components/jobs/analytics/JobAnalyticsDashboard";
 import { JobCollaborationPanel } from "@/components/jobs/collaboration/JobCollaborationPanel";
@@ -68,6 +67,13 @@ import { ArchiveJobDialog } from "@/components/jobs/ArchiveJobDialog";
 import { DeleteJobDialog } from "@/components/jobs/DeleteJobDialog";
 import { applicationService } from "@/lib/applicationService";
 import { TalentPoolSearchDialog } from "@/components/applications/TalentPoolSearchDialog";
+import { JobApplicationsFilterBar, JobApplicationsFilters } from "@/components/applications/JobApplicationsFilterBar";
+import { ManualUploadDialog } from "@/components/applications/ManualUploadDialog";
+import { ApplicationListView } from "@/components/applications/ApplicationListView";
+import { Upload, LayoutGrid, List } from "lucide-react";
+import { Application } from "@/types/application";
+import { filterApplicationsByTags } from "@/lib/applicationTags";
+import { useMemo } from "react";
 
 export default function JobDetail() {
   const { jobId } = useParams();
@@ -83,8 +89,213 @@ export default function JobDetail() {
   const [isProcessingDelete, setIsProcessingDelete] = useState(false);
   const [applicantsCount, setApplicantsCount] = useState<number | undefined>(undefined);
   const [talentPoolDialogOpen, setTalentPoolDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [allApplications, setAllApplications] = useState<Application[]>([]);
+  const [applicationsFilters, setApplicationsFilters] = useState<JobApplicationsFilters>({
+    searchQuery: '',
+    selectedStages: [],
+    selectedStatuses: [],
+    selectedTags: [],
+    dateFrom: undefined,
+    dateTo: undefined,
+    minScore: undefined,
+    maxScore: undefined,
+    assignedTo: undefined,
+    quickFilter: null,
+  });
+  const [applicationsViewMode, setApplicationsViewMode] = useState<'pipeline' | 'list'>('pipeline');
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Map backend ApplicationStatus to frontend ApplicationStatus
+  const mapApplicationStatus = (status: string | null | undefined): Application['status'] => {
+    // Handle null/undefined cases
+    if (!status) {
+      console.warn('[JobDetail] Application status is null/undefined, defaulting to "applied"');
+      return 'applied';
+    }
+
+    // Normalize to uppercase for case-insensitive comparison
+    const normalizedStatus = status.toUpperCase().trim();
+    
+    const statusMap: Record<string, Application['status']> = {
+      'NEW': 'applied',
+      'SCREENING': 'screening',
+      'INTERVIEW': 'interview',
+      'OFFER': 'offer',
+      'HIRED': 'hired',
+      'REJECTED': 'rejected',
+      'WITHDRAWN': 'withdrawn',
+    };
+    
+    const mappedStatus = statusMap[normalizedStatus];
+    if (!mappedStatus) {
+      console.warn(`[JobDetail] Unknown application status: "${status}" (normalized: "${normalizedStatus}"), defaulting to "applied"`);
+      console.warn(`[JobDetail] Available status mappings:`, Object.keys(statusMap));
+      return 'applied';
+    }
+    
+    return mappedStatus;
+  };
+
+  // Map backend ApplicationStage to frontend ApplicationStage
+  const mapApplicationStage = (stage: string | null | undefined): Application['stage'] => {
+    // Handle null/undefined cases
+    if (!stage) {
+      console.warn('[JobDetail] Application stage is null/undefined, defaulting to "New Application"');
+      return 'New Application';
+    }
+
+    // Normalize to uppercase for case-insensitive comparison
+    const normalizedStage = stage.toUpperCase().trim();
+    
+    const stageMap: Record<string, Application['stage']> = {
+      'NEW_APPLICATION': 'New Application',
+      'RESUME_REVIEW': 'Resume Review',
+      'PHONE_SCREEN': 'Phone Screen',
+      'TECHNICAL_INTERVIEW': 'Technical Interview',
+      'ONSITE_INTERVIEW': 'Manager Interview',
+      'FINAL_ROUND': 'Final Round',
+      'REFERENCE_CHECK': 'Reference Check',
+      'OFFER_EXTENDED': 'Offer Extended',
+      'OFFER_ACCEPTED': 'Offer Accepted',
+      'REJECTED': 'Rejected',
+      'WITHDRAWN': 'Withdrawn',
+    };
+    
+    const mappedStage = stageMap[normalizedStage];
+    if (!mappedStage) {
+      console.warn(`[JobDetail] Unknown application stage: "${stage}", defaulting to "New Application"`);
+      return 'New Application';
+    }
+    
+    return mappedStage;
+  };
+
+  // Filter applications based on current filters - MUST be before early returns
+  const filteredApplications = useMemo(() => {
+    console.log('[JobDetail] Starting filter with:', {
+      totalApplications: allApplications.length,
+      filters: applicationsFilters,
+      sampleStatuses: allApplications.slice(0, 3).map(app => app.status),
+    });
+    
+    let filtered = [...allApplications];
+
+    // Search filter
+    if (applicationsFilters.searchQuery) {
+      const query = applicationsFilters.searchQuery.toLowerCase();
+      filtered = filtered.filter((app) =>
+        app.candidateName.toLowerCase().includes(query) ||
+        app.candidateEmail.toLowerCase().includes(query) ||
+        app.jobTitle.toLowerCase().includes(query)
+      );
+    }
+
+    // Stage filter
+    if (applicationsFilters.selectedStages.length > 0) {
+      filtered = filtered.filter((app) => {
+        // Defensive check: ensure stage exists
+        if (!app.stage) {
+          console.warn(`[JobDetail] Application ${app.id} has no stage, skipping stage filter`);
+          return false;
+        }
+        return applicationsFilters.selectedStages.includes(app.stage);
+      });
+    }
+
+    // Status filter
+    if (applicationsFilters.selectedStatuses.length > 0) {
+      console.log('[JobDetail] Filtering by status:', {
+        selectedStatuses: applicationsFilters.selectedStatuses,
+        totalBeforeFilter: filtered.length,
+        ALLAppStatuses: filtered.map(app => ({ id: app.id, status: app.status, candidateName: app.candidateName })),
+      });
+      
+      filtered = filtered.filter((app) => {
+        // Defensive check: ensure status exists
+        if (!app.status) {
+          console.warn(`[JobDetail] Application ${app.id} has no status, skipping status filter`);
+          return false;
+        }
+        
+        const matches = applicationsFilters.selectedStatuses.includes(app.status);
+        if (!matches && filtered.length <= 10) {
+          // Only log for first 10 to avoid spam, but help debug
+          console.log(`[JobDetail] Application ${app.id} (${app.candidateName}) status "${app.status}" (type: ${typeof app.status}) does not match selected statuses:`, applicationsFilters.selectedStatuses, `(types: ${applicationsFilters.selectedStatuses.map(s => typeof s).join(', ')})`);
+        }
+        return matches;
+      });
+      
+      console.log('[JobDetail] After status filter:', {
+        selectedStatuses: applicationsFilters.selectedStatuses,
+        totalAfterFilter: filtered.length,
+      });
+    }
+
+    // Tags filter
+    if (applicationsFilters.selectedTags.length > 0) {
+      filtered = filterApplicationsByTags(filtered, applicationsFilters.selectedTags);
+    }
+
+    // Date range filter
+    if (applicationsFilters.dateFrom) {
+      filtered = filtered.filter((app) => {
+        const appDate = new Date(app.appliedDate);
+        return appDate >= applicationsFilters.dateFrom!;
+      });
+    }
+    if (applicationsFilters.dateTo) {
+      filtered = filtered.filter((app) => {
+        const appDate = new Date(app.appliedDate);
+        // Set time to end of day
+        const toDate = new Date(applicationsFilters.dateTo!);
+        toDate.setHours(23, 59, 59, 999);
+        return appDate <= toDate;
+      });
+    }
+
+    // Score range filter
+    if (applicationsFilters.minScore !== undefined || applicationsFilters.maxScore !== undefined) {
+      filtered = filtered.filter((app) => {
+        const score = app.score ?? app.aiMatchScore ?? 0;
+        if (applicationsFilters.minScore !== undefined && score < applicationsFilters.minScore) {
+          return false;
+        }
+        if (applicationsFilters.maxScore !== undefined && score > applicationsFilters.maxScore) {
+          return false;
+        }
+        return true;
+      });
+    }
+
+    // Quick filter: shortlisted
+    if (applicationsFilters.quickFilter === 'shortlisted') {
+      filtered = filtered.filter((app) => app.shortlisted);
+    }
+
+    // Quick filter: needs review (no score and unread)
+    if (applicationsFilters.quickFilter === 'needs-review') {
+      filtered = filtered.filter((app) => 
+        (!app.score && !app.aiMatchScore) || !app.isRead
+      );
+    }
+
+    console.log('[JobDetail] Filter result:', {
+      totalAfterAllFilters: filtered.length,
+      activeFilters: {
+        search: !!applicationsFilters.searchQuery,
+        stages: applicationsFilters.selectedStages.length,
+        statuses: applicationsFilters.selectedStatuses.length,
+        tags: applicationsFilters.selectedTags.length,
+        dateRange: !!(applicationsFilters.dateFrom || applicationsFilters.dateTo),
+        scoreRange: !!(applicationsFilters.minScore !== undefined || applicationsFilters.maxScore !== undefined),
+        quickFilter: applicationsFilters.quickFilter,
+      },
+    });
+    
+    return filtered;
+  }, [allApplications, applicationsFilters]);
 
   // Fetch job from API to get latest data
   useEffect(() => {
@@ -133,21 +344,130 @@ export default function JobDetail() {
     fetchJob();
   }, [jobId, refreshKey, toast]);
 
-  // Fetch applicant count from applications API so the All Applicants card shows real total
+  // Fetch applications for this job
   useEffect(() => {
-    const loadCount = async () => {
+    const loadApplications = async () => {
       if (!jobId) return;
       try {
         const res = await applicationService.getJobApplications(jobId);
-        const list = res.data?.applications || [];
-        setApplicantsCount(list.length);
+        const apiApplications = res.data?.applications || [];
+        
+        // Map API applications to frontend Application type
+        // Map API applications to frontend Application type
+        const mappedApplications: Application[] = apiApplications.map((app: any) => {
+          let candidateName = 'Unknown Candidate';
+          if (app.candidate?.firstName && app.candidate?.lastName) {
+            candidateName = `${app.candidate.firstName} ${app.candidate.lastName}`;
+          } else if (app.candidate?.firstName) {
+            candidateName = app.candidate.firstName;
+          } else if (app.candidate?.email) {
+            candidateName = app.candidate.email.split('@')[0];
+          } else if (app.candidateName) {
+            candidateName = app.candidateName;
+          }
+
+          // Map status and stage with fallbacks
+          const originalStatus = app.status;
+          const mappedStatus = mapApplicationStatus(app.status || 'NEW');
+          const mappedStage = mapApplicationStage(app.stage || 'NEW_APPLICATION');
+
+          // Debug logging for ALL applications to see mapping
+          console.log(`[JobDetail] Mapping application ${app.id} (${candidateName}):`, {
+            originalStatus,
+            mappedStatus,
+            originalStage: app.stage,
+            mappedStage,
+          });
+
+          // Validate mapped values
+          const validStatuses: Application['status'][] = ['applied', 'screening', 'interview', 'offer', 'hired', 'rejected', 'withdrawn'];
+          if (!validStatuses.includes(mappedStatus)) {
+            console.error(`[JobDetail] Invalid mapped status "${mappedStatus}" for application ${app.id} (original: "${originalStatus}"), using "applied"`);
+          }
+
+          return {
+            id: app.id,
+            candidateId: app.candidateId,
+            candidateName,
+            candidateEmail: app.candidate?.email || app.candidateEmail || '',
+            candidatePhoto: app.candidate?.photo,
+            jobId: app.jobId,
+            jobTitle: app.job?.title || 'Unknown Job',
+            employerName: app.job?.company?.name || 'Unknown Company',
+            appliedDate: new Date(app.appliedDate),
+            status: mappedStatus, // Always set from mapping function
+            stage: mappedStage, // Always set from mapping function
+            resumeUrl: app.resumeUrl,
+            coverLetterUrl: app.coverLetterUrl,
+            portfolioUrl: app.portfolioUrl,
+            linkedInUrl: app.linkedInUrl,
+            customAnswers: app.customAnswers || [],
+            isRead: app.isRead,
+            isNew: app.isNew,
+            tags: app.tags || [],
+            score: app.score,
+            rank: app.rank,
+            aiMatchScore: app.score,
+            aiAnalysis: app.aiAnalysis || undefined,
+            shortlisted: app.shortlisted || false,
+            shortlistedAt: app.shortlistedAt ? new Date(app.shortlistedAt) : undefined,
+            shortlistedBy: app.shortlistedBy,
+            manuallyAdded: app.manuallyAdded || false,
+            addedBy: app.addedBy,
+            addedAt: app.addedAt ? new Date(app.addedAt) : undefined,
+            recruiterNotes: app.recruiterNotes,
+            notes: [],
+            activities: [],
+            interviews: [],
+            createdAt: new Date(app.createdAt),
+            updatedAt: new Date(app.updatedAt),
+          };
+        });
+        
+        // Validate all mapped applications have valid statuses
+        const invalidStatusApps = mappedApplications.filter(app => !app.status);
+        if (invalidStatusApps.length > 0) {
+          console.error(`[JobDetail] Found ${invalidStatusApps.length} applications with invalid/missing status:`, invalidStatusApps.map(app => ({ id: app.id, originalStatus: apiApplications.find(a => a.id === app.id)?.status })));
+        }
+        
+        // Log status distribution for debugging
+        const statusCounts = mappedApplications.reduce((acc, app) => {
+          acc[app.status] = (acc[app.status] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+        console.log(`[JobDetail] Loaded ${mappedApplications.length} applications with status distribution:`, statusCounts);
+        
+        // Log ALL applications with their statuses to debug - EXPAND THIS IN CONSOLE
+        console.group(`[JobDetail] All ${mappedApplications.length} applications with statuses:`);
+        mappedApplications.forEach(app => {
+          console.log(`${app.candidateName} (${app.id}): status="${app.status}"`);
+        });
+        console.groupEnd();
+        
+        // Log original API statuses before mapping - EXPAND THIS IN CONSOLE
+        console.group(`[JobDetail] Original API statuses before mapping:`);
+        apiApplications.forEach((app: any) => {
+          console.log(`${app.candidate?.firstName || app.id}: originalStatus="${app.status}" (${typeof app.status}) → mapped="${mapApplicationStatus(app.status)}"`);
+        });
+        console.groupEnd();
+        
+        // Count how many applications should map to "applied"
+        const shouldBeApplied = apiApplications.filter((app: any) => {
+          const mapped = mapApplicationStatus(app.status);
+          return mapped === 'applied';
+        });
+        console.log(`[JobDetail] Applications that should map to "applied": ${shouldBeApplied.length}`, shouldBeApplied.map((app: any) => ({ id: app.id, originalStatus: app.status })));
+        
+        setAllApplications(mappedApplications);
+        setApplicantsCount(mappedApplications.length);
       } catch (err) {
-        console.error("[JobDetail] Failed to load applicants count", err);
+        console.error("[JobDetail] Failed to load applications", err);
         setApplicantsCount(undefined);
+        setAllApplications([]);
       }
     };
 
-    loadCount();
+    loadApplications();
   }, [jobId, refreshKey]);
 
   const handleJobUpdate = async () => {
@@ -170,16 +490,6 @@ export default function JobDetail() {
 
   const handleEditJob = () => {
     setEditDrawerOpen(true);
-  };
-
-  const handleJobSuccess = () => {
-    setEditDrawerOpen(false);
-    setRefreshKey(prev => prev + 1);
-    // Optionally reload job data or use the refreshKey to trigger re-render
-  };
-
-  const handleDrawerClose = () => {
-    setEditDrawerOpen(false);
   };
 
   const handleArchive = async () => {
@@ -256,53 +566,6 @@ export default function JobDetail() {
     setRefreshKey(prev => prev + 1);
   };
 
-  const editingJobData = {
-    postAsHRM8: job.employerId === "hrm8-platform",
-    employerId: job.employerId,
-    title: job.title,
-    department: job.department,
-    location: job.location,
-    employmentType: job.employmentType,
-    experienceLevel: job.experienceLevel,
-    workArrangement: job.workArrangement,
-    tags: job.tags,
-    description: job.description,
-    requirements: job.requirements.map((text, index) => ({
-      id: `req-${Date.now()}-${index}`,
-      text,
-      order: index + 1,
-    })),
-    responsibilities: job.responsibilities.map((text, index) => ({
-      id: `resp-${Date.now()}-${index}`,
-      text,
-      order: index + 1,
-    })),
-    salaryMin: job.salaryMin,
-    salaryMax: job.salaryMax,
-    salaryCurrency: job.salaryCurrency,
-    salaryPeriod: job.salaryPeriod || 'annual',
-    salaryDescription: job.salaryDescription,
-    hideSalary: false,
-    closeDate: job.closeDate,
-    visibility: job.visibility,
-    stealth: job.stealth,
-    hiringTeam: job.hiringTeam || [],
-    applicationForm: job.applicationForm || {
-      id: `form-${Date.now()}`,
-      name: "Application Form",
-      questions: [],
-      includeStandardFields: {
-        resume: { included: true, required: true },
-        coverLetter: { included: false, required: false },
-        portfolio: { included: false, required: false },
-        linkedIn: { included: false, required: false },
-        website: { included: false, required: false },
-      },
-    },
-    status: (job.status === 'open' ? 'open' : 'draft') as 'open' | 'draft',
-    jobBoardDistribution: job.jobBoardDistribution,
-  };
-
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
@@ -320,6 +583,10 @@ export default function JobDetail() {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Link>
+            </Button>
+            <Button size="sm" onClick={handleEditJob}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
             </Button>
             <JobLifecycleActions
               job={job}
@@ -608,21 +875,73 @@ export default function JobDetail() {
                 count={applicantsCount ?? job.applicantsCount}
               />
               </div>
-              <Button 
-                onClick={() => setTalentPoolDialogOpen(true)}
-                className="ml-4"
-              >
-                <UserPlus className="h-4 w-4 mr-2" />
-                Add from Talent Pool
-              </Button>
+              <div className="flex items-center gap-2 ml-4">
+                <Button 
+                  onClick={() => setUploadDialogOpen(true)}
+                  variant="outline"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Candidates
+                </Button>
+                <Button 
+                  onClick={() => setTalentPoolDialogOpen(true)}
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Add from Talent Pool
+                </Button>
+              </div>
             </div>
 
-            {/* Kanban pipeline */}
-            <ApplicationPipeline 
-              jobId={job.id} 
-              jobTitle={job.title}
-              key={refreshKey}
-            />
+            {/* Filter Bar and View Toggle */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <JobApplicationsFilterBar
+                  filters={applicationsFilters}
+                  onFiltersChange={setApplicationsFilters}
+                  totalCount={allApplications.length}
+                  filteredCount={filteredApplications.length}
+                />
+                
+                {/* View Mode Toggle */}
+                <Tabs value={applicationsViewMode} onValueChange={(v) => setApplicationsViewMode(v as 'pipeline' | 'list')}>
+                  <TabsList>
+                    <TabsTrigger value="pipeline">
+                      <LayoutGrid className="h-4 w-4 mr-2" />
+                      Pipeline
+                    </TabsTrigger>
+                    <TabsTrigger value="list">
+                      <List className="h-4 w-4 mr-2" />
+                      List
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+            </div>
+
+            {/* Pipeline or List View */}
+            {applicationsViewMode === 'pipeline' ? (
+              <ApplicationPipeline 
+                jobId={job.id} 
+                jobTitle={job.title}
+                applications={filteredApplications}
+                enableMultiSelect={false}
+                onApplicationMoved={() => {
+                  // Refresh applications when moved to update filters
+                  setRefreshKey(prev => prev + 1);
+                }}
+                key={refreshKey}
+              />
+            ) : (
+              <ApplicationListView
+                applications={filteredApplications}
+                onApplicationClick={(app) => {
+                  // Open detail panel or navigate
+                  // For now, we can reuse the pipeline's detail view logic
+                  // In production, integrate with CandidateAssessmentView
+                }}
+                selectable={false}
+              />
+            )}
           </TabsContent>
 
           {/* Initial Screening Tab */}
@@ -743,23 +1062,15 @@ export default function JobDetail() {
           </TabsContent>
         </Tabs>
 
-        <FormDrawer
-          open={editDrawerOpen}
-          onOpenChange={handleDrawerClose}
-          title="Edit Job"
-          description="Update the job posting details"
-          width="2xl"
-        >
-          <JobWizard
-            key={refreshKey}
-            serviceType={job?.serviceType || 'self-managed'}
+        {/* Job Edit Drawer */}
+        {jobId && (
+          <JobEditDrawer
+            open={editDrawerOpen}
+            onOpenChange={setEditDrawerOpen}
             jobId={jobId}
-            defaultValues={editingJobData}
-            onSuccess={handleJobSuccess}
-            onCancel={handleDrawerClose}
-            embedded
+            onSuccess={handleJobUpdate}
           />
-        </FormDrawer>
+        )}
 
         <ExternalPromotionDialog
           open={promotionDialogOpen}
@@ -827,6 +1138,19 @@ export default function JobDetail() {
                 }
               };
               loadCount();
+            }}
+          />
+        )}
+
+        {/* Manual Upload Dialog */}
+        {job && (
+          <ManualUploadDialog
+            open={uploadDialogOpen}
+            onOpenChange={setUploadDialogOpen}
+            jobId={job.id}
+            jobTitle={job.title}
+            onSuccess={() => {
+              setRefreshKey(prev => prev + 1);
             }}
           />
         )}

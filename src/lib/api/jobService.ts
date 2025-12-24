@@ -38,6 +38,16 @@ export interface CreateJobRequest {
 export interface UpdateJobRequest extends Partial<CreateJobRequest> {
   status?: JobStatus;
   closeDate?: string;
+  assignedConsultantId?: string | null;
+  screening_enabled?: boolean;
+  automated_screening_enabled?: boolean;
+  screening_criteria?: any;
+  pre_interview_questionnaire_enabled?: boolean;
+  requirements?: string[];
+  responsibilities?: string[];
+  hiringTeam?: any[];
+  postingDate?: string;
+  expiryDate?: string;
 }
 
 export interface GetJobsFilters {

@@ -127,6 +127,80 @@ class VideoInterviewService {
   async deleteInterview(id: string) {
     return apiClient.delete<{ message: string }>(`/api/video-interviews/${id}`);
   }
+
+  /**
+   * Generate AI-suggested interview times
+   */
+  async generateAISuggestions(data: {
+    jobId: string;
+    candidateIds: string[];
+    preferredDuration?: number;
+    preferredTimeSlots?: string[];
+    preferredDays?: string[];
+    timezone?: string;
+    startDate?: string;
+    endDate?: string;
+    avoidTimes?: string[];
+  }) {
+    return apiClient.post<{
+      suggestions: Array<{
+        candidateId: string;
+        applicationId: string;
+        suggestedDate: string;
+        alternativeDates: string[];
+        reasoning?: string;
+        confidence?: number;
+      }>;
+      generatedAt: string;
+      jobInfo: {
+        title: string;
+        location: string;
+        urgency?: string;
+      };
+    }>('/api/video-interviews/auto-schedule', data);
+  }
+
+  /**
+   * Finalize and save interviews from AI suggestions
+   */
+  async finalizeInterviews(suggestions: Array<{
+    applicationId: string;
+    candidateId: string;
+    jobId: string;
+    scheduledDate: string;
+    duration?: number;
+    type?: 'VIDEO' | 'PHONE' | 'IN_PERSON';
+    interviewerIds?: string[];
+    notes?: string;
+  }>) {
+    return apiClient.post<{
+      interviews: VideoInterview[];
+      count: number;
+      message: string;
+    }>('/api/video-interviews/finalize', { suggestions });
+  }
+
+  /**
+   * Get calendar events for a job
+   */
+  async getJobCalendarEvents(jobId: string, startDate: string, endDate: string) {
+    return apiClient.get<{
+      events: Array<{
+        id: string;
+        title: string;
+        start: string;
+        end: string;
+        meetingLink?: string;
+        status: string;
+        type: string;
+        candidateId: string;
+        candidateName: string;
+        candidateEmail: string;
+        applicationId: string;
+        calendarEventId?: string;
+      }>;
+    }>(`/api/video-interviews/job/${jobId}/calendar?startDate=${startDate}&endDate=${endDate}`);
+  }
 }
 
 export const videoInterviewService = new VideoInterviewService();

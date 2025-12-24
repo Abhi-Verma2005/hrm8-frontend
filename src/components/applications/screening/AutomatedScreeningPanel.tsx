@@ -10,7 +10,7 @@ import { Application } from "@/types/application";
 import { bulkScoreCandidates, ScoringCriteria, BulkScoringProgress } from "@/lib/bulkAIScoring";
 import { applicationService } from "@/lib/applicationService";
 import { useToast } from "@/hooks/use-toast";
-import { Sparkles, Play, Filter, TrendingUp, Users, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Sparkles, Play, Filter, TrendingUp, Users, CheckCircle2, XCircle, Loader2, Zap, ArrowRight } from "lucide-react";
 import { ScreeningCandidateCard } from "./ScreeningCandidateCard";
 
 interface AutomatedScreeningPanelProps {
@@ -353,17 +353,84 @@ export function AutomatedScreeningPanel({
         </CardContent>
       </Card>
 
+      {/* Quick Actions Bar */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">Quick Actions:</span>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const topCandidates = filteredAndSortedApplications
+                    .filter(app => (app.aiMatchScore ?? app.score ?? 0) >= 80)
+                    .slice(0, 10);
+                  if (topCandidates.length === 0) {
+                    toast({
+                      title: "No Top Candidates",
+                      description: "No candidates with score ≥80 found.",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+                  toast({
+                    title: "Top Candidates",
+                    description: `Found ${topCandidates.length} candidates with score ≥80.`,
+                  });
+                }}
+              >
+                <CheckCircle2 className="h-4 w-4 mr-2" />
+                Show Top 10 (≥80)
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  const lowCandidates = filteredAndSortedApplications
+                    .filter(app => (app.aiMatchScore ?? app.score ?? 0) < 50);
+                  if (lowCandidates.length === 0) {
+                    toast({
+                      title: "No Low Scored Candidates",
+                      description: "No candidates with score <50 found.",
+                    });
+                    return;
+                  }
+                  toast({
+                    title: "Low Scored Candidates",
+                    description: `Found ${lowCandidates.length} candidates with score <50.`,
+                  });
+                }}
+              >
+                <XCircle className="h-4 w-4 mr-2" />
+                Show Low Scores (&lt;50)
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Candidate List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">
             Candidates ({filteredAndSortedApplications.length})
           </h3>
+          <div className="flex items-center gap-2">
           {stats.averageScore > 0 && (
             <Badge variant="outline" className="text-sm">
-              Average Score: {stats.averageScore}%
+                Avg: {stats.averageScore}%
+              </Badge>
+            )}
+            {stats.topMatches > 0 && (
+              <Badge variant="outline" className="text-sm bg-green-50 text-green-700 border-green-200">
+                {stats.topMatches} Top Matches
             </Badge>
           )}
+          </div>
         </div>
 
         {filteredAndSortedApplications.length === 0 ? (

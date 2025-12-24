@@ -135,14 +135,28 @@ export function ScreeningCandidateCard({
               </p>
             </div>
 
-            {/* AI Score Badge */}
-            {aiScore > 0 ? (
+            {/* AI Score Badge with Manual Score Comparison */}
+            {aiScore > 0 || application.score ? (
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {aiScore > 0 && (
+                    <>
                   <AIMatchBadge score={aiScore} size="sm" />
                   <span className={`text-xs font-medium ${getScoreColor(aiScore)}`}>
-                    {aiScore}% Match
+                        AI: {aiScore}%
+                      </span>
+                    </>
+                  )}
+                  {application.score && application.score > 0 && (
+                    <span className={`text-xs font-medium ${getScoreColor(application.score)}`}>
+                      Manual: {application.score}%
                   </span>
+                  )}
+                  {aiScore > 0 && application.score && Math.abs(aiScore - application.score) > 20 && (
+                    <Badge variant="outline" className="text-xs border-amber-500 text-amber-700">
+                      Score Gap
+                    </Badge>
+                  )}
                   {aiAnalysis?.recommendation && (
                     <Badge 
                       variant="outline" 
@@ -188,6 +202,24 @@ export function ScreeningCandidateCard({
                 Not Scored
               </Badge>
             )}
+
+            {/* Screening Status Indicator */}
+            <div className="flex items-center gap-2">
+              {application.score && application.score > 0 ? (
+                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
+                  Screened
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="text-xs border-amber-500 text-amber-700">
+                  Pending Review
+                </Badge>
+              )}
+              {application.aiMatchScore && !application.score && (
+                <Badge variant="outline" className="text-xs border-blue-500 text-blue-700">
+                  AI Scored
+                </Badge>
+              )}
+            </div>
 
             {/* Quick Info */}
             <div className="flex items-center gap-2 text-xs text-muted-foreground">

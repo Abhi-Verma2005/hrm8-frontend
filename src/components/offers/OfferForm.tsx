@@ -7,14 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { Job } from "@/types/job";
 
 const offerSchema = z.object({
   templateId: z.string().min(1, "Template is required"),
   offerType: z.enum(["full-time", "part-time", "contract", "intern"]),
   salary: z.coerce.number().min(0),
   salaryCurrency: z.string().default("USD"),
-  salaryPeriod: z.enum(["annual", "hourly"]),
+  salaryPeriod: z.enum(["annual", "hourly", "monthly", "weekly", "daily"]),
   startDate: z.string().min(1, "Start date is required"),
   workLocation: z.string().min(1, "Work location is required"),
   workArrangement: z.enum(["on-site", "remote", "hybrid"]),
@@ -32,23 +33,82 @@ type OfferFormData = z.infer<typeof offerSchema>;
 interface OfferFormProps {
   candidateName: string;
   jobTitle: string;
+  job?: Job | null; // Optional job data to use for initial values
   onSubmit: (data: OfferFormData) => void;
   onCancel: () => void;
 }
 
-export function OfferForm({ candidateName, jobTitle, onSubmit, onCancel }: OfferFormProps) {
+// Helper function to map job employment type to offer type
+function mapEmploymentTypeToOfferType(employmentType?: string): "full-time" | "part-time" | "contract" | "intern" {
+  switch (employmentType?.toLowerCase()) {
+    case "part-time":
+    case "part_time":
+      return "part-time";
+    case "contract":
+      return "contract";
+    case "intern":
+    case "internship":
+      return "intern";
+    default:
+      return "full-time";
+  }
+}
+
+// Helper function to map job work arrangement to offer work arrangement
+function mapWorkArrangement(workArrangement?: string): "on-site" | "remote" | "hybrid" {
+  switch (workArrangement?.toLowerCase()) {
+    case "remote":
+      return "remote";
+    case "hybrid":
+      return "hybrid";
+    default:
+      return "on-site";
+  }
+}
+
+export function OfferForm({ candidateName, jobTitle, job, onSubmit, onCancel }: OfferFormProps) {
   const [benefits, setBenefits] = useState<string[]>([]);
+
+  // Calculate default values from job data
+  const defaultValues = useMemo(() => {
+    const today = new Date();
+    const defaultExpiryDate = new Date(today);
+    defaultExpiryDate.setDate(today.getDate() + 14); // Default to 2 weeks from now
+
+    const defaultStartDate = new Date(today);
+    defaultStartDate.setDate(today.getDate() + 30); // Default to 1 month from now
+
+    // Calculate default salary - use max if available, else min, else 0
+    const defaultSalary = job?.salaryMax || job?.salaryMin || 0;
+
+    // Get salary period from job, default to annual
+    const defaultSalaryPeriod = (job?.salaryPeriod || "annual") as "annual" | "hourly" | "monthly" | "weekly" | "daily";
+
+    return {
+      offerType: mapEmploymentTypeToOfferType(job?.employmentType),
+      salaryCurrency: job?.salaryCurrency || "USD",
+      salaryPeriod: defaultSalaryPeriod,
+      salary: defaultSalary,
+      workArrangement: mapWorkArrangement(job?.workArrangement),
+      workLocation: job?.location || "",
+      templateId: "template-ft-001",
+      startDate: defaultStartDate.toISOString().split("T")[0],
+      expiryDate: defaultExpiryDate.toISOString().split("T")[0],
+    };
+  }, [job]);
 
   const form = useForm<OfferFormData>({
     resolver: zodResolver(offerSchema),
-    defaultValues: {
-      offerType: "full-time",
-      salaryCurrency: "USD",
-      salaryPeriod: "annual",
-      workArrangement: "on-site",
-      templateId: "template-ft-001",
-    },
+    defaultValues,
   });
+
+  // Reset form values when job data changes
+  useEffect(() => {
+    if (job) {
+      form.reset(defaultValues);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [job]);
 
   const commonBenefits = [
     "Health Insurance",
@@ -185,10 +245,13 @@ export function OfferForm({ candidateName, jobTitle, onSubmit, onCancel }: Offer
                         <SelectValue />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="annual">Annual</SelectItem>
-                      <SelectItem value="hourly">Hourly</SelectItem>
-                    </SelectContent>
+                  <SelectContent>
+                    <SelectItem value="annual">Annual</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="hourly">Hourly</SelectItem>
+                  </SelectContent>
                   </Select>
                   <FormMessage />
                 </FormItem>

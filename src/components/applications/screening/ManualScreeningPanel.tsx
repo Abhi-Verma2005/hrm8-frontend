@@ -36,7 +36,9 @@ import {
   CheckCircle,
   X,
   ChevronRight,
-  ChevronLeft
+  ChevronLeft,
+  TrendingUp,
+  Clock
 } from "lucide-react";
 import { CandidateAssessmentView } from "@/components/jobs/candidate-assessment/CandidateAssessmentView";
 import { formatDistanceToNow } from "date-fns";
@@ -109,11 +111,20 @@ export function ManualScreeningPanel({
   const [resumeUrl, setResumeUrl] = useState<string | null>(null);
   const [applicationForm, setApplicationForm] = useState<ApplicationFormConfig | null>(null);
   const [questionsMap, setQuestionsMap] = useState<Map<string, ApplicationQuestion>>(new Map());
+  const [screeningQueue, setScreeningQueue] = useState<string[]>([]); // Queue of application IDs to review
 
   const selectedApplication = useMemo(
     () => applications.find((app) => app.id === selectedApplicationId),
     [applications, selectedApplicationId]
   );
+
+  // Initialize screening queue with unscreened candidates
+  useEffect(() => {
+    const unscreened = applications
+      .filter(app => !app.score || app.score === 0)
+      .map(app => app.id);
+    setScreeningQueue(unscreened);
+  }, [applications]);
 
   // Filter and search applications
   const filteredApplications = useMemo(() => {
@@ -480,6 +491,12 @@ export function ManualScreeningPanel({
       app.stage === "Phone Screen" || app.stage === "Technical Interview"
     ).length;
     const rejected = applications.filter(app => app.stage === "Rejected").length;
+    
+    // Calculate average scores
+    const scores = applications.filter(app => app.score && app.score > 0).map(app => app.score ?? 0);
+    const aiScores = applications.filter(app => app.aiMatchScore && app.aiMatchScore > 0).map(app => app.aiMatchScore ?? 0);
+    const averageScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+    const averageAIScore = aiScores.length > 0 ? Math.round(aiScores.reduce((a, b) => a + b, 0) / aiScores.length) : 0;
 
     // Stage breakdown
     const stageBreakdown = {
@@ -493,12 +510,51 @@ export function ManualScreeningPanel({
       "Rejected": applications.filter(app => app.stage === "Rejected").length,
     };
 
-    return { total, pending, screened, approved, rejected, stageBreakdown };
+    return { total, pending, screened, approved, rejected, stageBreakdown, averageScore, averageAIScore };
   }, [applications]);
 
   const checkedCount = criteria.filter((c) => c.checked).length;
   const totalCriteria = criteria.length;
   const calculatedScore = calculateScoreFromCriteria();
+
+  // Navigation functions
+  const handleNextCandidate = () => {
+    if (!selectedApplicationId) return;
+    const currentIndex = applications.findIndex(app => app.id === selectedApplicationId);
+    if (currentIndex < applications.length - 1) {
+      setSelectedApplicationId(applications[currentIndex + 1].id);
+    }
+  };
+
+  const handlePreviousCandidate = () => {
+    if (!selectedApplicationId) return;
+    const currentIndex = applications.findIndex(app => app.id === selectedApplicationId);
+    if (currentIndex > 0) {
+      setSelectedApplicationId(applications[currentIndex - 1].id);
+    }
+  };
+
+  const handleNextInQueue = () => {
+    if (screeningQueue.length === 0) return;
+    const currentIndex = screeningQueue.findIndex(id => id === selectedApplicationId);
+    const nextIndex = currentIndex >= 0 && currentIndex < screeningQueue.length - 1 
+      ? currentIndex + 1 
+      : 0;
+    setSelectedApplicationId(screeningQueue[nextIndex]);
+  };
+
+  // Quick Actions
+  const handleQuickApprove = async () => {
+    if (!selectedApplication) return;
+    await handleApprove();
+    handleNextInQueue();
+  };
+
+  const handleQuickReject = async () => {
+    if (!selectedApplication) return;
+    await handleReject();
+    handleNextInQueue();
+  };
 
   if (applications.length === 0) {
     return (
@@ -520,6 +576,9 @@ export function ManualScreeningPanel({
               <div>
                 <p className="text-sm text-muted-foreground">Total Candidates</p>
                 <p className="text-2xl font-bold">{stats.total}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {screeningQueue.length} in queue
+                </p>
               </div>
               <Users className="h-8 w-8 text-muted-foreground" />
             </div>
@@ -531,6 +590,9 @@ export function ManualScreeningPanel({
               <div>
                 <p className="text-sm text-muted-foreground">Pending</p>
                 <p className="text-2xl font-bold text-amber-600">{stats.pending}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.total > 0 ? Math.round((stats.pending / stats.total) * 100) : 0}% of total
+                </p>
               </div>
               <FileCheck className="h-8 w-8 text-amber-600" />
             </div>
@@ -542,6 +604,9 @@ export function ManualScreeningPanel({
               <div>
                 <p className="text-sm text-muted-foreground">Screened</p>
                 <p className="text-2xl font-bold text-blue-600">{stats.screened}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.total > 0 ? Math.round((stats.screened / stats.total) * 100) : 0}% completion
+                </p>
               </div>
               <CheckCircle className="h-8 w-8 text-blue-600" />
             </div>
@@ -553,8 +618,89 @@ export function ManualScreeningPanel({
               <div>
                 <p className="text-sm text-muted-foreground">Approved</p>
                 <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.screened > 0 ? Math.round((stats.approved / stats.screened) * 100) : 0}% approval rate
+                </p>
               </div>
               <Award className="h-8 w-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Screening Statistics Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <TrendingUp className="h-5 w-5" />
+              Screening Statistics
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Average Manual Score</span>
+                <span className="text-lg font-bold text-purple-600">
+                  {stats.averageScore > 0 ? `${stats.averageScore}%` : 'N/A'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Average AI Score</span>
+                <span className="text-lg font-bold text-blue-600">
+                  {stats.averageAIScore > 0 ? `${stats.averageAIScore}%` : 'N/A'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Screening Progress</span>
+                <span className="text-lg font-bold">
+                  {stats.total > 0 ? Math.round((stats.screened / stats.total) * 100) : 0}%
+                </span>
+              </div>
+              <Progress 
+                value={stats.total > 0 ? (stats.screened / stats.total) * 100 : 0} 
+                className="h-2" 
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Screening Queue
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Pending Review</span>
+                <span className="text-lg font-bold text-amber-600">
+                  {screeningQueue.length}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Completed</span>
+                <span className="text-lg font-bold text-green-600">
+                  {stats.screened}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Approval Rate</span>
+                <span className="text-lg font-bold">
+                  {stats.screened > 0 ? Math.round((stats.approved / stats.screened) * 100) : 0}%
+                </span>
+              </div>
+              {screeningQueue.length > 0 && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleNextInQueue}
+                >
+                  Start Screening Queue
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -931,6 +1077,59 @@ export function ManualScreeningPanel({
               </CardContent>
             </Card>
 
+            {/* AI vs Manual Score Comparison */}
+            {selectedApplication && (selectedApplication.aiMatchScore || selectedApplication.score) && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Score Comparison
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm text-muted-foreground">AI Score</Label>
+                      <div className="text-2xl font-bold text-blue-600">
+                        {selectedApplication.aiMatchScore ?? 'N/A'}
+                        {selectedApplication.aiMatchScore && '%'}
+                      </div>
+                      {selectedApplication.aiMatchScore && (
+                        <Progress value={selectedApplication.aiMatchScore} className="h-2" />
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm text-muted-foreground">Manual Score</Label>
+                      <div className="text-2xl font-bold text-purple-600">
+                        {selectedApplication.score ?? manualScore ?? 'N/A'}
+                        {(selectedApplication.score ?? manualScore) && '%'}
+                      </div>
+                      {(selectedApplication.score ?? manualScore) && (
+                        <Progress value={selectedApplication.score ?? manualScore ?? 0} className="h-2" />
+                      )}
+                    </div>
+                  </div>
+                  {selectedApplication.aiMatchScore && (selectedApplication.score ?? manualScore) && (
+                    <div className="mt-4 p-3 bg-muted rounded-lg">
+                      <div className="text-sm font-medium">Score Difference</div>
+                      <div className={`text-lg font-bold ${
+                        Math.abs((selectedApplication.aiMatchScore ?? 0) - (selectedApplication.score ?? manualScore ?? 0)) > 20
+                          ? 'text-amber-600'
+                          : 'text-green-600'
+                      }`}>
+                        {Math.abs((selectedApplication.aiMatchScore ?? 0) - (selectedApplication.score ?? manualScore ?? 0))} points
+                      </div>
+                      {Math.abs((selectedApplication.aiMatchScore ?? 0) - (selectedApplication.score ?? manualScore ?? 0)) > 20 && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Large discrepancy - review recommended
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             {/* Scoring and Actions */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
@@ -979,6 +1178,66 @@ export function ManualScreeningPanel({
                   <CardTitle className="text-base">Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant="default"
+                      className="bg-green-600 hover:bg-green-700"
+                      onClick={handleQuickApprove}
+                      disabled={isSaving}
+                      size="sm"
+                    >
+                      <CheckCircle2 className="h-4 w-4 mr-1" />
+                      Quick Approve
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={handleQuickReject}
+                      disabled={isSaving}
+                      size="sm"
+                    >
+                      <XCircle className="h-4 w-4 mr-1" />
+                      Quick Reject
+                    </Button>
+                  </div>
+                  
+                  {/* Navigation */}
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={handlePreviousCandidate}
+                      disabled={!selectedApplicationId || applications.findIndex(app => app.id === selectedApplicationId) === 0}
+                      size="sm"
+                    >
+                      <ChevronLeft className="h-4 w-4 mr-1" />
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={handleNextCandidate}
+                      disabled={!selectedApplicationId || applications.findIndex(app => app.id === selectedApplicationId) === applications.length - 1}
+                      size="sm"
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4 ml-1" />
+                    </Button>
+                  </div>
+                  
+                  {screeningQueue.length > 0 && (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={handleNextInQueue}
+                      size="sm"
+                    >
+                      Next in Queue ({screeningQueue.length} remaining)
+                    </Button>
+                  )}
+
+                  <Separator />
+
                   <Button
                     className="w-full"
                     onClick={handleSaveScreening}

@@ -144,6 +144,13 @@ class ApplicationService {
   }
 
   /**
+   * Update application tags
+   */
+  async updateTags(id: string, tags: string[]) {
+    return apiClient.put<{ application: Application; message: string }>(`/api/applications/${id}/tags`, { tags });
+  }
+
+  /**
    * Update application rank
    */
   async updateRank(id: string, rank: number) {
@@ -169,6 +176,13 @@ class ApplicationService {
    */
   async updateStage(id: string, stage: string) {
     return apiClient.put<{ application: Application; message: string }>(`/api/applications/${id}/stage`, { stage });
+  }
+
+  /**
+   * Move application to a round
+   */
+  async moveToRound(id: string, roundId: string) {
+    return apiClient.put<{ application: Application; message: string }>(`/api/applications/${id}/round/${roundId}`);
   }
 
   /**

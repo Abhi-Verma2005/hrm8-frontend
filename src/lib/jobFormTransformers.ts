@@ -136,3 +136,99 @@ export function transformJobFormDataToUpdateRequest(
   return createRequest;
 }
 
+/**
+ * Transform Job API response to JobFormData format
+ */
+export function transformJobToFormData(job: any): JobFormData {
+  // Map serviceType from hiringMode
+  const hiringModeToServiceType = {
+    'SELF_MANAGED': 'self-managed',
+    'SHORTLISTING': 'shortlisting',
+    'FULL_SERVICE': 'full-service',
+    'EXECUTIVE_SEARCH': 'executive-search',
+  } as Record<string, JobFormData['serviceType']>;
+
+  // Map status
+  const statusMap: Record<string, 'draft' | 'open'> = {
+    'DRAFT': 'draft',
+    'OPEN': 'open',
+    'CLOSED': 'open',
+    'ON_HOLD': 'open',
+    'FILLED': 'open',
+  };
+
+  // Transform requirements/responsibilities from strings to objects
+  const requirements = (job.requirements || []).map((req: string, index: number) => ({
+    id: `req-${Date.now()}-${index}`,
+    text: req,
+    order: index + 1,
+  }));
+
+  const responsibilities = (job.responsibilities || []).map((resp: string, index: number) => ({
+    id: `resp-${Date.now()}-${index}`,
+    text: resp,
+    order: index + 1,
+  }));
+
+  // Map workArrangement and employmentType from UPPER_SNAKE_CASE to kebab-case
+  const workArrangementMap: Record<string, 'on-site' | 'remote' | 'hybrid'> = {
+    'ON_SITE': 'on-site',
+    'REMOTE': 'remote',
+    'HYBRID': 'hybrid',
+  };
+
+  const employmentTypeMap: Record<string, 'full-time' | 'part-time' | 'contract' | 'casual'> = {
+    'FULL_TIME': 'full-time',
+    'PART_TIME': 'part-time',
+    'CONTRACT': 'contract',
+    'CASUAL': 'casual',
+  };
+
+  return {
+    serviceType: hiringModeToServiceType[job.hiringMode || 'SELF_MANAGED'] || 'self-managed',
+    title: job.title || '',
+    numberOfVacancies: job.numberOfVacancies || 1,
+    department: job.department || '',
+    location: job.location || '',
+    employmentType: employmentTypeMap[job.employmentType] || 'full-time',
+    experienceLevel: (job.category || 'mid') as 'entry' | 'mid' | 'senior' | 'executive',
+    workArrangement: workArrangementMap[job.workArrangement] || 'on-site',
+    tags: job.promotionalTags || [],
+    description: job.description || '',
+    requirements,
+    responsibilities,
+    salaryMin: job.salaryMin,
+    salaryMax: job.salaryMax,
+    salaryCurrency: job.salaryCurrency || 'USD',
+    salaryPeriod: (job.salaryPeriod || 'annual') as 'hourly' | 'daily' | 'weekly' | 'monthly' | 'annual',
+    salaryDescription: job.salaryDescription,
+    hideSalary: !job.salaryMin && !job.salaryMax,
+    closeDate: job.closeDate ? new Date(job.closeDate).toISOString().split('T')[0] : undefined,
+    visibility: (job.visibility || 'public') as 'public' | 'private',
+    stealth: job.stealth || false,
+    hiringTeam: job.hiringTeam || [],
+    applicationForm: job.applicationForm || {
+      id: `form-${Date.now()}`,
+      name: 'Application Form',
+      questions: [],
+      includeStandardFields: {
+        resume: { included: true, required: true },
+        coverLetter: { included: false, required: false },
+        portfolio: { included: false, required: false },
+        linkedIn: { included: false, required: false },
+        website: { included: false, required: false },
+      },
+    },
+    status: statusMap[job.status] || 'draft',
+    jobBoardDistribution: job.jobBoardDistribution || ['HRM8 Job Board'],
+    termsAccepted: job.termsAccepted || false,
+    videoInterviewingEnabled: job.videoInterviewingEnabled || false,
+    assignedConsultantId: job.assignedConsultantId,
+    assignmentMode: job.assignmentMode,
+    screeningEnabled: job.screening_enabled || job.screeningEnabled || false,
+    automatedScreeningEnabled: job.automated_screening_enabled || job.automatedScreeningEnabled || false,
+    screeningCriteria: job.screening_criteria || job.screeningCriteria,
+    preInterviewQuestionnaireEnabled: job.pre_interview_questionnaire_enabled || job.preInterviewQuestionnaireEnabled || false,
+  };
+}
+

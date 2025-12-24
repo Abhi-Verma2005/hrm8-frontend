@@ -13,6 +13,7 @@ import { mapBackendJobToFrontend, mapBackendJobToFormData } from "@/lib/jobDataM
 import { useAuth } from "@/contexts/AuthContext";
 import { FormDrawer } from "@/components/ui/form-drawer";
 import { JobWizard } from "@/components/jobs/JobWizard";
+import { JobEditDrawer } from "@/components/jobs/JobEditDrawer";
 import { JobStatusBadge } from "@/components/jobs/JobStatusBadge";
 import { EmploymentTypeBadge } from "@/components/jobs/EmploymentTypeBadge";
 import { ServiceTypeBadge } from "@/components/jobs/ServiceTypeBadge";
@@ -60,6 +61,8 @@ export default function Jobs() {
   const [refreshKey, setRefreshKey] = useState(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingJobId, setEditingJobId] = useState<string | null>(null);
+  const [editDrawerOpen, setEditDrawerOpen] = useState(false);
+  const [editingJobIdForEdit, setEditingJobIdForEdit] = useState<string | null>(null);
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -371,8 +374,8 @@ export default function Jobs() {
   };
 
   const handleEditJob = (jobId: string) => {
-    setEditingJobId(jobId);
-    setDrawerOpen(true);
+    setEditingJobIdForEdit(jobId);
+    setEditDrawerOpen(true);
   };
 
   const handleJobSuccess = () => {
@@ -949,6 +952,23 @@ export default function Jobs() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+
+            {/* Job Edit Drawer */}
+            {editingJobIdForEdit && (
+              <JobEditDrawer
+                open={editDrawerOpen}
+                onOpenChange={(open) => {
+                  setEditDrawerOpen(open);
+                  if (!open) {
+                    setEditingJobIdForEdit(null);
+                  }
+                }}
+                jobId={editingJobIdForEdit}
+                onSuccess={() => {
+                  setRefreshKey(prev => prev + 1);
+                }}
+              />
+            )}
           </>
         )}
       </div>
