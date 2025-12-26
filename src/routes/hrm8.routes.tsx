@@ -15,6 +15,7 @@ import UnassignedJobsPage from "@/pages/hrm8/UnassignedJobsPage";
 import CommissionsPage from "@/pages/hrm8/CommissionsPage";
 import RevenuePage from "@/pages/hrm8/RevenuePage";
 import ReportsPage from "@/pages/hrm8/ReportsPage";
+import PricingPage from "@/pages/hrm8/PricingPage";
 
 export const hrm8Routes = (
   <Route
@@ -34,7 +35,7 @@ export const hrm8Routes = (
     <Route path="jobs/unassigned" element={<UnassignedJobsPage />} />
     <Route path="commissions" element={<CommissionsPage />} />
     <Route path="revenue" element={<RevenuePage />} />
+    <Route path="pricing" element={<PricingPage />} />
     <Route path="reports" element={<ReportsPage />} />
   </Route>
 );
-

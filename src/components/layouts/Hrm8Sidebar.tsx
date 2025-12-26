@@ -12,6 +12,7 @@ import {
   DollarSign,
   TrendingUp,
   FileText,
+  BookOpen,
   LogOut,
 } from "lucide-react";
 import {
@@ -39,6 +40,7 @@ const menuItems = [
   { path: "/hrm8/jobs", label: "Job Allocation", icon: Briefcase },
   { path: "/hrm8/commissions", label: "Commissions", icon: DollarSign },
   { path: "/hrm8/revenue", label: "Revenue", icon: TrendingUp },
+  { path: "/hrm8/pricing", label: "Pricing", icon: BookOpen },
   { path: "/hrm8/reports", label: "Reports", icon: FileText },
 ];
 
@@ -58,10 +60,6 @@ export function Hrm8Sidebar() {
   const isActive = (path: string) => {
     if (location.pathname === path) return true;
     return location.pathname.startsWith(path + "/");
-  };
-
-  const handleLogout = async () => {
-    await logout();
   };
 
   return (
@@ -166,4 +164,3 @@ export function Hrm8Sidebar() {
     </Sidebar>
   );
 }
-
