@@ -7,8 +7,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { X, Plus, Tag } from "lucide-react";
-import { PREDEFINED_TAGS, getTagColor, addTagToApplication, removeTagFromApplication } from "@/lib/applicationTags";
+import { X, Plus, Tag, Loader2 } from "lucide-react";
+import { PREDEFINED_TAGS, getTagColor } from "@/lib/applicationTags";
+import { applicationService } from "@/lib/applicationService";
 import { toast } from "sonner";
 
 interface TagManagerProps {
@@ -20,28 +21,57 @@ interface TagManagerProps {
 export function TagManager({ applicationId, tags = [], onTagsChange }: TagManagerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [customTag, setCustomTag] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleAddTag = (tag: string) => {
-    if (!tags.includes(tag)) {
-      addTagToApplication(applicationId, tag);
-      toast.success(`Tag "${tag}" added`);
-      onTagsChange?.();
+  const updateTags = async (newTags: string[]) => {
+    setIsUpdating(true);
+    try {
+      const response = await applicationService.updateTags(applicationId, newTags);
+      if (response.success) {
+        onTagsChange?.();
+        return true;
+      } else {
+        toast.error("Failed to update tags", {
+          description: response.error || "Please try again"
+        });
+        return false;
+      }
+    } catch (error) {
+      console.error('Failed to update tags:', error);
+      toast.error("Failed to update tags");
+      return false;
+    } finally {
+      setIsUpdating(false);
     }
   };
 
-  const handleRemoveTag = (tag: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    removeTagFromApplication(applicationId, tag);
-    toast.success(`Tag "${tag}" removed`);
-    onTagsChange?.();
+  const handleAddTag = async (tag: string) => {
+    if (!tags.includes(tag)) {
+      const newTags = [...tags, tag];
+      const success = await updateTags(newTags);
+      if (success) {
+      toast.success(`Tag "${tag}" added`);
+      }
+    }
   };
 
-  const handleAddCustomTag = () => {
+  const handleRemoveTag = async (tag: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newTags = tags.filter(t => t !== tag);
+    const success = await updateTags(newTags);
+    if (success) {
+    toast.success(`Tag "${tag}" removed`);
+    }
+  };
+
+  const handleAddCustomTag = async () => {
     if (customTag.trim() && !tags.includes(customTag.trim())) {
-      addTagToApplication(applicationId, customTag.trim());
+      const newTags = [...tags, customTag.trim()];
+      const success = await updateTags(newTags);
+      if (success) {
       toast.success(`Tag "${customTag}" added`);
       setCustomTag("");
-      onTagsChange?.();
+      }
     }
   };
 
@@ -112,10 +142,10 @@ export function TagManager({ applicationId, tags = [], onTagsChange }: TagManage
                 <Button
                   size="sm"
                   onClick={handleAddCustomTag}
-                  disabled={!customTag.trim()}
+            disabled={!customTag.trim() || isUpdating}
                   className="h-8"
                 >
-                  Add
+            {isUpdating ? <Loader2 className="h-3 w-3 animate-spin" /> : "Add"}
                 </Button>
               </div>
             </div>

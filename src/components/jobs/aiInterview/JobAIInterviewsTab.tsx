@@ -4,9 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Video, 
-  Calendar, 
+  Calendar as CalendarIcon, 
   TrendingUp, 
   Users, 
   Settings, 
@@ -14,12 +16,14 @@ import {
   FileText,
   BarChart3,
   CheckCircle2,
-  Clock
+  Clock,
+  List
 } from 'lucide-react';
 import { videoInterviewService, type VideoInterview } from '@/lib/videoInterviewService';
 import { format } from 'date-fns';
 import { JobAIInterviewSettings } from './JobAIInterviewSettings';
 import { BulkScheduleDialog } from './BulkScheduleDialog';
+import { InterviewCalendarView } from './InterviewCalendarView';
 import { useToast } from '@/hooks/use-toast';
 import type { Job } from '@/types/job';
 
@@ -116,7 +120,7 @@ export function JobAIInterviewsTab({ job }: JobAIInterviewsTabProps) {
                 </div>
               </div>
               <Button onClick={() => setShowBulkSchedule(true)}>
-                <Calendar className="h-4 w-4 mr-2" />
+                <CalendarIcon className="h-4 w-4 mr-2" />
                 Schedule
               </Button>
             </div>
@@ -153,18 +157,31 @@ export function JobAIInterviewsTab({ job }: JobAIInterviewsTabProps) {
         </Card>
       </div>
 
-      {/* Interview List */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Interview History</CardTitle>
-              <CardDescription>All AI interviews conducted for this position</CardDescription>
-            </div>
+      {/* Interview List and Calendar Views */}
+      <Tabs defaultValue="list" className="w-full">
+        <div className="flex items-center justify-between mb-4">
+          <TabsList>
+            <TabsTrigger value="list">
+              <List className="h-4 w-4 mr-2" />
+              List View
+            </TabsTrigger>
+            <TabsTrigger value="calendar">
+              <CalendarIcon className="h-4 w-4 mr-2" />
+              Calendar View
+            </TabsTrigger>
+          </TabsList>
             <Button variant="outline" onClick={() => navigate('/ai-interviews/analytics')}>
               <BarChart3 className="h-4 w-4 mr-2" />
               View Analytics
             </Button>
+        </div>
+
+        <TabsContent value="list">
+          <Card>
+            <CardHeader>
+              <div>
+                <CardTitle>Interview History</CardTitle>
+                <CardDescription>All AI interviews conducted for this position</CardDescription>
           </div>
         </CardHeader>
         <CardContent>
@@ -224,14 +241,41 @@ export function JobAIInterviewsTab({ job }: JobAIInterviewsTabProps) {
                         <div className="flex-1 space-y-2">
                           <div className="flex items-center justify-between">
                             <h4 className="font-semibold">{candidateName}</h4>
-                            <Badge variant={interview.status === 'COMPLETED' ? 'outline' : 'secondary'}>
-                              {interview.status.replace('_', ' ')}
-                            </Badge>
+                            <Select
+                              value={interview.status}
+                              onValueChange={async (newStatus) => {
+                                try {
+                                  await videoInterviewService.updateInterview(interview.id, { status: newStatus as any });
+                                  toast({
+                                    title: 'Status updated',
+                                    description: `Interview status changed to ${newStatus.replace('_', ' ')}`,
+                                  });
+                                  loadInterviews();
+                                } catch (error) {
+                                  toast({
+                                    title: 'Error',
+                                    description: 'Failed to update interview status',
+                                    variant: 'destructive',
+                                  });
+                                }
+                              }}
+                            >
+                              <SelectTrigger className="w-[140px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="SCHEDULED">Scheduled</SelectItem>
+                                <SelectItem value="IN_PROGRESS">In Progress</SelectItem>
+                                <SelectItem value="COMPLETED">Completed</SelectItem>
+                                <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                                <SelectItem value="NO_SHOW">No Show</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
                           
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
+                              <CalendarIcon className="h-3 w-3" />
                               <span>{format(new Date(interview.scheduledDate), 'PPp')}</span>
                             </div>
                             <span className="capitalize">{interview.type.replace('_', ' ').toLowerCase()}</span>
@@ -269,6 +313,12 @@ export function JobAIInterviewsTab({ job }: JobAIInterviewsTabProps) {
           )}
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="calendar">
+          <InterviewCalendarView jobId={job.id} jobTitle={job.title} />
+        </TabsContent>
+      </Tabs>
 
       {/* Dialogs */}
       {showSettings && (

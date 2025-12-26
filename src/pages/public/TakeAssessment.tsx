@@ -3,20 +3,28 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { getAssessmentByToken, updateAssessment } from '@/lib/mockAssessmentStorage';
-import { ASSESSMENT_PRICING } from '@/lib/assessments/pricingConstants';
-import type { Assessment } from '@/types/assessment';
-import { Clock, CheckCircle, AlertCircle, FileText } from 'lucide-react';
+import { Clock, CheckCircle, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { apiClient } from '@/lib/api';
+import { QuestionRenderer } from '@/components/candidate/assessment/QuestionRenderer';
+import type { Question } from '@/lib/candidateAssessmentService';
 
 export default function TakeAssessment() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  const [assessment, setAssessment] = useState<Assessment | null>(null);
+  const [assessment, setAssessment] = useState<{
+    id: string;
+    status: string;
+    expiryDate?: string;
+    passThreshold?: number;
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [started, setStarted] = useState(false);
   const [completed, setCompleted] = useState(false);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<Record<string, string | string[] | undefined>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -24,86 +32,64 @@ export default function TakeAssessment() {
       setLoading(false);
       return;
     }
-
-    const foundAssessment = getAssessmentByToken(token);
-    
-    if (!foundAssessment) {
-      setError('Assessment not found or link is invalid');
-      setLoading(false);
-      return;
-    }
-
-    // Check if expired
-    const now = new Date();
-    const expiryDate = new Date(foundAssessment.expiryDate);
-    if (now > expiryDate) {
-      setError('This assessment has expired');
-      setLoading(false);
-      return;
-    }
-
-    // Check if already completed
-    if (foundAssessment.status === 'completed') {
-      setError('This assessment has already been completed');
-      setLoading(false);
-      return;
-    }
-
-    // Check if cancelled
-    if (foundAssessment.status === 'cancelled') {
-      setError('This assessment has been cancelled');
-      setLoading(false);
-      return;
-    }
-
-    setAssessment(foundAssessment);
-    setLoading(false);
+    const load = async () => {
+      try {
+        const res = await apiClient.get<{ assessment: { id: string; status: string; expiryDate?: string; passThreshold?: number }; questions: Question[] }>(`/api/public/assessment/${token}`);
+        if (!res.success || !res.data) {
+          setError('Assessment not found or link is invalid');
+          setLoading(false);
+          return;
+        }
+        const a = res.data.assessment;
+        setAssessment({
+          id: a.id,
+          status: a.status,
+          expiryDate: a.expiryDate,
+          passThreshold: a.passThreshold,
+        });
+        setQuestions(res.data.questions || []);
+        if (a.status === 'IN_PROGRESS') {
+          setStarted(true);
+        }
+      } catch {
+        setError('Assessment not found or link is invalid');
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
   }, [token]);
 
-  const handleStart = () => {
+  const handleStart = async () => {
     if (!assessment) return;
-
-    // Update status to in-progress
-    updateAssessment(assessment.id, {
-      status: 'in-progress',
-    });
-
-    setStarted(true);
+    try {
+      const res = await apiClient.post(`/api/public/assessment/${token}/start`, {});
+      if (res.success) {
+        setStarted(true);
+      } else {
+        setError('Unable to start assessment');
+      }
+    } catch {
+      setError('Unable to start assessment');
+    }
   };
 
-  const handleComplete = () => {
-    if (!assessment) return;
-
-    // Simulate assessment completion with mock results
-    const mockScore = Math.floor(Math.random() * 40) + 60; // 60-100
-    const passed = mockScore >= assessment.passThreshold;
-
-    updateAssessment(assessment.id, {
-      status: 'completed',
-      completedDate: new Date().toISOString(),
-      overallScore: mockScore,
-      passed,
-      result: {
-        assessmentType: assessment.assessmentType,
-        score: mockScore,
-        percentile: Math.floor(Math.random() * 40) + 60,
-        status: passed ? 'passed' : (mockScore >= assessment.passThreshold - 10 ? 'needs-review' : 'failed'),
-        completedDate: new Date().toISOString(),
-        timeSpent: ASSESSMENT_PRICING[assessment.assessmentType].duration,
-        details: {
-          categoryScores: {
-            'Problem Solving': Math.floor(Math.random() * 30) + 70,
-            'Critical Thinking': Math.floor(Math.random() * 30) + 70,
-            'Communication': Math.floor(Math.random() * 30) + 70,
-          },
-          strengths: ['Analytical thinking', 'Attention to detail'],
-          weaknesses: ['Time management'],
-          recommendations: ['Consider additional training in time management'],
-        },
-      },
-    });
-
-    setCompleted(true);
+  const handleComplete = async () => {
+    if (!assessment || !token) return;
+    setSubmitting(true);
+    try {
+      const formatted = Object.entries(answers).map(([questionId, response]) => ({ questionId, response }));
+      const res = await apiClient.post(`/api/public/assessment/${token}/submit`, { responses: formatted });
+      if (res.success) {
+        setCompleted(true);
+      } else {
+        setError('Failed to submit assessment');
+        setSubmitting(false);
+      }
+    } catch {
+      setError('Failed to submit assessment');
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -143,8 +129,7 @@ export default function TakeAssessment() {
     return null;
   }
 
-  const assessmentInfo = ASSESSMENT_PRICING[assessment.assessmentType];
-  const Icon = assessmentInfo.icon;
+  const assessmentInfo = null;
 
   if (completed) {
     return (
@@ -157,9 +142,7 @@ export default function TakeAssessment() {
               </div>
             </div>
             <CardTitle className="text-2xl">Assessment Completed!</CardTitle>
-            <CardDescription>
-              Thank you for completing the {assessmentInfo.name}
-            </CardDescription>
+            <CardDescription>Thank you for completing the assessment</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Alert>
@@ -184,28 +167,27 @@ export default function TakeAssessment() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-4xl">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">{assessmentInfo.name}</CardTitle>
-            <CardDescription>
-              This is a simulated assessment interface. In production, this would embed the actual provider's assessment.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="aspect-video rounded-lg border-2 border-dashed flex items-center justify-center bg-muted transition-[background,border-color,box-shadow,color] duration-500">
-              <div className="text-center space-y-3">
-                <FileText className="h-12 w-12 mx-auto text-muted-foreground" />
-                <p className="text-muted-foreground transition-colors duration-500">
-                  Assessment content would be embedded here
-                </p>
-                <p className="text-sm text-muted-foreground transition-colors duration-500">
-                  Provider: {assessment.provider} • Duration: {assessmentInfo.duration} minutes
-                </p>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold">Assessment</CardTitle>
+              <CardDescription>Answer the questions and submit when finished</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                {questions.map((q) => (
+                  <div key={q.id} className="rounded-lg border p-4">
+                    <div className="font-medium mb-2">{q.questionText}</div>
+                    <QuestionRenderer
+                      question={q}
+                      value={answers[q.id]}
+                      onChange={(val) => setAnswers(prev => ({ ...prev, [q.id]: val }))}
+                    />
+                  </div>
+                ))}
               </div>
-            </div>
 
             <div className="flex justify-end">
-              <Button onClick={handleComplete} size="lg">
-                Complete Assessment
+              <Button onClick={handleComplete} size="lg" disabled={submitting}>
+                {submitting ? 'Submitting...' : 'Complete Assessment'}
               </Button>
             </div>
           </CardContent>
@@ -218,25 +200,15 @@ export default function TakeAssessment() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-2xl">
         <CardHeader>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-              <Icon className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="text-base font-semibold">{assessmentInfo.name}</CardTitle>
-              <CardDescription>
-                Invited by {assessment.invitedByName}
-              </CardDescription>
-            </div>
-          </div>
+          <CardTitle className="text-base font-semibold">Assessment Invitation</CardTitle>
+          <CardDescription>Click start to begin</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div>
               <h3 className="font-medium mb-2 transition-colors duration-500">Candidate Information</h3>
               <div className="text-sm text-muted-foreground space-y-1 transition-colors duration-500">
-                <p>Name: {assessment.candidateName}</p>
-                <p>Email: {assessment.candidateEmail}</p>
+                <p>Expires: {assessment.expiryDate ? format(new Date(assessment.expiryDate), 'PPP') : 'N/A'}</p>
               </div>
             </div>
 
@@ -246,34 +218,25 @@ export default function TakeAssessment() {
                 <div className="flex items-center gap-2 text-sm">
                   <Clock className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground transition-colors duration-500">
-                    Duration: {assessmentInfo.duration} minutes
+                    Questions: {questions.length}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <AlertCircle className="h-4 w-4 text-muted-foreground" />
                   <span className="text-muted-foreground transition-colors duration-500">
-                    Pass Threshold: {assessment.passThreshold}%
+                    Pass Threshold: {assessment.passThreshold ?? 'N/A'}%
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground transition-colors duration-500">
-                    Expires: {format(new Date(assessment.expiryDate), 'PPP')}
-                  </span>
-                </div>
+                
               </div>
             </div>
 
             <div className="rounded-lg border bg-muted p-4 transition-[background,border-color,box-shadow,color] duration-500">
               <h3 className="font-medium mb-2 transition-colors duration-500">Instructions</h3>
               <p className="text-sm text-muted-foreground transition-colors duration-500">
-                {assessmentInfo.description}
+                Start when you are ready. Answer all questions and submit your responses.
               </p>
-              {assessment.notes && (
-                <p className="text-sm text-muted-foreground mt-2 transition-colors duration-500">
-                  {assessment.notes}
-                </p>
-              )}
+              
             </div>
           </div>
 

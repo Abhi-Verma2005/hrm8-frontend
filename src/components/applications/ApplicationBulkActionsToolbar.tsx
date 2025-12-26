@@ -7,8 +7,12 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
-import { X, UserPlus, Mail, Calendar, CheckCircle, XCircle } from "lucide-react";
+import { X, UserPlus, Mail, Calendar, CheckCircle, XCircle, Tag, Star, Hash, BookmarkCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { BulkTaggingDialog } from "./BulkTaggingDialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,26 +29,39 @@ import { BulkEmailComposerDialog } from "./BulkEmailComposerDialog";
 
 interface ApplicationBulkActionsToolbarProps {
   selectedCount: number;
+  selectedApplicationIds: string[];
   onClearSelection: () => void;
   onBulkStatusUpdate: (status: ApplicationStatus, stage: ApplicationStage) => void;
   onBulkAssignRecruiter: (recruiterId: string) => void;
   onBulkEmail: () => void;
   onBulkScheduleInterview: () => void;
   onBulkReject: () => void;
+  onBulkTagsUpdate?: (applicationIds: string[], tags: string[]) => void;
+  onBulkScoreUpdate?: (applicationIds: string[], score: number) => void;
+  onBulkRankUpdate?: (applicationIds: string[], ranks: Record<string, number>) => void;
+  onBulkShortlist?: (applicationIds: string[], shortlisted: boolean) => void;
 }
 
 export function ApplicationBulkActionsToolbar({ 
   selectedCount, 
+  selectedApplicationIds,
   onClearSelection, 
   onBulkStatusUpdate,
   onBulkAssignRecruiter,
   onBulkEmail,
   onBulkScheduleInterview,
   onBulkReject,
+  onBulkTagsUpdate,
+  onBulkScoreUpdate,
+  onBulkRankUpdate,
+  onBulkShortlist,
 }: ApplicationBulkActionsToolbarProps) {
   const { toast } = useToast();
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [showTagsDialog, setShowTagsDialog] = useState(false);
+  const [showScoreDialog, setShowScoreDialog] = useState(false);
+  const [showShortlistDialog, setShowShortlistDialog] = useState(false);
 
   if (selectedCount === 0) return null;
 
@@ -154,6 +171,39 @@ export function ApplicationBulkActionsToolbar({
               Schedule Interview
             </Button>
 
+            {onBulkTagsUpdate && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowTagsDialog(true)}
+              >
+                <Tag className="h-4 w-4 mr-2" />
+                Tag
+              </Button>
+            )}
+
+            {onBulkScoreUpdate && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowScoreDialog(true)}
+              >
+                <Star className="h-4 w-4 mr-2" />
+                Set Score
+              </Button>
+            )}
+
+            {onBulkShortlist && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowShortlistDialog(true)}
+              >
+                <BookmarkCheck className="h-4 w-4 mr-2" />
+                Shortlist
+              </Button>
+            )}
+
             <Button
               variant="outline"
               size="sm"
@@ -198,6 +248,118 @@ export function ApplicationBulkActionsToolbar({
           console.log('Email to send:', { subject, body });
         }}
       />
+
+      {/* Bulk Tags Dialog */}
+      {onBulkTagsUpdate && (
+        <BulkTaggingDialog
+          open={showTagsDialog}
+          onOpenChange={setShowTagsDialog}
+          selectedCount={selectedCount}
+          onTag={(tags) => {
+            onBulkTagsUpdate(selectedApplicationIds, tags);
+            setShowTagsDialog(false);
+            toast({
+              title: "Tags updated",
+              description: `${selectedCount} application(s) tagged successfully.`,
+            });
+          }}
+        />
+      )}
+
+      {/* Bulk Score Dialog */}
+      {onBulkScoreUpdate && (
+        <Dialog open={showScoreDialog} onOpenChange={setShowScoreDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Set Score for {selectedCount} Application(s)</DialogTitle>
+            </DialogHeader>
+            <BulkScoreDialogContent
+              selectedCount={selectedCount}
+              onScore={(score) => {
+                onBulkScoreUpdate(selectedApplicationIds, score);
+                setShowScoreDialog(false);
+                toast({
+                  title: "Score updated",
+                  description: `${selectedCount} application(s) scored successfully.`,
+                });
+              }}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Bulk Shortlist Dialog */}
+      {onBulkShortlist && (
+        <AlertDialog open={showShortlistDialog} onOpenChange={setShowShortlistDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Shortlist {selectedCount} application(s)?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will mark all selected applications as shortlisted.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => {
+                  onBulkShortlist(selectedApplicationIds, true);
+                  setShowShortlistDialog(false);
+                  toast({
+                    title: "Applications shortlisted",
+                    description: `${selectedCount} application(s) shortlisted successfully.`,
+                  });
+                }}
+              >
+                Shortlist
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </>
+  );
+}
+
+// Bulk Score Dialog Content Component
+function BulkScoreDialogContent({
+  selectedCount,
+  onScore,
+}: {
+  selectedCount: number;
+  onScore: (score: number) => void;
+}) {
+  const [score, setScore] = useState<string>("");
+
+  const handleSubmit = () => {
+    const numScore = parseFloat(score);
+    if (isNaN(numScore) || numScore < 0 || numScore > 100) {
+      return;
+    }
+    onScore(numScore);
+  };
+
+  return (
+    <div className="space-y-4 py-4">
+      <div className="space-y-2">
+        <Label htmlFor="bulk-score">Fit Score (0-100)</Label>
+        <Input
+          id="bulk-score"
+          type="number"
+          min="0"
+          max="100"
+          value={score}
+          onChange={(e) => setScore(e.target.value)}
+          placeholder="Enter score"
+        />
+      </div>
+      <DialogFooter>
+        <Button
+          onClick={handleSubmit}
+          disabled={!score || parseFloat(score) < 0 || parseFloat(score) > 100}
+        >
+          Apply to {selectedCount} Application(s)
+        </Button>
+      </DialogFooter>
+    </div>
   );
 }

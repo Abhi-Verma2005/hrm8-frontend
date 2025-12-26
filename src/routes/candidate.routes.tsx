@@ -18,6 +18,8 @@ import WorkHistoryPage from "@/pages/candidate/WorkHistoryPage";
 import QualificationsPage from "@/pages/candidate/QualificationsPage";
 import NotificationsPage from "@/pages/candidate/NotificationsPage";
 import DocumentsPage from "@/pages/candidate/DocumentsPage";
+import AssessmentListPage from "@/pages/candidate/AssessmentListPage";
+import AssessmentPage from "@/pages/candidate/AssessmentPage";
 import { RoleIsolationGate } from "@/components/common/RoleIsolationGate";
 
 export const candidateRoutes = (
@@ -39,6 +41,13 @@ export const candidateRoutes = (
       </RoleIsolationGate>
     } />
 
+    {/* Assessment Routes - Full Screen */}
+    <Route path="/candidate/assessments/:id" element={
+      <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
+        <AssessmentPage />
+      </RoleIsolationGate>
+    } />
+
     {/* Protected candidate routes (authentication required) */}
     <Route
       path="/candidate"
@@ -54,6 +63,7 @@ export const candidateRoutes = (
       <Route path="work-history" element={<WorkHistoryPage />} />
       <Route path="qualifications" element={<QualificationsPage />} />
       <Route path="documents" element={<DocumentsPage />} />
+      <Route path="assessments" element={<AssessmentListPage />} />
       <Route path="applications" element={<ApplicationsPage />} />
       <Route path="applications/confirmation" element={<ApplicationConfirmation />} />
       <Route path="applications/:id/confirmation" element={<ApplicationConfirmation />} />

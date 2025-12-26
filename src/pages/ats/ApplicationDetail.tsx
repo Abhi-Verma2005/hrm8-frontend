@@ -10,6 +10,8 @@ import { applicationService, Application as RawApplication } from "@/lib/applica
 import { format } from "date-fns";
 import { ApplicationStatusBadge } from "@/components/applications/ApplicationStatusBadge";
 import { DetailSkeleton } from "@/components/skeletons/DetailSkeleton";
+import { DocumentViewer } from "@/components/candidates/DocumentViewer";
+import { CandidateDocument } from "@/types/entities";
 
 export default function ApplicationDetail() {
   const { id, jobId } = useParams<{ id: string; jobId?: string }>();
@@ -17,6 +19,37 @@ export default function ApplicationDetail() {
   const [application, setApplication] = useState<RawApplication | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewingDocument, setViewingDocument] = useState<CandidateDocument | null>(null);
+  const [isLoadingResume, setIsLoadingResume] = useState(false);
+
+  const handleViewResume = async () => {
+    if (!id) return;
+    setIsLoadingResume(true);
+    try {
+      const res = await applicationService.getApplicationResume(id);
+      if (res.success && res.data) {
+        // Adapt response to CandidateDocument
+        const doc: CandidateDocument = {
+          id: res.data.id,
+          candidateId: res.data.candidateId,
+          documentType: 'resume',
+          fileName: res.data.fileName,
+          fileUrl: res.data.fileUrl,
+          fileSize: res.data.fileSize,
+          uploadedBy: res.data.uploadedBy || 'Candidate',
+          uploadedAt: new Date(res.data.uploadedAt),
+          content: res.data.content
+        };
+        setViewingDocument(doc);
+      } else {
+        console.error("Failed to load resume");
+      }
+    } catch (e) {
+      console.error("Error loading resume:", e);
+    } finally {
+      setIsLoadingResume(false);
+    }
+  };
 
   useEffect(() => {
     const load = async () => {
@@ -34,7 +67,7 @@ export default function ApplicationDetail() {
         }
 
         setApplication(res.data?.application || null);
-      } catch (e: any) {
+      } catch (e) {
         console.error("Failed to load application (admin)", e);
         setApplication(null);
         setError("Unable to load application.");
@@ -118,10 +151,27 @@ export default function ApplicationDetail() {
             <CardTitle>Documents & Links</CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-1">
-            <p>
+            <div className="flex items-center gap-2">
               <span className="font-medium">Resume:</span>{" "}
-              {application.resumeUrl ? "Uploaded (mock)" : "Not provided"}
-            </p>
+              {application.resumeUrl ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Uploaded</span>
+                  <Button 
+                    variant="link" 
+                    className="h-auto p-0" 
+                    onClick={handleViewResume}
+                    disabled={isLoadingResume}
+                  >
+                    {isLoadingResume ? (
+                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                    ) : null}
+                    View & Annotate
+                  </Button>
+                </div>
+              ) : (
+                "Not provided"
+              )}
+            </div>
             <p>
               <span className="font-medium">Cover Letter:</span>{" "}
               {q.coverLetterMarkdown ? "Provided" : "Not provided"}
@@ -182,6 +232,12 @@ export default function ApplicationDetail() {
       <div className="p-6">
         {body()}
       </div>
+      {viewingDocument && (
+        <DocumentViewer
+          document={viewingDocument}
+          onClose={() => setViewingDocument(null)}
+        />
+      )}
     </DashboardPageLayout>
   );
 }

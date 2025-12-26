@@ -125,9 +125,7 @@ const operationsNavItems = [
   { title: "Analytics", url: "/analytics", icon: PieChart },
   { title: "Calendar", url: "/calendar", icon: Calendar },
   { title: "Internal Jobs", url: "/internal-jobs", icon: UserSquare },
-  { title: "Email Templates", url: "/email-templates", icon: MailPlus },
   { title: "Import/Export", url: "/import-export", icon: FileBarChart },
-  { title: "Inbox", url: "/inbox", icon: Inbox },
 ];
 
 // HR MANAGEMENT Section

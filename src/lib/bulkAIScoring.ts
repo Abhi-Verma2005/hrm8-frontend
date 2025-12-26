@@ -84,12 +84,12 @@ export async function bulkScoreCandidates(
       
       if (backendResult && backendResult.success) {
         return {
-          applicationId: application.id,
-          candidateName: application.candidateName,
+        applicationId: application.id,
+        candidateName: application.candidateName,
           oldScore: application.aiMatchScore,
           newScore: backendResult.score,
           scoreDelta: application.aiMatchScore ? backendResult.score - application.aiMatchScore : 0,
-          success: true,
+        success: true,
           fullAnalysis: backendResult.analysis,
         };
       } else {
@@ -133,20 +133,20 @@ export async function bulkScoreCandidates(
     });
 
     return results;
-  } catch (error) {
+    } catch (error) {
     console.error('❌ Bulk scoring failed:', error);
     
     // Return failed results for all candidates
     return applications.map((application) => ({
-      applicationId: application.id,
-      candidateName: application.candidateName,
-      oldScore: application.aiMatchScore,
-      newScore: application.aiMatchScore || 0,
-      scoreDelta: 0,
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+        applicationId: application.id,
+        candidateName: application.candidateName,
+        oldScore: application.aiMatchScore,
+        newScore: application.aiMatchScore || 0,
+        scoreDelta: 0,
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
     }));
-  }
+    }
 }
 
 export function getScoreChangeLabel(delta: number): string {

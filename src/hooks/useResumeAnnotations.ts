@@ -1,4 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { resumeAnnotationService } from '@/services/resumeAnnotationService';
+import { toast } from 'sonner';
 
 export interface Annotation {
   id: string;
@@ -26,33 +28,38 @@ export const useResumeAnnotations = ({
   currentUserId,
   currentUserName,
 }: UseResumeAnnotationsOptions) => {
-  const [annotations, setAnnotations] = useState<Annotation[]>([
-    {
-      id: '1',
-      userId: 'user-1',
-      userName: 'Sarah Johnson',
-      userColor: '#3b82f6',
-      type: 'highlight',
-      text: 'Led team of 8 engineers',
-      comment: 'Impressive leadership experience',
-      position: { start: 150, end: 175 },
-      timestamp: new Date(Date.now() - 1000 * 60 * 30),
-    },
-    {
-      id: '2',
-      userId: 'user-2',
-      userName: 'Mike Chen',
-      userColor: '#10b981',
-      type: 'highlight',
-      text: 'Reduced deployment time by 70%',
-      comment: 'Great impact on efficiency!',
-      position: { start: 280, end: 310 },
-      timestamp: new Date(Date.now() - 1000 * 60 * 20),
-    },
-  ]);
+  const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch annotations
+  useEffect(() => {
+    if (!documentId) return;
+
+    const fetchAnnotations = async () => {
+      setIsLoading(true);
+      try {
+        const data = await resumeAnnotationService.getAnnotations(documentId);
+        // Map service response to internal Annotation type if needed
+        const mappedAnnotations: Annotation[] = data.map(a => ({
+          ...a,
+          timestamp: new Date(a.createdAt),
+          // Ensure position is object if it comes as JSON string from backend (though Prisma Json type usually returns object)
+          position: typeof a.position === 'string' ? JSON.parse(a.position) : a.position
+        }));
+        setAnnotations(mappedAnnotations);
+      } catch (error) {
+        console.error('Failed to fetch annotations:', error);
+        toast.error('Failed to load annotations');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnnotations();
+  }, [documentId]);
 
   const addAnnotation = useCallback(
-    (
+    async (
       type: 'highlight' | 'comment',
       text: string,
       position: { start: number; end: number },
@@ -61,29 +68,47 @@ export const useResumeAnnotations = ({
       const userColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
       const userColor = userColors[Math.floor(Math.random() * userColors.length)];
 
-      const newAnnotation: Annotation = {
-        id: Date.now().toString(),
-        userId: currentUserId,
-        userName: currentUserName,
-        userColor,
-        type,
-        text,
-        comment,
-        position,
-        timestamp: new Date(),
-      };
+      try {
+        const newAnnotation = await resumeAnnotationService.createAnnotation({
+          resumeId: documentId,
+          userId: currentUserId,
+          userName: currentUserName,
+          userColor,
+          type,
+          text,
+          comment,
+          position
+        });
 
-      setAnnotations((prev) => [...prev, newAnnotation]);
-      return newAnnotation;
+        const mappedAnnotation: Annotation = {
+          ...newAnnotation,
+          timestamp: new Date(newAnnotation.createdAt),
+          position: typeof newAnnotation.position === 'string' ? JSON.parse(newAnnotation.position) : newAnnotation.position
+        };
+
+        setAnnotations((prev) => [...prev, mappedAnnotation]);
+        return mappedAnnotation;
+      } catch (error) {
+        console.error('Failed to create annotation:', error);
+        toast.error('Failed to create annotation');
+        throw error;
+      }
     },
-    [currentUserId, currentUserName]
+    [documentId, currentUserId, currentUserName]
   );
 
-  const removeAnnotation = useCallback((annotationId: string) => {
-    setAnnotations((prev) => prev.filter((a) => a.id !== annotationId));
-  }, []);
+  const removeAnnotation = useCallback(async (annotationId: string) => {
+    try {
+      await resumeAnnotationService.deleteAnnotation(documentId, annotationId, currentUserId);
+      setAnnotations((prev) => prev.filter((a) => a.id !== annotationId));
+    } catch (error) {
+        console.error('Failed to delete annotation:', error);
+        toast.error('Failed to delete annotation');
+    }
+  }, [documentId, currentUserId]);
 
   const updateAnnotation = useCallback((annotationId: string, comment: string) => {
+    // TODO: Implement update endpoint if needed
     setAnnotations((prev) =>
       prev.map((a) => (a.id === annotationId ? { ...a, comment } : a))
     );
@@ -98,6 +123,7 @@ export const useResumeAnnotations = ({
 
   return {
     annotations,
+    isLoading,
     addAnnotation,
     removeAnnotation,
     updateAnnotation,

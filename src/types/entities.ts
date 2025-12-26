@@ -224,6 +224,7 @@ export interface CandidateDocument {
   fileSize: number;
   uploadedBy: string;
   uploadedAt: Date;
+  content?: string;
 }
 
 export interface Consultant {

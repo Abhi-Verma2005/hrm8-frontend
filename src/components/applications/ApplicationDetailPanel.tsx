@@ -12,6 +12,13 @@ import {
   Award, TrendingUp, Bookmark, BookmarkCheck, Sparkles
 } from "lucide-react";
 import { AIAnalysisView } from "./screening/AIAnalysisView";
+import { ParsedResumeView } from "./parsing/ParsedResumeView";
+import { CoverLetterView } from "./parsing/CoverLetterView";
+import { QuestionnaireResponseView } from "./parsing/QuestionnaireResponseView";
+import { ProfileCompletenessIndicator } from "./parsing/ProfileCompletenessIndicator";
+import { QuickScoringWidget } from "./shortlisting/QuickScoringWidget";
+import { RankingWidget } from "./shortlisting/RankingWidget";
+import { ShortlistButton } from "./shortlisting/ShortlistButton";
 import { formatDistanceToNow, format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ApplicationStage } from "@/types/application";
@@ -26,6 +33,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { InterviewScheduler } from "@/components/interviews/InterviewScheduler";
 import { OfferForm } from "@/components/offers/OfferForm";
 import { getTemplateById } from "@/lib/mockTemplateStorage";
+import { offerService } from "@/lib/api/offerService";
+import { jobService } from "@/lib/api/jobService";
+import { Job } from "@/types/job";
+import { mapBackendJobToFrontend } from "@/lib/jobDataMapper";
+import { ApplicationEmailHistory } from "@/components/email/ApplicationEmailHistory";
 
 interface ApplicationDetailPanelProps {
   application: Application | null;
@@ -38,11 +50,42 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
   const [newNote, setNewNote] = useState("");
   const [isInterviewDialogOpen, setIsInterviewDialogOpen] = useState(false);
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
+  const [job, setJob] = useState<Job | null>(null);
+  const [isLoadingJob, setIsLoadingJob] = useState(false);
   const [editingScore, setEditingScore] = useState<string>("");
   const [editingRank, setEditingRank] = useState<string>("");
   const [isUpdatingScore, setIsUpdatingScore] = useState(false);
   const [isUpdatingRank, setIsUpdatingRank] = useState(false);
   const [isShortlisting, setIsShortlisting] = useState(false);
+
+  // Fetch job data when offer dialog opens
+  useEffect(() => {
+    const fetchJob = async () => {
+      if (isOfferDialogOpen && application?.jobId && !job) {
+        setIsLoadingJob(true);
+        try {
+          const response = await jobService.getJobById(application.jobId);
+          if (response.success && response.data) {
+            const mappedJob = mapBackendJobToFrontend(response.data);
+            setJob(mappedJob);
+          }
+        } catch (error) {
+          console.error('Failed to fetch job:', error);
+        } finally {
+          setIsLoadingJob(false);
+        }
+      }
+    };
+
+    fetchJob();
+  }, [isOfferDialogOpen, application?.jobId]);
+
+  // Reset job when dialog closes
+  useEffect(() => {
+    if (!isOfferDialogOpen) {
+      setJob(null);
+    }
+  }, [isOfferDialogOpen]);
 
   // Update editing values when application changes
   useEffect(() => {
@@ -224,6 +267,8 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
             </Avatar>
 
             <div className="flex-1">
+              <div className="flex items-start justify-between gap-4">
+                <div>
               <h2 className="text-2xl font-bold">{application.candidateName}</h2>
               <p className="text-muted-foreground">{application.jobTitle}</p>
               <div className="flex items-center gap-2 mt-2">
@@ -242,6 +287,9 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
                     ))}
                   </div>
                 )}
+                  </div>
+                </div>
+                <ProfileCompletenessIndicator application={application} showProgress={false} showDetails={true} />
               </div>
             </div>
           </div>
@@ -276,24 +324,16 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
                     {application.shortlisted ? "Candidate is shortlisted" : "Not shortlisted"}
                   </p>
                 </div>
-                <Button
-                  variant={application.shortlisted ? "default" : "outline"}
+                <ShortlistButton
+                  applicationId={application.id}
+                  shortlisted={application.shortlisted}
+                  onShortlistChange={(shortlisted) => {
+                    onRefresh();
+                  }}
+                  variant="button"
                   size="sm"
-                  onClick={handleShortlist}
-                  disabled={isShortlisting}
-                >
-                  {application.shortlisted ? (
-                    <>
-                      <BookmarkCheck className="h-4 w-4 mr-2" />
-                      Unshortlist
-                    </>
-                  ) : (
-                    <>
-                      <Bookmark className="h-4 w-4 mr-2" />
-                      Shortlist
-                    </>
-                  )}
-                </Button>
+                  showLabel={true}
+                />
               </div>
 
               <Separator />
@@ -301,58 +341,30 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
               {/* Score Input */}
               <div className="space-y-2">
                 <Label htmlFor="score">Fit Score (0-100)</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="score"
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={editingScore}
-                    onChange={(e) => setEditingScore(e.target.value)}
-                    placeholder="Enter score"
-                    className="flex-1"
-                  />
-                  <Button
-                    size="sm"
-                    onClick={handleScoreUpdate}
-                    disabled={isUpdatingScore || editingScore === (application.score?.toString() || "")}
-                  >
-                    {isUpdatingScore ? "Updating..." : "Update"}
-                  </Button>
-                </div>
-                {application.score !== undefined && (
-                  <p className="text-xs text-muted-foreground">
-                    Current score: {Math.round(application.score)}%
-                  </p>
-                )}
+                <QuickScoringWidget
+                  applicationId={application.id}
+                  score={application.score}
+                  onScoreUpdate={(newScore) => {
+                    setEditingScore(newScore.toString());
+                    onRefresh();
+                  }}
+                  variant="card"
+                  showSlider={true}
+                />
               </div>
 
               {/* Rank Input */}
               <div className="space-y-2">
                 <Label htmlFor="rank">Rank</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="rank"
-                    type="number"
-                    min="1"
-                    value={editingRank}
-                    onChange={(e) => setEditingRank(e.target.value)}
-                    placeholder="Enter rank"
-                    className="flex-1"
-                  />
-                  <Button
-                    size="sm"
-                    onClick={handleRankUpdate}
-                    disabled={isUpdatingRank || editingRank === (application.rank?.toString() || "")}
-                  >
-                    {isUpdatingRank ? "Updating..." : "Update"}
-                  </Button>
-                </div>
-                {application.rank !== undefined && (
-                  <p className="text-xs text-muted-foreground">
-                    Current rank: #{application.rank}
-                  </p>
-                )}
+                <RankingWidget
+                  applicationId={application.id}
+                  rank={application.rank}
+                  onRankUpdate={(newRank) => {
+                    setEditingRank(newRank.toString());
+                    onRefresh();
+                  }}
+                  variant="card"
+                />
               </div>
             </CardContent>
           </Card>
@@ -385,10 +397,23 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
 
           {/* Tabs */}
           <Tabs defaultValue="overview" className="w-full">
-            <TabsList className={`grid w-full ${application.aiAnalysis ? 'grid-cols-4' : 'grid-cols-3'}`}>
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
               <TabsTrigger value="overview">Overview</TabsTrigger>
+              {application.parsedResume && (
+                <TabsTrigger value="resume">Resume</TabsTrigger>
+              )}
+              {application.coverLetterUrl && (
+                <TabsTrigger value="cover-letter">Cover Letter</TabsTrigger>
+              )}
+              {application.questionnaireData && (
+                <TabsTrigger value="questionnaire">Questionnaire</TabsTrigger>
+              )}
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="notes">Notes</TabsTrigger>
+              <TabsTrigger value="emails" className="flex items-center gap-1.5">
+                <Mail className="h-3.5 w-3.5" />
+                Emails
+              </TabsTrigger>
               {application.aiAnalysis && (
                 <TabsTrigger value="ai-analysis" className="flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5" />
@@ -448,6 +473,38 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
               )}
             </TabsContent>
 
+            <TabsContent value="resume" className="mt-4">
+              {application.parsedResume ? (
+                <ParsedResumeView 
+                  parsedResume={application.parsedResume} 
+                  resumeUrl={application.resumeUrl}
+                />
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">Resume parsing not available</p>
+                  {application.resumeUrl && (
+                    <p className="text-xs mt-2">Resume file is available but not yet parsed</p>
+                  )}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="cover-letter" className="mt-4">
+              <CoverLetterView application={application} />
+            </TabsContent>
+
+            <TabsContent value="questionnaire" className="mt-4">
+              {application.questionnaireData ? (
+                <QuestionnaireResponseView questionnaireData={application.questionnaireData} />
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">No questionnaire responses available</p>
+                </div>
+              )}
+            </TabsContent>
+
             <TabsContent value="timeline" className="space-y-3 mt-4">
               {application.activities.map((activity) => (
                 <div key={activity.id} className="flex gap-3">
@@ -504,6 +561,10 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
                 </Card>
               ))}
             </TabsContent>
+
+            <TabsContent value="emails" className="mt-4">
+              <ApplicationEmailHistory applicationId={application.id} />
+            </TabsContent>
           </Tabs>
         </div>
 
@@ -539,9 +600,49 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
             <OfferForm
               candidateName={application.candidateName}
               jobTitle={application.jobTitle}
-              onSubmit={(data) => {
-                setIsOfferDialogOpen(false);
-                toast.success("Offer letter generated successfully");
+              job={job}
+              onSubmit={async (data) => {
+                try {
+                  // Create offer
+                  const createResponse = await offerService.createOffer(application.id, {
+                    offerType: data.offerType,
+                    salary: data.salary,
+                    salaryCurrency: data.salaryCurrency,
+                    salaryPeriod: data.salaryPeriod,
+                    startDate: data.startDate,
+                    workLocation: data.workLocation,
+                    workArrangement: data.workArrangement,
+                    probationPeriod: data.probationPeriod,
+                    vacationDays: data.vacationDays,
+                    bonusStructure: data.bonusStructure,
+                    equityOptions: data.equityOptions,
+                    benefits: data.benefits ? data.benefits.split(',').map(b => b.trim()) : [],
+                    customMessage: data.customMessage,
+                    expiryDate: data.expiryDate,
+                    templateId: data.templateId,
+                  });
+
+                  if (createResponse.success) {
+                    // Send offer immediately
+                    const sendResponse = await offerService.sendOffer(createResponse.data.id);
+                    if (sendResponse.success) {
+                      toast.success("Offer created and sent successfully");
+                      setIsOfferDialogOpen(false);
+                      onRefresh();
+                    } else {
+                      toast.error("Offer created but failed to send", {
+                        description: sendResponse.error
+                      });
+                    }
+                  } else {
+                    toast.error("Failed to create offer", {
+                      description: createResponse.error
+                    });
+                  }
+                } catch (error) {
+                  console.error('Failed to create offer:', error);
+                  toast.error("Failed to create offer");
+                }
               }}
               onCancel={() => setIsOfferDialogOpen(false)}
             />

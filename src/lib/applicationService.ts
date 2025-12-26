@@ -64,6 +64,21 @@ class ApplicationService {
     return apiClient.get<{ application: Application }>(`/api/applications/admin/${id}`);
   }
 
+  // Get application resume with content
+  async getApplicationResume(id: string) {
+    return apiClient.get<{
+      id: string;
+      candidateId: string;
+      fileName: string;
+      fileUrl: string;
+      fileSize: number;
+      fileType: string;
+      uploadedAt: string;
+      content?: string;
+      uploadedBy?: string;
+    }>(`/api/applications/${id}/resume`);
+  }
+
   async getCandidateApplications() {
     return apiClient.get<{ applications: Application[] }>('/api/applications');
   }
@@ -144,6 +159,13 @@ class ApplicationService {
   }
 
   /**
+   * Update application tags
+   */
+  async updateTags(id: string, tags: string[]) {
+    return apiClient.put<{ application: Application; message: string }>(`/api/applications/${id}/tags`, { tags });
+  }
+
+  /**
    * Update application rank
    */
   async updateRank(id: string, rank: number) {
@@ -169,6 +191,13 @@ class ApplicationService {
    */
   async updateStage(id: string, stage: string) {
     return apiClient.put<{ application: Application; message: string }>(`/api/applications/${id}/stage`, { stage });
+  }
+
+  /**
+   * Move application to a round
+   */
+  async moveToRound(id: string, roundId: string) {
+    return apiClient.put<{ application: Application; message: string }>(`/api/applications/${id}/round/${roundId}`);
   }
 
   /**

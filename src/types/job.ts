@@ -242,7 +242,17 @@ export interface JobFormData {
   // Video Interviewing
   videoInterviewingEnabled?: boolean;
   
-  // Job Assignment
+  // Consultant Assignment
+  assignedConsultantId?: string;
   assignmentMode?: 'AUTO' | 'MANUAL';
   regionId?: string;
+  
+  // Screening
+  screeningEnabled?: boolean;
+  automatedScreeningEnabled?: boolean;
+  screeningCriteria?: any;
+  preInterviewQuestionnaireEnabled?: boolean;
+  
+  // Job Rounds (for future use)
+  jobRounds?: any[];
 }
