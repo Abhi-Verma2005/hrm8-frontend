@@ -209,7 +209,7 @@ export function TalentPoolSearchDialog({
               description: "This candidate may have been removed from the talent pool. Refreshing list...",
             });
             // Refresh the list
-            handleSearch();
+          handleSearch();
             break;
             
           case 'JOB_NOT_ACCEPTING':
@@ -313,7 +313,7 @@ export function TalentPoolSearchDialog({
               <div className="flex-1">
                 <SheetTitle>Search Talent Pool</SheetTitle>
                 <SheetDescription className="mt-1">
-                  Search and add candidates from the HRM8 Talent Pool to {jobTitle}
+            Search and add candidates from the HRM8 Talent Pool to {jobTitle}
                 </SheetDescription>
               </div>
               <Button
@@ -360,7 +360,7 @@ export function TalentPoolSearchDialog({
         {/* Invite by Email Form */}
         {showInviteForm && (
           <div className="px-6">
-            <div className="p-4 border rounded-lg bg-muted/50 mt-2">
+          <div className="p-4 border rounded-lg bg-muted/50 mt-2">
             <div className="flex gap-2">
               <Input
                 type="email"
@@ -531,7 +531,7 @@ export function TalentPoolSearchDialog({
         </ScrollArea>
         <div className="sticky bottom-0 bg-background border-t px-6 py-3">
           <div className="text-sm text-muted-foreground">
-            Showing {candidates.length} of {total} candidates
+          Showing {candidates.length} of {total} candidates
           </div>
         </div>
       </SheetContent>

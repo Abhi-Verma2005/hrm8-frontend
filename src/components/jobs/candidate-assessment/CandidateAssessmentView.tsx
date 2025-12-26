@@ -10,8 +10,7 @@ import { CandidateProfileHeader } from "./CandidateProfileHeader";
 import { AIMatchScoreCard } from "./AIMatchScoreCard";
 import { QuickActionsToolbar } from "./QuickActionsToolbar";
 import { OverviewTab } from "./tabs/OverviewTab";
-import { ApplicationDetailsTab } from "./tabs/ApplicationDetailsTab";
-import { ResumeWorkHistoryTab } from "./tabs/ResumeWorkHistoryTab";
+import { ExperienceSkillsTab } from "./tabs/ExperienceSkillsTab";
 import { QuestionnaireResponsesTab } from "./tabs/QuestionnaireResponsesTab";
 import { ScorecardsTab } from "./tabs/ScorecardsTab";
 import { InterviewsTab } from "./tabs/InterviewsTab";
@@ -82,7 +81,6 @@ export function CandidateAssessmentView({
         onKeyDown={handleKeyDown}
       >
         <div ref={containerRef} className="flex flex-col h-full relative overflow-hidden">
-          <CursorOverlay cursors={cursors} />
           {/* Header */}
           <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex items-center justify-between p-4">
@@ -134,19 +132,15 @@ export function CandidateAssessmentView({
           <div className="flex-1 overflow-hidden">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
               <div className="border-b px-4 bg-muted/20">
-                <ScrollArea className="w-full whitespace-nowrap">
+                <ScrollArea className="w-full whitespace-nowrap overflow-auto">
                   <TabsList className="h-12 bg-transparent">
                     <TabsTrigger value="overview" className="gap-2">
                       <FileText className="h-4 w-4" />
                       Overview
                     </TabsTrigger>
-                    <TabsTrigger value="application" className="gap-2">
-                      <ClipboardCheck className="h-4 w-4" />
-                      Application
-                    </TabsTrigger>
-                    <TabsTrigger value="resume" className="gap-2">
-                      <Briefcase className="h-4 w-4" />
-                      Resume & Work
+                    <TabsTrigger value="annotations" className="gap-2">
+                      <Highlighter className="h-4 w-4" />
+                      Annotations
                     </TabsTrigger>
                     <TabsTrigger value="questionnaire" className="gap-2">
                       <MessageSquare className="h-4 w-4" />
@@ -172,10 +166,6 @@ export function CandidateAssessmentView({
                       <GitCompare className="h-4 w-4" />
                       Compare
                     </TabsTrigger>
-                    <TabsTrigger value="annotations" className="gap-2">
-                      <Highlighter className="h-4 w-4" />
-                      Annotations
-                    </TabsTrigger>
                     <TabsTrigger value="activity" className="gap-2">
                       <Activity className="h-4 w-4" />
                       Activity
@@ -195,12 +185,8 @@ export function CandidateAssessmentView({
                     <OverviewTab application={application} />
                   </TabsContent>
 
-                  <TabsContent value="application" className="mt-0">
-                    <ApplicationDetailsTab application={application} />
-                  </TabsContent>
-
-                  <TabsContent value="resume" className="mt-0">
-                    <ResumeWorkHistoryTab application={application} />
+                  <TabsContent value="experience" className="mt-0">
+                    <ExperienceSkillsTab application={application} />
                   </TabsContent>
 
                   <TabsContent value="questionnaire" className="mt-0">

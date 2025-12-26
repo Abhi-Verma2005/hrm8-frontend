@@ -7,66 +7,94 @@ import {
   Briefcase, 
   GraduationCap, 
   Award, 
-  Download, 
-  FileText, 
   Calendar,
   MapPin,
-  TrendingUp,
   AlertCircle,
   CheckCircle2,
   Star
 } from "lucide-react";
-import { Application, WorkExperience, Education, Skill } from "@/types/application";
-import { format, differenceInMonths, differenceInYears } from "date-fns";
+import { Application, WorkExperience, Skill } from "@/types/application";
+import { format, differenceInMonths } from "date-fns";
 
-interface ResumeWorkHistoryTabProps {
+interface ExperienceSkillsTabProps {
   application: Application;
 }
 
-export function ResumeWorkHistoryTab({ application }: ResumeWorkHistoryTabProps) {
+export function ExperienceSkillsTab({ application }: ExperienceSkillsTabProps) {
   const parsedResume = application.parsedResume;
 
+  const workHistory = application.candidate?.workExperience?.map(exp => ({
+    id: exp.id,
+    company: exp.company,
+    title: exp.role,
+    startDate: exp.startDate,
+    endDate: exp.endDate,
+    current: exp.current,
+    location: exp.location,
+    description: exp.description,
+    responsibilities: [],
+    achievements: [],
+    technologies: [],
+    reasonForLeaving: undefined,
+    employmentType: undefined
+  })) || parsedResume?.workHistory || [];
+
+  const education = application.candidate?.education?.map(edu => ({
+    id: edu.id,
+    institution: edu.institution,
+    degree: edu.degree,
+    field: edu.field,
+    startDate: edu.startDate,
+    endDate: edu.endDate,
+    gpa: edu.grade,
+    relevantCoursework: [],
+    honors: undefined,
+    thesisTitle: undefined
+  })) || parsedResume?.education || [];
+
+  const skills = application.candidate?.skills?.map(skill => ({
+    name: skill.name,
+    category: 'General',
+    proficiency: (skill.level?.toLowerCase() || 'intermediate') as 'beginner' | 'intermediate' | 'advanced' | 'expert',
+    yearsExperience: undefined,
+    endorsements: 0
+  })) || parsedResume?.skills || [];
+
+  const certifications = parsedResume?.certifications || [];
+  
   // Calculate career gaps
   const calculateGaps = (workHistory: WorkExperience[]) => {
     if (!workHistory || workHistory.length === 0) return [];
     
-    const sorted = [...workHistory].sort((a, b) => 
-      new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
-    );
+    const sorted = [...workHistory].sort((a, b) => {
+      const dateA = a.startDate ? new Date(a.startDate).getTime() : 0;
+      const dateB = b.startDate ? new Date(b.startDate).getTime() : 0;
+      return dateB - dateA;
+    });
     
     const gaps: { start: Date; end: Date; duration: number }[] = [];
     
     for (let i = 0; i < sorted.length - 1; i++) {
-      const currentEnd = sorted[i].endDate || new Date();
-      const nextStart = sorted[i + 1].startDate;
-      const gapMonths = differenceInMonths(new Date(currentEnd), new Date(nextStart));
+      const currentEnd = sorted[i].endDate ? new Date(sorted[i].endDate) : new Date();
+      const nextStart = sorted[i + 1].startDate ? new Date(sorted[i + 1].startDate) : null;
       
-      if (gapMonths > 3) {
-        gaps.push({
-          start: new Date(nextStart),
-          end: new Date(currentEnd),
-          duration: gapMonths
-        });
+      if (nextStart) {
+        const gapMonths = differenceInMonths(new Date(currentEnd), new Date(nextStart));
+        
+        if (gapMonths > 3) {
+          gaps.push({
+            start: new Date(nextStart),
+            end: new Date(currentEnd),
+            duration: gapMonths
+          });
+        }
       }
     }
     
     return gaps;
   };
 
-  const workHistory = parsedResume?.workHistory || [];
-  const education = parsedResume?.education || [];
-  const skills = parsedResume?.skills || [];
-  const certifications = parsedResume?.certifications || [];
   const careerGaps = calculateGaps(workHistory);
-
-  // Calculate total experience
-  const totalExperienceMonths = workHistory.reduce((total, exp) => {
-    const end = exp.endDate ? new Date(exp.endDate) : new Date();
-    const months = differenceInMonths(end, new Date(exp.startDate));
-    return total + months;
-  }, 0);
-  const totalYears = Math.floor(totalExperienceMonths / 12);
-  const remainingMonths = totalExperienceMonths % 12;
 
   // Group skills by category
   const skillsByCategory = skills.reduce((acc, skill) => {
@@ -98,90 +126,6 @@ export function ResumeWorkHistoryTab({ application }: ResumeWorkHistoryTabProps)
   return (
     <ScrollArea className="h-full">
       <div className="p-12 space-y-6">
-        {/* Resume Document Section */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Resume Document
-                </CardTitle>
-                <CardDescription>
-                  {parsedResume ? `Parsed on ${format(new Date(parsedResume.parsedAt), 'PPP')}` : 'View and download original resume'}
-                </CardDescription>
-              </div>
-              <div className="flex gap-2">
-                {application.resumeUrl && (
-                  <>
-                    <Button variant="outline" size="sm">
-                      <FileText className="h-4 w-4 mr-2" />
-                      View
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </CardHeader>
-          {!application.resumeUrl && (
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-                <p>No resume uploaded</p>
-              </div>
-            </CardContent>
-          )}
-        </Card>
-
-        {/* Career Summary */}
-        {parsedResume && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Career Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Experience</p>
-                  <p className="text-2xl font-bold">
-                    {totalYears}y {remainingMonths}m
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Positions Held</p>
-                  <p className="text-2xl font-bold">{workHistory.length}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Career Gaps</p>
-                  <p className="text-2xl font-bold flex items-center gap-2">
-                    {careerGaps.length}
-                    {careerGaps.length > 0 && (
-                      <AlertCircle className="h-4 w-4 text-yellow-500" />
-                    )}
-                  </p>
-                </div>
-              </div>
-              
-              {parsedResume.summary && (
-                <>
-                  <Separator />
-                  <div>
-                    <p className="text-sm font-medium mb-2">Professional Summary</p>
-                    <p className="text-sm text-muted-foreground">{parsedResume.summary}</p>
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
         {/* Work Experience Timeline */}
         <Card>
           <CardHeader>
@@ -340,7 +284,7 @@ export function ResumeWorkHistoryTab({ application }: ResumeWorkHistoryTabProps)
                       <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
                         <span className="flex items-center gap-1">
                           <Calendar className="h-3 w-3" />
-                          {format(new Date(edu.startDate), 'MMM yyyy')} - {format(new Date(edu.endDate), 'MMM yyyy')}
+                          {edu.startDate ? format(new Date(edu.startDate), 'MMM yyyy') : 'N/A'} - {edu.endDate ? format(new Date(edu.endDate), 'MMM yyyy') : 'Present'}
                         </span>
                         {edu.gpa && (
                           <span>

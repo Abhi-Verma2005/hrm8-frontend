@@ -71,7 +71,8 @@ import { TalentPoolSearchDialog } from "@/components/applications/TalentPoolSear
 import { JobApplicationsFilterBar, JobApplicationsFilters } from "@/components/applications/JobApplicationsFilterBar";
 import { ManualUploadDialog } from "@/components/applications/ManualUploadDialog";
 import { ApplicationListView } from "@/components/applications/ApplicationListView";
-import { Upload, LayoutGrid, List } from "lucide-react";
+import { JobEmailHubDrawer } from "@/components/email/JobEmailHubDrawer";
+import { Upload, LayoutGrid, List, Inbox } from "lucide-react";
 import { Application } from "@/types/application";
 import { filterApplicationsByTags } from "@/lib/applicationTags";
 import { useMemo } from "react";
@@ -91,6 +92,7 @@ export default function JobDetail() {
   const [applicantsCount, setApplicantsCount] = useState<number | undefined>(undefined);
   const [talentPoolDialogOpen, setTalentPoolDialogOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [emailHubOpen, setEmailHubOpen] = useState(false);
   const [allApplications, setAllApplications] = useState<Application[]>([]);
   const [applicationsFilters, setApplicationsFilters] = useState<JobApplicationsFilters>({
     searchQuery: '',
@@ -354,6 +356,18 @@ export default function JobDetail() {
         const res = await applicationService.getJobApplications(jobId);
         const apiApplications = res.data?.applications || [];
         
+        // Extract round progress mapping to assign correct round IDs
+        const roundMap: Record<string, string> = {};
+        // @ts-expect-error - roundProgress exists in backend response but might not be in type definition
+        if (res.data?.roundProgress) {
+          // @ts-expect-error - iterating over unknown type
+          Object.entries(res.data.roundProgress).forEach(([appId, progress]: [string, any]) => {
+            if (progress?.roundId) {
+              roundMap[appId] = progress.roundId;
+            }
+          });
+        }
+        
         // Map API applications to frontend Application type
         const mappedApplications: Application[] = apiApplications.map((app: any) => {
           let candidateName = 'Unknown Candidate';
@@ -391,6 +405,10 @@ export default function JobDetail() {
             candidateId: app.candidateId,
             candidateName,
             candidateEmail: app.candidate?.email || app.candidateEmail || '',
+            candidatePhone: app.candidate?.phone,
+            candidateCity: app.candidate?.city,
+            candidateState: app.candidate?.state,
+            candidateCountry: app.candidate?.country,
             candidatePhoto: app.candidate?.photo,
             jobId: app.jobId,
             jobTitle: app.job?.title || 'Unknown Job',
@@ -398,6 +416,7 @@ export default function JobDetail() {
             appliedDate: new Date(app.appliedDate),
             status: mappedStatus, // Always set from mapping function
             stage: mappedStage, // Always set from mapping function
+            roundId: roundMap[app.id], // Assign round ID from progress map
             resumeUrl: app.resumeUrl,
             coverLetterUrl: app.coverLetterUrl,
             portfolioUrl: app.portfolioUrl,
@@ -422,6 +441,13 @@ export default function JobDetail() {
             interviews: [],
             createdAt: new Date(app.createdAt),
             updatedAt: new Date(app.updatedAt),
+            candidatePreferences: app.candidate ? {
+        salaryPreference: app.candidate.salaryPreference,
+        employmentType: app.candidate.jobTypePreference,
+        willingToRelocate: app.candidate.relocationWilling,
+        visaStatus: app.candidate.visaStatus,
+        workArrangement: app.candidate.remotePreference ? [app.candidate.remotePreference] : [],
+      } : undefined,
           };
         });
         
@@ -894,6 +920,13 @@ export default function JobDetail() {
               </div>
               <div className="flex items-center gap-2 ml-4">
                 <Button 
+                  onClick={() => setEmailHubOpen(true)}
+                  variant="outline"
+                >
+                  <Inbox className="h-4 w-4 mr-2" />
+                  Email Center
+                </Button>
+                <Button 
                   onClick={() => setUploadDialogOpen(true)}
                   variant="outline"
                 >
@@ -1171,7 +1204,17 @@ export default function JobDetail() {
             }}
           />
         )}
+
+        {/* Email Center Hub Drawer */}
+        {job && (
+          <JobEmailHubDrawer
+            open={emailHubOpen}
+            onOpenChange={setEmailHubOpen}
+            jobId={job.id}
+            jobTitle={job.title}
+          />
+        )}
       </div>
-    </DashboardPageLayout>
+      </DashboardPageLayout>
   );
 }

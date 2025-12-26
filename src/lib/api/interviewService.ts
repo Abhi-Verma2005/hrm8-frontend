@@ -34,6 +34,7 @@ export interface InterviewConfiguration {
   templateId?: string;
   questions?: any[];
   agenda?: string;
+  assignedInterviewerIds?: string[];
 }
 
 export interface RatingCriterion {
@@ -72,6 +73,7 @@ export interface CreateInterviewConfigRequest {
   templateId?: string;
   questions?: any[];
   agenda?: string;
+  assignedInterviewerIds?: string[];
 }
 
 export interface Candidate {

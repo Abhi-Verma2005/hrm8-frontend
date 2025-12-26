@@ -17,20 +17,7 @@ interface LiveCollaborationProps {
 }
 
 const LiveCollaboration: React.FC<LiveCollaborationProps> = ({ sessionId, currentUserId }) => {
-  const [activeParticipants, setActiveParticipants] = useState<Participant[]>([
-    {
-      id: '1',
-      name: 'Sarah Johnson',
-      status: 'viewing',
-      lastActive: new Date(),
-    },
-    {
-      id: '2',
-      name: 'Mike Chen',
-      status: 'editing',
-      lastActive: new Date(),
-    },
-  ]);
+  const [activeParticipants, setActiveParticipants] = useState<Participant[]>([]);
 
   useEffect(() => {
     // Simulate real-time updates

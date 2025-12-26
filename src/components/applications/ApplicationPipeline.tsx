@@ -12,16 +12,17 @@ import { applicationService } from "@/lib/applicationService";
 import { toast } from "sonner";
 import { CandidateAssessmentView } from "../jobs/candidate-assessment/CandidateAssessmentView";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronDown, Plus, Trash2, GripVertical, Settings, CalendarClock, FileSearch, Send, Star, Users } from "lucide-react";
+import { ChevronDown, Plus, Trash2, GripVertical, Settings, CalendarClock, FileSearch, Send, Star, Users, Play } from "lucide-react";
 import { CreateRoundDialog } from "./CreateRoundDialog";
 import { AssessmentConfigurationDrawer } from "./AssessmentConfigurationDrawer";
+import { AssessmentReviewDrawer } from "./AssessmentReviewDrawer";
 import { InterviewConfigurationDrawer } from "./InterviewConfigurationDrawer";
 import { InterviewScheduleDrawer } from "./InterviewScheduleDrawer";
 import { RoundInterviewsDrawer } from "./RoundInterviewsDrawer";
 import { InitialScreeningDrawer } from "./InitialScreeningDrawer";
 import { OfferConfigurationDrawer } from "./OfferConfigurationDrawer";
 import { OfferExecutionDrawer } from "./OfferExecutionDrawer";
-import { JobRound, jobRoundService } from "@/lib/api/jobRoundService";
+import { JobRound, JobRoundType, jobRoundService } from "@/lib/api/jobRoundService";
 import { jobService } from "@/lib/api/jobService";
 import { offerService } from "@/lib/api/offerService";
 
@@ -67,6 +68,7 @@ function SortableRoundColumn({
   onOpenScreening,
   onConfigureOffer,
   onExecuteOffer,
+  onOpenAssessmentDrawer,
 }: {
   round: JobRound;
   applications: Application[];
@@ -85,6 +87,7 @@ function SortableRoundColumn({
   onOpenScreening?: (round: JobRound) => void;
   onConfigureOffer?: (roundId: string) => void;
   onExecuteOffer?: (roundId: string) => void;
+  onOpenAssessmentDrawer?: (round: JobRound) => void;
   dragHandleProps?: any;
 }) {
   const {
@@ -125,6 +128,7 @@ function SortableRoundColumn({
         onOpenScreening={onOpenScreening}
         onConfigureOffer={onConfigureOffer}
         onExecuteOffer={onExecuteOffer}
+        onOpenAssessmentDrawer={onOpenAssessmentDrawer}
         dragHandleProps={!round.isFixed ? { ...attributes, ...listeners } : undefined}
       />
     </div>
@@ -140,6 +144,7 @@ function StageColumn({
   selectedForComparison,
   onToggleSelect,
   onStageChange,
+  onMoveToRound,
   onDeleteRound,
   onConfigureAssessment,
   onConfigureInterview,
@@ -149,6 +154,7 @@ function StageColumn({
   onOpenScreening,
   onConfigureOffer,
   onExecuteOffer,
+  onOpenAssessmentDrawer,
   dragHandleProps,
 }: {
   round: JobRound;
@@ -158,6 +164,7 @@ function StageColumn({
   selectedForComparison: string[];
   onToggleSelect?: (applicationId: string) => void;
   onStageChange: (applicationId: string, newStage: ApplicationStage) => void;
+  onMoveToRound?: (applicationId: string, roundId: string) => void;
   onDeleteRound?: (roundId: string) => void;
   onConfigureAssessment?: (roundId: string) => void;
   onConfigureInterview?: (roundId: string) => void;
@@ -167,6 +174,7 @@ function StageColumn({
   onOpenScreening?: (round: JobRound) => void;
   onConfigureOffer?: (roundId: string) => void;
   onExecuteOffer?: (roundId: string) => void;
+  onOpenAssessmentDrawer?: (round: JobRound) => void;
   dragHandleProps?: any;
 }) {
   const { setNodeRef, isOver } = useDroppable({
@@ -235,19 +243,37 @@ function StageColumn({
                   <FileSearch className="h-3 w-3" />
                 </Button>
               )}
-              {!round.isFixed && round.type === 'ASSESSMENT' && onConfigureAssessment && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-muted-foreground hover:text-foreground"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onConfigureAssessment(round.id);
-                  }}
-                  title="Configure Assessment"
-                >
-                  <Settings className="h-3 w-3" />
-                </Button>
+              {!round.isFixed && round.type === 'ASSESSMENT' && (
+                <>
+                  {onOpenAssessmentDrawer && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenAssessmentDrawer(round);
+                      }}
+                      title="Review Assessments"
+                    >
+                      <Play className="h-3 w-3" />
+                    </Button>
+                  )}
+                  {onConfigureAssessment && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-muted-foreground hover:text-foreground"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onConfigureAssessment(round.id);
+                      }}
+                      title="Configure Assessment"
+                    >
+                      <Settings className="h-3 w-3" />
+                    </Button>
+                  )}
+                </>
               )}
               {!round.isFixed && round.type === 'INTERVIEW' && (
                 <>
@@ -352,7 +378,6 @@ function StageColumn({
                             onMoveToRound(application.id, roundId);
                           }
                         }}
-                        onClick={(e) => e.stopPropagation()}
                       >
                         <SelectTrigger 
                           className="h-6 text-[10px] px-1.5 w-auto bg-background/95 backdrop-blur-sm border"
@@ -408,7 +433,6 @@ export function ApplicationPipeline({
   const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
   const [detailPanelOpen, setDetailPanelOpen] = useState(false);
   const [rounds, setRounds] = useState<JobRound[]>([]);
-  const [applicationRoundMap, setApplicationRoundMap] = useState<Record<string, string>>({}); // applicationId -> roundId
   const [createRoundDialogOpen, setCreateRoundDialogOpen] = useState(false);
   const [assessmentConfigDrawerOpen, setAssessmentConfigDrawerOpen] = useState(false);
   const [interviewConfigDrawerOpen, setInterviewConfigDrawerOpen] = useState(false);
@@ -421,6 +445,8 @@ export function ApplicationPipeline({
   const [offerConfigDrawerOpen, setOfferConfigDrawerOpen] = useState(false);
   const [offerExecutionDrawerOpen, setOfferExecutionDrawerOpen] = useState(false);
   const [selectedRoundForOffer, setSelectedRoundForOffer] = useState<JobRound | null>(null);
+  const [assessmentReviewDrawerOpen, setAssessmentReviewDrawerOpen] = useState(false);
+  const [selectedRoundForReview, setSelectedRoundForReview] = useState<JobRound | null>(null);
   const [jobData, setJobData] = useState<any>(null);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 10 } }));
 
@@ -439,7 +465,7 @@ export function ApplicationPipeline({
     } else {
       loadApplications();
     }
-  }, [providedApplications]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [providedApplications, jobId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Initial load when jobId is set and no providedApplications
   useEffect(() => {
@@ -527,6 +553,7 @@ export function ApplicationPipeline({
     }
   };
 
+
   const loadApplications = async (): Promise<Record<string, string> | undefined> => {
     if (providedApplications) {
       // Use provided filtered applications
@@ -535,11 +562,21 @@ export function ApplicationPipeline({
     } else if (jobId) {
       // Load from API if jobId is provided
       try {
-        console.log('[ApplicationPipeline] Loading applications for jobId:', jobId);
         const response = await applicationService.getJobApplications(jobId);
-        console.log('[ApplicationPipeline] API response:', response);
         const apiApplications = response.data?.applications || [];
-        console.log('[ApplicationPipeline] Applications received:', apiApplications.length, apiApplications);
+        
+        // Extract round progress mapping
+        const roundMap: Record<string, string> = {};
+        // @ts-expect-error - roundProgress exists in backend response but might not be in type definition
+        if (response.data?.roundProgress) {
+          // @ts-expect-error - iterating over unknown type
+          Object.entries(response.data.roundProgress).forEach(([appId, progress]: [string, any]) => {
+            if (progress?.roundId) {
+              roundMap[appId] = progress.roundId;
+            }
+          });
+        }
+
         // Map API applications to frontend Application type
         const mappedApplications: Application[] = apiApplications.map((app: any) => ({
           id: app.id,
@@ -555,6 +592,7 @@ export function ApplicationPipeline({
           appliedDate: app.appliedDate ? new Date(app.appliedDate) : new Date(),
           status: mapApplicationStatus(app.status),
           stage: mapApplicationStage(app.stage),
+          roundId: roundMap[app.id],
           resumeUrl: app.resumeUrl,
           coverLetterUrl: app.coverLetterUrl,
           portfolioUrl: app.portfolioUrl,
@@ -568,20 +606,10 @@ export function ApplicationPipeline({
           interviews: [],
           createdAt: app.createdAt ? new Date(app.createdAt) : new Date(),
           updatedAt: app.updatedAt ? new Date(app.updatedAt) : new Date(),
+          shortlisted: app.shortlisted || false,
+          manuallyAdded: app.manuallyAdded || false,
         }));
         setApplications(mappedApplications);
-        
-        // Store round progress mapping if available
-        if (response.data?.roundProgress) {
-          const roundMap: Record<string, string> = {};
-          Object.entries(response.data.roundProgress).forEach(([appId, progress]: [string, any]) => {
-            if (progress?.roundId) {
-              roundMap[appId] = progress.roundId;
-            }
-          });
-          setApplicationRoundMap(roundMap);
-          return roundMap;
-        }
         return undefined;
       } catch (error) {
         console.error('Failed to load applications:', error);
@@ -782,7 +810,17 @@ export function ApplicationPipeline({
       
       if (response.success) {
         // Also update local mock storage for fallback
-        updateApplicationStatus(applicationId, statusMap[newStage], newStage);
+      const statusMapForUpdate: Record<string, Application['status']> = {
+        "New Application": "applied",
+        "Resume Review": "screening",
+        "Phone Screen": "screening",
+        "Technical Interview": "interview",
+        "Manager Interview": "interview",
+        "Offer Extended": "offer",
+        "Offer Accepted": "hired",
+        "Rejected": "rejected"
+      };
+      updateApplicationStatus(applicationId, statusMapForUpdate[newStage] || "applied", newStage);
         
         // Reload applications only if not using providedApplications (parent handles refresh)
         if (providedApplications === undefined) {
@@ -859,11 +897,7 @@ export function ApplicationPipeline({
 
         // If using providedApplications, update round mapping only and let parent refresh
         if (providedApplications !== undefined) {
-          // Update the round mapping for this application
-          const roundMap: Record<string, string> = { ...applicationRoundMap };
-          roundMap[applicationId] = actualRoundId;
-          setApplicationRoundMap(roundMap);
-          
+          // Parent component will handle the refresh
           const finalRound = rounds.find(r => r.id === actualRoundId) || actualRound;
           if (finalRound && application) {
             toast.success(`Moved ${application.candidateName} to ${finalRound.name}`);
@@ -924,6 +958,7 @@ export function ApplicationPipeline({
       startDate.setDate(startDate.getDate() + 30);
 
       const offerData = {
+        applicationId: application.id,
         offerType: "full-time",
         salary: parseFloat(config.defaultSalary) || 0,
         salaryCurrency: config.defaultSalaryCurrency || "USD",
@@ -1063,6 +1098,11 @@ export function ApplicationPipeline({
     }
   };
 
+  const handleOpenAssessmentReview = (round: JobRound) => {
+    setSelectedRoundForReview(round);
+    setAssessmentReviewDrawerOpen(true);
+  };
+
   const handleConfigureInterview = (roundId: string) => {
     const round = rounds.find(r => r.id === roundId);
     if (round) {
@@ -1112,7 +1152,7 @@ export function ApplicationPipeline({
   const getApplicationsForRound = (round: JobRound) => {
     return applications.filter((app) => {
       // Check if application has a round mapping
-      const appRoundId = applicationRoundMap[app.id];
+      const appRoundId = app.roundId;
       
       if (appRoundId) {
         // Use round progress mapping if available
@@ -1257,6 +1297,7 @@ export function ApplicationPipeline({
                       onOpenScreening={handleOpenScreening}
                       onConfigureOffer={handleConfigureOffer}
                       onExecuteOffer={handleExecuteOffer}
+                      onOpenAssessmentDrawer={handleOpenAssessmentReview}
               />
                   </div>
             );
@@ -1347,7 +1388,7 @@ export function ApplicationPipeline({
         onOpenChange={setInterviewScheduleDrawerOpen}
         applicationId={selectedApplicationForInterviews?.id}
         jobId={jobId}
-        candidateName={selectedApplicationForInterviews?.candidate?.name || selectedApplicationForInterviews?.candidateId}
+        candidateName={selectedApplicationForInterviews?.candidateName || selectedApplicationForInterviews?.candidateId}
         jobTitle={jobTitle}
       />
 
@@ -1389,6 +1430,25 @@ export function ApplicationPipeline({
           job={jobData || { id: jobId, title: jobTitle, requirements: [], description: '' } as any}
           roundId={selectedRoundForScreening.id}
           roundName={selectedRoundForScreening.name}
+        />
+      )}
+
+      {jobId && selectedRoundForReview && (
+        <AssessmentReviewDrawer
+          open={assessmentReviewDrawerOpen}
+          onOpenChange={setAssessmentReviewDrawerOpen}
+          jobId={jobId}
+          round={selectedRoundForReview}
+          onMoveToNextRound={async (applicationId) => {
+            const currentRoundIndex = rounds.findIndex(r => r.id === selectedRoundForReview.id);
+            if (currentRoundIndex !== -1 && currentRoundIndex < rounds.length - 1) {
+              const nextRound = rounds[currentRoundIndex + 1];
+              await handleMoveToRound(applicationId, nextRound.id);
+              toast.success(`Moved candidate to ${nextRound.name}`);
+            } else {
+              toast.error("No next stage available");
+            }
+          }}
         />
       )}
 

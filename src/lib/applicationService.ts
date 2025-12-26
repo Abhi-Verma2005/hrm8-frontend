@@ -64,6 +64,21 @@ class ApplicationService {
     return apiClient.get<{ application: Application }>(`/api/applications/admin/${id}`);
   }
 
+  // Get application resume with content
+  async getApplicationResume(id: string) {
+    return apiClient.get<{
+      id: string;
+      candidateId: string;
+      fileName: string;
+      fileUrl: string;
+      fileSize: number;
+      fileType: string;
+      uploadedAt: string;
+      content?: string;
+      uploadedBy?: string;
+    }>(`/api/applications/${id}/resume`);
+  }
+
   async getCandidateApplications() {
     return apiClient.get<{ applications: Application[] }>('/api/applications');
   }

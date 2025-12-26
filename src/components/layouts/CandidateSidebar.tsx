@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import { useCandidateAuth } from "@/contexts/CandidateAuthContext";
 import { CandidateSidebarFooter } from "./CandidateSidebarFooter";
 import { NotificationBell } from "@/components/candidate/NotificationBell";
+import { ClipboardCheck } from "lucide-react";
 
 const menuItems = [
   { path: "/candidate/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -40,8 +41,8 @@ const menuItems = [
   { path: "/candidate/documents", label: "Documents", icon: FolderOpen },
   { path: "/candidate/applications", label: "Applications", icon: FileText },
   { path: "/candidate/saved-jobs", label: "Saved Jobs", icon: Bookmark },
+  { path: "/candidate/assessments", label: "Assessments", icon: ClipboardCheck },
   { path: "/candidate/messages", label: "Messages", icon: MessageSquare },
-  { path: "/candidate/settings", label: "Settings", icon: Settings },
 ];
 
 export function CandidateSidebar() {
@@ -159,7 +160,6 @@ export function CandidateSidebar() {
     </Sidebar>
   );
 }
-
 
 
 

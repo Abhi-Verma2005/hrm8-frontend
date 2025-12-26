@@ -43,7 +43,7 @@ interface ApplicationBulkActionsToolbarProps {
 }
 
 export function ApplicationBulkActionsToolbar({ 
-  selectedCount,
+  selectedCount, 
   selectedApplicationIds,
   onClearSelection, 
   onBulkStatusUpdate,

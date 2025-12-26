@@ -90,12 +90,63 @@ export interface Scorecard {
   createdAt: Date;
 }
 
+export interface CandidateEducation {
+  id: string;
+  institution: string;
+  degree: string;
+  field: string;
+  startDate?: Date;
+  endDate?: Date;
+  current: boolean;
+  grade?: string;
+  description?: string;
+}
+
+export interface CandidateSkill {
+  id: string;
+  name: string;
+  level?: string;
+}
+
+export interface CandidateWorkExperience {
+  id: string;
+  company: string;
+  role: string;
+  startDate: Date;
+  endDate?: Date;
+  current: boolean;
+  description?: string;
+  location?: string;
+}
+
 export interface Application {
   id: string;
   candidateId: string;
   candidateName: string;
   candidateEmail: string;
+  candidatePhone?: string;
+  candidateCity?: string;
+  candidateState?: string;
+  candidateCountry?: string;
   candidatePhoto?: string;
+  // Nested candidate object from backend
+  candidate?: {
+    id: string;
+    email: string;
+    firstName: string;
+    lastName: string;
+    phone?: string;
+    photo?: string;
+    linkedInUrl?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    emailVerified: boolean;
+    status: string;
+    education?: CandidateEducation[];
+    skills?: CandidateSkill[];
+    workExperience?: CandidateWorkExperience[];
+  };
   jobId: string;
   jobTitle: string;
   employerName: string;
@@ -104,6 +155,7 @@ export interface Application {
   appliedDate: Date;
   status: ApplicationStatus;
   stage: ApplicationStage;
+  roundId?: string; // ID of the current assessment round
   
   // Internal Candidate Fields
   isInternalCandidate?: boolean;
@@ -124,6 +176,22 @@ export interface Application {
   // Parsed Resume Data
   parsedResume?: ParsedResume;
   
+  // Candidate Preferences (from backend)
+  candidatePreferences?: {
+    salaryPreference?: {
+      min?: number;
+      max?: number;
+      currency?: string;
+      period?: string;
+    };
+    workArrangement?: string[]; // remote, hybrid, onsite
+    employmentType?: string[]; // full-time, contract, etc.
+    startDate?: Date;
+    noticePeriod?: string;
+    willingToRelocate?: boolean;
+    visaStatus?: string;
+  };
+
   // Questionnaire responses
   questionnaireData?: QuestionnaireData;
   
@@ -155,6 +223,24 @@ export interface Application {
       educationAnalysis: string;
       culturalFitAnalysis: string;
       overallAssessment: string;
+    };
+    // Enhanced AI Insights
+    summary?: string;
+    behavioralTraits?: string[];
+    communicationStyle?: string;
+    careerTrajectory?: string;
+    flightRisk?: {
+      level: 'Low' | 'Medium' | 'High';
+      reason: string;
+    };
+    salaryBenchmark?: {
+      position: 'Below' | 'Within' | 'Above';
+      marketRange: string;
+    };
+    culturalFit?: {
+      score: number;
+      analysis: string;
+      valuesMatched: string[];
     };
     analyzedAt: string;
   };
@@ -207,7 +293,8 @@ export interface WorkExperience {
   startDate: Date;
   endDate?: Date;
   current: boolean;
-  location: string;
+  location?: string;
+  description?: string;
   employmentType?: 'full-time' | 'part-time' | 'contract' | 'internship';
   responsibilities: string[];
   achievements: string[];
@@ -221,9 +308,9 @@ export interface Education {
   institutionLogo?: string;
   degree: string;
   field: string;
-  startDate: Date;
-  endDate: Date;
-  gpa?: number;
+  startDate?: Date;
+  endDate?: Date;
+  gpa?: number | string;
   maxGpa?: number;
   honors?: string;
   relevantCoursework?: string[];

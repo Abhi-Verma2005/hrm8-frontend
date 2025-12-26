@@ -21,27 +21,19 @@ interface ScoreBreakdown {
 export function AIMatchScoreCard({ application }: AIMatchScoreCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   
-  // Mock AI match data - in production this would come from the application or API
-  const overallScore = application.aiMatchScore || 0;
+  const aiAnalysis = application.aiAnalysis;
+  
+  // Use AI analysis data if available, otherwise fallback to mock/defaults
+  const overallScore = aiAnalysis?.scores?.overall || application.aiMatchScore || 0;
   const breakdown: ScoreBreakdown = {
-    skills: 85,
-    experience: 78,
-    education: 92,
-    cultural: 88,
+    skills: aiAnalysis?.scores?.skills || 0,
+    experience: aiAnalysis?.scores?.experience || 0,
+    education: aiAnalysis?.scores?.education || 0,
+    cultural: aiAnalysis?.scores?.culture || 0,
   };
 
-  const strengths = [
-    "Strong technical skills in React and TypeScript",
-    "5+ years of relevant experience in similar role",
-    "Master's degree in Computer Science",
-    "Excellent communication skills demonstrated in cover letter",
-  ];
-
-  const concerns = [
-    "Limited experience with cloud infrastructure",
-    "No certifications in required technologies",
-    "Salary expectations 15% above budget range",
-  ];
+  const strengths = aiAnalysis?.strengths || [];
+  const concerns = aiAnalysis?.concerns || [];
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-green-600 dark:text-green-400";

@@ -50,7 +50,7 @@ export function TagManager({ applicationId, tags = [], onTagsChange }: TagManage
       const newTags = [...tags, tag];
       const success = await updateTags(newTags);
       if (success) {
-        toast.success(`Tag "${tag}" added`);
+      toast.success(`Tag "${tag}" added`);
       }
     }
   };
@@ -60,7 +60,7 @@ export function TagManager({ applicationId, tags = [], onTagsChange }: TagManage
     const newTags = tags.filter(t => t !== tag);
     const success = await updateTags(newTags);
     if (success) {
-      toast.success(`Tag "${tag}" removed`);
+    toast.success(`Tag "${tag}" removed`);
     }
   };
 
@@ -69,8 +69,8 @@ export function TagManager({ applicationId, tags = [], onTagsChange }: TagManage
       const newTags = [...tags, customTag.trim()];
       const success = await updateTags(newTags);
       if (success) {
-        toast.success(`Tag "${customTag}" added`);
-        setCustomTag("");
+      toast.success(`Tag "${customTag}" added`);
+      setCustomTag("");
       }
     }
   };
@@ -139,14 +139,14 @@ export function TagManager({ applicationId, tags = [], onTagsChange }: TagManage
                   onKeyDown={(e) => e.key === 'Enter' && handleAddCustomTag()}
                   className="h-8 text-sm"
                 />
-          <Button
-            size="sm"
-            onClick={handleAddCustomTag}
+                <Button
+                  size="sm"
+                  onClick={handleAddCustomTag}
             disabled={!customTag.trim() || isUpdating}
-            className="h-8"
-          >
+                  className="h-8"
+                >
             {isUpdating ? <Loader2 className="h-3 w-3 animate-spin" /> : "Add"}
-          </Button>
+                </Button>
               </div>
             </div>
           </div>

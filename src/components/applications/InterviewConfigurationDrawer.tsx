@@ -16,8 +16,11 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { interviewService, RatingCriterion, InterviewConfiguration } from "@/lib/api/interviewService";
+import { userService, CompanyUser } from "@/lib/api/userService";
 import { toast } from "sonner";
-import { Plus, Trash2, Save } from "lucide-react";
+import { Plus, Trash2, Save, Check, X } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface InterviewConfigurationDrawerProps {
   open: boolean;
@@ -77,12 +80,36 @@ export function InterviewConfigurationDrawer({
   // Template
   const [agenda, setAgenda] = useState("");
 
+  // Assign Interview
+  const [assignedInterviewerIds, setAssignedInterviewerIds] = useState<string[]>([]);
+  const [companyUsers, setCompanyUsers] = useState<CompanyUser[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+
   // Load existing configuration
   useEffect(() => {
     if (open && jobId && roundId) {
       loadConfiguration();
     }
   }, [open, jobId, roundId]);
+
+  useEffect(() => {
+    if (open) {
+      fetchCompanyUsers();
+    }
+  }, [open]);
+
+  const fetchCompanyUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const users = await userService.getCompanyUsers();
+      setCompanyUsers(users);
+    } catch (error) {
+      console.error("Failed to fetch company users:", error);
+      toast.error("Failed to load users");
+    } finally {
+      setUsersLoading(false);
+    }
+  };
 
   const loadConfiguration = async () => {
     setLoading(true);
@@ -114,6 +141,7 @@ export function InterviewConfigurationDrawer({
         setRejectRoundId(config.rejectRoundId);
         setRequiresManualReview(config.requiresManualReview ?? true);
         setAgenda(config.agenda || "");
+        setAssignedInterviewerIds(config.assignedInterviewerIds || []);
       } else {
         // Initialize with defaults
         resetToDefaults();
@@ -152,6 +180,7 @@ export function InterviewConfigurationDrawer({
     setRejectRoundId(undefined);
     setRequiresManualReview(true);
     setAgenda("");
+    setAssignedInterviewerIds([]);
   };
 
   const handleAddTimeSlot = () => {
@@ -228,6 +257,7 @@ export function InterviewConfigurationDrawer({
         rejectRoundId: autoRejectOnFail ? rejectRoundId : undefined,
         requiresManualReview,
         agenda: agenda || undefined,
+        assignedInterviewerIds,
       };
 
       const response = await interviewService.configureInterview(jobId, roundId, config);
@@ -245,6 +275,16 @@ export function InterviewConfigurationDrawer({
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleAddInterviewer = (userId: string) => {
+    if (!assignedInterviewerIds.includes(userId)) {
+      setAssignedInterviewerIds([...assignedInterviewerIds, userId]);
+    }
+  };
+
+  const handleRemoveInterviewer = (userId: string) => {
+    setAssignedInterviewerIds(assignedInterviewerIds.filter(id => id !== userId));
   };
 
   return (
@@ -334,9 +374,10 @@ export function InterviewConfigurationDrawer({
 
           {enabled && (
             <Tabs defaultValue="format" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="format">Format & Type</TabsTrigger>
                 <TabsTrigger value="scheduling">Scheduling</TabsTrigger>
+                <TabsTrigger value="assignment">Assign Interview</TabsTrigger>
                 <TabsTrigger value="rating">Rating & Scoring</TabsTrigger>
                 <TabsTrigger value="progression">Auto-Progression</TabsTrigger>
               </TabsList>
@@ -495,6 +536,89 @@ export function InterviewConfigurationDrawer({
                           onCheckedChange={setAutoRescheduleOnCancel}
                         />
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Assignment Settings */}
+              <TabsContent value="assignment" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Assign Interview</CardTitle>
+                    <CardDescription>Select employees to assign to this interview</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <Label>Assigned Interviewers</Label>
+                      {assignedInterviewerIds.length === 0 ? (
+                        <div className="text-sm text-muted-foreground italic border border-dashed rounded-md p-4 text-center">
+                          No interviewers assigned yet
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {assignedInterviewerIds.map(id => {
+                            const user = companyUsers.find(u => u.id === id);
+                            return (
+                              <div key={id} className="flex items-center justify-between p-2 border rounded-md">
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarFallback>{user?.name.charAt(0)}</AvatarFallback>
+                                  </Avatar>
+                                  <div className="flex flex-col">
+                                    <span className="text-sm font-medium">{user?.name || 'Unknown User'}</span>
+                                    <span className="text-xs text-muted-foreground">{user?.email}</span>
+                                  </div>
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleRemoveInterviewer(id)}
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+
+                    <Separator />
+
+                    <div className="space-y-4">
+                      <Label>Available Employees</Label>
+                      {usersLoading ? (
+                        <div className="text-sm text-muted-foreground">Loading users...</div>
+                      ) : (
+                        <ScrollArea className="h-[200px] border rounded-md p-2">
+                          <div className="space-y-2">
+                            {companyUsers
+                              .filter(u => !assignedInterviewerIds.includes(u.id))
+                              .map(user => (
+                                <div key={user.id} className="flex items-center justify-between p-2 hover:bg-muted/50 rounded-md transition-colors">
+                                  <div className="flex items-center gap-2">
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                    </Avatar>
+                                    <div className="flex flex-col">
+                                      <span className="text-sm font-medium">{user.name}</span>
+                                      <span className="text-xs text-muted-foreground">{user.email}</span>
+                                    </div>
+                                  </div>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleAddInterviewer(user.id)}
+                                  >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Assign
+                                  </Button>
+                                </div>
+                              ))}
+                          </div>
+                        </ScrollArea>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

@@ -12,8 +12,8 @@ import JobAutomationSettings from "@/pages/ats/JobAutomationSettings";
 import JobAnalytics from "@/pages/ats/JobAnalytics";
 import InterviewScheduling from "@/pages/ats/InterviewScheduling";
 import OfferManagement from "@/pages/ats/OfferManagement";
-import EmailTemplates from "@/pages/ats/EmailTemplates";
-import EmailCenter from "@/pages/ats/EmailCenter";
+import TemplateManager from "@/pages/email/TemplateManager";
+import EmailCenter from "@/pages/email/EmailCenter";
 import ImportExport from "@/pages/ats/ImportExport";
 import Applications from "@/pages/ats/Applications";
 import JobApplications from "@/pages/ats/JobApplications";
@@ -61,7 +61,7 @@ export const atsRoutes = (
     <Route path="/jobs/:jobId" element={<JobDetail />} />
     <Route path="/jobs/:jobId/managed-recruitment-checkout" element={<ManagedRecruitmentCheckout />} />
     <Route path="/jobs/:jobId/edit" element={<JobEdit />} />
-    <Route path="/email-templates" element={<EmailTemplates />} />
+    <Route path="/email-templates" element={<TemplateManager />} />
     <Route path="/email-center" element={<EmailCenter />} />
     <Route path="/import-export" element={<ImportExport />} />
     <Route path="/interviews/schedule" element={<InterviewScheduling />} />

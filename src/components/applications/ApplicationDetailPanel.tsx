@@ -37,6 +37,7 @@ import { offerService } from "@/lib/api/offerService";
 import { jobService } from "@/lib/api/jobService";
 import { Job } from "@/types/job";
 import { mapBackendJobToFrontend } from "@/lib/jobDataMapper";
+import { ApplicationEmailHistory } from "@/components/email/ApplicationEmailHistory";
 
 interface ApplicationDetailPanelProps {
   application: Application | null;
@@ -268,24 +269,24 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
             <div className="flex-1">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold">{application.candidateName}</h2>
-                  <p className="text-muted-foreground">{application.jobTitle}</p>
-                  <div className="flex items-center gap-2 mt-2">
-                    <Badge variant="outline">{application.stage}</Badge>
-                    {application.rating && (
-                      <div className="flex items-center gap-1">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`h-4 w-4 ${
-                              i < application.rating!
-                                ? "fill-yellow-400 text-yellow-400"
-                                : "text-muted-foreground/30"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
+              <h2 className="text-2xl font-bold">{application.candidateName}</h2>
+              <p className="text-muted-foreground">{application.jobTitle}</p>
+              <div className="flex items-center gap-2 mt-2">
+                <Badge variant="outline">{application.stage}</Badge>
+                {application.rating && (
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-4 w-4 ${
+                          i < application.rating!
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-muted-foreground/30"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
                   </div>
                 </div>
                 <ProfileCompletenessIndicator application={application} showProgress={false} showDetails={true} />
@@ -409,6 +410,10 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
               )}
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="notes">Notes</TabsTrigger>
+              <TabsTrigger value="emails" className="flex items-center gap-1.5">
+                <Mail className="h-3.5 w-3.5" />
+                Emails
+              </TabsTrigger>
               {application.aiAnalysis && (
                 <TabsTrigger value="ai-analysis" className="flex items-center gap-1.5">
                   <Sparkles className="h-3.5 w-3.5" />
@@ -555,6 +560,10 @@ export function ApplicationDetailPanel({ application, open, onOpenChange, onRefr
                   </CardContent>
                 </Card>
               ))}
+            </TabsContent>
+
+            <TabsContent value="emails" className="mt-4">
+              <ApplicationEmailHistory applicationId={application.id} />
             </TabsContent>
           </Tabs>
         </div>

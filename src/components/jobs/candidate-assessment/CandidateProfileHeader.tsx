@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Application } from "@/types/application";
-import { Mail, Phone, Linkedin, MapPin, Calendar, Star, Flag, Bell, BellOff, Tag } from "lucide-react";
+import { Mail, Phone, Linkedin, MapPin, Calendar, Star, Flag, Bell, BellOff, Tag, Globe } from "lucide-react";
 import { AIMatchBadge } from "@/components/applications/AIMatchBadge";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -113,17 +113,25 @@ export function CandidateProfileHeader({ application, jobTitle }: CandidateProfi
               {application.candidateEmail}
             </a>
             
-            {application.candidateId && (
+            {application.candidatePhone && (
               <div className="flex items-center gap-1.5">
                 <Phone className="h-4 w-4" />
-                <span>Phone on file</span>
+                <span>{application.candidatePhone}</span>
               </div>
             )}
             
-            <div className="flex items-center gap-1.5">
-              <MapPin className="h-4 w-4" />
-              <span>Location data available</span>
-            </div>
+            {(application.candidateCity || application.candidateState || application.candidateCountry) && (
+              <div className="flex items-center gap-1.5">
+                <MapPin className="h-4 w-4" />
+                <span>
+                  {[
+                    application.candidateCity,
+                    application.candidateState,
+                    application.candidateCountry
+                  ].filter(Boolean).join(', ')}
+                </span>
+              </div>
+            )}
             
             <div className="flex items-center gap-1.5">
               <Calendar className="h-4 w-4" />
@@ -188,17 +196,34 @@ export function CandidateProfileHeader({ application, jobTitle }: CandidateProfi
             </Button>
 
             {/* LinkedIn */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-2"
-              asChild
-            >
-              <a href="#" target="_blank" rel="noopener noreferrer">
-                <Linkedin className="h-4 w-4" />
-                LinkedIn
-              </a>
-            </Button>
+            {application.linkedInUrl && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                asChild
+              >
+                <a href={application.linkedInUrl} target="_blank" rel="noopener noreferrer">
+                  <Linkedin className="h-4 w-4" />
+                  LinkedIn
+                </a>
+              </Button>
+            )}
+
+            {/* Portfolio */}
+            {application.portfolioUrl && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2"
+                asChild
+              >
+                <a href={application.portfolioUrl} target="_blank" rel="noopener noreferrer">
+                  <Globe className="h-4 w-4" />
+                  Portfolio
+                </a>
+              </Button>
+            )}
           </div>
         </div>
       </div>

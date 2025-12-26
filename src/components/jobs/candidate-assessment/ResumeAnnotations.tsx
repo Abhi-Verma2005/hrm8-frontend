@@ -32,37 +32,6 @@ export const ResumeAnnotations: React.FC<ResumeAnnotationsProps> = ({
   const [comment, setComment] = useState('');
   const [selection, setSelection] = useState<{ start: number; end: number } | null>(null);
 
-  const sampleResume = `JOHN SMITH
-Senior Full Stack Developer
-
-SUMMARY
-Experienced software engineer with 8+ years of expertise in building scalable web applications.
-Led team of 8 engineers in developing cloud-native solutions.
-
-EXPERIENCE
-
-Senior Software Engineer | Tech Corp | 2020 - Present
-- Led team of 8 engineers in developing microservices architecture
-- Reduced deployment time by 70% through CI/CD optimization
-- Implemented real-time collaboration features serving 1M+ users
-- Mentored junior developers and conducted technical interviews
-
-Software Engineer | StartupXYZ | 2016 - 2020
-- Built RESTful APIs handling 10K requests/second
-- Developed React-based dashboard with real-time analytics
-- Improved application performance by 50%
-
-TECHNICAL SKILLS
-Languages: JavaScript, TypeScript, Python, Go
-Frameworks: React, Node.js, Express, Next.js
-Cloud: AWS, Docker, Kubernetes
-Databases: PostgreSQL, MongoDB, Redis
-
-EDUCATION
-BS Computer Science | MIT | 2016
-- GPA: 3.8/4.0
-- Dean's List all semesters`;
-
   const handleTextSelection = () => {
     const selectedStr = window.getSelection()?.toString();
     if (selectedStr && selectedStr.length > 0) {
@@ -103,7 +72,7 @@ BS Computer Science | MIT | 2016
   };
 
   const renderAnnotatedText = () => {
-    let result = sampleResume;
+    const result = resumeText;
     const sortedAnnotations = [...annotations].sort((a, b) => a.position.start - b.position.start);
 
     // Create segments with annotations

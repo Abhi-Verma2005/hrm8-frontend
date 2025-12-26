@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -6,15 +7,18 @@ import {
   Clock, 
   TrendingUp, 
   CheckCircle2, 
-  Calendar,
   DollarSign,
-  MapPin,
   Briefcase,
   AlertTriangle,
-  Star,
-  Award
+  Zap,
+  Brain,
+  Target,
+  Users,
+  FileText,
+  ExternalLink
 } from "lucide-react";
-import { formatDistanceToNow, differenceInDays } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { differenceInDays } from "date-fns";
 import { AIMatchScoreCard } from "../AIMatchScoreCard";
 
 interface OverviewTabProps {
@@ -23,251 +27,225 @@ interface OverviewTabProps {
 
 export function OverviewTab({ application }: OverviewTabProps) {
   const daysInCurrentStage = differenceInDays(new Date(), application.appliedDate);
-  const totalDaysInPipeline = differenceInDays(new Date(), application.appliedDate);
+  
+  const aiAnalysis = application.aiAnalysis;
+  const parsedResume = application.parsedResume;
 
-  // Mock data - would come from application in production
-  const keySkills = [
-    { name: "React", proficiency: 90 },
-    { name: "TypeScript", proficiency: 85 },
-    { name: "Node.js", proficiency: 80 },
-    { name: "PostgreSQL", proficiency: 75 },
-    { name: "AWS", proficiency: 70 },
-  ];
+  // Extract skills from parsed resume
+  const keySkills = parsedResume?.skills?.slice(0, 5) || [];
+  
+  // Extract work experience summary
+  const totalExperience = parsedResume?.workHistory?.reduce((acc, job) => {
+    const start = new Date(job.startDate);
+    const end = job.endDate ? new Date(job.endDate) : new Date();
+    return acc + (end.getTime() - start.getTime());
+  }, 0) || 0;
+  const yearsOfExperience = Math.floor(totalExperience / (1000 * 60 * 60 * 24 * 365));
 
-  const achievements = [
-    "Led team of 5 developers on enterprise project",
-    "Increased application performance by 40%",
-    "Published 3 technical articles",
-    "Speaker at 2 tech conferences",
-  ];
-
-  const redFlags = [
-    { type: "warning", message: "Salary expectations 15% above budget" },
-    { type: "info", message: "3-month notice period required" },
-  ];
+  const redFlags = aiAnalysis?.concerns || [];
+  const strengths = aiAnalysis?.strengths || [];
 
   return (
     <div className="grid gap-6 lg:grid-cols-3">
       <div className="lg:col-span-2 space-y-6">
-        {/* At-a-Glance Summary */}
-        <Card>
-          <CardHeader>
-            <CardTitle>At-a-Glance Summary</CardTitle>
-            <CardDescription>Quick overview of application status and timeline</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  <span>In Current Stage</span>
+        
+        {/* AI Executive Summary */}
+        <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 shadow-sm">
+            <CardHeader className="pb-2">
+                <div className="flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-lg">AI Executive Summary</CardTitle>
                 </div>
-                <p className="text-2xl font-bold">{daysInCurrentStage}d</p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <span>Total Days</span>
-                </div>
-                <p className="text-2xl font-bold">{totalDaysInPipeline}d</p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span>Interviews</span>
-                </div>
-                <p className="text-2xl font-bold">{application.interviews?.length || 0}</p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <TrendingUp className="h-4 w-4" />
-                  <span>Team Rating</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <p className="text-2xl font-bold">{application.rating || 0}</p>
-                  <Star className="h-5 w-5 fill-yellow-500 text-yellow-500" />
-                </div>
-              </div>
-            </div>
-
-            {/* Application Strength Meter */}
-            <div className="space-y-2 pt-4 border-t">
-              <div className="flex items-center justify-between text-sm">
-                <span className="font-medium">Application Strength</span>
-                <span className="text-muted-foreground">{application.aiMatchScore || 0}%</span>
-              </div>
-              <div className="relative w-full h-3 overflow-hidden rounded-full bg-muted">
-                <div 
-                  className={`h-full transition-all ${
-                    (application.aiMatchScore || 0) >= 80 
-                      ? 'bg-green-500' 
-                      : (application.aiMatchScore || 0) >= 60 
-                      ? 'bg-yellow-500' 
-                      : 'bg-red-500'
-                  }`}
-                  style={{ width: `${application.aiMatchScore || 0}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Last Activity */}
-            <div className="pt-4 border-t text-sm text-muted-foreground">
-              <span className="font-medium">Last Activity:</span>{" "}
-              {formatDistanceToNow(application.updatedAt, { addSuffix: true })}
-            </div>
-          </CardContent>
+            </CardHeader>
+            <CardContent>
+                <p className="text-sm leading-relaxed text-foreground/90">
+                    {aiAnalysis?.summary || aiAnalysis?.detailedAnalysis?.overallAssessment || "AI analysis is currently processing for this candidate..."}
+                </p>
+                
+                {/* Behavioral Traits Badges */}
+                {aiAnalysis?.behavioralTraits && aiAnalysis.behavioralTraits.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-primary/10">
+                        {aiAnalysis.behavioralTraits.map((trait, i) => (
+                            <Badge key={i} variant="secondary" className="bg-background/60 hover:bg-background/80 transition-colors border-primary/10">
+                                {trait}
+                            </Badge>
+                        ))}
+                    </div>
+                )}
+            </CardContent>
         </Card>
 
-        {/* Key Qualifications */}
+        {/* Resume Button */}
+        {application.resumeUrl && (
+          <Button 
+            className="w-full shadow-sm" 
+            size="sm" 
+            variant="outline"
+            onClick={() => window.open(application.resumeUrl, '_blank')}
+          >
+            <FileText className="h-4 w-4 mr-2" />
+            View Original Resume
+            <ExternalLink className="h-3 w-3 ml-2 opacity-50" />
+          </Button>
+        )}
+
+        {/* At-a-Glance Metrics */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <MetricCard 
+                icon={Clock} 
+                label="In Stage" 
+                value={`${daysInCurrentStage}d`} 
+                subtext="Current Stage"
+            />
+             <MetricCard 
+                icon={Briefcase} 
+                label="Experience" 
+                value={`${yearsOfExperience}+ Years`} 
+                subtext="Total Career"
+            />
+            <MetricCard 
+                icon={TrendingUp} 
+                label="Trajectory" 
+                value={aiAnalysis?.careerTrajectory || "Stable"} 
+                subtext="Career Growth"
+            />
+            <MetricCard 
+                icon={Target} 
+                label="Flight Risk" 
+                value={aiAnalysis?.flightRisk?.level || "Low"} 
+                valueColor={getRiskColor(aiAnalysis?.flightRisk?.level)}
+                subtext={aiAnalysis?.flightRisk?.reason ? "View Analysis" : "Based on history"}
+            />
+        </div>
+
+        {/* Key Qualifications (Real Data) */}
         <Card>
           <CardHeader>
             <CardTitle>Key Qualifications</CardTitle>
-            <CardDescription>Core skills and experience matching job requirements</CardDescription>
+            <CardDescription>Core skills and experience extracted from resume</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Skills with Proficiency */}
+            {/* Skills */}
             <div>
-              <h4 className="text-sm font-semibold mb-3">Top Matching Skills</h4>
+              <h4 className="text-sm font-semibold mb-3">Top Skills</h4>
               <div className="space-y-3">
-                {keySkills.map((skill) => (
+                {keySkills.length > 0 ? keySkills.map((skill) => (
                   <div key={skill.name} className="space-y-1.5">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium">{skill.name}</span>
-                      <span className="text-muted-foreground">{skill.proficiency}%</span>
+                      <span className="text-muted-foreground capitalize">{skill.proficiency}</span>
                     </div>
-                    <div className="relative w-full h-2 overflow-hidden rounded-full bg-muted">
-                      <div 
-                        className="h-full bg-primary transition-all"
-                        style={{ width: `${skill.proficiency}%` }}
-                      />
-                    </div>
+                    <Progress value={getSkillValue(skill.proficiency)} className="h-2" />
                   </div>
-                ))}
+                )) : (
+                    <div className="text-center py-4 text-muted-foreground text-sm bg-muted/30 rounded-lg">
+                        No skills extracted yet.
+                    </div>
+                )}
               </div>
             </div>
 
-            {/* Experience & Education */}
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Briefcase className="h-4 w-4" />
-                  <span>Experience</span>
-                </div>
-                <p className="text-lg font-semibold">8+ years</p>
-                <p className="text-xs text-muted-foreground">Full-stack development</p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Award className="h-4 w-4" />
-                  <span>Education</span>
-                </div>
-                <p className="text-lg font-semibold">Master's Degree</p>
-                <p className="text-xs text-muted-foreground">Computer Science</p>
-              </div>
-            </div>
-
-            {/* Notable Achievements */}
+            {/* AI Insights: Strengths */}
             <div className="pt-4 border-t">
-              <h4 className="text-sm font-semibold mb-3">Notable Achievements</h4>
+              <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                <Zap className="h-4 w-4 text-yellow-500" />
+                Key Strengths
+              </h4>
               <ul className="space-y-2">
-                {achievements.map((achievement, index) => (
+                {strengths.length > 0 ? strengths.map((strength, index) => (
                   <li key={index} className="flex items-start gap-2 text-sm">
                     <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-muted-foreground">{achievement}</span>
+                    <span className="text-muted-foreground">{strength}</span>
                   </li>
-                ))}
+                )) : (
+                    <li className="text-sm text-muted-foreground italic">Pending strength analysis...</li>
+                )}
               </ul>
             </div>
           </CardContent>
         </Card>
 
-        {/* Application Highlights */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Application Highlights</CardTitle>
-            <CardDescription>Key information from the candidate's application</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Cover Letter Summary */}
-            <div className="space-y-2">
-              <h4 className="text-sm font-semibold">Cover Letter Summary</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Experienced full-stack developer with 8+ years building scalable web applications. 
-                Passionate about clean code and team collaboration. Excited about the opportunity 
-                to contribute to innovative projects and mentor junior developers.
-              </p>
-            </div>
+        {/* Application Highlights & Cultural Fit */}
+        <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        Cultural Fit
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center justify-center py-4">
+                        <div className="relative flex flex-col items-center justify-center">
+                            <span className="text-4xl font-bold text-primary">{aiAnalysis?.culturalFit?.score || 0}%</span>
+                            <span className="text-xs text-muted-foreground mt-1">Match Score</span>
+                        </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground text-center line-clamp-3">
+                        {aiAnalysis?.culturalFit?.analysis || "Pending cultural fit analysis..."}
+                    </p>
+                    {aiAnalysis?.culturalFit?.valuesMatched && (
+                        <div className="flex flex-wrap gap-2 justify-center pt-2">
+                            {aiAnalysis.culturalFit.valuesMatched.map((val, i) => (
+                                <Badge key={i} variant="outline" className="text-xs">{val}</Badge>
+                            ))}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-              {/* Salary */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <DollarSign className="h-4 w-4" />
-                  <span>Salary Expectations</span>
-                </div>
-                <p className="text-sm font-medium">$120K - $150K</p>
-                <Badge variant="outline" className="text-xs">
-                  Within range
-                </Badge>
-              </div>
+            <Card>
+                 <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4" />
+                        Compensation
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <div className="flex justify-between text-sm items-center">
+                             <span className="text-muted-foreground">Market Benchmark</span>
+                             <Badge variant={getBenchmarkVariant(aiAnalysis?.salaryBenchmark?.position)}>
+                                {aiAnalysis?.salaryBenchmark?.position || "Unknown"}
+                             </Badge>
+                        </div>
+                        <div className="p-3 bg-muted/30 rounded-lg text-center">
+                             <p className="text-sm font-medium">
+                                {aiAnalysis?.salaryBenchmark?.marketRange || "Data unavailable"}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-1">Estimated Market Range</p>
+                        </div>
+                    </div>
+                    
+                    {aiAnalysis?.flightRisk && (
+                        <div className="pt-4 border-t space-y-2">
+                            <div className="flex justify-between text-sm items-center">
+                                <span className="text-muted-foreground">Flight Risk</span>
+                                <Badge variant="outline" className={getRiskColor(aiAnalysis.flightRisk.level)}>
+                                    {aiAnalysis.flightRisk.level}
+                                </Badge>
+                            </div>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </div>
 
-              {/* Availability */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-4 w-4" />
-                  <span>Availability</span>
-                </div>
-                <p className="text-sm font-medium">2 weeks notice</p>
-                <p className="text-xs text-muted-foreground">Available from Dec 15, 2024</p>
-              </div>
-
-              {/* Location */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4" />
-                  <span>Relocation</span>
-                </div>
-                <p className="text-sm font-medium">Willing to relocate</p>
-                <Badge variant="secondary" className="text-xs">
-                  Flexible
-                </Badge>
-              </div>
-
-              {/* Work Authorization */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span>Work Authorization</span>
-                </div>
-                <p className="text-sm font-medium">US Citizen</p>
-                <Badge variant="secondary" className="text-xs">
-                  No sponsorship needed
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Red Flags & Concerns */}
+        {/* Red Flags */}
         {redFlags.length > 0 && (
-          <Card className="border-yellow-200 dark:border-yellow-900">
+          <Card className="border-red-200 bg-red-50/50 dark:bg-red-950/10 dark:border-red-900">
             <CardHeader>
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-yellow-600" />
-                <CardTitle>Items Requiring Attention</CardTitle>
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+                <CardTitle className="text-red-700 dark:text-red-400">Areas of Concern</CardTitle>
               </div>
-              <CardDescription>Points to discuss or clarify with the candidate</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3">
                 {redFlags.map((flag, index) => (
-                  <li key={index} className="flex items-start gap-3 p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/20">
-                    <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-muted-foreground">{flag.message}</span>
+                  <li key={index} className="flex items-start gap-3 text-sm">
+                    <span className="text-red-600 mt-0.5">•</span>
+                    <span className="text-foreground/80">{flag}</span>
                   </li>
                 ))}
               </ul>
@@ -282,4 +260,55 @@ export function OverviewTab({ application }: OverviewTabProps) {
       </div>
     </div>
   );
+}
+
+interface MetricCardProps {
+  icon: React.ElementType;
+  label: string;
+  value: string | number;
+  valueColor?: string;
+  subtext: string;
+}
+
+function MetricCard({ icon: Icon, label, value, valueColor, subtext }: MetricCardProps) {
+    return (
+        <Card>
+            <CardContent className="p-4 flex flex-col items-center text-center space-y-2">
+                <div className="p-2 bg-primary/5 rounded-full">
+                    <Icon className="h-4 w-4 text-primary" />
+                </div>
+                <div className="space-y-0.5">
+                    <p className={`text-xl font-bold ${valueColor || ''}`}>{value}</p>
+                    <p className="text-xs font-medium text-muted-foreground">{label}</p>
+                </div>
+                <p className="text-[10px] text-muted-foreground/70">{subtext}</p>
+            </CardContent>
+        </Card>
+    )
+}
+
+function getRiskColor(level?: string) {
+    switch(level) {
+        case 'High': return 'text-red-500';
+        case 'Medium': return 'text-yellow-500';
+        case 'Low': return 'text-green-500';
+        default: return '';
+    }
+}
+
+function getSkillValue(proficiency: string) {
+     switch (proficiency.toLowerCase()) {
+      case 'expert': return 100;
+      case 'advanced': return 75;
+      case 'intermediate': return 50;
+      case 'beginner': return 25;
+      default: return 0;
+    }
+}
+
+function getBenchmarkVariant(position?: string): "default" | "secondary" | "destructive" | "outline" {
+    if (position === 'Within') return 'outline';
+    if (position === 'Below') return 'secondary';
+    if (position === 'Above') return 'destructive';
+    return 'outline';
 }
