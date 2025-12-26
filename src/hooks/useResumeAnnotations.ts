@@ -70,10 +70,10 @@ export const useResumeAnnotations = ({
 
       try {
         const newAnnotation = await resumeAnnotationService.createAnnotation({
-          resumeId: documentId,
-          userId: currentUserId,
-          userName: currentUserName,
-          userColor,
+          resume_id: documentId,
+          user_id: currentUserId,
+          user_name: currentUserName,
+          user_color: userColor,
           type,
           text,
           comment,
@@ -116,7 +116,7 @@ export const useResumeAnnotations = ({
 
   const getAnnotationsByUser = useCallback(
     (userId: string) => {
-      return annotations.filter((a) => a.userId === userId);
+      return annotations.filter((a) => a.user_id === userId);
     },
     [annotations]
   );

@@ -2,10 +2,10 @@ import { apiClient } from '@/lib/api';
 
 export interface ResumeAnnotation {
   id: string;
-  resumeId: string;
-  userId: string;
-  userName: string;
-  userColor: string;
+  resume_id: string;
+  user_id: string;
+  user_name: string;
+  user_color: string;
   type: 'highlight' | 'comment';
   text: string;
   comment?: string;
@@ -13,14 +13,14 @@ export interface ResumeAnnotation {
     start: number;
     end: number;
   };
-  createdAt: string;
+  created_at: string;
 }
 
 export interface CreateAnnotationRequest {
-  resumeId: string;
-  userId: string;
-  userName: string;
-  userColor: string;
+  resume_id: string;
+  user_id: string;
+  user_name: string;
+  user_color: string;
   type: 'highlight' | 'comment';
   text: string;
   comment?: string;
@@ -40,7 +40,7 @@ export const resumeAnnotationService = {
 
   async createAnnotation(data: CreateAnnotationRequest): Promise<ResumeAnnotation> {
     const response = await apiClient.post<ResumeAnnotation>(
-      `/api/resumes/${data.resumeId}/annotations`,
+      `/api/resumes/${data.resume_id}/annotations`,
       data
     );
     if (!response.data) {
@@ -50,6 +50,6 @@ export const resumeAnnotationService = {
   },
 
   async deleteAnnotation(resumeId: string, annotationId: string, userId: string): Promise<void> {
-    await apiClient.delete(`/api/resumes/${resumeId}/annotations/${annotationId}`, { userId });
+    await apiClient.delete(`/api/resumes/${resumeId}/annotations/${annotationId}`, { user_id: userId });
   }
 };
