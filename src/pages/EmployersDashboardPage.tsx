@@ -1,0 +1,372 @@
+import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
+import { StandardChartCard } from "@/components/dashboard/charts/StandardChartCard";
+import { DashboardActionBar } from "@/components/dashboard/DashboardActionBar";
+import { ActiveFiltersIndicator } from "@/components/dashboard/ActiveFiltersIndicator";
+import { EditModeToggle } from '@/components/dashboard/EditModeToggle';
+import {
+  Building2, Briefcase, DollarSign, TrendingUp, Download, Eye, Filter,
+  BarChart3, Users, Target, Award
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import type { DateRange } from "react-day-picker";
+import { applyLocationFilterToMetric, applyLocationFilterToTimeSeries } from "@/lib/mockDataWithLocations";
+import { filterByDateRange } from "@/lib/dashboardFilterUtils";
+import {
+  ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend
+} from "recharts";
+
+const clientDistribution = [
+  { industry: 'Technology', count: 28, color: '#3b82f6' },
+  { industry: 'Finance', count: 22, color: '#10b981' },
+  { industry: 'Healthcare', count: 18, color: '#f59e0b' },
+  { industry: 'Retail', count: 15, color: '#8b5cf6' },
+  { industry: 'Manufacturing', count: 12, color: '#ec4899' },
+  { industry: 'Other', count: 10, color: '#6b7280' },
+];
+
+const revenueExpenses = [
+  { month: 'Jan', revenue: 245000, expenses: 182000, profit: 63000 },
+  { month: 'Feb', revenue: 268000, expenses: 195000, profit: 73000 },
+  { month: 'Mar', revenue: 289000, expenses: 201000, profit: 88000 },
+  { month: 'Apr', revenue: 312000, expenses: 215000, profit: 97000 },
+  { month: 'May', revenue: 334000, expenses: 228000, profit: 106000 },
+  { month: 'Jun', revenue: 356000, expenses: 235000, profit: 121000 },
+];
+
+const budgetAnalysis = [
+  { category: 'Recruitment', budget: 120000, spent: 115000 },
+  { category: 'Marketing', budget: 45000, spent: 42000 },
+  { category: 'Operations', budget: 38000, spent: 35000 },
+  { category: 'Technology', budget: 28000, spent: 31000 },
+  { category: 'Training', budget: 15000, spent: 12000 },
+];
+
+const clientActivity = [
+  { month: 'Jan', newClients: 8, activeProjects: 45, completedProjects: 12 },
+  { month: 'Feb', newClients: 10, activeProjects: 48, completedProjects: 14 },
+  { month: 'Mar', newClients: 12, activeProjects: 52, completedProjects: 15 },
+  { month: 'Apr', newClients: 9, activeProjects: 55, completedProjects: 16 },
+  { month: 'May', newClients: 11, activeProjects: 58, completedProjects: 18 },
+  { month: 'Jun', newClients: 13, activeProjects: 61, completedProjects: 19 },
+];
+
+export default function EmployersDashboardPage() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<string>("all");
+  const [selectedRegion, setSelectedRegion] = useState<string>("all");
+
+  const hasActiveFilters = !!(dateRange?.from) || selectedCountry !== "all" || selectedRegion !== "all";
+
+  // Apply location filters to metrics
+  const filteredTotalClients = useMemo(() =>
+    applyLocationFilterToMetric(105, selectedCountry, selectedRegion),
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredActiveProjects = useMemo(() =>
+    applyLocationFilterToMetric(61, selectedCountry, selectedRegion),
+    [selectedCountry, selectedRegion]
+  );
+
+  const filteredTotalRevenue = useMemo(() =>
+    applyLocationFilterToMetric(356000, selectedCountry, selectedRegion),
+    [selectedCountry, selectedRegion]
+  );
+
+  // Apply location filters to chart data
+  const filteredRevenueExpenses = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      revenueExpenses,
+      selectedCountry,
+      selectedRegion,
+      ['revenue', 'expenses', 'profit']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'month');
+  }, [selectedCountry, selectedRegion, dateRange]);
+
+  const filteredBudgetAnalysis = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      budgetAnalysis,
+      selectedCountry,
+      selectedRegion,
+      ['budget', 'spent']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'category');
+  }, [selectedCountry, selectedRegion, dateRange]);
+
+  const filteredClientActivity = useMemo(() => {
+    const locationFiltered = applyLocationFilterToTimeSeries(
+      clientActivity,
+      selectedCountry,
+      selectedRegion,
+      ['newClients', 'activeProjects', 'completedProjects']
+    );
+    return filterByDateRange(locationFiltered, dateRange, 'month');
+  }, [selectedCountry, selectedRegion, dateRange]);
+
+  const handleExport = () => {
+    toast({ title: "Exporting employers data..." });
+  };
+
+  const handleResetFilters = () => {
+    setDateRange(undefined);
+    setSelectedCountry("all");
+    setSelectedRegion("all");
+    toast({ title: "Filters reset" });
+  };
+
+  return (
+    <DashboardPageLayout
+      title="Employers Dashboard"
+      subtitle="Client relationships, projects, and financial performance"
+      breadcrumbActions={
+        !isEditMode ? (
+          <DashboardActionBar
+            dateRange={dateRange}
+            onDateRangeChange={setDateRange}
+            selectedCountry={selectedCountry}
+            selectedRegion={selectedRegion}
+            onCountryChange={setSelectedCountry}
+            onRegionChange={setSelectedRegion}
+            onExport={handleExport}
+            onResetFilters={handleResetFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
+        ) : undefined
+      }
+      dashboardActions={<EditModeToggle isEditMode={isEditMode} onToggle={() => setIsEditMode(!isEditMode)} />}
+    >
+      <div className="p-6 space-y-6">
+        {/* Active Filters Indicator */}
+        <ActiveFiltersIndicator
+          selectedCountry={selectedCountry}
+          selectedRegion={selectedRegion}
+          dateRange={dateRange}
+          onClearCountry={() => setSelectedCountry("all")}
+          onClearRegion={() => setSelectedRegion("all")}
+          onClearDateRange={() => setDateRange(undefined)}
+        />
+
+        {/* Key Metrics */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <EnhancedStatCard
+            title="Total Clients"
+            value={filteredTotalClients.toString()}
+            change="+13 this quarter"
+            trend="up"
+            icon={<Building2 className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/employers') },
+              { label: "Add Client", icon: <Building2 className="h-4 w-4" />, onClick: () => navigate('/employers?action=create') },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
+
+          <EnhancedStatCard
+            title="Active Projects"
+            value={filteredActiveProjects.toString()}
+            change="+12.5%"
+            trend="up"
+            icon={<Briefcase className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              { label: "View Projects", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/recruitment-services') },
+              { label: "Pipeline", icon: <Target className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
+
+          <EnhancedStatCard
+            title="Total Revenue"
+            value=""
+            isCurrency={true}
+            rawValue={filteredTotalRevenue}
+            change="+18.2%"
+            trend="up"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="success"
+            showMenu={true}
+            menuItems={[
+              { label: "View Breakdown", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+              { label: "Forecast", icon: <TrendingUp className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
+
+          <EnhancedStatCard
+            title="Profit Margin"
+            value="34.0%"
+            change="+2.8%"
+            trend="up"
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="primary"
+            showMenu={true}
+            menuItems={[
+              { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+              { label: "Analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
+            ]}
+          />
+        </div>
+
+        {/* Charts */}
+        <div className="grid gap-4 md:grid-cols-2">
+          <StandardChartCard
+            title="Client Distribution"
+            description="By industry sector"
+            className="bg-transparent border-0 shadow-none"
+            onDownload={() => toast({ title: "Downloading client distribution..." })}
+            menuItems={[
+              { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/employers') },
+              { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={clientDistribution}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={70}
+                  outerRadius={110}
+                  labelLine={false}
+                  label={false}
+                  fill="#8884d8"
+                  dataKey="count"
+                  strokeWidth={0}
+                >
+                  {clientDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
+
+          <StandardChartCard
+            title="Revenue vs Expenses"
+            description={`Monthly financial comparison${dateRange?.from ? ' (filtered)' : ''}`}
+            className="bg-transparent border-0 shadow-none"
+            onDownload={() => toast({ title: "Downloading financial data..." })}
+            menuItems={[
+              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+              { label: "Filter", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={filteredRevenueExpenses} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+                  width={50}
+                />
+                <Tooltip
+                  cursor={{ fill: 'transparent' }}
+                  formatter={(value: number) => `$${value.toLocaleString()}`}
+                />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Bar dataKey="revenue" fill="#10b981" name="Revenue" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="expenses" fill="#ef4444" name="Expenses" radius={[4, 4, 0, 0]} barSize={20} />
+              </BarChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
+
+          <StandardChartCard
+            title="Budget Analysis"
+            description={`Budget vs actual spending${dateRange?.from ? ' (filtered)' : ''}`}
+            className="bg-transparent border-0 shadow-none"
+            onDownload={() => toast({ title: "Downloading budget analysis..." })}
+            menuItems={[
+              { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+              { label: "Adjust Budget", icon: <Filter className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={filteredBudgetAnalysis} layout="horizontal" margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+                <XAxis
+                  dataKey="category"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${(value / 1000).toFixed(0)}K`}
+                  width={50}
+                />
+                <Tooltip
+                  cursor={{ fill: 'transparent' }}
+                  formatter={(value: number) => `$${value.toLocaleString()}`}
+                />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Bar dataKey="budget" fill="#3b82f6" name="Budget" radius={[4, 4, 0, 0]} barSize={20} />
+                <Bar dataKey="spent" fill="#8b5cf6" name="Spent" radius={[4, 4, 0, 0]} barSize={20} />
+              </BarChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
+
+          <StandardChartCard
+            title="Client Activity"
+            description={`New clients and project trends${dateRange?.from ? ' (filtered)' : ''}`}
+            className="bg-transparent border-0 shadow-none"
+            onDownload={() => toast({ title: "Downloading activity data..." })}
+            menuItems={[
+              { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => { } },
+              { label: "Analytics", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } },
+              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
+            ]}
+          >
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={filteredClientActivity} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12 }}
+                />
+                <Tooltip cursor={false} />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Line type="monotone" dataKey="newClients" stroke="#3b82f6" strokeWidth={3} name="New Clients" dot={false} activeDot={false} />
+                <Line type="monotone" dataKey="activeProjects" stroke="#10b981" strokeWidth={3} name="Active Projects" dot={false} activeDot={false} />
+                <Line type="monotone" dataKey="completedProjects" stroke="#8b5cf6" strokeWidth={3} name="Completed" dot={false} activeDot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </StandardChartCard>
+        </div>
+      </div>
+    </DashboardPageLayout>
+  );
+}

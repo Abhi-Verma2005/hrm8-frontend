@@ -1,0 +1,369 @@
+/**
+ * Consultant Form Component
+ * Form for creating/editing consultants (HRM8 Admin)
+ */
+
+import { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { consultantManagementService, ConsultantCreateResponse } from '@/lib/hrm8/consultantManagementService';
+import { regionService } from '@/lib/hrm8/regionService';
+import { toast } from 'sonner';
+import { Loader2, Mail } from 'lucide-react';
+
+const consultantSchema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string().min(8, 'Password must be at least 8 characters').optional(),
+  firstName: z.string().min(1, 'First name is required'),
+  lastName: z.string().min(1, 'Last name is required'),
+  phone: z.string().optional(),
+  role: z.enum(['RECRUITER', 'SALES_AGENT', 'CONSULTANT_360']),
+  regionId: z.string().min(1, 'Region is required'),
+  territory: z.string().optional(),
+  commissionRate: z.number().min(0).max(100).optional(),
+  employeeId: z.string().optional(),
+  startDate: z.string().optional(), // Date input returns string
+  reportsToUserId: z.string().optional(),
+});
+
+type ConsultantFormData = z.infer<typeof consultantSchema>;
+
+interface ConsultantFormProps {
+  consultantId?: string | null;
+  onSave: () => void;
+  onCancel: () => void;
+}
+
+export function ConsultantForm({ consultantId, onSave, onCancel }: ConsultantFormProps) {
+  const { hrm8User } = useHrm8Auth();
+  const [loading, setLoading] = useState(false);
+  const [loadingConsultant, setLoadingConsultant] = useState(!!consultantId);
+  const [generatingEmail, setGeneratingEmail] = useState(false);
+  const [regions, setRegions] = useState<Array<{ id: string; name: string }>>([]);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = useForm<ConsultantFormData>({
+    resolver: zodResolver(consultantSchema),
+    defaultValues: {
+      role: 'RECRUITER',
+      regionId: '',
+    },
+  });
+
+  useEffect(() => {
+    if (consultantId) {
+      loadConsultant();
+    }
+    loadRegions();
+  }, [consultantId]);
+
+  const loadConsultant = async () => {
+    if (!consultantId) return;
+
+    try {
+      setLoadingConsultant(true);
+      const response = await consultantManagementService.getById(consultantId);
+      if (response.success && response.data?.consultant) {
+        const consultant = response.data.consultant;
+        setValue('email', consultant.email);
+        setValue('firstName', consultant.firstName);
+        setValue('lastName', consultant.lastName);
+        setValue('phone', consultant.phone || '');
+        setValue('role', consultant.role);
+        setValue('regionId', consultant.regionId || '');
+      }
+    } catch (error) {
+      toast.error('Failed to load consultant');
+    } finally {
+      setLoadingConsultant(false);
+    }
+  };
+
+  const loadRegions = async () => {
+    try {
+      const filters: any = { isActive: true };
+
+      // If Licensee, only load their regions
+      if (hrm8User?.role === 'REGIONAL_LICENSEE' && hrm8User.licenseeId) {
+        filters.licenseeId = hrm8User.licenseeId;
+      }
+
+      const response = await regionService.getAll(filters);
+      if (response.success && response.data?.regions) {
+        const loadedRegions = response.data.regions.map(r => ({ id: r.id, name: r.name }));
+        setRegions(loadedRegions);
+
+        // Auto-select if only one region available (common for Licensees)
+        if (!consultantId && loadedRegions.length === 1) {
+          setValue('regionId', loadedRegions[0].id);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load regions:', error);
+    }
+  };
+
+  const handleGenerateEmail = async () => {
+    const firstName = watch('firstName');
+    const lastName = watch('lastName');
+
+    if (!firstName || !lastName) {
+      toast.error('Please enter first name and last name first');
+      return;
+    }
+
+    try {
+      setGeneratingEmail(true);
+      const response = await consultantManagementService.generateEmail({
+        firstName,
+        lastName,
+        consultantId: consultantId || undefined,
+      });
+
+      if (response.success && response.data?.email) {
+        setValue('email', response.data.email);
+        toast.success('Email generated successfully');
+      } else {
+        toast.error(response.error || 'Failed to generate email');
+      }
+    } catch (error) {
+      toast.error('Failed to generate email');
+    } finally {
+      setGeneratingEmail(false);
+    }
+  };
+
+  const onSubmit = async (data: ConsultantFormData) => {
+    try {
+      setLoading(true);
+
+      if (consultantId) {
+        // Update - don't send password
+        const { password, ...updateData } = data;
+        const response = await consultantManagementService.update(consultantId, updateData);
+        if (response.success) {
+          toast.success('Consultant updated successfully');
+          onSave();
+        } else {
+          toast.error(response.error || 'Failed to update consultant');
+        }
+      } else {
+        // Create - password required
+        if (!data.password) {
+          toast.error('Password is required for new consultants');
+          setLoading(false);
+          return;
+        }
+        const payload = {
+          email: data.email,
+          password: data.password,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          phone: data.phone,
+          role: data.role,
+          regionId: data.regionId,
+          territory: data.territory,
+          commissionRate: data.commissionRate,
+          employeeId: data.employeeId,
+          startDate: data.startDate ? new Date(data.startDate) : undefined,
+          reportsToUserId: data.reportsToUserId,
+        };
+        const response = await consultantManagementService.create(payload);
+        if (response.success) {
+          const payload = response.data as ConsultantCreateResponse | undefined;
+
+          // Optional feedback about mailbox provisioning
+          const provisioning = payload?.emailProvisioning;
+          if (provisioning && provisioning.provider) {
+            if (provisioning.success) {
+              toast.success(
+                `Consultant and ${provisioning.provider === 'google' ? 'Google Workspace' : 'Microsoft 365'} mailbox created`
+              );
+            } else {
+              toast.warning?.(
+                `Consultant created, but mailbox creation in ${provisioning.provider === 'google' ? 'Google Workspace' : 'Microsoft 365'} failed`
+              );
+            }
+          } else {
+            toast.success('Consultant created successfully');
+          }
+
+          onSave();
+        } else {
+          toast.error(response.error || 'Failed to create consultant');
+        }
+      }
+    } catch (error) {
+      toast.error('An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loadingConsultant) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label htmlFor="email">Email *</Label>
+          {!consultantId && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleGenerateEmail}
+              disabled={generatingEmail || !watch('firstName') || !watch('lastName')}
+              className="h-8"
+            >
+              {generatingEmail ? (
+                <>
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Mail className="mr-2 h-3 w-3" />
+                  Generate Email
+                </>
+              )}
+            </Button>
+          )}
+        </div>
+        <Input id="email" type="email" {...register('email')} />
+        {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+        {!consultantId && (
+          <p className="text-xs text-muted-foreground">
+            Click "Generate Email" to automatically create an HRM8 email address (firstname.lastname@hrm8.com)
+          </p>
+        )}
+      </div>
+
+      {!consultantId && (
+        <div className="space-y-2">
+          <Label htmlFor="password">Password *</Label>
+          <Input id="password" type="password" {...register('password')} />
+          {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+        </div>
+      )}
+
+      <div className="space-y-2">
+        <Label htmlFor="firstName">First Name *</Label>
+        <Input id="firstName" {...register('firstName')} />
+        {errors.firstName && <p className="text-sm text-destructive">{errors.firstName.message}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="lastName">Last Name *</Label>
+        <Input id="lastName" {...register('lastName')} />
+        {errors.lastName && <p className="text-sm text-destructive">{errors.lastName.message}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="role">Role *</Label>
+        <Select
+          value={watch('role')}
+          onValueChange={(value) => setValue('role', value as any)}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="RECRUITER">Recruiter</SelectItem>
+            <SelectItem value="SALES_AGENT">Sales Agent</SelectItem>
+            <SelectItem value="CONSULTANT_360">360 Consultant</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="regionId">Region *</Label>
+        <Select
+          value={watch('regionId') || ''}
+          onValueChange={(value) => setValue('regionId', value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select region" />
+          </SelectTrigger>
+          <SelectContent>
+            {regions.map((region) => (
+              <SelectItem key={region.id} value={region.id}>
+                {region.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.regionId && <p className="text-sm text-destructive">{errors.regionId.message}</p>}
+        <p className="text-xs text-muted-foreground">
+          Consultants must be assigned to a region for job assignment to work
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="territory">Territory (Optional)</Label>
+        <Input id="territory" {...register('territory')} placeholder="e.g. North District, Downtown" />
+        {errors.territory && <p className="text-sm text-destructive">{errors.territory.message}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="commissionRate">Commission Rate (%)</Label>
+        <Input
+          id="commissionRate"
+          type="number"
+          min="0"
+          max="100"
+          step="0.1"
+          {...register('commissionRate', { valueAsNumber: true })}
+        />
+        {errors.commissionRate && <p className="text-sm text-destructive">{errors.commissionRate.message}</p>}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="employeeId">Employee ID</Label>
+          <Input id="employeeId" {...register('employeeId')} placeholder="Internal ID" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="startDate">Start Date</Label>
+          <Input id="startDate" type="date" {...register('startDate')} />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="reportsToUserId">Reports To (User ID)</Label>
+        <Input id="reportsToUserId" {...register('reportsToUserId')} placeholder="Manager's User ID" />
+        <p className="text-xs text-muted-foreground">Optional: Enter the User ID of the manager</p>
+      </div>
+
+      <div className="flex justify-end gap-2 pt-4">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={loading}>
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          {consultantId ? 'Update' : 'Create'}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+
+
