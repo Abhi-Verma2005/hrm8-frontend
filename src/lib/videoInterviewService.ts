@@ -4,6 +4,7 @@
  */
 
 import { apiClient } from './api';
+import { InterviewFeedback } from '../types/interview';
 
 export interface VideoInterview {
   id: string;
@@ -17,8 +18,9 @@ export interface VideoInterview {
   type: 'VIDEO' | 'PHONE' | 'IN_PERSON';
   interviewerIds: string[];
   recordingUrl?: string;
-  transcript?: any;
-  feedback?: any;
+  transcript?: Record<string, unknown>;
+  feedback?: InterviewFeedback[];
+  interviewFeedbacks?: InterviewFeedback[];
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -98,6 +100,45 @@ class VideoInterviewService {
     return apiClient.post<{ interview: VideoInterview; message: string }>(
       '/api/video-interviews',
       data
+    );
+  }
+
+  /**
+   * Update interview status
+   */
+  async updateStatus(id: string, status: VideoInterview['status']) {
+    return apiClient.patch<{ interview: VideoInterview; message: string }>(
+      `/api/video-interviews/${id}/status`,
+      { status }
+    );
+  }
+
+  /**
+   * Check progression status
+   */
+  async getProgressionStatus(id: string) {
+    return apiClient.get<{
+      canProgress: boolean;
+      missingInterviewers: string[];
+      submittedCount: number;
+      totalCount: number;
+      requiresAllInterviewers: boolean;
+    }>(`/api/video-interviews/${id}/progression-status`);
+  }
+
+  /**
+   * Add feedback to an interview
+   */
+  async addFeedback(id: string, feedback: {
+    overallRating?: number;
+    notes?: string;
+    interviewerId?: string;
+    interviewerName?: string;
+    interviewerEmail?: string;
+  }) {
+    return apiClient.post<{ interview: VideoInterview; message: string }>(
+      `/api/video-interviews/${id}/feedback`,
+      feedback
     );
   }
 

@@ -17,6 +17,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { interviewService, Interview } from '@/lib/api/interviewService';
+import { videoInterviewService } from '@/lib/videoInterviewService';
 import { jobRoundService, JobRound } from '@/lib/api/jobRoundService';
 import { format } from 'date-fns';
 import { 
@@ -41,10 +42,14 @@ import {
   Mail,
   CalendarClock,
   User,
-  ExternalLink
+  ExternalLink,
+  Star,
+  MessageSquare
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { RescheduleInterviewDialog } from '@/components/interviews/RescheduleInterviewDialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -86,6 +91,9 @@ export function RoundInterviewsDrawer({
   const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showNoShowDialog, setShowNoShowDialog] = useState(false);
+  const [showGradeDialog, setShowGradeDialog] = useState(false);
+  const [gradeScore, setGradeScore] = useState<number>(0);
+  const [gradeNotes, setGradeNotes] = useState('');
   const [cancelReason, setCancelReason] = useState('');
   const [noShowReason, setNoShowReason] = useState('');
 
@@ -211,6 +219,77 @@ export function RoundInterviewsDrawer({
         return <MapPin className="h-4 w-4" />;
       default:
         return <Calendar className="h-4 w-4" />;
+    }
+  };
+
+  const getAverageGrade = (interview: Interview) => {
+    const feedbacks = interview.interviewFeedbacks || [];
+    if (feedbacks.length === 0) return null;
+    const total = feedbacks.reduce((sum, fb) => sum + (fb.overall_rating || 0), 0);
+    return {
+      average: (total / feedbacks.length).toFixed(1),
+      count: feedbacks.length
+    };
+  };
+
+  const handleMarkAsComplete = async (interview: Interview) => {
+    try {
+      let response;
+      // Check if it's a video interview
+      if (interview.type === 'VIDEO') {
+        response = await videoInterviewService.updateStatus(interview.id, 'COMPLETED');
+      } else {
+        response = await interviewService.updateStatus(interview.id, 'COMPLETED');
+      }
+      
+      if (response.success) {
+        toast.success('Interview marked as complete');
+        loadInterviews();
+      } else {
+        toast.error('Failed to update status');
+      }
+    } catch (error) {
+      console.error('Failed to update status:', error);
+      toast.error('Failed to update status');
+    }
+  };
+
+  const handleSubmitGrade = async () => {
+    if (!selectedInterview) return;
+    
+    if (gradeScore < 0 || gradeScore > 100) {
+      toast.error('Grade must be between 0 and 100');
+      return;
+    }
+
+    try {
+      let response;
+      // Check if it's a video interview
+      if (selectedInterview.type === 'VIDEO' || selectedInterview.type === 'LIVE_VIDEO') {
+        response = await videoInterviewService.addFeedback(selectedInterview.id, {
+          overallRating: gradeScore,
+          notes: gradeNotes
+        });
+      } else {
+        response = await interviewService.addFeedback(selectedInterview.id, {
+          overallRating: gradeScore,
+          notes: gradeNotes
+        });
+      }
+      
+      if (response.success) {
+        toast.success('Grade submitted successfully');
+        loadInterviews();
+        setShowGradeDialog(false);
+        setGradeScore(0);
+        setGradeNotes('');
+        setSelectedInterview(null);
+      } else {
+        toast.error('Failed to submit grade');
+      }
+    } catch (error) {
+      console.error('Failed to submit grade:', error);
+      toast.error('Failed to submit grade');
     }
   };
 
@@ -624,6 +703,15 @@ export function RoundInterviewsDrawer({
                                     {interview.status === 'SCHEDULED' && (
                                       <>
                                         <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                          onClick={() => handleMarkAsComplete(interview)}
+                                        >
+                                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                                          Mark Complete
+                                        </Button>
+                                        <Button
                                           variant="outline"
                                           size="sm"
                                           onClick={() => {
@@ -659,14 +747,42 @@ export function RoundInterviewsDrawer({
                                       </>
                                     )}
                                     {interview.status === 'COMPLETED' && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => toast.info('View feedback')}
-                                      >
-                                        <CheckCircle2 className="h-3 w-3 mr-1" />
-                                        View Feedback
-                                      </Button>
+                                      <>
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => {
+                                            setSelectedInterview(interview);
+                                            setGradeScore(0);
+                                            setGradeNotes('');
+                                            setShowGradeDialog(true);
+                                          }}
+                                        >
+                                          <Star className="h-3 w-3 mr-1" />
+                                          Grade
+                                        </Button>
+                                        {/* Show Average Grade */}
+                                        {(() => {
+                                          const stats = getAverageGrade(interview);
+                                          if (stats) {
+                                            return (
+                                              <div className="flex items-center gap-1 text-sm text-muted-foreground ml-2">
+                                                <span className="font-semibold text-primary">{stats.average}/100</span>
+                                                <span>({stats.count} graders)</span>
+                                              </div>
+                                            );
+                                          }
+                                          return null;
+                                        })()}
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={() => toast.info('View feedback')}
+                                        >
+                                          <CheckCircle2 className="h-3 w-3 mr-1" />
+                                          View Feedback
+                                        </Button>
+                                      </>
                                     )}
                                     <DropdownMenu>
                                       <DropdownMenuTrigger asChild>
@@ -860,6 +976,47 @@ export function RoundInterviewsDrawer({
               Close
             </Button>
             <Button onClick={handleNoShow}>Mark as No-Show</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Grade Dialog */}
+      <Dialog open={showGradeDialog} onOpenChange={setShowGradeDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Grade Interview</DialogTitle>
+            <DialogDescription>
+              Grade the candidate out of 100 and provide feedback.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium">Score (0-100)</Label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={gradeScore}
+                onChange={(e) => setGradeScore(Number(e.target.value))}
+                placeholder="Enter score..."
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium">Comments</Label>
+              <Textarea
+                value={gradeNotes}
+                onChange={(e) => setGradeNotes(e.target.value)}
+                placeholder="Enter your feedback..."
+                className="mt-1"
+                rows={4}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowGradeDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitGrade}>Submit Grade</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

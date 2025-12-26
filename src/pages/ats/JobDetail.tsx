@@ -416,7 +416,7 @@ export default function JobDetail() {
             appliedDate: new Date(app.appliedDate),
             status: mappedStatus, // Always set from mapping function
             stage: mappedStage, // Always set from mapping function
-            roundId: roundMap[app.id], // Assign round ID from progress map
+            roundId: roundMap[app.id] || app.roundId, // Assign round ID from progress map or direct backend field
             resumeUrl: app.resumeUrl,
             coverLetterUrl: app.coverLetterUrl,
             portfolioUrl: app.portfolioUrl,
