@@ -12,7 +12,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { videoInterviewService, VideoInterview as ServiceVideoInterview } from '@/lib/videoInterviewService';
 import { useToast } from '@/components/ui/use-toast';
 
-type FeedbackWithSnake = InterviewFeedback & { overall_rating?: number };
+type FeedbackWithSnake = InterviewFeedback & { 
+  overall_rating?: number;
+  interviewer_name?: string;
+  submitted_at?: string;
+};
 
 interface InterviewListProps {
   interviews: Interview[];
@@ -30,6 +34,8 @@ export function InterviewList({ interviews, onInterviewClick, onScheduleClick, o
   const [gradeNotes, setGradeNotes] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [progressionStatus, setProgressionStatus] = useState<Record<string, { canProgress: boolean; missingInterviewers: string[] }>>({});
+  const [feedbackDetails, setFeedbackDetails] = useState<ServiceVideoInterview | null>(null);
+  const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
   // Fetch progression status for completed interviews
   useEffect(() => {
@@ -58,6 +64,23 @@ export function InterviewList({ interviews, onInterviewClick, onScheduleClick, o
       fetchProgressionStatus();
     }
   }, [interviews]);
+
+  // Fetch feedback details when dialog opens
+  useEffect(() => {
+    if (isFeedbackViewOpen && selectedInterview) {
+      setIsLoadingFeedback(true);
+      videoInterviewService.getInterview(selectedInterview.id)
+        .then(response => {
+          if (response.data?.interview) {
+            setFeedbackDetails(response.data.interview);
+          }
+        })
+        .catch(err => console.error('Failed to fetch interview details:', err))
+        .finally(() => setIsLoadingFeedback(false));
+    } else {
+      setFeedbackDetails(null);
+    }
+  }, [isFeedbackViewOpen, selectedInterview]);
 
   const getInterviewTypeIcon = (type: Interview['type']) => {
     switch (type) {
@@ -351,15 +374,17 @@ export function InterviewList({ interviews, onInterviewClick, onScheduleClick, o
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
-             {selectedInterview && ((selectedInterview as unknown as ServiceVideoInterview).interviewFeedbacks || selectedInterview.feedback || []).length > 0 ? (
-                ((selectedInterview as unknown as ServiceVideoInterview).interviewFeedbacks || selectedInterview.feedback).map((item, index) => {
-                    const fb = item as FeedbackWithSnake;
+             {isLoadingFeedback ? (
+                <div className="text-center py-8 text-muted-foreground">Loading...</div>
+              ) : (feedbackDetails && (feedbackDetails.interviewFeedbacks || feedbackDetails.feedback || []).length > 0) ? (
+                ((feedbackDetails.interviewFeedbacks || feedbackDetails.feedback) as unknown as FeedbackWithSnake[]).map((item, index) => {
+                    const fb = item;
                     return (
                     <div key={index} className="p-4 border rounded-lg bg-card">
                         <div className="flex justify-between items-start mb-2">
                             <div>
-                                <h4 className="font-semibold">{fb.interviewerName || fb.interviewerId || 'Interviewer'}</h4>
-                                <span className="text-sm text-muted-foreground">{fb.submittedAt ? format(parseISO(fb.submittedAt), 'MMM d, yyyy h:mm a') : 'Recently'}</span>
+                                <h4 className="font-semibold">{fb.interviewerName || fb.interviewer_name || fb.interviewerId || 'Interviewer'}</h4>
+                                <span className="text-sm text-muted-foreground">{fb.submittedAt || fb.submitted_at ? format(parseISO(fb.submittedAt || fb.submitted_at as string), 'MMM d, yyyy h:mm a') : 'Recently'}</span>
                             </div>
                             <Badge variant={(fb.overallRating || fb.overall_rating || 0) >= 70 ? 'default' : (fb.overallRating || fb.overall_rating || 0) >= 40 ? 'secondary' : 'destructive'}>
                                 {fb.overallRating || fb.overall_rating || 0}/100

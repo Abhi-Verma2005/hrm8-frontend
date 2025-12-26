@@ -18,8 +18,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { interviewService, Interview } from '@/lib/api/interviewService';
 import { videoInterviewService } from '@/lib/videoInterviewService';
+import { InterviewFeedback } from '@/types/interview';
 import { jobRoundService, JobRound } from '@/lib/api/jobRoundService';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { 
   Calendar, 
   Clock, 
@@ -57,6 +58,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+
+type FeedbackWithSnake = InterviewFeedback & { 
+  overall_rating?: number;
+  interviewer_name?: string;
+  submitted_at?: string;
+};
 
 interface RoundInterviewsDrawerProps {
   open: boolean;
@@ -96,12 +103,38 @@ export function RoundInterviewsDrawer({
   const [gradeNotes, setGradeNotes] = useState('');
   const [cancelReason, setCancelReason] = useState('');
   const [noShowReason, setNoShowReason] = useState('');
+  const [isFeedbackViewOpen, setIsFeedbackViewOpen] = useState(false);
+  const [feedbackDetails, setFeedbackDetails] = useState<any>(null);
+  const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
   useEffect(() => {
     if (open) {
       loadInterviews();
     }
   }, [open, jobRoundId, statusFilter]);
+
+  // Fetch feedback details when dialog opens
+  useEffect(() => {
+    if (isFeedbackViewOpen && selectedInterview) {
+      setIsLoadingFeedback(true);
+      const isVideo = selectedInterview.type === 'VIDEO' || (selectedInterview.type as any) === 'LIVE_VIDEO';
+      
+      const fetchPromise = isVideo 
+        ? videoInterviewService.getInterview(selectedInterview.id)
+        : interviewService.getInterview(selectedInterview.id);
+
+      fetchPromise
+        .then((response: any) => {
+          if (response.data?.interview) {
+            setFeedbackDetails(response.data.interview);
+          }
+        })
+        .catch((err: any) => console.error('Failed to fetch interview details:', err))
+        .finally(() => setIsLoadingFeedback(false));
+    } else {
+      setFeedbackDetails(null);
+    }
+  }, [isFeedbackViewOpen, selectedInterview]);
 
   const loadInterviews = async () => {
     setLoading(true);
@@ -777,7 +810,10 @@ export function RoundInterviewsDrawer({
                                         <Button
                                           variant="outline"
                                           size="sm"
-                                          onClick={() => toast.info('View feedback')}
+                                          onClick={() => {
+                                            setSelectedInterview(interview);
+                                            setIsFeedbackViewOpen(true);
+                                          }}
                                         >
                                           <CheckCircle2 className="h-3 w-3 mr-1" />
                                           View Feedback
@@ -1017,6 +1053,46 @@ export function RoundInterviewsDrawer({
               Cancel
             </Button>
             <Button onClick={handleSubmitGrade}>Submit Grade</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Feedback View Dialog */}
+      <Dialog open={isFeedbackViewOpen} onOpenChange={setIsFeedbackViewOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Interview Feedback</DialogTitle>
+            <DialogDescription>
+              Feedback for {selectedInterview?.candidate ? `${selectedInterview.candidate.firstName} ${selectedInterview.candidate.lastName}` : 'Candidate'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
+             {isLoadingFeedback ? (
+                <div className="text-center py-8 text-muted-foreground">Loading...</div>
+              ) : (feedbackDetails && (feedbackDetails.interviewFeedbacks || feedbackDetails.feedback || []).length > 0) ? (
+                ((feedbackDetails.interviewFeedbacks || feedbackDetails.feedback) as unknown as FeedbackWithSnake[]).map((item, index) => {
+                    const fb = item;
+                    return (
+                    <div key={index} className="p-4 border rounded-lg bg-card">
+                        <div className="flex justify-between items-start mb-2">
+                            <div>
+                                <h4 className="font-semibold">{fb.interviewerName || fb.interviewer_name || fb.interviewerId || 'Interviewer'}</h4>
+                                <span className="text-sm text-muted-foreground">{fb.submittedAt || fb.submitted_at ? format(parseISO(fb.submittedAt || fb.submitted_at as string), 'MMM d, yyyy h:mm a') : 'Recently'}</span>
+                            </div>
+                            <Badge variant={(fb.overallRating || fb.overall_rating || 0) >= 70 ? 'default' : (fb.overallRating || fb.overall_rating || 0) >= 40 ? 'secondary' : 'destructive'}>
+                                {fb.overallRating || fb.overall_rating || 0}/100
+                            </Badge>
+                        </div>
+                        <p className="text-sm mt-2 whitespace-pre-wrap">{fb.notes}</p>
+                    </div>
+                )})
+             ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                    No feedback submitted yet.
+                </div>
+             )}
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setIsFeedbackViewOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
