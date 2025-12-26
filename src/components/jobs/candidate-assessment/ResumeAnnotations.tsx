@@ -108,8 +108,8 @@ export const ResumeAnnotations: React.FC<ResumeAnnotationsProps> = ({
             key={index}
             className="px-1 rounded cursor-pointer"
             style={{
-              backgroundColor: `${segment.annotation.userColor}40`,
-              borderBottom: `2px solid ${segment.annotation.userColor}`,
+              backgroundColor: `${segment.annotation.user_color}40`,
+              borderBottom: `2px solid ${segment.annotation.user_color}`,
             }}
             title={segment.annotation.comment}
           >
@@ -223,17 +223,17 @@ export const ResumeAnnotations: React.FC<ResumeAnnotationsProps> = ({
                     <div
                       key={annotation.id}
                       className="p-3 rounded-lg border"
-                      style={{ borderLeftColor: annotation.userColor, borderLeftWidth: '3px' }}
+                      style={{ borderLeftColor: annotation.user_color, borderLeftWidth: '3px' }}
                     >
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex items-center gap-2">
                           <Avatar className="h-6 w-6">
                             <AvatarFallback className="text-xs">
-                              {annotation.userName.split(' ').map(n => n[0]).join('')}
+                              {annotation.user_name.split(' ').map(n => n[0]).join('')}
                             </AvatarFallback>
                           </Avatar>
                           <div>
-                            <p className="text-xs font-semibold">{annotation.userName}</p>
+                            <p className="text-xs font-semibold">{annotation.user_name}</p>
                             <p className="text-xs text-muted-foreground">
                               {formatDistanceToNow(annotation.timestamp, { addSuffix: true })}
                             </p>
@@ -255,7 +255,7 @@ export const ResumeAnnotations: React.FC<ResumeAnnotationsProps> = ({
                         </Badge>
                         <p
                           className="text-xs p-2 rounded"
-                          style={{ backgroundColor: `${annotation.userColor}20` }}
+                          style={{ backgroundColor: `${annotation.user_color}20` }}
                         >
                           "{annotation.text}"
                         </p>
