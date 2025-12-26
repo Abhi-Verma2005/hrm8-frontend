@@ -4,9 +4,9 @@ import { toast } from 'sonner';
 
 export interface Annotation {
   id: string;
-  userId: string;
-  userName: string;
-  userColor: string;
+  user_id: string;
+  user_name: string;
+  user_color: string;
   type: 'highlight' | 'comment';
   text: string;
   comment?: string;
@@ -42,7 +42,7 @@ export const useResumeAnnotations = ({
         // Map service response to internal Annotation type if needed
         const mappedAnnotations: Annotation[] = data.map(a => ({
           ...a,
-          timestamp: new Date(a.createdAt),
+          timestamp: new Date(a.created_at),
           // Ensure position is object if it comes as JSON string from backend (though Prisma Json type usually returns object)
           position: typeof a.position === 'string' ? JSON.parse(a.position) : a.position
         }));
@@ -82,7 +82,7 @@ export const useResumeAnnotations = ({
 
         const mappedAnnotation: Annotation = {
           ...newAnnotation,
-          timestamp: new Date(newAnnotation.createdAt),
+          timestamp: new Date(newAnnotation.created_at),
           position: typeof newAnnotation.position === 'string' ? JSON.parse(newAnnotation.position) : newAnnotation.position
         };
 
