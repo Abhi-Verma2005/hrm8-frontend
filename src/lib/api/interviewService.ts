@@ -121,6 +121,13 @@ export interface Interview {
   recordingUrl?: string;
   transcript?: any;
   feedback?: any;
+  interviewFeedbacks?: Array<{
+    id: string;
+    interviewer_name: string;
+    overall_rating: number;
+    notes: string;
+    createdAt: string;
+  }>;
   notes?: string;
   createdAt: string;
   updatedAt: string;
@@ -224,6 +231,29 @@ class InterviewService {
     return apiClient.put<{ interview: Interview; message: string }>(
       `/api/interviews/${id}/no-show`,
       { reason }
+    );
+  }
+
+  /**
+   * Update interview status
+   */
+  async updateStatus(id: string, status: 'IN_PROGRESS' | 'COMPLETED') {
+    return apiClient.put<{ interview: Interview; message: string }>(
+      `/api/interviews/${id}/status`,
+      { status }
+    );
+  }
+
+  /**
+   * Add feedback to interview
+   */
+  async addFeedback(id: string, feedback: {
+    overallRating?: number;
+    notes?: string;
+  }) {
+    return apiClient.post<{ message: string }>(
+      `/api/interviews/${id}/feedback`,
+      feedback
     );
   }
 }
