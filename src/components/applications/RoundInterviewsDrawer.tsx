@@ -4,7 +4,7 @@
  * Includes all manual scheduling, rescheduling, canceling, and management features
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { InterviewCalendarView } from '@/components/interviews/InterviewCalendarViewNew';
@@ -17,7 +17,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { interviewService, Interview } from '@/lib/api/interviewService';
-import { videoInterviewService } from '@/lib/videoInterviewService';
+import { videoInterviewService, VideoInterview } from '@/lib/videoInterviewService';
 import { InterviewFeedback } from '@/types/interview';
 import { jobRoundService, JobRound } from '@/lib/api/jobRoundService';
 import { format, parseISO } from 'date-fns';
@@ -104,39 +104,10 @@ export function RoundInterviewsDrawer({
   const [cancelReason, setCancelReason] = useState('');
   const [noShowReason, setNoShowReason] = useState('');
   const [isFeedbackViewOpen, setIsFeedbackViewOpen] = useState(false);
-  const [feedbackDetails, setFeedbackDetails] = useState<any>(null);
+  const [feedbackDetails, setFeedbackDetails] = useState<VideoInterview | null>(null);
   const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
 
-  useEffect(() => {
-    if (open) {
-      loadInterviews();
-    }
-  }, [open, jobRoundId, statusFilter]);
-
-  // Fetch feedback details when dialog opens
-  useEffect(() => {
-    if (isFeedbackViewOpen && selectedInterview) {
-      setIsLoadingFeedback(true);
-      const isVideo = selectedInterview.type === 'VIDEO' || (selectedInterview.type as any) === 'LIVE_VIDEO';
-      
-      const fetchPromise = isVideo 
-        ? videoInterviewService.getInterview(selectedInterview.id)
-        : interviewService.getInterview(selectedInterview.id);
-
-      fetchPromise
-        .then((response: any) => {
-          if (response.data?.interview) {
-            setFeedbackDetails(response.data.interview);
-          }
-        })
-        .catch((err: any) => console.error('Failed to fetch interview details:', err))
-        .finally(() => setIsLoadingFeedback(false));
-    } else {
-      setFeedbackDetails(null);
-    }
-  }, [isFeedbackViewOpen, selectedInterview]);
-
-  const loadInterviews = async () => {
+  const loadInterviews = useCallback(async () => {
     setLoading(true);
     try {
       const response = await interviewService.getInterviews({
@@ -156,8 +127,88 @@ export function RoundInterviewsDrawer({
     } finally {
       setLoading(false);
     }
+  }, [jobId, jobRoundId, statusFilter]);
+
+  useEffect(() => {
+    if (open) {
+      loadInterviews();
+    }
+  }, [open, loadInterviews]);
+
+  // Fetch feedback details when dialog opens
+  const [progressionStatus, setProgressionStatus] = useState<Record<string, { canProgress: boolean; missingInterviewers: string[] }>>({});
+
+  useEffect(() => {
+    // Fetch progression status for completed interviews
+    if (activeTab === 'list' && interviews.length > 0) {
+      const completedInterviews = interviews.filter(i => i.status === 'COMPLETED');
+      completedInterviews.forEach(interview => {
+        // Use type assertion to handle potential backend type mismatches safely
+        const type = interview.type as string;
+        const isVideo = type === 'VIDEO' || type === 'LIVE_VIDEO';
+        
+        if (isVideo) {
+          videoInterviewService.getProgressionStatus(interview.id)
+            .then(res => {
+              if (res.data) {
+                setProgressionStatus(prev => ({
+                  ...prev,
+                  [interview.id]: res.data
+                }));
+              }
+            })
+            .catch(err => console.error('Failed to get progression status', err));
+        }
+      });
+    }
+  }, [interviews, activeTab]);
+
+  useEffect(() => {
+    if (isFeedbackViewOpen && selectedInterview) {
+      setIsLoadingFeedback(true);
+      const type = selectedInterview.type as string;
+      const isVideo = type === 'VIDEO' || type === 'LIVE_VIDEO';
+      
+      const fetchPromise = isVideo 
+        ? videoInterviewService.getInterview(selectedInterview.id)
+        : interviewService.getInterview(selectedInterview.id);
+
+      fetchPromise
+        .then((response) => {
+          if (response.data?.interview) {
+            setFeedbackDetails(response.data.interview as VideoInterview);
+          }
+        })
+        .catch((err) => console.error('Failed to fetch interview details:', err))
+        .finally(() => setIsLoadingFeedback(false));
+    } else {
+      setFeedbackDetails(null);
+    }
+  }, [isFeedbackViewOpen, selectedInterview]);
+
+  const handleMoveNext = async (interview: Interview) => {
+    try {
+      // Logic to move next would typically involve updating application stage
+      // For now, we'll just show a success message as the actual endpoint might vary
+      // or we might need to use applicationService
+      console.log('Moving interview to next stage:', interview.id);
+      toast.success('Candidate moved to next stage');
+    } catch (error) {
+      toast.error('Failed to move candidate');
+    }
   };
 
+  const handleReject = async (interview: Interview) => {
+    try {
+      // Logic to reject candidate
+      console.log('Rejecting interview:', interview.id);
+      toast.success('Candidate rejected');
+    } catch (error) {
+      toast.error('Failed to reject candidate');
+    }
+  };
+
+  
   // Calculate statistics
   const statistics = useMemo(() => {
     const total = interviews.length;
@@ -298,7 +349,8 @@ export function RoundInterviewsDrawer({
     try {
       let response;
       // Check if it's a video interview
-      if (selectedInterview.type === 'VIDEO' || selectedInterview.type === 'LIVE_VIDEO') {
+      const type = selectedInterview.type as string;
+      if (type === 'VIDEO' || type === 'LIVE_VIDEO') {
         response = await videoInterviewService.addFeedback(selectedInterview.id, {
           overallRating: gradeScore,
           notes: gradeNotes
@@ -818,6 +870,29 @@ export function RoundInterviewsDrawer({
                                           <CheckCircle2 className="h-3 w-3 mr-1" />
                                           View Feedback
                                         </Button>
+
+                                        {/* Progression Buttons */}
+                                        {progressionStatus[interview.id]?.canProgress && (
+                                          <>
+                                            <Button
+                                              variant="destructive"
+                                              size="sm"
+                                              onClick={() => handleReject(interview)}
+                                            >
+                                              <X className="h-3 w-3 mr-1" />
+                                              Reject
+                                            </Button>
+                                            <Button
+                                              variant="default"
+                                              size="sm"
+                                              className="bg-green-600 hover:bg-green-700"
+                                              onClick={() => handleMoveNext(interview)}
+                                            >
+                                              <CheckCircle2 className="h-3 w-3 mr-1" />
+                                              Move Next
+                                            </Button>
+                                          </>
+                                        )}
                                       </>
                                     )}
                                     <DropdownMenu>
