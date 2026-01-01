@@ -1,211 +1,323 @@
-import { useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
+import { useState, useEffect } from "react";
 import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/DataTable";
-import { Plus, Target, DollarSign, TrendingUp, Award, Eye, Download, BarChart3 } from "lucide-react";
-import { getAllOpportunities, getOpportunityStats } from "@/lib/salesOpportunityStorage";
-import type { SalesOpportunity } from "@/types/salesOpportunity";
-import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { createOpportunityColumns } from "@/components/sales/SalesOpportunityTableColumns";
-import { OpportunitiesFilterBar } from "@/components/sales/OpportunitiesFilterBar";
-import { OpportunityBulkActions } from "@/components/sales/OpportunityBulkActions";
-import { exportOpportunities } from "@/lib/salesExportService";
+import { Plus, Download, ArrowRight, Building2, Mail, Phone, Globe } from "lucide-react";
+import { salesService, Lead } from "@/lib/sales/salesService";
 import { useToast } from "@/hooks/use-toast";
-import { SalesExportDialog, ExportConfig } from "@/components/sales/SalesExportDialog";
+import { Column } from "@/components/tables/DataTable";
+import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function OpportunitiesPage() {
-  const navigate = useNavigate();
   const { toast } = useToast();
-  const [opportunities] = useState<SalesOpportunity[]>(getAllOpportunities());
-  const [search, setSearch] = useState("");
-  const [stageFilter, setStageFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [exportDialogOpen, setExportDialogOpen] = useState(false);
-  const stats = getOpportunityStats();
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [convertDialogOpen, setConvertDialogOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
-  const columns = useMemo(() => createOpportunityColumns(), []);
+  // Forms State
+  const [createForm, setCreateForm] = useState({
+    companyName: "",
+    email: "",
+    phone: "",
+    website: "",
+    country: "United States",
+  });
 
-  const filteredOpportunities = useMemo(() => {
-    return opportunities.filter((opp) => {
-      const matchesSearch = 
-        search === "" ||
-        opp.name.toLowerCase().includes(search.toLowerCase()) ||
-        opp.employerName.toLowerCase().includes(search.toLowerCase());
-      
-      const matchesStage = stageFilter === "all" || opp.stage === stageFilter;
-      const matchesType = typeFilter === "all" || opp.type === typeFilter;
-      
-      return matchesSearch && matchesStage && matchesType;
-    });
-  }, [opportunities, search, stageFilter, typeFilter]);
+  const [convertForm, setConvertForm] = useState({
+    adminFirstName: "",
+    adminLastName: "",
+    email: "", // Added email field for validation/correction
+    domain: "", // Added domain field for company validation
+    password: "",
+    acceptTerms: false,
+  });
 
-  const handleClearFilters = () => {
-    setSearch("");
-    setStageFilter("all");
-    setTypeFilter("all");
+  const fetchLeads = async () => {
+    setIsLoading(true);
+    try {
+      const response = await salesService.getLeads();
+      if (response.success && response.data) {
+        setLeads(response.data.leads || []);
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to fetch leads", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleExport = () => {
-    console.log("Bulk export not yet implemented");
+  useEffect(() => {
+    fetchLeads();
+  }, []);
+
+  const handleCreateLead = async () => {
+    try {
+      const response = await salesService.createLead(createForm);
+      if (response.success) {
+        toast({ title: "Success", description: "Lead created successfully" });
+        setCreateDialogOpen(false);
+        setCreateForm({ companyName: "", email: "", phone: "", website: "", country: "United States" });
+        fetchLeads();
+      } else {
+        toast({ title: "Error", description: response.error, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to create lead", variant: "destructive" });
+    }
   };
 
-  const handleDelete = (selectedIds: string[]) => {
-    console.log("Deleting selected opportunities:", selectedIds);
+  const handleConvertLead = async () => {
+    if (!selectedLead) return;
+    try {
+      const response = await salesService.convertLead(selectedLead.id, {
+        ...convertForm,
+        // Ensure we send the updated email/domain if the API supports it
+        email: convertForm.email,
+        domain: convertForm.domain
+      });
+      if (response.success) {
+        toast({ title: "Success", description: "Lead converted to Company!" });
+        setConvertDialogOpen(false);
+        setConvertForm({ adminFirstName: "", adminLastName: "", email: "", domain: "", password: "", acceptTerms: false });
+        fetchLeads();
+      } else {
+        toast({ title: "Error", description: response.error, variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to convert lead", variant: "destructive" });
+    }
   };
 
-  const handleChangeStage = (selectedIds: string[]) => {
-    console.log("Changing stage for selected opportunities:", selectedIds);
-  };
-
-  const handleExportDialog = (config: ExportConfig) => {
-    exportOpportunities(filteredOpportunities, config.format, 'sales-opportunities', {
-      fields: config.fields,
-      dateRange: config.dateRange,
-    });
+  const openConvertDialog = (lead: Lead) => {
+    setSelectedLead(lead);
+    // Pre-fill form with lead data, extracting domain from email or website
+    const domainFromEmail = lead.email.split('@')[1];
+    const domainFromWebsite = lead.website ? new URL(lead.website).hostname.replace('www.', '') : '';
     
-    toast({
-      title: "Export Complete",
-      description: `Exported ${filteredOpportunities.length} opportunities as ${config.format.toUpperCase()}`,
+    setConvertForm({
+      adminFirstName: "",
+      adminLastName: "",
+      email: lead.email,
+      domain: domainFromWebsite || domainFromEmail || "",
+      password: "",
+      acceptTerms: false,
     });
+    setConvertDialogOpen(true);
   };
+
+  const columns: Column<Lead>[] = [
+    {
+      key: "company_name",
+      label: "Company",
+      render: (lead) => (
+        <div className="flex flex-col">
+          <span className="font-medium">{lead.company_name}</span>
+          {lead.website && (
+            <a href={lead.website} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground hover:underline flex items-center gap-1">
+              <Globe className="h-3 w-3" /> {lead.website}
+            </a>
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "email",
+      label: "Contact",
+      render: (lead) => (
+        <div className="flex flex-col text-sm">
+          <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> {lead.email}</span>
+          {lead.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> {lead.phone}</span>}
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      render: (lead) => {
+        const status = lead.status;
+        return (
+          <Badge variant={status === 'CONVERTED' ? 'success' : status === 'NEW' ? 'default' : 'secondary'}>
+            {status}
+          </Badge>
+        );
+      },
+    },
+    {
+      key: "created_at",
+      label: "Created",
+      render: (lead) => new Date(lead.created_at).toLocaleDateString(),
+    },
+    {
+      key: "actions",
+      label: "Actions",
+      render: (lead) => {
+        if (lead.status === 'CONVERTED') return null;
+        return (
+          <Button size="sm" variant="outline" onClick={() => openConvertDialog(lead)}>
+            Convert <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+    },
+  ];
 
   return (
-    <DashboardPageLayout>
-      <div className="p-6 space-y-6">
-        <AtsPageHeader title="Opportunities" subtitle="Manage and track all sales opportunities">
-          <div className="flex gap-2 items-center">
-            <Button variant="outline" onClick={() => setExportDialogOpen(true)}>
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Button onClick={() => navigate("/sales/opportunities/new")}>
-              <Plus className="h-4 w-4 mr-2" />
-              New Opportunity
-            </Button>
-          </div>
-        </AtsPageHeader>
+    <div className="p-6 space-y-6">
+      <AtsPageHeader title="Leads Management" subtitle="Track and convert your leads">
+        <Button onClick={() => setCreateDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Lead
+        </Button>
+      </AtsPageHeader>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <EnhancedStatCard
-            title="Total Opportunities"
-            value={stats.total.toString()}
-            change={`${stats.active} open`}
-            icon={<Target className="h-6 w-6" />}
-            variant="neutral"
-            showMenu={true}
-            menuItems={[
-              {
-                label: "View All Opportunities",
-                icon: <Eye className="h-4 w-4" />,
-                onClick: () => navigate('/sales/opportunities')
-              },
-              {
-                label: "Create Opportunity",
-                icon: <Plus className="h-4 w-4" />,
-                onClick: () => navigate('/sales/opportunities/new')
-              },
-              {
-                label: "Export",
-                icon: <Download className="h-4 w-4" />,
-                onClick: () => setExportDialogOpen(true)
-              }
-            ]}
-          />
-          <EnhancedStatCard
-            title="Open Value"
-            value={stats.pipelineValue.toString()}
-            change="Pipeline value"
-            icon={<DollarSign className="h-6 w-6" />}
-            variant="primary"
-            isCurrency={true}
-            rawValue={stats.pipelineValue}
-            showMenu={true}
-            menuItems={[
-              {
-                label: "View Pipeline",
-                icon: <Eye className="h-4 w-4" />,
-                onClick: () => navigate('/sales/pipeline')
-              },
-              {
-                label: "View Report",
-                icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => navigate('/sales/forecast')
-              }
-            ]}
-          />
-          <EnhancedStatCard
-            title="Avg Deal Size"
-            value={stats.avgDealSize.toString()}
-            change="Per opportunity"
-            icon={<TrendingUp className="h-6 w-6" />}
-            variant="success"
-            isCurrency={true}
-            rawValue={stats.avgDealSize}
-            showMenu={true}
-            menuItems={[
-              {
-                label: "View Analytics",
-                icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
-              }
-            ]}
-          />
-          <EnhancedStatCard
-            title="Win Rate"
-            value={`${stats.conversionRate.toFixed(1)}%`}
-            change="Conversion rate"
-            icon={<Award className="h-6 w-6" />}
-            variant="warning"
-            showMenu={true}
-            menuItems={[
-              {
-                label: "View Report",
-                icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
-              }
-            ]}
-          />
-        </div>
-
-        <OpportunitiesFilterBar
-          search={search}
-          onSearchChange={setSearch}
-          stageFilter={stageFilter}
-          onStageFilterChange={setStageFilter}
-          typeFilter={typeFilter}
-          onTypeFilterChange={setTypeFilter}
-          onClearFilters={handleClearFilters}
-        />
-
-        <div className="overflow-x-auto -mx-1 px-1">
-          <DataTable
-            columns={columns}
-            data={filteredOpportunities}
-            selectable
-            renderBulkActions={(selectedIds) => (
-              <OpportunityBulkActions
-                selectedCount={selectedIds.length}
-                onExport={() => handleExport()}
-                onDelete={() => handleDelete(selectedIds)}
-                onChangeStage={() => handleChangeStage(selectedIds)}
-                onClearSelection={() => {}}
-              />
-            )}
-            exportable
-            exportFilename="opportunities"
-          />
-        </div>
-
-        <SalesExportDialog
-          open={exportDialogOpen}
-          onOpenChange={setExportDialogOpen}
-          exportType="opportunities"
-          onExport={handleExportDialog}
-          totalRecords={filteredOpportunities.length}
+      <div className="bg-card rounded-lg border shadow-sm p-1">
+        <DataTable
+          columns={columns}
+          data={leads}
+          searchable={true}
+          searchColumn="company_name"
         />
       </div>
-    </DashboardPageLayout>
+
+      {/* Create Lead Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Lead</DialogTitle>
+            <DialogDescription>Enter the company details to create a new lead.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Company Name</Label>
+              <Input 
+                value={createForm.companyName} 
+                onChange={(e) => setCreateForm({...createForm, companyName: e.target.value})} 
+                placeholder="Acme Inc."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Email (Admin)</Label>
+              <Input 
+                value={createForm.email} 
+                onChange={(e) => setCreateForm({...createForm, email: e.target.value})} 
+                placeholder="admin@acme.com"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Phone</Label>
+                <Input 
+                  value={createForm.phone} 
+                  onChange={(e) => setCreateForm({...createForm, phone: e.target.value})} 
+                  placeholder="+1..."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Country</Label>
+                <Input 
+                  value={createForm.country} 
+                  onChange={(e) => setCreateForm({...createForm, country: e.target.value})} 
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Website</Label>
+              <Input 
+                value={createForm.website} 
+                onChange={(e) => setCreateForm({...createForm, website: e.target.value})} 
+                placeholder="https://..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleCreateLead}>Create Lead</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Convert Lead Dialog */}
+      <Dialog open={convertDialogOpen} onOpenChange={setConvertDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Convert Lead to Company</DialogTitle>
+            <DialogDescription>
+              Create a company account for <strong>{selectedLead?.company_name}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Company Domain (Unique Identifier)</Label>
+              <Input 
+                value={convertForm.domain} 
+                onChange={(e) => setConvertForm({...convertForm, domain: e.target.value})} 
+                placeholder="acme.com"
+              />
+              <p className="text-xs text-muted-foreground">This will be used to create the company workspace.</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Admin Email</Label>
+              <Input 
+                value={convertForm.email} 
+                onChange={(e) => setConvertForm({...convertForm, email: e.target.value})} 
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Admin First Name</Label>
+                <Input 
+                  value={convertForm.adminFirstName} 
+                  onChange={(e) => setConvertForm({...convertForm, adminFirstName: e.target.value})} 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Admin Last Name</Label>
+                <Input 
+                  value={convertForm.adminLastName} 
+                  onChange={(e) => setConvertForm({...convertForm, adminLastName: e.target.value})} 
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Temporary Password</Label>
+              <Input 
+                type="password"
+                value={convertForm.password} 
+                onChange={(e) => setConvertForm({...convertForm, password: e.target.value})} 
+              />
+            </div>
+            <div className="flex items-center space-x-2 pt-2">
+              <Checkbox 
+                id="terms" 
+                checked={convertForm.acceptTerms}
+                onCheckedChange={(c) => setConvertForm({...convertForm, acceptTerms: c as boolean})}
+              />
+              <Label htmlFor="terms" className="text-sm font-normal">
+                I accept the terms and conditions on behalf of the company
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConvertDialogOpen(false)}>Cancel</Button>
+            <Button onClick={handleConvertLead} disabled={!convertForm.acceptTerms}>Convert</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

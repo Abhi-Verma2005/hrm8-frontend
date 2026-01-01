@@ -9,13 +9,14 @@ import Hrm8Dashboard from "@/pages/hrm8/Hrm8Dashboard";
 import Hrm8Overview from "@/pages/hrm8/Hrm8Overview";
 import RegionsPage from "@/pages/hrm8/RegionsPage";
 import LicenseesPage from "@/pages/hrm8/LicenseesPage";
-import ConsultantsPage from "@/pages/hrm8/ConsultantsPage";
+import StaffPage from "@/pages/hrm8/StaffPage";
 import JobAllocationPage from "@/pages/hrm8/JobAllocationPage";
 import UnassignedJobsPage from "@/pages/hrm8/UnassignedJobsPage";
 import CommissionsPage from "@/pages/hrm8/CommissionsPage";
 import RevenuePage from "@/pages/hrm8/RevenuePage";
 import ReportsPage from "@/pages/hrm8/ReportsPage";
 import PricingPage from "@/pages/hrm8/PricingPage";
+import RegionalSalesDashboard from "@/pages/hrm8/RegionalSalesDashboard";
 
 export const hrm8Routes = (
   <Route
@@ -28,9 +29,10 @@ export const hrm8Routes = (
   >
     <Route index element={<Hrm8Overview />} />
     <Route path="dashboard" element={<Hrm8Overview />} />
+    <Route path="sales-pipeline" element={<RegionalSalesDashboard />} />
     <Route path="regions" element={<RegionsPage />} />
     <Route path="licensees" element={<LicenseesPage />} />
-    <Route path="consultants" element={<ConsultantsPage />} />
+    <Route path="staff" element={<StaffPage />} />
     <Route path="jobs" element={<JobAllocationPage />} />
     <Route path="jobs/unassigned" element={<UnassignedJobsPage />} />
     <Route path="commissions" element={<CommissionsPage />} />

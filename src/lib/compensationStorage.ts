@@ -25,7 +25,7 @@ export function saveSalaryBand(band: Omit<SalaryBand, 'id' | 'createdAt' | 'upda
   const bands = getSalaryBands();
   const newBand: SalaryBand = {
     ...band,
-    id: crypto.randomUUID(),
+    
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -44,7 +44,7 @@ export function saveCompensationReview(review: Omit<CompensationReview, 'id' | '
   const reviews = getCompensationReviews();
   const newReview: CompensationReview = {
     ...review,
-    id: crypto.randomUUID(),
+    
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

@@ -88,38 +88,63 @@ export function ConsultantAuthProvider({ children }: { children: ReactNode }) {
     email: string,
     password: string
   ): Promise<{ success: boolean; error?: string }> => {
+    console.log('[ConsultantAuth] Login attempt started for:', email);
     try {
       setIsLoading(true);
       const response = await consultantAuthService.login({ email, password });
+      console.log('[ConsultantAuth] Login API response:', response);
+
       if (response.success && response.data?.consultant) {
+        const userRole = response.data.consultant.role;
+        console.log('[ConsultantAuth] Login successful. User role:', userRole);
+        
         setConsultant(response.data.consultant);
         toast({
           title: 'Welcome back!',
           description: `Logged in as ${response.data.consultant.firstName} ${response.data.consultant.lastName}`,
         });
+
+        // Redirect based on role
+        if (userRole === 'SALES_AGENT') {
+          console.log('[ConsultantAuth] Redirecting SALES_AGENT to /sales-agent/dashboard');
+          // Force replace history to avoid back-button loops
+          navigate('/sales-agent/dashboard', { replace: true });
+          return { success: true };
+        }
+
+        console.log('[ConsultantAuth] User is not SALES_AGENT. Checking profile completeness...');
         // After login, check if profile is complete; if not, redirect to profile onboarding
         try {
           const profileResponse = await consultantService.getProfile();
           const profile = profileResponse.success ? profileResponse.data?.consultant : null;
           if (profile && !isProfileComplete(profile)) {
-            navigate('/consultant/profile?onboarding=1');
+            console.log('[ConsultantAuth] Profile incomplete. Redirecting to onboarding.');
+            navigate('/consultant/profile?onboarding=1', { replace: true });
           } else {
-            navigate('/consultant/dashboard');
+            console.log('[ConsultantAuth] Profile complete. Redirecting to /consultant/dashboard');
+            navigate('/consultant/dashboard', { replace: true });
           }
-        } catch {
-          navigate('/consultant/dashboard');
+        } catch (profileError) {
+          console.error('[ConsultantAuth] Profile check failed:', profileError);
+          navigate('/consultant/dashboard', { replace: true });
         }
         return { success: true };
       }
+      
       const errorMessage = response.error || 'Login failed';
+      console.warn('[ConsultantAuth] Login failed with response error:', errorMessage);
       toast({
         title: 'Login failed',
         description: errorMessage,
         variant: 'destructive',
       });
       return { success: false, error: errorMessage };
-    } catch (error: any) {
-      const errorMessage = error.message || 'Login failed. Please check your credentials.';
+    } catch (error: unknown) {
+      console.error('[ConsultantAuth] Login exception:', error);
+      let errorMessage = 'Login failed. Please check your credentials.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
       toast({
         title: 'Login failed',
         description: errorMessage,
@@ -137,8 +162,15 @@ export function ConsultantAuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       // Ignore logout errors
     } finally {
+      // Check current role to determine redirect path before clearing state
+      const isSalesAgent = consultant?.role === 'SALES_AGENT';
       setConsultant(null);
-      navigate('/consultant/login');
+      
+      if (isSalesAgent) {
+        navigate('/sales-agent/login');
+      } else {
+        navigate('/consultant/login');
+      }
     }
   };
 

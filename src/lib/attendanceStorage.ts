@@ -27,7 +27,7 @@ export function saveAttendanceRecord(record: Omit<AttendanceRecord, 'id' | 'crea
   const records = getAttendanceRecords();
   const newRecord: AttendanceRecord = {
     ...record,
-    id: crypto.randomUUID(),
+    
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -60,7 +60,7 @@ export function saveOvertimeRequest(request: Omit<OvertimeRequest, 'id' | 'reque
   const requests = getOvertimeRequests();
   const newRequest: OvertimeRequest = {
     ...request,
-    id: crypto.randomUUID(),
+    
     requestedAt: new Date().toISOString(),
   };
   requests.push(newRequest);

@@ -66,3 +66,15 @@ export function formatRelativeDate(date: Date | string): string {
     return `${years} ${years === 1 ? 'year' : 'years'} ago`;
   }
 }
+
+/**
+ * Format currency amount
+ */
+export function formatCurrency(amount: number, currency: string = 'USD'): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}

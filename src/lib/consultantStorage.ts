@@ -3,15 +3,15 @@
  * API-based consultant management (replaces localStorage)
  */
 
-import { consultantManagementService, Consultant } from './hrm8/consultantManagementService';
+import { staffService, StaffMember } from './hrm8/staffService';
 
 // Legacy interface for backward compatibility during migration
 export type { ConsultantStatus, ConsultantType, EmploymentType } from '@/types/consultant';
-export type { Consultant } from './hrm8/consultantManagementService';
+export type Consultant = StaffMember;
 
-export async function getAllConsultants(): Promise<Consultant[]> {
+export async function getAllConsultants(): Promise<StaffMember[]> {
   try {
-    const response = await consultantManagementService.getAll();
+    const response = await staffService.getAll();
     if (response.success && response.data?.consultants) {
       return response.data.consultants;
     }
@@ -22,9 +22,9 @@ export async function getAllConsultants(): Promise<Consultant[]> {
   }
 }
 
-export async function getConsultantById(id: string): Promise<Consultant | undefined> {
+export async function getConsultantById(id: string): Promise<StaffMember | undefined> {
   try {
-    const response = await consultantManagementService.getById(id);
+    const response = await staffService.getById(id);
     if (response.success && response.data?.consultant) {
       return response.data.consultant;
     }
@@ -35,8 +35,8 @@ export async function getConsultantById(id: string): Promise<Consultant | undefi
   }
 }
 
-export async function createConsultant(consultant: Omit<Consultant, 'id' | 'createdAt' | 'updatedAt' | 'passwordHash' | 'availability' | 'totalCommissionsPaid' | 'pendingCommissions' | 'totalPlacements' | 'totalRevenue' | 'successRate'> & { password: string }): Promise<Consultant> {
-  const response = await consultantManagementService.create({
+export async function createConsultant(consultant: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'passwordHash' | 'availability' | 'totalCommissionsPaid' | 'pendingCommissions' | 'totalPlacements' | 'totalRevenue' | 'successRate'> & { password: string }): Promise<StaffMember> {
+  const response = await staffService.create({
     email: consultant.email,
     password: consultant.password,
     firstName: consultant.firstName,
@@ -53,8 +53,8 @@ export async function createConsultant(consultant: Omit<Consultant, 'id' | 'crea
   throw new Error(response.error || 'Failed to create consultant');
 }
 
-export async function updateConsultant(id: string, updates: Partial<Consultant>): Promise<Consultant | null> {
-  const response = await consultantManagementService.update(id, updates);
+export async function updateConsultant(id: string, updates: Partial<StaffMember>): Promise<StaffMember | null> {
+  const response = await staffService.update(id, updates);
   if (response.success && response.data?.consultant) {
     return response.data.consultant;
   }
@@ -63,36 +63,36 @@ export async function updateConsultant(id: string, updates: Partial<Consultant>)
 
 export async function deleteConsultant(id: string): Promise<boolean> {
   // Note: There's no delete endpoint, we'll use suspend
-  const response = await consultantManagementService.suspend(id);
+  const response = await staffService.suspend(id);
   return response.success;
 }
 
-export async function updateConsultantStatus(id: string, status: Consultant['status']): Promise<boolean> {
+export async function updateConsultantStatus(id: string, status: StaffMember['status']): Promise<boolean> {
   if (status === 'SUSPENDED') {
-    const response = await consultantManagementService.suspend(id);
+    const response = await staffService.suspend(id);
     return response.success;
   } else if (status === 'ACTIVE') {
-    const response = await consultantManagementService.reactivate(id);
+    const response = await staffService.reactivate(id);
     return response.success;
   }
   return false;
 }
 
-export async function getConsultantsByType(type: string): Promise<Consultant[]> {
+export async function getConsultantsByType(type: string): Promise<StaffMember[]> {
   const all = await getAllConsultants();
   return all.filter(c => c.role === type);
 }
 
-export async function getConsultantsByStatus(status: Consultant['status']): Promise<Consultant[]> {
+export async function getConsultantsByStatus(status: StaffMember['status']): Promise<StaffMember[]> {
   const all = await getAllConsultants();
   return all.filter(c => c.status === status);
 }
 
-export async function getActiveConsultants(): Promise<Consultant[]> {
+export async function getActiveConsultants(): Promise<StaffMember[]> {
   return getConsultantsByStatus('ACTIVE');
 }
 
-export async function searchConsultants(query: string): Promise<Consultant[]> {
+export async function searchConsultants(query: string): Promise<StaffMember[]> {
   const all = await getAllConsultants();
   const lowerQuery = query.toLowerCase();
   return all.filter(c =>
@@ -103,7 +103,7 @@ export async function searchConsultants(query: string): Promise<Consultant[]> {
   );
 }
 
-export async function getTopPerformers(limit: number = 10): Promise<Consultant[]> {
+export async function getTopPerformers(limit: number = 10): Promise<StaffMember[]> {
   const all = await getAllConsultants();
   return all
     .filter(c => c.status === 'ACTIVE')
@@ -119,7 +119,7 @@ export async function updateConsultantCapacity(
   const consultant = await getConsultantById(id);
   if (!consultant) return false;
 
-  const updates: Partial<Consultant> = {};
+  const updates: Partial<StaffMember> = {};
   if (type === 'employers') {
     updates.currentEmployers = Math.max(0, (consultant.currentEmployers || 0) + delta);
   } else {

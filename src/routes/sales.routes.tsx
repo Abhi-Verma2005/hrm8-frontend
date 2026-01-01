@@ -7,17 +7,27 @@ import SalesActivitiesPage from "@/pages/sales/SalesActivitiesPage";
 import CommissionsPage from "@/pages/sales/CommissionsPage";
 import TerritoriesPage from "@/pages/sales/TerritoriesPage";
 import SalesForecastPage from "@/pages/sales/SalesForecastPage";
+import { SalesLayout } from "@/components/layouts/SalesLayout";
+import { ConsultantAuthGuard } from "@/components/auth/ConsultantAuthGuard";
 
 export const salesRoutes = (
-  <>
-    <Route path="/sales/dashboard" element={<SalesDashboardPage />} />
-    <Route path="/sales/team" element={<SalesTeamPage />} />
-    <Route path="/sales/pipeline" element={<SalesPipelinePage />} />
-    <Route path="/sales/opportunities" element={<OpportunitiesPage />} />
-    <Route path="/sales/activities" element={<SalesActivitiesPage />} />
-    <Route path="/sales/commissions" element={<CommissionsPage />} />
-    <Route path="/sales/territories" element={<TerritoriesPage />} />
-    <Route path="/sales/forecast" element={<SalesForecastPage />} />
-  </>
+  <Route
+    path="/sales-agent"
+    element={
+      <ConsultantAuthGuard>
+        <SalesLayout />
+      </ConsultantAuthGuard>
+    }
+  >
+    <Route index element={<SalesDashboardPage />} />
+    <Route path="dashboard" element={<SalesDashboardPage />} />
+    <Route path="team" element={<SalesTeamPage />} />
+    <Route path="pipeline" element={<SalesPipelinePage />} />
+    <Route path="leads" element={<OpportunitiesPage />} /> {/* Renaming/Mapping Opportunities to Leads route */}
+    <Route path="activities" element={<SalesActivitiesPage />} />
+    <Route path="commissions" element={<CommissionsPage />} />
+    <Route path="territories" element={<TerritoriesPage />} />
+    <Route path="forecast" element={<SalesForecastPage />} />
+  </Route>
 );
 

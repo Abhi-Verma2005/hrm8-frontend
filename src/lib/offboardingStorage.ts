@@ -20,7 +20,7 @@ export function saveOffboardingWorkflow(workflow: Omit<OffboardingWorkflow, 'id'
   const workflows = getOffboardingWorkflows();
   const newWorkflow: OffboardingWorkflow = {
     ...workflow,
-    id: crypto.randomUUID(),
+    
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -52,7 +52,7 @@ export function saveExitInterview(interview: Omit<ExitInterview, 'id' | 'created
   const interviews = getExitInterviews();
   const newInterview: ExitInterview = {
     ...interview,
-    id: crypto.randomUUID(),
+    
     createdAt: new Date().toISOString(),
   };
   interviews.push(newInterview);

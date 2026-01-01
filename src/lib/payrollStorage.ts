@@ -23,7 +23,7 @@ export function savePayrollRun(run: Omit<PayrollRun, 'id' | 'createdAt' | 'updat
   const runs = getPayrollRuns();
   const newRun: PayrollRun = {
     ...run,
-    id: crypto.randomUUID(),
+    
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -56,7 +56,7 @@ export function savePayslip(payslip: Omit<Payslip, 'id' | 'generatedAt'>): Paysl
   const payslips = getPayslips();
   const newPayslip: Payslip = {
     ...payslip,
-    id: crypto.randomUUID(),
+    
     generatedAt: new Date().toISOString(),
   };
   payslips.push(newPayslip);

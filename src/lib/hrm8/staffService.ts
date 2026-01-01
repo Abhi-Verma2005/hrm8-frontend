@@ -1,11 +1,11 @@
 /**
- * Consultant Management Service
- * API service for HRM8 admin consultant management
+ * Staff Management Service
+ * API service for HRM8 admin staff management (Consultants, Sales Agents, etc.)
  */
 
 import { apiClient } from '../api';
 
-export interface Consultant {
+export interface StaffMember {
   id: string;
   email: string;
   firstName: string;
@@ -42,7 +42,7 @@ export interface Consultant {
   updatedAt: string;
 }
 
-export interface ConsultantEmailProvisioningInfo {
+export interface StaffEmailProvisioningInfo {
   success: boolean;
   provider?: 'google' | 'microsoft';
   email?: string;
@@ -52,12 +52,12 @@ export interface ConsultantEmailProvisioningInfo {
   errorMessage?: string;
 }
 
-export interface ConsultantCreateResponse {
-  consultant: Consultant;
-  emailProvisioning?: ConsultantEmailProvisioningInfo;
+export interface StaffCreateResponse {
+  consultant: StaffMember;
+  emailProvisioning?: StaffEmailProvisioningInfo;
 }
 
-class ConsultantManagementService {
+class StaffService {
   async getAll(filters?: {
     regionId?: string;
     role?: string;
@@ -69,11 +69,11 @@ class ConsultantManagementService {
     if (filters?.status) queryParams.append('status', filters.status);
 
     const query = queryParams.toString();
-    return apiClient.get<{ consultants: Consultant[] }>(`/api/hrm8/consultants${query ? `?${query}` : ''}`);
+    return apiClient.get<{ consultants: StaffMember[] }>(`/api/hrm8/consultants${query ? `?${query}` : ''}`);
   }
 
   async getById(id: string) {
-    return apiClient.get<{ consultant: Consultant }>(`/api/hrm8/consultants/${id}`);
+    return apiClient.get<{ consultant: StaffMember }>(`/api/hrm8/consultants/${id}`);
   }
 
   async create(data: {
@@ -86,15 +86,15 @@ class ConsultantManagementService {
     role: 'RECRUITER' | 'SALES_AGENT' | 'CONSULTANT_360';
     regionId?: string;
   }) {
-    return apiClient.post<ConsultantCreateResponse>('/api/hrm8/consultants', data);
+    return apiClient.post<StaffCreateResponse>('/api/hrm8/consultants', data);
   }
 
-  async update(id: string, data: Partial<Consultant>) {
-    return apiClient.put<{ consultant: Consultant }>(`/api/hrm8/consultants/${id}`, data);
+  async update(id: string, data: Partial<StaffMember>) {
+    return apiClient.put<{ consultant: StaffMember }>(`/api/hrm8/consultants/${id}`, data);
   }
 
   async assignRegion(consultantId: string, regionId: string) {
-    return apiClient.post<{ consultant: Consultant }>(`/api/hrm8/consultants/${consultantId}/assign-region`, { regionId });
+    return apiClient.post<{ consultant: StaffMember }>(`/api/hrm8/consultants/${consultantId}/assign-region`, { regionId });
   }
 
   async suspend(id: string) {
@@ -114,7 +114,7 @@ class ConsultantManagementService {
   }
 }
 
-export const consultantManagementService = new ConsultantManagementService();
+export const staffService = new StaffService();
 
 
 

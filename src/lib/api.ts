@@ -25,6 +25,12 @@ class ApiClient {
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
 
+    console.log('[apiClient] 🌐 Sending request:', {
+      method: options.method || 'GET',
+      url,
+      hasBody: !!options.body,
+    });
+
     const config: RequestInit = {
       ...options,
       headers: {
@@ -35,14 +41,17 @@ class ApiClient {
     };
 
     try {
+      const startTime = performance.now();
       const response = await fetch(url, config);
       const data = await response.json();
+      const duration = performance.now() - startTime;
 
       if (!response.ok) {
-        console.error('[apiClient] request failed', {
+        console.error('[apiClient] ❌ Request failed:', {
           url,
           status: response.status,
           statusText: response.statusText,
+          duration: `${duration.toFixed(2)}ms`,
           data,
         });
         return {
@@ -52,9 +61,19 @@ class ApiClient {
         };
       }
 
+      console.log('[apiClient] ✅ Request successful:', {
+        url,
+        status: response.status,
+        duration: `${duration.toFixed(2)}ms`,
+        dataKeys: data && typeof data === 'object' ? Object.keys(data) : [],
+        success: data.success,
+      });
+
+      console.log('[apiClient] 📦 Response data:', data);
+
       return data as ApiResponse<T>;
     } catch (error) {
-      console.error('[apiClient] network error', { url, error });
+      console.error('[apiClient] ❌ Network error:', { url, error });
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Network error',

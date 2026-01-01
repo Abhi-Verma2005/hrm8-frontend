@@ -87,7 +87,7 @@ export function GoalFormDialog({
   const [kpis, setKpis] = useState<GoalKPI[]>(
     goal?.kpis || [
       {
-        id: crypto.randomUUID(),
+        
         name: "",
         target: 0,
         current: 0,
@@ -119,7 +119,7 @@ export function GoalFormDialog({
 
   const addKpi = () => {
     const newKpi: GoalKPI = {
-      id: crypto.randomUUID(),
+      
       name: "",
       target: 0,
       current: 0,

@@ -23,7 +23,7 @@ export function saveBenefitPlan(plan: Omit<BenefitPlan, 'id' | 'createdAt' | 'up
   const plans = getBenefitPlans();
   const newPlan: BenefitPlan = {
     ...plan,
-    id: crypto.randomUUID(),
+    
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -42,7 +42,7 @@ export function saveBenefitEnrollment(enrollment: Omit<BenefitEnrollment, 'id' |
   const enrollments = getBenefitEnrollments();
   const newEnrollment: BenefitEnrollment = {
     ...enrollment,
-    id: crypto.randomUUID(),
+    
     enrolledAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

@@ -24,7 +24,7 @@ export function saveDocument(document: Omit<Document, 'id' | 'createdAt' | 'upda
   const documents = getDocuments();
   const newDocument: Document = {
     ...document,
-    id: crypto.randomUUID(),
+    
     viewCount: 0,
     downloadCount: 0,
     createdAt: new Date().toISOString(),
@@ -59,7 +59,7 @@ export function saveFolder(folder: Omit<DocumentFolder, 'id' | 'createdAt'>): Do
   const folders = getFolders();
   const newFolder: DocumentFolder = {
     ...folder,
-    id: crypto.randomUUID(),
+    
     createdAt: new Date().toISOString(),
   };
   folders.push(newFolder);

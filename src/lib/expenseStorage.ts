@@ -24,7 +24,7 @@ export function saveExpense(expense: Omit<Expense, 'id' | 'createdAt' | 'updated
   const expenses = getExpenses();
   const newExpense: Expense = {
     ...expense,
-    id: crypto.randomUUID(),
+    
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -56,7 +56,7 @@ export function saveExpenseReport(report: Omit<ExpenseReport, 'id'>): ExpenseRep
   const reports = getExpenseReports();
   const newReport: ExpenseReport = {
     ...report,
-    id: crypto.randomUUID(),
+    
   };
   reports.push(newReport);
   localStorage.setItem(REPORTS_KEY, JSON.stringify(reports));

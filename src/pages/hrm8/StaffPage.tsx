@@ -1,11 +1,11 @@
 /**
- * Consultants Management Page
- * HRM8 Global Admin consultant management
+ * Staff Management Page
+ * HRM8 Global Admin staff management (Consultants, Sales Agents, etc.)
  */
 
 import { useState, useEffect } from 'react';
 import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
-import { consultantManagementService, Consultant } from '@/lib/hrm8/consultantManagementService';
+import { staffService, StaffMember } from '@/lib/hrm8/staffService';
 import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
 import { Plus, Users } from 'lucide-react';
@@ -13,13 +13,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { toast } from 'sonner';
 import { FormDrawer } from '@/components/ui/form-drawer';
-import { ConsultantForm } from '@/components/hrm8/ConsultantForm';
+import { StaffForm } from '@/components/hrm8/StaffForm';
 
 const columns = [
   {
     key: 'firstName',
     label: 'Name',
-    render: (consultant: Consultant) => `${consultant.firstName} ${consultant.lastName}`,
+    render: (staff: StaffMember) => `${staff.firstName} ${staff.lastName}`,
   },
   {
     key: 'email',
@@ -29,66 +29,67 @@ const columns = [
   {
     key: 'role',
     label: 'Role',
-    render: (consultant: Consultant) => consultant.role.replace('_', ' '),
+    render: (staff: StaffMember) => staff.role.replace('_', ' '),
   },
   {
     key: 'status',
     label: 'Status',
-    render: (consultant: Consultant) => (
-      <span className={consultant.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-500'}>
-        {consultant.status}
+    render: (staff: StaffMember) => (
+      <span className={staff.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-500'}>
+        {staff.status}
       </span>
     ),
   },
 ];
 
-export default function ConsultantsPage() {
+export default function StaffPage() {
   const { hrm8User } = useHrm8Auth();
-  const [consultants, setConsultants] = useState<Consultant[]>([]);
+  const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editingConsultantId, setEditingConsultantId] = useState<string | null>(null);
+  const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
 
   const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
+  const canCreate = isGlobalAdmin || hrm8User?.role === 'REGIONAL_LICENSEE';
 
   useEffect(() => {
-    loadConsultants();
+    loadStaff();
   }, []);
 
-  const loadConsultants = async () => {
+  const loadStaff = async () => {
     try {
       setLoading(true);
-      const response = await consultantManagementService.getAll();
+      const response = await staffService.getAll();
       if (response.success && response.data?.consultants) {
-        setConsultants(response.data.consultants);
+        setStaffList(response.data.consultants);
       }
     } catch (error) {
-      toast.error('Failed to load consultants');
+      toast.error('Failed to load staff members');
     } finally {
       setLoading(false);
     }
   };
 
   const handleCreate = () => {
-    setEditingConsultantId(null);
+    setEditingStaffId(null);
     setDrawerOpen(true);
   };
 
   const handleSave = async () => {
-    await loadConsultants();
+    await loadStaff();
     setDrawerOpen(false);
-    setEditingConsultantId(null);
+    setEditingStaffId(null);
   };
 
   return (
     <Hrm8PageLayout
-      title="Consultants"
-      subtitle="Manage HRM8 consultants"
+      title="Staff Management"
+      subtitle="Manage Consultants and Sales Agents"
       actions={
-        isGlobalAdmin ? (
+        canCreate ? (
           <Button onClick={handleCreate}>
             <Plus className="mr-2 h-4 w-4" />
-            Create Consultant
+            Create Staff
           </Button>
         ) : undefined
       }
@@ -97,35 +98,35 @@ export default function ConsultantsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Consultants</CardTitle>
+          <CardTitle>Staff Members</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8">Loading consultants...</div>
+            <div className="text-center py-8">Loading staff members...</div>
           ) : (
             <DataTable
-              data={consultants}
+              data={staffList}
               columns={columns}
               searchable
               searchKeys={['firstName', 'lastName', 'email']}
-              emptyMessage="No consultants found"
+              emptyMessage="No staff members found"
             />
           )}
         </CardContent>
       </Card>
 
-      {isGlobalAdmin && (
+      {canCreate && (
         <FormDrawer
           open={drawerOpen}
           onOpenChange={setDrawerOpen}
-          title={editingConsultantId ? 'Edit Consultant' : 'Create Consultant'}
+          title={editingStaffId ? 'Edit Staff Member' : 'Create Staff Member'}
         >
-          <ConsultantForm
-            consultantId={editingConsultantId}
+          <StaffForm
+            consultantId={editingStaffId}
             onSave={handleSave}
             onCancel={() => {
               setDrawerOpen(false);
-              setEditingConsultantId(null);
+              setEditingStaffId(null);
             }}
           />
         </FormDrawer>

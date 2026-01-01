@@ -75,7 +75,7 @@ const industrySuggestions = [
 ];
 
 const defaultLocation = (): CompanyProfileLocation => ({
-  id: crypto.randomUUID(),
+  
   name: '',
   streetAddress: '',
   city: '',

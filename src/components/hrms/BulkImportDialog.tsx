@@ -85,7 +85,7 @@ export function BulkImportDialog({ open, onOpenChange, onSuccess }: BulkImportDi
       const employees = getEmployees();
       const parsedData: ImportRow[] = jsonData.map((row: any, index) => {
         const employee: Partial<Employee> = {
-          id: crypto.randomUUID(),
+          
           employeeId: row['Employee ID'] || '',
           firstName: row['First Name'] || '',
           lastName: row['Last Name'] || '',

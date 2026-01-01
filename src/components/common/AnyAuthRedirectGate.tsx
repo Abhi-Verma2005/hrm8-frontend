@@ -21,7 +21,7 @@ export function AnyAuthRedirectGate({ children }: AnyAuthRedirectGateProps) {
   const { isAuthenticated: isRecruiterAuthenticated, isLoading: recruiterLoading } = useAuth();
   const { isAuthenticated: isCandidateAuthenticated, isLoading: candidateLoading } = useCandidateAuth();
   const { isAuthenticated: isHrm8Authenticated, isLoading: hrm8Loading } = useHrm8Auth();
-  const { isAuthenticated: isConsultantAuthenticated, isLoading: consultantLoading } = useConsultantAuth();
+  const { isAuthenticated: isConsultantAuthenticated, isLoading: consultantLoading, consultant } = useConsultantAuth();
 
   const isAnyLoading = recruiterLoading || candidateLoading || hrm8Loading || consultantLoading;
 
@@ -38,7 +38,11 @@ export function AnyAuthRedirectGate({ children }: AnyAuthRedirectGateProps) {
     }
 
     if (isConsultantAuthenticated) {
-      navigate('/consultant/dashboard', { replace: true });
+      if (consultant?.role === 'SALES_AGENT') {
+        navigate('/sales-agent/dashboard', { replace: true });
+      } else {
+        navigate('/consultant/dashboard', { replace: true });
+      }
       return;
     }
 

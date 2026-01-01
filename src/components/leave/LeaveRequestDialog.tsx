@@ -78,7 +78,7 @@ export function LeaveRequestDialog({
     );
 
     const newRequest: LeaveRequest = {
-      id: crypto.randomUUID(),
+      
       employeeId,
       employeeName,
       leaveTypeId: data.leaveTypeId,
@@ -91,7 +91,7 @@ export function LeaveRequestDialog({
       status: 'pending',
       approvalWorkflow: [
         {
-          id: crypto.randomUUID(),
+          
           leaveRequestId: '',
           level: 1,
           approverId: '5', // Mock manager

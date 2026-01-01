@@ -18,6 +18,7 @@ import EmployeeSignup from "@/pages/EmployeeSignup";
 import AcceptInvitation from "@/pages/AcceptInvitation";
 import Hrm8Login from "@/pages/Hrm8Login";
 import ConsultantLogin from "@/pages/ConsultantLogin";
+import SalesLogin from "@/pages/sales/SalesLogin";
 import NotFound from "@/pages/NotFound";
 
 export const AppRoutes = () => {
@@ -65,6 +66,14 @@ export const AppRoutes = () => {
           </AnyAuthRedirectGate>
         }
       />
+      <Route
+        path="/sales-agent/login"
+        element={
+          <AnyAuthRedirectGate>
+            <SalesLogin />
+          </AnyAuthRedirectGate>
+        }
+      />
       
       {/* Redirect root to home page (protected) */}
       <Route path="/" element={<Navigate to="/home" replace />} />
@@ -81,9 +90,6 @@ export const AppRoutes = () => {
         
         {/* ATS Module Routes */}
         {atsRoutes}
-        
-        {/* Sales Module Routes */}
-        {salesRoutes}
         
         {/* RPO Module Routes */}
         {rpoRoutes}
@@ -103,6 +109,9 @@ export const AppRoutes = () => {
       
       {/* Consultant routes (separate auth, separate layout) */}
       {consultantRoutes}
+
+      {/* Sales Agent routes (separate auth, separate layout) */}
+      {salesRoutes}
       
       {/* Public routes (no sidebar, no auth required) */}
       {publicRoutes}
