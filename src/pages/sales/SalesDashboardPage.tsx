@@ -132,7 +132,14 @@ export default function SalesDashboardPage() {
           trend="up"
           icon={<Building2 className="h-5 w-5" />}
           variant="neutral"
-          showMenu={false}
+          showMenu={true}
+          menuItems={[
+            {
+              label: "View All Clients",
+              icon: <Eye className="h-4 w-4" />,
+              onClick: () => navigate('/sales-agent/companies')
+            }
+          ]}
         />
 
         <EnhancedStatCard

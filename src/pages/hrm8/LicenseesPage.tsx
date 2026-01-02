@@ -8,12 +8,23 @@ import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
 import { licenseeService, RegionalLicensee } from '@/lib/hrm8/licenseeService';
 import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
-import { Plus, Building2, Edit, Trash2, Ban } from 'lucide-react';
+import { Plus, Building2, Edit, Trash2, Ban, ShieldAlert, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { toast } from 'sonner';
 import { FormDrawer } from '@/components/ui/form-drawer';
 import { LicenseeForm } from '@/components/hrm8/LicenseeForm';
+import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const columns = [
   {
@@ -29,11 +40,18 @@ const columns = [
   {
     key: 'status',
     label: 'Status',
-    render: (licensee: RegionalLicensee) => (
-      <span className={licensee.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-500'}>
-        {licensee.status}
-      </span>
-    ),
+    render: (licensee: RegionalLicensee) => {
+      const statusColors = {
+        ACTIVE: 'bg-green-100 text-green-800 border-green-200',
+        SUSPENDED: 'bg-amber-100 text-amber-800 border-amber-200',
+        TERMINATED: 'bg-red-100 text-red-800 border-red-200',
+      };
+      return (
+        <Badge variant="outline" className={statusColors[licensee.status]}>
+          {licensee.status}
+        </Badge>
+      );
+    },
   },
   {
     key: 'revenueSharePercent',
@@ -48,6 +66,10 @@ export default function LicenseesPage() {
   const [loading, setLoading] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingLicenseeId, setEditingLicenseeId] = useState<string | null>(null);
+  const [confirmSuspendOpen, setConfirmSuspendOpen] = useState(false);
+  const [confirmTerminateOpen, setConfirmTerminateOpen] = useState(false);
+  const [selectedLicensee, setSelectedLicensee] = useState<RegionalLicensee | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
 
@@ -79,11 +101,93 @@ export default function LicenseesPage() {
     setDrawerOpen(true);
   };
 
+  const handleSuspend = async () => {
+    if (!selectedLicensee) return;
+    try {
+      setActionLoading(true);
+      const response = await (selectedLicensee.status === 'SUSPENDED' 
+        ? licenseeService.update(selectedLicensee.id, { status: 'ACTIVE' })
+        : licenseeService.suspend(selectedLicensee.id));
+      
+      if (response.success) {
+        toast.success(`Licensee ${selectedLicensee.status === 'SUSPENDED' ? 'activated' : 'suspended'} successfully`);
+        await loadLicensees();
+      }
+    } catch (error) {
+      toast.error('Failed to update licensee status');
+    } finally {
+      setActionLoading(false);
+      setConfirmSuspendOpen(false);
+      setSelectedLicensee(null);
+    }
+  };
+
+  const handleTerminate = async () => {
+    if (!selectedLicensee) return;
+    try {
+      setActionLoading(true);
+      const response = await licenseeService.terminate(selectedLicensee.id);
+      if (response.success) {
+        toast.success('Licensee terminated successfully');
+        await loadLicensees();
+      }
+    } catch (error) {
+      toast.error('Failed to terminate licensee');
+    } finally {
+      setActionLoading(false);
+      setConfirmTerminateOpen(false);
+      setSelectedLicensee(null);
+    }
+  };
+
   const handleSave = async () => {
     await loadLicensees();
     setDrawerOpen(false);
     setEditingLicenseeId(null);
   };
+
+  const pageColumns = [
+    ...columns,
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (licensee: RegionalLicensee) => (
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={() => handleEdit(licensee)}>
+            <Edit className="h-4 w-4" />
+          </Button>
+          
+          {licensee.status !== 'TERMINATED' && (
+            <>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className={licensee.status === 'SUSPENDED' ? 'text-green-600' : 'text-amber-600'}
+                onClick={() => {
+                  setSelectedLicensee(licensee);
+                  setConfirmSuspendOpen(true);
+                }}
+              >
+                {licensee.status === 'SUSPENDED' ? <CheckCircle className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
+              </Button>
+              
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-red-600"
+                onClick={() => {
+                  setSelectedLicensee(licensee);
+                  setConfirmTerminateOpen(true);
+                }}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </>
+          )}
+        </div>
+      ),
+    },
+  ];
 
   if (!isGlobalAdmin) {
     return (
@@ -119,7 +223,7 @@ export default function LicenseesPage() {
           ) : (
             <DataTable
               data={licensees}
-              columns={columns}
+              columns={pageColumns}
               searchable
               searchKeys={['name', 'email', 'legalEntityName']}
               emptyMessage="No licensees found"
@@ -127,6 +231,61 @@ export default function LicenseesPage() {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={confirmSuspendOpen} onOpenChange={setConfirmSuspendOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {selectedLicensee?.status === 'SUSPENDED' ? 'Activate Licensee' : 'Suspend Licensee'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to {selectedLicensee?.status === 'SUSPENDED' ? 'activate' : 'suspend'} <strong>{selectedLicensee?.name}</strong>? 
+              {selectedLicensee?.status !== 'SUSPENDED' && ' This will temporarily disable their access to regional data.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => {
+                e.preventDefault();
+                handleSuspend();
+              }}
+              disabled={actionLoading}
+              className={selectedLicensee?.status === 'SUSPENDED' ? 'bg-green-600 hover:bg-green-700' : 'bg-amber-600 hover:bg-amber-700'}
+            >
+              {actionLoading ? 'Processing...' : (selectedLicensee?.status === 'SUSPENDED' ? 'Activate' : 'Suspend')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={confirmTerminateOpen} onOpenChange={setConfirmTerminateOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-red-600 flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5" />
+              Terminate Licensee
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to permanently terminate <strong>{selectedLicensee?.name}</strong>? 
+              This action <strong>cannot be undone</strong> and will revoke all access immediately.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionLoading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={(e) => {
+                e.preventDefault();
+                handleTerminate();
+              }}
+              disabled={actionLoading}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {actionLoading ? 'Terminating...' : 'Terminate Licensee'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <FormDrawer
         open={drawerOpen}

@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   Users,
   DollarSign,
+  Building2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -28,6 +29,7 @@ const menuItems = [
   { path: "/sales-agent/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { path: "/sales-agent/pipeline", label: "Pipeline", icon: DollarSign },
   { path: "/sales-agent/leads", label: "Leads", icon: Users },
+  { path: "/sales-agent/companies", label: "My Clients", icon: Building2 },
   { path: "/sales-agent/commissions", label: "Commissions", icon: DollarSign },
 ];
 

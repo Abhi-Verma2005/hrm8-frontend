@@ -17,6 +17,7 @@ import RevenuePage from "@/pages/hrm8/RevenuePage";
 import ReportsPage from "@/pages/hrm8/ReportsPage";
 import PricingPage from "@/pages/hrm8/PricingPage";
 import RegionalSalesDashboard from "@/pages/hrm8/RegionalSalesDashboard";
+import SettlementsPage from "@/pages/hrm8/SettlementsPage";
 
 export const hrm8Routes = (
   <Route
@@ -36,6 +37,7 @@ export const hrm8Routes = (
     <Route path="jobs" element={<JobAllocationPage />} />
     <Route path="jobs/unassigned" element={<UnassignedJobsPage />} />
     <Route path="commissions" element={<CommissionsPage />} />
+    <Route path="settlements" element={<SettlementsPage />} />
     <Route path="revenue" element={<RevenuePage />} />
     <Route path="pricing" element={<PricingPage />} />
     <Route path="reports" element={<ReportsPage />} />

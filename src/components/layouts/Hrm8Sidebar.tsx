@@ -41,6 +41,7 @@ const menuItems = [
   { path: "/hrm8/jobs", label: "Job Allocation", icon: Briefcase },
   { path: "/hrm8/sales-pipeline", label: "Pipeline", icon: BarChart3 },
   { path: "/hrm8/commissions", label: "Commissions", icon: DollarSign },
+  { path: "/hrm8/settlements", label: "Settlements", icon: DollarSign },
   { path: "/hrm8/revenue", label: "Revenue", icon: TrendingUp },
   { path: "/hrm8/pricing", label: "Pricing", icon: BookOpen },
   { path: "/hrm8/reports", label: "Reports", icon: FileText },
