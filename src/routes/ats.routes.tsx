@@ -53,14 +53,14 @@ export const atsRoutes = (
     <Route path="/candidates/:candidateId" element={<Candidates />} />
     <Route path="/candidates/:candidateId/edit" element={<Candidates />} />
     <Route path="/candidates/pipeline" element={<PipelineKanban />} />
-    <Route path="/jobs" element={<Jobs />} />
-    <Route path="/jobs/new" element={<JobCreate />} />
-    <Route path="/jobs/templates" element={<JobTemplates />} />
-    <Route path="/jobs/automation" element={<JobAutomationSettings />} />
-    <Route path="/jobs/analytics" element={<JobAnalytics />} />
-    <Route path="/jobs/:jobId" element={<JobDetail />} />
-    <Route path="/jobs/:jobId/managed-recruitment-checkout" element={<ManagedRecruitmentCheckout />} />
-    <Route path="/jobs/:jobId/edit" element={<JobEdit />} />
+    <Route path="/ats/jobs" element={<Jobs />} />
+    <Route path="/ats/jobs/new" element={<JobCreate />} />
+    <Route path="/ats/jobs/templates" element={<JobTemplates />} />
+    <Route path="/ats/jobs/automation" element={<JobAutomationSettings />} />
+    <Route path="/ats/jobs/analytics" element={<JobAnalytics />} />
+    <Route path="/ats/jobs/:jobId" element={<JobDetail />} />
+    <Route path="/ats/jobs/:jobId/managed-recruitment-checkout" element={<ManagedRecruitmentCheckout />} />
+    <Route path="/ats/jobs/:jobId/edit" element={<JobEdit />} />
     <Route path="/email-templates" element={<TemplateManager />} />
     <Route path="/email-center" element={<EmailCenter />} />
     <Route path="/import-export" element={<ImportExport />} />
@@ -71,8 +71,8 @@ export const atsRoutes = (
     <Route path="/requisitions/:id" element={<RequisitionDetail />} />
     <Route path="/interviews" element={<Interviews />} />
     <Route path="/offers" element={<Offers />} />
-    <Route path="/jobs/:jobId/applications" element={<JobApplications />} />
-    <Route path="/jobs/:jobId/applications/:id" element={<ApplicationDetail />} />
+    <Route path="/ats/jobs/:jobId/applications" element={<JobApplications />} />
+    <Route path="/ats/jobs/:jobId/applications/:id" element={<ApplicationDetail />} />
     <Route path="/assessments" element={<Assessments />} />
     <Route path="/assessments/:id" element={<AssessmentDetail />} />
     <Route path="/assessments/compare" element={<AssessmentComparisonPage />} />
@@ -90,7 +90,7 @@ export const atsRoutes = (
     <Route path="/background-checks/sla-settings" element={<SLASettingsPage />} />
     <Route path="/background-checks/analytics" element={<BackgroundChecksAnalytics />} />
     <Route path="/internal-jobs" element={<InternalJobs />} />
-    
+
     {/* AI Interview Routes */}
     <Route path="/ai-interviews" element={<AIInterviews />} />
     <Route path="/ai-interviews/schedule" element={<AIInterviewWizard />} />

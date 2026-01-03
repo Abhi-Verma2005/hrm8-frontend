@@ -83,7 +83,7 @@ class JobService {
   }
 
   async getPublicJobById(id: string) {
-    return apiClient.get<{ job: PublicJob }>(`/api/public/jobs/${id}`);
+    return apiClient.get<PublicJob>(`/api/public/jobs/${id}`);
   }
 
   async getFilterOptions() {

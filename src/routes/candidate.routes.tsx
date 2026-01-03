@@ -2,16 +2,13 @@
  * Candidate Routes
  */
 
-import { Route } from "react-router-dom";
+import { Route, Navigate } from "react-router-dom";
 import CandidateDashboard from "@/pages/candidate/CandidateDashboard";
 import CandidateDashboardHome from "@/pages/candidate/CandidateDashboardHome";
 import ProfilePage from "@/pages/candidate/ProfilePage";
 import ApplicationsPage from "@/pages/candidate/ApplicationsPage";
 import SavedJobsPage from "@/pages/candidate/SavedJobsPage";
 import ApplicationConfirmation from "@/pages/candidate/ApplicationConfirmation";
-import JobSearchPage from "@/pages/candidate/JobSearchPage";
-import JobDetailPage from "@/pages/candidate/JobDetailPage";
-import ApplyPage from "@/pages/candidate/ApplyPage";
 import MessagesPage from "@/pages/candidate/MessagesPage";
 import ConversationPage from "@/pages/candidate/ConversationPage";
 import WorkHistoryPage from "@/pages/candidate/WorkHistoryPage";
@@ -21,25 +18,25 @@ import DocumentsPage from "@/pages/candidate/DocumentsPage";
 import AssessmentListPage from "@/pages/candidate/AssessmentListPage";
 import AssessmentPage from "@/pages/candidate/AssessmentPage";
 import { RoleIsolationGate } from "@/components/common/RoleIsolationGate";
+import { useParams } from "react-router-dom";
+
+// Helper components for redirects
+const RedirectToJobDetail = () => {
+  const { id } = useParams();
+  return <Navigate to={`/jobs/${id}`} replace />;
+};
+
+const RedirectToJobApply = () => {
+  const { id } = useParams();
+  return <Navigate to={`/jobs/${id}/apply`} replace />;
+};
 
 export const candidateRoutes = (
   <>
-    {/* Public job browsing routes (no authentication required) */}
-    <Route path="/candidate/jobs" element={
-      <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
-        <JobSearchPage />
-      </RoleIsolationGate>
-    } />
-    <Route path="/candidate/jobs/:id" element={
-      <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
-        <JobDetailPage />
-      </RoleIsolationGate>
-    } />
-    <Route path="/candidate/jobs/:id/apply" element={
-      <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
-        <ApplyPage />
-      </RoleIsolationGate>
-    } />
+    {/* Redirect old job routes to new public routes */}
+    <Route path="/candidate/jobs" element={<Navigate to="/jobs" replace />} />
+    <Route path="/candidate/jobs/:id" element={<RedirectToJobDetail />} />
+    <Route path="/candidate/jobs/:id/apply" element={<RedirectToJobApply />} />
 
     {/* Assessment Routes - Full Screen */}
     <Route path="/candidate/assessments/:id" element={
@@ -75,4 +72,3 @@ export const candidateRoutes = (
     </Route>
   </>
 );
-

@@ -549,7 +549,7 @@ export default function SavedJobsPage() {
                       Clear Filters
                     </Button>
                   ) : (
-                  <Button onClick={() => navigate('/candidate/jobs')}>
+                  <Button onClick={() => navigate('/jobs')}>
                     Browse Jobs
                   </Button>
                   )}
@@ -565,7 +565,7 @@ export default function SavedJobsPage() {
                           <div className="flex items-start justify-between md:justify-start gap-4">
                             <h3
                               className="text-base font-semibold hover:text-primary cursor-pointer"
-                              onClick={() => navigate(`/candidate/jobs/${item.job.id}`)}
+                              onClick={() => navigate(`/jobs/${item.job.id}`)}
                             >
                               {item.job.title}
                             </h3>
@@ -592,7 +592,7 @@ export default function SavedJobsPage() {
                           </div>
                         </div>
                         <div className="flex flex-row md:flex-col gap-2 shrink-0">
-                          <Button size="sm" onClick={() => navigate(`/candidate/jobs/${item.job.id}`)}>
+                          <Button size="sm" onClick={() => navigate(`/jobs/${item.job.id}`)}>
                             Apply Now
                           </Button>
                           <Button
@@ -623,7 +623,7 @@ export default function SavedJobsPage() {
                   <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p className="text-base font-semibold mb-2">No search history</p>
                   <p className="text-sm mb-6">Your recent searches will appear here.</p>
-                  <Button size="sm" onClick={() => navigate('/candidate/jobs')}>
+                  <Button size="sm" onClick={() => navigate('/jobs')}>
                     Start Searching
                   </Button>
                 </CardContent>
@@ -652,7 +652,7 @@ export default function SavedJobsPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate('/candidate/jobs', { state: { filters: search.filters } })}
+                          onClick={() => navigate('/jobs', { state: { filters: search.filters } })}
                         >
                           Run Search
                         </Button>

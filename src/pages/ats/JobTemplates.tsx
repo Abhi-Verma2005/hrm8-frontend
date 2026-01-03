@@ -184,7 +184,7 @@ export default function JobTemplates() {
       setTemplateToUse(null);
       
       // Navigate to jobs page to open the draft, with flag to indicate it's from template
-      navigate('/jobs?action=create&fromTemplate=true');
+      navigate('/ats/jobs?action=create&fromTemplate=true');
     } catch (error) {
       console.error('Error using template:', error);
       toast({

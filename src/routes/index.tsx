@@ -11,6 +11,7 @@ import { sharedRoutes } from "./shared.routes";
 import { publicRoutes } from "./public.routes";
 import { candidateRoutes } from "./candidate.routes";
 import { hrm8Routes } from "./hrm8.routes";
+import { employerRoutes } from "./employer.routes";
 import { consultantRoutes } from "./consultant.routes";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
@@ -74,10 +75,10 @@ export const AppRoutes = () => {
           </AnyAuthRedirectGate>
         }
       />
-      
+
       {/* Redirect root to home page (protected) */}
       <Route path="/" element={<Navigate to="/home" replace />} />
-      
+
       {/* Protected dashboard routes (with sidebar) */}
       <Route
         element={
@@ -87,35 +88,35 @@ export const AppRoutes = () => {
         }
       >
         {dashboardRoutes}
-        
+
         {/* ATS Module Routes */}
         {atsRoutes}
-        
+
         {/* RPO Module Routes */}
         {rpoRoutes}
-        
+
         {/* HRMS Module Routes */}
         {hrmsRoutes}
-        
+
         {/* Shared/General Routes */}
         {sharedRoutes}
       </Route>
-      
+
       {/* Candidate routes (separate auth, separate layout) */}
       {candidateRoutes}
-      
+
       {/* HRM8 routes (separate auth, separate layout) */}
       {hrm8Routes}
-      
+
       {/* Consultant routes (separate auth, separate layout) */}
       {consultantRoutes}
 
       {/* Sales Agent routes (separate auth, separate layout) */}
       {salesRoutes}
-      
+
       {/* Public routes (no sidebar, no auth required) */}
       {publicRoutes}
-      
+
       {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />
     </Routes>

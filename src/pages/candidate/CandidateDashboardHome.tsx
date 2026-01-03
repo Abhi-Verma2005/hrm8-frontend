@@ -133,35 +133,35 @@ export default function CandidateDashboardHome() {
 
         {/* Dashboard Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Profile Completeness */}
-        <Card>
-          <CardHeader>
+          {/* Profile Completeness */}
+          <Card>
+            <CardHeader>
               <CardTitle className="text-base font-semibold">Profile Completeness</CardTitle>
               <CardDescription className="text-sm">
-              Complete your profile to improve your job matches
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>{profileCompleteness}% Complete</span>
+                Complete your profile to improve your job matches
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span>{profileCompleteness}% Complete</span>
                   <span className="text-muted-foreground">{100 - profileCompleteness}% remaining</span>
-              </div>
-              <Progress value={profileCompleteness} />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/candidate/profile')}
+                </div>
+                <Progress value={profileCompleteness} />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/candidate/profile')}
                   className="mt-4 w-full"
-              >
-                Complete Profile
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+                >
+                  Complete Profile
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Browse Jobs */}
-          <Card className="cursor-pointer" onClick={() => navigate('/candidate/jobs')}>
+          <Card className="cursor-pointer" onClick={() => navigate('/jobs')}>
             <CardHeader>
               <CardTitle className="text-base font-semibold flex items-center gap-2">
                 <Briefcase className="h-5 w-5" />
@@ -177,7 +177,7 @@ export default function CandidateDashboardHome() {
                 className="w-full"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate('/candidate/jobs');
+                  navigate('/jobs');
                 }}
               >
                 <Briefcase className="h-4 w-4 mr-2" />
@@ -201,7 +201,7 @@ export default function CandidateDashboardHome() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate('/candidate/jobs')}
+                    onClick={() => navigate('/jobs')}
                   >
                     View All
                   </Button>
@@ -238,7 +238,7 @@ export default function CandidateDashboardHome() {
                     <div
                       key={job.id}
                       className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer"
-                      onClick={() => navigate('/candidate/jobs')}
+                      onClick={() => navigate('/jobs')}
                     >
                       <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
                         <Briefcase className="h-5 w-5 text-primary" />
@@ -323,7 +323,9 @@ export default function CandidateDashboardHome() {
                             {notification.message}
                           </p>
                           <p className="text-[10px] text-muted-foreground">
-                            {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
+                            {notification.createdAt && !isNaN(new Date(notification.createdAt).getTime())
+                              ? formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })
+                              : 'Recently'}
                           </p>
                         </div>
                       </div>
@@ -361,7 +363,7 @@ export default function CandidateDashboardHome() {
                   variant="outline"
                   size="sm"
                   className="mt-4"
-                  onClick={() => navigate('/candidate/jobs')}
+                  onClick={() => navigate('/jobs')}
                 >
                   Browse Jobs
                 </Button>

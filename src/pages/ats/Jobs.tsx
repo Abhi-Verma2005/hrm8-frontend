@@ -594,7 +594,7 @@ export default function Jobs() {
           className="flex items-center gap-2 group"
           onClick={(e) => {
             e.stopPropagation();
-            navigate(`/jobs/${job.id}?tab=applicants`);
+            navigate(`/ats/jobs/${job.id}?tab=applicants`);
           }}
         >
           <span className="font-medium group-hover:text-primary transition-colors cursor-pointer">
@@ -621,7 +621,7 @@ export default function Jobs() {
               className="text-[11px] text-primary underline-offset-2 hover:underline text-left"
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/jobs/${job.id}?tab=service`);
+                navigate(`/ats/jobs/${job.id}?tab=service`);
               }}
             >
               View recruitment workflow
@@ -716,13 +716,13 @@ export default function Jobs() {
                   Saved Filters
                 </Button>
                 <Button variant="outline" size="sm" asChild>
-                  <Link to="/jobs/templates">
+                  <Link to="/ats/jobs/templates">
                     <FileText className="h-4 w-4 mr-2" />
                     Templates
                   </Link>
                 </Button>
                 <Button variant="outline" size="sm" asChild>
-                  <Link to="/jobs/automation">
+                  <Link to="/ats/jobs/automation">
                     <Zap className="h-4 w-4 mr-2" />
                     Automation
                   </Link>
@@ -743,7 +743,7 @@ export default function Jobs() {
                   </Button>
                 )}
                 <Button variant="outline" size="sm" asChild>
-                  <Link to="/dashboard/jobs">
+                  <Link to="/dashboard/ats/jobs">
                     <BarChart3 className="mr-2 h-4 w-4" />
                     View Dashboard
                   </Link>
@@ -874,7 +874,7 @@ export default function Jobs() {
               selectable
               onSelectedRowsChange={setSelectedJobs}
               onRowClick={(job) => {
-                navigate(`/jobs/${job.id}`);
+                navigate(`/ats/jobs/${job.id}`);
               }}
               emptyMessage="No jobs found"
               tableId="jobs"

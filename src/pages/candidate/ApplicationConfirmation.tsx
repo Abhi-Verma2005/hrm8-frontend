@@ -97,7 +97,7 @@ export default function ApplicationConfirmation() {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => navigate('/candidate/jobs')}
+                onClick={() => navigate('/jobs')}
               >
                 <Briefcase className="h-4 w-4 mr-2" />
                 Browse More Jobs

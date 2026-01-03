@@ -57,61 +57,61 @@ export default function AdminSettings() {
         <Tabs defaultValue="dashboard" className="space-y-4">
           <div className="overflow-x-auto -mx-1 px-1">
             <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
-              <TabsTrigger 
+              <TabsTrigger
                 value="dashboard"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Dashboard
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="pricing"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Pricing
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="commission"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Commission
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="territory"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Territory
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="currency"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Currency
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="users"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Users
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="system"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 System
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="integrations"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Integrations
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="security"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 Security
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="audit"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >

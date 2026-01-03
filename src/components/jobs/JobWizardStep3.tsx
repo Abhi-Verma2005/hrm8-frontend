@@ -32,6 +32,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { usePublicTags } from "@/hooks/useJobCategoriesTags";
+import { cn } from "@/lib/utils";
 
 interface JobWizardStep3Props {
   form: UseFormReturn<JobFormData>;
@@ -58,7 +60,7 @@ export function JobWizardStep3({ form, jobId }: JobWizardStep3Props) {
   const handleAddTeamMember = (member: HiringTeamMember) => {
     if (editingMember) {
       // Update existing member
-      form.setValue('hiringTeam', hiringTeam.map((m) => 
+      form.setValue('hiringTeam', hiringTeam.map((m) =>
         m.id === member.id ? member : m
       ));
       setEditingMember(null);
@@ -122,8 +124,8 @@ export function JobWizardStep3({ form, jobId }: JobWizardStep3Props) {
               <FormControl>
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <ToggleGroup 
-                      type="single" 
+                    <ToggleGroup
+                      type="single"
                       value={selectedPreset}
                       onValueChange={handlePresetSelect}
                       className="gap-2"
@@ -265,7 +267,7 @@ export function JobWizardStep3({ form, jobId }: JobWizardStep3Props) {
             </FormItem>
           )}
         />
-        
+
         {isStealthActive && (
           <div className="rounded-md bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 p-3">
             <p className="text-sm text-blue-900 dark:text-blue-100">
@@ -282,7 +284,7 @@ export function JobWizardStep3({ form, jobId }: JobWizardStep3Props) {
             // This can be enhanced to check actual subscription status from user context
             const hasSubscription = false; // TODO: Get from user context/subscription service
             const videoInterviewingEnabled = field.value || false;
-            
+
             return (
               <FormItem className="flex flex-row items-center justify-between space-x-3 space-y-0 rounded-lg border p-4">
                 <div className="flex-1 space-y-0.5">
@@ -304,6 +306,75 @@ export function JobWizardStep3({ form, jobId }: JobWizardStep3Props) {
                     onCheckedChange={field.onChange}
                   />
                 </FormControl>
+              </FormItem>
+            );
+          }}
+        />
+
+        {/* Job Tags Multi-Select */}
+        <FormField
+          control={form.control}
+          name="tag_ids"
+          render={({ field }) => {
+            const { data: tags, isLoading } = usePublicTags();
+            const selectedTags = field.value || [];
+
+            const toggleTag = (tagId: string) => {
+              const newTags = selectedTags.includes(tagId)
+                ? selectedTags.filter(id => id !== tagId)
+                : selectedTags.length < 5
+                  ? [...selectedTags, tagId]
+                  : selectedTags;
+              field.onChange(newTags);
+            };
+
+            return (
+              <FormItem className="rounded-lg border p-4">
+                <div className="space-y-2">
+                  <FormLabel>Job Tags (up to 5)</FormLabel>
+                  <FormDescription>
+                    Add tags to help candidates find this job. Select up to 5 tags.
+                  </FormDescription>
+                </div>
+                <div className="mt-3">
+                  {isLoading ? (
+                    <p className="text-sm text-muted-foreground">Loading tags...</p>
+                  ) : !tags || tags.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No tags available</p>
+                  ) : (
+                    <div className="flex flex-wrap gap-2">
+                      {tags.map((tag) => {
+                        const isSelected = selectedTags.includes(tag.id);
+                        return (
+                          <button
+                            key={tag.id}
+                            type="button"
+                            onClick={() => toggleTag(tag.id)}
+                            className={cn(
+                              "px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+                              isSelected
+                                ? "ring-2 ring-offset-2 shadow-sm"
+                                : "opacity-70 hover:opacity-100"
+                            )}
+                            style={{
+                              backgroundColor: isSelected ? tag.color : tag.color + '40',
+                              color: isSelected ? '#fff' : tag.color,
+                              ringColor: tag.color
+                            }}
+                            disabled={!isSelected && selectedTags.length >= 5}
+                          >
+                            {tag.name}
+                            {isSelected && <span className="ml-1">✓</span>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+                <div className="mt-2 text-xs text-muted-foreground">
+                  {selectedTags.length}/5 tags selected
+                </div>
+                <FormMessage />
               </FormItem>
             );
           }}

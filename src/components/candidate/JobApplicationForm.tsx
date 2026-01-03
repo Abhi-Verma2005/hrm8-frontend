@@ -94,7 +94,7 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
     setIsLoading(true);
     try {
       const response = await jobService.getPublicJobById(jobId);
-      setJob(response.data?.job || null);
+      setJob(response.data || null);
     } catch (error) {
       toast({
         title: 'Error',
@@ -362,7 +362,7 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
       formData.append('type', fieldName === 'resume' ? 'resume' : fieldName === 'coverLetter' ? 'coverLetter' : 'portfolio');
 
       const response = await apiClient.upload<{ url: string; fileName: string; fileSize: number }>('/api/applications/upload', formData);
-      
+
       if (response.success && response.data) {
         setUploadedFiles({
           ...uploadedFiles,
@@ -433,7 +433,7 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
         coverLetter: uploadedFiles.coverLetter ? { fileName: uploadedFiles.coverLetter.file?.name, size: uploadedFiles.coverLetter.file?.size, url: uploadedFiles.coverLetter.url } : null,
         portfolio: uploadedFiles.portfolio ? { fileName: uploadedFiles.portfolio.file?.name, size: uploadedFiles.portfolio.file?.size, url: uploadedFiles.portfolio.url } : null,
       });
-      
+
       if (uploadedFiles.resume?.file) {
         console.log('[JobApplicationForm] Appending resume file:', uploadedFiles.resume.file.name, uploadedFiles.resume.file.size);
         formData.append('resume', uploadedFiles.resume.file);
@@ -1108,22 +1108,22 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                 </div>
               )}
               {(!useExistingResume || availableResumes.length === 0) && (
-              <div className="flex items-center gap-2">
-                <Input
-                  id="resume"
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    handleFileUpload('resume', file);
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="resume"
+                    type="file"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      handleFileUpload('resume', file);
                       if (file) {
                         setUseExistingResume(false);
                         setSelectedResumeId('');
                       }
-                  }}
-                />
-                {uploadedFiles.resume && (
-                  <div className="flex items-center gap-2 text-sm">
+                    }}
+                  />
+                  {uploadedFiles.resume && (
+                    <div className="flex items-center gap-2 text-sm">
                       {uploadedFiles.resume.uploading ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1131,21 +1131,21 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                         </>
                       ) : (
                         <>
-                    <File className="h-4 w-4" />
-                    <span>{uploadedFiles.resume.file.name}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleFileUpload('resume', null)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                          <File className="h-4 w-4" />
+                          <span>{uploadedFiles.resume.file.name}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleFileUpload('resume', null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
                         </>
                       )}
-                  </div>
-                )}
-              </div>
+                    </div>
+                  )}
+                </div>
               )}
               {errors.resume && (
                 <p className="text-sm text-destructive">{errors.resume.message as string}</p>
@@ -1227,15 +1227,15 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
               )}
               {!useExistingCoverLetter && (
                 <>
-              <p className="text-xs text-muted-foreground">
-                You can use basic markdown (**, *, -, #) to format your cover letter.
-              </p>
-              <Textarea
-                id="coverLetter"
-                rows={6}
-                placeholder="Write your cover letter here..."
-                {...register('coverLetter')}
-              />
+                  <p className="text-xs text-muted-foreground">
+                    You can use basic markdown (**, *, -, #) to format your cover letter.
+                  </p>
+                  <Textarea
+                    id="coverLetter"
+                    rows={6}
+                    placeholder="Write your cover letter here..."
+                    {...register('coverLetter')}
+                  />
                 </>
               )}
               {useExistingCoverLetter && selectedCoverLetterId && (
@@ -1317,22 +1317,22 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                 </div>
               )}
               {(!useExistingPortfolio || availablePortfolio.length === 0) && (
-              <div className="flex items-center gap-2">
-                <Input
-                  id="portfolio"
-                  type="file"
-                  accept=".pdf,.zip"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0] || null;
-                    handleFileUpload('portfolio', file);
+                <div className="flex items-center gap-2">
+                  <Input
+                    id="portfolio"
+                    type="file"
+                    accept=".pdf,.zip"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      handleFileUpload('portfolio', file);
                       if (file) {
                         setUseExistingPortfolio(false);
                         setSelectedPortfolioId('');
                       }
-                  }}
-                />
-                {uploadedFiles.portfolio && (
-                  <div className="flex items-center gap-2 text-sm">
+                    }}
+                  />
+                  {uploadedFiles.portfolio && (
+                    <div className="flex items-center gap-2 text-sm">
                       {uploadedFiles.portfolio.uploading ? (
                         <>
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -1340,21 +1340,21 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
                         </>
                       ) : (
                         <>
-                    <File className="h-4 w-4" />
-                    <span>{uploadedFiles.portfolio.file.name}</span>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleFileUpload('portfolio', null)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                          <File className="h-4 w-4" />
+                          <span>{uploadedFiles.portfolio.file.name}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleFileUpload('portfolio', null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
                         </>
                       )}
-                  </div>
-                )}
-              </div>
+                    </div>
+                  )}
+                </div>
               )}
               {errors.portfolio && (
                 <p className="text-sm text-destructive">{errors.portfolio.message as string}</p>

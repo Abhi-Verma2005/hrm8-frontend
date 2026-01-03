@@ -103,7 +103,7 @@ export function CommandPalette() {
       title: 'Jobs',
       description: 'View and manage job postings',
       icon: Briefcase,
-      action: () => navigate('/jobs'),
+      action: () => navigate('/ats/jobs'),
       category: 'navigation',
       keywords: ['positions', 'openings', 'vacancies'],
     },
@@ -319,7 +319,8 @@ function getPageTitle(pathname: string): string | null {
   const routes: Record<string, string> = {
     '/dashboard': 'Dashboard',
     '/candidates': 'Candidates',
-    '/jobs': 'Jobs',
+    '/ats/jobs': 'Jobs',
+    '/ats/jobs/new': 'Create Job',
     '/applications': 'Applications',
     '/analytics': 'Analytics',
     '/calendar': 'Calendar',

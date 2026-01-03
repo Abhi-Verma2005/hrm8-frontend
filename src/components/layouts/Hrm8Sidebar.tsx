@@ -15,6 +15,7 @@ import {
   BookOpen,
   LogOut,
   BarChart3,
+  Settings,
 } from "lucide-react";
 import {
   Sidebar,
@@ -45,6 +46,7 @@ const menuItems = [
   { path: "/hrm8/revenue", label: "Revenue", icon: TrendingUp },
   { path: "/hrm8/pricing", label: "Pricing", icon: BookOpen },
   { path: "/hrm8/reports", label: "Reports", icon: FileText },
+  { path: "/hrm8/settings", label: "Settings", icon: Settings, adminOnly: true },
 ];
 
 export function Hrm8Sidebar() {

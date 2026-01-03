@@ -502,7 +502,7 @@ export default function JobDetail() {
   };
 
   if (!job && !loading) {
-    return <Navigate to="/jobs" replace />;
+    return <Navigate to="/ats/jobs" replace />;
   }
 
   if (loading || !job) {
@@ -565,7 +565,7 @@ export default function JobDetail() {
           description: "The job posting has been permanently deleted.",
         });
         // Navigate back to jobs list after successful deletion
-        navigate('/jobs');
+        navigate('/ats/jobs');
       } else {
         toast({
           title: "Error",
@@ -617,7 +617,7 @@ export default function JobDetail() {
               )}
             </div>
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/jobs">
+              <Link to="/ats/jobs">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back
               </Link>
@@ -914,7 +914,7 @@ export default function JobDetail() {
             <div className="flex items-center justify-between">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
               <AllApplicantsCard
-                onClick={() => navigate(`/jobs/${job.id}/applications`)}
+                onClick={() => navigate(`/ats/jobs/${job.id}/applications`)}
                 count={applicantsCount ?? job.applicantsCount}
               />
               </div>

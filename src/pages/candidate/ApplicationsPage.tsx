@@ -101,18 +101,18 @@ export default function ApplicationsPage() {
     try {
       const response = await applicationService.getCandidateApplications();
       const apps = response.data?.applications || [];
-      
+
       console.log('Loaded applications:', apps);
-      
+
       // Load job details for each application
       const appsWithDetails = await Promise.all(
         apps.map(async (app: any) => {
-          const details: ApplicationWithDetails = { 
+          const details: ApplicationWithDetails = {
             ...app,
             // Ensure date strings are properly formatted
             appliedDate: app.appliedDate || app.createdAt || new Date().toISOString(),
           };
-          
+
           // Log document URLs for debugging
           console.log(`Application ${app.id} documents:`, {
             resumeUrl: app.resumeUrl,
@@ -121,23 +121,23 @@ export default function ApplicationsPage() {
             linkedInUrl: app.linkedInUrl,
             websiteUrl: app.websiteUrl,
           });
-          
+
           // Fetch job details
           try {
             const jobResponse = await jobService.getPublicJobById(app.jobId);
-            if (jobResponse.success && jobResponse.data?.job) {
+            if (jobResponse.success && jobResponse.data) {
               details.jobDetails = {
-                id: jobResponse.data.job.id,
-                title: jobResponse.data.job.title,
-                location: jobResponse.data.job.location,
-                employmentType: jobResponse.data.job.employmentType,
-                workArrangement: jobResponse.data.job.workArrangement,
-                salaryMin: jobResponse.data.job.salaryMin,
-                salaryMax: jobResponse.data.job.salaryMax,
-                salaryCurrency: jobResponse.data.job.salaryCurrency,
-                company: jobResponse.data.job.company ? {
-                  id: jobResponse.data.job.company.id,
-                  name: jobResponse.data.job.company.name,
+                id: jobResponse.data.id,
+                title: jobResponse.data.title,
+                location: jobResponse.data.location,
+                employmentType: jobResponse.data.employmentType,
+                workArrangement: jobResponse.data.workArrangement,
+                salaryMin: jobResponse.data.salaryMin,
+                salaryMax: jobResponse.data.salaryMax,
+                salaryCurrency: jobResponse.data.salaryCurrency,
+                company: jobResponse.data.company ? {
+                  id: jobResponse.data.company.id,
+                  name: jobResponse.data.company.name,
                 } : undefined,
               };
             } else {
@@ -154,11 +154,11 @@ export default function ApplicationsPage() {
               };
             }
           }
-          
+
           return details;
         })
       );
-      
+
       setApplications(appsWithDetails);
     } catch (error) {
       console.error('Failed to load applications:', error);
@@ -174,18 +174,18 @@ export default function ApplicationsPage() {
 
   const loadInterviews = async (applicationId: string) => {
     if (loadingInterviews.has(applicationId)) return;
-    
+
     setLoadingInterviews(prev => new Set(prev).add(applicationId));
-    
+
     try {
       // Fetch interviews for this application
       const response = await apiClient.get<{ interviews: VideoInterview[] }>(
         `/api/video-interviews/application/${applicationId}`
       );
-      
+
       if (response.success && response.data?.interviews) {
-        setApplications(prev => prev.map(app => 
-          app.id === applicationId 
+        setApplications(prev => prev.map(app =>
+          app.id === applicationId
             ? { ...app, interviews: response.data!.interviews }
             : app
         ));
@@ -381,7 +381,7 @@ export default function ApplicationsPage() {
         throw new Error('Failed to fetch file');
       }
       const blob = await response.blob();
-      
+
       // Create a blob URL and trigger download
       const blobUrl = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -391,7 +391,7 @@ export default function ApplicationsPage() {
       link.click();
       document.body.removeChild(link);
       URL.revokeObjectURL(blobUrl);
-      
+
       toast({
         title: 'Download started',
         description: 'Your file is being downloaded',
@@ -416,15 +416,15 @@ export default function ApplicationsPage() {
           subtitle="Track your job applications, interviews, and documents"
         >
           <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
+            <div className="relative">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
                 placeholder="Search by job title, company..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 w-64"
-                />
-              </div>
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8 w-64"
+              />
+            </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="All statuses" />
@@ -440,9 +440,9 @@ export default function ApplicationsPage() {
                 <SelectItem value="WITHDRAWN">Withdrawn</SelectItem>
               </SelectContent>
             </Select>
-            <Button size="sm" onClick={() => navigate('/candidate/jobs')}>
-                Browse Jobs
-              </Button>
+            <Button size="sm" onClick={() => navigate('/jobs')}>
+              Browse Jobs
+            </Button>
           </div>
         </AtsPageHeader>
 
@@ -454,11 +454,11 @@ export default function ApplicationsPage() {
                 <CardDescription className="text-sm">
                   {filteredApplications.length} of {applications.length} application{applications.length !== 1 ? 's' : ''}
                 </CardDescription>
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
               <div className="space-y-4">
                 {[1, 2, 3].map(i => (
                   <Card key={i} className="p-4">
@@ -466,32 +466,32 @@ export default function ApplicationsPage() {
                     <Skeleton className="h-4 w-1/2" />
                   </Card>
                 ))}
-            </div>
-          ) : filteredApplications.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              </div>
+            ) : filteredApplications.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p className="mb-2 text-sm">
-                  {searchQuery || statusFilter !== 'all' 
-                    ? 'No applications match your filters' 
+                  {searchQuery || statusFilter !== 'all'
+                    ? 'No applications match your filters'
                     : 'No applications yet'}
-              </p>
+                </p>
                 {!searchQuery && statusFilter === 'all' && (
-                <Button
-                  variant="outline"
+                  <Button
+                    variant="outline"
                     size="sm"
-                  className="mt-4"
-                  onClick={() => navigate('/candidate/jobs')}
-                >
-                  Browse Jobs
-                </Button>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-4">
+                    className="mt-4"
+                    onClick={() => navigate('/jobs')}
+                  >
+                    Browse Jobs
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4">
                 {filteredApplications.map((app) => {
                   const isExpanded = expandedApplications.has(app.id);
                   const hasInterviews = app.interviews && app.interviews.length > 0;
-                  
+
                   return (
                     <Card key={app.id} className="overflow-hidden">
                       <div className="p-4">
@@ -501,25 +501,25 @@ export default function ApplicationsPage() {
                               <h3 className="text-sm font-semibold">
                                 {app.jobDetails?.title || 'Loading job details...'}
                               </h3>
-                      {getStatusBadge(app.status)}
-                      {app.isNew && (
+                              {getStatusBadge(app.status)}
+                              {app.isNew && (
                                 <Badge variant="outline" className="h-6 px-2 text-xs rounded-full bg-primary/10 text-primary border-primary/20">
-                          New
-                        </Badge>
-                      )}
-                    </div>
-                            
+                                  New
+                                </Badge>
+                              )}
+                            </div>
+
                             {app.jobDetails?.company && (
                               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                 <Building2 className="h-3.5 w-3.5" />
                                 {app.jobDetails.company.name}
                               </div>
                             )}
-                            
+
                             <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">
                               <span className="flex items-center gap-1">
                                 <Clock className="h-3.5 w-3.5" />
-                      Applied {formatDistanceToNow(new Date(app.appliedDate), { addSuffix: true })}
+                                Applied {formatDistanceToNow(new Date(app.appliedDate), { addSuffix: true })}
                               </span>
                               {app.jobDetails?.location && (
                                 <span className="flex items-center gap-1">
@@ -535,7 +535,7 @@ export default function ApplicationsPage() {
                               )}
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center gap-2">
                             <Button
                               variant="ghost"
@@ -557,7 +557,7 @@ export default function ApplicationsPage() {
                           </div>
                         </div>
                       </div>
-                      
+
                       {isExpanded && (
                         <>
                           <Separator />
@@ -595,8 +595,8 @@ export default function ApplicationsPage() {
                                         {app.jobDetails.salaryMin && app.jobDetails.salaryMax
                                           ? `${app.jobDetails.salaryCurrency || ''} ${app.jobDetails.salaryMin} - ${app.jobDetails.salaryMax}`
                                           : app.jobDetails.salaryMin
-                                          ? `${app.jobDetails.salaryCurrency || ''} ${app.jobDetails.salaryMin}+`
-                                          : `${app.jobDetails.salaryCurrency || ''} Up to ${app.jobDetails.salaryMax}`}
+                                            ? `${app.jobDetails.salaryCurrency || ''} ${app.jobDetails.salaryMin}+`
+                                            : `${app.jobDetails.salaryCurrency || ''} Up to ${app.jobDetails.salaryMax}`}
                                       </span>
                                     </div>
                                   )}
@@ -605,14 +605,14 @@ export default function ApplicationsPage() {
                                   variant="outline"
                                   size="sm"
                                   className="mt-3"
-                                  onClick={() => navigate(`/candidate/jobs/${app.jobId}`)}
+                                  onClick={() => navigate(`/jobs/${app.jobId}`)}
                                 >
                                   <ExternalLink className="h-3.5 w-3.5 mr-2" />
                                   View Job Posting
                                 </Button>
                               </div>
                             )}
-                            
+
                             {/* Documents Used */}
                             <div>
                               <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
@@ -656,7 +656,7 @@ export default function ApplicationsPage() {
                                 ) : (
                                   <p className="text-sm text-muted-foreground">No resume attached</p>
                                 )}
-                                
+
                                 {app.coverLetterUrl ? (
                                   <div className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors">
                                     <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -693,14 +693,14 @@ export default function ApplicationsPage() {
                                 ) : (
                                   <p className="text-sm text-muted-foreground">No cover letter attached</p>
                                 )}
-                                
+
                                 {app.portfolioUrl ? (
                                   <div className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors">
                                     <div className="flex items-center gap-2 flex-1 min-w-0">
                                       <LinkIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                                      <a 
-                                        href={app.portfolioUrl} 
-                                        target="_blank" 
+                                      <a
+                                        href={app.portfolioUrl}
+                                        target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-sm text-primary hover:underline truncate"
                                         onClick={(e) => {
@@ -741,36 +741,36 @@ export default function ApplicationsPage() {
                                 ) : (
                                   <p className="text-sm text-muted-foreground">No portfolio attached</p>
                                 )}
-                                
+
                                 {app.linkedInUrl && (
                                   <div className="flex items-center justify-between p-2 border rounded-md hover:bg-muted/50 transition-colors">
                                     <div className="flex items-center gap-2 flex-1 min-w-0">
                                       <LinkIcon className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                                      <a 
-                                        href={app.linkedInUrl} 
-                                        target="_blank" 
+                                      <a
+                                        href={app.linkedInUrl}
+                                        target="_blank"
                                         rel="noopener noreferrer"
                                         className="text-sm text-primary hover:underline truncate"
                                       >
                                         LinkedIn Profile
                                       </a>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
+                                    </div>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
                                         window.open(app.linkedInUrl, '_blank', 'noopener,noreferrer');
-                    }}
-                  >
+                                      }}
+                                    >
                                       <ExternalLink className="h-3.5 w-3.5 mr-1" />
                                       Open
-                  </Button>
-                </div>
+                                    </Button>
+                                  </div>
                                 )}
                               </div>
                             </div>
-                            
+
                             {/* Interviews */}
                             <div>
                               <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
@@ -831,7 +831,7 @@ export default function ApplicationsPage() {
                                 </p>
                               )}
                             </div>
-                            
+
                             {/* Actions */}
                             <div className="flex items-center gap-2 pt-2 border-t">
                               {canWithdraw(app.status) && (
@@ -862,12 +862,12 @@ export default function ApplicationsPage() {
                     </Card>
                   );
                 })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
-      
+
       {/* Withdraw Dialog */}
       <Dialog open={withdrawDialogOpen !== null} onOpenChange={(open) => !open && setWithdrawDialogOpen(null)}>
         <DialogContent>
@@ -890,7 +890,7 @@ export default function ApplicationsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Delete Dialog */}
       <Dialog open={deleteDialogOpen !== null} onOpenChange={(open) => !open && setDeleteDialogOpen(null)}>
         <DialogContent>
@@ -913,7 +913,7 @@ export default function ApplicationsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Document Preview Dialog */}
       <Dialog open={!!previewDocument} onOpenChange={(open) => !open && setPreviewDocument(null)}>
         <DialogContent className="max-w-4xl h-[80vh]">
