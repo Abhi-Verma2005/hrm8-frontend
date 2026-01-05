@@ -24,6 +24,7 @@ export default function JobDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaved, setIsSaved] = useState(false);
   const [isCheckingSaved, setIsCheckingSaved] = useState(false);
+  const [relatedJobs, setRelatedJobs] = useState<PublicJob[]>([]);
   const { isAuthenticated, candidate } = useCandidateAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -31,6 +32,7 @@ export default function JobDetailPage() {
   useEffect(() => {
     if (id) {
       loadJob();
+      loadRelatedJobs();
       if (isAuthenticated && candidate) {
         checkIfSaved();
       }
@@ -42,11 +44,26 @@ export default function JobDetailPage() {
     setIsLoading(true);
     try {
       const response = await jobService.getPublicJobById(id);
-      setJob(response.data?.job || null);
+      // Backend returns { success: true, data: { ...jobFields } }
+      setJob(response.data || null);
     } catch (error) {
       console.error('Failed to load job:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadRelatedJobs = async () => {
+    if (!id) return;
+    try {
+      const response = await jobService.getRelatedJobs(id, 5);
+      if (response.success && response.data?.jobs) {
+        // Filter out current job from related jobs
+        const filtered = response.data.jobs.filter(j => j.id !== id);
+        setRelatedJobs(filtered);
+      }
+    } catch (error) {
+      console.error('Failed to load related jobs:', error);
     }
   };
 
@@ -341,10 +358,33 @@ export default function JobDetailPage() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Related Jobs */}
+            {relatedJobs.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base font-semibold">Other Jobs at {job.company.name}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {relatedJobs.map((relatedJob) => (
+                    <Link
+                      key={relatedJob.id}
+                      to={`/candidate/jobs/${relatedJob.id}`}
+                      className="block p-3 rounded-lg border hover:bg-accent transition-colors"
+                    >
+                      <p className="font-medium text-sm">{relatedJob.title}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-2 mt-1">
+                        <MapPin className="h-3 w-3" />
+                        {relatedJob.location}
+                      </p>
+                    </Link>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>
     </Layout>
   );
 }
-

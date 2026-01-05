@@ -599,7 +599,7 @@ export default function JobSearchPage() {
                   'hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4',
                   job.featured && 'border-l-primary bg-primary/5'
                 )}
-                onClick={() => navigate(`/jobs/${job.id}`)}
+                onClick={() => navigate(`/candidate/jobs/${job.id}`)}
               >
                 <CardHeader>
                   <div className="flex items-start justify-between gap-4">

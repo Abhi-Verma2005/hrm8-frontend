@@ -94,7 +94,8 @@ export function JobApplicationForm({ jobId, onSuccess }: JobApplicationFormProps
     setIsLoading(true);
     try {
       const response = await jobService.getPublicJobById(jobId);
-      setJob(response.data?.job || null);
+      // Backend returns { success: true, data: { ...jobFields } }
+      setJob(response.data || null);
     } catch (error) {
       toast({
         title: 'Error',
