@@ -17,7 +17,7 @@ import { generateRealisticTrend, generatePercentageTrend } from "@/lib/generator
 interface EnhancedStatCardProps {
   title: string;
   value: string | number;
-  change?: string;
+  change: string;
   trend?: "up" | "down";
   icon: React.ReactNode;
   variant?: "primary" | "success" | "warning" | "neutral";
@@ -43,7 +43,7 @@ interface EnhancedStatCardProps {
 export function EnhancedStatCard({
   title,
   value,
-  change = "",
+  change,
   trend,
   icon,
   variant = "neutral",

@@ -110,11 +110,7 @@ export function Hrm8Sidebar() {
         </NavLink>
         {isExpanded && hrm8User && (
           <p className="text-xs text-muted-foreground mt-2 px-2">
-            {hrm8User.role === "GLOBAL_ADMIN" 
-              ? "Global Admin" 
-              : hrm8User.regionNames && hrm8User.regionNames.length > 0
-                ? `${hrm8User.regionNames.join(", ")} Licensee`
-                : "Regional Licensee"}
+            {hrm8User.role === "GLOBAL_ADMIN" ? "Global Admin" : "Regional Licensee"}
           </p>
         )}
       </SidebarHeader>

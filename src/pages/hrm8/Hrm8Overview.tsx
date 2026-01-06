@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { MapPin, Users, Briefcase, DollarSign } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 export default function Hrm8Overview() {
   const { hrm8User } = useHrm8Auth();
@@ -25,18 +24,13 @@ export default function Hrm8Overview() {
     >
       <div className="p-6 space-y-6">
 
-      <div className={cn(
-        "grid gap-4 md:grid-cols-2",
-        isGlobalAdmin ? "lg:grid-cols-4" : "lg:grid-cols-3"
-      )}>
-        {isGlobalAdmin && (
-          <EnhancedStatCard
-            title="Regions"
-            value="-"
-            icon={<MapPin className="h-6 w-6" />}
-            variant="neutral"
-          />
-        )}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <EnhancedStatCard
+          title="Regions"
+          value="-"
+          icon={<MapPin className="h-6 w-6" />}
+          variant="neutral"
+        />
 
         <EnhancedStatCard
           title="Consultants"
@@ -68,16 +62,14 @@ export default function Hrm8Overview() {
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground">
-            {isGlobalAdmin 
-              ? 'This is the HRM8 Global Admin dashboard. Use the sidebar to navigate to different sections.'
-              : 'This is your HRM8 Licensee dashboard. Use the sidebar to manage your assigned regions and consultants.'}
+            This is the HRM8 Global Admin dashboard. Use the sidebar to navigate to different sections.
           </p>
           <p className="text-sm text-muted-foreground mt-4">
             <strong>Note:</strong> This is a placeholder page. Full implementation will include:
           </p>
           <ul className="list-disc list-inside text-sm text-muted-foreground mt-2 space-y-1">
-            {isGlobalAdmin && <li>Region management and oversight</li>}
-            {isGlobalAdmin && <li>Licensee management</li>}
+            <li>Region management and oversight</li>
+            <li>Licensee management (Global Admin only)</li>
             <li>Consultant management and assignments</li>
             <li>Job allocation and tracking</li>
             <li>Commission and revenue tracking</li>

@@ -16,7 +16,6 @@ export interface Hrm8User {
   role: 'GLOBAL_ADMIN' | 'REGIONAL_LICENSEE';
   status: string;
   regionIds?: string[];
-  regionNames?: string[];
   licenseeId?: string;
 }
 
