@@ -16,6 +16,7 @@ import {
   LogOut,
   BarChart3,
   Target,
+  UserCheck,
 } from "lucide-react";
 import {
   Sidebar,
@@ -45,6 +46,7 @@ const menuItems = [
   { path: "/hrm8/commissions", label: "Commissions", icon: DollarSign },
   { path: "/hrm8/settlements", label: "Settlements", icon: DollarSign },
   { path: "/hrm8/revenue", label: "Revenue", icon: TrendingUp },
+  { path: "/hrm8/attribution", label: "Attribution", icon: UserCheck, adminOnly: true },
   { path: "/hrm8/pricing", label: "Pricing", icon: BookOpen },
   { path: "/hrm8/reports", label: "Reports", icon: FileText },
 ];
