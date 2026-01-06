@@ -19,6 +19,7 @@ import PricingPage from "@/pages/hrm8/PricingPage";
 import RegionalSalesDashboard from "@/pages/hrm8/RegionalSalesDashboard";
 import RegionalLeadsPage from "@/pages/hrm8/RegionalLeadsPage";
 import SettlementsPage from "@/pages/hrm8/SettlementsPage";
+import SettingsPage from "@/pages/hrm8/SettingsPage";
 
 export const hrm8Routes = (
   <Route
@@ -43,5 +44,6 @@ export const hrm8Routes = (
     <Route path="revenue" element={<RevenuePage />} />
     <Route path="pricing" element={<PricingPage />} />
     <Route path="reports" element={<ReportsPage />} />
+    <Route path="settings" element={<SettingsPage />} />
   </Route>
 );

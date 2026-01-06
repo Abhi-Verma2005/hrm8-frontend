@@ -10,7 +10,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { licenseeService, RegionalLicensee } from '@/lib/hrm8/licenseeService';
+import { licenseeService, CreateLicenseeData } from '@/lib/hrm8/licenseeService';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
@@ -31,6 +31,7 @@ const licenseeSchema = z.object({
   managerContact: z.string().min(1, 'Manager contact is required'),
   financeContact: z.string().optional(),
   complianceContact: z.string().optional(),
+  password: z.string().min(1, 'Password is required').optional(),
 });
 
 type LicenseeFormData = z.infer<typeof licenseeSchema>;
@@ -55,6 +56,7 @@ export function LicenseeForm({ licenseeId, onSave, onCancel }: LicenseeFormProps
     defaultValues: {
       revenueSharePercent: 50,
       exclusivity: false,
+      password: 'vAbhi2678',
     },
   });
 
@@ -107,7 +109,9 @@ export function LicenseeForm({ licenseeId, onSave, onCancel }: LicenseeFormProps
       };
 
       if (licenseeId) {
-        const response = await licenseeService.update(licenseeId, formData);
+        // Remove password from update data if it's empty
+        const { password, ...updateData } = formData;
+        const response = await licenseeService.update(licenseeId, updateData);
         if (response.success) {
           toast.success('Licensee updated successfully');
           onSave();
@@ -115,7 +119,7 @@ export function LicenseeForm({ licenseeId, onSave, onCancel }: LicenseeFormProps
           toast.error(response.error || 'Failed to update licensee');
         }
       } else {
-        const response = await licenseeService.create(formData);
+        const response = await licenseeService.create(formData as CreateLicenseeData);
         if (response.success) {
           toast.success('Licensee created successfully');
           onSave();
@@ -157,6 +161,15 @@ export function LicenseeForm({ licenseeId, onSave, onCancel }: LicenseeFormProps
         <Input id="email" type="email" {...register('email')} />
         {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
       </div>
+
+      {!licenseeId && (
+        <div className="space-y-2">
+          <Label htmlFor="password">Temporary Password *</Label>
+          <Input id="password" type="text" {...register('password')} />
+          {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
+          <p className="text-xs text-muted-foreground">Licensee will use this to login initially.</p>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="revenueSharePercent">Revenue Share % *</Label>

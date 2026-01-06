@@ -29,6 +29,27 @@ export interface RegionalLicensee {
   updatedAt: string;
 }
 
+export interface CreateLicenseeData {
+  name: string;
+  legalEntityName: string;
+  email: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  taxId?: string;
+  agreementStartDate: string;
+  agreementEndDate?: string;
+  revenueSharePercent: number;
+  exclusivity?: boolean;
+  contractFileUrl?: string;
+  managerContact: string;
+  financeContact?: string;
+  complianceContact?: string;
+  password?: string;
+}
+
 class LicenseeService {
   async getAll(filters?: { status?: string }) {
     const queryParams = new URLSearchParams();
@@ -42,25 +63,7 @@ class LicenseeService {
     return apiClient.get<{ licensee: RegionalLicensee }>(`/api/hrm8/licensees/${id}`);
   }
 
-  async create(data: {
-    name: string;
-    legalEntityName: string;
-    email: string;
-    phone?: string;
-    address?: string;
-    city?: string;
-    state?: string;
-    country?: string;
-    taxId?: string;
-    agreementStartDate: string;
-    agreementEndDate?: string;
-    revenueSharePercent: number;
-    exclusivity?: boolean;
-    contractFileUrl?: string;
-    managerContact: string;
-    financeContact?: string;
-    complianceContact?: string;
-  }) {
+  async create(data: CreateLicenseeData) {
     return apiClient.post<{ licensee: RegionalLicensee }>('/api/hrm8/licensees', data);
   }
 

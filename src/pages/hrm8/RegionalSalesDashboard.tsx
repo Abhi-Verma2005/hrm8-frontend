@@ -102,9 +102,12 @@ export default function RegionalSalesDashboard() {
 
   const fetchRegions = async () => {
     try {
-      // If user is Global Admin, fetch all regions.
-      // If Licensee, they might be restricted, but for now we fetch all available.
-      const response = await regionService.getAll();
+      const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
+      const filters = !isGlobalAdmin && hrm8User?.licenseeId
+        ? { licenseeId: hrm8User.licenseeId }
+        : {};
+
+      const response = await regionService.getAll(filters);
       const regionsList = response.data?.regions || [];
       setRegions(regionsList);
 
@@ -198,6 +201,9 @@ export default function RegionalSalesDashboard() {
     color: STAGE_COLORS[stage] || '#94a3b8'
   })) : [];
 
+  const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
+  const selectedRegionName = regions.find(r => r.id === selectedRegionId)?.name || 'Region';
+
   if (loading && !stats) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -214,7 +220,9 @@ export default function RegionalSalesDashboard() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Regional Sales Pipeline</h1>
             <p className="text-muted-foreground">
-              Monitor sales performance and forecast for your region
+              {isGlobalAdmin 
+                ? 'Monitor sales performance and forecast across regions' 
+                : `Monitor sales performance and forecast for ${selectedRegionName}`}
             </p>
           </div>
 
@@ -222,18 +230,22 @@ export default function RegionalSalesDashboard() {
             {regions.length === 0 && !loading && (
                <div className="text-sm text-amber-600 font-medium mr-2">No regions found</div>
             )}
-            <Select value={selectedRegionId} onValueChange={setSelectedRegionId} disabled={regions.length === 0 || dataLoading}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder="Select Region" />
-              </SelectTrigger>
-              <SelectContent>
-                {regions.map((r) => (
-                  <SelectItem key={r.id} value={r.id}>
-                    {r.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            
+            {isGlobalAdmin && (
+              <Select value={selectedRegionId} onValueChange={setSelectedRegionId} disabled={regions.length === 0 || dataLoading}>
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue placeholder="Select Region" />
+                </SelectTrigger>
+                <SelectContent>
+                  {regions.map((r) => (
+                    <SelectItem key={r.id} value={r.id}>
+                      {r.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            
             <Button
               variant="outline"
               onClick={() => selectedRegionId && fetchData(selectedRegionId, selectedAgentId)}
