@@ -605,6 +605,18 @@ export default function JobSearchPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 space-y-2">
                       <div className="flex items-start gap-3">
+                        {/* Company Logo */}
+                        <div className="flex-shrink-0 w-12 h-12 rounded-lg border bg-muted flex items-center justify-center overflow-hidden">
+                          {job.company.logoUrl ? (
+                            <img 
+                              src={job.company.logoUrl} 
+                              alt={`${job.company.name} logo`}
+                              className="w-full h-full object-contain"
+                            />
+                          ) : (
+                            <Building2 className="h-6 w-6 text-muted-foreground" />
+                          )}
+                        </div>
                         <div className="flex-1">
                           <CardTitle className="text-xl mb-2 flex items-center gap-2">
                             <Link

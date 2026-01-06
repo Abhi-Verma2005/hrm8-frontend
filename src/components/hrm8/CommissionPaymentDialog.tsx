@@ -1,15 +1,26 @@
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Loader2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, AlertCircle, Circle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { commissionService, Commission } from "@/lib/hrm8/commissionService";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, parseISO, isValid } from "date-fns";
+
+// Safe date formatting helper
+const safeFormatDate = (dateStr: string | null | undefined, formatStr: string = 'MMM d, yyyy'): string => {
+  if (!dateStr) return '-';
+  try {
+    const date = typeof dateStr === 'string' ? parseISO(dateStr) : new Date(dateStr);
+    if (!isValid(date)) return '-';
+    return format(date, formatStr);
+  } catch {
+    return '-';
+  }
+};
 
 interface CommissionPaymentDialogProps {
   open: boolean;
@@ -31,23 +42,26 @@ export function CommissionPaymentDialog({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const toggleCommission = (id: string) => {
+  const toggleCommission = useCallback((id: string) => {
     setSelectedCommissions((prev) =>
       prev.includes(id) ? prev.filter((cid) => cid !== id) : [...prev, id]
     );
-  };
+  }, []);
 
-  const selectAll = () => {
+  const selectAll = useCallback(() => {
     setSelectedCommissions(commissions.map((c) => c.id));
-  };
+  }, [commissions]);
 
-  const deselectAll = () => {
+  const deselectAll = useCallback(() => {
     setSelectedCommissions([]);
-  };
+  }, []);
 
-  const selectedTotal = commissions
-    .filter((c) => selectedCommissions.includes(c.id))
-    .reduce((sum, c) => sum + c.amount, 0);
+  const selectedTotal = useMemo(() => 
+    commissions
+      .filter((c) => selectedCommissions.includes(c.id))
+      .reduce((sum, c) => sum + (c.amount || 0), 0),
+    [commissions, selectedCommissions]
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -165,35 +179,39 @@ export function CommissionPaymentDialog({
                   </div>
 
                   <div className="max-h-[300px] overflow-y-auto space-y-2 border rounded-lg p-3">
-                    {commissions.map((commission) => (
-                      <div
-                        key={commission.id}
-                        className={cn(
-                          "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
-                          selectedCommissions.includes(commission.id)
-                            ? "bg-primary/5 border-primary"
-                            : "hover:bg-muted/50"
-                        )}
-                        onClick={() => toggleCommission(commission.id)}
-                      >
-                        <Checkbox
-                          checked={selectedCommissions.includes(commission.id)}
-                          onCheckedChange={() => toggleCommission(commission.id)}
-                        />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm">
-                            {commission.description || `Commission #${commission.id.slice(0, 8)}`}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            Consultant: {commission.consultantId.slice(0, 8)}... •{" "}
-                            {format(new Date(commission.createdAt), "MMM d, yyyy")} • {commission.status}
-                          </p>
+                    {commissions.map((commission) => {
+                      const isSelected = selectedCommissions.includes(commission.id);
+                      return (
+                        <div
+                          key={commission.id}
+                          className={cn(
+                            "flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors",
+                            isSelected
+                              ? "bg-primary/5 border-primary"
+                              : "hover:bg-muted/50"
+                          )}
+                          onClick={() => toggleCommission(commission.id)}
+                        >
+                          {isSelected ? (
+                            <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                          ) : (
+                            <Circle className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm">
+                              {commission.description || `Commission #${commission.id.slice(0, 8)}`}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Consultant: {commission.consultantId?.slice(0, 8) || 'N/A'}... •{" "}
+                              {safeFormatDate(commission.createdAt)} • {commission.status}
+                            </p>
+                          </div>
+                          <span className="font-semibold text-sm whitespace-nowrap">
+                            ${commission.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                          </span>
                         </div>
-                        <span className="font-semibold text-sm whitespace-nowrap">
-                          ${commission.amount.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                        </span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   {selectedCommissions.length > 0 && (

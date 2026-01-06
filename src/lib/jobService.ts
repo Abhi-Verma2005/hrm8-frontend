@@ -26,11 +26,14 @@ export interface PublicJob {
   featured: boolean;
   postingDate?: string;
   expiryDate?: string;
+  regionId?: string;
   company: {
     id: string;
     name: string;
     website: string;
     domain?: string;
+    logoUrl?: string | null;
+    aboutCompany?: string | null;
   };
   applicationForm?: any;
   createdAt: string;
@@ -85,6 +88,8 @@ export interface PublicJobSearchResponse {
     limit: number;
     total_pages: number;
   };
+  isRegionFiltered?: boolean;
+  regionNote?: string | null;
 }
 
 export interface ApplicationFormField {
