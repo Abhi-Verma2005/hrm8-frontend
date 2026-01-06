@@ -20,6 +20,7 @@ import { MarkSettlementPaidDialog } from '@/components/hrm8/MarkSettlementPaidDi
 import { CreateSettlementDialog } from '@/components/hrm8/CreateSettlementDialog';
 import { useCurrencyFormat } from '@/contexts/CurrencyFormatContext';
 import { format } from 'date-fns';
+import { TableSkeleton } from '@/components/tables/TableSkeleton';
 
 export default function SettlementsPage() {
   const { hrm8User } = useHrm8Auth();
@@ -42,7 +43,7 @@ export default function SettlementsPage() {
   const loadSettlements = async () => {
     try {
       setLoading(true);
-      const filters: any = {};
+      const filters: Record<string, string> = {};
       if (statusFilter !== 'all') {
         filters.status = statusFilter;
       }
@@ -103,8 +104,13 @@ export default function SettlementsPage() {
       key: 'period',
       label: 'Period',
       render: (settlement) => {
-        const start = new Date(settlement.periodStart);
-        const end = new Date(settlement.periodEnd);
+        const start = settlement.periodStart ? new Date(settlement.periodStart) : null;
+        const end = settlement.periodEnd ? new Date(settlement.periodEnd) : null;
+        
+        if (!start || isNaN(start.getTime()) || !end || isNaN(end.getTime())) {
+          return <span className="text-sm text-muted-foreground">-</span>;
+        }
+
         return (
           <span className="text-sm">
             {format(start, 'MMM dd')} - {format(end, 'MMM dd, yyyy')}
@@ -168,9 +174,9 @@ export default function SettlementsPage() {
       label: 'Payment Date',
       sortable: true,
       render: (settlement) => {
-        const paymentDate = settlement.paymentDate;
-        return paymentDate ? (
-          <span className="text-sm">{format(new Date(paymentDate), 'MMM dd, yyyy')}</span>
+        const paymentDate = settlement.paymentDate ? new Date(settlement.paymentDate) : null;
+        return paymentDate && !isNaN(paymentDate.getTime()) ? (
+          <span className="text-sm">{format(paymentDate, 'MMM dd, yyyy')}</span>
         ) : (
           <span className="text-sm text-muted-foreground">-</span>
         );
@@ -251,6 +257,7 @@ export default function SettlementsPage() {
             value={settlements.length.toString()}
             icon={<DollarSign className="h-6 w-6" />}
             variant="neutral"
+            change="All time"
           />
         </div>
 
@@ -260,18 +267,18 @@ export default function SettlementsPage() {
             <CardTitle>Settlements</CardTitle>
           </CardHeader>
           <CardContent>
-            {loading ? (
-              <div className="text-center py-8">Loading settlements...</div>
-            ) : (
-              <DataTable
-                data={settlements}
-                columns={columns}
-                searchable
-                searchKeys={['licenseeId']}
-                emptyMessage="No settlements found"
-              />
-            )}
-          </CardContent>
+          {loading ? (
+            <TableSkeleton columns={6} />
+          ) : (
+            <DataTable
+              data={settlements}
+              columns={columns}
+              searchable
+              searchKeys={['licenseeId', 'status', 'reference']}
+              emptyMessage="No settlements found"
+            />
+          )}
+        </CardContent>
         </Card>
 
         {/* Mark as Paid Dialog */}

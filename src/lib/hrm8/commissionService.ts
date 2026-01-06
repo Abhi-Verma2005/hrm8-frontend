@@ -13,7 +13,8 @@ export interface Commission {
   companyId?: string;
   amount: number;
   currency: string;
-  commissionType: 'PLACEMENT' | 'SUBSCRIPTION_SALE' | 'RECRUITMENT_SERVICE' | 'CUSTOM';
+  type: 'PLACEMENT' | 'SUBSCRIPTION_SALE' | 'RECRUITMENT_SERVICE' | 'CUSTOM';
+  commissionType?: 'PLACEMENT' | 'SUBSCRIPTION_SALE' | 'RECRUITMENT_SERVICE' | 'CUSTOM'; // Backward compatibility
   rate?: number;
   status: 'PENDING' | 'CONFIRMED' | 'PAID' | 'CANCELLED';
   confirmedAt?: string;

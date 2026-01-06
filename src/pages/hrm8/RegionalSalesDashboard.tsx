@@ -192,7 +192,7 @@ export default function RegionalSalesDashboard() {
 
   // Prepare chart data
   const chartData = stats ? Object.entries(stats.byStage).map(([stage, data]) => ({
-    name: stage.replace('_', ' '),
+    name: (stage || '').replace('_', ' '),
     value: data.value,
     count: data.count,
     color: STAGE_COLORS[stage] || '#94a3b8'
@@ -429,7 +429,7 @@ export default function RegionalSalesDashboard() {
                       tickFormatter={(value) => `$${(value / 1000).toFixed(0)}k`}
                     />
                     <Tooltip
-                      formatter={(value: number, name: string, props: any) => [
+                      formatter={(value: number, _name: string, props: { payload: { count: number } }) => [
                         formatCurrency(value),
                         `${props.payload.count} deal${props.payload.count !== 1 ? 's' : ''}`
                       ]}
@@ -493,7 +493,7 @@ export default function RegionalSalesDashboard() {
                           borderColor: STAGE_COLORS[opp.stage] + '30'
                         }}
                       >
-                        {opp.stage.replace('_', ' ')}
+                        {(opp.stage || '').replace('_', ' ')}
                       </Badge>
                     </div>
                   </div>
@@ -569,7 +569,7 @@ export default function RegionalSalesDashboard() {
                           variant="outline"
                           className="font-medium"
                         >
-                          {opp.stage.replace('_', ' ')}
+                          {(opp.stage || '').replace('_', ' ')}
                         </Badge>
                       </TableCell>
                       <TableCell>

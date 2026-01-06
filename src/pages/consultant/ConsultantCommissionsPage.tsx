@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useConsultantAuth } from '@/contexts/ConsultantAuthContext';
 import { consultantService } from '@/lib/consultant/consultantService';
+import { Commission } from '@/lib/hrm8/commissionService';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
 import { ConsultantPageLayout } from '@/components/layouts/ConsultantPageLayout';
@@ -17,7 +18,7 @@ import { toast } from 'sonner';
 
 export default function ConsultantCommissionsPage() {
   const { consultant } = useConsultantAuth();
-  const [commissions, setCommissions] = useState<any[]>([]);
+  const [commissions, setCommissions] = useState<Commission[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -42,25 +43,25 @@ export default function ConsultantCommissionsPage() {
     {
       key: 'amount',
       label: 'Amount',
-      render: (commission: any) => (
+      render: (commission: Commission) => (
         <span className="text-sm font-semibold">
           {commission.currency || 'USD'} {commission.amount?.toLocaleString() || 0}
         </span>
       ),
     },
     {
-      key: 'commissionType',
+      key: 'type',
       label: 'Type',
-      render: (commission: any) => (
+      render: (commission: Commission) => (
         <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
-          {commission.commissionType?.replace('_', ' ') || 'N/A'}
+          {(commission.type || commission.commissionType || 'N/A').replace('_', ' ')}
         </Badge>
       ),
     },
     {
       key: 'status',
       label: 'Status',
-      render: (commission: any) => {
+      render: (commission: Commission) => {
         const status = commission.status || 'PENDING';
         
         if (status === 'PENDING') {
@@ -105,7 +106,7 @@ export default function ConsultantCommissionsPage() {
     {
       key: 'createdAt',
       label: 'Created',
-      render: (commission: any) => (
+      render: (commission: Commission) => (
         <span className="text-sm text-muted-foreground">
           {commission.createdAt ? new Date(commission.createdAt).toLocaleDateString() : 'N/A'}
         </span>
@@ -132,6 +133,7 @@ export default function ConsultantCommissionsPage() {
         <EnhancedStatCard
           title="Pending Commissions"
           value=""
+          change="To be paid"
           isCurrency={true}
           rawValue={totalPending}
             icon={<Clock className="h-5 w-5" />}
@@ -141,6 +143,7 @@ export default function ConsultantCommissionsPage() {
         <EnhancedStatCard
           title="Total Paid"
           value=""
+          change="All time"
           isCurrency={true}
           rawValue={totalPaid}
             icon={<CheckCircle className="h-5 w-5" />}
@@ -150,6 +153,7 @@ export default function ConsultantCommissionsPage() {
         <EnhancedStatCard
           title="Total Commissions"
           value={commissions.length.toString()}
+          change="In history"
             icon={<DollarSign className="h-5 w-5" />}
           variant="neutral"
         />
@@ -177,7 +181,7 @@ export default function ConsultantCommissionsPage() {
               data={commissions}
               columns={columns}
               searchable
-              searchKeys={['commissionType', 'status']}
+              searchKeys={['type', 'commissionType', 'status']}
               emptyMessage="No commissions found"
             />
           )}

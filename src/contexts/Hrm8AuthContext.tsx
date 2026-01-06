@@ -16,6 +16,7 @@ export interface Hrm8User {
   role: 'GLOBAL_ADMIN' | 'REGIONAL_LICENSEE';
   status: string;
   regionIds?: string[];
+  licenseeId?: string;
 }
 
 interface Hrm8AuthContextType {
@@ -78,8 +79,8 @@ export function Hrm8AuthProvider({ children }: { children: ReactNode }) {
         variant: 'destructive',
       });
       return { success: false, error: errorMessage };
-    } catch (error: any) {
-      const errorMessage = error.message || 'Login failed. Please check your credentials.';
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Login failed. Please check your credentials.';
       toast({
         title: 'Login failed',
         description: errorMessage,

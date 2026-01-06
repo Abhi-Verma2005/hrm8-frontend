@@ -187,9 +187,11 @@ export function PivotCalculatedFields({
 
 export function evaluateCalculatedField(
   formula: string,
-  row: Record<string, any>,
+  row: Record<string, unknown>,
   availableFields: { key: string; label: string }[]
 ): number {
+  if (!formula) return 0;
+  
   try {
     let expression = formula;
     

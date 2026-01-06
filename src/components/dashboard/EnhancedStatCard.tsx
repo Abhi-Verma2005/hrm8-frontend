@@ -75,7 +75,7 @@ export function EnhancedStatCard({
 
     // Parse the numeric value from the display value
     let numericValue = rawValue || 0;
-    if (!numericValue && typeof value === 'string') {
+    if (!numericValue && typeof value === 'string' && value) {
       // Try to extract number from string (e.g., "2,847" or "99.8%" or "$142,500")
       const cleaned = value.replace(/[^0-9.]/g, '');
       numericValue = parseFloat(cleaned) || 100;

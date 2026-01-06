@@ -15,12 +15,13 @@ import { toast } from 'sonner';
 import { DollarSign, TrendingUp, CheckCircle, Clock } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { TableSkeleton } from '@/components/tables/TableSkeleton';
 
 const columns = [
   {
     key: 'regionId',
     label: 'Region',
-    render: (revenue: RegionalRevenue) => revenue.regionId.substring(0, 8) + '...',
+    render: (revenue: RegionalRevenue) => revenue.regionId ? revenue.regionId.substring(0, 8) + '...' : 'Unknown',
   },
   {
     key: 'periodStart',
@@ -87,7 +88,7 @@ export default function RevenuePage() {
   const loadRevenues = async () => {
     try {
       setLoading(true);
-      const filters: any = {};
+      const filters: Record<string, string> = {};
       if (statusFilter !== 'all') {
         filters.status = statusFilter;
       }
@@ -138,6 +139,7 @@ export default function RevenuePage() {
           rawValue={totalRevenue}
           icon={<DollarSign className="h-6 w-6" />}
           variant="primary"
+          change="Overall"
         />
 
         <EnhancedStatCard
@@ -147,6 +149,7 @@ export default function RevenuePage() {
           rawValue={totalHRM8Share}
           icon={<TrendingUp className="h-6 w-6" />}
           variant="primary"
+          change="Total"
         />
 
         <EnhancedStatCard
@@ -156,6 +159,7 @@ export default function RevenuePage() {
           rawValue={totalLicenseeShare}
           icon={<CheckCircle className="h-6 w-6" />}
           variant="success"
+          change="Total"
         />
       </div>
 
@@ -165,13 +169,13 @@ export default function RevenuePage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8">Loading revenue records...</div>
+            <TableSkeleton columns={6} />
           ) : (
             <DataTable
               data={revenues}
               columns={columns}
               searchable
-              searchKeys={['regionId']}
+              searchKeys={['status']}
               emptyMessage="No revenue records found"
             />
           )}

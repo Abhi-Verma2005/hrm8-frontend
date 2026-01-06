@@ -18,6 +18,7 @@ import { DeleteConfirmationDialog } from '@/components/ui/delete-confirmation-di
 import { AssignLicenseeDialog } from '@/components/hrm8/AssignLicenseeDialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { TableSkeleton } from '@/components/tables/TableSkeleton';
 
 const createColumns = (
   onEdit: (region: Region) => void,
@@ -231,7 +232,7 @@ export default function RegionsPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8">Loading regions...</div>
+            <TableSkeleton columns={6} />
           ) : (
             <DataTable
               data={regions}

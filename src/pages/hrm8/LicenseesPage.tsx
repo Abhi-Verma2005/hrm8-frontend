@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { FormDrawer } from '@/components/ui/form-drawer';
 import { LicenseeForm } from '@/components/hrm8/LicenseeForm';
 import { Badge } from '@/components/ui/badge';
+import { TableSkeleton } from '@/components/tables/TableSkeleton';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -219,7 +220,7 @@ export default function LicenseesPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8">Loading licensees...</div>
+            <TableSkeleton columns={5} />
           ) : (
             <DataTable
               data={licensees}

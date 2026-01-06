@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { AssignConsultantDrawer } from '@/components/hrm8/AssignConsultantDrawer';
 import { Badge } from '@/components/ui/badge';
+import { TableSkeleton } from '@/components/tables/TableSkeleton';
 import { toast } from 'sonner';
 import { Briefcase, Users, MapPin, Filter, X } from 'lucide-react';
 
@@ -120,7 +121,7 @@ export default function JobAllocationPage() {
     {
       key: 'regionId',
       label: 'Assigned Region',
-      render: (job: any) => {
+      render: (job: UnassignedJob) => {
         if (!job.regionId) return <span className="text-muted-foreground">Unassigned</span>;
         const region = regions.find(r => r.id === job.regionId);
         return region ? region.name : 'Unknown';
@@ -260,7 +261,7 @@ export default function JobAllocationPage() {
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="text-center py-8">Loading jobs...</div>
+              <TableSkeleton columns={8} />
             ) : (
               <DataTable
                 data={filteredJobs}

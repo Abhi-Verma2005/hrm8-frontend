@@ -34,10 +34,10 @@ const columns = [
     ),
   },
   {
-    key: 'commissionType',
+    key: 'type',
     label: 'Type',
     render: (commission: Commission) => (
-      <Badge variant="outline">{commission.commissionType.replace('_', ' ')}</Badge>
+      <Badge variant="outline">{(commission.type || commission.commissionType || 'N/A').replace('_', ' ')}</Badge>
     ),
   },
   {
@@ -85,7 +85,7 @@ export default function CommissionsPage() {
   const loadCommissions = async () => {
     try {
       setLoading(true);
-      const filters: any = {};
+      const filters: Record<string, string> = {};
       if (statusFilter !== 'all') {
         filters.status = statusFilter;
       }
@@ -181,6 +181,7 @@ export default function CommissionsPage() {
         <EnhancedStatCard
           title="Total Pending"
           value=""
+          change="All time"
           isCurrency={true}
           rawValue={totalPending}
           icon={<Clock className="h-6 w-6" />}
@@ -190,6 +191,7 @@ export default function CommissionsPage() {
         <EnhancedStatCard
           title="Total Paid"
           value=""
+          change="All time"
           isCurrency={true}
           rawValue={totalPaid}
           icon={<CheckCircle className="h-6 w-6" />}
@@ -199,6 +201,7 @@ export default function CommissionsPage() {
         <EnhancedStatCard
           title="Total Commissions"
           value={commissions.length.toString()}
+          change="Current filter"
           icon={<DollarSign className="h-6 w-6" />}
           variant="neutral"
         />
@@ -216,7 +219,7 @@ export default function CommissionsPage() {
               data={commissions}
               columns={columns}
               searchable
-              searchKeys={['consultantId', 'commissionType']}
+              searchKeys={['consultantId', 'type', 'commissionType']}
               emptyMessage="No commissions found"
             />
           )}

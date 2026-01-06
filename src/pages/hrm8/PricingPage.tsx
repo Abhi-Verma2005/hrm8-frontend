@@ -15,6 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
 import { Package, BookOpen, Globe, MapPin } from 'lucide-react';
+import { TableSkeleton } from '@/components/tables/TableSkeleton';
 
 const productColumns = [
   { key: 'code', label: 'Code', sortable: true },
@@ -169,18 +170,18 @@ export default function PricingPage() {
                 <CardTitle>Pricing Products</CardTitle>
               </CardHeader>
               <CardContent>
-                {loadingProducts ? (
-                  <div className="text-center py-8">Loading products...</div>
-                ) : (
-                  <DataTable
-                    data={products}
-                    columns={productColumns}
-                    searchable
-                    searchKeys={['name', 'code', 'category']}
-                    emptyMessage="No products found"
-                  />
-                )}
-              </CardContent>
+            {loadingProducts ? (
+              <TableSkeleton columns={5} />
+            ) : (
+              <DataTable
+                data={products}
+                columns={productColumns}
+                searchable
+                searchKeys={['name', 'code', 'category']}
+                emptyMessage="No products found"
+              />
+            )}
+          </CardContent>
             </Card>
           </TabsContent>
 
@@ -191,7 +192,7 @@ export default function PricingPage() {
               </CardHeader>
               <CardContent>
                 {loadingBooks ? (
-                  <div className="text-center py-8">Loading price books...</div>
+                  <TableSkeleton columns={4} />
                 ) : (
                   <DataTable
                     data={priceBooks}

@@ -123,7 +123,7 @@ export function DataTable<T extends { id: string }>({
   const [editingCell, setEditingCell] = useState<{ rowId: string; columnKey: string } | null>(null);
   
   // Grouping state
-  const [expandedGroups, setExpandedGroups] = useState<Set<any>>(() => 
+  const [expandedGroups, setExpandedGroups] = useState<Set<string | number>>(() => 
     defaultGroupsExpanded ? new Set(['__all__']) : new Set()
   );
 
@@ -131,7 +131,7 @@ export function DataTable<T extends { id: string }>({
   const defaultWidths = useMemo(() => {
     const widths: { [key: string]: number } = {};
     columns.forEach((col) => {
-      if (col.width) {
+      if (col.width && typeof col.width === 'string') {
         // Parse width string (e.g., "25%" or "200px") to pixels
         const match = col.width.match(/(\d+)(px|%)?/);
         if (match) {
@@ -321,7 +321,7 @@ export function DataTable<T extends { id: string }>({
     }
   };
 
-  const handleSaveEdit = (rowId: string, columnKey: string, value: any) => {
+  const handleSaveEdit = (rowId: string, columnKey: string, value: unknown) => {
     if (onRowUpdate) {
       onRowUpdate(rowId, { [columnKey]: value } as Partial<T>);
     }
@@ -333,7 +333,7 @@ export function DataTable<T extends { id: string }>({
   };
 
   // Grouping handlers
-  const toggleGroup = (groupValue: any) => {
+  const toggleGroup = (groupValue: string | number) => {
     setExpandedGroups((prev) => {
       const next = new Set(prev);
       if (next.has(groupValue)) {
@@ -353,7 +353,7 @@ export function DataTable<T extends { id: string }>({
     }
   };
 
-  const isGroupExpanded = (groupValue: any) => {
+  const isGroupExpanded = (groupValue: string | number) => {
     return expandedGroups.has('__all__') || expandedGroups.has(groupValue);
   };
 
@@ -400,7 +400,8 @@ export function DataTable<T extends { id: string }>({
       dateRangeFilters.forEach(df => {
         if (df.from || df.to) {
           result = result.filter(item => {
-            const itemDate = new Date(item[dateRangeKey] as any);
+            const itemValue = item[dateRangeKey];
+            const itemDate = itemValue instanceof Date ? itemValue : new Date(String(itemValue));
             if (df.from && itemDate < df.from) return false;
             if (df.to && itemDate > df.to) return false;
             return true;

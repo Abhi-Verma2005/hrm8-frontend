@@ -42,7 +42,58 @@ interface ActivitiesResponse {
   activities: Record<string, unknown>[];
 }
 
+export interface RegionalLead {
+  id: string;
+  company_name: string;
+  email: string;
+  phone: string | null;
+  website: string | null;
+  country: string;
+  status: string;
+  created_at: string;
+  assigned_consultant_id: string | null;
+  consultant?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  creator?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+  referrer?: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+}
+
+interface LeadsResponse {
+  leads: RegionalLead[];
+}
+
 export const regionalSalesService = {
+  /**
+   * Get Leads for a region
+   */
+  getLeads: async (regionId: string) => {
+    const params = new URLSearchParams({ regionId });
+    const response = await apiClient.get<LeadsResponse>(`/api/hrm8/leads/regional?${params.toString()}`);
+    return response.data?.leads || [];
+  },
+
+  /**
+   * Reassign a lead
+   */
+  reassignLead: async (leadId: string, consultantId: string) => {
+    const response = await apiClient.post<{ success: boolean; data: { lead: RegionalLead } }>(`/api/hrm8/leads/${leadId}/reassign`, { consultantId });
+    return response;
+  },
+
   /**
    * Get Opportunities for a region
    */

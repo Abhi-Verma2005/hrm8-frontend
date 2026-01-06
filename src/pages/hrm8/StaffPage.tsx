@@ -14,6 +14,7 @@ import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { toast } from 'sonner';
 import { FormDrawer } from '@/components/ui/form-drawer';
 import { StaffForm } from '@/components/hrm8/StaffForm';
+import { TableSkeleton } from '@/components/tables/TableSkeleton';
 
 const columns = [
   {
@@ -29,7 +30,7 @@ const columns = [
   {
     key: 'role',
     label: 'Role',
-    render: (staff: StaffMember) => staff.role.replace('_', ' '),
+    render: (staff: StaffMember) => staff.role?.replace('_', ' ') || staff.role || '',
   },
   {
     key: 'status',
@@ -102,7 +103,7 @@ export default function StaffPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="text-center py-8">Loading staff members...</div>
+            <TableSkeleton columns={4} />
           ) : (
             <DataTable
               data={staffList}
