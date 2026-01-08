@@ -510,27 +510,34 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
       const requirements = transformRequirements(data.requirements);
       const responsibilities = transformResponsibilities(data.responsibilities);
 
-      // Manual validation for requirements and responsibilities
-      if (!requirements || requirements.length === 0) {
-        toast({
-          title: "Please Fix Form Errors",
-          description: "At least one requirement is needed",
-          variant: "destructive",
-          duration: 5000,
-        });
-        setIsPublishing(false);
-        return;
-      }
+      // Check if this is an HRM8 paid service (which skips steps 2-5)
+      const isHRM8PaidService = data.serviceType !== 'self-managed' && data.serviceType !== 'rpo';
 
-      if (!responsibilities || responsibilities.length === 0) {
-        toast({
-          title: "Please Fix Form Errors",
-          description: "At least one responsibility is needed",
-          variant: "destructive",
-          duration: 5000,
-        });
-        setIsPublishing(false);
-        return;
+      // Manual validation for requirements and responsibilities - only for self-managed jobs
+      // Paid HRM8 services (shortlisting, full-service, executive-search) skip steps 2-5,
+      // so they won't have requirements/responsibilities filled in
+      if (!isHRM8PaidService) {
+        if (!requirements || requirements.length === 0) {
+          toast({
+            title: "Please Fix Form Errors",
+            description: "At least one requirement is needed",
+            variant: "destructive",
+            duration: 5000,
+          });
+          setIsPublishing(false);
+          return;
+        }
+
+        if (!responsibilities || responsibilities.length === 0) {
+          toast({
+            title: "Please Fix Form Errors",
+            description: "At least one responsibility is needed",
+            variant: "destructive",
+            duration: 5000,
+          });
+          setIsPublishing(false);
+          return;
+        }
       }
 
       // Check form validation errors first

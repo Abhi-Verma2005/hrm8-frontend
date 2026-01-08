@@ -52,10 +52,15 @@ const responsibilityItemSchema = z.object({
 });
 
 export const jobDescriptionSchema = z.object({
+  // Description is optional for HRM8 paid services which skip steps 2-5
   description: z.string()
-    .min(1, "Job description is required")
+    .default("")
+    .optional()
+    .transform(val => val || "")
     .refine((val) => {
-      // Strip HTML tags to check actual text content length
+      // Allow empty description for HRM8 paid services
+      if (!val || val.length === 0) return true;
+      // If provided, strip HTML tags to check actual text content length
       const textContent = val.replace(/<[^>]*>/g, '').trim();
       return textContent.length >= 50;
     }, {
@@ -65,36 +70,14 @@ export const jobDescriptionSchema = z.object({
     z.string().min(1), // Support old string format
     requirementItemSchema // Support new object format
   ]))
-    .refine((arr) => {
-      // Filter out empty strings or objects with empty text
-      const validItems = arr.filter((item) => {
-        if (typeof item === 'string') {
-          return item.trim().length > 0;
-        }
-        return item.text && item.text.trim().length > 0;
-      });
-      return validItems.length >= 1;
-    }, {
-      message: "At least one requirement is needed"
-    })
-    .optional(),
+    .optional()
+    .default([]),
   responsibilities: z.array(z.union([
     z.string().min(1), // Support old string format
     responsibilityItemSchema // Support new object format
   ]))
-    .refine((arr) => {
-      // Filter out empty strings or objects with empty text
-      const validItems = arr.filter((item) => {
-        if (typeof item === 'string') {
-          return item.trim().length > 0;
-        }
-        return item.text && item.text.trim().length > 0;
-      });
-      return validItems.length >= 1;
-    }, {
-      message: "At least one responsibility is needed"
-    })
-    .optional(),
+    .optional()
+    .default([]),
 });
 
 export const jobCompensationSchema = z.object({
