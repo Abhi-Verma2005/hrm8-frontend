@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, Link, Navigate, useNavigate } from "react-router-dom";
+import { useParams, Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
@@ -76,6 +76,8 @@ import { Upload, LayoutGrid, List, Inbox } from "lucide-react";
 import { Application } from "@/types/application";
 import { filterApplicationsByTags } from "@/lib/applicationTags";
 import { useMemo } from "react";
+import { verifyJobPayment } from "@/lib/payments";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function JobDetail() {
   const { jobId } = useParams();
@@ -109,6 +111,9 @@ export default function JobDetail() {
   const [applicationsViewMode, setApplicationsViewMode] = useState<'pipeline' | 'list'>('pipeline');
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useAuth();
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
 
   // Map backend ApplicationStatus to frontend ApplicationStatus
   const mapApplicationStatus = (status: string | null | undefined): Application['status'] => {
@@ -346,6 +351,56 @@ export default function JobDetail() {
 
     fetchJob();
   }, [jobId, refreshKey, toast]);
+
+  // Verify payment after redirect from Stripe checkout
+  useEffect(() => {
+    const paymentParam = searchParams.get('payment');
+    if (paymentParam === 'success' && jobId && user?.companyId && !isVerifyingPayment) {
+      const verifyPayment = async () => {
+        setIsVerifyingPayment(true);
+        console.log('🔍 Verifying payment for job:', jobId);
+        try {
+          const response = await verifyJobPayment({
+            jobId,
+            companyId: user.companyId,
+          });
+
+          if (response.success && response.data) {
+            if (response.data.paymentStatus === 'PAID') {
+              toast({
+                title: "Payment Successful! 🎉",
+                description: response.data.published 
+                  ? "Your job has been published and is now live!"
+                  : "Payment received. Your job is ready to be published.",
+              });
+              // Refresh the job to get updated payment status
+              setRefreshKey(prev => prev + 1);
+            } else if (response.data.alreadyPaid) {
+              toast({
+                title: "Payment Already Completed",
+                description: "This job's payment was already processed.",
+              });
+            } else {
+              console.log('Payment status:', response.data.paymentStatus);
+            }
+          }
+        } catch (error) {
+          console.error('Error verifying payment:', error);
+          toast({
+            title: "Payment Verification",
+            description: "We're having trouble verifying your payment. Please refresh the page.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsVerifyingPayment(false);
+          // Clear the payment query param to avoid re-verification on refresh
+          searchParams.delete('payment');
+          setSearchParams(searchParams, { replace: true });
+        }
+      };
+      verifyPayment();
+    }
+  }, [searchParams, jobId, user?.companyId, toast, isVerifyingPayment, setSearchParams]);
 
   // Fetch applications for this job
   useEffect(() => {

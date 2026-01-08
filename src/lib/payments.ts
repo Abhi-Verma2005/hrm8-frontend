@@ -24,9 +24,19 @@ export async function createJobCheckoutSession(params: {
   return apiClient.post<CheckoutResponse>("/api/payments/job-checkout", params);
 }
 
+type VerifyPaymentResponse = {
+  paymentStatus: string;
+  alreadyPaid?: boolean;
+  verified?: boolean;
+  published?: boolean;
+};
 
-
-
+export async function verifyJobPayment(params: {
+  jobId: string;
+  companyId: string;
+}) {
+  return apiClient.post<VerifyPaymentResponse>("/api/payments/verify-job-payment", params);
+}
 
 
 
