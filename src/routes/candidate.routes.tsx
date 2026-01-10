@@ -19,6 +19,7 @@ import AssessmentListPage from "@/pages/candidate/AssessmentListPage";
 import AssessmentPage from "@/pages/candidate/AssessmentPage";
 import { RoleIsolationGate } from "@/components/common/RoleIsolationGate";
 import { useParams } from "react-router-dom";
+import CareersPage from "@/pages/candidate/CareersPage";
 
 // Helper components for redirects
 const RedirectToJobDetail = () => {
@@ -33,6 +34,13 @@ const RedirectToJobApply = () => {
 
 export const candidateRoutes = (
   <>
+    {/* Careers page - shows companies and their job listings */}
+    <Route path="/candidate/careers" element={
+      <RoleIsolationGate blockRole="recruiter" redirectTo="/home">
+        <CareersPage />
+      </RoleIsolationGate>
+    } />
+    
     {/* Redirect old job routes to new public routes */}
     <Route path="/candidate/jobs" element={<Navigate to="/jobs" replace />} />
     <Route path="/candidate/jobs/:id" element={<RedirectToJobDetail />} />
