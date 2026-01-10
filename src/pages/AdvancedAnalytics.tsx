@@ -8,12 +8,13 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { TrendingUp, TrendingDown, Minus, AlertCircle, Lightbulb, Activity, AlertTriangle, CalendarIcon, Filter, X } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, AlertCircle, Lightbulb, Activity, AlertTriangle, CalendarIcon, Filter, X, Clock } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, AreaChart, Area, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { getPredictiveMetrics, getDepartmentComparisons, getSkillGaps, getWorkforceInsights } from '@/lib/advancedAnalyticsStorage';
 import type { PredictiveMetric, DepartmentComparison, SkillGapAnalysis, WorkforceInsight } from '@/types/advancedAnalytics';
+import { ScheduleReportDialog } from '@/components/reports/ScheduleReportDialog';
 
 export default function AdvancedAnalytics() {
   const [predictiveMetrics, setPredictiveMetrics] = useState<PredictiveMetric[]>([]);
@@ -30,6 +31,7 @@ export default function AdvancedAnalytics() {
   const [selectedMetricTypes, setSelectedMetricTypes] = useState<string[]>(['turnover', 'performance', 'engagement']);
   const [selectedPriority, setSelectedPriority] = useState<string>('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
 
   useEffect(() => {
     setPredictiveMetrics(getPredictiveMetrics());
@@ -147,6 +149,15 @@ export default function AdvancedAnalytics() {
                 Clear All
               </Button>
             )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setScheduleDialogOpen(true)}
+              className="gap-2"
+            >
+              <Clock className="h-4 w-4" />
+              Schedule Report
+            </Button>
           </div>
         </AtsPageHeader>
 
@@ -629,6 +640,13 @@ export default function AdvancedAnalytics() {
           </CardContent>
         </Card>
       </div>
+
+      <ScheduleReportDialog
+        open={scheduleDialogOpen}
+        onOpenChange={setScheduleDialogOpen}
+        reportName="Advanced Analytics Report"
+        reportType="advanced-analytics"
+      />
     </DashboardPageLayout>
   );
 }

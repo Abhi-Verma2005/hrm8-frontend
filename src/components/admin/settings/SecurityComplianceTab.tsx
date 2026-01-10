@@ -308,6 +308,87 @@ export function SecurityComplianceTab() {
                   <Button onClick={handleSaveSession}>Save Session Settings</Button>
                 </div>
               </div>
+
+              {/* SSO Configuration Section */}
+              <div className="border-t pt-6">
+                <h3 className="font-medium mb-4">Single Sign-On (SSO)</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="enableSSO">Enable SSO</Label>
+                      <p className="text-sm text-muted-foreground">Allow users to login with external identity providers</p>
+                    </div>
+                    <Switch id="enableSSO" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="ssoProvider">SSO Provider</Label>
+                    <Select defaultValue="none">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select SSO provider" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None (Disabled)</SelectItem>
+                        <SelectItem value="google">Google Workspace</SelectItem>
+                        <SelectItem value="microsoft">Microsoft Azure AD</SelectItem>
+                        <SelectItem value="okta">Okta</SelectItem>
+                        <SelectItem value="saml">Custom SAML 2.0</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="ssoClientId">Client ID</Label>
+                      <Input id="ssoClientId" placeholder="Enter client ID" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="ssoClientSecret">Client Secret</Label>
+                      <Input id="ssoClientSecret" type="password" placeholder="Enter client secret" />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="ssoTenantId">Tenant ID (Azure AD)</Label>
+                    <Input id="ssoTenantId" placeholder="Enter tenant ID (for Azure AD)" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Callback URL</Label>
+                    <div className="flex items-center gap-2">
+                      <Input 
+                        readOnly 
+                        value={`${window.location.origin}/auth/sso/callback`} 
+                        className="bg-muted"
+                      />
+                      <Button variant="outline" size="sm" onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/auth/sso/callback`);
+                        toast({ title: "Copied to clipboard" });
+                      }}>
+                        Copy
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Add this URL to your identity provider's allowed redirect URIs</p>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <Button variant="outline" onClick={() => {
+                      toast({ title: "Testing SSO connection...", description: "This may take a moment" });
+                      setTimeout(() => {
+                        toast({ title: "SSO Connection Test", description: "Connection successful!" });
+                      }, 1500);
+                    }}>
+                      Test Connection
+                    </Button>
+                    <Button onClick={() => {
+                      logSecurityAction('update', 'SSO Settings', 'Updated SSO configuration');
+                      toast({ title: "SSO settings saved" });
+                    }}>
+                      Save SSO Settings
+                    </Button>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

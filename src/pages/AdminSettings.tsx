@@ -16,6 +16,7 @@ import { IntegrationsTab } from "@/components/admin/settings/IntegrationsTab";
 import { SecurityComplianceTab } from "@/components/admin/settings/SecurityComplianceTab";
 import { AuditLogsTab } from "@/components/admin/settings/AuditLogsTab";
 import { JobBoardManagementTab } from "@/components/admin/settings/JobBoardManagementTab";
+import { PromoCodesTab } from "@/components/admin/settings/PromoCodesTab";
 
 export default function AdminSettings() {
   const { isSuperAdmin, loading } = useRBAC();
@@ -124,6 +125,12 @@ export default function AdminSettings() {
               >
                 Audit Logs
               </TabsTrigger>
+              <TabsTrigger
+                value="promocodes"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Promo Codes
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -169,6 +176,10 @@ export default function AdminSettings() {
 
           <TabsContent value="audit" className="mt-6">
             <AuditLogsTab />
+          </TabsContent>
+
+          <TabsContent value="promocodes" className="mt-6">
+            <PromoCodesTab />
           </TabsContent>
         </Tabs>
       </div>
