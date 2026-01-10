@@ -15,6 +15,7 @@ import { SystemConfigurationTab } from "@/components/admin/settings/SystemConfig
 import { IntegrationsTab } from "@/components/admin/settings/IntegrationsTab";
 import { SecurityComplianceTab } from "@/components/admin/settings/SecurityComplianceTab";
 import { AuditLogsTab } from "@/components/admin/settings/AuditLogsTab";
+import { JobBoardManagementTab } from "@/components/admin/settings/JobBoardManagementTab";
 
 export default function AdminSettings() {
   const { isSuperAdmin, loading } = useRBAC();
@@ -112,6 +113,12 @@ export default function AdminSettings() {
                 Security
               </TabsTrigger>
               <TabsTrigger
+                value="jobboard"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Job Board
+              </TabsTrigger>
+              <TabsTrigger
                 value="audit"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
@@ -154,6 +161,10 @@ export default function AdminSettings() {
 
           <TabsContent value="security" className="mt-6">
             <SecurityComplianceTab />
+          </TabsContent>
+
+          <TabsContent value="jobboard" className="mt-6">
+            <JobBoardManagementTab />
           </TabsContent>
 
           <TabsContent value="audit" className="mt-6">

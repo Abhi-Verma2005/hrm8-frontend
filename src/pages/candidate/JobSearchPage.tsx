@@ -54,6 +54,8 @@ export default function JobSearchPage() {
     categories: [],
     departments: [],
     locations: [],
+    companies: [],
+    tags: [],
   });
   const [totalJobs, setTotalJobs] = useState(0);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
@@ -65,6 +67,8 @@ export default function JobSearchPage() {
   const [workArrangement, setWorkArrangement] = useState('');
   const [category, setCategory] = useState('');
   const [department, setDepartment] = useState('');
+  const [companyId, setCompanyId] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [salaryMin, setSalaryMin] = useState('');
   const [salaryMax, setSalaryMax] = useState('');
   const [featuredOnly, setFeaturedOnly] = useState(false);
@@ -257,7 +261,10 @@ export default function JobSearchPage() {
   const loadFilterOptions = async () => {
     try {
       const response = await jobService.getFilterOptions();
-      setFilterOptions(response.data?.data || { categories: [], departments: [], locations: [] });
+      // API returns { success: true, data: { data: { categories, departments, locations, companies, tags } } }
+      // apiClient unwraps once, so we get { data: { categories... } }
+      const options = response.data?.data || response.data;
+      setFilterOptions(options as JobFilterOptions || { categories: [], departments: [], locations: [], companies: [], tags: [] });
     } catch (error) {
       console.error('Failed to load filter options:', error);
     }
@@ -273,6 +280,8 @@ export default function JobSearchPage() {
         workArrangement: workArrangement || undefined,
         category: category || undefined,
         department: department || undefined,
+        companyId: companyId || undefined,
+        tags: selectedTags.length > 0 ? selectedTags.join(',') : undefined,
         salaryMin: salaryMin ? parseFloat(salaryMin) : undefined,
         salaryMax: salaryMax ? parseFloat(salaryMax) : undefined,
         featured: featuredOnly || undefined,
@@ -314,7 +323,7 @@ export default function JobSearchPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [searchQuery, location, employmentType, workArrangement, category, department, salaryMin, salaryMax, featuredOnly, trackSearch]);
+  }, [searchQuery, location, employmentType, workArrangement, category, department, companyId, selectedTags, salaryMin, salaryMax, featuredOnly, trackSearch]);
 
   useEffect(() => {
     if (isInitializedRef.current) return;
@@ -360,6 +369,8 @@ export default function JobSearchPage() {
     setWorkArrangement('');
     setCategory('');
     setDepartment('');
+    setCompanyId('');
+    setSelectedTags([]);
     setSalaryMin('');
     setSalaryMax('');
     setFeaturedOnly(false);
@@ -373,6 +384,8 @@ export default function JobSearchPage() {
       workArrangement ||
       category ||
       department ||
+      companyId ||
+      selectedTags.length > 0 ||
       salaryMin ||
       salaryMax ||
       featuredOnly
@@ -528,6 +541,51 @@ export default function JobSearchPage() {
                           ))}
                         </SelectContent>
                       </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="company">Company</Label>
+                      <Select value={companyId || undefined} onValueChange={(val) => setCompanyId(val === 'all' ? '' : val)}>
+                        <SelectTrigger id="company">
+                          <SelectValue placeholder="All Companies" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Companies</SelectItem>
+                          {filterOptions.companies?.map((company) => (
+                            <SelectItem key={company.id} value={company.id}>
+                              {company.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Tags</Label>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {filterOptions.tags?.length === 0 ? (
+                          <span className="text-sm text-muted-foreground">No tags available</span>
+                        ) : (
+                          filterOptions.tags?.map((tag) => (
+                            <Badge
+                              key={tag}
+                              variant={selectedTags.includes(tag) ? 'default' : 'outline'}
+                              className="cursor-pointer transition-colors"
+                              onClick={() => {
+                                if (selectedTags.includes(tag)) {
+                                  setSelectedTags(selectedTags.filter((t) => t !== tag));
+                                } else {
+                                  setSelectedTags([...selectedTags, tag]);
+                                }
+                              }}
+                            >
+                              {tag}
+                            </Badge>
+                          ))
+                        )}
+                      </div>
                     </div>
 
                     <div className="space-y-2">

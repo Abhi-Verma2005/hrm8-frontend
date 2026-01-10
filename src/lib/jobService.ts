@@ -44,7 +44,7 @@ export interface PublicJobSearchParams {
   limit?: number;
   search?: string;
   location?: string;
-  company?: string;
+  companyId?: string;
   department?: string;
   category?: string;
   tags?: string;
@@ -61,6 +61,8 @@ export interface JobFilterOptions {
   categories: string[];
   departments: string[];
   locations: string[];
+  companies: Array<{ id: string; name: string }>;
+  tags: string[];
 }
 
 export interface JobAggregation {
@@ -128,7 +130,7 @@ class JobService {
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.search) queryParams.append('search', params.search);
     if (params?.location) queryParams.append('location', params.location);
-    if (params?.company) queryParams.append('company', params.company);
+    if (params?.companyId) queryParams.append('companyId', params.companyId);
     if (params?.department) queryParams.append('department', params.department);
     if (params?.category) queryParams.append('category', params.category);
     if (params?.tags) queryParams.append('tags', params.tags);
