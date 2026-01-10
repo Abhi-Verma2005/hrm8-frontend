@@ -53,11 +53,16 @@ export interface CreateLeadData {
   country: string;
   website?: string;
   phone?: string;
+  budget?: string;
+  timeline?: string;
+  message?: string;
 }
 
 export interface ConvertLeadData {
   adminFirstName: string;
   adminLastName: string;
+  email: string;
+  domain: string;
   password: string;
   acceptTerms: boolean;
 }
@@ -140,7 +145,7 @@ export const salesService = {
   },
 
   createLead: async (data: CreateLeadData) => {
-    return await apiClient.post<{ lead: Lead }>('/api/sales/leads', data);
+    return await apiClient.post<{ lead: Lead; qualification?: Record<string, unknown> }>('/api/sales/leads', data);
   },
 
   convertLead: async (leadId: string, data: ConvertLeadData) => {
