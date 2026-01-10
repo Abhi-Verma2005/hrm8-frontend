@@ -203,7 +203,7 @@ export default function NotificationsPage() {
 
         // Navigate based on notification type
         if (notification.type === 'JOB_ALERT' && notification.data?.jobId) {
-            navigate(`/candidate/jobs/${notification.data.jobId}`);
+            navigate(`/jobs/${notification.data.jobId}`);
         } else if (notification.type === 'APPLICATION_UPDATE' && notification.data?.applicationId) {
             navigate(`/candidate/applications/${notification.data.applicationId}`);
         } else if (notification.type === 'INTERVIEW_SCHEDULED' && notification.data?.applicationId) {

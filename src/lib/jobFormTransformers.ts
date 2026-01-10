@@ -90,6 +90,8 @@ export function transformJobFormDataToCreateRequest(
     requirements,
     responsibilities,
     category: data.experienceLevel || undefined,
+    category_id: data.category_id || undefined, // NEW: Job category FK
+    tag_ids: data.tag_ids || undefined, // NEW: Job tags array
     videoInterviewingEnabled: data.videoInterviewingEnabled || false,
   };
 
@@ -139,7 +141,7 @@ export function transformJobFormDataToUpdateRequest(
   } = {}
 ): any {
   const createRequest = transformJobFormDataToCreateRequest(data, options);
-  
+
   // UpdateJobRequest extends CreateJobRequest, so we can return it as-is
   return createRequest;
 }
@@ -202,6 +204,8 @@ export function transformJobToFormData(job: any): JobFormData {
     experienceLevel: (job.category || 'mid') as 'entry' | 'mid' | 'senior' | 'executive',
     workArrangement: workArrangementMap[job.workArrangement] || 'on-site',
     tags: job.promotionalTags || [],
+    category_id: job.category_id || undefined, // NEW: Job category FK
+    tag_ids: job.tags?.map((t: any) => t.tag_id || t.id) || undefined, // NEW: Extract tag IDs
     description: job.description || '',
     requirements,
     responsibilities,

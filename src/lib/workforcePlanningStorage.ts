@@ -37,9 +37,9 @@ const mockPlans: HeadcountPlan[] = [
   },
 ];
 
-let plans = [...mockPlans];
-let scenarios: WorkforceScenario[] = [];
-let forecasts: BudgetForecast[] = [];
+const plans = [...mockPlans];
+const scenarios: WorkforceScenario[] = [];
+const forecasts: BudgetForecast[] = [];
 
 export function getHeadcountPlans(filters?: {
   fiscalYear?: number;

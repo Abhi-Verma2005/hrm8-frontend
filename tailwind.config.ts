@@ -1,4 +1,6 @@
 import type { Config } from "tailwindcss";
+import tailwindAnimate from "tailwindcss-animate";
+import tailwindTypography from "@tailwindcss/typography";
 
 export default {
   darkMode: ["class"],
@@ -136,9 +138,9 @@ export default {
     },
   },
   plugins: [
-    require("tailwindcss-animate"),
-    require("@tailwindcss/typography"),
-    function ({ addUtilities }: any) {
+    tailwindAnimate,
+    tailwindTypography,
+    function ({ addUtilities }: { addUtilities: (utilities: Record<string, unknown>) => void }) {
       addUtilities({
         '.scrollbar-hide': {
           /* IE and Edge */

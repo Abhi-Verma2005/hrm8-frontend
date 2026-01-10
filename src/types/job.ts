@@ -84,7 +84,7 @@ export interface Job {
   archivedBy?: string;
   hiringTeam?: HiringTeamMember[];
   applicationForm?: ApplicationFormConfig;
-  
+
   // JobTarget Promotion & Payment
   hasJobTargetPromotion?: boolean;
   jobTargetPromotionId?: string;
@@ -109,7 +109,7 @@ export interface Job {
   termsAccepted?: boolean;
   termsAcceptedAt?: Date;
   termsAcceptedBy?: string;
-  
+
   // Post-Launch Configuration
   alertsEnabled?: {
     newApplicants?: boolean;
@@ -121,17 +121,17 @@ export interface Job {
   referralLink?: string;
   savedAsTemplate?: boolean;
   templateId?: string;
-  
+
   // Internal Job Posting Fields
   isInternal?: boolean;
   internalOnly?: boolean;
   eligibleDepartments?: string[];
   internalApplyDeadline?: string;
   currentEmployeePriority?: boolean;
-  
+
   // Requisition Link
   requisitionId?: string;
-  
+
   // AI Interview Configuration
   aiInterviewConfig?: {
     defaultMode: 'video' | 'phone' | 'text';
@@ -141,7 +141,7 @@ export interface Job {
       category: 'technical' | 'behavioral' | 'situational' | 'cultural' | 'experience';
     }>;
   };
-  
+
   // Video Interviewing
   videoInterviewingEnabled?: boolean;
 }
@@ -169,14 +169,14 @@ export interface JobActivity {
   userName: string;
   activityType: 'created' | 'updated' | 'status-changed' | 'service-activated' | 'candidate-moved' | 'published' | 'closed';
   activityDescription: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   createdAt: string;
 }
 
 export interface JobFormData {
   // Service Type
   serviceType: 'self-managed' | 'shortlisting' | 'full-service' | 'executive-search' | 'rpo';
-  
+
   // Step 1: Basic Details
   title: string;
   numberOfVacancies: number;
@@ -185,8 +185,10 @@ export interface JobFormData {
   employmentType: 'full-time' | 'part-time' | 'contract' | 'casual';
   experienceLevel: 'entry' | 'mid' | 'senior' | 'executive';
   workArrangement: 'on-site' | 'remote' | 'hybrid';
-  tags: string[];
-  
+  tags: string[]; // Legacy field - keep for backward compatibility
+  category_id?: string; // NEW: FK to JobCategory
+  tag_ids?: string[]; // NEW: Array of JobTag IDs
+
   // Step 2: Job Description
   positionDescriptionFile?: File | null;
   positionDescriptionText?: string;
@@ -211,7 +213,7 @@ export interface JobFormData {
   description: string;
   requirements: Array<{ id: string; text: string; order: number }>;
   responsibilities: Array<{ id: string; text: string; order: number }>;
-  
+
   // Step 3: Compensation, Details & Hiring Team
   salaryMin?: number;
   salaryMax?: number;
@@ -223,14 +225,14 @@ export interface JobFormData {
   visibility: 'public' | 'private';
   stealth: boolean;
   hiringTeam: HiringTeamMember[];
-  
+
   // Step 4: Application Form
   applicationForm: ApplicationFormConfig;
-  
+
   // Step 5: Review & Publish
   status: 'draft' | 'open';
   jobBoardDistribution: string[];
-  
+
   // Step 6: Payment & JobTarget
   includeJobTargetPromotion?: boolean;
   jobTargetBudgetTier?: 'basic' | 'standard' | 'premium' | 'executive' | 'custom' | 'none';
@@ -238,21 +240,21 @@ export interface JobFormData {
   selectedPaymentMethod?: 'account' | 'credit_card';
   paymentInvoiceRequested?: boolean;
   termsAccepted?: boolean;
-  
+
   // Video Interviewing
   videoInterviewingEnabled?: boolean;
-  
+
   // Consultant Assignment
   assignedConsultantId?: string;
   assignmentMode?: 'AUTO' | 'MANUAL';
   regionId?: string;
-  
+
   // Screening
   screeningEnabled?: boolean;
   automatedScreeningEnabled?: boolean;
-  screeningCriteria?: any;
+  screeningCriteria?: unknown;
   preInterviewQuestionnaireEnabled?: boolean;
-  
+
   // Job Rounds (for future use)
-  jobRounds?: any[];
+  jobRounds?: unknown[];
 }

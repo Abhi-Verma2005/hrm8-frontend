@@ -19,7 +19,7 @@ const mockUserRoles: UserRole[] = [
 ];
 
 // In-memory storage for user roles
-let userRoles = [...mockUserRoles];
+const userRoles = [...mockUserRoles];
 
 export function getUserRoles(userId: string): UserRole[] {
   const roles = userRoles.filter(

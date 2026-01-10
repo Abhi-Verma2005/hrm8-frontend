@@ -28,7 +28,7 @@ import {
   Globe,
   Loader2,
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -747,7 +747,11 @@ export default function DocumentsPage() {
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
                             <span>{formatFileSize(resume.fileSize)}</span>
                             <span>•</span>
-                            <span>{format(new Date(resume.uploadedAt), 'MMM d, yyyy')}</span>
+                            <span>
+                              {resume.uploadedAt && !isNaN(new Date(resume.uploadedAt).getTime())
+                                ? format(new Date(resume.uploadedAt), 'MMM d, yyyy')
+                                : 'Recently'}
+                            </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -871,7 +875,11 @@ export default function DocumentsPage() {
                             </p>
                           )}
                           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                            <span>Updated {format(new Date(coverLetter.updatedAt), 'MMM d, yyyy')}</span>
+                            <span>
+                              Updated {coverLetter.updatedAt && !isNaN(new Date(coverLetter.updatedAt).getTime())
+                                ? format(new Date(coverLetter.updatedAt), 'MMM d, yyyy')
+                                : 'Recently'}
+                            </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1007,7 +1015,11 @@ export default function DocumentsPage() {
                             </div>
                           )}
                           <div className="flex items-center gap-4 text-xs text-muted-foreground mt-2">
-                            <span>Added {format(new Date(item.createdAt), 'MMM d, yyyy')}</span>
+                            <span>
+                              Added {item.createdAt && !isNaN(new Date(item.createdAt).getTime())
+                                ? format(new Date(item.createdAt), 'MMM d, yyyy')
+                                : 'Recently'}
+                            </span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">

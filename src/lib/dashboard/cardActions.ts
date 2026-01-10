@@ -25,9 +25,9 @@ export const OVERVIEW_DASHBOARD_ACTIONS: CardActionMap = {
   'Active Jobs': {
     icon: Briefcase,
     actions: [
-      { label: 'View all jobs', icon: Eye, path: '/jobs' },
-      { label: 'Create new job', icon: Plus, path: '/jobs?action=create' },
-      { label: 'View analytics', icon: BarChart3, path: '/dashboard/jobs' },
+      { label: 'View all jobs', icon: Eye, path: '/ats/jobs' },
+      { label: 'Create new job', icon: Plus, path: '/ats/jobs?action=create' },
+      { label: 'View analytics', icon: BarChart3, path: '/dashboard/ats/jobs' },
       { label: 'Export data', icon: Download },
     ],
   },
@@ -51,9 +51,9 @@ export const OVERVIEW_DASHBOARD_ACTIONS: CardActionMap = {
   'Active Projects': {
     icon: FolderKanban,
     actions: [
-      { label: 'View all projects', icon: Eye, path: '/jobs' },
-      { label: 'Create project', icon: Plus, path: '/jobs?action=create' },
-      { label: 'View pipeline', icon: Filter, path: '/jobs?view=pipeline' },
+      { label: 'View all projects', icon: Eye, path: '/ats/jobs' },
+      { label: 'Create project', icon: Plus, path: '/ats/jobs?action=create' },
+      { label: 'View pipeline', icon: Filter, path: '/ats/jobs?view=pipeline' },
       { label: 'Export data', icon: Download },
     ],
   },
@@ -63,9 +63,9 @@ export const JOBS_DASHBOARD_ACTIONS: CardActionMap = {
   'Active Jobs': {
     icon: Briefcase,
     actions: [
-      { label: 'View all jobs', icon: Eye, path: '/jobs' },
-      { label: 'Create new job', icon: Plus, path: '/jobs?action=create' },
-      { label: 'View pipeline', icon: Filter, path: '/jobs?view=pipeline' },
+      { label: 'View all jobs', icon: Eye, path: '/ats/jobs' },
+      { label: 'Create new job', icon: Plus, path: '/ats/jobs?action=create' },
+      { label: 'View pipeline', icon: Filter, path: '/ats/jobs?view=pipeline' },
       { label: 'Export data', icon: Download },
     ],
   },
@@ -90,7 +90,7 @@ export const JOBS_DASHBOARD_ACTIONS: CardActionMap = {
     icon: UserCheck,
     actions: [
       { label: 'View hires', icon: UserCheck, path: '/candidates?status=placed' },
-      { label: 'View analytics', icon: BarChart3, path: '/dashboard/jobs' },
+      { label: 'View analytics', icon: BarChart3, path: '/dashboard/ats/jobs' },
     ],
   },
 };
@@ -168,9 +168,9 @@ export const CONSULTING_DASHBOARD_ACTIONS: CardActionMap = {
   'Active Projects': {
     icon: FolderKanban,
     actions: [
-      { label: 'View all projects', icon: Eye, path: '/jobs' },
-      { label: 'Create project', icon: Plus, path: '/jobs?action=create' },
-      { label: 'View pipeline', icon: Filter, path: '/jobs?view=pipeline' },
+      { label: 'View all projects', icon: Eye, path: '/ats/jobs' },
+      { label: 'Create project', icon: Plus, path: '/ats/jobs?action=create' },
+      { label: 'View pipeline', icon: Filter, path: '/ats/jobs?view=pipeline' },
     ],
   },
   'Total Clients': {
@@ -201,17 +201,17 @@ export const RPO_DASHBOARD_ACTIONS: CardActionMap = {
   'Active Assignments': {
     icon: FolderKanban,
     actions: [
-      { label: 'View all', icon: Eye, path: '/jobs' },
-      { label: 'Create assignment', icon: Plus, path: '/jobs?action=create' },
-      { label: 'View pipeline', icon: Filter, path: '/jobs?view=pipeline' },
+      { label: 'View all', icon: Eye, path: '/ats/jobs' },
+      { label: 'Create assignment', icon: Plus, path: '/ats/jobs?action=create' },
+      { label: 'View pipeline', icon: Filter, path: '/ats/jobs?view=pipeline' },
     ],
   },
   'Active Projects': {
     icon: FolderKanban,
     actions: [
-      { label: 'View all', icon: Eye, path: '/jobs' },
-      { label: 'Create assignment', icon: Plus, path: '/jobs?action=create' },
-      { label: 'View pipeline', icon: Filter, path: '/jobs?view=pipeline' },
+      { label: 'View all', icon: Eye, path: '/ats/jobs' },
+      { label: 'Create assignment', icon: Plus, path: '/ats/jobs?action=create' },
+      { label: 'View pipeline', icon: Filter, path: '/ats/jobs?view=pipeline' },
     ],
   },
   'Candidate Pipeline': {
@@ -326,8 +326,8 @@ export const EMPLOYERS_DASHBOARD_ACTIONS: CardActionMap = {
   'Active Jobs': {
     icon: Briefcase,
     actions: [
-      { label: 'View jobs', icon: Eye, path: '/jobs?status=open' },
-      { label: 'Post job', icon: Plus, path: '/jobs?action=create' },
+      { label: 'View jobs', icon: Eye, path: '/ats/jobs?status=open' },
+      { label: 'Post job', icon: Plus, path: '/ats/jobs?action=create' },
     ],
   },
   'Total Revenue': {

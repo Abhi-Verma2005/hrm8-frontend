@@ -13,7 +13,7 @@ export interface StatusChangeRecord {
   notes?: string;
   timestamp: string;
   automated: boolean;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface StatusHistoryFilters {

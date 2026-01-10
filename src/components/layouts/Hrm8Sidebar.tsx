@@ -17,6 +17,7 @@ import {
   BarChart3,
   Target,
   UserCheck,
+  Settings,
 } from "lucide-react";
 import {
   Sidebar,
@@ -49,6 +50,8 @@ const menuItems = [
   { path: "/hrm8/attribution", label: "Attribution", icon: UserCheck, adminOnly: true },
   { path: "/hrm8/pricing", label: "Pricing", icon: BookOpen },
   { path: "/hrm8/reports", label: "Reports", icon: FileText },
+  { path: "/hrm8/settings", label: "Account Settings", icon: Settings },
+  { path: "/hrm8/system-settings", label: "System Settings", icon: Settings, adminOnly: true },
 ];
 
 export function Hrm8Sidebar() {

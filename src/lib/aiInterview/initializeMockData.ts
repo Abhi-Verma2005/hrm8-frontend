@@ -249,7 +249,7 @@ function generateMockSessions(): AIInterviewSession[] {
     
     const questions = generateQuestionsForJob(job.title, 8);
     
-    let session: AIInterviewSession = {
+    const session: AIInterviewSession = {
       id: `ai-int-${uuidv4()}`,
       candidateId: candidate.id,
       candidateName: candidate.name,

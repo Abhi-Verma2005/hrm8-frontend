@@ -51,7 +51,7 @@ const mockESSProfiles: ESSProfile[] = [
   },
 ];
 
-let essProfiles = [...mockESSProfiles];
+const essProfiles = [...mockESSProfiles];
 
 export function getESSProfile(userId: string): ESSProfile | undefined {
   return essProfiles.find((profile) => profile.userId === userId);

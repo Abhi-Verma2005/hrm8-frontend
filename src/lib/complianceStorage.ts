@@ -32,12 +32,12 @@ const mockPolicies: CompliancePolicy[] = [
   },
 ];
 
-let auditLogs = [...mockAuditLogs];
-let policies = [...mockPolicies];
-let acknowledgments: PolicyAcknowledgment[] = [];
-let reports: ComplianceReport[] = [];
-let alerts: ComplianceAlert[] = [];
-let dsRequests: DataSubjectRequest[] = [];
+const auditLogs = [...mockAuditLogs];
+const policies = [...mockPolicies];
+const acknowledgments: PolicyAcknowledgment[] = [];
+const reports: ComplianceReport[] = [];
+const alerts: ComplianceAlert[] = [];
+const dsRequests: DataSubjectRequest[] = [];
 
 export function logAudit(log: Omit<AuditLog, 'id' | 'timestamp'>): AuditLog {
   const newLog: AuditLog = {

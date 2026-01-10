@@ -174,7 +174,7 @@ export default function ConsultantProfilePage() {
       }
       
       // Prepare tax information
-      let taxInformationData: Record<string, unknown> = {};
+      const taxInformationData: Record<string, unknown> = {};
       if (data.taxId || data.taxIdType || data.taxCountry) {
         if (data.taxId) taxInformationData.taxId = data.taxId;
         if (data.taxIdType) taxInformationData.taxIdType = data.taxIdType;

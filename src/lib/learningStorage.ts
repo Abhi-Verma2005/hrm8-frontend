@@ -16,17 +16,17 @@ export function getTrainingPaths(): TrainingPath[] {
 
 export function getCourseEnrollments(employeeId?: string): CourseEnrollment[] {
   const stored = localStorage.getItem(COURSE_ENROLLMENTS_KEY);
-  let enrollments = stored ? JSON.parse(stored) : mockCourseEnrollments;
+  const enrollments = stored ? JSON.parse(stored) : mockCourseEnrollments;
   return employeeId ? enrollments.filter((e: CourseEnrollment) => e.employeeId === employeeId) : enrollments;
 }
 
 export function getEmployeeCertifications(employeeId?: string): EmployeeCertification[] {
-  let certs = mockEmployeeCertifications;
+  const certs = mockEmployeeCertifications;
   return employeeId ? certs.filter(c => c.employeeId === employeeId) : certs;
 }
 
 export function getSkillDevelopmentPrograms(employeeId?: string): SkillDevelopmentProgram[] {
-  let programs = mockSkillDevelopmentPrograms;
+  const programs = mockSkillDevelopmentPrograms;
   return employeeId ? programs.filter(p => p.employeeId === employeeId) : programs;
 }
 

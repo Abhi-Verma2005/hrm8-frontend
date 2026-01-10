@@ -363,11 +363,11 @@ const mockRecruitmentServices: RecruitmentService[] = [
 ];
 
 // In-memory storage
-let tiers = [...mockTiers];
-let addons = [...mockAddons];
-let recruitmentServices = [...mockRecruitmentServices];
-let customPricing: CustomPricing[] = [];
-let history: PricingHistory[] = [];
+const tiers = [...mockTiers];
+const addons = [...mockAddons];
+const recruitmentServices = [...mockRecruitmentServices];
+const customPricing: CustomPricing[] = [];
+const history: PricingHistory[] = [];
 
 // ATS Subscription Tier Functions
 export function getATSSubscriptionTiers(includeInactive = false): ATSSubscriptionTier[] {

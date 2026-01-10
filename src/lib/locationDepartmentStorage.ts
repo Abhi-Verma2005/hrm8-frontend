@@ -2,7 +2,7 @@ import { Department, Location, Employer } from "@/types/entities";
 import { mockEmployers } from "@/data/mockTableData";
 
 // In-memory storage for locations and departments
-let employers = [...mockEmployers];
+const employers = [...mockEmployers];
 
 // ============= DEPARTMENTS =============
 

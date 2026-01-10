@@ -24,7 +24,7 @@ export function JobPostingCostDialog({
   onCancel
 }: JobPostingCostDialogProps) {
   const employer = getEmployerById(employerId);
-  
+
   if (!employer) {
     return null;
   }
@@ -42,8 +42,8 @@ export function JobPostingCostDialog({
   const subscriptionAtLimit = isSubscription && currentOpenJobs >= maxOpenJobs;
 
   // Calculate usage percentage
-  const usagePercentage = isSubscription && maxOpenJobs > 0 
-    ? (currentOpenJobs / maxOpenJobs) * 100 
+  const usagePercentage = isSubscription && maxOpenJobs > 0
+    ? (currentOpenJobs / maxOpenJobs) * 100
     : 0;
 
   const formatDate = (date?: Date) => {
@@ -54,91 +54,91 @@ export function JobPostingCostDialog({
   // SUBSCRIPTION USERS
   if (isSubscription) {
     const tierConfig = SUBSCRIPTION_TIERS[subscriptionTier];
-    
+
     if (subscriptionAtLimit) {
-    return (
-      <Dialog open={open} onOpenChange={() => {}}>
-        <DialogContent className="max-w-lg max-h-[85vh] [&>button]:hidden">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertCircle className="h-5 w-5 text-destructive" />
-              Job Limit Reached
-            </DialogTitle>
-          </DialogHeader>
+      return (
+        <Dialog open={open} onOpenChange={() => { }}>
+          <DialogContent className="max-w-lg max-h-[85vh] [&>button]:hidden">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <AlertCircle className="h-5 w-5 text-destructive" />
+                Job Limit Reached
+              </DialogTitle>
+            </DialogHeader>
 
-          <div className="space-y-3 overflow-y-auto">
-            <div className="flex items-start gap-2 p-3 border border-destructive/50 rounded-lg bg-destructive/5">
-              <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
-              <p className="text-sm">
-                Your {tierConfig.name} Plan ({currentOpenJobs}/{maxOpenJobs} jobs used)
-              </p>
-            </div>
+            <div className="space-y-3 overflow-y-auto">
+              <div className="flex items-start gap-2 p-3 border border-destructive/50 rounded-lg bg-destructive/5">
+                <AlertCircle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                <p className="text-sm">
+                  Your {tierConfig.name} Plan ({currentOpenJobs}/{maxOpenJobs} jobs used)
+                </p>
+              </div>
 
-            <Card>
-              <CardContent className="pt-4 space-y-3">
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Open Jobs</span>
-                    <span className="font-semibold text-destructive">
-                      {currentOpenJobs} / {maxOpenJobs} used
-                    </span>
-                  </div>
-                  <Progress value={100} className="h-2" />
-                </div>
-
-                <p className="text-sm font-medium pt-2">To post this job:</p>
-
-                <div className="space-y-2">
+              <Card>
+                <CardContent className="pt-4 space-y-3">
                   <div>
-                    <h4 className="font-semibold text-sm mb-1">1. Close an existing job</h4>
-                    <p className="text-sm text-muted-foreground ml-4">
-                      → Frees up a slot in your plan
-                    </p>
+                    <div className="flex justify-between text-sm mb-2">
+                      <span>Open Jobs</span>
+                      <span className="font-semibold text-destructive">
+                        {currentOpenJobs} / {maxOpenJobs} used
+                      </span>
+                    </div>
+                    <Progress value={100} className="h-2" />
                   </div>
-                  
-                  <div>
-                    <h4 className="font-semibold text-sm mb-1">2. Upgrade to a larger plan</h4>
-                    <div className="text-sm text-muted-foreground ml-4 space-y-0.5">
-                      {subscriptionTier === 'small' && (
-                        <>
-                          <p>→ Medium: 25 jobs ($495/month)</p>
-                          <p>→ Large: 50 jobs ($695/month)</p>
-                        </>
-                      )}
-                      {subscriptionTier === 'medium' && (
-                        <>
-                          <p>→ Large: 50 jobs ($695/month)</p>
+
+                  <p className="text-sm font-medium pt-2">To post this job:</p>
+
+                  <div className="space-y-2">
+                    <div>
+                      <h4 className="font-semibold text-sm mb-1">1. Close an existing job</h4>
+                      <p className="text-sm text-muted-foreground ml-4">
+                        → Frees up a slot in your plan
+                      </p>
+                    </div>
+
+                    <div>
+                      <h4 className="font-semibold text-sm mb-1">2. Upgrade to a larger plan</h4>
+                      <div className="text-sm text-muted-foreground ml-4 space-y-0.5">
+                        {subscriptionTier === 'small' && (
+                          <>
+                            <p>→ Medium: 25 jobs ($495/month)</p>
+                            <p>→ Large: 50 jobs ($695/month)</p>
+                          </>
+                        )}
+                        {subscriptionTier === 'medium' && (
+                          <>
+                            <p>→ Large: 50 jobs ($695/month)</p>
+                            <p>→ Enterprise: Unlimited ($995/month)</p>
+                          </>
+                        )}
+                        {subscriptionTier === 'large' && (
                           <p>→ Enterprise: Unlimited ($995/month)</p>
-                        </>
-                      )}
-                      {subscriptionTier === 'large' && (
-                        <p>→ Enterprise: Unlimited ($995/month)</p>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                </CardContent>
+              </Card>
+            </div>
 
-          <div className="flex gap-2 pt-2">
-            <Button variant="outline" onClick={onCancel} size="sm">
-              Cancel
-            </Button>
-            <Button variant="outline" onClick={() => window.location.href = '/jobs'} size="sm">
-              View My Jobs
-            </Button>
-            <Button onClick={onUpgrade} size="sm">
-              Upgrade Plan
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    );
+            <div className="flex gap-2 pt-2">
+              <Button variant="outline" onClick={onCancel} size="sm">
+                Cancel
+              </Button>
+              <Button variant="outline" onClick={() => window.location.href = '/ats/jobs'} size="sm">
+                View My Jobs
+              </Button>
+              <Button onClick={onUpgrade} size="sm">
+                Upgrade Plan
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      );
     }
 
     return (
-      <Dialog open={open} onOpenChange={() => {}}>
+      <Dialog open={open} onOpenChange={() => { }}>
         <DialogContent className="max-w-lg max-h-[85vh] [&>button]:hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -193,7 +193,7 @@ export function JobPostingCostDialog({
   // PAYG USERS
   if (isPayg) {
     return (
-      <Dialog open={open} onOpenChange={() => {}}>
+      <Dialog open={open} onOpenChange={() => { }}>
         <DialogContent className="max-w-lg max-h-[85vh] [&>button]:hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export function JobPostingCostDialog({
   // FREE USERS
   if (atLimit) {
     return (
-      <Dialog open={open} onOpenChange={() => {}}>
+      <Dialog open={open} onOpenChange={() => { }}>
         <DialogContent className="max-w-lg max-h-[85vh] [&>button]:hidden">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -309,7 +309,7 @@ export function JobPostingCostDialog({
             <Button variant="outline" onClick={onCancel} size="sm">
               Cancel
             </Button>
-            <Button variant="outline" onClick={() => {/* TODO: Set to PAYG and continue */}} size="sm">
+            <Button variant="outline" onClick={() => {/* TODO: Set to PAYG and continue */ }} size="sm">
               Choose PAYG
             </Button>
             <Button onClick={onUpgrade} size="sm">
@@ -323,7 +323,7 @@ export function JobPostingCostDialog({
 
   // FREE USER - FIRST JOB
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
+    <Dialog open={open} onOpenChange={() => { }}>
       <DialogContent className="max-w-lg max-h-[85vh] [&>button]:hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -368,9 +368,9 @@ export function JobPostingCostDialog({
                 <p className="text-xs text-muted-foreground">
                   Future posts: ${PAYG_JOB_POSTING_COST} each (PAYG) or subscribe for 5+ jobs starting at $295/month
                 </p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={onUpgrade}
                   className="w-full"
                 >

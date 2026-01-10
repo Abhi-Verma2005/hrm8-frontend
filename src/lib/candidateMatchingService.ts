@@ -112,7 +112,7 @@ export function getCandidateMatches(
     const availabilityMatch = candidate.availability === "available" ? 100 : 60;
 
     // Calculate weighted overall score
-    let weights = {
+    const weights = {
       skills: 0.4,
       experience: 0.3,
       location: criteria.prioritizeLocation ? 0.2 : 0.1,

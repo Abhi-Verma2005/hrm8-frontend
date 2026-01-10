@@ -8,7 +8,7 @@ export interface ApplicationFilters {
   assignedTo?: string[];
   tags?: string[];
   search?: string;
-  customFields?: Record<string, any>;
+  customFields?: Record<string, unknown>;
 }
 
 export interface FilterPreset {

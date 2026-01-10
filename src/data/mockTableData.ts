@@ -79,7 +79,7 @@ export const mockEmployers: Employer[] = Array.from({ length: 60 }, (_, i) => {
   let currentUsers = 1;
   let monthlySubscriptionFee: number | undefined = undefined;
   let hasUsedFreeTier = false;
-  let atsEnabled = true;
+  const atsEnabled = true;
   let hrmsEnabled = false;
   let hrmsEmployeeCount = 0;
   let enabledAddons: string[] = [];

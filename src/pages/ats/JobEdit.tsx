@@ -10,7 +10,7 @@ export default function JobEdit() {
   const job = jobId ? getJobById(jobId) : null;
 
   if (!job) {
-    return <Navigate to="/jobs" replace />;
+    return <Navigate to="/ats/jobs" replace />;
   }
 
   const defaultValues = {
@@ -53,7 +53,7 @@ export default function JobEdit() {
       <div className="p-6 max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" asChild>
-            <Link to={`/jobs/${jobId}`}>
+            <Link to={`/ats/jobs/${jobId}`}>
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>

@@ -5,7 +5,7 @@ export type { ERCase, ERCaseStats, InvestigationNote, ActionPlan, CaseOutcome };
 // Mock data
 const mockCases: ERCase[] = [];
 
-let cases = [...mockCases];
+const cases = [...mockCases];
 let caseCounter = 1000;
 
 export function getERCases(filters?: {

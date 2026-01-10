@@ -157,7 +157,7 @@ export default function CandidateLogin() {
               </Link>
             </div>
             <div>
-              <Link to="/candidate/jobs" className="text-primary hover:underline font-medium">
+              <Link to="/jobs" className="text-primary hover:underline font-medium">
                 Browse jobs without an account
               </Link>
             </div>

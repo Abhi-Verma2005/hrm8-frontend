@@ -17,6 +17,7 @@ import { PublicCandidatePageLayout } from '@/components/layouts/PublicCandidateP
 import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { trackJobAnalytics } from '@/lib/analytics';
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -46,6 +47,11 @@ export default function JobDetailPage() {
       const response = await jobService.getPublicJobById(id);
       // Backend returns { success: true, data: { ...jobFields } }
       setJob(response.data || null);
+
+      // Track detail view
+      if (response.data) {
+        trackJobAnalytics(id, 'DETAIL_VIEW', isAuthenticated ? 'CANDIDATE_PORTAL' : 'HRM8_BOARD');
+      }
     } catch (error) {
       console.error('Failed to load job:', error);
     } finally {
@@ -91,7 +97,7 @@ export default function JobDetailPage() {
         description: "Please sign in to save jobs",
         variant: "default",
       });
-      navigate('/candidate/login', { state: { from: `/candidate/jobs/${id}` } });
+      navigate('/candidate/login', { state: { from: `/jobs/${id}` } });
       return;
     }
 
@@ -122,8 +128,13 @@ export default function JobDetailPage() {
   };
 
   const handleApply = () => {
+    // Track apply click
+    if (id) {
+      trackJobAnalytics(id, 'APPLY_CLICK', isAuthenticated ? 'CANDIDATE_PORTAL' : 'HRM8_BOARD');
+    }
+
     // Allow unauthenticated users to apply (they'll create account during application)
-    navigate(`/candidate/jobs/${id}/apply`);
+    navigate(`/jobs/${id}/apply`);
   };
 
   const formatSalary = (job: PublicJob) => {
@@ -149,7 +160,7 @@ export default function JobDetailPage() {
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Job Not Found</h2>
           <p className="text-muted-foreground mb-4">The job you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => navigate('/candidate/jobs')}>Browse Jobs</Button>
+          <Button onClick={() => navigate('/jobs')}>Browse Jobs</Button>
         </div>
       </div>
     );
@@ -178,7 +189,7 @@ export default function JobDetailPage() {
             )}
             <Button
               variant="ghost"
-              onClick={() => navigate('/candidate/jobs')}
+              onClick={() => navigate('/jobs')}
               size="sm"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />

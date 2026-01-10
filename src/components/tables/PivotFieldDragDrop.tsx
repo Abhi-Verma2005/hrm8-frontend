@@ -251,9 +251,9 @@ export function PivotFieldDragDrop({
     const overContainer = over.id as string;
 
     // Remove from current location
-    let newRows = config.rows.filter((r) => r !== activeField);
-    let newColumns = config.columns.filter((c) => c !== activeField);
-    let newValues = config.values.filter((v) => v.field !== activeField);
+    const newRows = config.rows.filter((r) => r !== activeField);
+    const newColumns = config.columns.filter((c) => c !== activeField);
+    const newValues = config.values.filter((v) => v.field !== activeField);
 
     // Add to new location
     if (overContainer === "rows" || over.data.current?.sortable?.containerId === "rows") {

@@ -1,8 +1,8 @@
 export interface FeedbackConflict {
   feedbackId: string;
   field: string;
-  localValue: any;
-  remoteValue: any;
+  localValue: unknown;
+  remoteValue: unknown;
   localUser: string;
   remoteUser: string;
   localTimestamp: Date;
@@ -12,7 +12,7 @@ export interface FeedbackConflict {
 export interface ConflictResolution {
   feedbackId: string;
   field: string;
-  chosenValue: any;
+  chosenValue: unknown;
   resolution: 'keep-local' | 'accept-remote' | 'merge';
   resolvedBy: string;
   resolvedAt: Date;

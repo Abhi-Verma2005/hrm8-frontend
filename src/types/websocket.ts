@@ -31,7 +31,7 @@ export type MessageContentType = 'TEXT' | 'FILE' | 'SYSTEM';
 
 export interface WSMessage {
   type: WSMessageType;
-  payload: any;
+  payload: unknown;
 }
 
 export interface OnlineUser {
@@ -113,7 +113,7 @@ export interface ErrorPayload {
 export interface WebSocketContextType {
   connectionState: ConnectionState;
   isConnected: boolean;
-  sendMessage: (type: WSMessageType, payload: any) => void;
+  sendMessage: (type: WSMessageType, payload: unknown) => void;
   joinConversation: (conversationId: string) => void;
   currentConversationId: string | null;
   onlineUsers: OnlineUser[];
@@ -121,6 +121,6 @@ export interface WebSocketContextType {
   conversations: ConversationData[];
   setConversations: (conversations: ConversationData[]) => void;
   addMessage: (conversationId: string, message: MessageData) => void;
-  onMessage?: (type: WSMessageType, handler: (payload: any) => void) => () => void;
+  onMessage?: (type: WSMessageType, handler: (payload: unknown) => void) => () => void;
 }
 

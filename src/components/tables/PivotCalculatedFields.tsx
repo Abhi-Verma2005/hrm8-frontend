@@ -213,7 +213,7 @@ export function evaluateCalculatedField(
       throw new Error("Invalid formula");
     }
 
-    // eslint-disable-next-line no-eval
+     
     return eval(expression);
   } catch (error) {
     console.error("Formula evaluation error:", error);

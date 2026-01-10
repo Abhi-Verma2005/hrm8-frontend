@@ -12,7 +12,7 @@ export interface RoleAssignment {
   expiresAt?: string;
 }
 
-let roleAssignments: RoleAssignment[] = [];
+const roleAssignments: RoleAssignment[] = [];
 
 export function getRoleAssignments(filters?: {
   userId?: string;

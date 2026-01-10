@@ -514,8 +514,8 @@ export type AuditSeverity = 'info' | 'warning' | 'critical';
 export interface AuditChange {
   field: string;
   fieldLabel: string;
-  oldValue: any;
-  newValue: any;
+  oldValue: unknown;
+  newValue: unknown;
   dataType: 'string' | 'number' | 'boolean' | 'object' | 'array';
 }
 
@@ -542,8 +542,8 @@ export interface SystemAuditLog {
   // Details
   description: string;
   changes?: AuditChange[];
-  previousState?: any;
-  newState?: any;
+  previousState?: unknown;
+  newState?: unknown;
   
   // Context
   ipAddress?: string;
@@ -554,7 +554,7 @@ export interface SystemAuditLog {
   // Metadata
   severity: AuditSeverity;
   tags?: string[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   
   // Impact
   affectedUsers?: string[];

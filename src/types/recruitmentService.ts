@@ -121,7 +121,7 @@ export interface ServiceActivity {
   description: string;
   userId: string;
   userName: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timestamp: string;
 }
 

@@ -6,7 +6,7 @@ export interface ExportOptions {
 }
 
 export function exportToCSV(
-  data: any[], 
+  data: Record<string, unknown>[], 
   filename: string, 
   options?: ExportOptions
 ) {
@@ -51,7 +51,7 @@ export function exportToCSV(
 }
 
 export function exportToPDF(
-  data: any[], 
+  data: Record<string, unknown>[], 
   title: string,
   options?: ExportOptions
 ) {
@@ -61,12 +61,12 @@ export function exportToPDF(
 }
 
 export function formatDataForExport(
-  data: any[], 
+  data: Record<string, unknown>[], 
   fields: string[],
   options?: ExportOptions
 ) {
   return data.map(item => {
-    const formatted: any = {};
+    const formatted: Record<string, unknown> = {};
     fields.forEach(field => {
       let value = item[field];
       

@@ -79,7 +79,7 @@ export default function JobSearchPage() {
 
   // Saved Jobs State (to show filled heart)
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
-  
+
   // Applied Jobs State (to filter out jobs already applied to)
   const [appliedJobIds, setAppliedJobIds] = useState<Set<string>>(new Set());
   const appliedJobIdsRef = useRef<Set<string>>(new Set());
@@ -132,7 +132,7 @@ export default function JobSearchPage() {
       setSavedJobIds(new Set());
       return;
     }
-    
+
     try {
       const response = await apiClient.get('/api/candidate/saved-jobs');
       console.log('[JobSearchPage] Saved jobs response:', response);
@@ -159,6 +159,8 @@ export default function JobSearchPage() {
   };
 
   const fetchAppliedJobs = async () => {
+    if (!isAuthenticated) return;
+
     try {
       // Only fetch if user is authenticated
       const response = await applicationService.getCandidateApplications();
@@ -181,7 +183,7 @@ export default function JobSearchPage() {
   const trackSearch = useCallback(async (filters: Record<string, unknown>) => {
     // Only track if user is authenticated and there's at least one filter or search query
     if (!isAuthenticated) return;
-    
+
     const hasFilters = Object.values(filters).some(val => val !== undefined && val !== '');
     if (!hasFilters) return;
 
@@ -200,7 +202,7 @@ export default function JobSearchPage() {
 
   const toggleSaveJob = async (e: React.MouseEvent, jobId: string) => {
     e.stopPropagation();
-    
+
     // For unauthenticated users, prompt them to sign in
     if (!isAuthenticated) {
       toast({
@@ -208,10 +210,10 @@ export default function JobSearchPage() {
         description: "Please sign in to save jobs",
         variant: "default",
       });
-      navigate('/candidate/login', { state: { from: '/candidate/jobs' } });
+      navigate('/candidate/login', { state: { from: '/jobs' } });
       return;
     }
-    
+
     const isSaved = savedJobIds.has(jobId);
 
     try {
@@ -297,13 +299,13 @@ export default function JobSearchPage() {
       // Filter out jobs that the candidate has already applied to
       const allJobs = response.data?.jobs || [];
       const filteredJobs = allJobs.filter((job: PublicJob) => !appliedJobIdsRef.current.has(job.id));
-      
+
       console.log('JobSearchPage - Filtering jobs:', {
         totalJobs: allJobs.length,
         appliedJobIds: Array.from(appliedJobIdsRef.current),
         filteredJobs: filteredJobs.length,
       });
-      
+
       setJobs(filteredJobs);
       // Update total to reflect filtered count
       setTotalJobs(filteredJobs.length);
@@ -316,11 +318,13 @@ export default function JobSearchPage() {
 
   useEffect(() => {
     if (isInitializedRef.current) return;
-    
+
     const initialize = async () => {
       try {
         await loadFilterOptions();
-        await fetchAppliedJobs();
+        if (isAuthenticated) {
+          await fetchAppliedJobs();
+        }
         // Load jobs after fetching applied jobs
         isInitializedRef.current = true;
         await loadJobs();
@@ -391,339 +395,327 @@ export default function JobSearchPage() {
       <div className="bg-background">
         {/* Page Header */}
         <div className="border-b bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold">Find Your Next Job</h1>
-            <p className="text-muted-foreground mt-1">
-              {totalJobs > 0 ? `${totalJobs} opportunities available` : 'Search for your dream job'}
-            </p>
-          </div>
-
-          {/* Main Search Bar */}
-          <div className="space-y-4">
-            <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search jobs by title, keywords, company..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  className="pl-10"
-                />
-              </div>
-              <Button onClick={handleSearch} size="default">
-                <Search className="h-4 w-4 mr-2" />
-                Search
-              </Button>
+          <div className="container mx-auto px-4 py-6">
+            <div className="mb-6">
+              <h1 className="text-3xl font-bold">Find Your Next Job</h1>
+              <p className="text-muted-foreground mt-1">
+                {totalJobs > 0 ? `${totalJobs} opportunities available` : 'Search for your dream job'}
+              </p>
             </div>
 
-            {/* Quick Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <Select value={location || undefined} onValueChange={(val) => setLocation(val === 'all' ? '' : val)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Locations</SelectItem>
-                  {filterOptions.locations.map((loc) => (
-                    <SelectItem key={loc} value={loc}>
-                      {loc}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={employmentType || undefined} onValueChange={(val) => setEmploymentType(val === 'all' ? '' : val)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Employment Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="FULL_TIME">Full Time</SelectItem>
-                  <SelectItem value="PART_TIME">Part Time</SelectItem>
-                  <SelectItem value="CONTRACT">Contract</SelectItem>
-                  <SelectItem value="CASUAL">Casual</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={workArrangement || undefined} onValueChange={(val) => setWorkArrangement(val === 'all' ? '' : val)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Work Arrangement" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Arrangements</SelectItem>
-                  <SelectItem value="ON_SITE">On Site</SelectItem>
-                  <SelectItem value="REMOTE">Remote</SelectItem>
-                  <SelectItem value="HYBRID">Hybrid</SelectItem>
-                </SelectContent>
-              </Select>
-
+            {/* Main Search Bar */}
+            <div className="space-y-4">
               <div className="flex gap-2">
-                <Button
-                  variant={showAdvancedFilters ? 'default' : 'outline'}
-                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="flex-1"
-                >
-                  <SlidersHorizontal className="h-4 w-4 mr-2" />
-                  More Filters
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search jobs by title, keywords, company..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                    className="pl-10"
+                  />
+                </div>
+                <Button onClick={handleSearch} size="default">
+                  <Search className="h-4 w-4 mr-2" />
+                  Search
                 </Button>
-                {hasActiveFilters() && (
-                  <Button variant="ghost" size="icon" onClick={clearFilters} title="Clear all filters">
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <div className="text-sm text-muted-foreground">
-                {hasActiveFilters() && (
-                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2 text-muted-foreground">
-                    <X className="h-3 w-3 mr-1" />
-                    Clear Filters
-                  </Button>
-                )}
               </div>
 
-            </div>
+              {/* Quick Filters */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <Select value={location || undefined} onValueChange={(val) => setLocation(val === 'all' ? '' : val)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Locations</SelectItem>
+                    {filterOptions.locations.map((loc) => (
+                      <SelectItem key={loc} value={loc}>
+                        {loc}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
 
-            {/* Advanced Filters */}
-            {showAdvancedFilters && (
-              <div className="pt-4 border-t space-y-4 animate-in slide-in-from-top-2">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={category || undefined} onValueChange={(val) => setCategory(val === 'all' ? '' : val)}>
-                      <SelectTrigger id="category">
-                        <SelectValue placeholder="All Categories" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
-                        {filterOptions.categories.map((cat) => (
-                          <SelectItem key={cat} value={cat}>
-                            {cat}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <Select value={employmentType || undefined} onValueChange={(val) => setEmploymentType(val === 'all' ? '' : val)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Employment Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="FULL_TIME">Full Time</SelectItem>
+                    <SelectItem value="PART_TIME">Part Time</SelectItem>
+                    <SelectItem value="CONTRACT">Contract</SelectItem>
+                    <SelectItem value="CASUAL">Casual</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={workArrangement || undefined} onValueChange={(val) => setWorkArrangement(val === 'all' ? '' : val)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Work Arrangement" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Arrangements</SelectItem>
+                    <SelectItem value="ON_SITE">On Site</SelectItem>
+                    <SelectItem value="REMOTE">Remote</SelectItem>
+                    <SelectItem value="HYBRID">Hybrid</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant={showAdvancedFilters ? 'default' : 'outline'}
+                    onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                    className="flex-1"
+                  >
+                    <SlidersHorizontal className="h-4 w-4 mr-2" />
+                    More Filters
+                  </Button>
+                  {hasActiveFilters() && (
+                    <Button variant="ghost" size="icon" onClick={clearFilters} title="Clear all filters">
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <div className="text-sm text-muted-foreground">
+                  {hasActiveFilters() && (
+                    <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 px-2 text-muted-foreground">
+                      <X className="h-3 w-3 mr-1" />
+                      Clear Filters
+                    </Button>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Advanced Filters */}
+              {showAdvancedFilters && (
+                <div className="pt-4 border-t space-y-4 animate-in slide-in-from-top-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="category">Category</Label>
+                      <Select value={category || undefined} onValueChange={(val) => setCategory(val === 'all' ? '' : val)}>
+                        <SelectTrigger id="category">
+                          <SelectValue placeholder="All Categories" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Categories</SelectItem>
+                          {filterOptions.categories.map((cat) => (
+                            <SelectItem key={cat} value={cat}>
+                              {cat}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="department">Department</Label>
+                      <Select value={department || undefined} onValueChange={(val) => setDepartment(val === 'all' ? '' : val)}>
+                        <SelectTrigger id="department">
+                          <SelectValue placeholder="All Departments" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Departments</SelectItem>
+                          {filterOptions.departments.map((dept) => (
+                            <SelectItem key={dept} value={dept}>
+                              {dept}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Featured Jobs Only</Label>
+                      <div className="flex items-center space-x-2 pt-2">
+                        <Checkbox
+                          id="featured"
+                          checked={featuredOnly}
+                          onCheckedChange={(checked) => setFeaturedOnly(checked === true)}
+                        />
+                        <Label htmlFor="featured" className="font-normal cursor-pointer">
+                          Show only featured jobs
+                        </Label>
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="department">Department</Label>
-                    <Select value={department || undefined} onValueChange={(val) => setDepartment(val === 'all' ? '' : val)}>
-                      <SelectTrigger id="department">
-                        <SelectValue placeholder="All Departments" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Departments</SelectItem>
-                        {filterOptions.departments.map((dept) => (
-                          <SelectItem key={dept} value={dept}>
-                            {dept}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Featured Jobs Only</Label>
-                    <div className="flex items-center space-x-2 pt-2">
-                      <Checkbox
-                        id="featured"
-                        checked={featuredOnly}
-                        onCheckedChange={(checked) => setFeaturedOnly(checked === true)}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="salaryMin">Minimum Salary</Label>
+                      <Input
+                        id="salaryMin"
+                        type="number"
+                        placeholder="e.g., 50000"
+                        value={salaryMin}
+                        onChange={(e) => setSalaryMin(e.target.value)}
                       />
-                      <Label htmlFor="featured" className="font-normal cursor-pointer">
-                        Show only featured jobs
-                      </Label>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="salaryMax">Maximum Salary</Label>
+                      <Input
+                        id="salaryMax"
+                        type="number"
+                        placeholder="e.g., 100000"
+                        value={salaryMax}
+                        onChange={(e) => setSalaryMax(e.target.value)}
+                      />
                     </div>
                   </div>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="salaryMin">Minimum Salary</Label>
-                    <Input
-                      id="salaryMin"
-                      type="number"
-                      placeholder="e.g., 50000"
-                      value={salaryMin}
-                      onChange={(e) => setSalaryMin(e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="salaryMax">Maximum Salary</Label>
-                    <Input
-                      id="salaryMax"
-                      type="number"
-                      placeholder="e.g., 100000"
-                      value={salaryMax}
-                      onChange={(e) => setSalaryMax(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Job Listings */}
-      <div className="container mx-auto px-4 py-8">
-        {isLoading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : jobs.length === 0 ? (
-          <div className="text-center py-12">
-            <Briefcase className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-xl font-semibold mb-2">No jobs found</h3>
-            <p className="text-muted-foreground mb-4">
-              {hasActiveFilters()
-                ? 'Try adjusting your filters to see more results.'
-                : 'No job postings available at the moment.'}
-            </p>
-            {hasActiveFilters() && (
-              <Button variant="outline" onClick={clearFilters}>
-                Clear Filters
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {jobs.map((job) => (
-              <Card
-                key={job.id}
-                className={cn(
-                  'hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4',
-                  job.featured && 'border-l-primary bg-primary/5'
-                )}
-                onClick={() => navigate(`/candidate/jobs/${job.id}`)}
-              >
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-start gap-3">
-                        {/* Company Logo */}
-                        <div className="flex-shrink-0 w-12 h-12 rounded-lg border bg-muted flex items-center justify-center overflow-hidden">
-                          {job.company.logoUrl ? (
-                            <img 
-                              src={job.company.logoUrl} 
-                              alt={`${job.company.name} logo`}
-                              className="w-full h-full object-contain"
-                            />
-                          ) : (
-                            <Building2 className="h-6 w-6 text-muted-foreground" />
-                          )}
-                        </div>
-                        <div className="flex-1">
-                          <CardTitle className="text-xl mb-2 flex items-center gap-2">
-                            <Link
-                              to={`/candidate/jobs/${job.id}`}
-                              className="hover:text-primary transition-colors"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {job.title}
-                            </Link>
-                            {job.featured && (
-                              <Badge variant="default" className="ml-2">
-                                <TrendingUp className="h-3 w-3 mr-1" />
-                                Featured
-                              </Badge>
-                            )}
-                          </CardTitle>
-                          <CardDescription className="flex items-center gap-4 flex-wrap text-sm">
-                            <span className="flex items-center gap-1.5">
-                              <Building2 className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-medium">{job.company.name}</span>
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                              <MapPin className="h-4 w-4 text-muted-foreground" />
-                              {job.location}
-                            </span>
-                            {job.department && (
+        {/* Job Listings */}
+        <div className="container mx-auto px-4 py-8">
+          {isLoading ? (
+            <div className="flex justify-center items-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="text-center py-12">
+              <Briefcase className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="text-xl font-semibold mb-2">No jobs found</h3>
+              <p className="text-muted-foreground mb-4">
+                {hasActiveFilters()
+                  ? 'Try adjusting your filters to see more results.'
+                  : 'No job postings available at the moment.'}
+              </p>
+              {hasActiveFilters() && (
+                <Button variant="outline" onClick={clearFilters}>
+                  Clear Filters
+                </Button>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {jobs.map((job) => (
+                <Card
+                  key={job.id}
+                  className={cn(
+                    'hover:shadow-lg transition-all duration-200 cursor-pointer border-l-4',
+                    job.featured && 'border-l-primary bg-primary/5'
+                  )}
+                  onClick={() => navigate(`/jobs/${job.id}`)}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 space-y-2">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-1">
+                            <CardTitle className="text-xl mb-2 flex items-center gap-2">
+                              <Link
+                                to={`/jobs/${job.id}`}
+                                className="hover:text-primary transition-colors"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {job.title}
+                              </Link>
+                              {job.featured && (
+                                <Badge variant="default" className="ml-2">
+                                  <TrendingUp className="h-3 w-3 mr-1" />
+                                  Featured
+                                </Badge>
+                              )}
+                            </CardTitle>
+                            <CardDescription className="flex items-center gap-4 flex-wrap text-sm">
                               <span className="flex items-center gap-1.5">
-                                <Briefcase className="h-4 w-4 text-muted-foreground" />
-                                {job.department}
+                                <Building2 className="h-4 w-4 text-muted-foreground" />
+                                <span className="font-medium">{job.company.name}</span>
                               </span>
-                            )}
-                            <span className="flex items-center gap-1.5">
-                              <Clock className="h-4 w-4 text-muted-foreground" />
-                              {job.postingDate
-                                ? formatDistanceToNow(new Date(job.postingDate), { addSuffix: true })
-                                : 'Recently'}
-                            </span>
-                          </CardDescription>
+                              <span className="flex items-center gap-1.5">
+                                <MapPin className="h-4 w-4 text-muted-foreground" />
+                                {job.location}
+                              </span>
+                              {job.department && (
+                                <span className="flex items-center gap-1.5">
+                                  <Briefcase className="h-4 w-4 text-muted-foreground" />
+                                  {job.department}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1.5">
+                                <Clock className="h-4 w-4 text-muted-foreground" />
+                                {job.postingDate
+                                  ? formatDistanceToNow(new Date(job.postingDate), { addSuffix: true })
+                                  : 'Recently'}
+                              </span>
+                            </CardDescription>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    {isAuthenticated && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className={cn(
-                          "text-muted-foreground hover:text-primary",
-                          savedJobIds.has(job.id) && "text-red-500 hover:text-red-600"
-                        )}
-                        onClick={(e) => toggleSaveJob(e, job.id)}
-                        title={savedJobIds.has(job.id) ? "Remove from saved jobs" : "Save job"}
-                      >
-                        <Heart className={cn(
-                          "h-5 w-5 transition-all",
-                          savedJobIds.has(job.id) ? "fill-current text-red-500" : "text-muted-foreground"
-                        )} />
-                      </Button>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                    {job.jobSummary || job.description.substring(0, 200)}...
-                  </p>
-                  <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div className="flex items-center gap-6 flex-wrap">
-                      <div className="flex items-center gap-1.5 text-sm">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{formatSalary(job)}</span>
-                      </div>
-                      <Badge variant="outline" className="text-xs">
-                        {job.employmentType.replace('_', ' ')}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {job.workArrangement.replace('_', ' ')}
-                      </Badge>
-                      {job.category && (
-                        <Badge variant="secondary" className="text-xs">
-                          {job.category}
-                        </Badge>
+                      {isAuthenticated && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className={cn(
+                            "text-muted-foreground hover:text-primary",
+                            savedJobIds.has(job.id) && "text-red-500 hover:text-red-600"
+                          )}
+                          onClick={(e) => toggleSaveJob(e, job.id)}
+                          title={savedJobIds.has(job.id) ? "Remove from saved jobs" : "Save job"}
+                        >
+                          <Heart className={cn(
+                            "h-5 w-5 transition-all",
+                            savedJobIds.has(job.id) ? "fill-current text-red-500" : "text-muted-foreground"
+                          )} />
+                        </Button>
                       )}
                     </div>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/candidate/jobs/${job.id}`);
-                      }}
-                      size="sm"
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                  {job.promotionalTags.length > 0 && (
-                    <div className="flex gap-2 mt-4 flex-wrap">
-                      {job.promotionalTags.map((tag, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {tag}
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                      {job.jobSummary || (job.description || '').substring(0, 200)}...
+                    </p>
+                    <div className="flex items-center justify-between flex-wrap gap-4">
+                      <div className="flex items-center gap-6 flex-wrap">
+                        <div className="flex items-center gap-1.5 text-sm">
+                          <DollarSign className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">{formatSalary(job)}</span>
+                        </div>
+                        <Badge variant="outline" className="text-xs">
+                          {(job.employmentType || '').replace('_', ' ')}
                         </Badge>
-                      ))}
+                        <Badge variant="outline" className="text-xs">
+                          {(job.workArrangement || '').replace('_', ' ')}
+                        </Badge>
+                        {job.category && (
+                          <Badge variant="secondary" className="text-xs">
+                            {job.category}
+                          </Badge>
+                        )}
+                      </div>
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/jobs/${job.id}`);
+                        }}
+                        size="sm"
+                      >
+                        View Details
+                      </Button>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
+                    {job.promotionalTags && job.promotionalTags.length > 0 && (
+                      <div className="flex gap-2 mt-4 flex-wrap">
+                        {job.promotionalTags.map((tag, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </Layout>
   );

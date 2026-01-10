@@ -33,10 +33,10 @@ const mockEnrollmentPeriods: EnrollmentPeriod[] = [
   },
 ];
 
-let enrollmentPeriods = [...mockEnrollmentPeriods];
-let eligibilityRules: EligibilityRule[] = [];
-let lifeEvents: LifeEvent[] = [];
-let cobraEvents: COBRAEvent[] = [];
+const enrollmentPeriods = [...mockEnrollmentPeriods];
+const eligibilityRules: EligibilityRule[] = [];
+const lifeEvents: LifeEvent[] = [];
+const cobraEvents: COBRAEvent[] = [];
 
 export function getEnrollmentPeriods(status?: string): EnrollmentPeriod[] {
   if (status) {

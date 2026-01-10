@@ -74,7 +74,7 @@ export function QuestionEvaluationSettings({
   // Sync local state with prop when evaluation changes externally
   useEffect(() => {
     setLocalEvaluation(evaluation || {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [evaluation]);
 
   const hasOptions = ['multiple_choice', 'checkbox', 'dropdown'].includes(questionType);

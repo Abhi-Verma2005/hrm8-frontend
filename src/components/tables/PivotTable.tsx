@@ -511,8 +511,8 @@ export function PivotTable<T extends Record<string, any>>({
     let minValue = Infinity;
     let maxValue = -Infinity;
 
-    let sortedRowKeys = Array.from(rowKeys).sort();
-    let sortedColKeys = Array.from(colKeys).sort();
+    const sortedRowKeys = Array.from(rowKeys).sort();
+    const sortedColKeys = Array.from(colKeys).sort();
 
     // Apply sorting
     if (config.sortConfig && config.sortConfig.length > 0) {
@@ -556,7 +556,7 @@ export function PivotTable<T extends Record<string, any>>({
     // Calculate totals if enabled
     const rowTotals: any = {};
     const colTotals: any = {};
-    let grandTotal: any = {};
+    const grandTotal: any = {};
 
     if (config.showTotals) {
       // Calculate row totals

@@ -87,8 +87,8 @@ export interface PricingHistory {
   id: string;
   entityType: 'tier' | 'addon' | 'recruitment' | 'custom';
   entityId: string;
-  changes: Record<string, any>;
-  previousValues: Record<string, any>;
+  changes: Record<string, unknown>;
+  previousValues: Record<string, unknown>;
   changedBy: string;
   changedAt: string;
   reason?: string;

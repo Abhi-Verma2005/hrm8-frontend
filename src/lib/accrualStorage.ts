@@ -32,9 +32,9 @@ const mockPolicies: AccrualPolicy[] = [
   },
 ];
 
-let policies = [...mockPolicies];
-let transactions: AccrualTransaction[] = [];
-let schedules: AccrualSchedule[] = [];
+const policies = [...mockPolicies];
+const transactions: AccrualTransaction[] = [];
+const schedules: AccrualSchedule[] = [];
 
 export function getAccrualPolicies(): AccrualPolicy[] {
   return policies.filter((p) => p.isActive);
