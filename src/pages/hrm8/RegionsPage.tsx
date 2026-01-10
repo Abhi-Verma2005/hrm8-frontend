@@ -8,7 +8,7 @@ import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
 import { regionService, Region } from '@/lib/hrm8/regionService';
 import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
-import { Plus, Edit, Trash2, MoreVertical, Link2 } from 'lucide-react';
+import { Plus, Edit, Trash2, MoreVertical, Link2, ArrowRightLeft } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ import { FormDrawer } from '@/components/ui/form-drawer';
 import { RegionForm } from '@/components/hrm8/RegionForm';
 import { DeleteConfirmationDialog } from '@/components/ui/delete-confirmation-dialog';
 import { AssignLicenseeDialog } from '@/components/hrm8/AssignLicenseeDialog';
+import { TransferRegionDialog } from '@/components/hrm8/TransferRegionDialog';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { TableSkeleton } from '@/components/tables/TableSkeleton';
@@ -23,7 +24,8 @@ import { TableSkeleton } from '@/components/tables/TableSkeleton';
 const createColumns = (
   onEdit: (region: Region) => void,
   onDelete: (region: Region) => void,
-  onAssignLicensee: (region: Region) => void
+  onAssignLicensee: (region: Region) => void,
+  onTransfer: (region: Region) => void
 ) => [
   {
     key: 'code',
@@ -105,6 +107,12 @@ const createColumns = (
                 </>
               )}
             </DropdownMenuItem>
+            {region.licensee && (
+              <DropdownMenuItem onClick={() => onTransfer(region)}>
+                <ArrowRightLeft className="h-4 w-4 mr-2" />
+                Transfer Ownership
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-destructive"
@@ -130,6 +138,8 @@ export default function RegionsPage() {
   const [regionToDelete, setRegionToDelete] = useState<string | null>(null);
   const [assignLicenseeDialogOpen, setAssignLicenseeDialogOpen] = useState(false);
   const [regionForLicensee, setRegionForLicensee] = useState<Region | null>(null);
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
+  const [regionForTransfer, setRegionForTransfer] = useState<Region | null>(null);
 
   const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
 
@@ -200,7 +210,16 @@ export default function RegionsPage() {
     await loadRegions();
   };
 
-  const columns = createColumns(handleEdit, handleDelete, handleAssignLicensee);
+  const handleTransfer = (region: Region) => {
+    setRegionForTransfer(region);
+    setTransferDialogOpen(true);
+  };
+
+  const handleTransferComplete = async () => {
+    await loadRegions();
+  };
+
+  const columns = createColumns(handleEdit, handleDelete, handleAssignLicensee, handleTransfer);
 
   if (!isGlobalAdmin) {
     return (
@@ -273,6 +292,13 @@ export default function RegionsPage() {
         onOpenChange={setAssignLicenseeDialogOpen}
         region={regionForLicensee}
         onSuccess={handleLicenseeAssigned}
+      />
+
+      <TransferRegionDialog
+        open={transferDialogOpen}
+        onOpenChange={setTransferDialogOpen}
+        region={regionForTransfer}
+        onSuccess={handleTransferComplete}
       />
       </div>
     </Hrm8PageLayout>

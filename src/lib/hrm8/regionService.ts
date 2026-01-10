@@ -75,6 +75,32 @@ class RegionService {
   async unassignLicensee(regionId: string) {
     return apiClient.post<{ region: Region }>(`/api/hrm8/regions/${regionId}/unassign-licensee`);
   }
+
+  /**
+   * Get transfer impact analysis - counts of entities that will be transferred
+   */
+  async getTransferImpact(regionId: string) {
+    return apiClient.get<{
+      companies: number;
+      jobs: number;
+      consultants: number;
+      openInvoices: number;
+      opportunities: number;
+    }>(`/api/hrm8/regions/${regionId}/transfer-impact`);
+  }
+
+  /**
+   * Transfer region ownership to a new licensee
+   */
+  async transferOwnership(regionId: string, data: {
+    targetLicenseeId: string;
+    auditNote?: string;
+  }) {
+    return apiClient.post<{ region: Region; transferredCounts: Record<string, number> }>(
+      `/api/hrm8/regions/${regionId}/transfer`,
+      data
+    );
+  }
 }
 
 export const regionService = new RegionService();
