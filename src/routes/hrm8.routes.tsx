@@ -22,6 +22,9 @@ import SettlementsPage from "@/pages/hrm8/SettlementsPage";
 import SettingsPage from "@/pages/hrm8/SettingsPage";
 import AttributionPage from "@/pages/hrm8/AttributionPage";
 import Hrm8SettingsPage from "@/pages/hrm8/Hrm8SettingsPage";
+import Hrm8JobBoardPage from "@/pages/hrm8/Hrm8JobBoardPage";
+import Hrm8CompanyJobsPage from "@/pages/hrm8/Hrm8CompanyJobsPage";
+import Hrm8JobDetailPage from "@/pages/hrm8/Hrm8JobDetailPage";
 
 export const hrm8Routes = (
   <Route
@@ -41,6 +44,9 @@ export const hrm8Routes = (
     <Route path="staff" element={<StaffPage />} />
     <Route path="jobs" element={<JobAllocationPage />} />
     <Route path="jobs/unassigned" element={<UnassignedJobsPage />} />
+    <Route path="job-board" element={<Hrm8JobBoardPage />} />
+    <Route path="job-board/:companyId" element={<Hrm8CompanyJobsPage />} />
+    <Route path="job-board/job/:jobId" element={<Hrm8JobDetailPage />} />
     <Route path="commissions" element={<CommissionsPage />} />
     <Route path="settlements" element={<SettlementsPage />} />
     <Route path="revenue" element={<RevenuePage />} />

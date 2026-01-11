@@ -87,10 +87,10 @@ export function mapBackendJobToFrontend(backendJob: any): Job {
     status: normalizeStatus(backendJob.status || 'DRAFT'),
     visibility: backendJob.visibility || 'public',
     stealth: backendJob.stealth || false,
-    postingDate: backendJob.postingDate 
+    postingDate: backendJob.postingDate
       ? (typeof backendJob.postingDate === 'string' ? backendJob.postingDate : backendJob.postingDate.toISOString())
       : new Date().toISOString(),
-    closeDate: backendJob.closeDate 
+    closeDate: backendJob.closeDate
       ? (typeof backendJob.closeDate === 'string' ? backendJob.closeDate : backendJob.closeDate.toISOString())
       : undefined,
     tags: backendJob.promotionalTags || backendJob.tags || [],
@@ -102,26 +102,27 @@ export function mapBackendJobToFrontend(backendJob: any): Job {
     assignedConsultantName: backendJob.assignedConsultantName,
     pipeline: backendJob.pipeline
       ? {
-          stage: backendJob.pipeline.stage,
-          progress: backendJob.pipeline.progress,
-          note: backendJob.pipeline.note,
-          updatedAt: backendJob.pipeline.updatedAt
-            ? (typeof backendJob.pipeline.updatedAt === 'string'
-                ? backendJob.pipeline.updatedAt
-                : backendJob.pipeline.updatedAt.toISOString())
-            : null,
-          updatedBy: backendJob.pipeline.updatedBy,
-          consultantId: backendJob.pipeline.consultantId,
-        }
+        stage: backendJob.pipeline.stage,
+        progress: backendJob.pipeline.progress,
+        note: backendJob.pipeline.note,
+        updatedAt: backendJob.pipeline.updatedAt
+          ? (typeof backendJob.pipeline.updatedAt === 'string'
+            ? backendJob.pipeline.updatedAt
+            : backendJob.pipeline.updatedAt.toISOString())
+          : null,
+        updatedBy: backendJob.pipeline.updatedBy,
+        consultantId: backendJob.pipeline.consultantId,
+      }
       : undefined,
     jobBoardDistribution: backendJob.jobBoardDistribution || ['HRM8 Job Board'],
     applicantsCount: backendJob.applicantsCount || 0,
     unreadApplicants: backendJob.unreadApplicants,
     viewsCount: backendJob.viewsCount || 0,
-    createdAt: backendJob.createdAt 
+    clicksCount: backendJob.clicksCount || 0,
+    createdAt: backendJob.createdAt
       ? (typeof backendJob.createdAt === 'string' ? backendJob.createdAt : backendJob.createdAt.toISOString())
       : new Date().toISOString(),
-    updatedAt: backendJob.updatedAt 
+    updatedAt: backendJob.updatedAt
       ? (typeof backendJob.updatedAt === 'string' ? backendJob.updatedAt : backendJob.updatedAt.toISOString())
       : new Date().toISOString(),
     hiringTeam: backendJob.hiringTeam || [],
@@ -153,7 +154,7 @@ export function mapBackendJobToFrontend(backendJob: any): Job {
  */
 export function mapBackendJobToFormData(backendJob: any): Partial<JobFormData> {
   const normalizedJob = mapBackendJobToFrontend(backendJob);
-  
+
   return {
     serviceType: normalizedJob.serviceType,
     title: normalizedJob.title,
@@ -197,8 +198,8 @@ export function mapBackendJobToFormData(backendJob: any): Partial<JobFormData> {
         website: { included: false, required: false },
       },
     },
-    status: normalizedJob.status === 'closed' || normalizedJob.status === 'filled' || normalizedJob.status === 'on-hold' 
-      ? 'draft' 
+    status: normalizedJob.status === 'closed' || normalizedJob.status === 'filled' || normalizedJob.status === 'on-hold'
+      ? 'draft'
       : normalizedJob.status,
     jobBoardDistribution: normalizedJob.jobBoardDistribution || [],
     videoInterviewingEnabled: normalizedJob.videoInterviewingEnabled || false,

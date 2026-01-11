@@ -953,6 +953,46 @@ export default function JobDetail() {
               <div className="space-y-6">
                 <Card>
                   <CardHeader>
+                    <CardTitle className="text-base font-semibold">Quick Stats</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Eye className="h-4 w-4" />
+                        <span>Total Views</span>
+                      </div>
+                      <span className="font-semibold">{job.viewsCount?.toLocaleString() || 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <ArrowUpCircle className="h-4 w-4" />
+                        <span>Apply Clicks</span>
+                      </div>
+                      <span className="font-semibold">{job.clicksCount?.toLocaleString() || 0}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Briefcase className="h-4 w-4" />
+                        <span>Applicants</span>
+                      </div>
+                      <span className="font-semibold">{job.applicantsCount || 0}</span>
+                    </div>
+                    <Separator />
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Posted</p>
+                      <p className="text-sm font-medium">{formatRelativeDate(job.postingDate)}</p>
+                    </div>
+                    {job.closeDate && (
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Closed</p>
+                        <p className="text-sm font-medium">{formatRelativeDate(job.closeDate)}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
                     <CardTitle className="text-base font-semibold">Activity</CardTitle>
                   </CardHeader>
                   <CardContent>
