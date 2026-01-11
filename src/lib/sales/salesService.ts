@@ -156,9 +156,27 @@ export const salesService = {
   getCommissions: async () => {
     return await apiClient.get<{ commissions: Commission[] }>('/api/sales/commissions');
   },
-  
+
   // Attributed Companies
   getCompanies: async () => {
     return await apiClient.get<{ companies: any[] }>('/api/sales/companies');
+  },
+
+  // Withdrawals
+  getWithdrawalBalance: async () => {
+    return await apiClient.get<import('@/types/withdrawal').WithdrawalBalance>('/api/sales/commissions/balance');
+  },
+
+  requestWithdrawal: async (data: import('@/types/withdrawal').WithdrawalRequest) => {
+    return await apiClient.post<import('@/types/withdrawal').WithdrawalResponse>('/api/sales/commissions/withdraw', data);
+  },
+
+  getWithdrawals: async (filters?: { status?: string }) => {
+    const params = new URLSearchParams(filters as any).toString();
+    return await apiClient.get<{ withdrawals: import('@/types/withdrawal').CommissionWithdrawal[] }>(`/api/sales/commissions/withdrawals?${params}`);
+  },
+
+  cancelWithdrawal: async (id: string) => {
+    return await apiClient.post<{ message: string }>(`/api/sales/commissions/withdrawals/${id}/cancel`);
   }
 };

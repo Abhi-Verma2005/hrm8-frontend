@@ -1,134 +1,156 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
-import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
-import { DollarSign, Clock, CheckCircle2 } from "lucide-react";
-import { DataTable } from "@/components/tables/DataTable";
+import { DataTable, Column } from "@/components/tables/DataTable";
 import { salesService, Commission } from "@/lib/sales/salesService";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
-import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BalanceCard } from "@/components/sales/BalanceCard";
+import { WithdrawalHistory } from "@/components/sales/WithdrawalHistory";
+import { WithdrawalDialog } from "@/components/sales/WithdrawalDialog";
+import { WithdrawalBalance, CommissionWithdrawal } from "@/types/withdrawal";
 
 export default function CommissionsPage() {
   const { toast } = useToast();
   const { formatCurrency } = useCurrencyFormat();
   const [commissions, setCommissions] = useState<Commission[]>([]);
+  const [withdrawals, setWithdrawals] = useState<CommissionWithdrawal[]>([]);
+  const [balance, setBalance] = useState<WithdrawalBalance>({
+    availableBalance: 0,
+    pendingBalance: 0,
+    totalEarned: 0,
+    totalWithdrawn: 0,
+    availableCommissions: []
+  });
   const [isLoading, setIsLoading] = useState(true);
+  const [withdrawalOpen, setWithdrawalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchCommissions = async () => {
-      setIsLoading(true);
-      try {
-        const response = await salesService.getCommissions();
-        if (response.success && response.data) {
-          // @ts-ignore - response structure check
-          setCommissions(response.data.commissions || []);
-        }
-      } catch (error) {
-        toast({ title: "Error", description: "Failed to fetch commissions", variant: "destructive" });
-      } finally {
-        setIsLoading(false);
+  const fetchData = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // Parallel fetch for efficiency
+      const [commissionsRes, balanceRes, withdrawalsRes] = await Promise.all([
+        salesService.getCommissions(),
+        salesService.getWithdrawalBalance(),
+        salesService.getWithdrawals()
+      ]);
+
+      if (commissionsRes.success && commissionsRes.data) {
+        // @ts-ignore
+        setCommissions(commissionsRes.data.commissions || []);
       }
-    };
 
-    fetchCommissions();
+      if (balanceRes.success && balanceRes.data) {
+        setBalance(balanceRes.data);
+      }
+
+      if (withdrawalsRes.success && withdrawalsRes.data) {
+        setWithdrawals(withdrawalsRes.data.withdrawals || []);
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to fetch commission data", variant: "destructive" });
+    } finally {
+      setIsLoading(false);
+    }
   }, [toast]);
 
-  // Calculate stats
-  const totalEarned = commissions.reduce((sum, c) => sum + c.amount, 0);
-  const pendingAmount = commissions.filter(c => c.status === 'PENDING').reduce((sum, c) => sum + c.amount, 0);
-  const paidAmount = commissions.filter(c => c.status === 'PAID').reduce((sum, c) => sum + c.amount, 0);
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  const columns: ColumnDef<Commission>[] = [
+  const columns: Column<Commission>[] = [
     {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => <span className="font-medium">{row.original.description || "Commission"}</span>,
+      key: "description",
+      label: "Description",
+      render: (item) => <span className="font-medium">{item.description || "Commission"}</span>,
     },
     {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => (
+      key: "type",
+      label: "Type",
+      render: (item) => (
         <Badge variant="outline">
-          {row.original.type}
+          {item.type}
         </Badge>
       ),
     },
     {
-      accessorKey: "amount",
-      header: "Amount",
-      cell: ({ row }) => <span className="font-semibold">{formatCurrency(row.original.amount)}</span>,
+      key: "amount",
+      label: "Amount",
+      render: (item) => <span className="font-semibold">{formatCurrency(item.amount)}</span>,
     },
     {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => {
-        const status = row.original.status;
+      key: "status",
+      label: "Status",
+      render: (item) => {
         return (
-          <Badge variant={status === 'PAID' ? 'success' : status === 'PENDING' ? 'warning' : 'secondary'}>
-            {status}
+          <Badge
+            variant={item.status === 'PAID' ? 'default' : 'outline'}
+            className={
+              item.status === 'PAID' ? 'bg-green-600 hover:bg-green-700' :
+                item.status === 'PENDING' ? 'text-orange-600 border-orange-200 bg-orange-50' :
+                  ''
+            }
+          >
+            {item.status}
           </Badge>
         );
       },
     },
     {
-      accessorKey: "createdAt",
-      header: "Date",
-      cell: ({ row }) => new Date(row.original.createdAt).toLocaleDateString(),
+      key: "createdAt",
+      label: "Date",
+      render: (item) => <span>{new Date(item.createdAt).toLocaleDateString()}</span>,
     },
     {
-      accessorKey: "paidAt",
-      header: "Paid Date",
-      cell: ({ row }) => row.original.paidAt ? new Date(row.original.paidAt).toLocaleDateString() : "-",
+      key: "paidAt",
+      label: "Paid Date",
+      render: (item) => <span>{item.paidAt ? new Date(item.paidAt).toLocaleDateString() : "-"}</span>,
     },
   ];
 
   return (
     <div className="p-6 space-y-6">
-      <AtsPageHeader title="Commission Management" subtitle="Track your earnings" />
+      <AtsPageHeader title="Commission Management" subtitle="Track your earnings and withdrawals" />
 
-      <div className="grid gap-4 md:grid-cols-3">
-        <EnhancedStatCard
-          title="Total Earnings"
-          value={formatCurrency(totalEarned)}
-          isCurrency={false}
-          rawValue={totalEarned}
-          change="Lifetime"
-          trend="up"
-          icon={<DollarSign className="h-6 w-6" />}
-          variant="success"
-          showMenu={false}
-        />
-        <EnhancedStatCard
-          title="Pending Payout"
-          value={formatCurrency(pendingAmount)}
-          isCurrency={false}
-          rawValue={pendingAmount}
-          change="Awaiting payment"
-          icon={<Clock className="h-6 w-6" />}
-          variant="warning"
-          showMenu={false}
-        />
-        <EnhancedStatCard
-          title="Paid"
-          value={formatCurrency(paidAmount)}
-          isCurrency={false}
-          rawValue={paidAmount}
-          change="Processed"
-          icon={<CheckCircle2 className="h-6 w-6" />}
-          variant="primary"
-          showMenu={false}
-        />
-      </div>
+      <BalanceCard
+        balance={balance}
+        onRequestWithdrawal={() => setWithdrawalOpen(true)}
+        isLoading={isLoading}
+      />
 
-      <div className="bg-card rounded-lg border shadow-sm p-1">
-        <DataTable
-          columns={columns}
-          data={commissions}
-          searchable={true}
-          searchColumn="description"
-        />
-      </div>
+      <Tabs defaultValue="commissions" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 max-w-[400px]">
+          <TabsTrigger value="commissions">Commissions</TabsTrigger>
+          <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="commissions" className="mt-4">
+          <div className="bg-card rounded-lg border shadow-sm p-1">
+            <DataTable
+              columns={columns}
+              data={commissions}
+              searchable={true}
+              searchKeys={['description']}
+            />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="withdrawals" className="mt-4">
+          <WithdrawalHistory
+            withdrawals={withdrawals}
+            isLoading={isLoading}
+            onrefresh={fetchData}
+          />
+        </TabsContent>
+      </Tabs>
+
+      <WithdrawalDialog
+        open={withdrawalOpen}
+        onOpenChange={setWithdrawalOpen}
+        balance={balance}
+        onSuccess={fetchData}
+      />
     </div>
   );
 }
