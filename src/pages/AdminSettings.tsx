@@ -15,7 +15,6 @@ import { SystemConfigurationTab } from "@/components/admin/settings/SystemConfig
 import { IntegrationsTab } from "@/components/admin/settings/IntegrationsTab";
 import { SecurityComplianceTab } from "@/components/admin/settings/SecurityComplianceTab";
 import { AuditLogsTab } from "@/components/admin/settings/AuditLogsTab";
-import { JobBoardManagementTab } from "@/components/admin/settings/JobBoardManagementTab";
 import { PromoCodesTab } from "@/components/admin/settings/PromoCodesTab";
 
 export default function AdminSettings() {
@@ -114,12 +113,6 @@ export default function AdminSettings() {
                 Security
               </TabsTrigger>
               <TabsTrigger
-                value="jobboard"
-                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
-              >
-                Job Board
-              </TabsTrigger>
-              <TabsTrigger
                 value="audit"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
@@ -170,9 +163,6 @@ export default function AdminSettings() {
             <SecurityComplianceTab />
           </TabsContent>
 
-          <TabsContent value="jobboard" className="mt-6">
-            <JobBoardManagementTab />
-          </TabsContent>
 
           <TabsContent value="audit" className="mt-6">
             <AuditLogsTab />

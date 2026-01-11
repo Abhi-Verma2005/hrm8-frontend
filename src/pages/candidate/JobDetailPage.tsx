@@ -2,7 +2,7 @@
  * Candidate Job Detail Page
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useCandidateAuth } from '@/contexts/CandidateAuthContext';
 import { jobService, PublicJob } from '@/lib/jobService';
@@ -30,6 +30,9 @@ export default function JobDetailPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Track if we've already tracked the view for this job
+  const hasTrackedView = useRef<string | null>(null);
+
   useEffect(() => {
     if (id) {
       loadJob();
@@ -48,8 +51,9 @@ export default function JobDetailPage() {
       // Backend returns { success: true, data: { ...jobFields } }
       setJob(response.data || null);
 
-      // Track detail view
-      if (response.data) {
+      // Track detail view only once per job (prevent double tracking from StrictMode/re-renders)
+      if (response.data && hasTrackedView.current !== id) {
+        hasTrackedView.current = id;
         trackJobAnalytics(id, 'DETAIL_VIEW', isAuthenticated ? 'CANDIDATE_PORTAL' : 'HRM8_BOARD');
       }
     } catch (error) {

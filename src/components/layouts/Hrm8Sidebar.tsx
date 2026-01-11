@@ -42,6 +42,7 @@ const menuItems = [
   { path: "/hrm8/licensees", label: "Licensees", icon: Users, adminOnly: true },
   { path: "/hrm8/staff", label: "Staff", icon: UserCog },
   { path: "/hrm8/jobs", label: "Job Allocation", icon: Briefcase },
+  { path: "/hrm8/job-board", label: "Jobs", icon: Briefcase, adminOnly: true },
   { path: "/hrm8/leads", label: "Leads", icon: Target },
   { path: "/hrm8/sales-pipeline", label: "Pipeline", icon: BarChart3 },
   { path: "/hrm8/commissions", label: "Commissions", icon: DollarSign },

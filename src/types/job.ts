@@ -77,6 +77,7 @@ export interface Job {
   applicantsCount: number;
   unreadApplicants?: number;
   viewsCount: number;
+  clicksCount?: number;
   createdAt: string;
   updatedAt: string;
   archived?: boolean;
