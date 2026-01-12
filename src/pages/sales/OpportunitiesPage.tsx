@@ -101,7 +101,16 @@ export default function OpportunitiesPage() {
     fetchLeads();
   }, [fetchLeads]);
 
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
   const handleCreateLead = async () => {
+    if (!isValidEmail(createForm.email)) {
+      toast({ title: "Validation Error", description: "Please enter a valid email address", variant: "destructive" });
+      return;
+    }
+
     setIsQualifying(true);
     setQualificationData(null);
     setCurrentQualificationStep(0);
@@ -126,7 +135,7 @@ export default function OpportunitiesPage() {
           const totalProgress = ((step * 100) + Math.min(stepProgress, 100)) / QUALIFICATION_STEPS.length;
           setQualificationProgress(totalProgress);
         }, 150 + Math.random() * 200);
-        
+
         qualificationTimerRef.current = stepInterval;
       }
     };
@@ -134,16 +143,16 @@ export default function OpportunitiesPage() {
 
     try {
       const response = await salesService.createLead(createForm);
-      
+
       // When response comes, quickly finish the steps
       if (qualificationTimerRef.current) clearInterval(qualificationTimerRef.current);
-      
+
       setQualificationProgress(100);
       setCurrentQualificationStep(QUALIFICATION_STEPS.length - 1);
-      
+
       if (response.success) {
         toast({ title: "Success", description: "Lead created and qualified" });
-        
+
         if (response.data?.qualification) {
           setQualificationData(response.data.qualification);
           // Wait a tiny bit so user sees the 100% completion
@@ -154,7 +163,7 @@ export default function OpportunitiesPage() {
         } else {
           setIsQualifying(false);
         }
-        
+
         setCreateDialogOpen(false);
         setCreateForm({ companyName: "", email: "", phone: "", website: "", country: "United States", budget: "", timeline: "", message: "" });
         fetchLeads();
@@ -170,6 +179,12 @@ export default function OpportunitiesPage() {
 
   const handleConvertLead = async () => {
     if (!selectedLead) return;
+
+    if (!isValidEmail(convertForm.email)) {
+      toast({ title: "Validation Error", description: "Please enter a valid email address", variant: "destructive" });
+      return;
+    }
+
     try {
       const response = await salesService.convertLead(selectedLead.id, {
         ...convertForm,
@@ -194,8 +209,17 @@ export default function OpportunitiesPage() {
     setSelectedLead(lead);
     // Pre-fill form with lead data, extracting domain from email or website
     const domainFromEmail = lead.email.split('@')[1];
-    const domainFromWebsite = lead.website ? new URL(lead.website).hostname.replace('www.', '') : '';
-    
+    let domainFromWebsite = '';
+    if (lead.website) {
+      try {
+        const urlStr = lead.website.startsWith('http') ? lead.website : `https://${lead.website}`;
+        domainFromWebsite = new URL(urlStr).hostname.replace('www.', '');
+      } catch (e) {
+        // basic fallback if URL parsing fails
+        domainFromWebsite = lead.website.split('/')[0];
+      }
+    }
+
     setConvertForm({
       adminFirstName: "",
       adminLastName: "",
@@ -291,51 +315,51 @@ export default function OpportunitiesPage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Company Name</Label>
-              <Input 
-                value={createForm.companyName} 
-                onChange={(e) => setCreateForm({...createForm, companyName: e.target.value})} 
+              <Input
+                value={createForm.companyName}
+                onChange={(e) => setCreateForm({ ...createForm, companyName: e.target.value })}
                 placeholder="Acme Inc."
               />
             </div>
             <div className="space-y-2">
               <Label>Email (Admin)</Label>
-              <Input 
-                value={createForm.email} 
-                onChange={(e) => setCreateForm({...createForm, email: e.target.value})} 
+              <Input
+                value={createForm.email}
+                onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
                 placeholder="admin@acme.com"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Phone</Label>
-                <Input 
-                  value={createForm.phone} 
-                  onChange={(e) => setCreateForm({...createForm, phone: e.target.value})} 
+                <Input
+                  value={createForm.phone}
+                  onChange={(e) => setCreateForm({ ...createForm, phone: e.target.value })}
                   placeholder="+1..."
                 />
               </div>
               <div className="space-y-2">
                 <Label>Country</Label>
-                <Input 
-                  value={createForm.country} 
-                  onChange={(e) => setCreateForm({...createForm, country: e.target.value})} 
+                <Input
+                  value={createForm.country}
+                  onChange={(e) => setCreateForm({ ...createForm, country: e.target.value })}
                 />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Website</Label>
-              <Input 
-                value={createForm.website} 
-                onChange={(e) => setCreateForm({...createForm, website: e.target.value})} 
+              <Input
+                value={createForm.website}
+                onChange={(e) => setCreateForm({ ...createForm, website: e.target.value })}
                 placeholder="https://..."
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Budget</Label>
-                <Select 
-                  value={createForm.budget} 
-                  onValueChange={(value) => setCreateForm({...createForm, budget: value})}
+                <Select
+                  value={createForm.budget}
+                  onValueChange={(value) => setCreateForm({ ...createForm, budget: value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select budget" />
@@ -349,9 +373,9 @@ export default function OpportunitiesPage() {
               </div>
               <div className="space-y-2">
                 <Label>Timeline</Label>
-                <Select 
-                  value={createForm.timeline} 
-                  onValueChange={(value) => setCreateForm({...createForm, timeline: value})}
+                <Select
+                  value={createForm.timeline}
+                  onValueChange={(value) => setCreateForm({ ...createForm, timeline: value })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select timeline" />
@@ -366,9 +390,9 @@ export default function OpportunitiesPage() {
             </div>
             <div className="space-y-2">
               <Label>Message / Notes</Label>
-              <Input 
-                value={createForm.message} 
-                onChange={(e) => setCreateForm({...createForm, message: e.target.value})} 
+              <Input
+                value={createForm.message}
+                onChange={(e) => setCreateForm({ ...createForm, message: e.target.value })}
                 placeholder="Brief description of the lead's needs..."
               />
             </div>
@@ -381,12 +405,12 @@ export default function OpportunitiesPage() {
       </Dialog>
 
       {/* Qualifying Progress Dialog (Apple-inspired design) */}
-      <Dialog open={isQualifying} onOpenChange={() => {}}>
+      <Dialog open={isQualifying} onOpenChange={() => { }}>
         <DialogContent className="sm:max-w-[440px] border-none bg-background/60 backdrop-blur-2xl shadow-2xl p-0 overflow-hidden rounded-[2.5rem]">
           <div className="relative p-10 flex flex-col items-center text-center">
             {/* Minimal Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -z-10" />
-            
+
             {/* Animated AI Icon Container */}
             <div className="relative mb-8">
               <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-pulse" />
@@ -407,8 +431,8 @@ export default function OpportunitiesPage() {
             {/* Steps Sequential Display */}
             <div className="w-full space-y-5 px-4">
               <div className="relative h-1 w-full bg-muted/30 rounded-full overflow-hidden mb-8">
-                <div 
-                  className="absolute top-0 left-0 h-full bg-primary transition-all duration-700 ease-out shadow-[0_0_10px_rgba(var(--primary),0.5)]" 
+                <div
+                  className="absolute top-0 left-0 h-full bg-primary transition-all duration-700 ease-out shadow-[0_0_10px_rgba(var(--primary),0.5)]"
                   style={{ width: `${qualificationProgress}%` }}
                 />
               </div>
@@ -417,12 +441,12 @@ export default function OpportunitiesPage() {
                 {QUALIFICATION_STEPS.map((step, index) => {
                   const isActive = index === currentQualificationStep;
                   const isCompleted = index < currentQualificationStep;
-                  
+
                   if (!isActive && !isCompleted) return null;
 
                   return (
-                    <div 
-                      key={step.id} 
+                    <div
+                      key={step.id}
                       className={cn(
                         "flex items-center justify-center gap-3 transition-all duration-500",
                         isActive ? "opacity-100 scale-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none absolute w-full",
@@ -436,9 +460,9 @@ export default function OpportunitiesPage() {
                     </div>
                   );
                 })}
-                
+
                 {currentQualificationStep === QUALIFICATION_STEPS.length - 1 && qualificationProgress === 100 && (
-                   <div className="flex items-center justify-center gap-2 text-sm font-medium text-success bg-success/5 px-4 py-2 rounded-full border border-success/10 animate-in fade-in zoom-in duration-500">
+                  <div className="flex items-center justify-center gap-2 text-sm font-medium text-success bg-success/5 px-4 py-2 rounded-full border border-success/10 animate-in fade-in zoom-in duration-500">
                     <CheckCircle2 className="h-3 w-3" />
                     Analysis Complete
                   </div>
@@ -482,8 +506,8 @@ export default function OpportunitiesPage() {
                       <div className="flex items-center gap-2">
                         <div className={cn(
                           "text-lg font-bold",
-                          Number(qualificationData.score) > 70 ? "text-green-600" : 
-                          Number(qualificationData.score) > 30 ? "text-yellow-600" : "text-red-600"
+                          Number(qualificationData.score) > 70 ? "text-green-600" :
+                            Number(qualificationData.score) > 30 ? "text-yellow-600" : "text-red-600"
                         )}>
                           {String(qualificationData.score || 0)}/100
                         </div>
@@ -497,7 +521,7 @@ export default function OpportunitiesPage() {
                       <p className={cn(
                         "text-sm font-medium capitalize",
                         String(qualificationData.category).toLowerCase() === 'hot' ? "text-red-600 font-bold" :
-                        String(qualificationData.category).toLowerCase() === 'warm' ? "text-orange-500" : "text-blue-500"
+                          String(qualificationData.category).toLowerCase() === 'warm' ? "text-orange-500" : "text-blue-500"
                       )}>
                         {String(qualificationData.category || 'N/A')}
                       </p>
@@ -552,51 +576,51 @@ export default function OpportunitiesPage() {
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Company Domain (Unique Identifier)</Label>
-              <Input 
-                value={convertForm.domain} 
-                onChange={(e) => setConvertForm({...convertForm, domain: e.target.value})} 
+              <Input
+                value={convertForm.domain}
+                onChange={(e) => setConvertForm({ ...convertForm, domain: e.target.value })}
                 placeholder="acme.com"
               />
               <p className="text-xs text-muted-foreground">This will be used to create the company workspace.</p>
             </div>
-            
+
             <div className="space-y-2">
               <Label>Admin Email</Label>
-              <Input 
-                value={convertForm.email} 
-                onChange={(e) => setConvertForm({...convertForm, email: e.target.value})} 
+              <Input
+                value={convertForm.email}
+                onChange={(e) => setConvertForm({ ...convertForm, email: e.target.value })}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Admin First Name</Label>
-                <Input 
-                  value={convertForm.adminFirstName} 
-                  onChange={(e) => setConvertForm({...convertForm, adminFirstName: e.target.value})} 
+                <Input
+                  value={convertForm.adminFirstName}
+                  onChange={(e) => setConvertForm({ ...convertForm, adminFirstName: e.target.value })}
                 />
               </div>
               <div className="space-y-2">
                 <Label>Admin Last Name</Label>
-                <Input 
-                  value={convertForm.adminLastName} 
-                  onChange={(e) => setConvertForm({...convertForm, adminLastName: e.target.value})} 
+                <Input
+                  value={convertForm.adminLastName}
+                  onChange={(e) => setConvertForm({ ...convertForm, adminLastName: e.target.value })}
                 />
               </div>
             </div>
             <div className="space-y-2">
               <Label>Temporary Password</Label>
-              <Input 
+              <Input
                 type="password"
-                value={convertForm.password} 
-                onChange={(e) => setConvertForm({...convertForm, password: e.target.value})} 
+                value={convertForm.password}
+                onChange={(e) => setConvertForm({ ...convertForm, password: e.target.value })}
               />
             </div>
             <div className="flex items-center space-x-2 pt-2">
-              <Checkbox 
-                id="terms" 
+              <Checkbox
+                id="terms"
                 checked={convertForm.acceptTerms}
-                onCheckedChange={(c) => setConvertForm({...convertForm, acceptTerms: c as boolean})}
+                onCheckedChange={(c) => setConvertForm({ ...convertForm, acceptTerms: c as boolean })}
               />
               <Label htmlFor="terms" className="text-sm font-normal">
                 I accept the terms and conditions on behalf of the company

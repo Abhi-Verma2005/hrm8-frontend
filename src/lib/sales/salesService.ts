@@ -178,5 +178,22 @@ export const salesService = {
 
   cancelWithdrawal: async (id: string) => {
     return await apiClient.post<{ message: string }>(`/api/sales/commissions/withdrawals/${id}/cancel`);
+  },
+
+  // Stripe Connect
+  stripeOnboard: async () => {
+    return await apiClient.post<{ accountId: string; onboardingUrl: string }>('/api/sales/stripe/onboard');
+  },
+
+  getStripeStatus: async () => {
+    return await apiClient.get<{ payoutEnabled: boolean; detailsSubmitted: boolean }>('/api/sales/stripe/status');
+  },
+
+  getStripeLoginLink: async () => {
+    return await apiClient.post<{ url: string }>('/api/sales/stripe/login-link');
+  },
+
+  executeWithdrawal: async (id: string) => {
+    return await apiClient.post<{ transfer: any; message: string }>(`/api/sales/commissions/withdrawals/${id}/execute`);
   }
 };

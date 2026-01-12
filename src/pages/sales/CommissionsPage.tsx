@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BalanceCard } from "@/components/sales/BalanceCard";
 import { WithdrawalHistory } from "@/components/sales/WithdrawalHistory";
+import { StripeConnectCard } from "@/components/sales/StripeConnectCard";
 import { WithdrawalDialog } from "@/components/sales/WithdrawalDialog";
 import { WithdrawalBalance, CommissionWithdrawal } from "@/types/withdrawal";
 
@@ -113,11 +114,16 @@ export default function CommissionsPage() {
     <div className="p-6 space-y-6">
       <AtsPageHeader title="Commission Management" subtitle="Track your earnings and withdrawals" />
 
-      <BalanceCard
-        balance={balance}
-        onRequestWithdrawal={() => setWithdrawalOpen(true)}
-        isLoading={isLoading}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+        <BalanceCard
+          balance={balance}
+          onRequestWithdrawal={() => setWithdrawalOpen(true)}
+          isLoading={isLoading}
+        />
+        <div className="md:col-span-2 lg:col-span-2">
+          <StripeConnectCard onStatusChange={fetchData} />
+        </div>
+      </div>
 
       <Tabs defaultValue="commissions" className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-[400px]">

@@ -39,6 +39,25 @@ export function WithdrawalHistory({ withdrawals, isLoading, onrefresh }: Withdra
         }
     };
 
+    const [processingId, setProcessingId] = useState<string | null>(null);
+
+    const handleWithdraw = async (id: string) => {
+        setProcessingId(id);
+        try {
+            const response = await salesService.executeWithdrawal(id);
+            if (response.success) {
+                toast({ title: "Success", description: "Payout initiated successfully" });
+                onrefresh();
+            } else {
+                toast({ title: "Error", description: "Failed to initiate payout", variant: "destructive" });
+            }
+        } catch (error: any) {
+            toast({ title: "Error", description: error.message || "Failed to initiate payout", variant: "destructive" });
+        } finally {
+            setProcessingId(null);
+        }
+    };
+
     const handleCancel = async (id: string) => {
         if (!confirm("Are you sure you want to cancel this withdrawal request?")) return;
 
@@ -85,14 +104,29 @@ export function WithdrawalHistory({ withdrawals, isLoading, onrefresh }: Withdra
                             <TableCell className="text-xs text-muted-foreground font-mono">
                                 {withdrawal.paymentReference || (withdrawal.status === 'REJECTED' ? withdrawal.rejectionReason : '-')}
                             </TableCell>
-                            <TableCell className="text-right">
+                            <TableCell className="text-right flex justify-end gap-2">
+                                {withdrawal.status === 'APPROVED' && (
+                                    <Button
+                                        size="sm"
+                                        onClick={() => handleWithdraw(withdrawal.id)}
+                                        disabled={!!processingId || !!cancellingId}
+                                        className="bg-green-600 hover:bg-green-700 h-8"
+                                    >
+                                        {processingId === withdrawal.id ? (
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                            "Withdraw Now"
+                                        )}
+                                    </Button>
+                                )}
                                 {withdrawal.status === 'PENDING' && (
                                     <Button
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => handleCancel(withdrawal.id)}
-                                        disabled={!!cancellingId}
+                                        disabled={!!cancellingId || !!processingId}
                                         title="Cancel Request"
+                                        className="h-8 w-8"
                                     >
                                         {cancellingId === withdrawal.id ? (
                                             <Loader2 className="h-4 w-4 animate-spin" />
