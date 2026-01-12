@@ -16,6 +16,8 @@ import { AnyAuthRedirectGate } from "@/components/common/AnyAuthRedirectGate";
 import JobSearchPage from "@/pages/candidate/JobSearchPage";
 import JobDetailPage from "@/pages/candidate/JobDetailPage";
 import ApplyPage from "@/pages/candidate/ApplyPage";
+import CompanyDetailPage from "@/pages/candidate/CompanyDetailPage";
+import CareersPage from "@/pages/candidate/CareersPage";
 
 export const publicRoutes = (
     <>
@@ -54,5 +56,9 @@ export const publicRoutes = (
         <Route path="/jobs" element={<JobSearchPage />} />
         <Route path="/jobs/:id" element={<JobDetailPage />} />
         <Route path="/jobs/:id/apply" element={<ApplyPage />} />
+
+        {/* Public Company Careers Pages */}
+        <Route path="/careers" element={<CareersPage />} />
+        <Route path="/companies/:id" element={<CompanyDetailPage />} />
     </>
 );

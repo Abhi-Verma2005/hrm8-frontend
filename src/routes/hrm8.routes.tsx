@@ -26,6 +26,7 @@ import Hrm8JobBoardPage from "@/pages/hrm8/Hrm8JobBoardPage";
 import Hrm8CompanyJobsPage from "@/pages/hrm8/Hrm8CompanyJobsPage";
 import Hrm8JobDetailPage from "@/pages/hrm8/Hrm8JobDetailPage";
 import WithdrawalsPage from "@/pages/admin/WithdrawalsPage";
+import CareersRequestsPage from "@/pages/hrm8/CareersRequestsPage";
 
 export const hrm8Routes = (
   <Route
@@ -56,6 +57,7 @@ export const hrm8Routes = (
     <Route path="pricing" element={<PricingPage />} />
     <Route path="reports" element={<ReportsPage />} />
     <Route path="settings" element={<SettingsPage />} />
+    <Route path="careers-requests" element={<CareersRequestsPage />} />
     <Route path="system-settings" element={<Hrm8SettingsPage />} />
   </Route>
 );
