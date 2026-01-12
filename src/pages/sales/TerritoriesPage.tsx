@@ -22,16 +22,16 @@ export default function TerritoriesPage() {
 
   const filteredTerritories = useMemo(() => {
     return territories.filter((territory) => {
-      const matchesSearch = 
+      const matchesSearch =
         search === "" ||
         territory.name.toLowerCase().includes(search.toLowerCase()) ||
         (territory.primarySalesAgentName && territory.primarySalesAgentName.toLowerCase().includes(search.toLowerCase()));
-      
+
       const matchesRegion = regionFilter === "all" || territory.region === regionFilter;
-      const matchesStatus = statusFilter === "all" || 
+      const matchesStatus = statusFilter === "all" ||
         (statusFilter === "active" && territory.isActive) ||
         (statusFilter === "inactive" && !territory.isActive);
-      
+
       return matchesSearch && matchesRegion && matchesStatus;
     });
   }, [territories, search, regionFilter, statusFilter]);
@@ -76,17 +76,17 @@ export default function TerritoriesPage() {
               {
                 label: "View All Territories",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "New Territory",
                 icon: <Plus className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "Export",
                 icon: <Download className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -101,7 +101,7 @@ export default function TerritoriesPage() {
               {
                 label: "View Employers",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -116,7 +116,7 @@ export default function TerritoriesPage() {
               {
                 label: "View All",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -133,12 +133,12 @@ export default function TerritoriesPage() {
               {
                 label: "View Report",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "Export",
                 icon: <Download className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -165,7 +165,7 @@ export default function TerritoriesPage() {
                 onExport={() => handleExport(selectedIds)}
                 onDelete={() => handleDelete(selectedIds)}
                 onAssignAgents={() => handleAssignAgents(selectedIds)}
-                onClearSelection={() => {}}
+                onClearSelection={() => { }}
               />
             )}
             exportable

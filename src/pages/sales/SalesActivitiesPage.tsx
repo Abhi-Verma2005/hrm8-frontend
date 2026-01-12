@@ -22,14 +22,14 @@ export default function SalesActivitiesPage() {
 
   const filteredActivities = useMemo(() => {
     return activities.filter((activity) => {
-      const matchesSearch = 
+      const matchesSearch =
         search === "" ||
         activity.subject.toLowerCase().includes(search.toLowerCase()) ||
         activity.salesAgentName.toLowerCase().includes(search.toLowerCase());
-      
+
       const matchesType = typeFilter === "all" || activity.activityType === typeFilter;
       const matchesOutcome = outcomeFilter === "all" || activity.outcome === outcomeFilter;
-      
+
       return matchesSearch && matchesType && matchesOutcome;
     });
   }, [activities, search, typeFilter, outcomeFilter]);
@@ -84,17 +84,17 @@ export default function SalesActivitiesPage() {
               {
                 label: "View All Activities",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "Log Activity",
                 icon: <Plus className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "Export",
                 icon: <Download className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -109,7 +109,7 @@ export default function SalesActivitiesPage() {
               {
                 label: "View Completed",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -124,7 +124,7 @@ export default function SalesActivitiesPage() {
               {
                 label: "View Schedule",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -139,12 +139,12 @@ export default function SalesActivitiesPage() {
               {
                 label: "View Follow-ups",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "Mark Complete",
                 icon: <CheckCircle className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -170,7 +170,7 @@ export default function SalesActivitiesPage() {
               onExport={() => handleExport(selectedIds)}
               onDelete={() => handleDelete(selectedIds)}
               onMarkComplete={() => handleMarkComplete(selectedIds)}
-              onClearSelection={() => {}}
+              onClearSelection={() => { }}
             />
           )}
           exportable

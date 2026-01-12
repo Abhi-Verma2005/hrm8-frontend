@@ -29,20 +29,20 @@ export default function SalesForecastPage() {
   const forecastStats = getForecastStats(opportunities);
   const salesStats = getSalesAgentStats();
   const quotaGap = salesStats.totalQuota - salesStats.totalRevenue;
-  
+
   const forecastItems = transformToForecastItems(opportunities);
 
   const filteredForecast = forecastItems.filter((item) => {
-    const matchesSearch = 
+    const matchesSearch =
       search === '' ||
       item.name.toLowerCase().includes(search.toLowerCase()) ||
       item.employerName.toLowerCase().includes(search.toLowerCase()) ||
       item.salesAgentName.toLowerCase().includes(search.toLowerCase());
-    
+
     const matchesQuarter = quarterFilter === 'all' || item.quarter === quarterFilter;
     const matchesConfidence = confidenceFilter === 'all' || item.confidenceLevel === confidenceFilter;
     const matchesAgent = agentFilter === 'all' || item.salesAgentId === agentFilter;
-    
+
     return matchesSearch && matchesQuarter && matchesConfidence && matchesAgent;
   });
 
@@ -79,15 +79,15 @@ export default function SalesForecastPage() {
   };
 
   const handleExportDialog = (config: ExportConfig) => {
-    const selectedOpportunities = opportunities.filter(opp => 
+    const selectedOpportunities = opportunities.filter(opp =>
       filteredForecast.some(item => item.id === opp.id)
     );
-    
+
     exportForecast(selectedOpportunities, config.format, 'sales-forecast', {
       fields: config.fields,
       dateRange: config.dateRange,
     });
-    
+
     toast({
       title: "Export Complete",
       description: `Exported ${selectedOpportunities.length} forecast items as ${config.format.toUpperCase()}`,
@@ -127,7 +127,7 @@ export default function SalesForecastPage() {
               {
                 label: "View Pipeline",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "Export",
@@ -150,12 +150,12 @@ export default function SalesForecastPage() {
               {
                 label: "View Forecast",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "View Report",
                 icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -173,7 +173,7 @@ export default function SalesForecastPage() {
               {
                 label: "View Analysis",
                 icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -190,7 +190,7 @@ export default function SalesForecastPage() {
               {
                 label: "View Details",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -213,7 +213,7 @@ export default function SalesForecastPage() {
             columns={createForecastColumns()}
             data={filteredForecast}
             selectable
-            onSelectedRowsChange={() => {}}
+            onSelectedRowsChange={() => { }}
             renderBulkActions={(selectedIds) => (
               <ForecastBulkActions
                 selectedCount={selectedIds.length}
@@ -221,7 +221,7 @@ export default function SalesForecastPage() {
                 onDelete={() => handleDelete(selectedIds)}
                 onAdjustProbability={() => handleAdjustProbability(selectedIds)}
                 onSendReport={() => handleSendReport(selectedIds)}
-                onClearSelection={() => {}}
+                onClearSelection={() => { }}
               />
             )}
             exportable

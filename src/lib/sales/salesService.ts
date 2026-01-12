@@ -45,6 +45,7 @@ export interface Commission {
   type: string;
   createdAt: string;
   paidAt?: string;
+  companyName?: string;
 }
 
 export interface CreateLeadData {

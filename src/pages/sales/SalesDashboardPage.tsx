@@ -102,7 +102,7 @@ export default function SalesDashboardPage() {
           variant="success"
           showMenu={false}
         />
-        
+
         <EnhancedStatCard
           title="Active Leads"
           value={stats ? stats.leads.total.toString() : "0"}
@@ -158,7 +158,7 @@ export default function SalesDashboardPage() {
         <StandardChartCard
           title="Recent Activity"
           menuItems={[
-            { label: "View All", onClick: () => {} }
+            { label: "View All", onClick: () => { } }
           ]}
         >
           <div className="overflow-x-auto -mx-1 px-1">

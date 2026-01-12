@@ -62,9 +62,14 @@ export default function CommissionsPage() {
 
   const columns: Column<Commission>[] = [
     {
+      key: "companyName",
+      label: "Company",
+      render: (item) => <span className="font-medium">{item.companyName || "-"}</span>,
+    },
+    {
       key: "description",
       label: "Description",
-      render: (item) => <span className="font-medium">{item.description || "Commission"}</span>,
+      render: (item) => <span className="text-muted-foreground">{item.description || "Commission"}</span>,
     },
     {
       key: "type",
