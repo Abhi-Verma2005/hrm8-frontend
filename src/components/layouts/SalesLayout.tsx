@@ -5,7 +5,6 @@ import { CommandPalette } from "@/components/common/CommandPalette";
 import { KeyboardShortcutsDialog } from "@/components/dialogs/KeyboardShortcutsDialog";
 import { useNavigationShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useSidebarState } from "@/hooks/useSidebarState";
-import { HeaderQuickActions } from "./HeaderQuickActions";
 import { ConsultantUserNav } from "./ConsultantUserNav";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -24,11 +23,10 @@ export function SalesLayout() {
               <SidebarTrigger className="-ml-1" />
             </div>
             <div className="flex flex-1 items-center justify-end gap-4">
-              <HeaderQuickActions />
               <ConsultantUserNav />
             </div>
           </header>
-          
+
           {/* Main Content */}
           <div className="min-w-0">
             <Outlet />
