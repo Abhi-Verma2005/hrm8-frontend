@@ -1,9 +1,12 @@
 import { Route } from "react-router-dom";
+import { lazy } from "react";
 
-// Job management routes are handled in ats.routes.tsx
-// This file is kept for future employer-specific features
+const ContactsPage = lazy(() => import("@/pages/company/ContactsPage"));
+
+// Company management routes
 export const employerRoutes = (
     <>
+        <Route path="/contacts" element={<ContactsPage />} />
         {/* Future employer-specific routes go here */}
     </>
 );
