@@ -409,11 +409,19 @@ export default function JobSearchPage() {
         {/* Page Header */}
         <div className="border-b bg-card">
           <div className="container mx-auto px-4 py-6">
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold">Find Your Next Job</h1>
-              <p className="text-muted-foreground mt-1">
-                {totalJobs > 0 ? `${totalJobs} opportunities available` : 'Search for your dream job'}
-              </p>
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-6">
+              <div>
+                <h1 className="text-3xl font-bold">Find Your Next Job</h1>
+                <p className="text-muted-foreground mt-1">
+                  {totalJobs > 0 ? `${totalJobs} opportunities available` : 'Search for your dream job'}
+                </p>
+              </div>
+              <Button variant="outline" asChild>
+                <Link to="/careers">
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Browse Companies
+                </Link>
+              </Button>
             </div>
 
             {/* Main Search Bar */}

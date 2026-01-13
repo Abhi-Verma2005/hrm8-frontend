@@ -46,6 +46,7 @@ import AIInterviewReports from "@/pages/ats/AIInterviewReports";
 import AIInterviewReportDetail from "@/pages/ats/AIInterviewReportDetail";
 import AIInterviewAnalytics from "@/pages/ats/AIInterviewAnalytics";
 import ManagedRecruitmentCheckout from "@/pages/ats/ManagedRecruitmentCheckout";
+import CareersPageAdmin from "@/pages/ats/CareersPageAdmin";
 
 export const atsRoutes = (
   <Route element={<ProtectedRoutes requiredModule="ats" moduleName="ATS (Applicant Tracking System)" />}>
@@ -61,6 +62,7 @@ export const atsRoutes = (
     <Route path="/ats/jobs/:jobId" element={<JobDetail />} />
     <Route path="/ats/jobs/:jobId/managed-recruitment-checkout" element={<ManagedRecruitmentCheckout />} />
     <Route path="/ats/jobs/:jobId/edit" element={<JobEdit />} />
+    <Route path="/ats/careers-page" element={<CareersPageAdmin />} />
     <Route path="/email-templates" element={<TemplateManager />} />
     <Route path="/email-center" element={<EmailCenter />} />
     <Route path="/import-export" element={<ImportExport />} />
