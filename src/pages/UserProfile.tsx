@@ -9,8 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { 
-  User, Mail, Phone, MapPin, Building2, Calendar, 
+import {
+  User, Mail, Phone, MapPin, Building2, Calendar,
   Bell, Lock, Palette, Globe, Shield, Camera,
   Save, KeyRound, Eye, EyeOff, Code, Copy, Check
 } from "lucide-react";
@@ -23,12 +23,12 @@ export default function UserProfile() {
   const [showPassword, setShowPassword] = useState(false);
   const [copiedCookie, setCopiedCookie] = useState<string | null>(null);
   const isDev = isDevelopmentMode();
-  
+
   // Get all cookies
   const getAllCookies = (): string => {
     return document.cookie;
   };
-  
+
   // Parse cookies into an object for display
   const parseCookies = (): Record<string, string> => {
     const cookies: Record<string, string> = {};
@@ -40,7 +40,7 @@ export default function UserProfile() {
     });
     return cookies;
   };
-  
+
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopiedCookie(label);
@@ -57,7 +57,7 @@ export default function UserProfile() {
       });
     });
   };
-  
+
   // Profile state
   const [profile, setProfile] = useState({
     firstName: "Sarah",
@@ -126,12 +126,12 @@ export default function UserProfile() {
       });
       return;
     }
-    
+
     toast({
       title: "Password changed",
       description: "Your password has been updated successfully.",
     });
-    
+
     setSecurity({
       ...security,
       currentPassword: "",
