@@ -62,7 +62,12 @@ class RevenueService {
   async markAsPaid(id: string) {
     return apiClient.put<{ revenue: RegionalRevenue }>(`/api/hrm8/revenue/${id}/pay`);
   }
+
+  async getCompanyRevenueBreakdown() {
+    return apiClient.get<{ companies: any[] }>('/api/hrm8/revenue/companies');
+  }
 }
+
 
 export const revenueService = new RevenueService();
 

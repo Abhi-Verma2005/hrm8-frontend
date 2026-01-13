@@ -66,14 +66,16 @@ class ConsultantService {
   }
 
   async getPerformance() {
-    return apiClient.get<{ metrics: {
-      totalPlacements: number;
-      totalRevenue: number;
-      successRate: number;
-      averageDaysToFill?: number;
-      pendingCommissions: number;
-      totalCommissionsPaid: number;
-    } }>('/api/consultant/performance');
+    return apiClient.get<{
+      metrics: {
+        totalPlacements: number;
+        totalRevenue: number;
+        successRate: number;
+        averageDaysToFill?: number;
+        pendingCommissions: number;
+        totalCommissionsPaid: number;
+      }
+    }>('/api/consultant/performance');
   }
 
   async getJobPipeline(jobId: string) {

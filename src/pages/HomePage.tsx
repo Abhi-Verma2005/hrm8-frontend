@@ -15,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { RecentNotificationsCard } from "@/components/notifications/widgets/RecentNotificationsCard";
 import { PendingServicesWidget } from "@/components/recruitment/widgets/PendingServicesWidget";
+import { TransactionHistoryCard } from "@/components/company/TransactionHistoryCard";
 import {
   getPlatformMetrics,
   getSupportTickets,
@@ -538,6 +539,11 @@ export default function HomePage() {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* Transaction History Section */}
+        <div className="mt-6">
+          <TransactionHistoryCard />
         </div>
       </div>
     </DashboardPageLayout>

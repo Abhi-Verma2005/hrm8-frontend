@@ -18,8 +18,8 @@ export default function SalesTeamPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [roleFilter, setRoleFilter] = useState("all");
   const stats = getSalesAgentStats();
-  
-  const quotaAttainment = stats.totalQuota > 0 
+
+  const quotaAttainment = stats.totalQuota > 0
     ? (stats.totalRevenue / stats.totalQuota * 100).toFixed(1)
     : '0';
 
@@ -27,14 +27,14 @@ export default function SalesTeamPage() {
 
   const filteredAgents = useMemo(() => {
     return salesAgents.filter((agent) => {
-      const matchesSearch = 
+      const matchesSearch =
         search === "" ||
         `${agent.firstName} ${agent.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
         agent.email.toLowerCase().includes(search.toLowerCase());
-      
+
       const matchesStatus = statusFilter === "all" || agent.status === statusFilter;
       const matchesRole = roleFilter === "all" || agent.salesRole === roleFilter;
-      
+
       return matchesSearch && matchesStatus && matchesRole;
     });
   }, [salesAgents, search, statusFilter, roleFilter]);
@@ -99,7 +99,7 @@ export default function SalesTeamPage() {
               {
                 label: "Export",
                 icon: <Download className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -116,12 +116,12 @@ export default function SalesTeamPage() {
               {
                 label: "View Report",
                 icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "Export",
                 icon: <Download className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -136,7 +136,7 @@ export default function SalesTeamPage() {
               {
                 label: "View Analytics",
                 icon: <BarChart3 className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -151,12 +151,12 @@ export default function SalesTeamPage() {
               {
                 label: "View Details",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: "Send Report",
                 icon: <Mail className="h-4 w-4" />,
-                onClick: () => {}
+                onClick: () => { }
               }
             ]}
           />
@@ -182,7 +182,7 @@ export default function SalesTeamPage() {
               onExport={() => handleExport(selectedIds)}
               onDelete={() => handleDelete(selectedIds)}
               onSendEmail={() => handleSendEmail(selectedIds)}
-              onClearSelection={() => {}}
+              onClearSelection={() => { }}
             />
           )}
           exportable

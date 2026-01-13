@@ -6,42 +6,22 @@
 import { useState, useEffect } from 'react';
 import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
 import { staffService, StaffMember } from '@/lib/hrm8/staffService';
-import { DataTable } from '@/components/tables/DataTable';
+import { DataTable, Column } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
-import { Plus, Users } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { toast } from 'sonner';
 import { FormDrawer } from '@/components/ui/form-drawer';
 import { StaffForm } from '@/components/hrm8/StaffForm';
 import { TableSkeleton } from '@/components/tables/TableSkeleton';
+import { StaffStatusBadge } from '@/components/hrm8/StaffStatusBadge';
+import { StaffActionsMenu } from '@/components/hrm8/StaffActionsMenu';
+import { SuspendStaffDialog } from '@/components/hrm8/SuspendStaffDialog';
+import { ReactivateStaffDialog } from '@/components/hrm8/ReactivateStaffDialog';
+import { ChangeRoleDialog } from '@/components/hrm8/ChangeRoleDialog';
+import { DeleteStaffDialog } from '@/components/hrm8/DeleteStaffDialog';
 
-const columns = [
-  {
-    key: 'firstName',
-    label: 'Name',
-    render: (staff: StaffMember) => `${staff.firstName} ${staff.lastName}`,
-  },
-  {
-    key: 'email',
-    label: 'Email',
-    sortable: true,
-  },
-  {
-    key: 'role',
-    label: 'Role',
-    render: (staff: StaffMember) => staff.role?.replace('_', ' ') || staff.role || '',
-  },
-  {
-    key: 'status',
-    label: 'Status',
-    render: (staff: StaffMember) => (
-      <span className={staff.status === 'ACTIVE' ? 'text-green-600' : 'text-gray-500'}>
-        {staff.status}
-      </span>
-    ),
-  },
-];
 
 export default function StaffPage() {
   const { hrm8User } = useHrm8Auth();
@@ -50,8 +30,18 @@ export default function StaffPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingStaffId, setEditingStaffId] = useState<string | null>(null);
 
+  // Dialog states
+  const [suspendDialogOpen, setSuspendDialogOpen] = useState(false);
+  const [reactivateDialogOpen, setReactivateDialogOpen] = useState(false);
+  const [changeRoleDialogOpen, setChangeRoleDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
+
   const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
   const canCreate = isGlobalAdmin || hrm8User?.role === 'REGIONAL_LICENSEE';
+  const canEdit = canCreate;
+  const canSuspend = canCreate;
+  const canDelete = isGlobalAdmin; // Only global admin can delete
 
   useEffect(() => {
     loadStaff();
@@ -76,11 +66,84 @@ export default function StaffPage() {
     setDrawerOpen(true);
   };
 
+  const handleEdit = (staff: StaffMember) => {
+    setEditingStaffId(staff.id);
+    setDrawerOpen(true);
+  };
+
   const handleSave = async () => {
     await loadStaff();
     setDrawerOpen(false);
     setEditingStaffId(null);
   };
+
+  const handleSuspend = (staff: StaffMember) => {
+    setSelectedStaff(staff);
+    setSuspendDialogOpen(true);
+  };
+
+  const handleReactivate = (staff: StaffMember) => {
+    setSelectedStaff(staff);
+    setReactivateDialogOpen(true);
+  };
+
+  const handleChangeRole = (staff: StaffMember) => {
+    setSelectedStaff(staff);
+    setChangeRoleDialogOpen(true);
+  };
+
+  const handleDelete = (staff: StaffMember) => {
+    setSelectedStaff(staff);
+    setDeleteDialogOpen(true);
+  };
+
+
+  const handleDialogSuccess = async () => {
+    await loadStaff();
+    setSelectedStaff(null);
+  };
+
+  const columns: Column<StaffMember>[] = [
+    {
+      key: 'firstName',
+      label: 'Name',
+      render: (staff: StaffMember) => `${staff.firstName} ${staff.lastName}`,
+    },
+    {
+      key: 'email',
+      label: 'Email',
+      sortable: true,
+    },
+    {
+      key: 'role',
+      label: 'Role',
+      render: (staff: StaffMember) => staff.role?.replace('_', ' ') || staff.role || '',
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (staff: StaffMember) => (
+        <StaffStatusBadge status={staff.status} />
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      render: (staff: StaffMember) => (
+        <StaffActionsMenu
+          staff={staff}
+          canEdit={canEdit}
+          canSuspend={canSuspend}
+          canDelete={canDelete}
+          onEdit={handleEdit}
+          onChangeRole={handleChangeRole}
+          onSuspend={handleSuspend}
+          onReactivate={handleReactivate}
+          onDelete={handleDelete}
+        />
+      ),
+    },
+  ];
 
   return (
     <Hrm8PageLayout
@@ -96,42 +159,74 @@ export default function StaffPage() {
       }
     >
       <div className="p-6 space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Staff Members</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <TableSkeleton columns={5} />
+            ) : (
+              <DataTable
+                data={staffList}
+                columns={columns}
+                searchable
+                searchKeys={['firstName', 'lastName', 'email']}
+                emptyMessage="No staff members found"
+              />
+            )}
+          </CardContent>
+        </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Staff Members</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <TableSkeleton columns={4} />
-          ) : (
-            <DataTable
-              data={staffList}
-              columns={columns}
-              searchable
-              searchKeys={['firstName', 'lastName', 'email']}
-              emptyMessage="No staff members found"
+        {/* Create/Edit Drawer */}
+        {canCreate && (
+          <FormDrawer
+            open={drawerOpen}
+            onOpenChange={setDrawerOpen}
+            title={editingStaffId ? 'Edit Staff Member' : 'Create Staff Member'}
+          >
+            <StaffForm
+              consultantId={editingStaffId}
+              onSave={handleSave}
+              onCancel={() => {
+                setDrawerOpen(false);
+                setEditingStaffId(null);
+              }}
             />
-          )}
-        </CardContent>
-      </Card>
+          </FormDrawer>
+        )}
 
-      {canCreate && (
-        <FormDrawer
-          open={drawerOpen}
-          onOpenChange={setDrawerOpen}
-          title={editingStaffId ? 'Edit Staff Member' : 'Create Staff Member'}
-        >
-          <StaffForm
-            consultantId={editingStaffId}
-            onSave={handleSave}
-            onCancel={() => {
-              setDrawerOpen(false);
-              setEditingStaffId(null);
-            }}
-          />
-        </FormDrawer>
-      )}
+        {/* Suspend Dialog */}
+        <SuspendStaffDialog
+          staff={selectedStaff}
+          open={suspendDialogOpen}
+          onOpenChange={setSuspendDialogOpen}
+          onSuccess={handleDialogSuccess}
+        />
+
+        {/* Reactivate Dialog */}
+        <ReactivateStaffDialog
+          staff={selectedStaff}
+          open={reactivateDialogOpen}
+          onOpenChange={setReactivateDialogOpen}
+          onSuccess={handleDialogSuccess}
+        />
+
+        {/* Change Role Dialog */}
+        <ChangeRoleDialog
+          staff={selectedStaff}
+          open={changeRoleDialogOpen}
+          onOpenChange={setChangeRoleDialogOpen}
+          onSuccess={handleDialogSuccess}
+        />
+
+        {/* Delete Dialog */}
+        <DeleteStaffDialog
+          staff={selectedStaff}
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          onSuccess={handleDialogSuccess}
+        />
       </div>
     </Hrm8PageLayout>
   );

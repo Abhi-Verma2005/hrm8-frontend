@@ -158,14 +158,14 @@ export default function SalesPipelinePage() {
 
   // Filter opportunities for table view
   const filteredOpportunities = mappedOpportunities.filter((opp) => {
-    const matchesSearch = 
+    const matchesSearch =
       search === '' ||
       opp.name.toLowerCase().includes(search.toLowerCase()) ||
       opp.employerName.toLowerCase().includes(search.toLowerCase());
-    
+
     const matchesStage = stageFilter === 'all' || opp.stage === stageFilter;
     // const matchesType = typeFilter === 'all' || opp.type === typeFilter;
-    
+
     return matchesSearch && matchesStage;
   });
 
@@ -179,9 +179,9 @@ export default function SalesPipelinePage() {
     const dataToExport = selectedIds.length > 0
       ? mappedOpportunities.filter(opp => selectedIds.includes(opp.id))
       : filteredOpportunities;
-    
+
     exportOpportunities(dataToExport, format, 'sales-pipeline');
-    
+
     toast({
       title: "Export Complete",
       description: `Exported ${dataToExport.length} opportunities as ${format.toUpperCase()}`,
@@ -207,7 +207,7 @@ export default function SalesPipelinePage() {
       fields: config.fields,
       dateRange: config.dateRange,
     });
-    
+
     toast({
       title: "Export Complete",
       description: `Exported ${filteredOpportunities.length} opportunities as ${config.format.toUpperCase()}`,
@@ -296,79 +296,79 @@ export default function SalesPipelinePage() {
         />
       </div>
 
-        {viewMode === 'kanban' ? (
-          <div className="flex gap-4 overflow-x-auto pb-4">
-            {stages.map(stage => {
-              const stageOpps = opportunitiesByStage[stage];
-              const stageValue = stageOpps.reduce((sum, opp) => sum + opp.estimatedValue, 0);
-              
-              return (
-                <div key={stage} className="flex-shrink-0 w-80">
-                  <Card>
-                    <div className="p-4 border-b">
-                      <h3 className="text-base font-semibold capitalize">
-                        {stage.replace('-', ' ')}
-                      </h3>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {stageOpps.length} opportunities • ${stageValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+      {viewMode === 'kanban' ? (
+        <div className="flex gap-4 overflow-x-auto pb-4">
+          {stages.map(stage => {
+            const stageOpps = opportunitiesByStage[stage];
+            const stageValue = stageOpps.reduce((sum, opp) => sum + opp.estimatedValue, 0);
+
+            return (
+              <div key={stage} className="flex-shrink-0 w-80">
+                <Card>
+                  <div className="p-4 border-b">
+                    <h3 className="text-base font-semibold capitalize">
+                      {stage.replace('-', ' ')}
+                    </h3>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {stageOpps.length} opportunities • ${stageValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </p>
+                  </div>
+                  <div className="p-2 space-y-2 max-h-[600px] overflow-y-auto">
+                    {stageOpps.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-8">
+                        No opportunities
                       </p>
-                    </div>
-                    <div className="p-2 space-y-2 max-h-[600px] overflow-y-auto">
-                      {stageOpps.length === 0 ? (
-                        <p className="text-sm text-muted-foreground text-center py-8">
-                          No opportunities
-                        </p>
-                      ) : (
-                        stageOpps.map(opp => (
-                          <Card key={opp.id} className="p-3 cursor-pointer">
-                            <h4 className="font-medium text-sm">{opp.name}</h4>
-                            <p className="text-xs text-muted-foreground mt-1">{opp.employerName}</p>
-                            <div className="flex justify-between items-center mt-2">
-                              <span className="text-sm font-semibold">${opp.estimatedValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
-                              <span className="text-xs text-muted-foreground">{opp.probability}%</span>
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">{opp.salesAgentName}</p>
-                          </Card>
-                        ))
-                      )}
-                    </div>
-                  </Card>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <OpportunitiesFilterBar
-              search={search}
-              onSearchChange={setSearch}
-              stageFilter={stageFilter}
-              onStageFilterChange={(value) => setStageFilter(value as OpportunityStage | 'all')}
-              typeFilter={typeFilter}
-              onTypeFilterChange={(value) => setTypeFilter(value as OpportunityType | 'all')}
-              onClearFilters={handleClearFilters}
+                    ) : (
+                      stageOpps.map(opp => (
+                        <Card key={opp.id} className="p-3 cursor-pointer">
+                          <h4 className="font-medium text-sm">{opp.name}</h4>
+                          <p className="text-xs text-muted-foreground mt-1">{opp.employerName}</p>
+                          <div className="flex justify-between items-center mt-2">
+                            <span className="text-sm font-semibold">${opp.estimatedValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
+                            <span className="text-xs text-muted-foreground">{opp.probability}%</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">{opp.salesAgentName}</p>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                </Card>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <OpportunitiesFilterBar
+            search={search}
+            onSearchChange={setSearch}
+            stageFilter={stageFilter}
+            onStageFilterChange={(value) => setStageFilter(value as OpportunityStage | 'all')}
+            typeFilter={typeFilter}
+            onTypeFilterChange={(value) => setTypeFilter(value as OpportunityType | 'all')}
+            onClearFilters={handleClearFilters}
+          />
+          <div className="overflow-x-auto -mx-1 px-1">
+            <DataTable
+              columns={createOpportunityColumns()}
+              data={filteredOpportunities}
+              selectable
+              onSelectedRowsChange={() => { }}
+              renderBulkActions={(selectedIds) => (
+                <OpportunityBulkActions
+                  selectedCount={selectedIds.length}
+                  onExport={() => handleExport(selectedIds)}
+                  onDelete={() => handleDelete(selectedIds)}
+                  onChangeStage={() => handleChangeStage(selectedIds)}
+                  onClearSelection={() => { }}
+                />
+              )}
+              exportable
+              exportFilename="sales-pipeline"
             />
-            <div className="overflow-x-auto -mx-1 px-1">
-              <DataTable
-                columns={createOpportunityColumns()}
-                data={filteredOpportunities}
-                selectable
-                onSelectedRowsChange={() => {}}
-                renderBulkActions={(selectedIds) => (
-                  <OpportunityBulkActions
-                    selectedCount={selectedIds.length}
-                    onExport={() => handleExport(selectedIds)}
-                    onDelete={() => handleDelete(selectedIds)}
-                    onChangeStage={() => handleChangeStage(selectedIds)}
-                    onClearSelection={() => {}}
-                  />
-                )}
-                exportable
-                exportFilename="sales-pipeline"
-              />
-            </div>
           </div>
-        )}
+        </div>
+      )}
 
       <SalesExportDialog
         open={exportDialogOpen}

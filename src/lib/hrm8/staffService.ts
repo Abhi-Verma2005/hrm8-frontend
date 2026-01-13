@@ -105,6 +105,11 @@ class StaffService {
     return apiClient.post(`/api/hrm8/consultants/${id}/reactivate`);
   }
 
+  async delete(id: string) {
+    return apiClient.delete(`/api/hrm8/consultants/${id}`);
+  }
+
+
   async generateEmail(data: {
     firstName: string;
     lastName: string;

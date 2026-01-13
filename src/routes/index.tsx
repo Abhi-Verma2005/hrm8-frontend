@@ -98,6 +98,9 @@ export const AppRoutes = () => {
         {/* HRMS Module Routes */}
         {hrmsRoutes}
 
+        {/* Employer/Company Routes */}
+        {employerRoutes}
+
         {/* Shared/General Routes */}
         {sharedRoutes}
       </Route>
