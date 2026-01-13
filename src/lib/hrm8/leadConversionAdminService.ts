@@ -11,8 +11,10 @@ export const leadConversionAdminService = {
      * Get all conversion requests (with regional filtering)
      */
     async getAll(status?: string): Promise<ConversionRequest[]> {
-        const params = status ? { status } : {};
-        const response = await apiClient.get<any>('/api/hrm8/conversion-requests', { params });
+        const endpoint = status
+            ? `/api/hrm8/conversion-requests?status=${status}`
+            : '/api/hrm8/conversion-requests';
+        const response = await apiClient.get<any>(endpoint);
 
         if (!response.success) {
             throw new Error(response.error || 'Failed to fetch conversion requests');

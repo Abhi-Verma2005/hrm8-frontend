@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
 import { revenueService, RegionalRevenue } from '@/lib/hrm8/revenueService';
+import { regionService, Region } from '@/lib/hrm8/regionService';
 import { DataTable } from '@/components/tables/DataTable';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EnhancedStatCard } from '@/components/dashboard/EnhancedStatCard';
@@ -18,7 +19,7 @@ const columns = [
   {
     key: 'regionId',
     label: 'Region',
-    render: (revenue: RegionalRevenue) => revenue.regionId ? revenue.regionId.substring(0, 8) + '...' : 'Unknown',
+    render: (revenue: RegionalRevenue) => revenue.regionName || revenue.regionId?.substring(0, 8) + '...' || 'Unknown',
   },
   {
     key: 'periodStart',
@@ -74,15 +75,24 @@ export default function RevenuePage() {
   const { hrm8User } = useHrm8Auth();
   const [revenues, setRevenues] = useState<RegionalRevenue[]>([]);
   const [companyRevenues, setCompanyRevenues] = useState<any[]>([]);
+  const [regions, setRegions] = useState<Region[]>([]);
   const [loading, setLoading] = useState(true);
   const [companyLoading, setCompanyLoading] = useState(false);
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState('overview');
+  const [regionFilter, setRegionFilter] = useState<string>('all');
+
+  // Regional admins can only see company breakdown
+  const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
+  const [activeTab, setActiveTab] = useState(isGlobalAdmin ? 'overview' : 'companies');
 
   useEffect(() => {
-    loadRevenues();
+    // Only load regional revenue data for global admins
+    if (isGlobalAdmin) {
+      loadRevenues();
+      loadRegions();
+    }
     loadCompanyRevenues(); // Load company data on mount for stats
-  }, [statusFilter]);
+  }, [statusFilter, regionFilter, isGlobalAdmin]);
 
   useEffect(() => {
     if (activeTab === 'companies') {
@@ -97,6 +107,9 @@ export default function RevenuePage() {
       if (statusFilter !== 'all') {
         filters.status = statusFilter;
       }
+      if (regionFilter !== 'all') {
+        filters.regionId = regionFilter;
+      }
 
       const response = await revenueService.getAll(filters);
       if (response.success && response.data?.revenues) {
@@ -106,6 +119,17 @@ export default function RevenuePage() {
       toast.error('Failed to load revenue records');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadRegions = async () => {
+    try {
+      const response = await regionService.getAll();
+      if (response.success && response.data?.regions) {
+        setRegions(response.data.regions);
+      }
+    } catch (error) {
+      console.error('Failed to load regions:', error);
     }
   };
 
@@ -137,6 +161,21 @@ export default function RevenuePage() {
         <div className="flex items-center gap-2">
           {activeTab === 'overview' && (
             <>
+              <Label>Filter by Region:</Label>
+              <Select value={regionFilter} onValueChange={setRegionFilter}>
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Regions</SelectItem>
+                  {regions.map((region) => (
+                    <SelectItem key={region.id} value={region.id}>
+                      {region.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               <Label>Filter by Status:</Label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger className="w-40">
@@ -189,31 +228,39 @@ export default function RevenuePage() {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
-            <TabsTrigger value="overview">Revenue Overview</TabsTrigger>
-            <TabsTrigger value="companies">Company Breakdown</TabsTrigger>
-          </TabsList>
+          {isGlobalAdmin ? (
+            <TabsList className="grid w-full grid-cols-2 lg:w-[400px]">
+              <TabsTrigger value="overview">Revenue Overview</TabsTrigger>
+              <TabsTrigger value="companies">Company Breakdown</TabsTrigger>
+            </TabsList>
+          ) : (
+            <TabsList className="grid w-full grid-cols-1 lg:w-[200px]">
+              <TabsTrigger value="companies">Company Breakdown</TabsTrigger>
+            </TabsList>
+          )}
 
-          <TabsContent value="overview" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Regional Revenue Records</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <TableSkeleton columns={6} />
-                ) : (
-                  <DataTable
-                    data={revenues}
-                    columns={columns}
-                    searchable
-                    searchKeys={['status']}
-                    emptyMessage="No revenue records found"
-                  />
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
+          {isGlobalAdmin && (
+            <TabsContent value="overview" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Regional Revenue Records</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <TableSkeleton columns={6} />
+                  ) : (
+                    <DataTable
+                      data={revenues}
+                      columns={columns}
+                      searchable
+                      searchKeys={['status']}
+                      emptyMessage="No revenue records found"
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
 
           <TabsContent value="companies" className="mt-6">
             <Card>
@@ -233,4 +280,3 @@ export default function RevenuePage() {
     </Hrm8PageLayout>
   );
 }
-

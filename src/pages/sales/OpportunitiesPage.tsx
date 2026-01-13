@@ -191,7 +191,7 @@ export default function OpportunitiesPage() {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.error || "Failed to submit conversion request",
+        description: error.message || "Failed to submit conversion request",
         variant: "destructive"
       });
     }

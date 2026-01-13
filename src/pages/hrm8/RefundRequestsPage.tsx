@@ -142,7 +142,7 @@ export const RefundRequestsPage: React.FC = () => {
                     <div className="flex flex-col">
                         {isJob ? (
                             <span
-                                onClick={() => navigate(`/hrm8/jobs/${request.transactionId}`)}
+                                onClick={() => navigate(`/jobs/${request.transactionId}`)}
                                 className="font-medium text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                             >
                                 {displayText}
@@ -268,7 +268,7 @@ export const RefundRequestsPage: React.FC = () => {
                             <p className="text-sm text-gray-600">Transaction</p>
                             {selectedRequest.transactionType === 'JOB_PAYMENT' ? (
                                 <span
-                                    onClick={() => navigate(`/hrm8/jobs/${selectedRequest.transactionId}`)}
+                                    onClick={() => navigate(`/jobs/${selectedRequest.transactionId}`)}
                                     className="font-medium text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                                 >
                                     Job: {selectedRequest.transactionContext?.title || selectedRequest.transactionId}

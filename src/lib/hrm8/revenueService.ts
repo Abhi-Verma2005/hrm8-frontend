@@ -8,6 +8,7 @@ import { apiClient } from '../api';
 export interface RegionalRevenue {
   id: string;
   regionId: string;
+  regionName?: string;
   licenseeId?: string;
   periodStart: string;
   periodEnd: string;
