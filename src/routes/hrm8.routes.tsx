@@ -26,6 +26,7 @@ import Hrm8JobBoardPage from "@/pages/hrm8/Hrm8JobBoardPage";
 import Hrm8CompanyJobsPage from "@/pages/hrm8/Hrm8CompanyJobsPage";
 import Hrm8JobDetailPage from "@/pages/hrm8/Hrm8JobDetailPage";
 import WithdrawalsPage from "@/pages/admin/WithdrawalsPage";
+import { RefundRequestsPage } from "@/pages/hrm8/RefundRequestsPage";
 
 export const hrm8Routes = (
   <Route
@@ -50,6 +51,7 @@ export const hrm8Routes = (
     <Route path="job-board/job/:jobId" element={<Hrm8JobDetailPage />} />
     <Route path="commissions" element={<CommissionsPage />} />
     <Route path="billing/withdrawals" element={<WithdrawalsPage />} />
+    <Route path="billing/refund-requests" element={<RefundRequestsPage />} />
     <Route path="settlements" element={<SettlementsPage />} />
     <Route path="revenue" element={<RevenuePage />} />
     <Route path="attribution" element={<AttributionPage />} />

@@ -13,6 +13,8 @@ export interface Transaction {
     description: string;
     status: string;
     reference?: string;
+    refundStatus?: string;
+    refundId?: string;
 }
 
 export interface TransactionStats {

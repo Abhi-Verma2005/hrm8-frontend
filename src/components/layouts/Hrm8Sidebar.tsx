@@ -47,6 +47,7 @@ const menuItems = [
   { path: "/hrm8/sales-pipeline", label: "Pipeline", icon: BarChart3 },
   { path: "/hrm8/commissions", label: "Commissions", icon: DollarSign },
   { path: "/hrm8/billing/withdrawals", label: "Withdrawals", icon: DollarSign },
+  { path: "/hrm8/billing/refund-requests", label: "Refund Requests", icon: DollarSign },
   { path: "/hrm8/settlements", label: "Settlements", icon: DollarSign },
   { path: "/hrm8/revenue", label: "Revenue", icon: TrendingUp },
   { path: "/hrm8/attribution", label: "Attribution", icon: UserCheck, adminOnly: true },
