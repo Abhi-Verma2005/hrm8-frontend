@@ -90,6 +90,7 @@ const atsNavItems = [
     ]
   },
   { title: "Background Checks", url: "/background-checks", icon: ShieldCheck },
+  { title: "Careers Page", url: "/ats/careers-page", icon: Building2 },
 ];
 
 // SALES Section
