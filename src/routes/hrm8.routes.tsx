@@ -27,6 +27,8 @@ import Hrm8CompanyJobsPage from "@/pages/hrm8/Hrm8CompanyJobsPage";
 import Hrm8JobDetailPage from "@/pages/hrm8/Hrm8JobDetailPage";
 import WithdrawalsPage from "@/pages/admin/WithdrawalsPage";
 import { RefundRequestsPage } from "@/pages/hrm8/RefundRequestsPage";
+import { ConversionRequestsPage } from "@/pages/hrm8/ConversionRequestsPage";
+import { RevenueDashboardPage } from "@/pages/hrm8/RevenueDashboardPage";
 import CareersRequestsPage from "@/pages/hrm8/CareersRequestsPage";
 
 export const hrm8Routes = (
@@ -53,6 +55,7 @@ export const hrm8Routes = (
     <Route path="commissions" element={<CommissionsPage />} />
     <Route path="billing/withdrawals" element={<WithdrawalsPage />} />
     <Route path="billing/refund-requests" element={<RefundRequestsPage />} />
+    <Route path="billing/conversion-requests" element={<ConversionRequestsPage />} />
     <Route path="settlements" element={<SettlementsPage />} />
     <Route path="revenue" element={<RevenuePage />} />
     <Route path="attribution" element={<AttributionPage />} />
@@ -60,6 +63,8 @@ export const hrm8Routes = (
     <Route path="reports" element={<ReportsPage />} />
     <Route path="settings" element={<SettingsPage />} />
     <Route path="careers-requests" element={<CareersRequestsPage />} />
+    <Route path="conversion-requests" element={<ConversionRequestsPage />} />
+    <Route path="revenue-analytics" element={<RevenueDashboardPage />} />
     <Route path="system-settings" element={<Hrm8SettingsPage />} />
   </Route>
 );

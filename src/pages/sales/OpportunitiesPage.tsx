@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/tables/DataTable";
-import { Plus, ArrowRight, Building2, Mail, Phone, Globe, Loader2, CheckCircle2, Brain, FileText, Send, Database } from "lucide-react";
+import { Plus, ArrowRight, Building2, Mail, Phone, Globe, Loader2, CheckCircle2, Brain, FileText, Send, Database, Clock } from "lucide-react";
 import { salesService, Lead } from "@/lib/sales/salesService";
 import { useToast } from "@/hooks/use-toast";
 import { Column } from "@/components/tables/DataTable";
@@ -27,6 +27,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea"; // Added Textarea import
+import { leadConversionService } from "@/lib/sales/leadConversionService"; // Added leadConversionService import
 
 const BUDGET_OPTIONS = [
   { value: "< $10k", label: "Under $10,000" },
@@ -78,12 +80,7 @@ export default function OpportunitiesPage() {
   });
 
   const [convertForm, setConvertForm] = useState({
-    adminFirstName: "",
-    adminLastName: "",
-    email: "", // Added email field for validation/correction
-    domain: "", // Added domain field for company validation
-    password: "",
-    acceptTerms: false,
+    agentNotes: "", // Changed to agentNotes
   });
 
   const fetchLeads = useCallback(async () => {
@@ -177,57 +174,32 @@ export default function OpportunitiesPage() {
     }
   };
 
-  const handleConvertLead = async () => {
+  const handleRequestConversion = async () => {
     if (!selectedLead) return;
 
-    if (!isValidEmail(convertForm.email)) {
-      toast({ title: "Validation Error", description: "Please enter a valid email address", variant: "destructive" });
-      return;
-    }
-
     try {
-      const response = await salesService.convertLead(selectedLead.id, {
-        ...convertForm,
-        // Ensure we send the updated email/domain if the API supports it
-        email: convertForm.email,
-        domain: convertForm.domain
+      await leadConversionService.submitRequest(selectedLead.id, {
+        agentNotes: convertForm.agentNotes
       });
-      if (response.success) {
-        toast({ title: "Success", description: "Lead converted to Company!" });
-        setConvertDialogOpen(false);
-        setConvertForm({ adminFirstName: "", adminLastName: "", email: "", domain: "", password: "", acceptTerms: false });
-        fetchLeads();
-      } else {
-        toast({ title: "Error", description: response.error, variant: "destructive" });
-      }
-    } catch (error) {
-      toast({ title: "Error", description: "Failed to convert lead", variant: "destructive" });
+      toast({
+        title: "Success",
+        description: "Conversion request submitted! Waiting for admin approval."
+      });
+      setConvertDialogOpen(false);
+      setConvertForm({ agentNotes: "" });
+      fetchLeads();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.error || "Failed to submit conversion request",
+        variant: "destructive"
+      });
     }
   };
 
   const openConvertDialog = (lead: Lead) => {
     setSelectedLead(lead);
-    // Pre-fill form with lead data, extracting domain from email or website
-    const domainFromEmail = lead.email.split('@')[1];
-    let domainFromWebsite = '';
-    if (lead.website) {
-      try {
-        const urlStr = lead.website.startsWith('http') ? lead.website : `https://${lead.website}`;
-        domainFromWebsite = new URL(urlStr).hostname.replace('www.', '');
-      } catch (e) {
-        // basic fallback if URL parsing fails
-        domainFromWebsite = lead.website.split('/')[0];
-      }
-    }
-
-    setConvertForm({
-      adminFirstName: "",
-      adminLastName: "",
-      email: lead.email,
-      domain: domainFromWebsite || domainFromEmail || "",
-      password: "",
-      acceptTerms: false,
-    });
+    setConvertForm({ agentNotes: "" }); // Reset form for new request
     setConvertDialogOpen(true);
   };
 
@@ -260,9 +232,23 @@ export default function OpportunitiesPage() {
       key: "status",
       label: "Status",
       render: (lead) => {
+        const latestRequest = lead.conversion_requests?.[0];
+
+        if (latestRequest?.status === 'PENDING') {
+          return (
+            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200 hover:bg-yellow-100">
+              Pending Approval
+            </Badge>
+          );
+        }
+
+        if (latestRequest?.status === 'DECLINED' && lead.status !== 'CONVERTED') {
+          return <Badge variant="destructive">Declined</Badge>;
+        }
+
         const status = lead.status;
         return (
-          <Badge variant={status === 'CONVERTED' ? 'success' : status === 'NEW' ? 'default' : 'secondary'}>
+          <Badge variant={status === 'CONVERTED' ? 'default' : status === 'NEW' ? 'default' : 'secondary'} className={status === 'CONVERTED' ? 'bg-green-600 hover:bg-green-700' : ''}>
             {status}
           </Badge>
         );
@@ -278,9 +264,22 @@ export default function OpportunitiesPage() {
       label: "Actions",
       render: (lead) => {
         if (lead.status === 'CONVERTED') return null;
+
+        const latestRequest = lead.conversion_requests?.[0];
+
+        if (latestRequest?.status === 'PENDING') {
+          return (
+            <Button size="sm" variant="secondary" disabled className="opacity-70 cursor-not-allowed">
+              <Clock className="mr-2 h-4 w-4" /> Pending
+            </Button>
+          );
+        }
+
+        const isDeclined = latestRequest?.status === 'DECLINED';
+
         return (
-          <Button size="sm" variant="outline" onClick={() => openConvertDialog(lead)}>
-            Convert <ArrowRight className="ml-2 h-4 w-4" />
+          <Button size="sm" variant={isDeclined ? "destructive" : "outline"} onClick={() => openConvertDialog(lead)}>
+            {isDeclined ? 'Retry' : 'Convert'} <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         );
       },
@@ -566,70 +565,49 @@ export default function OpportunitiesPage() {
 
       {/* Convert Lead Dialog */}
       <Dialog open={convertDialogOpen} onOpenChange={setConvertDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Convert Lead to Company</DialogTitle>
+            <DialogTitle>Request Lead Conversion</DialogTitle>
             <DialogDescription>
-              Create a company account for <strong>{selectedLead?.company_name}</strong>.
+              Submit a conversion request for {selectedLead?.company_name}. Your regional admin will review and approve this request.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Company Domain (Unique Identifier)</Label>
-              <Input
-                value={convertForm.domain}
-                onChange={(e) => setConvertForm({ ...convertForm, domain: e.target.value })}
-                placeholder="acme.com"
-              />
-              <p className="text-xs text-muted-foreground">This will be used to create the company workspace.</p>
+              <Label>Company Name</Label>
+              <Input value={selectedLead?.company_name || ""} disabled />
             </div>
 
             <div className="space-y-2">
-              <Label>Admin Email</Label>
-              <Input
-                value={convertForm.email}
-                onChange={(e) => setConvertForm({ ...convertForm, email: e.target.value })}
+              <Label>Email</Label>
+              <Input value={selectedLead?.email || ""} disabled />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Country</Label>
+              <Input value={selectedLead?.country || ""} disabled />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Notes (Optional)</Label>
+              <Textarea
+                value={convertForm.agentNotes}
+                onChange={(e) => setConvertForm({ ...convertForm, agentNotes: e.target.value })}
+                placeholder="Add any notes for the admin reviewer..."
+                rows={3}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Admin First Name</Label>
-                <Input
-                  value={convertForm.adminFirstName}
-                  onChange={(e) => setConvertForm({ ...convertForm, adminFirstName: e.target.value })}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Admin Last Name</Label>
-                <Input
-                  value={convertForm.adminLastName}
-                  onChange={(e) => setConvertForm({ ...convertForm, adminLastName: e.target.value })}
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label>Temporary Password</Label>
-              <Input
-                type="password"
-                value={convertForm.password}
-                onChange={(e) => setConvertForm({ ...convertForm, password: e.target.value })}
-              />
-            </div>
-            <div className="flex items-center space-x-2 pt-2">
-              <Checkbox
-                id="terms"
-                checked={convertForm.acceptTerms}
-                onCheckedChange={(c) => setConvertForm({ ...convertForm, acceptTerms: c as boolean })}
-              />
-              <Label htmlFor="terms" className="text-sm font-normal">
-                I accept the terms and conditions on behalf of the company
-              </Label>
+            <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg">
+              <p className="text-sm text-blue-900 dark:text-blue-100">
+                <strong>Note:</strong> This request will be sent to your regional admin for approval.
+                Once approved, the lead will be automatically converted to a company.
+              </p>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConvertDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleConvertLead} disabled={!convertForm.acceptTerms}>Convert</Button>
+            <Button onClick={handleRequestConversion}>Submit Request</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

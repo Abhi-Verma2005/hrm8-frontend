@@ -35,6 +35,11 @@ export interface Lead {
   phone?: string;
   status: string;
   created_at: string;
+  conversion_requests?: Array<{
+    id: string;
+    status: 'PENDING' | 'APPROVED' | 'DECLINED' | 'CONVERTED' | 'CANCELLED';
+    created_at: string;
+  }>;
 }
 
 export interface Commission {
