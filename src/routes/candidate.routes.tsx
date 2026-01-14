@@ -7,6 +7,7 @@ import CandidateDashboard from "@/pages/candidate/CandidateDashboard";
 import CandidateDashboardHome from "@/pages/candidate/CandidateDashboardHome";
 import ProfilePage from "@/pages/candidate/ProfilePage";
 import ApplicationsPage from "@/pages/candidate/ApplicationsPage";
+import ApplicationTrackingPage from "@/pages/candidate/ApplicationTrackingPage";
 import SavedJobsPage from "@/pages/candidate/SavedJobsPage";
 import ApplicationConfirmation from "@/pages/candidate/ApplicationConfirmation";
 import MessagesPage from "@/pages/candidate/MessagesPage";
@@ -71,6 +72,7 @@ export const candidateRoutes = (
       <Route path="documents" element={<DocumentsPage />} />
       <Route path="assessments" element={<AssessmentListPage />} />
       <Route path="applications" element={<ApplicationsPage />} />
+      <Route path="applications/:id" element={<ApplicationTrackingPage />} />
       <Route path="applications/confirmation" element={<ApplicationConfirmation />} />
       <Route path="applications/:id/confirmation" element={<ApplicationConfirmation />} />
       <Route path="saved-jobs" element={<SavedJobsPage />} />
