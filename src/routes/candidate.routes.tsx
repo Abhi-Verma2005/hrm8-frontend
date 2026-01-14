@@ -15,6 +15,7 @@ import WorkHistoryPage from "@/pages/candidate/WorkHistoryPage";
 import QualificationsPage from "@/pages/candidate/QualificationsPage";
 import NotificationsPage from "@/pages/candidate/NotificationsPage";
 import DocumentsPage from "@/pages/candidate/DocumentsPage";
+import { SettingsPage } from "@/pages/candidate/SettingsPage";
 import AssessmentListPage from "@/pages/candidate/AssessmentListPage";
 import AssessmentPage from "@/pages/candidate/AssessmentPage";
 import { RoleIsolationGate } from "@/components/common/RoleIsolationGate";
@@ -40,7 +41,7 @@ export const candidateRoutes = (
         <CareersPage />
       </RoleIsolationGate>
     } />
-    
+
     {/* Redirect old job routes to new public routes */}
     <Route path="/candidate/jobs" element={<Navigate to="/jobs" replace />} />
     <Route path="/candidate/jobs/:id" element={<RedirectToJobDetail />} />
@@ -76,7 +77,7 @@ export const candidateRoutes = (
       <Route path="notifications" element={<NotificationsPage />} />
       <Route path="messages" element={<MessagesPage />} />
       <Route path="messages/:conversationId" element={<ConversationPage />} />
-      <Route path="settings" element={<div className="p-6"><h1 className="text-3xl font-bold">Settings</h1><p className="text-muted-foreground">Settings page coming soon</p></div>} />
+      <Route path="settings" element={<SettingsPage />} />
     </Route>
   </>
 );
