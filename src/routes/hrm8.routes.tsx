@@ -28,6 +28,8 @@ import Hrm8JobDetailPage from "@/pages/hrm8/Hrm8JobDetailPage";
 import WithdrawalsPage from "@/pages/admin/WithdrawalsPage";
 import CareersRequestsPage from "@/pages/hrm8/CareersRequestsPage";
 
+import AnalyticsDashboard from "@/pages/hrm8/AnalyticsDashboard";
+
 export const hrm8Routes = (
   <Route
     path="/hrm8"
@@ -39,6 +41,7 @@ export const hrm8Routes = (
   >
     <Route index element={<Hrm8Overview />} />
     <Route path="dashboard" element={<Hrm8Overview />} />
+    <Route path="analytics" element={<AnalyticsDashboard />} />
     <Route path="sales-pipeline" element={<RegionalSalesDashboard />} />
     <Route path="leads" element={<RegionalLeadsPage />} />
     <Route path="regions" element={<RegionsPage />} />
