@@ -102,7 +102,7 @@ class ApplicationService {
 
     const queryString = queryParams.toString();
     const endpoint = `/api/applications/job/${jobId}${queryString ? `?${queryString}` : ''}`;
-    
+
     return apiClient.get<{ applications: Application[] }>(endpoint);
   }
 
@@ -287,9 +287,9 @@ class TalentPoolService {
 
     const queryString = queryParams.toString();
     const endpoint = `/api/talent-pool/search${queryString ? `?${queryString}` : ''}`;
-    
-    return apiClient.get<{ 
-      candidates: (TalentPoolCandidate & { hasApplied?: boolean })[]; 
+
+    return apiClient.get<{
+      candidates: (TalentPoolCandidate & { hasApplied?: boolean })[];
       total: number;
       limit: number;
       offset: number;

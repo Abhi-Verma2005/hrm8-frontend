@@ -27,12 +27,31 @@ export default function CandidateDashboardHome() {
   const [recentApplications, setRecentApplications] = useState<Application[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [profileCompleteness, setProfileCompleteness] = useState(0);
+  const [recommendedJobs, setRecommendedJobs] = useState<any[]>([]);
+  const [loadingJobs, setLoadingJobs] = useState(false);
 
   useEffect(() => {
     loadRecentApplications();
     loadNotifications();
+    loadRecommendedJobs();
     calculateProfileCompleteness();
   }, [candidate]);
+
+  const loadRecommendedJobs = async () => {
+    if (!candidate) return;
+    setLoadingJobs(true);
+    try {
+      const { apiClient } = await import('@/lib/api');
+      const response = await apiClient.get<any[]>('/api/candidate/recommended-jobs');
+      if (response.success && response.data) {
+        setRecommendedJobs(response.data.slice(0, 3)); // Show top 3
+      }
+    } catch (error) {
+      console.error('Failed to load recommended jobs:', error);
+    } finally {
+      setLoadingJobs(false);
+    }
+  };
 
   const loadRecentApplications = async () => {
     try {
@@ -209,61 +228,67 @@ export default function CandidateDashboardHome() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {[
-                    {
-                      id: '1',
-                      title: 'Senior Software Engineer',
-                      company: 'Tech Corp',
-                      location: 'Remote',
-                      type: 'Full-time',
-                      match: 95,
-                    },
-                    {
-                      id: '2',
-                      title: 'Full Stack Developer',
-                      company: 'StartupXYZ',
-                      location: 'New York, NY',
-                      type: 'Full-time',
-                      match: 88,
-                    },
-                    {
-                      id: '3',
-                      title: 'Frontend Engineer',
-                      company: 'Design Studio',
-                      location: 'San Francisco, CA',
-                      type: 'Contract',
-                      match: 82,
-                    },
-                  ].map((job) => (
-                    <div
-                      key={job.id}
-                      className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer"
-                      onClick={() => navigate('/jobs')}
-                    >
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10">
-                        <Briefcase className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium truncate">{job.title}</p>
-                            <p className="text-xs text-muted-foreground">{job.company}</p>
-                          </div>
-                          <Badge variant="outline" className="h-6 px-2 text-xs rounded-full shrink-0">
-                            {job.match}% match
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
-                            {job.type}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            {job.location}
-                          </span>
-                        </div>
-                      </div>
+                  {loadingJobs ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      Loading recommendations...
                     </div>
-                  ))}
+                  ) : recommendedJobs.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Briefcase className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                      <p className="text-sm">No specific recommendations yet.</p>
+                      <p className="text-xs mt-1">Complete your profile to get better matches.</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-4"
+                        onClick={() => navigate('/jobs')}
+                      >
+                        Browse All Jobs
+                      </Button>
+                    </div>
+                  ) : (
+                    recommendedJobs.map((job) => (
+                      <div
+                        key={job.id}
+                        className="flex items-start gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+                        onClick={() => navigate(`/jobs/${job.id}`)}
+                      >
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 shrink-0">
+                          {job.company?.logo ? (
+                            <img src={job.company.logo} alt={job.company.name} className="w-full h-full object-cover rounded-full" />
+                          ) : (
+                            <Briefcase className="h-5 w-5 text-primary" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{job.title}</p>
+                              <p className="text-xs text-muted-foreground">{job.company?.name || 'Company'}</p>
+                            </div>
+                            {job.matchScore && (
+                              <Badge variant="outline" className="h-6 px-2 text-xs rounded-full shrink-0 bg-primary/5 text-primary border-primary/20">
+                                {Math.round(job.matchScore)}% match
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <Badge variant="secondary" className="h-5 px-1.5 text-[10px] rounded-sm font-normal">
+                              {job.employment_type?.replace('_', ' ')}
+                            </Badge>
+                            {job.work_arrangement && (
+                              <Badge variant="secondary" className="h-5 px-1.5 text-[10px] rounded-sm font-normal">
+                                {job.work_arrangement?.replace('_', ' ')}
+                              </Badge>
+                            )}
+                            <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+                              {job.location}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>

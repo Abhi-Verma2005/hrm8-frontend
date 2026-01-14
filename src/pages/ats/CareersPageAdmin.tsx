@@ -617,6 +617,100 @@ export default function CareersPageAdmin() {
             </p>
           </CardContent>
         </Card>
+        {/* Embed Code Generator */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ExternalLink className="h-5 w-5" />
+              Embed Your Careers Page
+            </CardTitle>
+            <CardDescription>
+              Add your careers page to your company website using the embed code below
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {data?.status === 'APPROVED' ? (
+              <>
+                <div className="space-y-2">
+                  <Label>Public Careers Page URL</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      readOnly
+                      value={`${window.location.origin}/companies/${data.id}`}
+                      className="font-mono text-sm"
+                    />
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/companies/${data.id}`);
+                        toast({ title: 'Copied!', description: 'URL copied to clipboard' });
+                      }}
+                    >
+                      Copy
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => window.open(`/companies/${data.id}`, '_blank')}
+                    >
+                      Preview
+                    </Button>
+                  </div>
+                </div>
+                <Separator />
+                <div className="space-y-2">
+                  <Label>Embed Code (iframe)</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Copy this code and paste it into your website's HTML where you want the careers page to appear.
+                  </p>
+                  <Textarea
+                    readOnly
+                    value={`<iframe 
+  src="${window.location.origin}/companies/${data.id}?embed=true" 
+  width="100%" 
+  height="800" 
+  frameborder="0"
+  style="border: none; min-height: 600px;"
+  title="${data.name} Careers"
+></iframe>`}
+                    className="font-mono text-xs h-32"
+                  />
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => {
+                      const embedCode = `<iframe 
+  src="${window.location.origin}/companies/${data.id}?embed=true" 
+  width="100%" 
+  height="800" 
+  frameborder="0"
+  style="border: none; min-height: 600px;"
+  title="${data.name} Careers"
+></iframe>`;
+                      navigator.clipboard.writeText(embedCode);
+                      toast({ title: 'Copied!', description: 'Embed code copied to clipboard' });
+                    }}
+                  >
+                    Copy Embed Code
+                  </Button>
+                </div>
+                <Alert>
+                  <AlertDescription>
+                    <strong>Tip:</strong> You can customize the height value in the embed code to fit your website's design.
+                  </AlertDescription>
+                </Alert>
+              </>
+            ) : (
+              <Alert>
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Approval Required</AlertTitle>
+                <AlertDescription>
+                  Your careers page must be approved before you can embed it on external websites.
+                  Submit your page for review to get the embed code.
+                </AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </DashboardPageLayout>
   );

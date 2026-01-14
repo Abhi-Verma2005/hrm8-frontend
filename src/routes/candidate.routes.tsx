@@ -7,6 +7,7 @@ import CandidateDashboard from "@/pages/candidate/CandidateDashboard";
 import CandidateDashboardHome from "@/pages/candidate/CandidateDashboardHome";
 import ProfilePage from "@/pages/candidate/ProfilePage";
 import ApplicationsPage from "@/pages/candidate/ApplicationsPage";
+import ApplicationTrackingPage from "@/pages/candidate/ApplicationTrackingPage";
 import SavedJobsPage from "@/pages/candidate/SavedJobsPage";
 import ApplicationConfirmation from "@/pages/candidate/ApplicationConfirmation";
 import MessagesPage from "@/pages/candidate/MessagesPage";
@@ -15,6 +16,7 @@ import WorkHistoryPage from "@/pages/candidate/WorkHistoryPage";
 import QualificationsPage from "@/pages/candidate/QualificationsPage";
 import NotificationsPage from "@/pages/candidate/NotificationsPage";
 import DocumentsPage from "@/pages/candidate/DocumentsPage";
+import { SettingsPage } from "@/pages/candidate/SettingsPage";
 import AssessmentListPage from "@/pages/candidate/AssessmentListPage";
 import AssessmentPage from "@/pages/candidate/AssessmentPage";
 import { RoleIsolationGate } from "@/components/common/RoleIsolationGate";
@@ -40,7 +42,7 @@ export const candidateRoutes = (
         <CareersPage />
       </RoleIsolationGate>
     } />
-    
+
     {/* Redirect old job routes to new public routes */}
     <Route path="/candidate/jobs" element={<Navigate to="/jobs" replace />} />
     <Route path="/candidate/jobs/:id" element={<RedirectToJobDetail />} />
@@ -70,13 +72,14 @@ export const candidateRoutes = (
       <Route path="documents" element={<DocumentsPage />} />
       <Route path="assessments" element={<AssessmentListPage />} />
       <Route path="applications" element={<ApplicationsPage />} />
+      <Route path="applications/:id" element={<ApplicationTrackingPage />} />
       <Route path="applications/confirmation" element={<ApplicationConfirmation />} />
       <Route path="applications/:id/confirmation" element={<ApplicationConfirmation />} />
       <Route path="saved-jobs" element={<SavedJobsPage />} />
       <Route path="notifications" element={<NotificationsPage />} />
       <Route path="messages" element={<MessagesPage />} />
       <Route path="messages/:conversationId" element={<ConversationPage />} />
-      <Route path="settings" element={<div className="p-6"><h1 className="text-3xl font-bold">Settings</h1><p className="text-muted-foreground">Settings page coming soon</p></div>} />
+      <Route path="settings" element={<SettingsPage />} />
     </Route>
   </>
 );

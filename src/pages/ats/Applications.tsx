@@ -120,7 +120,7 @@ export default function Applications() {
     };
 
     selectedApplicationIds.forEach(id => {
-      updateApplication(id, { 
+      updateApplication(id, {
         assignedTo: recruiterId,
         assignedToName: recruiterNames[recruiterId]
       });
@@ -146,7 +146,7 @@ export default function Applications() {
 
   const handleBulkReject = () => {
     selectedApplicationIds.forEach(id => {
-      updateApplication(id, { 
+      updateApplication(id, {
         status: 'rejected',
         stage: 'Rejected',
       });
@@ -162,7 +162,7 @@ export default function Applications() {
   // Advanced filter handlers
   const handleApplyFilters = (filters: FilterType) => {
     setAppliedFilters(filters);
-    
+
     // Apply filters to applications
     if (filters.status) {
       setSelectedStatuses(filters.status as ApplicationStatus[]);
@@ -246,10 +246,10 @@ export default function Applications() {
             : new Date(),
         score: row.score ? Number(row.score) : 0,
       };
-      
+
       saveApplication(application as Application);
     });
-    
+
     loadApplications();
   };
 
@@ -311,7 +311,7 @@ export default function Applications() {
     const avgAIMatch = applications.filter(app => app.aiMatchScore).length > 0
       ? Math.round(applications.filter(app => app.aiMatchScore).reduce((sum, app) => sum + (app.aiMatchScore || 0), 0) / applications.filter(app => app.aiMatchScore).length)
       : 0;
-    const needsActionCount = applications.filter(app => 
+    const needsActionCount = applications.filter(app =>
       app.stage === 'New Application' || app.stage === 'Resume Review'
     ).length;
 
@@ -346,7 +346,7 @@ export default function Applications() {
   };
 
   const handleToggleSelect = (applicationId: string) => {
-    setSelectedForComparison(prev => 
+    setSelectedForComparison(prev =>
       prev.includes(applicationId)
         ? prev.filter(id => id !== applicationId)
         : [...prev, applicationId]
@@ -366,7 +366,7 @@ export default function Applications() {
     }
   };
 
-  const applicationsToCompare = applications.filter(app => 
+  const applicationsToCompare = applications.filter(app =>
     selectedForComparison.includes(app.id)
   );
 
@@ -386,8 +386,8 @@ export default function Applications() {
       }
     >
       <div className="p-6 space-y-6">
-        <AtsPageHeader 
-          title="Applications" 
+        <AtsPageHeader
+          title="Applications"
           subtitle={`Review and process ${applications.length} applications`}
         >
           <div className="text-base font-semibold flex items-center gap-2">
@@ -399,8 +399,8 @@ export default function Applications() {
               <SparklesIcon className="mr-2 h-4 w-4" />
               AI Recommendations
             </Button>
-            <Button 
-              variant={isCompareMode ? "default" : "outline"} 
+            <Button
+              variant={isCompareMode ? "default" : "outline"}
               size="sm"
               onClick={handleToggleCompareMode}
             >
@@ -440,147 +440,147 @@ export default function Applications() {
 
         <div className="min-w-0 space-y-4">
 
-            {/* Stat Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <EnhancedStatCard
-                title="Total Applications"
-                value={stats.total.toString()}
-                change=""
-                icon={<FileText />}
-                variant="neutral"
-              />
-              <EnhancedStatCard
-                title="New/Unread"
-                value={stats.unread.toString()}
-                change=""
-                icon={<UserCheck />}
-                variant="primary"
-              />
-              <EnhancedStatCard
-                title="Avg AI Match"
-                value={`${stats.avgAIMatch}%`}
-                change=""
-                icon={<Sparkles />}
-                variant="success"
-              />
-              <EnhancedStatCard
-                title="Needs Action"
-                value={stats.needsAction.toString()}
-                change=""
-                icon={<Clock />}
-                variant="warning"
-              />
-            </div>
-
-            {/* Job Selection Filter */}
-            <Card className="p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 flex-1">
-              <Label className="text-sm font-medium whitespace-nowrap">Filter by Job:</Label>
-              <Select value={selectedJobId || "unread"} onValueChange={handleJobSelect}>
-                <SelectTrigger className="w-full max-w-md">
-                  <SelectValue placeholder="Select a job or view unread" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unread">📬 New/Unread Applications</SelectItem>
-                  <SelectItem value="all">All Jobs</SelectItem>
-                  <SelectSeparator />
-                  {mockJobs.slice(0, 20).map(job => (
-                    <SelectItem key={job.id} value={job.id}>
-                      {job.title} - {job.employer}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedJob && (
-                <Button variant="ghost" size="sm" onClick={() => handleJobSelect("unread")}>
-                  <X className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-            <div className="text-sm text-muted-foreground whitespace-nowrap">
-              {filteredApplications.length} application(s)
-            </div>
-              </div>
-            </Card>
-
-            {/* Compare Mode Alert */}
-            {isCompareMode && (
-              <Alert>
-                <GitCompare className="h-4 w-4" />
-                <AlertDescription className="text-base font-semibold flex items-center justify-between">
-                  <span>
-                    Select candidates to compare ({selectedForComparison.length} selected)
-                  </span>
-                  {selectedForComparison.length >= 1 && (
-                    <div className="flex gap-2">
-                      {selectedForComparison.length >= 2 && (
-                        <Button size="sm" onClick={handleCompare} variant="default">
-                          Compare {selectedForComparison.length} Candidates
-                        </Button>
-                      )}
-                      <Button size="sm" onClick={() => setShowBulkScoring(true)} variant="secondary">
-                        <SparklesIcon className="h-4 w-4 mr-2" />
-                        Re-score
-                      </Button>
-                      <Button size="sm" onClick={() => setShowBulkTagging(true)} variant="secondary">
-                        <Tags className="h-4 w-4 mr-2" />
-                        Tag
-                      </Button>
-                    </div>
-                  )}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {/* Smart Filters */}
-            <SmartFiltersBar onFilterSelect={handleSmartFilterSelect} />
-
-            {/* Search and Filters */}
-            <ApplicationFilters
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              selectedStages={selectedStages}
-              onStagesChange={setSelectedStages}
-              selectedStatuses={selectedStatuses}
-              onStatusesChange={setSelectedStatuses}
-              selectedTags={selectedTags}
-              onTagsChange={setSelectedTags}
-              onClearFilters={handleClearFilters}
+          {/* Stat Cards */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <EnhancedStatCard
+              title="Total Applications"
+              value={stats.total.toString()}
+              change=""
+              icon={<FileText />}
+              variant="neutral"
             />
+            <EnhancedStatCard
+              title="New/Unread"
+              value={stats.unread.toString()}
+              change=""
+              icon={<UserCheck />}
+              variant="primary"
+            />
+            <EnhancedStatCard
+              title="Avg AI Match"
+              value={`${stats.avgAIMatch}%`}
+              change=""
+              icon={<Sparkles />}
+              variant="success"
+            />
+            <EnhancedStatCard
+              title="Needs Action"
+              value={stats.needsAction.toString()}
+              change=""
+              icon={<Clock />}
+              variant="warning"
+            />
+          </div>
+
+          {/* Job Selection Filter */}
+          <Card className="p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 flex-1">
+                <Label className="text-sm font-medium whitespace-nowrap">Filter by Job:</Label>
+                <Select value={selectedJobId || "unread"} onValueChange={handleJobSelect}>
+                  <SelectTrigger className="w-full max-w-md">
+                    <SelectValue placeholder="Select a job or view unread" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unread">📬 New/Unread Applications</SelectItem>
+                    <SelectItem value="all">All Jobs</SelectItem>
+                    <SelectSeparator />
+                    {mockJobs.slice(0, 20).map(job => (
+                      <SelectItem key={job.id} value={job.id}>
+                        {job.title} - {job.employer}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {selectedJob && (
+                  <Button variant="ghost" size="sm" onClick={() => handleJobSelect("unread")}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              <div className="text-sm text-muted-foreground whitespace-nowrap">
+                {filteredApplications.length} application(s)
+              </div>
+            </div>
+          </Card>
+
+          {/* Compare Mode Alert */}
+          {isCompareMode && (
+            <Alert>
+              <GitCompare className="h-4 w-4" />
+              <AlertDescription className="text-base font-semibold flex items-center justify-between">
+                <span>
+                  Select candidates to compare ({selectedForComparison.length} selected)
+                </span>
+                {selectedForComparison.length >= 1 && (
+                  <div className="flex gap-2">
+                    {selectedForComparison.length >= 2 && (
+                      <Button size="sm" onClick={handleCompare} variant="default">
+                        Compare {selectedForComparison.length} Candidates
+                      </Button>
+                    )}
+                    <Button size="sm" onClick={() => setShowBulkScoring(true)} variant="secondary">
+                      <SparklesIcon className="h-4 w-4 mr-2" />
+                      Re-score
+                    </Button>
+                    <Button size="sm" onClick={() => setShowBulkTagging(true)} variant="secondary">
+                      <Tags className="h-4 w-4 mr-2" />
+                      Tag
+                    </Button>
+                  </div>
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Smart Filters */}
+          <SmartFiltersBar onFilterSelect={handleSmartFilterSelect} />
+
+          {/* Search and Filters */}
+          <ApplicationFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedStages={selectedStages}
+            onStagesChange={setSelectedStages}
+            selectedStatuses={selectedStatuses}
+            onStatusesChange={setSelectedStatuses}
+            selectedTags={selectedTags}
+            onTagsChange={setSelectedTags}
+            onClearFilters={handleClearFilters}
+          />
         </div>
 
         {/* Applications View - Full Width Below Filters */}
-            {viewMode === "list" && (
-              <ApplicationBulkActionsToolbar
-                selectedCount={selectedApplicationIds.length}
-                onClearSelection={() => setSelectedApplicationIds([])}
-                onBulkStatusUpdate={handleBulkStatusUpdate}
-                onBulkAssignRecruiter={handleBulkAssignRecruiter}
-                onBulkEmail={handleBulkEmail}
-                onBulkScheduleInterview={handleBulkScheduleInterview}
-                onBulkReject={handleBulkReject}
-              />
-            )}
+        {viewMode === "list" && (
+          <ApplicationBulkActionsToolbar
+            selectedCount={selectedApplicationIds.length}
+            onClearSelection={() => setSelectedApplicationIds([])}
+            onBulkStatusUpdate={handleBulkStatusUpdate}
+            onBulkAssignRecruiter={handleBulkAssignRecruiter}
+            onBulkEmail={handleBulkEmail}
+            onBulkScheduleInterview={handleBulkScheduleInterview}
+            onBulkReject={handleBulkReject}
+          />
+        )}
 
-            {viewMode === "pipeline" ? (
-              <div className="overflow-x-auto -mx-1 px-1 min-w-0">
-                <ApplicationPipeline 
-                  applications={filteredApplications}
-                  isCompareMode={isCompareMode}
-                  selectedForComparison={selectedForComparison}
-                  onToggleSelect={handleToggleSelect}
-                />
-              </div>
-            ) : (
-              <div className="overflow-x-auto -mx-1 px-1">
-                <ApplicationListView
-                  applications={filteredApplications}
-                  onApplicationClick={handleApplicationClick}
-                  selectable
-                  onSelectedRowsChange={setSelectedApplicationIds}
-                />
-              </div>
+        {viewMode === "pipeline" ? (
+          <div className="overflow-x-auto -mx-1 px-1 min-w-0">
+            <ApplicationPipeline
+              applications={filteredApplications}
+              isCompareMode={isCompareMode}
+              selectedForComparison={selectedForComparison}
+              onToggleSelect={handleToggleSelect}
+            />
+          </div>
+        ) : (
+          <div className="overflow-x-auto -mx-1 px-1">
+            <ApplicationListView
+              applications={filteredApplications}
+              onApplicationClick={handleApplicationClick}
+              selectable
+              onSelectedRowsChange={setSelectedApplicationIds}
+            />
+          </div>
         )}
 
         <ApplicationDetailPanel
