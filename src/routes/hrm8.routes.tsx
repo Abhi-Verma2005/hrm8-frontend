@@ -30,6 +30,7 @@ import { RefundRequestsPage } from "@/pages/hrm8/RefundRequestsPage";
 import { ConversionRequestsPage } from "@/pages/hrm8/ConversionRequestsPage";
 import { RevenueDashboardPage } from "@/pages/hrm8/RevenueDashboardPage";
 import CareersRequestsPage from "@/pages/hrm8/CareersRequestsPage";
+import Hrm8WalletPage from "@/pages/hrm8/Hrm8WalletPage";
 
 export const hrm8Routes = (
   <Route

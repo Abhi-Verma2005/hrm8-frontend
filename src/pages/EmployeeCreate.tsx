@@ -23,11 +23,11 @@ export default function EmployeeCreate() {
     };
 
     saveEmployee(newEmployee);
-    navigate(`/hrms/employees/${employeeId}`);
+    navigate(`/employees/${employeeId}`);
   };
 
   const handleCancel = () => {
-    navigate('/hrms');
+    navigate('/employees');
   };
 
   return (
@@ -39,7 +39,7 @@ export default function EmployeeCreate() {
       <div className="container mx-auto p-6 space-y-6">
         <div className="text-base font-semibold flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/hrms')}>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/employees')}>
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>

@@ -25,6 +25,7 @@ export const staffSchema = z.object({
   phone: z.string().optional(),
   role: z.enum(['RECRUITER', 'SALES_AGENT', 'CONSULTANT_360']),
   regionId: z.string().min(1, 'Region is required'),
+  defaultCommissionRate: z.number().min(0).max(100).optional(),
 });
 
 export type StaffFormData = z.infer<typeof staffSchema>;
@@ -53,6 +54,7 @@ export function StaffForm({ consultantId, onSave, onCancel }: StaffFormProps) {
     defaultValues: {
       role: 'RECRUITER',
       regionId: '',
+      defaultCommissionRate: 10,
     },
   });
 
@@ -77,6 +79,7 @@ export function StaffForm({ consultantId, onSave, onCancel }: StaffFormProps) {
         setValue('phone', consultant.phone || '');
         setValue('role', consultant.role);
         setValue('regionId', consultant.regionId || '');
+        setValue('defaultCommissionRate', consultant.defaultCommissionRate || 10);
       }
     } catch (error) {
       toast.error('Failed to load staff member');
@@ -90,17 +93,17 @@ export function StaffForm({ consultantId, onSave, onCancel }: StaffFormProps) {
       const response = await regionService.getAll({ isActive: true });
       if (response.success && response.data?.regions) {
         let availableRegions = response.data.regions.map(r => ({ id: r.id, name: r.name }));
-        
+
         // If user is a Regional Licensee, only show their assigned regions
         if (hrm8User?.role === 'REGIONAL_LICENSEE' && hrm8User.regionIds?.length) {
           availableRegions = availableRegions.filter(r => hrm8User.regionIds!.includes(r.id));
-          
+
           // Auto-select if only one region
           if (availableRegions.length === 1 && !consultantId) {
             setValue('regionId', availableRegions[0].id);
           }
         }
-        
+
         setRegions(availableRegions);
       }
     } catch (error) {
@@ -159,18 +162,19 @@ export function StaffForm({ consultantId, onSave, onCancel }: StaffFormProps) {
           setLoading(false);
           return;
         }
-        
+
         // Ensure all required fields are present and typed correctly
         const createData = {
-            email: data.email,
-            firstName: data.firstName,
-            lastName: data.lastName,
-            regionId: data.regionId,
-            role: data.role,
-            password: data.password,
-            phone: data.phone
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          regionId: data.regionId,
+          role: data.role,
+          password: data.password,
+          phone: data.phone,
+          defaultCommissionRate: data.defaultCommissionRate || 10
         };
-        
+
         const response = await staffService.create(createData);
         if (response.success) {
           const payload = response.data as StaffCreateResponse | undefined;
@@ -188,7 +192,7 @@ export function StaffForm({ consultantId, onSave, onCancel }: StaffFormProps) {
               );
             }
           } else {
-          toast.success('Staff member created successfully');
+            toast.success('Staff member created successfully');
           }
 
           onSave();
@@ -215,7 +219,7 @@ export function StaffForm({ consultantId, onSave, onCancel }: StaffFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-        <Label htmlFor="email">Email *</Label>
+          <Label htmlFor="email">Email *</Label>
           {!consultantId && (
             <Button
               type="button"
@@ -306,6 +310,22 @@ export function StaffForm({ consultantId, onSave, onCancel }: StaffFormProps) {
         {errors.regionId && <p className="text-sm text-destructive">{errors.regionId.message}</p>}
         <p className="text-xs text-muted-foreground">
           Consultants must be assigned to a region for job assignment to work
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="defaultCommissionRate">Default Commission Rate (%)</Label>
+        <Input
+          id="defaultCommissionRate"
+          type="number"
+          min="0"
+          max="100"
+          step="0.1"
+          {...register('defaultCommissionRate', { valueAsNumber: true })}
+        />
+        {errors.defaultCommissionRate && <p className="text-sm text-destructive">{errors.defaultCommissionRate.message}</p>}
+        <p className="text-xs text-muted-foreground">
+          Default commission percentage for this consultant (default: 10%)
         </p>
       </div>
 

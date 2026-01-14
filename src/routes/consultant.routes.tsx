@@ -10,6 +10,7 @@ import ConsultantOverview from "@/pages/consultant/ConsultantOverview";
 import ConsultantJobsPage from "@/pages/consultant/ConsultantJobsPage";
 import ConsultantCommissionsPage from "@/pages/consultant/ConsultantCommissionsPage";
 import ConsultantProfilePage from "@/pages/consultant/ConsultantProfilePage";
+import ConsultantWalletPage from "@/pages/consultant/ConsultantWalletPage";
 
 export const consultantRoutes = (
   <Route

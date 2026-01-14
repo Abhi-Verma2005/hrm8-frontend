@@ -9,8 +9,10 @@ import { salesService, SalesDashboardStats } from "@/lib/sales/salesService";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 import { SalesDashboardSkeleton } from "@/components/sales/SalesDashboardSkeleton";
-import { ColumnDef } from "@tanstack/react-table";
+import { Column } from "@/components/tables/DataTable";
 import { Badge } from "@/components/ui/badge";
+
+type ActivityItem = SalesDashboardStats['recentActivity'][number] & { id: string };
 
 export default function SalesDashboardPage() {
   const navigate = useNavigate();
@@ -24,7 +26,16 @@ export default function SalesDashboardPage() {
       try {
         const response = await salesService.getDashboardStats();
         if (response.success && response.data) {
-          setStats(response.data);
+          // Add IDs to recent activity for DataTable keys
+          const activityWithIds = response.data.data.recentActivity.map((item, index: number) => ({
+            ...item,
+            id: `activity-${index}-${item.date}-${item.type}`,
+          } as ActivityItem));
+
+          setStats({
+            ...response.data.data,
+            recentActivity: activityWithIds as unknown as SalesDashboardStats['recentActivity']
+          });
         } else {
           toast({
             title: "Error fetching dashboard",
@@ -47,30 +58,30 @@ export default function SalesDashboardPage() {
   }, [toast]);
 
   // Activity Columns
-  const activityColumns: ColumnDef<any>[] = [
+  const activityColumns: Column<ActivityItem>[] = [
     {
-      accessorKey: "description",
-      header: "Description",
-      cell: ({ row }) => <span className="font-medium">{row.original.description}</span>,
+      key: "description",
+      label: "Description",
+      render: (item) => <span className="font-medium">{item.description}</span>,
     },
     {
-      accessorKey: "type",
-      header: "Type",
-      cell: ({ row }) => (
-        <Badge variant={row.original.type === 'COMMISSION' ? 'success' : 'default'}>
-          {row.original.type}
+      key: "type",
+      label: "Type",
+      render: (item) => (
+        <Badge variant={item.type === 'COMMISSION' ? 'success' : 'default'}>
+          {item.type}
         </Badge>
       ),
     },
     {
-      accessorKey: "date",
-      header: "Date",
-      cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+      key: "date",
+      label: "Date",
+      render: (item) => new Date(item.date).toLocaleDateString(),
     },
     {
-      accessorKey: "amount",
-      header: "Amount",
-      cell: ({ row }) => row.original.amount ? formatCurrency(row.original.amount) : '-',
+      key: "amount",
+      label: "Amount",
+      render: (item) => item.amount ? formatCurrency(item.amount) : '-',
     },
   ];
 
@@ -146,7 +157,7 @@ export default function SalesDashboardPage() {
           title="Conversion Rate"
           value={stats ? `${stats.leads.conversionRate}%` : "0%"}
           change="Lead to Company"
-          trend={stats && stats.leads.conversionRate > 20 ? "up" : "neutral"}
+          trend={stats && stats.leads.conversionRate > 20 ? "up" : "down"}
           icon={<Target className="h-5 w-5" />}
           variant="warning"
           showMenu={false}
@@ -164,7 +175,7 @@ export default function SalesDashboardPage() {
           <div className="overflow-x-auto -mx-1 px-1">
             <DataTable
               columns={activityColumns}
-              data={stats?.recentActivity || []}
+              data={(stats?.recentActivity as ActivityItem[]) || []}
               searchable={false}
             />
           </div>

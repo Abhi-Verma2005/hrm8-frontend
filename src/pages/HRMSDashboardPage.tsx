@@ -157,8 +157,8 @@ export default function HRMSDashboardPage() {
             variant="primary"
             showMenu={true}
             menuItems={[
-              { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/hrms') },
-              { label: "Add Employee", icon: <Users className="h-4 w-4" />, onClick: () => navigate('/hrms/employees/new') },
+              { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/employees') },
+              { label: "Add Employee", icon: <Users className="h-4 w-4" />, onClick: () => navigate('/employees/new') },
               { label: "Export", icon: <Download className="h-4 w-4" />, onClick: handleExport }
             ]}
           />
@@ -250,7 +250,7 @@ export default function HRMSDashboardPage() {
             className="bg-transparent border-0 shadow-none"
             onDownload={() => toast({ title: "Downloading distribution data..." })}
             menuItems={[
-              { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/hrms') },
+              { label: "View All", icon: <Eye className="h-4 w-4" />, onClick: () => navigate('/employees') },
               { label: "Org Chart", icon: <Building2 className="h-4 w-4" />, onClick: () => navigate('/hrms/org-chart') },
               { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => { } }
             ]}

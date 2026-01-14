@@ -32,7 +32,7 @@ export default function EmployeeDetail() {
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold mb-2">Employee Not Found</h2>
             <p className="text-muted-foreground mb-4">The employee you're looking for doesn't exist.</p>
-            <Button onClick={() => navigate("/hrms")}>
+            <Button onClick={() => navigate("/employees")}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Employees
             </Button>
@@ -50,7 +50,7 @@ export default function EmployeeDetail() {
           subtitle={employee.jobTitle}
         >
           <div className="text-base font-semibold flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/hrms")}>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/employees")}>
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Employees
             </Button>

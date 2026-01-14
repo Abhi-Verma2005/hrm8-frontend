@@ -28,7 +28,7 @@ export const createEmployeeColumns = (options?: EmployeeColumnsOptions): Column<
         />
         <div className="min-w-0 flex-1">
           <Link
-            to={`/hrms/employees/${employee.id}`}
+            to={`/employees/${employee.id}`}
             className="font-semibold text-base hover:underline cursor-pointer line-clamp-1 block"
           >
             {employee.firstName} {employee.lastName}
@@ -57,9 +57,27 @@ export const createEmployeeColumns = (options?: EmployeeColumnsOptions): Column<
     sortable: true,
   },
   {
+    key: "phone",
+    label: "Phone",
+    sortable: true,
+    render: (employee) => (
+      <span className="text-sm">{employee.phone || "-"}</span>
+    ),
+  },
+  {
     key: "location",
     label: "Location",
     sortable: true,
+  },
+  {
+    key: "address",
+    label: "Address",
+    sortable: true,
+    render: (employee) => (
+      <span className="text-sm truncate max-w-[150px] block" title={employee.address}>
+        {employee.address || "-"}
+      </span>
+    ),
   },
   {
     key: "employmentType",
@@ -92,7 +110,7 @@ export const createEmployeeColumns = (options?: EmployeeColumnsOptions): Column<
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="bg-background">
           <DropdownMenuItem asChild>
-            <Link to={`/hrms/employees/${employee.id}`}>
+            <Link to={`/employees/${employee.id}`}>
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </Link>

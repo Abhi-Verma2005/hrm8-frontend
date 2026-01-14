@@ -52,7 +52,7 @@ function EmployeeCard({ node, searchQuery }: { node: OrgNode; searchQuery: strin
 
   return (
     <div className="flex flex-col items-center">
-      <Link to={`/hrms/employees/${employee.id}`}>
+      <Link to={`/employees/${employee.id}`}>
         <Card className="w-64 cursor-pointer">
           <CardContent className="p-4">
             <div className="flex flex-col items-center text-center space-y-3">

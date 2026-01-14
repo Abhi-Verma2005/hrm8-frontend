@@ -33,11 +33,11 @@ import WorkforcePlanning from "@/pages/WorkforcePlanning";
 
 export const hrmsRoutes = (
   <Route element={<ProtectedRoutes requiredModule="hrms" moduleName="HRMS (Human Resource Management System)" />}>
-    <Route path="/hrms" element={<HRMS />} />
-    <Route path="/hrms/employees/new" element={<EmployeeCreate />} />
-    <Route path="/hrms/employees/:id" element={<EmployeeDetail />} />
-    <Route path="/hrms/analytics" element={<HRAnalytics />} />
-    <Route path="/hrms/org-chart" element={<OrgChart />} />
+    <Route path="/employees" element={<HRMS />} />
+    <Route path="/employees/new" element={<EmployeeCreate />} />
+    <Route path="/employees/:id" element={<EmployeeDetail />} />
+    <Route path="/employees/analytics" element={<HRAnalytics />} />
+    <Route path="/employees/org-chart" element={<OrgChart />} />
     <Route path="/leave" element={<LeaveManagement />} />
     <Route path="/leave/new" element={<LeaveRequestCreate />} />
     <Route path="/performance" element={<Performance />} />

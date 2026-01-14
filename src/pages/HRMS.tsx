@@ -258,7 +258,7 @@ export default function HRMS() {
               </Button>
             </div>
             <Button asChild>
-              <Link to="/hrms/employees/new">
+              <Link to="/employees/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Employee
               </Link>
@@ -285,12 +285,12 @@ export default function HRMS() {
               {
                 label: "View All Employees",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => navigate('/hrms/employees')
+                onClick: () => navigate('/employees')
               },
               {
                 label: "Add Employee",
                 icon: <Plus className="h-4 w-4" />,
-                onClick: () => navigate('/hrms/employees/new')
+                onClick: () => navigate('/employees/new')
               },
               {
                 label: "Export",
@@ -350,7 +350,7 @@ export default function HRMS() {
               {
                 label: "View New Hires",
                 icon: <Eye className="h-4 w-4" />,
-                onClick: () => navigate('/hrms/employees')
+                onClick: () => navigate('/employees')
               },
               {
                 label: "Onboarding Tasks",

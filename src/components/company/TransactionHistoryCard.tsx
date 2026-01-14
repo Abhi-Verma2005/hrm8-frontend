@@ -24,10 +24,13 @@ export function TransactionHistoryCard() {
         try {
             setLoading(true);
             const response = await transactionService.getAll();
+
             if (response.success && response.data?.transactions) {
                 setTransactions(response.data.transactions);
+            } else if (!response.success) {
+                toast.error(response.error || 'Failed to load transactions');
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error loading transactions:', error);
             toast.error('Failed to load transaction history');
         } finally {
@@ -187,12 +190,18 @@ export function TransactionHistoryCard() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <DataTable
-                        data={transactions}
-                        columns={columns}
-                        searchable
-                        emptyMessage="No transactions found"
-                    />
+                    {loading ? (
+                        <div className="flex items-center justify-center py-8">
+                            <p className="text-muted-foreground">Loading transactions...</p>
+                        </div>
+                    ) : (
+                        <DataTable
+                            data={transactions}
+                            columns={columns}
+                            searchable
+                            emptyMessage="No transactions found. Your payments will appear here once processed."
+                        />
+                    )}
                 </CardContent>
             </Card>
 

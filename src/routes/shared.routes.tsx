@@ -42,6 +42,7 @@ import InviteEmployees from "@/pages/InviteEmployees";
 import CompanyProfile from "@/pages/CompanyProfile";
 import MessagesPage from "@/pages/messages/MessagesPage";
 import ConversationPage from "@/pages/messages/ConversationPage";
+import SubscriptionPage from "@/pages/SubscriptionPage";
 
 export const sharedRoutes = (
   <>

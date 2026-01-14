@@ -105,7 +105,7 @@ export function GlobalSearch() {
           title: `${e.firstName} ${e.lastName}`,
           subtitle: e.jobTitle,
           icon: UserCheck,
-          url: `/hrms/employees/${e.id}`,
+          url: `/employees/${e.id}`,
           badge: e.status,
         });
       });
