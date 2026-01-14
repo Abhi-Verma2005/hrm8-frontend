@@ -21,6 +21,7 @@ import Hrm8Login from "@/pages/Hrm8Login";
 import ConsultantLogin from "@/pages/ConsultantLogin";
 import SalesLogin from "@/pages/sales/SalesLogin";
 import NotFound from "@/pages/NotFound";
+import StripeMockOnboarding from "@/pages/dev/StripeMockOnboarding";
 
 export const AppRoutes = () => {
   return (
@@ -119,6 +120,9 @@ export const AppRoutes = () => {
 
       {/* Public routes (no sidebar, no auth required) */}
       {publicRoutes}
+
+      {/* Dev routes (development mode only) */}
+      <Route path="/dev/stripe-mock-onboarding" element={<StripeMockOnboarding />} />
 
       {/* Catch-all route */}
       <Route path="*" element={<NotFound />} />

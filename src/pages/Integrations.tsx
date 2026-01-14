@@ -1,44 +1,56 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Calendar, Link2 } from "lucide-react";
+import { Mail, Calendar, Link2, CreditCard } from "lucide-react";
 import { DashboardPageLayout } from "@/components/layouts/DashboardPageLayout";
 import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { EmailIntegrationCard } from "@/components/integrations/EmailIntegrationCard";
 import { CalendarIntegrationCard } from "@/components/integrations/CalendarIntegrationCard";
 import { ATSIntegrationCard } from "@/components/integrations/ATSIntegrationCard";
+import { StripeIntegrationCard } from "@/components/integrations/StripeIntegrationCard";
+import { useSearchParams } from "react-router-dom";
 
 export default function Integrations() {
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'email';
+
   return (
     <DashboardPageLayout>
       <div className="p-6 space-y-6">
-        <AtsPageHeader 
-          title="Integrations" 
+        <AtsPageHeader
+          title="Integrations"
           subtitle="Manage and configure all system integrations"
         />
-        
-        <Tabs defaultValue="email" className="space-y-6">
+
+        <Tabs defaultValue={defaultTab} className="space-y-6">
           <div className="overflow-x-auto -mx-1 px-1">
             <TabsList className="inline-flex w-auto gap-1 rounded-full border bg-muted/40 px-1 py-1 shadow-sm">
-              <TabsTrigger 
+              <TabsTrigger
                 value="email"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 <Mail className="h-3.5 w-3.5 flex-shrink-0" />
                 Email
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="calendar"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 <Calendar className="h-3.5 w-3.5 flex-shrink-0" />
                 Calendar
               </TabsTrigger>
-              <TabsTrigger 
+              <TabsTrigger
                 value="ats"
                 className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 <Link2 className="h-3.5 w-3.5 flex-shrink-0" />
                 ATS Systems
+              </TabsTrigger>
+              <TabsTrigger
+                value="payments"
+                className="inline-flex items-center gap-1.5 h-7 px-3 rounded-full text-xs whitespace-nowrap data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                <CreditCard className="h-3.5 w-3.5 flex-shrink-0" />
+                Payments
               </TabsTrigger>
             </TabsList>
           </div>
@@ -99,6 +111,18 @@ export default function Integrations() {
               <ATSIntegrationCard provider="icims" />
               <ATSIntegrationCard provider="taleo" />
               <ATSIntegrationCard provider="jobvite" />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="payments" className="space-y-4 mt-6">
+            <div>
+              <h2 className="text-base font-semibold mb-2">Payment Processing</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Connect Stripe to accept payments, process subscriptions, and manage billing
+              </p>
+            </div>
+            <div className="max-w-2xl">
+              <StripeIntegrationCard />
             </div>
           </TabsContent>
         </Tabs>

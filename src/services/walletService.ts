@@ -150,10 +150,15 @@ class WalletService {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(subscriptionData),
         });
+
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.message || 'Failed to create subscription');
+            const errorObj: any = new Error(error.message || 'Failed to create subscription');
+            errorObj.response = { status: response.status };
+            errorObj.errorCode = error.errorCode;
+            throw errorObj;
         }
+
         return response.json();
     }
 

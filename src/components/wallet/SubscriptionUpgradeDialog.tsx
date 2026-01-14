@@ -18,6 +18,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Check, Sparkles, Loader2 } from "lucide-react";
 import { walletService } from "@/services/walletService";
 import { useToast } from "@/hooks/use-toast";
+import { useStripeIntegration } from "@/hooks/useStripeIntegration";
+import { StripePromptDialog } from "@/components/integrations/StripePromptDialog";
 import { cn } from "@/lib/utils";
 
 interface SubscriptionUpgradeDialogProps {
@@ -82,6 +84,7 @@ export function SubscriptionUpgradeDialog({
     const [selectedPlan, setSelectedPlan] = useState<string>('');
     const { toast } = useToast();
     const queryClient = useQueryClient();
+    const { showPrompt, setShowPrompt, redirectPath, checkStripeRequired } = useStripeIntegration();
 
     const upgradeMutation = useMutation({
         mutationFn: async (planId: string) => {
@@ -110,6 +113,12 @@ export function SubscriptionUpgradeDialog({
             onClose();
         },
         onError: (error: any) => {
+            // Check if error is due to Stripe not connected (402)
+            if (error.response?.status === 402 || error.errorCode === 'STRIPE_NOT_CONNECTED') {
+                // StripePromptDialog will be shown automatically
+                return;
+            }
+
             toast({
                 title: "Upgrade Failed",
                 description: error.message || "Failed to upgrade subscription.",
@@ -127,6 +136,7 @@ export function SubscriptionUpgradeDialog({
             return;
         }
 
+        setSelectedPlan(planId);
         upgradeMutation.mutate(planId);
     };
 
@@ -231,6 +241,13 @@ export function SubscriptionUpgradeDialog({
                     </p>
                 </div>
             </DialogContent>
+
+            {/* Stripe Connection Prompt */}
+            <StripePromptDialog
+                open={showPrompt}
+                onOpenChange={setShowPrompt}
+                redirectPath={redirectPath}
+            />
         </Dialog>
     );
 }
