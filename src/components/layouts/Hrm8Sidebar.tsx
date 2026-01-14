@@ -38,6 +38,7 @@ import { Hrm8SidebarFooter } from "./Hrm8SidebarFooter";
 
 const menuItems = [
   { path: "/hrm8/dashboard", label: "Overview", icon: LayoutDashboard },
+  { path: "/hrm8/analytics", label: "Analytics", icon: BarChart3, adminOnly: true },
   { path: "/hrm8/regions", label: "Regions", icon: MapPin, adminOnly: true },
   { path: "/hrm8/licensees", label: "Licensees", icon: Users, adminOnly: true },
   { path: "/hrm8/staff", label: "Staff", icon: UserCog },
