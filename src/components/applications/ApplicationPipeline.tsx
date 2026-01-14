@@ -189,8 +189,8 @@ function StageColumn({
       if (round.fixedKey === 'HIRED') return 'bg-emerald-50 dark:bg-emerald-950/30';
       if (round.fixedKey === 'REJECTED') return 'bg-red-50 dark:bg-red-950/30';
     }
-    return round.type === 'INTERVIEW' 
-      ? 'bg-cyan-50 dark:bg-cyan-950/30' 
+    return round.type === 'INTERVIEW'
+      ? 'bg-cyan-50 dark:bg-cyan-950/30'
       : 'bg-purple-50 dark:bg-purple-950/30';
   };
 
@@ -199,7 +199,7 @@ function StageColumn({
       <Card className={`${getRoundColor(round)} border-2 h-full flex flex-col ${isOver ? 'ring-2 ring-primary' : ''}`}>
         <div className="p-3 flex flex-col flex-1">
           <div className="flex items-center justify-between mb-3 flex-shrink-0">
-            <div 
+            <div
               className={`flex items-center gap-2 flex-1 min-w-0 ${round.isFixed && round.fixedKey === 'NEW' ? 'cursor-pointer hover:opacity-80' : ''}`}
               onClick={(e) => {
                 if (round.isFixed && round.fixedKey === 'NEW' && onOpenScreening) {
@@ -226,9 +226,9 @@ function StageColumn({
               )}
             </div>
             <div className="flex items-center gap-2">
-            <Badge variant="outline" className="text-xs h-6 px-2 rounded-full">
-              {applications.length}
-            </Badge>
+              <Badge variant="outline" className="text-xs h-6 px-2 rounded-full">
+                {applications.length}
+              </Badge>
               {round.isFixed && round.fixedKey === 'NEW' && onOpenScreening && (
                 <Button
                   variant="ghost"
@@ -379,7 +379,7 @@ function StageColumn({
                           }
                         }}
                       >
-                        <SelectTrigger 
+                        <SelectTrigger
                           className="h-6 text-[10px] px-1.5 w-auto bg-background/95 backdrop-blur-sm border"
                           onClick={(e) => e.stopPropagation()}
                         >
@@ -388,8 +388,8 @@ function StageColumn({
                         </SelectTrigger>
                         <SelectContent onClick={(e) => e.stopPropagation()}>
                           {allRounds.map((r) => (
-                            <SelectItem 
-                              key={r.id} 
+                            <SelectItem
+                              key={r.id}
                               value={r.id}
                               onClick={(e) => e.stopPropagation()}
                             >
@@ -415,7 +415,7 @@ function StageColumn({
   );
 }
 
-export function ApplicationPipeline({ 
+export function ApplicationPipeline({
   jobId,
   jobTitle = "Position",
   applications: providedApplications,
@@ -488,7 +488,7 @@ export function ApplicationPipeline({
 
   const loadRounds = async () => {
     if (!jobId) return;
-    
+
     try {
       const response = await jobRoundService.getJobRounds(jobId);
       if (response.success && response.data) {
@@ -511,20 +511,20 @@ export function ApplicationPipeline({
             updatedAt: new Date().toISOString(),
           };
         });
-        
+
         // Separate custom rounds and sort them
         const customRounds = loadedRounds.filter(r => !r.isFixed).sort((a, b) => a.order - b.order);
-        
+
         // Build final array: NEW (1), then custom rounds (2-998), then OFFER (999), HIRED (1000), REJECTED (1001)
         const allRounds: JobRound[] = [];
-        
+
         // Always start with NEW
         const newRound = fixedRounds.find(r => r.fixedKey === 'NEW');
         if (newRound) allRounds.push(newRound);
-        
+
         // Add custom rounds (they should have orders between 2 and 998)
         allRounds.push(...customRounds);
-        
+
         // Add end fixed rounds
         const offerRound = fixedRounds.find(r => r.fixedKey === 'OFFER');
         const hiredRound = fixedRounds.find(r => r.fixedKey === 'HIRED');
@@ -532,10 +532,10 @@ export function ApplicationPipeline({
         if (offerRound) allRounds.push(offerRound);
         if (hiredRound) allRounds.push(hiredRound);
         if (rejectedRound) allRounds.push(rejectedRound);
-        
+
         // Final sort by order to ensure correct sequence
         allRounds.sort((a, b) => a.order - b.order);
-        
+
         setRounds(allRounds);
       }
     } catch (error) {
@@ -564,7 +564,7 @@ export function ApplicationPipeline({
       try {
         const response = await applicationService.getJobApplications(jobId);
         const apiApplications = response.data?.applications || [];
-        
+
         // Extract round progress mapping
         const roundMap: Record<string, string> = {};
         // @ts-expect-error - roundProgress exists in backend response but might not be in type definition
@@ -677,13 +677,13 @@ export function ApplicationPipeline({
     }
 
     const activeIdStr = active.id as string;
-    
+
     // Handle round column reordering
     if (activeIdStr.startsWith('round-')) {
       if (over.id.toString().startsWith('round-')) {
         const activeRoundId = activeIdStr.replace('round-', '');
         const overRoundId = over.id.toString().replace('round-', '');
-        
+
         if (activeRoundId !== overRoundId) {
           await handleRoundReorder(activeRoundId, overRoundId);
         }
@@ -736,7 +736,7 @@ export function ApplicationPipeline({
 
     const activeRound = rounds[activeIndex];
     const overRound = rounds[overIndex];
-    
+
     if (activeRound.isFixed) {
       toast.error('Fixed rounds cannot be reordered');
       return;
@@ -747,7 +747,7 @@ export function ApplicationPipeline({
       toast.error('Cannot place rounds before "New"');
       return;
     }
-    
+
     // Calculate new order based on the over round's order
     let newOrder: number;
     if (overRound.isFixed) {
@@ -763,14 +763,14 @@ export function ApplicationPipeline({
 
     // Calculate new order for the moved round
     const reorderedRounds = arrayMove(rounds, activeIndex, overIndex);
-    
+
     // Optimistically update UI
     setRounds(reorderedRounds);
 
     // Update the active round's order on backend
     try {
       const response = await jobRoundService.updateRound(jobId, activeRoundId, { order: newOrder });
-      
+
       if (!response.success) {
         // Revert on error
         loadRounds();
@@ -807,21 +807,21 @@ export function ApplicationPipeline({
 
       // Update via API
       const response = await applicationService.updateStage(applicationId, backendStage);
-      
+
       if (response.success) {
         // Also update local mock storage for fallback
-      const statusMapForUpdate: Record<string, Application['status']> = {
-        "New Application": "applied",
-        "Resume Review": "screening",
-        "Phone Screen": "screening",
-        "Technical Interview": "interview",
-        "Manager Interview": "interview",
-        "Offer Extended": "offer",
-        "Offer Accepted": "hired",
-        "Rejected": "rejected"
-      };
-      updateApplicationStatus(applicationId, statusMapForUpdate[newStage] || "applied", newStage);
-        
+        const statusMapForUpdate: Record<string, Application['status']> = {
+          "New Application": "applied",
+          "Resume Review": "screening",
+          "Phone Screen": "screening",
+          "Technical Interview": "interview",
+          "Manager Interview": "interview",
+          "Offer Extended": "offer",
+          "Offer Accepted": "hired",
+          "Rejected": "rejected"
+        };
+        updateApplicationStatus(applicationId, statusMapForUpdate[newStage] || "applied", newStage);
+
         // Reload applications only if not using providedApplications (parent handles refresh)
         if (providedApplications === undefined) {
           loadApplications();
@@ -841,20 +841,20 @@ export function ApplicationPipeline({
       // Find the target round first (might be fallback ID)
       const targetRound = rounds.find(r => r.id === roundId);
       const application = applications.find(app => app.id === applicationId);
-      
+
       // If it's a fallback ID, find the actual round by fixedKey
       let actualRoundId = roundId;
       let actualRound = targetRound;
-      
+
       if (roundId.startsWith('fixed-')) {
         // Extract fixedKey from fallback ID format: "fixed-{FIXEDKEY}-{jobId}"
         const parts = roundId.split('-');
         if (parts.length >= 2) {
           const fixedKey = parts[1];
-          
+
           // Try to find the actual round in current rounds
           actualRound = rounds.find(r => r.isFixed && r.fixedKey === fixedKey);
-          
+
           if (actualRound) {
             actualRoundId = actualRound.id;
           } else if (targetRound && targetRound.fixedKey === fixedKey) {
@@ -869,14 +869,14 @@ export function ApplicationPipeline({
           }
         }
       }
-      
+
       // Move application to round via API (using actual round ID)
       const response = await applicationService.moveToRound(applicationId, actualRoundId);
-      
+
       if (response.success) {
         // Reload rounds first in case backend created a new fixed round
         await loadRounds();
-        
+
         // Check if moved to OFFER round and auto-send is enabled
         const offerRound = rounds.find(r => r.isFixed && r.fixedKey === 'OFFER');
         if (offerRound && application && jobId) {
@@ -904,17 +904,17 @@ export function ApplicationPipeline({
           } else {
             toast.success('Application moved successfully');
           }
-          
+
           // Notify parent to refresh filtered applications
           onApplicationMoved?.();
         } else {
           // Reload applications to get updated round progress with actual round IDs
           const roundMap = await loadApplications();
-        
+
           // Get the updated round ID from the returned map
           // If we still don't have it, try to find the OFFER round again (in case it was just created)
           let updatedRoundId = roundMap?.[applicationId];
-          
+
           if (!updatedRoundId && actualRound?.fixedKey) {
             // Try to find the round by fixedKey again (it might have been created)
             const foundRound = rounds.find(r => r.isFixed && r.fixedKey === actualRound?.fixedKey);
@@ -922,12 +922,12 @@ export function ApplicationPipeline({
               updatedRoundId = foundRound.id;
             }
           }
-          
+
           // Fallback to actualRoundId if we still don't have it
           if (!updatedRoundId) {
             updatedRoundId = actualRoundId;
           }
-          
+
           const finalRound = rounds.find(r => r.id === updatedRoundId) || actualRound;
           if (finalRound && application) {
             toast.success(`Moved ${application.candidateName} to ${finalRound.name}`);
@@ -951,7 +951,7 @@ export function ApplicationPipeline({
   const autoSendOffer = async (application: Application, config: any) => {
     try {
       console.log('Auto-sending offer for application:', application.id, 'with config:', config);
-      
+
       const expiryDate = new Date();
       expiryDate.setDate(expiryDate.getDate() + (parseInt(config.defaultExpiryDays) || 7));
       const startDate = new Date();
@@ -966,10 +966,10 @@ export function ApplicationPipeline({
         startDate: startDate.toISOString().split('T')[0],
         workLocation: config.defaultWorkLocation || "",
         workArrangement: config.defaultWorkArrangement || "remote",
-        benefits: config.defaultBenefits 
-          ? (typeof config.defaultBenefits === 'string' 
-              ? config.defaultBenefits.split(',').map((b: string) => b.trim())
-              : config.defaultBenefits)
+        benefits: config.defaultBenefits
+          ? (typeof config.defaultBenefits === 'string'
+            ? config.defaultBenefits.split(',').map((b: string) => b.trim())
+            : config.defaultBenefits)
           : [],
         vacationDays: config.defaultVacationDays ? parseInt(config.defaultVacationDays) : undefined,
         customMessage: config.defaultCustomMessage,
@@ -1057,7 +1057,7 @@ export function ApplicationPipeline({
     }
   };
 
-  const currentIndex = selectedApplication 
+  const currentIndex = selectedApplication
     ? applications.findIndex(app => app.id === selectedApplication.id)
     : -1;
   const hasNext = currentIndex < applications.length - 1;
@@ -1067,7 +1067,7 @@ export function ApplicationPipeline({
 
   const handleDeleteRound = async (roundId: string) => {
     if (!jobId) return;
-    
+
     if (!confirm('Are you sure you want to delete this round? This action cannot be undone.')) {
       return;
     }
@@ -1153,17 +1153,17 @@ export function ApplicationPipeline({
     return applications.filter((app) => {
       // Check if application has a round mapping
       const appRoundId = app.roundId;
-      
+
       if (appRoundId) {
         // Use round progress mapping if available
         return appRoundId === round.id;
       }
-      
+
       // Fallback to name-based matching for applications without round progress
       // This handles new applications or legacy data
       const roundName = round.name.toLowerCase();
       const stageName = app.stage.toLowerCase();
-      
+
       // For fixed rounds, try to match by stage
       if (round.isFixed) {
         if (round.fixedKey === 'NEW' && (stageName.includes('new') || !appRoundId)) {
@@ -1173,12 +1173,12 @@ export function ApplicationPipeline({
         if (round.fixedKey === 'HIRED' && stageName.includes('hired')) return true;
         if (round.fixedKey === 'REJECTED' && stageName.includes('rejected')) return true;
       }
-      
+
       // For custom rounds, try to match by name similarity (fallback only)
       if (!round.isFixed) {
         return stageName.includes(roundName) || roundName.includes(stageName);
       }
-      
+
       return false;
     });
   };
@@ -1194,7 +1194,7 @@ export function ApplicationPipeline({
   }, [applications]);
 
   const shortlistedCount = applications.filter(app => app.shortlisted).length;
-  const newApplicationsCount = applications.filter(app => 
+  const newApplicationsCount = applications.filter(app =>
     app.stage === 'New Application' || !app.isRead
   ).length;
 
@@ -1277,7 +1277,7 @@ export function ApplicationPipeline({
             {rounds.length > 0 ? (
               rounds.map((round) => {
                 const roundApplications = getApplicationsForRound(round);
-            return (
+                return (
                   <div key={round.id} className="flex-shrink-0" style={{ width: '280px' }}>
                     <SortableRoundColumn
                       round={round}
@@ -1298,20 +1298,20 @@ export function ApplicationPipeline({
                       onConfigureOffer={handleConfigureOffer}
                       onExecuteOffer={handleExecuteOffer}
                       onOpenAssessmentDrawer={handleOpenAssessmentReview}
-              />
+                    />
                   </div>
-            );
+                );
               })
             ) : (
               <div className="text-center text-muted-foreground py-8">
                 Loading rounds...
               </div>
             )}
-        </div>
+          </div>
         </SortableContext>
 
         <DragOverlay>
-          {activeApplication && <ApplicationCard application={activeApplication} onClick={() => {}} />}
+          {activeApplication && <ApplicationCard application={activeApplication} onClick={() => { }} />}
           {activeRoundId && (() => {
             const draggedRound = rounds.find(r => `round-${r.id}` === activeRoundId);
             if (draggedRound) {
@@ -1321,10 +1321,10 @@ export function ApplicationPipeline({
                   <StageColumn
                     round={draggedRound}
                     applications={roundApps}
-                    onApplicationClick={() => {}}
+                    onApplicationClick={() => { }}
                     isCompareMode={false}
                     selectedForComparison={[]}
-                    onStageChange={() => {}}
+                    onStageChange={() => { }}
                     allRounds={rounds}
                   />
                 </div>
