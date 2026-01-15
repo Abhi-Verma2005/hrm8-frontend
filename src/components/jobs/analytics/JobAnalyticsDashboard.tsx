@@ -1,231 +1,324 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
-import { TrendingUp, TrendingDown, Users, Clock, DollarSign, Target } from "lucide-react";
-import { 
-  getJobAnalytics, 
-  getApplicationFunnel, 
-  getSourceEffectiveness, 
-  getGeographicData, 
-  getTimeSeriesData,
-  getBenchmarkData 
-} from "@/lib/jobAnalyticsService";
+import { Eye, MousePointer, Users, TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { apiClient } from "@/lib/api";
 
 interface JobAnalyticsDashboardProps {
   jobId: string;
 }
 
-const COLORS = ['hsl(var(--primary))', 'hsl(var(--teal))', 'hsl(var(--coral))', 'hsl(var(--purple))', 'hsl(var(--orange))'];
+interface AnalyticsBreakdown {
+  views: { total: number; bySource: Record<string, number> };
+  clicks: { total: number; bySource: Record<string, number> };
+  applies: { total: number; bySource: Record<string, number> };
+}
+
+interface TrendDataPoint {
+  date: string;
+  views: number;
+  clicks: number;
+  applies?: number;
+}
+
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#6366f1', '#94a3b8'];
+const SOURCE_COLORS: Record<string, string> = {
+  'HRM8_BOARD': '#3b82f6',
+  'CAREER_PAGE': '#10b981',
+  'EXTERNAL': '#f59e0b',
+  'CANDIDATE_PORTAL': '#6366f1',
+  'UNKNOWN': '#94a3b8',
+};
+
+const SOURCE_LABELS: Record<string, string> = {
+  'HRM8_BOARD': 'HRM8 Job Board',
+  'CAREER_PAGE': 'Company Careers Page',
+  'EXTERNAL': 'External Sources',
+  'CANDIDATE_PORTAL': 'Candidate Portal',
+  'UNKNOWN': 'Direct / Unknown',
+};
 
 export function JobAnalyticsDashboard({ jobId }: JobAnalyticsDashboardProps) {
-  const analytics = getJobAnalytics(jobId);
-  const funnel = getApplicationFunnel(jobId);
-  const sources = getSourceEffectiveness(jobId);
-  const geographic = getGeographicData(jobId);
-  const timeSeries = getTimeSeriesData(jobId);
-  const benchmark = getBenchmarkData(jobId);
+  const [loading, setLoading] = useState(true);
+  const [breakdown, setBreakdown] = useState<AnalyticsBreakdown | null>(null);
+  const [trends, setTrends] = useState<TrendDataPoint[]>([]);
+  const [applications, setApplications] = useState(0);
 
-  const funnelData = [
-    { name: 'Views', value: funnel.views },
-    { name: 'Applications', value: funnel.applications },
-    { name: 'Screenings', value: funnel.screenings },
-    { name: 'Interviews', value: funnel.interviews },
-    { name: 'Offers', value: funnel.offers },
-    { name: 'Hired', value: funnel.hired },
-  ];
+  useEffect(() => {
+    loadAnalytics();
+  }, [jobId]);
+
+  const loadAnalytics = async () => {
+    setLoading(true);
+    try {
+      // Fetch analytics breakdown and trends in parallel
+      const [breakdownResponse, trendsResponse] = await Promise.all([
+        apiClient.get<{
+          jobId: string;
+          jobTitle: string;
+          breakdown: AnalyticsBreakdown;
+        }>(`/api/analytics/jobs/${jobId}/breakdown`),
+        apiClient.get<{
+          jobId: string;
+          days: number;
+          trends: TrendDataPoint[];
+        }>(`/api/analytics/jobs/${jobId}/trends?days=30`),
+      ]);
+
+      if (breakdownResponse.success && breakdownResponse.data) {
+        setBreakdown(breakdownResponse.data.breakdown);
+      }
+
+      if (trendsResponse.success && trendsResponse.data?.trends) {
+        // Format dates for display
+        const formattedTrends = trendsResponse.data.trends.map(t => ({
+          ...t,
+          date: new Date(t.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        }));
+        setTrends(formattedTrends);
+      }
+    } catch (error) {
+      console.error('Failed to load job analytics:', error);
+      // Fallback to zero data
+      setBreakdown({
+        views: { total: 0, bySource: {} },
+        clicks: { total: 0, bySource: {} },
+        applies: { total: 0, bySource: {} },
+      });
+      setTrends([]);
+    }
+    setLoading(false);
+  };
+
+  // Prepare source data for pie chart
+  const sourceData = breakdown ? Object.entries(breakdown.views.bySource)
+    .filter(([_, value]) => value > 0)
+    .map(([source, value]) => ({
+      name: SOURCE_LABELS[source] || source,
+      value,
+      source,
+    })) : [];
+
+  // Prepare conversion funnel data
+  const funnelData = breakdown ? [
+    { name: 'Views', value: breakdown.views.total },
+    { name: 'Apply Clicks', value: breakdown.clicks.total },
+    { name: 'Applications', value: breakdown.applies.total },
+  ] : [];
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map(i => (
+            <Card key={i}>
+              <CardContent className="pt-6">
+                <Skeleton className="h-8 w-24 mb-2" />
+                <Skeleton className="h-6 w-16" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        <Skeleton className="h-[350px] w-full" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="border-l-4 border-l-blue-500">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Views</p>
-                <p className="text-2xl font-bold">{analytics.totalViews.toLocaleString()}</p>
+                <p className="text-3xl font-bold">{breakdown?.views.total || 0}</p>
               </div>
-              <Users className="h-8 w-8 text-primary" />
+              <Eye className="h-8 w-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-l-4 border-l-amber-500">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Detail Clicks</p>
+                <p className="text-3xl font-bold">{breakdown?.clicks.total || 0}</p>
+                {breakdown && breakdown.views.total > 0 && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                    <TrendingUp className="h-3 w-3 text-green-500" />
+                    {((breakdown.clicks.total / breakdown.views.total) * 100).toFixed(1)}% CTR
+                  </p>
+                )}
+              </div>
+              <MousePointer className="h-8 w-8 text-amber-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-green-500">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Applications</p>
-                <p className="text-2xl font-bold">{analytics.totalApplications}</p>
-                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                  <TrendingUp className="h-3 w-3 text-teal" />
-                  {analytics.conversionRate.toFixed(1)}% conversion
-                </p>
+                <p className="text-3xl font-bold">{breakdown?.applies.total || 0}</p>
+                {breakdown && breakdown.clicks.total > 0 && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                    <TrendingUp className="h-3 w-3 text-green-500" />
+                    {((breakdown.applies.total / breakdown.clicks.total) * 100).toFixed(1)}% apply rate
+                  </p>
+                )}
               </div>
-              <Target className="h-8 w-8 text-teal" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Time to Hire</p>
-                <p className="text-2xl font-bold">{analytics.timeToHire} days</p>
-                <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                  {analytics.timeToHire < benchmark.companyAverage.timeToHire ? (
-                    <><TrendingDown className="h-3 w-3 text-teal" />Better than avg</>
-                  ) : (
-                    <><TrendingUp className="h-3 w-3 text-coral" />Above average</>
-                  )}
-                </p>
-              </div>
-              <Clock className="h-8 w-8 text-purple" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Cost per Hire</p>
-                <p className="text-2xl font-bold">${analytics.costPerHire.toLocaleString()}</p>
-              </div>
-              <DollarSign className="h-8 w-8 text-orange" />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Quality Score</p>
-                <p className="text-2xl font-bold">{analytics.qualityScore.toFixed(0)}/100</p>
-              </div>
-              <Target className="h-8 w-8 text-primary" />
+              <Users className="h-8 w-8 text-green-500" />
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Tabs defaultValue="funnel" className="space-y-4">
+      <Tabs defaultValue="analytics" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="funnel">Application Funnel</TabsTrigger>
-          <TabsTrigger value="sources">Source Performance</TabsTrigger>
-          <TabsTrigger value="trends">Trends</TabsTrigger>
-          <TabsTrigger value="geography">Geography</TabsTrigger>
+          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="funnel">
+        <TabsContent value="analytics" className="space-y-6">
+          {/* Views & Clicks Over Time */}
           <Card>
-            <CardHeader>
-              <CardTitle>Application Funnel</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>Views & Clicks Over Time</CardTitle>
+              <Button variant="ghost" size="icon" onClick={loadAnalytics}>
+                <RefreshCw className="h-4 w-4" />
+              </Button>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={funnelData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="hsl(var(--primary))" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="sources">
-          <Card>
-            <CardHeader>
-              <CardTitle>Source Effectiveness</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={sources}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="source" />
-                  <YAxis yAxisId="left" />
-                  <YAxis yAxisId="right" orientation="right" />
+                <LineChart data={trends}>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis 
+                    dataKey="date" 
+                    tick={{ fontSize: 12 }} 
+                    interval="preserveStartEnd"
+                  />
+                  <YAxis tick={{ fontSize: 12 }} />
                   <Tooltip />
                   <Legend />
-                  <Bar yAxisId="left" dataKey="applications" fill="hsl(var(--primary))" name="Applications" />
-                  <Bar yAxisId="right" dataKey="quality" fill="hsl(var(--teal))" name="Quality Score" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="trends">
-          <Card>
-            <CardHeader>
-              <CardTitle>Views & Applications Over Time</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={timeSeries}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="views" stroke="hsl(var(--primary))" name="Views" />
-                  <Line type="monotone" dataKey="applications" stroke="hsl(var(--teal))" name="Applications" />
+                  <Line 
+                    type="monotone" 
+                    dataKey="views" 
+                    stroke="#3b82f6" 
+                    strokeWidth={2}
+                    dot={{ fill: '#3b82f6' }}
+                    name="Views"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="clicks" 
+                    stroke="#f59e0b" 
+                    strokeWidth={2}
+                    dot={{ fill: '#f59e0b' }}
+                    name="Clicks"
+                  />
                 </LineChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="geography">
+          {/* Traffic Source */}
           <Card>
             <CardHeader>
-              <CardTitle>Applications by Location</CardTitle>
+              <CardTitle>Traffic Source</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col lg:flex-row gap-6">
-                <div className="flex-1">
-                  <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={geographic}
-                        dataKey="applications"
-                        nameKey="country"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={80}
-                        label
-                      >
-                        {geographic.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip />
-                    </PieChart>
-                  </ResponsiveContainer>
+                <div className="flex-1 flex justify-center">
+                  {sourceData.length > 0 ? (
+                    <ResponsiveContainer width="100%" height={250}>
+                      <PieChart>
+                        <Pie
+                          data={sourceData}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={100}
+                        >
+                          {sourceData.map((entry, index) => (
+                            <Cell 
+                              key={`cell-${index}`} 
+                              fill={SOURCE_COLORS[entry.source] || COLORS[index % COLORS.length]} 
+                            />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  ) : (
+                    <div className="h-[250px] flex items-center justify-center text-muted-foreground">
+                      No source data available
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1">
                   <div className="space-y-3">
-                    {geographic.map((item, index) => (
-                      <div key={item.country} className="flex items-center justify-between p-3 border rounded-lg">
+                    {sourceData.length > 0 ? sourceData.map((item, index) => (
+                      <div key={item.source} className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="flex items-center gap-3">
                           <div 
-                            className="w-4 h-4 rounded" 
-                            style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                            className="w-4 h-4 rounded-full" 
+                            style={{ backgroundColor: SOURCE_COLORS[item.source] || COLORS[index % COLORS.length] }}
                           />
-                          <span className="font-medium">{item.country}</span>
+                          <span className="font-medium">{item.name}</span>
                         </div>
-                        <div className="text-right">
-                          <p className="font-bold">{item.applications}</p>
-                          <p className="text-xs text-muted-foreground">{item.percentage}%</p>
-                        </div>
+                        <span className="font-bold">{item.value}</span>
                       </div>
-                    ))}
+                    )) : (
+                      <div className="text-center text-muted-foreground py-8">
+                        No traffic source data yet
+                      </div>
+                    )}
                   </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Conversion Funnel */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Conversion Funnel</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={funnelData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
+                  <XAxis type="number" />
+                  <YAxis type="category" dataKey="name" width={100} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]}>
+                    {funnelData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="activity">
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center text-muted-foreground py-8">
+                Activity feed coming soon...
               </div>
             </CardContent>
           </Card>
