@@ -12,17 +12,18 @@ import { ConsultantPageLayout } from '@/components/layouts/ConsultantPageLayout'
 import { AtsPageHeader } from '@/components/layouts/AtsPageHeader';
 import { ConsultantDashboardSkeleton } from '@/components/skeletons/ConsultantDashboardSkeleton';
 import { StandardChartCard } from '@/components/dashboard/charts/StandardChartCard';
-import { generateRealisticTrend } from '@/lib/generators/realisticTrendData';
-import { Briefcase, Users, DollarSign, TrendingUp, BarChart3, Download, Eye } from 'lucide-react';
+import { Briefcase, Users, DollarSign, TrendingUp, BarChart3, Download, Eye, Target } from 'lucide-react';
 import { ResponsiveContainer, LineChart, BarChart, XAxis, YAxis, Tooltip, Legend, Line, Bar } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
+import { ActiveJobsWidget } from '@/components/dashboard/consultant/ActiveJobsWidget';
+import { PipelineSnapshotWidget } from '@/components/dashboard/consultant/PipelineSnapshotWidget';
+import { RecentCommissionsWidget } from '@/components/dashboard/consultant/RecentCommissionsWidget';
 
 export default function ConsultantOverview() {
   const { consultant } = useConsultantAuth();
   const { toast } = useToast();
-  const [metrics, setMetrics] = useState<any>(null);
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [jobCount, setJobCount] = useState(0);
 
   useEffect(() => {
     loadData();
@@ -31,79 +32,46 @@ export default function ConsultantOverview() {
   const loadData = async () => {
     try {
       setLoading(true);
-      
-      // Load performance metrics
-      const metricsResponse = await consultantService.getPerformance();
-      if (metricsResponse.success && metricsResponse.data?.metrics) {
-        setMetrics(metricsResponse.data.metrics);
-      }
-
-      // Load job count
-      const jobsResponse = await consultantService.getJobs();
-      if (jobsResponse.success && jobsResponse.data?.jobIds) {
-        setJobCount(jobsResponse.data.jobIds.length);
+      const response = await consultantService.getDashboardAnalytics();
+      if (response.data) {
+        setData(response.data);
       }
     } catch (error) {
       console.error('Failed to load dashboard data:', error);
+      toast({
+        title: "Error loading dashboard",
+        description: "Could not fetch latest analytics.",
+        variant: "destructive"
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  // Generate realistic trend data for charts
   const revenueTrendData = useMemo(() => {
-    const totalRevenue = metrics?.totalRevenue || 0;
-    const baseRevenue = totalRevenue * 0.6; // Start at 60% of current
-    return generateRealisticTrend({
-      baseValue: baseRevenue,
-      currentValue: totalRevenue,
-      dataPoints: 12,
-      volatility: 0.1,
-      trend: 'up',
-      seasonality: true
-    });
-  }, [metrics?.totalRevenue]);
+    if (!data?.trends) return [];
+    return data.trends.map((t: any) => ({
+      name: t.name,
+      value: t.revenue || 0
+    }));
+  }, [data]);
 
   const placementsTrendData = useMemo(() => {
-    const totalPlacements = metrics?.totalPlacements || 0;
-    const basePlacements = Math.max(0, totalPlacements - 10);
-    return generateRealisticTrend({
-      baseValue: basePlacements,
-      currentValue: totalPlacements,
-      dataPoints: 12,
-      volatility: 0.15,
-      trend: totalPlacements > basePlacements ? 'up' : 'stable'
-    });
-  }, [metrics?.totalPlacements]);
+    if (!data?.trends) return [];
+    return data.trends.map((t: any) => ({
+      name: t.name,
+      value: t.placements || 0
+    }));
+  }, [data]);
 
   const commissionsTrendData = useMemo(() => {
-    const pendingCommissions = metrics?.pendingCommissions || 0;
-    const paidCommissions = metrics?.totalCommissionsPaid || 0;
-    const baseCommissions = paidCommissions * 0.7;
-    
-    // Generate data for both pending and paid commissions
-    const paidData = generateRealisticTrend({
-      baseValue: baseCommissions,
-      currentValue: paidCommissions,
-      dataPoints: 12,
-      volatility: 0.12,
-      trend: 'up'
-    });
-
-    const pendingData = generateRealisticTrend({
-      baseValue: pendingCommissions * 0.5,
-      currentValue: pendingCommissions,
-      dataPoints: 12,
-      volatility: 0.2,
-      trend: 'stable'
-    });
-
-    return paidData.map((point, index) => ({
-      ...point,
-      paid: point.value,
-      pending: pendingData[index]?.value || 0
+    if (!data?.trends) return [];
+    return data.trends.map((t: any) => ({
+      name: t.name,
+      paid: t.paid || t.revenue || 0, // Fallback if paid not distinct
+      pending: t.pending || 0
     }));
-  }, [metrics?.pendingCommissions, metrics?.totalCommissionsPaid]);
+  }, [data]);
 
   if (loading) {
     return (
@@ -113,6 +81,16 @@ export default function ConsultantOverview() {
     );
   }
 
+  // Calculate totals for stats
+  const totalRevenue = data?.trends?.reduce((acc: number, curr: any) => acc + (curr.revenue || 0), 0) || 0;
+  const totalPlacements = data?.trends?.reduce((acc: number, curr: any) => acc + (curr.placements || 0), 0) || 0;
+  const activeJobsCount = data?.activeJobs?.length || 0;
+
+  // Target calculations
+  const monthlyRevenueTarget = data?.targets?.monthlyRevenue || 0;
+  const currentMonthRevenue = data?.trends?.[data.trends.length - 1]?.revenue || 0;
+  const revenueProgress = monthlyRevenueTarget > 0 ? (currentMonthRevenue / monthlyRevenueTarget) * 100 : 0;
+
   return (
     <ConsultantPageLayout>
       <div className="p-6 space-y-6">
@@ -121,79 +99,63 @@ export default function ConsultantOverview() {
           subtitle={`Welcome back, ${consultant?.firstName}! Here's your overview.`}
         />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <EnhancedStatCard
-          title="Active Jobs"
-          value={jobCount.toString()}
+        {/* Top Stats Row */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <EnhancedStatCard
+            title="Active Jobs"
+            value={activeJobsCount.toString()}
             icon={<Briefcase className="h-5 w-5" />}
             variant="neutral"
-        />
+            trend={{ value: 0, label: "current open roles", trend: "neutral" }}
+          />
 
-        <EnhancedStatCard
-          title="Total Placements"
-          value={(metrics?.totalPlacements || 0).toString()}
+          <EnhancedStatCard
+            title="Total Placements (YY)"
+            value={totalPlacements.toString()}
             icon={<Users className="h-5 w-5" />}
             variant="neutral"
-        />
+          />
 
-        <EnhancedStatCard
-          title="Pending Commissions"
-          value=""
-          isCurrency={true}
-          rawValue={metrics?.pendingCommissions || 0}
+          <EnhancedStatCard
+            title="Monthly Revenue"
+            value={`$${currentMonthRevenue.toLocaleString()}`}
             icon={<DollarSign className="h-5 w-5" />}
-            variant="neutral"
-        />
+            variant={revenueProgress >= 100 ? "success" : "neutral"}
+            footer={
+              monthlyRevenueTarget > 0 && (
+                <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                  <Target className="h-3 w-3" />
+                  Target: ${monthlyRevenueTarget.toLocaleString()} ({revenueProgress.toFixed(0)}%)
+                </div>
+              )
+            }
+          />
 
-        <EnhancedStatCard
-          title="Success Rate"
-          value={metrics?.successRate ? `${metrics.successRate.toFixed(1)}%` : '0%'}
+          <EnhancedStatCard
+            title="Success Rate"
+            value="--" // Calculation required based on applications vs hires
             icon={<TrendingUp className="h-5 w-5" />}
             variant="neutral"
-        />
-      </div>
+            description="Pending implementation"
+          />
+        </div>
 
-      <Card>
-        <CardHeader>
-            <CardTitle className="text-base font-semibold">Performance Summary</CardTitle>
-            <CardDescription className="text-sm">
-              Key performance indicators and metrics
-            </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div>
-                <p className="text-xs text-muted-foreground mb-1">Total Revenue</p>
-              <p className="text-2xl font-bold">
-                ${(metrics?.totalRevenue || 0).toLocaleString()}
-              </p>
-            </div>
-            <div>
-                <p className="text-xs text-muted-foreground mb-1">Total Commissions Paid</p>
-              <p className="text-2xl font-bold">
-                ${(metrics?.totalCommissionsPaid || 0).toLocaleString()}
-              </p>
-            </div>
-            <div>
-                <p className="text-xs text-muted-foreground mb-1">Average Days to Fill</p>
-              <p className="text-2xl font-bold">
-                {metrics?.averageDaysToFill ? `${metrics.averageDaysToFill.toFixed(1)} days` : 'N/A'}
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Operational Widgets Row */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <ActiveJobsWidget jobs={data?.activeJobs || []} />
+          <PipelineSnapshotWidget stages={data?.pipeline || []} />
+          <RecentCommissionsWidget commissions={data?.recentCommissions || []} />
+        </div>
 
         {/* Charts Section */}
         <div className="grid gap-4 md:grid-cols-2">
           <StandardChartCard
             title="Revenue Trend"
-            description="Monthly revenue performance over the last 12 months"
+            description="Monthly revenue performance (Last 12 Months)"
             className="bg-transparent border-0 shadow-none"
             onDownload={() => toast({ title: "Downloading revenue data..." })}
             menuItems={[
-              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
+              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => { } }
             ]}
           >
             <ResponsiveContainer width="100%" height={300}>
@@ -228,53 +190,9 @@ export default function ConsultantOverview() {
           </StandardChartCard>
 
           <StandardChartCard
-            title="Placements Trend"
-            description="Monthly placements over the last 12 months"
+            title="Overview"
+            description="Commissions Breakdown"
             className="bg-transparent border-0 shadow-none"
-            onDownload={() => toast({ title: "Downloading placements data..." })}
-            menuItems={[
-              { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
-            ]}
-          >
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={placementsTrendData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                <XAxis
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12 }}
-                  dy={10}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12 }}
-                />
-                <Tooltip cursor={false} />
-                <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#3b82f6"
-                  strokeWidth={3}
-                  name="Placements"
-                  dot={false}
-                  activeDot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </StandardChartCard>
-
-          <StandardChartCard
-            title="Commissions Overview"
-            description="Paid vs pending commissions over the last 12 months"
-            className="bg-transparent border-0 shadow-none"
-            onDownload={() => toast({ title: "Downloading commissions data..." })}
-            menuItems={[
-              { label: "View Report", icon: <BarChart3 className="h-4 w-4" />, onClick: () => {} },
-              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
-            ]}
           >
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={commissionsTrendData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
@@ -289,67 +207,13 @@ export default function ConsultantOverview() {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
                   width={50}
                 />
                 <Tooltip cursor={{ fill: 'transparent' }} formatter={(value: number) => `$${value.toLocaleString()}`} />
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                <Bar
-                  dataKey="paid"
-                  fill="#10b981"
-                  name="Paid"
-                  radius={[4, 4, 0, 0]}
-                  barSize={20}
-                />
-                <Bar
-                  dataKey="pending"
-                  fill="#8b5cf6"
-                  name="Pending"
-                  radius={[4, 4, 0, 0]}
-                  barSize={20}
-                />
+                <Bar dataKey="paid" fill="#10b981" name="Paid" radius={[4, 4, 0, 0]} stackId="a" />
+                <Bar dataKey="pending" fill="#8b5cf6" name="Pending" radius={[4, 4, 0, 0]} stackId="a" />
               </BarChart>
-            </ResponsiveContainer>
-          </StandardChartCard>
-
-          <StandardChartCard
-            title="Success Rate Trend"
-            description="Monthly success rate percentage over the last 12 months"
-            className="bg-transparent border-0 shadow-none"
-            onDownload={() => toast({ title: "Downloading success rate data..." })}
-            menuItems={[
-              { label: "View Details", icon: <Eye className="h-4 w-4" />, onClick: () => {} },
-              { label: "Export", icon: <Download className="h-4 w-4" />, onClick: () => {} }
-            ]}
-          >
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={placementsTrendData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
-                <XAxis
-                  dataKey="name"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12 }}
-                  dy={10}
-                />
-                <YAxis
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fontSize: 12 }}
-                  tickFormatter={(value) => `${value}%`}
-                  domain={[0, 100]}
-                />
-                <Tooltip cursor={false} formatter={(value: number) => `${value.toFixed(1)}%`} />
-                <Legend wrapperStyle={{ paddingTop: '20px' }} />
-                <Line
-                  type="monotone"
-                  dataKey="value"
-                  stroke="#8b5cf6"
-                  strokeWidth={3}
-                  name="Success Rate"
-                  dot={false}
-                  activeDot={false}
-                />
-              </LineChart>
             </ResponsiveContainer>
           </StandardChartCard>
         </div>

@@ -6,7 +6,7 @@
 import { apiClient } from '../api';
 import { JobPipelineStatus } from '@/types/job';
 
-export interface UnassignedJob {
+export interface JobForAllocation {
   id: string;
   title: string;
   location: string;
@@ -18,7 +18,11 @@ export interface UnassignedJob {
   createdAt: string;
   assignmentMode?: 'AUTO' | 'MANUAL';
   assignmentSource?: string;
+  assignedConsultantId?: string;
+  assignedConsultantName?: string;
 }
+
+export type UnassignedJob = JobForAllocation; // Alias for backward compatibility
 
 export interface ConsultantForAssignment {
   id: string;
@@ -55,9 +59,9 @@ export interface JobAssignmentInfo {
 
 class JobAllocationService {
   async assignConsultant(jobId: string, consultantId: string, assignmentSource?: string) {
-    return apiClient.post(`/api/hrm8/jobs/${jobId}/assign-consultant`, { 
+    return apiClient.post(`/api/hrm8/jobs/${jobId}/assign-consultant`, {
       consultantId,
-      assignmentSource 
+      assignmentSource
     });
   }
 
@@ -75,15 +79,29 @@ class JobAllocationService {
     );
   }
 
-  async getUnassignedJobs(filters?: { regionId?: string; companyId?: string }) {
+  async getJobsForAllocation(filters?: {
+    regionId?: string;
+    companyId?: string;
+    assignmentStatus?: 'UNASSIGNED' | 'ASSIGNED' | 'ALL';
+    consultantId?: string;
+    search?: string;
+  }) {
     const queryParams = new URLSearchParams();
-    if (filters?.regionId) queryParams.append('regionId', filters.regionId);
+    if (filters?.regionId && filters.regionId !== 'all') queryParams.append('regionId', filters.regionId);
     if (filters?.companyId) queryParams.append('companyId', filters.companyId);
+    if (filters?.assignmentStatus) queryParams.append('assignmentStatus', filters.assignmentStatus);
+    if (filters?.consultantId && filters.consultantId !== 'all') queryParams.append('consultantId', filters.consultantId);
+    if (filters?.search) queryParams.append('search', filters.search);
 
     const query = queryParams.toString();
-    return apiClient.get<{ jobs: UnassignedJob[] }>(
-      `/api/hrm8/jobs/unassigned${query ? `?${query}` : ''}`
+    return apiClient.get<{ jobs: JobForAllocation[] }>(
+      `/api/hrm8/jobs/allocation${query ? `?${query}` : ''}`
     );
+  }
+
+  // Alias for backward compatibility
+  async getUnassignedJobs(filters?: { regionId?: string; companyId?: string }) {
+    return this.getJobsForAllocation({ ...filters, assignmentStatus: 'UNASSIGNED' });
   }
 
   async getAssignmentInfo(jobId: string) {
@@ -120,6 +138,3 @@ class JobAllocationService {
 }
 
 export const jobAllocationService = new JobAllocationService();
-
-
-

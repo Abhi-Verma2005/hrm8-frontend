@@ -16,21 +16,26 @@ import { Briefcase, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { JobPipelineStage } from '@/types/job';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 export default function ConsultantJobsPage() {
   const { consultant } = useConsultantAuth();
+  const navigate = useNavigate();
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingJobId, setUpdatingJobId] = useState<string | null>(null);
+  const [activeStatus, setActiveStatus] = useState<string>('ALL');
 
   useEffect(() => {
     loadJobs();
-  }, []);
+  }, [activeStatus]);
 
   const loadJobs = async () => {
     try {
       setLoading(true);
-      const response = await consultantService.getJobs();
+      const filters = activeStatus !== 'ALL' ? { status: activeStatus } : undefined;
+      const response = await consultantService.getJobs(filters);
       if (response.success && response.data?.jobs) {
         setJobs(response.data.jobs);
       }
@@ -65,13 +70,13 @@ export default function ConsultantJobsPage() {
         prev.map((job) =>
           job.id === jobId
             ? {
-                ...job,
-                pipeline: {
-                  ...(job.pipeline || {}),
-                  stage,
-                  updatedAt: new Date().toISOString(),
-                },
-              }
+              ...job,
+              pipeline: {
+                ...(job.pipeline || {}),
+                stage,
+                updatedAt: new Date().toISOString(),
+              },
+            }
             : job
         )
       );
@@ -119,8 +124,8 @@ export default function ConsultantJobsPage() {
         }
         return (
           <Badge variant="outline" className="h-6 px-2 text-xs rounded-full">
-          {job.status}
-        </Badge>
+            {job.status}
+          </Badge>
         );
       },
     },
@@ -173,50 +178,69 @@ export default function ConsultantJobsPage() {
           subtitle="View and manage your assigned jobs"
         />
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <EnhancedStatCard
-          title="Total Jobs"
-          value={jobs.length.toString()}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <EnhancedStatCard
+            title="Total Jobs"
+            value={jobs.length.toString()}
+            change="All time"
             icon={<Briefcase className="h-5 w-5" />}
-          variant="neutral"
-        />
+            variant="neutral"
+          />
 
-        <EnhancedStatCard
-          title="Active Jobs"
-          value={jobs.filter(j => j.status === 'ACTIVE').length.toString()}
+          <EnhancedStatCard
+            title="Active Jobs"
+            value={jobs.filter(j => j.status === 'ACTIVE' || j.status === 'OPEN').length.toString()}
+            change="Currently active"
             icon={<Clock className="h-5 w-5" />}
             variant="neutral"
-        />
-      </div>
+          />
+        </div>
 
-      <Card>
-        <CardHeader>
-            <CardTitle className="text-base font-semibold">Assigned Jobs</CardTitle>
-            <CardDescription className="text-sm">
-              {jobs.length} total job{jobs.length !== 1 ? 's' : ''} assigned
-            </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <div className="text-sm">Loading jobs...</div>
-              </div>
-          ) : jobs.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-                <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p className="text-sm">No jobs assigned yet</p>
-            </div>
-          ) : (
-            <DataTable
-              data={jobs}
-              columns={columns}
-              searchable
-              searchKeys={['title', 'location', 'department']}
-              emptyMessage="No jobs found"
-            />
-          )}
-        </CardContent>
-      </Card>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            {['ALL', 'ACTIVE', 'PENDING', 'COMPLETED', 'ARCHIVED'].map((status) => (
+              <Button
+                key={status}
+                variant={activeStatus === status ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setActiveStatus(status)}
+                className="capitalize"
+              >
+                {status.toLowerCase()}
+              </Button>
+            ))}
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold">Assigned Jobs</CardTitle>
+              <CardDescription className="text-sm">
+                {jobs.length} total job{jobs.length !== 1 ? 's' : ''} assigned
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-sm">Loading jobs...</div>
+                </div>
+              ) : jobs.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Briefcase className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">No jobs found for this filter</p>
+                </div>
+              ) : (
+                <DataTable
+                  data={jobs}
+                  columns={columns}
+                  searchable
+                  searchKeys={['title', 'location', 'department']}
+                  emptyMessage="No jobs found"
+                  onRowClick={(row) => navigate(`/consultant/jobs/${row.id}`)}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </ConsultantPageLayout>
   );
