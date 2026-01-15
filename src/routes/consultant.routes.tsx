@@ -11,6 +11,8 @@ import ConsultantJobsPage from "@/pages/consultant/ConsultantJobsPage";
 import ConsultantCommissionsPage from "@/pages/consultant/ConsultantCommissionsPage";
 import ConsultantProfilePage from "@/pages/consultant/ConsultantProfilePage";
 import ConsultantWalletPage from "@/pages/consultant/ConsultantWalletPage";
+import ConsultantJobDetailPage from "@/pages/consultant/ConsultantJobDetailPage";
+import ConsultantMessagesPage from "@/pages/consultant/ConsultantMessagesPage";
 
 export const consultantRoutes = (
   <Route
@@ -24,6 +26,9 @@ export const consultantRoutes = (
     <Route index element={<ConsultantOverview />} />
     <Route path="dashboard" element={<ConsultantOverview />} />
     <Route path="jobs" element={<ConsultantJobsPage />} />
+    <Route path="jobs/:id" element={<ConsultantJobDetailPage />} />
+    <Route path="messages" element={<ConsultantMessagesPage />} />
+    <Route path="messages/:conversationId" element={<ConsultantMessagesPage />} />
     <Route path="commissions" element={<ConsultantCommissionsPage />} />
     <Route path="profile" element={<ConsultantProfilePage />} />
   </Route>

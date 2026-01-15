@@ -8,6 +8,7 @@ import {
   Briefcase,
   DollarSign,
   User,
+  MessageSquare,
 } from "lucide-react";
 import {
   Sidebar,
@@ -28,6 +29,7 @@ import { ConsultantSidebarFooter } from "./ConsultantSidebarFooter";
 const menuItems = [
   { path: "/consultant/dashboard", label: "Overview", icon: LayoutDashboard },
   { path: "/consultant/jobs", label: "My Jobs", icon: Briefcase },
+  { path: "/consultant/messages", label: "Messages", icon: MessageSquare },
   { path: "/consultant/commissions", label: "Commissions", icon: DollarSign },
   { path: "/consultant/profile", label: "Profile", icon: User },
 ];

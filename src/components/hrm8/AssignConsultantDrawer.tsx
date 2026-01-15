@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useDebounce } from '@/hooks/use-debounce';
 import {
   Sheet,
   SheetContent,
@@ -53,6 +54,8 @@ export function AssignConsultantDrawer({
   const [industryFilter, setIndustryFilter] = useState<string>('');
   const [languageFilter, setLanguageFilter] = useState<string>('');
 
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
   const loadJobInfo = useCallback(async () => {
     try {
       setLoading(true);
@@ -69,19 +72,18 @@ export function AssignConsultantDrawer({
   }, [jobId]);
 
   const loadConsultants = useCallback(
-    async (searchTerm?: string) => {
+    async () => {
       try {
         const regionId = jobInfoRef.current?.job.regionId;
         if (!regionId) return;
         setLoadingConsultants(true);
-        const appliedSearch = searchTerm ?? searchQuery;
         const consultantsRes = await jobAllocationService.getConsultantsForAssignment({
           regionId,
           role: roleFilter && roleFilter !== 'all' ? roleFilter : undefined,
           availability: availabilityFilter && availabilityFilter !== 'all' ? availabilityFilter : undefined,
           industry: industryFilter || undefined,
           language: languageFilter || undefined,
-          search: appliedSearch?.trim() ? appliedSearch.trim() : undefined,
+          search: debouncedSearch?.trim() ? debouncedSearch.trim() : undefined,
         });
         if (consultantsRes.success && consultantsRes.data) {
           setConsultants(consultantsRes.data.consultants);
@@ -94,7 +96,7 @@ export function AssignConsultantDrawer({
         setLoadingConsultants(false);
       }
     },
-    [availabilityFilter, industryFilter, languageFilter, roleFilter, searchQuery]
+    [availabilityFilter, industryFilter, languageFilter, roleFilter, debouncedSearch]
   );
 
   useEffect(() => {
@@ -114,15 +116,12 @@ export function AssignConsultantDrawer({
     }
   }, [open, jobId, loadJobInfo]);
 
-  // Reload consultants when filters or search change (debounced) without resetting the drawer
+  // Reload consultants when filters or search change
   useEffect(() => {
     if (open && jobInfoRef.current) {
-      const timeoutId = setTimeout(() => {
-        loadConsultants(searchQuery);
-      }, 300);
-      return () => clearTimeout(timeoutId);
+      loadConsultants();
     }
-  }, [open, jobInfo?.job.id, roleFilter, availabilityFilter, industryFilter, languageFilter, loadConsultants, searchQuery]);
+  }, [open, jobInfo?.job.id, roleFilter, availabilityFilter, industryFilter, languageFilter, loadConsultants, debouncedSearch]);
 
   const handleAssign = async (consultantId: string) => {
     if (!jobInfo) return;
@@ -141,7 +140,7 @@ export function AssignConsultantDrawer({
     try {
       setAssigning(true);
       const response = await jobAllocationService.assignConsultant(jobId, consultantId);
-      
+
       if (response.success) {
         toast.success('Consultant assigned successfully');
         onSuccess?.();
@@ -168,7 +167,7 @@ export function AssignConsultantDrawer({
     try {
       setAssigning(true);
       const response = await jobAllocationService.autoAssign(jobId);
-      
+
       if (response.success) {
         if (response.data?.consultantId) {
           toast.success('Job auto-assigned successfully');
@@ -187,44 +186,8 @@ export function AssignConsultantDrawer({
     }
   };
 
-  // Client-side filtering for search (instant, no reload)
-  const filteredConsultants = useMemo(() => {
-    // If no consultants loaded yet, return empty array
-    if (!consultants || consultants.length === 0) {
-      return [];
-    }
-    
-    // If no search query, return all consultants
-    if (!searchQuery || !searchQuery.trim()) {
-      return consultants;
-    }
-    
-    // Filter consultants by search query
-    const query = searchQuery.toLowerCase().trim();
-    const filtered = consultants.filter(consultant => {
-      if (!consultant) return false;
-      
-      // Search in first name
-      const firstName = (consultant.firstName || '').toLowerCase();
-      if (firstName.includes(query)) return true;
-      
-      // Search in last name
-      const lastName = (consultant.lastName || '').toLowerCase();
-      if (lastName.includes(query)) return true;
-      
-      // Search in full name
-      const fullName = `${firstName} ${lastName}`.trim();
-      if (fullName.includes(query)) return true;
-      
-      // Search in email
-      const email = (consultant.email || '').toLowerCase();
-      if (email.includes(query)) return true;
-      
-      return false;
-    });
-    
-    return filtered;
-  }, [consultants, searchQuery]);
+  // Client-side filtering removed as backend handles it
+  const filteredConsultants = consultants;
 
   const selectedConsultant = consultants.find(c => c.id === selectedConsultantId);
 
@@ -370,9 +333,8 @@ export function AssignConsultantDrawer({
                       return (
                         <Card
                           key={consultant.id}
-                          className={`cursor-pointer transition-colors ${
-                            isSelected ? 'border-primary bg-primary/5' : ''
-                          }`}
+                          className={`cursor-pointer transition-colors ${isSelected ? 'border-primary bg-primary/5' : ''
+                            }`}
                           onClick={() => setSelectedConsultantId(consultant.id)}
                         >
                           <CardContent className="pt-4">
@@ -401,13 +363,12 @@ export function AssignConsultantDrawer({
                                   </p>
                                   <div className="w-full bg-secondary rounded-full h-2 mt-1">
                                     <div
-                                      className={`h-2 rounded-full ${
-                                        workloadPercent >= 100
-                                          ? 'bg-red-500'
-                                          : workloadPercent >= 80
+                                      className={`h-2 rounded-full ${workloadPercent >= 100
+                                        ? 'bg-red-500'
+                                        : workloadPercent >= 80
                                           ? 'bg-yellow-500'
                                           : 'bg-green-500'
-                                      }`}
+                                        }`}
                                       style={{ width: `${Math.min(workloadPercent, 100)}%` }}
                                     />
                                   </div>

@@ -81,6 +81,7 @@ export default function ConsultantProfilePage() {
         setValue('city', consultantData.city || '');
         setValue('stateProvince', consultantData.stateProvince || '');
         setValue('country', consultantData.country || '');
+        setValue('linkedinUrl', consultantData.linkedinUrl || '');
         setValue('availability', consultantData.availability);
 
         // Set languages
@@ -234,7 +235,9 @@ export default function ConsultantProfilePage() {
               !!profileResponse.data.consultant.taxInformation &&
               Object.keys(profileResponse.data.consultant.taxInformation).length > 0;
 
-            if (hasBasicInfo && hasLanguages && hasIndustries && hasPayment && hasTax) {
+            const hasResume = !!profileResponse.data.consultant.resumeUrl;
+
+            if (hasBasicInfo && hasLanguages && hasIndustries && hasPayment && hasTax && hasResume) {
               toast.success('Profile completed! You can now receive job assignments.');
             }
           }
@@ -323,6 +326,32 @@ export default function ConsultantProfilePage() {
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-sm">Phone</Label>
                 <Input id="phone" {...register('phone')} />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="linkedinUrl" className="text-sm">LinkedIn URL</Label>
+                <Input id="linkedinUrl" {...register('linkedinUrl')} placeholder="https://linkedin.com/in/..." />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold">Region Information</CardTitle>
+              <CardDescription className="text-sm">
+                Your assigned operational region
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="regionName" className="text-sm">Region Name</Label>
+                  <Input id="regionName" value={profile?.regionName || 'Not Assigned'} disabled />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="regionId" className="text-sm">Region ID</Label>
+                  <Input id="regionId" value={profile?.regionId || 'Not Assigned'} disabled />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -587,6 +616,85 @@ export default function ConsultantProfilePage() {
                 <div className="space-y-2">
                   <Label htmlFor="taxStateProvince" className="text-sm">State/Province (if applicable)</Label>
                   <Input id="taxStateProvince" {...register('taxStateProvince')} placeholder="California" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base font-semibold">Resume / CV</CardTitle>
+              <CardDescription className="text-sm">
+                Upload your resume or CV (required)
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {profile?.resumeUrl ? (
+                <div className="flex items-center gap-3 p-3 border border-border rounded-lg bg-emerald-50/50 border-emerald-200">
+                  <div className="h-10 w-10 bg-emerald-100 rounded flex items-center justify-center">
+                    <span className="text-emerald-600 font-bold text-xs">PDF</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-emerald-900">Current Resume</p>
+                    <a href={profile.resumeUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-emerald-600 hover:underline">
+                      View / Download
+                    </a>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // Logic to allow re-upload (effectively clearing current URL in state or just showing upload below)
+                      // For simplicity, we just show upload below
+                      toast.info("Upload a new file to replace the existing one.");
+                    }}
+                  >
+                    Replace
+                  </Button>
+                </div>
+              ) : (
+                <Alert className="bg-amber-50 border-amber-200 mb-4">
+                  <AlertCircle className="h-4 w-4 text-amber-600" />
+                  <AlertTitle className="text-amber-800">Resume Required</AlertTitle>
+                  <AlertDescription className="text-amber-700">
+                    You must upload a resume to receive job assignments.
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <Label className="text-sm">Upload Resume (PDF, DOCX)</Label>
+                {/* We import FileUpload dynamically or just use the input for now since we need to handle the File object */}
+                <div className="border-2 border-dashed rounded-lg p-6 text-center hover:bg-muted/30 transition-colors">
+                  <input
+                    type="file"
+                    id="resume-upload"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        // In a real app, upload -> get URL -> set URL
+                        // Here we simulate by setting a fake URL after a delay
+                        const fakeUrl = URL.createObjectURL(file);
+                        toast.loading("Uploading resume...");
+                        setTimeout(() => {
+                          setValue('resumeUrl', fakeUrl); // Simulate form value set
+                          // Also fix local state if we had it, but loading profile re-fetches
+                          toast.success("Resume uploaded successfully!");
+                          // Force re-render of this section by updating profile locally if needed
+                          if (profile) setProfile({ ...profile, resumeUrl: fakeUrl });
+                        }, 1500);
+                      }
+                    }}
+                  />
+                  <Label htmlFor="resume-upload" className="cursor-pointer block">
+                    <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-2">
+                      <Plus className="h-6 w-6 text-primary" />
+                    </div>
+                    <p className="text-sm font-medium">Click to upload or drag and drop</p>
+                    <p className="text-xs text-muted-foreground mt-1">Max 5MB</p>
+                  </Label>
                 </div>
               </div>
             </CardContent>

@@ -57,6 +57,7 @@ export const hrm8Routes = (
     <Route path="job-board/:companyId" element={<Hrm8CompanyJobsPage />} />
     <Route path="job-board/job/:jobId" element={<Hrm8JobDetailPage />} />
     <Route path="commissions" element={<CommissionsPage />} />
+    <Route path="withdrawals" element={<WithdrawalsPage />} />
     <Route path="billing/withdrawals" element={<WithdrawalsPage />} />
     <Route path="billing/refund-requests" element={<RefundRequestsPage />} />
     <Route path="billing/conversion-requests" element={<ConversionRequestsPage />} />

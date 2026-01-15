@@ -4,7 +4,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
-import { jobAllocationService, UnassignedJob } from '@/lib/hrm8/jobAllocationService';
+import { jobAllocationService, JobForAllocation } from '@/lib/hrm8/jobAllocationService';
 import { regionService } from '@/lib/hrm8/regionService';
 import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
@@ -19,8 +19,10 @@ import { TableSkeleton } from '@/components/tables/TableSkeleton';
 import { toast } from 'sonner';
 import { Briefcase, Users, MapPin, Filter, X } from 'lucide-react';
 
+import { useDebounce } from '@/hooks/use-debounce';
+
 export default function JobAllocationPage() {
-  const [jobs, setJobs] = useState<UnassignedJob[]>([]);
+  const [jobs, setJobs] = useState<JobForAllocation[]>([]);
   const [regions, setRegions] = useState<Array<{ id: string; name: string }>>([]);
   const [loading, setLoading] = useState(true);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
@@ -30,16 +32,19 @@ export default function JobAllocationPage() {
   const [regionFilter, setRegionFilter] = useState<string>('all');
   const [companyFilter, setCompanyFilter] = useState<string>('');
   const [industryFilter, setIndustryFilter] = useState<string>('');
+  const [assignmentStatusFilter, setAssignmentStatusFilter] = useState<'UNASSIGNED' | 'ASSIGNED' | 'ALL'>('ALL');
   const [searchTerm, setSearchTerm] = useState<string>('');
+
+  const debouncedSearch = useDebounce(searchTerm, 500);
+  const debouncedCompany = useDebounce(companyFilter, 500);
 
   useEffect(() => {
     loadRegions();
-    loadJobs();
   }, []);
 
   useEffect(() => {
     loadJobs();
-  }, [regionFilter, companyFilter, industryFilter]);
+  }, [regionFilter, debouncedCompany, industryFilter, assignmentStatusFilter, debouncedSearch]);
 
   const loadRegions = async () => {
     try {
@@ -55,11 +60,27 @@ export default function JobAllocationPage() {
   const loadJobs = async () => {
     try {
       setLoading(true);
-      const filters: { regionId?: string; companyId?: string } = {};
-      if (regionFilter && regionFilter !== 'all') filters.regionId = regionFilter;
-      if (companyFilter) filters.companyId = companyFilter;
+      const filters: {
+        regionId?: string;
+        companyId?: string;
+        assignmentStatus?: 'UNASSIGNED' | 'ASSIGNED' | 'ALL';
+        search?: string;
+      } = {};
 
-      const response = await jobAllocationService.getUnassignedJobs(filters);
+      if (regionFilter && regionFilter !== 'all') filters.regionId = regionFilter;
+      // Only generic search supported for company name via main search
+      if (debouncedCompany) {
+        // If strictly need company filter, it assumes ID currently. 
+        // If typed text, we might want to use it as search or ignore. 
+        // For now, let's treat it as ID or exact match if backend supported it, 
+        // but backend expects UUID. Let's skip sending it if not UUID-like to avoid 500s?
+        // Or just let it fail/return empty. 
+        filters.companyId = debouncedCompany;
+      }
+      filters.assignmentStatus = assignmentStatusFilter;
+      if (debouncedSearch) filters.search = debouncedSearch;
+
+      const response = await jobAllocationService.getJobsForAllocation(filters);
       if (response.success && response.data?.jobs) {
         let filteredJobs = response.data.jobs;
 
@@ -82,6 +103,7 @@ export default function JobAllocationPage() {
     setRegionFilter('all');
     setCompanyFilter('');
     setIndustryFilter('');
+    setAssignmentStatusFilter('ALL');
     setSearchTerm('');
   };
 
@@ -98,15 +120,8 @@ export default function JobAllocationPage() {
 
   const hasActiveFilters = (regionFilter && regionFilter !== 'all') || companyFilter || industryFilter || searchTerm;
 
-  const filteredJobs = useMemo(() => {
-    if (!searchTerm) return jobs;
-    const term = searchTerm.toLowerCase();
-    return jobs.filter((job) =>
-      [job.title, job.location, job.companyName].some((field) =>
-        field?.toLowerCase().includes(term)
-      )
-    );
-  }, [jobs, searchTerm]);
+  // Client side search removed as backend handles it
+  const filteredJobs = jobs;
 
   const columns = [
     {
@@ -119,9 +134,14 @@ export default function JobAllocationPage() {
       label: 'Location',
     },
     {
+      key: 'assignedConsultantName',
+      label: 'Consultant',
+      render: (job: JobForAllocation) => job.assignedConsultantName || <span className="text-muted-foreground">Unassigned</span>,
+    },
+    {
       key: 'regionId',
       label: 'Assigned Region',
-      render: (job: UnassignedJob) => {
+      render: (job: JobForAllocation) => {
         if (!job.regionId) return <span className="text-muted-foreground">Unassigned</span>;
         const region = regions.find(r => r.id === job.regionId);
         return region ? region.name : 'Unknown';
@@ -130,17 +150,17 @@ export default function JobAllocationPage() {
     {
       key: 'category',
       label: 'Industry',
-      render: (job: UnassignedJob) => job.category || '-',
+      render: (job: JobForAllocation) => job.category || '-',
     },
     {
       key: 'status',
       label: 'Status',
-      render: (job: UnassignedJob) => {
+      render: (job: JobForAllocation) => {
         const status = job.status || 'UNKNOWN';
         const isOpen = status === 'OPEN';
         const isOnHold = status === 'ON_HOLD';
         return (
-          <Badge 
+          <Badge
             variant={isOpen ? 'default' : isOnHold ? 'secondary' : 'outline'}
             className={isOpen ? 'bg-green-500 hover:bg-green-600' : isOnHold ? 'bg-yellow-500 hover:bg-yellow-600' : ''}
           >
@@ -152,7 +172,7 @@ export default function JobAllocationPage() {
     {
       key: 'assignmentMode',
       label: 'Mode',
-      render: (job: UnassignedJob) => (
+      render: (job: JobForAllocation) => (
         <Badge variant={job.assignmentMode === 'AUTO' ? 'default' : 'secondary'}>
           {job.assignmentMode === 'AUTO' ? 'Auto' : 'Manual'}
         </Badge>
@@ -161,19 +181,19 @@ export default function JobAllocationPage() {
     {
       key: 'createdAt',
       label: 'Created',
-      render: (job: UnassignedJob) => new Date(job.createdAt).toLocaleDateString(),
+      render: (job: JobForAllocation) => new Date(job.createdAt).toLocaleDateString(),
     },
     {
       key: 'actions',
       label: 'Actions',
-      render: (job: UnassignedJob) => (
+      render: (job: JobForAllocation) => (
         <Button
           size="sm"
           variant="outline"
           onClick={() => handleAssignClick(job.id)}
         >
           <Users className="mr-2 h-4 w-4" />
-          Assign
+          {job.assignedConsultantId ? 'Reassign' : 'Assign'}
         </Button>
       ),
     },
@@ -182,7 +202,7 @@ export default function JobAllocationPage() {
   return (
     <Hrm8PageLayout
       title="Job Allocation"
-      subtitle="Find unassigned jobs and assign the best consultant"
+      subtitle="Manage open jobs and assign the best consultant"
     >
       <div className="p-6 space-y-6">
         {/* Filters */}
@@ -194,7 +214,7 @@ export default function JobAllocationPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <div className="space-y-2">
                 <Label>Region</Label>
                 <Select value={regionFilter} onValueChange={setRegionFilter}>
@@ -208,6 +228,20 @@ export default function JobAllocationPage() {
                         {region.name}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Assignment Status</Label>
+                <Select value={assignmentStatusFilter} onValueChange={(val: any) => setAssignmentStatusFilter(val)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">All Status</SelectItem>
+                    <SelectItem value="UNASSIGNED">Unassigned Only</SelectItem>
+                    <SelectItem value="ASSIGNED">Assigned Only</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -233,7 +267,7 @@ export default function JobAllocationPage() {
               <div className="space-y-2">
                 <Label>Search</Label>
                 <Input
-                  placeholder="Search job title or location..."
+                  placeholder="Search job title..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -256,7 +290,7 @@ export default function JobAllocationPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Briefcase className="h-5 w-5" />
-              Unassigned Jobs ({filteredJobs.length})
+              Open Jobs ({filteredJobs.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
