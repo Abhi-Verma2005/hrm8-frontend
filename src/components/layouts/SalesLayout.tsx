@@ -7,6 +7,7 @@ import { useNavigationShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useSidebarState } from "@/hooks/useSidebarState";
 import { ConsultantUserNav } from "./ConsultantUserNav";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 
 export function SalesLayout() {
   const { open, setOpen } = useSidebarState("sales");
@@ -23,6 +24,7 @@ export function SalesLayout() {
               <SidebarTrigger className="-ml-1" />
             </div>
             <div className="flex flex-1 items-center justify-end gap-4">
+              <NotificationBell />
               <ConsultantUserNav />
             </div>
           </header>
