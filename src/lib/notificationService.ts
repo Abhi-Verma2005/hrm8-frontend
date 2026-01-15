@@ -3,7 +3,7 @@
  * Client-side API service for notification endpoints
  */
 
-import { apiRequest } from '@/lib/api';
+import { apiClient } from '@/lib/api';
 
 export interface Notification {
     id: string;
@@ -63,40 +63,34 @@ export const notificationService = {
         }
 
         const url = `/api/notifications${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-        return apiRequest<NotificationsResponse>(url);
+        return apiClient.get<NotificationsResponse>(url);
     },
 
     /**
      * Get unread notification count
      */
     async getUnreadCount(): Promise<{ success: boolean; data?: UnreadCountResponse; error?: string }> {
-        return apiRequest<UnreadCountResponse>('/api/notifications/count');
+        return apiClient.get<UnreadCountResponse>('/api/notifications/count');
     },
 
     /**
      * Mark a notification as read
      */
     async markAsRead(notificationId: string): Promise<{ success: boolean; data?: Notification; error?: string }> {
-        return apiRequest<Notification>(`/api/notifications/${notificationId}/read`, {
-            method: 'PATCH',
-        });
+        return apiClient.patch<Notification>(`/api/notifications/${notificationId}/read`);
     },
 
     /**
      * Mark all notifications as read
      */
     async markAllAsRead(): Promise<{ success: boolean; data?: { count: number }; error?: string }> {
-        return apiRequest<{ count: number }>('/api/notifications/read-all', {
-            method: 'PATCH',
-        });
+        return apiClient.patch<{ count: number }>('/api/notifications/read-all');
     },
 
     /**
      * Delete a notification
      */
     async deleteNotification(notificationId: string): Promise<{ success: boolean; error?: string }> {
-        return apiRequest(`/api/notifications/${notificationId}`, {
-            method: 'DELETE',
-        });
+        return apiClient.delete(`/api/notifications/${notificationId}`);
     },
 };

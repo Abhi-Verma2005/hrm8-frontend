@@ -74,7 +74,7 @@ export function WebSocketProvider({
   const getReconnectDelay = useCallback((attempt: number): number => {
     const baseDelay = Math.min(
       RECONNECT_CONFIG.initialDelay *
-        Math.pow(RECONNECT_CONFIG.multiplier, attempt),
+      Math.pow(RECONNECT_CONFIG.multiplier, attempt),
       RECONNECT_CONFIG.maxDelay
     );
     const jitterAmount = baseDelay * RECONNECT_CONFIG.jitter;
@@ -159,6 +159,14 @@ export function WebSocketProvider({
 
         case 'error':
           console.error('❌ WebSocket error:', message.payload);
+          break;
+
+        case 'notification':
+          console.log('🔔 Notification received:', message.payload);
+          break;
+
+        case 'notifications_count':
+          console.log('🔢 Notification count update:', message.payload);
           break;
 
         default:

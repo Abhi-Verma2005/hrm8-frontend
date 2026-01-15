@@ -24,6 +24,8 @@ export type WSMessageType =
   | 'user_joined'
   | 'user_left'
   | 'online_users_list'
+  | 'notification'
+  | 'notifications_count'
   | 'error';
 
 export type MessageSenderType = 'CANDIDATE' | 'EMPLOYER' | 'CONSULTANT' | 'SYSTEM';
