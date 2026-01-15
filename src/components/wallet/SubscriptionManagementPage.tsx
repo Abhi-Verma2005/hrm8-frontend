@@ -22,11 +22,14 @@ import {
 } from "lucide-react";
 import { WalletBalance } from "@/components/wallet/WalletBalance";
 import { TransactionList } from "@/components/wallet/TransactionList";
+import { SubscriptionUpgradeDialog } from "@/components/wallet/SubscriptionUpgradeDialog";
+import { WalletRechargeDialog } from "@/components/wallet/WalletRechargeDialog";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export function SubscriptionManagementPage() {
     const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+    const [showRechargeDialog, setShowRechargeDialog] = useState(false);
 
     // Fetch wallet balance
     const { data: walletData, isLoading: walletLoading } = useQuery({
@@ -61,7 +64,10 @@ export function SubscriptionManagementPage() {
     });
 
     const handleRecharge = () => {
-        // TODO: Implement recharge/upgrade flow
+        setShowRechargeDialog(true);
+    };
+
+    const handleUpgrade = () => {
         setShowUpgradeDialog(true);
     };
 
@@ -220,8 +226,19 @@ export function SubscriptionManagementPage() {
                 emptyMessage="No transactions yet. Your billing activity will appear here."
             />
 
-            {/* TODO: Add Upgrade Dialog */}
-            {/* {showUpgradeDialog && <UpgradeDialog onClose={() => setShowUpgradeDialog(false)} />} */}
+            {/* Upgrade Dialog */}
+            <SubscriptionUpgradeDialog
+                open={showUpgradeDialog}
+                onClose={() => setShowUpgradeDialog(false)}
+                currentPlan={subscription?.name}
+            />
+
+            {/* Recharge Dialog */}
+            <WalletRechargeDialog
+                open={showRechargeDialog}
+                onClose={() => setShowRechargeDialog(false)}
+                currentBalance={wallet?.balance || 0}
+            />
         </div>
     );
 }

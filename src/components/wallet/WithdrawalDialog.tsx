@@ -155,150 +155,150 @@ export function WithdrawalDialog({
     const canWithdraw = numericAmount >= minWithdrawal && numericAmount <= availableBalance;
 
     return (
-        dialog >
-        <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-                <DialogTitle>Request Withdrawal</DialogTitle>
-                <DialogDescription>
-                    Withdraw your earnings from your virtual wallet
-                </DialogDescription>
-            </DialogHeader>
+        <Dialog open={open} onOpenChange={handleClose}>
+            <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                    <DialogTitle>Request Withdrawal</DialogTitle>
+                    <DialogDescription>
+                        Withdraw your earnings from your virtual wallet
+                    </DialogDescription>
+                </DialogHeader>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Available Balance */}
-                <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertDescription>
-                        Available Balance: <span className="font-semibold">${availableBalance.toFixed(2)}</span>
-                    </AlertDescription>
-                </Alert>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Available Balance */}
+                    <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertDescription>
+                            Available Balance: <span className="font-semibold">${availableBalance.toFixed(2)}</span>
+                        </AlertDescription>
+                    </Alert>
 
-                {/* Amount */}
-                <div className="space-y-2">
-                    <Label htmlFor="amount">Withdrawal Amount (USD)</Label>
-                    <Input
-                        id="amount"
-                        type="number"
-                        step="0.01"
-                        min={minWithdrawal}
-                        max={availableBalance}
-                        placeholder={`Min. $${minWithdrawal}`}
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
-                        required
-                    />
-                    <p className="text-xs text-muted-foreground">
-                        Minimum withdrawal: ${minWithdrawal}
-                    </p>
-                </div>
+                    {/* Amount */}
+                    <div className="space-y-2">
+                        <Label htmlFor="amount">Withdrawal Amount (USD)</Label>
+                        <Input
+                            id="amount"
+                            type="number"
+                            step="0.01"
+                            min={minWithdrawal}
+                            max={availableBalance}
+                            placeholder={`Min. $${minWithdrawal}`}
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            required
+                        />
+                        <p className="text-xs text-muted-foreground">
+                            Minimum withdrawal: ${minWithdrawal}
+                        </p>
+                    </div>
 
-                {/* Payment Method */}
-                <div className="space-y-2">
-                    <Label htmlFor="paymentMethod">Payment Method</Label>
-                    <Select value={paymentMethod} onValueChange={setPaymentMethod} required>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select payment method" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                            <SelectItem value="paypal">PayPal</SelectItem>
-                            <SelectItem value="wise">Wise (TransferWise)</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
+                    {/* Payment Method */}
+                    <div className="space-y-2">
+                        <Label htmlFor="paymentMethod">Payment Method</Label>
+                        <Select value={paymentMethod} onValueChange={setPaymentMethod} required>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select payment method" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                                <SelectItem value="paypal">PayPal</SelectItem>
+                                <SelectItem value="wise">Wise (TransferWise)</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
 
-                {/* Bank Transfer Details */}
-                {paymentMethod === 'bank_transfer' && (
-                    <div className="space-y-3 p-3 border rounded-lg bg-accent/50">
-                        <p className="text-sm font-medium">Bank Account Details</p>
+                    {/* Bank Transfer Details */}
+                    {paymentMethod === 'bank_transfer' && (
+                        <div className="space-y-3 p-3 border rounded-lg bg-accent/50">
+                            <p className="text-sm font-medium">Bank Account Details</p>
+                            <div className="space-y-2">
+                                <Input
+                                    placeholder="Bank Name"
+                                    value={bankName}
+                                    onChange={(e) => setBankName(e.target.value)}
+                                    required
+                                />
+                                <Input
+                                    placeholder="Account Holder Name"
+                                    value={accountName}
+                                    onChange={(e) => setAccountName(e.target.value)}
+                                    required
+                                />
+                                <Input
+                                    placeholder="Account Number"
+                                    value={accountNumber}
+                                    onChange={(e) => setAccountNumber(e.target.value)}
+                                    required
+                                />
+                                <Input
+                                    placeholder="IFSC Code / Routing Number"
+                                    value={ifscCode}
+                                    onChange={(e) => setIfscCode(e.target.value)}
+                                    required
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* PayPal Details */}
+                    {paymentMethod === 'paypal' && (
                         <div className="space-y-2">
+                            <Label htmlFor="paypalEmail">PayPal Email</Label>
                             <Input
-                                placeholder="Bank Name"
-                                value={bankName}
-                                onChange={(e) => setBankName(e.target.value)}
-                                required
-                            />
-                            <Input
-                                placeholder="Account Holder Name"
-                                value={accountName}
-                                onChange={(e) => setAccountName(e.target.value)}
-                                required
-                            />
-                            <Input
-                                placeholder="Account Number"
-                                value={accountNumber}
-                                onChange={(e) => setAccountNumber(e.target.value)}
-                                required
-                            />
-                            <Input
-                                placeholder="IFSC Code / Routing Number"
-                                value={ifscCode}
-                                onChange={(e) => setIfscCode(e.target.value)}
+                                id="paypalEmail"
+                                type="email"
+                                placeholder="your@email.com"
+                                value={paypalEmail}
+                                onChange={(e) => setPaypalEmail(e.target.value)}
                                 required
                             />
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* PayPal Details */}
-                {paymentMethod === 'paypal' && (
+                    {/* Notes */}
                     <div className="space-y-2">
-                        <Label htmlFor="paypalEmail">PayPal Email</Label>
-                        <Input
-                            id="paypalEmail"
-                            type="email"
-                            placeholder="your@email.com"
-                            value={paypalEmail}
-                            onChange={(e) => setPaypalEmail(e.target.value)}
-                            required
+                        <Label htmlFor="notes">Notes (Optional)</Label>
+                        <Textarea
+                            id="notes"
+                            placeholder="Any additional information..."
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            rows={3}
                         />
                     </div>
-                )}
 
-                {/* Notes */}
-                <div className="space-y-2">
-                    <Label htmlFor="notes">Notes (Optional)</Label>
-                    <Textarea
-                        id="notes"
-                        placeholder="Any additional information..."
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        rows={3}
-                    />
-                </div>
+                    {/* Success/Error Feedback */}
+                    {!canWithdraw && numericAmount > 0 && (
+                        <Alert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <AlertDescription>
+                                {numericAmount > availableBalance
+                                    ? `Amount exceeds available balance ($${availableBalance.toFixed(2)})`
+                                    : `Minimum withdrawal amount is $${minWithdrawal}`}
+                            </AlertDescription>
+                        </Alert>
+                    )}
 
-                {/* Success/Error Feedback */}
-                {!canWithdraw && numericAmount > 0 && (
-                    <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>
-                            {numericAmount > availableBalance
-                                ? `Amount exceeds available balance ($${availableBalance.toFixed(2)})`
-                                : `Minimum withdrawal amount is $${minWithdrawal}`}
-                        </AlertDescription>
-                    </Alert>
-                )}
-
-                <DialogFooter>
-                    <Button type="button" variant="outline" onClick={handleClose} disabled={withdrawalMutation.isPending}>
-                        Cancel
-                    </Button>
-                    <Button type="submit" disabled={!canWithdraw || withdrawalMutation.isPending}>
-                        {withdrawalMutation.isPending ? (
-                            <>
-                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                Submitting...
-                            </>
-                        ) : (
-                            <>
-                                <CheckCircle className="h-4 w-4 mr-2" />
-                                Request Withdrawal
-                            </>
-                        )}
-                    </Button>
-                </DialogFooter>
-            </form>
-        </DialogContent>
-    </Dialog >
-  );
+                    <DialogFooter>
+                        <Button type="button" variant="outline" onClick={handleClose} disabled={withdrawalMutation.isPending}>
+                            Cancel
+                        </Button>
+                        <Button type="submit" disabled={!canWithdraw || withdrawalMutation.isPending}>
+                            {withdrawalMutation.isPending ? (
+                                <>
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    Submitting...
+                                </>
+                            ) : (
+                                <>
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                    Request Withdrawal
+                                </>
+                            )}
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog >
+    );
 }

@@ -183,6 +183,42 @@ class WalletService {
         return response.json();
     }
 
+    // Wallet Recharge
+    async rechargeWallet(data: {
+        amount: number;
+        paymentMethod: string;
+    }) {
+        const response = await fetch('/api/integrations/stripe/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                amount: data.amount,
+                description: `Wallet recharge - $${data.amount.toFixed(2)}`,
+                metadata: {
+                    type: 'wallet_recharge',
+                },
+            }),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            const errorObj: any = new Error(error.message || 'Failed to initiate recharge');
+            errorObj.response = { status: response.status };
+            errorObj.errorCode = error.errorCode;
+            throw errorObj;
+        }
+
+        const result = await response.json();
+
+        // Redirect to Stripe Checkout
+        if (result.data?.url) {
+            window.location.href = result.data.url;
+        }
+
+        return result;
+    }
+
     // Add-on Services
     async purchaseAddOnService(request: AddOnServiceRequest) {
         const response = await fetch(`${this.baseUrl}/subscription/addon-service`, {

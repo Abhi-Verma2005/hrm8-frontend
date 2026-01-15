@@ -30,7 +30,7 @@ interface SubscriptionUpgradeDialogProps {
 
 const SUBSCRIPTION_PLANS = [
     {
-        id: 'ats-lite',
+        id: 'free',
         name: 'ATS Lite',
         price: 0,
         billingCycle: 'MONTHLY' as const,
@@ -39,7 +39,7 @@ const SUBSCRIPTION_PLANS = [
         recommended: false,
     },
     {
-        id: 'small',
+        id: 'basic',
         name: 'Small Plan',
         price: 295,
         billingCycle: 'MONTHLY' as const,
@@ -48,7 +48,7 @@ const SUBSCRIPTION_PLANS = [
         recommended: true,
     },
     {
-        id: 'medium',
+        id: 'professional',
         name: 'Medium Plan',
         price: 495,
         billingCycle: 'MONTHLY' as const,
@@ -57,7 +57,7 @@ const SUBSCRIPTION_PLANS = [
         recommended: false,
     },
     {
-        id: 'large',
+        id: 'enterprise',
         name: 'Large Plan',
         price: 695,
         billingCycle: 'MONTHLY' as const,
@@ -66,8 +66,8 @@ const SUBSCRIPTION_PLANS = [
         recommended: false,
     },
     {
-        id: 'enterprise',
-        name: 'Enterprise',
+        id: 'custom',
+        name: 'Custom Enterprise',
         price: 995,
         billingCycle: 'MONTHLY' as const,
         jobQuota: null, // Unlimited
@@ -128,7 +128,7 @@ export function SubscriptionUpgradeDialog({
     });
 
     const handleSelectPlan = (planId: string) => {
-        if (planId === 'ats-lite') {
+        if (planId === 'free') {
             toast({
                 title: "Free Plan",
                 description: "This is the free plan. No payment required.",

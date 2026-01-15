@@ -43,6 +43,7 @@ import CompanyProfile from "@/pages/CompanyProfile";
 import MessagesPage from "@/pages/messages/MessagesPage";
 import ConversationPage from "@/pages/messages/ConversationPage";
 import SubscriptionPage from "@/pages/SubscriptionPage";
+import StripeMockCheckout from "@/pages/dev/StripeMockCheckout";
 
 export const sharedRoutes = (
   <>
@@ -89,6 +90,8 @@ export const sharedRoutes = (
     <Route path="/invite-employees" element={<InviteEmployees />} />
     <Route path="/messages" element={<MessagesPage />} />
     <Route path="/messages/:conversationId" element={<ConversationPage />} />
+    <Route path="/subscriptions" element={<SubscriptionPage />} />
+    <Route path="/dev/stripe-mock-checkout" element={<StripeMockCheckout />} />
   </>
 );
 
