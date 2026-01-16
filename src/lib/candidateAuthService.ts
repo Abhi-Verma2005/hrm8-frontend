@@ -64,6 +64,12 @@ export interface CandidateLoginResponse {
 }
 
 export interface CandidateRegisterResponse {
+  candidate?: Candidate;
+  message: string;
+  email?: string;
+}
+
+export interface CandidateVerifyEmailResponse {
   candidate: Candidate;
   message: string;
 }
@@ -83,6 +89,10 @@ class CandidateAuthService {
 
   async getCurrentCandidate() {
     return apiClient.get<{ candidate: Candidate }>('/api/candidate/auth/me');
+  }
+
+  async verifyEmail(token: string) {
+    return apiClient.get<CandidateVerifyEmailResponse>(`/api/candidate/auth/verify-email?token=${token}`);
   }
 }
 

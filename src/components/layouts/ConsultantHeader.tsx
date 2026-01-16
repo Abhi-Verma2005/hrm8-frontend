@@ -3,6 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Search, Command } from "lucide-react";
 import { ConsultantUserNav } from "./ConsultantUserNav";
+import { NotificationsDropdown } from "./NotificationsDropdown";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Breadcrumbs } from "@/components/common/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
@@ -52,6 +53,7 @@ export function ConsultantHeader({ breadcrumbActions }: ConsultantHeaderProps = 
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <NotificationsDropdown />
             <ConsultantUserNav />
           </div>
         </div>

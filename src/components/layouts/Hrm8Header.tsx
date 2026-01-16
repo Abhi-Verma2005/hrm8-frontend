@@ -3,6 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Search, Command } from "lucide-react";
 import { Hrm8UserNav } from "./Hrm8UserNav";
+import { NotificationsDropdown } from "./NotificationsDropdown";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Breadcrumbs } from "@/components/common/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
@@ -52,6 +53,7 @@ export function Hrm8Header({ breadcrumbActions }: Hrm8HeaderProps = {}) {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <NotificationsDropdown />
             <Hrm8UserNav />
           </div>
         </div>
