@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -18,6 +18,7 @@ export default function CandidateVerifyEmail() {
 
     const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
     const [message, setMessage] = useState('Verifying your email address...');
+    const hasVerified = useRef(false);
 
     useEffect(() => {
         if (!token) {
@@ -25,6 +26,12 @@ export default function CandidateVerifyEmail() {
             setMessage('Invalid verification link. Token is missing.');
             return;
         }
+
+        // Prevent duplicate verification requests
+        if (hasVerified.current) {
+            return;
+        }
+        hasVerified.current = true;
 
         const verifyEmail = async () => {
             try {
@@ -46,7 +53,7 @@ export default function CandidateVerifyEmail() {
         };
 
         verifyEmail();
-    }, [token, refreshCandidate]);
+    }, [token]);
 
     return (
         <AuthLayout>
