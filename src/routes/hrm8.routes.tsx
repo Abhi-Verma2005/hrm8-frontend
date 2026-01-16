@@ -31,6 +31,7 @@ import { ConversionRequestsPage } from "@/pages/hrm8/ConversionRequestsPage";
 import { RevenueDashboardPage } from "@/pages/hrm8/RevenueDashboardPage";
 import CareersRequestsPage from "@/pages/hrm8/CareersRequestsPage";
 import Hrm8WalletPage from "@/pages/hrm8/Hrm8WalletPage";
+import RegionalCompaniesPage from "@/pages/hrm8/RegionalCompaniesPage";
 
 import AnalyticsDashboard from "@/pages/hrm8/AnalyticsDashboard";
 
@@ -61,6 +62,7 @@ export const hrm8Routes = (
     <Route path="billing/withdrawals" element={<WithdrawalsPage />} />
     <Route path="billing/refund-requests" element={<RefundRequestsPage />} />
     <Route path="billing/conversion-requests" element={<ConversionRequestsPage />} />
+    <Route path="companies" element={<RegionalCompaniesPage />} />
     <Route path="settlements" element={<SettlementsPage />} />
     <Route path="revenue" element={<RevenuePage />} />
     <Route path="attribution" element={<AttributionPage />} />

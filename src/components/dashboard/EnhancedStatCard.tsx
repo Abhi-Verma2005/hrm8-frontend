@@ -39,6 +39,8 @@ interface EnhancedStatCardProps {
   showBorder?: boolean;
   iconPosition?: "left" | "right" | "top";
   chartData?: Array<{ name: string; value: number; secondary?: number }>;
+  onClick?: () => void;
+  loading?: boolean;
 }
 export function EnhancedStatCard({
   title,
@@ -61,6 +63,8 @@ export function EnhancedStatCard({
   showBorder = false,
   iconPosition = "left",
   chartData,
+  onClick,
+  loading = false,
 }: EnhancedStatCardProps) {
   const { formatCurrency } = useCurrencyFormat();
 
@@ -138,10 +142,17 @@ export function EnhancedStatCard({
       className={cn(
         sizeStyles[size],
         "relative h-full flex flex-col overflow-hidden",
-        "group cursor-default",
+        "group",
+        onClick ? "cursor-pointer hover:border-primary/50 transition-colors" : "cursor-default",
         "border border-border/60 bg-card"
       )}
+      onClick={onClick}
     >
+      {loading && (
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      )}
       {/* Content wrapper */}
       <div className="relative flex flex-col h-full">
         {/* Header Section: Icon, Title and Menu */}

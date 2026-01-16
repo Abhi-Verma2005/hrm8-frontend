@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useCurrencyFormat } from "@/contexts/CurrencyFormatContext";
 import { Badge } from "@/components/ui/badge";
 
+import { useSearchParams } from "react-router-dom";
+
 interface Company {
   id: string;
   name: string;
@@ -15,6 +17,7 @@ interface Company {
   email: string;
   createdAt: string;
   attributionStatus: 'OPEN' | 'LOCKED' | 'EXPIRED';
+  openJobsCount: number;
   subscription: {
     plan: string;
     startDate: string;
@@ -25,19 +28,25 @@ interface Company {
 export default function ClientCompaniesPage() {
   const { toast } = useToast();
   const { formatCurrency } = useCurrencyFormat();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const [allCompanies, setAllCompanies] = useState<Company[]>([]);
+  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>([]);
 
   useEffect(() => {
     fetchCompanies();
   }, []);
+
+  useEffect(() => {
+    filterCompanies();
+  }, [allCompanies, searchParams]);
 
   const fetchCompanies = async () => {
     try {
       setIsLoading(true);
       const response = await salesService.getCompanies();
       if (response.success && response.data?.companies) {
-        setCompanies(response.data.companies);
+        setAllCompanies(response.data.companies);
       } else {
         toast({
           title: "Error fetching companies",
@@ -56,10 +65,33 @@ export default function ClientCompaniesPage() {
     }
   };
 
+  const filterCompanies = () => {
+    let result = [...allCompanies];
+    const statusParam = searchParams.get('status');
+    const sortParam = searchParams.get('sort');
+
+    // Filter
+    if (statusParam === 'active') {
+      result = result.filter(c => c.openJobsCount > 0);
+    } else if (statusParam === 'inactive') {
+      result = result.filter(c => c.openJobsCount === 0);
+    } else if (statusParam === 'new') {
+      // Optional: Filter by 'new' if needed, or just sort
+    }
+
+    // Sort
+    if (sortParam === 'newest') {
+      result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    setFilteredCompanies(result);
+  };
+
   // Calculate stats from companies data
-  const totalCompanies = companies.length;
-  const activeSubscriptions = companies.filter(c => c.subscription !== null).length;
-  const lockedAttributions = companies.filter(c => c.attributionStatus === 'LOCKED').length;
+  const totalCompanies = allCompanies.length;
+  const activeSubscriptions = allCompanies.filter(c => c.subscription !== null).length;
+  const lockedAttributions = allCompanies.filter(c => c.attributionStatus === 'LOCKED').length;
+
 
   // Company Columns
   const companyColumns: Column<Company>[] = [
@@ -127,6 +159,16 @@ export default function ClientCompaniesPage() {
         return sub ? new Date(sub.startDate).toLocaleDateString() : '-';
       },
     },
+    {
+      key: "openJobsCount",
+      label: "Open Jobs",
+      sortable: true,
+      render: (company) => (
+        <Badge variant={company.openJobsCount > 0 ? "secondary" : "outline"}>
+          {company.openJobsCount} Jobs
+        </Badge>
+      ),
+    },
   ];
 
   if (isLoading) {
@@ -184,7 +226,7 @@ export default function ClientCompaniesPage() {
           <h3 className="text-lg font-semibold mb-4">Companies List</h3>
           <DataTable
             columns={companyColumns}
-            data={companies}
+            data={filteredCompanies}
             searchable={true}
             searchKeys={['name', 'domain', 'email']}
             emptyMessage="No companies found"
