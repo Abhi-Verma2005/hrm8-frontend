@@ -3,6 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { CandidateUserNav } from "./CandidateUserNav";
+import { NotificationsDropdown } from "./NotificationsDropdown";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Breadcrumbs } from "@/components/common/Breadcrumbs";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
@@ -46,7 +47,7 @@ class SidebarTriggerErrorBoundary extends React.Component<
 // Safe wrapper for SidebarTrigger that handles missing provider gracefully
 function SafeSidebarTrigger() {
   const [SidebarTriggerComponent, setSidebarTriggerComponent] = React.useState<React.ComponentType | null>(null);
-  
+
   React.useEffect(() => {
     // Dynamically import SidebarTrigger
     import("@/components/ui/sidebar")
@@ -57,11 +58,11 @@ function SafeSidebarTrigger() {
         // Failed to import, component will not render
       });
   }, []);
-  
+
   if (!SidebarTriggerComponent) {
     return null;
   }
-  
+
   return (
     <SidebarTriggerErrorBoundary>
       <SidebarTriggerComponent />
@@ -94,6 +95,7 @@ export function CandidateHeader({ breadcrumbActions, showSidebarTrigger = true }
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <NotificationsDropdown />
             <CandidateUserNav />
           </div>
         </div>
