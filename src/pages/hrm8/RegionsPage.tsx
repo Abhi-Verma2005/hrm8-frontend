@@ -8,7 +8,8 @@ import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
 import { regionService, Region } from '@/lib/hrm8/regionService';
 import { DataTable } from '@/components/tables/DataTable';
 import { Button } from '@/components/ui/button';
-import { Plus, Edit, Trash2, MoreVertical, Link2, ArrowRightLeft } from 'lucide-react';
+import { AuditHistoryDrawer } from '@/components/hrm8/AuditHistoryDrawer';
+import { Plus, Edit, Trash2, MoreVertical, Link2, ArrowRightLeft, History } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout';
 import { toast } from 'sonner';
@@ -25,108 +26,117 @@ const createColumns = (
   onEdit: (region: Region) => void,
   onDelete: (region: Region) => void,
   onAssignLicensee: (region: Region) => void,
-  onTransfer: (region: Region) => void
+  onTransfer: (region: Region) => void,
+  onViewHistory: (region: Region) => void
 ) => [
-  {
-    key: 'code',
-    label: 'Code',
-    sortable: true,
-  },
-  {
-    key: 'name',
-    label: 'Name',
-    sortable: true,
-  },
-  {
-    key: 'country',
-    label: 'Country',
-    sortable: true,
-  },
-  {
-    key: 'ownerType',
-    label: 'Owner',
-    render: (region: Region) => (
-      <span className={region.ownerType === 'HRM8' ? 'text-blue-600' : 'text-purple-600'}>
-        {region.ownerType}
-      </span>
-    ),
-  },
-  {
-    key: 'licensee',
-    label: 'Licensee',
-    render: (region: Region) => {
-      if (!region.licensee) {
-        return (
-          <span className="text-muted-foreground text-sm">—</span>
-        );
-      }
-      return (
-        <div className="flex flex-col">
-          <span className="font-medium text-sm">{region.licensee.name}</span>
-          <span className="text-xs text-muted-foreground">{region.licensee.legalEntityName}</span>
-        </div>
-      );
+    {
+      key: 'code',
+      label: 'Code',
+      sortable: true,
     },
-  },
-  {
-    key: 'isActive',
-    label: 'Status',
-    render: (region: Region) => (
-      <Badge variant={region.isActive ? 'default' : 'secondary'}>
-        {region.isActive ? 'Active' : 'Inactive'}
-      </Badge>
-    ),
-  },
-  {
-    key: 'actions',
-    label: 'Actions',
-    width: '100px',
-    render: (region: Region) => (
-      <div onClick={(e) => e.stopPropagation()}>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit(region)}>
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Region
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onAssignLicensee(region)}>
-              {region.licensee ? (
-                <>
-                  <Link2 className="h-4 w-4 mr-2" />
-                  Change Licensee
-                </>
-              ) : (
-                <>
-                  <Link2 className="h-4 w-4 mr-2" />
-                  Assign Licensee
-                </>
-              )}
-            </DropdownMenuItem>
-            {region.licensee && (
-              <DropdownMenuItem onClick={() => onTransfer(region)}>
-                <ArrowRightLeft className="h-4 w-4 mr-2" />
-                Transfer Ownership
+    {
+      key: 'name',
+      label: 'Name',
+      sortable: true,
+    },
+    {
+      key: 'country',
+      label: 'Country',
+      sortable: true,
+    },
+    {
+      key: 'ownerType',
+      label: 'Owner',
+      render: (region: Region) => (
+        <span className={region.ownerType === 'HRM8' ? 'text-blue-600' : 'text-purple-600'}>
+          {region.ownerType}
+        </span>
+      ),
+    },
+    {
+      key: 'licensee',
+      label: 'Licensee',
+      render: (region: Region) => {
+        if (!region.licensee) {
+          return (
+            <span className="text-muted-foreground text-sm">—</span>
+          );
+        }
+        return (
+          <div className="flex flex-col">
+            <span className="font-medium text-sm">{region.licensee.name}</span>
+            <span className="text-xs text-muted-foreground">{region.licensee.legalEntityName}</span>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'isActive',
+      label: 'Status',
+      render: (region: Region) => (
+        <Badge variant={region.isActive ? 'default' : 'secondary'}>
+          {region.isActive ? 'Active' : 'Inactive'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      label: 'Actions',
+      width: '100px',
+      render: (region: Region) => (
+        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            title="View History"
+            onClick={() => onViewHistory(region)}
+          >
+            <History className="h-4 w-4" />
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit(region)}>
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Region
               </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-destructive"
-              onClick={() => onDelete(region)}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    ),
-  },
-];
+              <DropdownMenuItem onClick={() => onAssignLicensee(region)}>
+                {region.licensee ? (
+                  <>
+                    <Link2 className="h-4 w-4 mr-2" />
+                    Change Licensee
+                  </>
+                ) : (
+                  <>
+                    <Link2 className="h-4 w-4 mr-2" />
+                    Assign Licensee
+                  </>
+                )}
+              </DropdownMenuItem>
+              {region.licensee && (
+                <DropdownMenuItem onClick={() => onTransfer(region)}>
+                  <ArrowRightLeft className="h-4 w-4 mr-2" />
+                  Transfer Ownership
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive"
+                onClick={() => onDelete(region)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ),
+    },
+  ];
 
 export default function RegionsPage() {
   const { hrm8User } = useHrm8Auth();
@@ -140,6 +150,8 @@ export default function RegionsPage() {
   const [regionForLicensee, setRegionForLicensee] = useState<Region | null>(null);
   const [transferDialogOpen, setTransferDialogOpen] = useState(false);
   const [regionForTransfer, setRegionForTransfer] = useState<Region | null>(null);
+  const [historyDrawerOpen, setHistoryDrawerOpen] = useState(false);
+  const [historyRegion, setHistoryRegion] = useState<Region | null>(null);
 
   const isGlobalAdmin = hrm8User?.role === 'GLOBAL_ADMIN';
 
@@ -219,7 +231,16 @@ export default function RegionsPage() {
     await loadRegions();
   };
 
-  const columns = createColumns(handleEdit, handleDelete, handleAssignLicensee, handleTransfer);
+  const columns = createColumns(
+    handleEdit,
+    handleDelete,
+    handleAssignLicensee,
+    handleTransfer,
+    (region) => {
+      setHistoryRegion(region);
+      setHistoryDrawerOpen(true);
+    }
+  );
 
   if (!isGlobalAdmin) {
     return (
@@ -245,61 +266,69 @@ export default function RegionsPage() {
     >
       <div className="p-6 space-y-6">
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Regions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <TableSkeleton columns={6} />
-          ) : (
-            <DataTable
-              data={regions}
-              columns={columns}
-              searchable
-              searchKeys={['code', 'name', 'country']}
-              emptyMessage="No regions found"
-            />
-          )}
-        </CardContent>
-      </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Regions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <TableSkeleton columns={6} />
+            ) : (
+              <DataTable
+                data={regions}
+                columns={columns}
+                searchable
+                searchKeys={['code', 'name', 'country']}
+                emptyMessage="No regions found"
+              />
+            )}
+          </CardContent>
+        </Card>
 
-      <FormDrawer
-        open={drawerOpen}
-        onOpenChange={setDrawerOpen}
-        title={editingRegionId ? 'Edit Region' : 'Create Region'}
-      >
-        <RegionForm
-          regionId={editingRegionId}
-          onSave={handleSave}
-          onCancel={() => {
-            setDrawerOpen(false);
-            setEditingRegionId(null);
-          }}
+        <FormDrawer
+          open={drawerOpen}
+          onOpenChange={setDrawerOpen}
+          title={editingRegionId ? 'Edit Region' : 'Create Region'}
+        >
+          <RegionForm
+            regionId={editingRegionId}
+            onSave={handleSave}
+            onCancel={() => {
+              setDrawerOpen(false);
+              setEditingRegionId(null);
+            }}
+          />
+        </FormDrawer>
+
+        <DeleteConfirmationDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          onConfirm={confirmDelete}
+          title="Delete Region"
+          description="Are you sure you want to delete this region? This action cannot be undone."
         />
-      </FormDrawer>
 
-      <DeleteConfirmationDialog
-        open={deleteDialogOpen}
-        onOpenChange={setDeleteDialogOpen}
-        onConfirm={confirmDelete}
-        title="Delete Region"
-        description="Are you sure you want to delete this region? This action cannot be undone."
-      />
+        <AssignLicenseeDialog
+          open={assignLicenseeDialogOpen}
+          onOpenChange={setAssignLicenseeDialogOpen}
+          region={regionForLicensee}
+          onSuccess={handleLicenseeAssigned}
+        />
 
-      <AssignLicenseeDialog
-        open={assignLicenseeDialogOpen}
-        onOpenChange={setAssignLicenseeDialogOpen}
-        region={regionForLicensee}
-        onSuccess={handleLicenseeAssigned}
-      />
+        <TransferRegionDialog
+          open={transferDialogOpen}
+          onOpenChange={setTransferDialogOpen}
+          region={regionForTransfer}
+          onSuccess={handleTransferComplete}
+        />
 
-      <TransferRegionDialog
-        open={transferDialogOpen}
-        onOpenChange={setTransferDialogOpen}
-        region={regionForTransfer}
-        onSuccess={handleTransferComplete}
-      />
+        <AuditHistoryDrawer
+          open={historyDrawerOpen}
+          onOpenChange={setHistoryDrawerOpen}
+          entityType="REGION"
+          entityId={historyRegion?.id || ''}
+          entityName={historyRegion?.name || ''}
+        />
       </div>
     </Hrm8PageLayout>
   );
