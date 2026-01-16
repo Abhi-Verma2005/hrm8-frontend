@@ -5,6 +5,7 @@
 
 import { Route } from "react-router-dom";
 import { Hrm8AuthGuard } from "@/components/auth/Hrm8AuthGuard";
+import Hrm8ConsultantDetailPage from "@/pages/hrm8/Hrm8ConsultantDetailPage";
 import Hrm8Dashboard from "@/pages/hrm8/Hrm8Dashboard";
 import Hrm8Overview from "@/pages/hrm8/Hrm8Overview";
 import RegionsPage from "@/pages/hrm8/RegionsPage";
@@ -52,6 +53,7 @@ export const hrm8Routes = (
     <Route path="regions" element={<RegionsPage />} />
     <Route path="licensees" element={<LicenseesPage />} />
     <Route path="staff" element={<StaffPage />} />
+    <Route path="consultants/:id" element={<Hrm8ConsultantDetailPage />} />
     <Route path="jobs" element={<JobAllocationPage />} />
     <Route path="jobs/unassigned" element={<UnassignedJobsPage />} />
     <Route path="job-board" element={<Hrm8JobBoardPage />} />

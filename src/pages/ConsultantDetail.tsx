@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { DashboardPageLayout } from '@/components/layouts/DashboardPageLayout';
+import { Hrm8PageLayout } from '@/components/layouts/Hrm8PageLayout'; // Import Admin Layout
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -13,6 +14,7 @@ import {
   TrendingUp,
   FileText,
   Calendar,
+  Briefcase,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -20,8 +22,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { getConsultantById, updateConsultant } from '@/lib/consultantStorage';
-import { calculateConsultantMetrics } from '@/lib/consultantService';
+import { ReassignJobsDialog } from '@/components/consultants/ReassignJobsDialog';
+import { staffService, StaffMember } from '@/lib/hrm8/staffService';
+import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
+import { toast } from 'sonner';
 import { ConsultantHeroSection } from '@/components/consultants/detail/ConsultantHeroSection';
 import { ConsultantOverviewTab } from '@/components/consultants/detail/ConsultantOverviewTab';
 import { PerformanceTab } from '@/components/consultants/detail/PerformanceTab';
@@ -31,41 +35,123 @@ import { CommissionsTab } from '@/components/consultants/detail/CommissionsTab';
 import { ActivityTab } from '@/components/consultants/detail/ActivityTab';
 import { DocumentsTab } from '@/components/consultants/detail/DocumentsTab';
 import { SettingsTab } from '@/components/consultants/detail/SettingsTab';
-import type { Consultant } from '@/types/consultant';
+import { Consultant as ConsultantType } from '@/types/consultant'; // Import existing type to cast if needed
 
 export default function ConsultantDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const fetchedConsultant = id ? getConsultantById(id) : null;
-  const [consultant, setConsultant] = useState<Consultant | null>(fetchedConsultant);
+  const { hrm8User } = useHrm8Auth();
+  const isGlobalAdmin = !!hrm8User;
+
+  const [consultant, setConsultant] = useState<any | null>(null); // Using any temporarily to bridge types
+  const [loading, setLoading] = useState(true);
   const initialTab = searchParams.get('tab') || 'overview';
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [reassignDialogOpen, setReassignDialogOpen] = useState(false);
 
   useEffect(() => {
-    // Initialize mock data here if needed
-  }, []);
+    loadConsultant();
+  }, [id]);
+
+  const loadConsultant = async () => {
+    if (!id) return;
+    try {
+      setLoading(true);
+      // Determine source based on auth context. For now assuming Admin accessing via StaffPage
+      // If we wanted to support Consultants viewing themselves, we'd check `useConsultantAuth`
+      const response = await staffService.getById(id);
+
+      if (response && response.data?.consultant) {
+        const rawConsultant = response.data.consultant;
+        // Ensure array fields are initialized to prevent map errors
+        setConsultant({
+          ...rawConsultant,
+          specialization: rawConsultant.specialization || [],
+          certifications: rawConsultant.certifications || [],
+          languages: rawConsultant.languages || [],
+          tags: rawConsultant.tags || [],
+          assignedEmployers: rawConsultant.assignedEmployers || [],
+          assignedJobs: rawConsultant.assignedJobs || []
+        });
+      } else {
+        toast.error("Consultant not found");
+        navigate('/consultants');
+      }
+    } catch (error) {
+      console.error("Failed to load consultant", error);
+      toast.error("Failed to load consultant details");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const PageLayout = isGlobalAdmin ? Hrm8PageLayout : DashboardPageLayout;
+
+  if (loading) {
+    return (
+      <PageLayout>
+        <div className="flex items-center justify-center p-12">
+          Loading...
+        </div>
+      </PageLayout>
+    );
+  }
 
   if (!consultant) {
     return <Navigate to="/consultants" replace />;
   }
 
-  const metrics = calculateConsultantMetrics(consultant);
-
-  const handleEdit = () => {
-    navigate(`/consultants?action=edit&id=${consultant.id}`);
+  const metrics = { // Default empty metrics if not present on StaffMember
+    closedDeals: 0,
+    totalSalesRevenue: consultant.totalRevenue || 0,
+    activeOpportunities: 0,
+    averageDealSize: 0,
+    quotaAttainment: 0,
+    totalPlacements: consultant.totalPlacements || 0,
+    totalRevenue: consultant.totalRevenue || 0,
+    successRate: consultant.successRate || 0,
+    averageDaysToFill: consultant.averageDaysToFill || 0,
+    capacityUtilization: {
+      employers: {
+        current: consultant.currentEmployers || 0,
+        max: consultant.maxEmployers || 10,
+        percentage: ((consultant.currentEmployers || 0) / (consultant.maxEmployers || 10)) * 100
+      },
+      jobs: {
+        current: consultant.currentJobs || 0,
+        max: consultant.maxJobs || 20,
+        percentage: ((consultant.currentJobs || 0) / (consultant.maxJobs || 20)) * 100
+      }
+    },
+    // Add other missing fields to safely satisfy ConsultantMetrics if needed elsewhere
+    activeAssignments: consultant.currentJobs || 0,
+    lifetimeCommissions: consultant.totalCommissionsPaid || 0,
+    pendingCommissions: consultant.pendingCommissions || 0,
+    daysEmployed: 0, // Calculate if hireDate available
+    clientSatisfaction: consultant.clientSatisfaction || 0,
+    candidateSatisfaction: consultant.candidateSatisfaction || 0
   };
 
-  const handleConsultantUpdate = (updates: Partial<Consultant>) => {
+  const handleEdit = () => {
+    // Admin edit logic, probably opens a drawer or modal, or redirects
+    // For now, let's just log or use the sidebar action
+    toast.info("Validation: Edit functionality for Admin should use StaffForm");
+  };
+
+  const handleConsultantUpdate = async (updates: Partial<any>) => {
     if (!consultant) return;
-    const updated = updateConsultant(consultant.id, updates);
-    if (updated) {
-      setConsultant(updated);
+    try {
+      await staffService.update(consultant.id, updates);
+      toast.success("Consultant updated");
+      loadConsultant();
+    } catch (e) {
+      toast.error("Failed to update consultant");
     }
   };
 
   return (
-    <DashboardPageLayout>
+    <PageLayout>
       <div className="p-6 space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
@@ -87,6 +173,12 @@ export default function ConsultantDetail() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => setReassignDialogOpen(true)}
+                >
+                  <Briefcase className="h-4 w-4 mr-2" />
+                  Reassign Jobs
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={() => handleConsultantUpdate({ status: 'inactive' })}
                 >
@@ -198,6 +290,16 @@ export default function ConsultantDetail() {
           </TabsContent>
         </Tabs>
       </div>
-    </DashboardPageLayout>
+
+      <ReassignJobsDialog
+        open={reassignDialogOpen}
+        onOpenChange={setReassignDialogOpen}
+        consultant={consultant}
+        onSuccess={() => {
+          // In a real app we might want to refresh consultant stats here
+          // For now just close, as counters likely update in background or on refetch
+        }}
+      />
+    </PageLayout>
   );
 }

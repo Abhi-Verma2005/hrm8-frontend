@@ -13,7 +13,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreVertical, Edit, RefreshCw, Pause, Play, Trash2, UserCog } from 'lucide-react';
+import { MoreVertical, Edit, RefreshCw, Pause, Play, Trash2, UserCog, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface StaffActionsMenuProps {
     staff: StaffMember;
@@ -45,6 +46,7 @@ export function StaffActionsMenu({
         action();
     };
 
+    const navigate = useNavigate();
     const isSuspended = staff.status === 'SUSPENDED';
     const isActive = staff.status === 'ACTIVE';
 
@@ -57,6 +59,11 @@ export function StaffActionsMenu({
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={() => navigate(`/hrm8/consultants/${staff.id}`)}>
+                    <Eye className="mr-2 h-4 w-4" />
+                    View Details
+                </DropdownMenuItem>
+
                 {canEdit && (
                     <DropdownMenuItem onClick={() => handleAction(() => onEdit(staff))}>
                         <Edit className="mr-2 h-4 w-4" />

@@ -117,6 +117,10 @@ class StaffService {
   }) {
     return apiClient.post<{ email: string }>('/api/hrm8/consultants/generate-email', data);
   }
+
+  async reassignJobs(id: string, targetConsultantId: string) {
+    return apiClient.post<{ count: number }>(`/api/hrm8/consultants/${id}/reassign-jobs`, { targetConsultantId });
+  }
 }
 
 export const staffService = new StaffService();
