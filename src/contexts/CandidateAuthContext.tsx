@@ -61,7 +61,7 @@ export function CandidateAuthProvider({ children }: { children: ReactNode }) {
         });
         return { success: false, error: errorMessage };
       }
-      
+
       if (response.data?.candidate) {
         setCandidate(response.data.candidate);
         toast({
@@ -97,14 +97,14 @@ export function CandidateAuthProvider({ children }: { children: ReactNode }) {
         });
         return { success: false, error: errorMessage };
       }
-      
-      if (response.data?.candidate) {
-        setCandidate(response.data.candidate);
+
+      if (response.success) {
+        // Registration successful but verification needed
         toast({
           title: 'Registration successful!',
-          description: response.data.message || 'Your account has been created. Please verify your email.',
+          description: response.data?.message || 'Please check your email to verify your account.',
         });
-        navigate('/candidate/dashboard');
+        // Do not set candidate or navigate - let the component handle the UI
         return { success: true };
       }
       return { success: false, error: 'Registration failed' };

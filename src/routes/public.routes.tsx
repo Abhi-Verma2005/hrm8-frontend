@@ -11,6 +11,7 @@ import TakeAssessment from "@/pages/public/TakeAssessment";
 import PublicFeedbackForm from "@/pages/PublicFeedbackForm";
 import CandidateLogin from "@/pages/candidate/Login";
 import CandidateRegister from "@/pages/candidate/Register";
+import CandidateVerifyEmail from "@/pages/candidate/VerifyEmail";
 import UpgradeCheckoutResult from "@/pages/UpgradeCheckoutResult";
 import { AnyAuthRedirectGate } from "@/components/common/AnyAuthRedirectGate";
 import JobSearchPage from "@/pages/candidate/JobSearchPage";
@@ -51,6 +52,7 @@ export const publicRoutes = (
         />
         <Route path="/upgrade-success" element={<UpgradeCheckoutResult />} />
         <Route path="/upgrade-cancelled" element={<UpgradeCheckoutResult />} />
+        <Route path="/verify-email" element={<CandidateVerifyEmail />} />
 
         {/* Public Job Board Routes */}
         <Route path="/jobs" element={<JobSearchPage />} />
