@@ -201,14 +201,8 @@ export default function NotificationsPage() {
             markAsRead(notification.id);
         }
 
-        // Navigate based on notification type
-        if (notification.type === 'JOB_ALERT' && notification.data?.jobId) {
-            navigate(`/jobs/${notification.data.jobId}`);
-        } else if (notification.type === 'APPLICATION_UPDATE' && notification.data?.applicationId) {
-            navigate(`/candidate/applications/${notification.data.applicationId}`);
-        } else if (notification.type === 'INTERVIEW_SCHEDULED' && notification.data?.applicationId) {
-            navigate(`/candidate/applications/${notification.data.applicationId}`);
-        }
+        // Navigate to the detail page for "expanded" view
+        navigate(`/candidate/notifications/${notification.id}`);
     };
 
     const getNotificationIcon = (type: string) => {

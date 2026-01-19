@@ -15,6 +15,7 @@ import ConversationPage from "@/pages/candidate/ConversationPage";
 import WorkHistoryPage from "@/pages/candidate/WorkHistoryPage";
 import QualificationsPage from "@/pages/candidate/QualificationsPage";
 import NotificationsPage from "@/pages/candidate/NotificationsPage";
+import NotificationDetailPage from "@/pages/NotificationDetailPage";
 import DocumentsPage from "@/pages/candidate/DocumentsPage";
 import { SettingsPage } from "@/pages/candidate/SettingsPage";
 import AssessmentListPage from "@/pages/candidate/AssessmentListPage";
@@ -77,6 +78,7 @@ export const candidateRoutes = (
       <Route path="applications/:id/confirmation" element={<ApplicationConfirmation />} />
       <Route path="saved-jobs" element={<SavedJobsPage />} />
       <Route path="notifications" element={<NotificationsPage />} />
+      <Route path="notifications/:id" element={<NotificationDetailPage />} />
       <Route path="messages" element={<MessagesPage />} />
       <Route path="messages/:conversationId" element={<ConversationPage />} />
       <Route path="settings" element={<SettingsPage />} />

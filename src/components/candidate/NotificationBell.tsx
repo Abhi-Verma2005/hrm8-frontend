@@ -29,7 +29,10 @@ interface Notification {
     createdAt: string;
 }
 
+import { useNavigate } from 'react-router-dom';
+
 export function NotificationBell() {
+    const navigate = useNavigate();
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -89,10 +92,8 @@ export function NotificationBell() {
             markAsRead(notification.id);
         }
 
-        // Navigate to job if it's a job alert
-        if (notification.type === 'JOB_ALERT' && notification.data?.jobId) {
-            window.location.href = `/candidate/jobs/${notification.data.jobId}`;
-        }
+        // Navigate to the detail page for "expanded" view
+        navigate(`/candidate/notifications/${notification.id}`);
     };
 
     useEffect(() => {

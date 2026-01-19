@@ -4,6 +4,8 @@
  */
 
 import { Route } from "react-router-dom";
+import NotificationsPage from "@/pages/NotificationsPage";
+import NotificationDetailPage from "@/pages/NotificationDetailPage";
 import { Hrm8AuthGuard } from "@/components/auth/Hrm8AuthGuard";
 import Hrm8ConsultantDetailPage from "@/pages/hrm8/Hrm8ConsultantDetailPage";
 import Hrm8Dashboard from "@/pages/hrm8/Hrm8Dashboard";
@@ -75,5 +77,7 @@ export const hrm8Routes = (
     <Route path="conversion-requests" element={<ConversionRequestsPage />} />
     <Route path="revenue-analytics" element={<RevenueDashboardPage />} />
     <Route path="system-settings" element={<Hrm8SettingsPage />} />
+    <Route path="notifications" element={<NotificationsPage />} />
+    <Route path="notifications/:id" element={<NotificationDetailPage />} />
   </Route>
 );

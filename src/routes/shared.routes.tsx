@@ -36,6 +36,7 @@ import SupportTickets from "@/pages/SupportTickets";
 import SystemMonitoring from "@/pages/SystemMonitoring";
 import NotificationPreferences from "@/pages/NotificationPreferences";
 import NotificationsPage from "@/pages/NotificationsPage";
+import NotificationDetailPage from "@/pages/NotificationDetailPage";
 import Settings from "@/pages/Settings";
 import Help from "@/pages/Help";
 import SignupRequests from "@/pages/SignupRequests";
@@ -85,6 +86,9 @@ export const sharedRoutes = (
     <Route path="/system-monitoring" element={<SystemMonitoring />} />
     <Route path="/notification-preferences" element={<NotificationPreferences />} />
     <Route path="/notifications" element={<NotificationsPage />} />
+    <Route path="/notifications/:id" element={<NotificationDetailPage />} />
+    <Route path="/dash/notification" element={<NotificationsPage />} />
+    <Route path="/dash/notification/:id" element={<NotificationDetailPage />} />
     <Route path="/settings" element={<Settings />} />
     <Route path="/company-profile" element={<CompanyProfile />} />
     <Route path="/help" element={<Help />} />
