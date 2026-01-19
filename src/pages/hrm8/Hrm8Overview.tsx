@@ -17,6 +17,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { formatCurrency } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ComplianceAlertsWidget } from '@/components/hrm8/ComplianceAlertsWidget';
 
 export default function Hrm8Overview() {
   const { hrm8User } = useHrm8Auth();
@@ -192,14 +193,12 @@ export default function Hrm8Overview() {
               {isGlobalAdmin ? "You are viewing this region as a Global Admin." : "Manage your region's operations."}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-wrap gap-4">
-              <Button onClick={() => navigate('/hrm8/jobs')}>Manage Jobs</Button>
-              <Button variant="outline" onClick={() => navigate('/hrm8/staff')}>Manage Consultants</Button>
-              <Button variant="secondary" onClick={() => navigate('/hrm8/sales-pipeline')}>View Pipeline</Button>
-            </div>
-          </CardContent>
         </Card>
+
+        {/* Compliance Alerts - Global Admin Only */}
+        {isGlobalAdmin && (
+          <ComplianceAlertsWidget />
+        )}
       </div>
     </Hrm8PageLayout>
   );

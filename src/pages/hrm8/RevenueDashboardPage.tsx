@@ -6,10 +6,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, DollarSign, TrendingUp, TrendingDown, Users, Calendar, RefreshCw } from 'lucide-react';
+import { Loader2, DollarSign, TrendingUp, TrendingDown, Users, Calendar as CalendarIcon, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { revenueAnalyticsService, type DashboardData, type RevenueSummary } from '@/lib/hrm8/revenueAnalyticsService';
 import { format, subMonths } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
     BarChart,
     Bar,
@@ -39,7 +41,7 @@ export function RevenueDashboardPage() {
 
     useEffect(() => {
         loadDashboard();
-    }, []);
+    }, [dateRange]);
 
     const loadDashboard = async (showRefreshing = false) => {
         try {
@@ -108,10 +110,47 @@ export function RevenueDashboardPage() {
                         Platform-wide revenue analytics and commission tracking
                     </p>
                 </div>
-                <Button onClick={handleRefresh} disabled={refreshing}>
-                    {refreshing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
-                    Refresh
-                </Button>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className="w-[140px] justify-start text-left font-normal">
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {format(dateRange.start, 'MMM d, yyyy')}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="end">
+                                <Calendar
+                                    mode="single"
+                                    selected={dateRange.start}
+                                    onSelect={(date) => date && setDateRange(prev => ({ ...prev, start: date }))}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                        <span className="text-muted-foreground">-</span>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="outline" className="w-[140px] justify-start text-left font-normal">
+                                    <CalendarIcon className="mr-2 h-4 w-4" />
+                                    {format(dateRange.end, 'MMM d, yyyy')}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="end">
+                                <Calendar
+                                    mode="single"
+                                    selected={dateRange.end}
+                                    onSelect={(date) => date && setDateRange(prev => ({ ...prev, end: date }))}
+                                    initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                    <Button onClick={handleRefresh} disabled={refreshing}>
+                        {refreshing ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <RefreshCw className="h-4 w-4 mr-2" />}
+                        Refresh
+                    </Button>
+                </div>
             </div>
 
             {/* Summary Cards */}

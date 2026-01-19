@@ -3,7 +3,7 @@
  * Displays a dropdown list of notifications with actions
  */
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import {
     Bell,
@@ -65,6 +65,9 @@ export function NotificationDropdown({
     onClose,
 }: NotificationDropdownProps) {
     const navigate = useNavigate();
+    const { pathname } = useLocation();
+    const isCandidatePath = pathname.startsWith('/candidate');
+    const isDashPath = pathname.startsWith('/dash');
 
     const handleNotificationClick = (notification: Notification) => {
         // Mark as read
@@ -72,16 +75,27 @@ export function NotificationDropdown({
             onMarkAsRead(notification.id);
         }
 
-        // Navigate if action URL exists
-        if (notification.actionUrl) {
-            onClose();
-            navigate(notification.actionUrl);
+        // Navigate to expanded view page based on context
+        onClose();
+
+        if (isCandidatePath) {
+            navigate(`/candidate/notifications/${notification.id}`);
+        } else if (isDashPath) {
+            navigate(`/dash/notification/${notification.id}`);
+        } else {
+            navigate(`/notifications/${notification.id}`);
         }
     };
 
     const handleViewAll = () => {
         onClose();
-        navigate('/notifications');
+        if (isCandidatePath) {
+            navigate('/candidate/notifications');
+        } else if (isDashPath) {
+            navigate('/dash/notification');
+        } else {
+            navigate('/notifications');
+        }
     };
 
     const unreadCount = notifications.filter(n => !n.read).length;

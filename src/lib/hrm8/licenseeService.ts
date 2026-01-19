@@ -71,12 +71,25 @@ class LicenseeService {
     return apiClient.put<{ licensee: RegionalLicensee }>(`/api/hrm8/licensees/${id}`, data);
   }
 
-  async suspend(id: string) {
-    return apiClient.post(`/api/hrm8/licensees/${id}/suspend`);
+  async suspend(id: string, notes?: string) {
+    return apiClient.post<{ jobsPaused: number; regionsAffected: number }>(`/api/hrm8/licensees/${id}/suspend`, { notes });
   }
 
-  async terminate(id: string) {
-    return apiClient.post(`/api/hrm8/licensees/${id}/terminate`);
+  async reactivate(id: string, notes?: string) {
+    return apiClient.post<{ jobsResumed: number }>(`/api/hrm8/licensees/${id}/reactivate`, { notes });
+  }
+
+  async terminate(id: string, notes?: string) {
+    return apiClient.post<{ regionsUnassigned: number; finalSettlement?: { amount: number } }>(`/api/hrm8/licensees/${id}/terminate`, { notes });
+  }
+
+  async getImpactPreview(id: string) {
+    return apiClient.get<{
+      regions: number;
+      activeJobs: number;
+      consultants: number;
+      pendingRevenue: number;
+    }>(`/api/hrm8/licensees/${id}/impact-preview`);
   }
 }
 
