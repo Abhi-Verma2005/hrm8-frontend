@@ -90,7 +90,7 @@ export default function HomePage() {
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => navigate('/subscriptions')}>
               <CreditCard className="h-4 w-4 mr-2" />
-              Subscriptions
+              Wallet
             </Button>
             <Button onClick={() => navigate('/admin-settings')}>
               Settings
@@ -168,7 +168,7 @@ export default function HomePage() {
               <p className="text-xs text-muted-foreground">
                 Recharge your wallet for flexible, on-demand usage
               </p>
-              <Button variant="outline" className="w-full" onClick={() => navigate('/subscription')}>
+              <Button variant="outline" className="w-full" onClick={() => navigate('/subscriptions')}>
                 <CreditCard className="h-4 w-4 mr-2" />
                 Recharge Now
               </Button>

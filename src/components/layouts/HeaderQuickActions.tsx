@@ -11,18 +11,18 @@ import { useNavigate } from "react-router-dom";
 
 export function HeaderQuickActions() {
   const navigate = useNavigate();
-  
+
   return (
     <>
       <Separator orientation="vertical" className="h-6 mx-2" />
-      
+
       {/* Primary Action - Post Job */}
       <div className="hidden md:flex items-center">
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
             <Button
               variant="gradient"
-              onClick={() => navigate('/jobs?action=create')}
+              onClick={() => navigate('/ats/jobs?action=create')}
               className={cn(
                 // Show text on large screens, icon-only on medium
                 "lg:px-4 lg:gap-2",
@@ -40,7 +40,7 @@ export function HeaderQuickActions() {
       </div>
 
       <Separator orientation="vertical" className="h-6 mx-2 hidden lg:block" />
-      
+
       {/* Secondary Quick Actions */}
       <div className="hidden md:flex items-center gap-2">
         <Tooltip delayDuration={0}>
