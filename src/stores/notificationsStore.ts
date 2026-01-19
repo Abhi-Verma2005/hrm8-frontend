@@ -6,12 +6,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import type { Notification, NotificationStats } from "@/types/notification";
-
-interface NotificationPreferences {
-  emailNotifications: boolean;
-  pushNotifications: boolean;
-  categories: Record<string, boolean>;
-}
+import type { NotificationPreferences } from "@/types/notificationPreferences";
 
 interface NotificationsState {
   // State
