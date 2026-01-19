@@ -18,6 +18,7 @@ import {
   Target,
   UserCheck,
   Settings,
+  ClipboardList,
 } from "lucide-react";
 import {
   Sidebar,
@@ -59,6 +60,7 @@ const menuItems = [
   { path: "/hrm8/settings", label: "Account Settings", icon: Settings },
   { path: "/hrm8/careers-requests", label: "Careers Requests", icon: UserCheck, adminOnly: true },
   { path: "/hrm8/system-settings", label: "System Settings", icon: Settings, adminOnly: true },
+  { path: "/hrm8/audit-logs", label: "Audit Logs", icon: ClipboardList, adminOnly: true },
 ];
 
 export function Hrm8Sidebar() {

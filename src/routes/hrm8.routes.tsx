@@ -35,6 +35,7 @@ import { RevenueDashboardPage } from "@/pages/hrm8/RevenueDashboardPage";
 import CareersRequestsPage from "@/pages/hrm8/CareersRequestsPage";
 import Hrm8WalletPage from "@/pages/hrm8/Hrm8WalletPage";
 import RegionalCompaniesPage from "@/pages/hrm8/RegionalCompaniesPage";
+import AuditLogsPage from "@/pages/hrm8/AuditLogsPage";
 
 import AnalyticsDashboard from "@/pages/hrm8/AnalyticsDashboard";
 
@@ -77,7 +78,9 @@ export const hrm8Routes = (
     <Route path="conversion-requests" element={<ConversionRequestsPage />} />
     <Route path="revenue-analytics" element={<RevenueDashboardPage />} />
     <Route path="system-settings" element={<Hrm8SettingsPage />} />
+    <Route path="audit-logs" element={<AuditLogsPage />} />
     <Route path="notifications" element={<NotificationsPage />} />
     <Route path="notifications/:id" element={<NotificationDetailPage />} />
+
   </Route>
 );
