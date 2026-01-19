@@ -40,6 +40,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { transformJobFormDataToCreateRequest, transformRequirements, transformResponsibilities } from "@/lib/jobFormTransformers";
 import { companySettingsService, JobAssignmentMode } from "@/lib/api/companySettingsService";
+import { walletService } from "@/services/walletService";
 
 
 interface JobWizardProps {
@@ -647,45 +648,15 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
           }
         }
 
-        // Handle payment flow
-        if (requiresPayment && servicePackage !== 'self-managed') {
-          // Create Stripe checkout session for paid packages
-          console.log('💳 Creating payment checkout session...');
-          try {
-            const checkoutResponse = await createJobCheckoutSession({
-              jobId: finalJobId!,
-              servicePackage: servicePackage as 'shortlisting' | 'full-service' | 'executive-search',
-              companyId: user?.companyId || '',
-              customerEmail: user?.email,
-            });
+        // Unified Flow: Attempt to publish (Backend handles Wallet Deduction)
+        console.log('📢 Publishing job (Wallet Deduction if applicable):', finalJobId);
 
-            if (checkoutResponse.data?.checkoutUrl) {
-              // Redirect to Stripe checkout
-              window.location.href = checkoutResponse.data.checkoutUrl;
-              return; // Don't continue - user will be redirected
-            } else {
-              throw new Error('Failed to get checkout URL');
-            }
-          } catch (paymentError: any) {
-            console.error('❌ Payment checkout error:', paymentError);
-            toast({
-              title: "Payment Setup Failed",
-              description: paymentError?.message || "Failed to create payment checkout. Please try again.",
-              variant: "destructive"
-            });
-            setIsPublishing(false);
-            return;
-          }
-        } else {
-          // Self-managed: publish immediately
-          console.log('📢 Publishing self-managed job:', finalJobId);
+        try {
           const publishResponse = await jobService.publishJob(finalJobId!);
           console.log('✅ Publish response:', publishResponse);
 
           if (publishResponse.success && publishResponse.data) {
             const publishedJob = publishResponse.data;
-
-            // Get company name from auth context
             const companyName = user?.companyName || "Your Company";
 
             // Transform requirements and responsibilities from objects to strings
@@ -712,7 +683,7 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
               hasJobTargetPromotion: false,
               jobTargetBudget: 0,
               jobTargetBudgetRemaining: 0,
-              requiresPayment: false,
+              requiresPayment: requiresPayment,
               paymentStatus: 'paid',
               termsAccepted: data.termsAccepted,
               termsAcceptedAt: data.termsAccepted ? new Date() : undefined,
@@ -721,18 +692,43 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
             };
 
             console.log('✅ Job published successfully!');
-
-            // Store job data for post-launch tools
             setSavedJobData(jobData);
-
-            // Show post-launch tools dialog
             setShowPostLaunchTools(true);
             setIsPublishing(false);
             return;
           } else {
-            console.error('❌ Publish failed:', publishResponse);
             throw new Error(publishResponse.error || 'Failed to publish job');
           }
+        } catch (publishError: any) {
+          console.error('❌ Publish failed:', publishError);
+          const errorMessage = publishError?.message || 'Failed to publish job';
+
+          // Check for Insufficient Funds (Strict check)
+          if (errorMessage.toLowerCase().includes('insufficient') && errorMessage.toLowerCase().includes('balance')) {
+            toast({
+              title: "Insufficient Wallet Balance",
+              description: "You do not have enough credits to post this job. Please recharge your wallet.",
+              variant: "destructive",
+              action: (
+                <Button
+                  variant="outline"
+                  className="bg-white text-black hover:bg-gray-100 border-0"
+                  onClick={() => window.open('/subscriptions', '_blank')}
+                >
+                  Recharge
+                </Button>
+              ),
+              duration: 10000,
+            });
+          } else {
+            toast({
+              title: "Publish Failed",
+              description: errorMessage,
+              variant: "destructive"
+            });
+          }
+          setIsPublishing(false);
+          return;
         }
       } catch (error: any) {
         console.error('❌ Error processing job:', error);
