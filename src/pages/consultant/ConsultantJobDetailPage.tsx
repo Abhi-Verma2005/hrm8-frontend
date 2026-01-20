@@ -22,6 +22,7 @@ import { ArrowLeft, Building, MapPin, AlertTriangle, FileText, Send, User, Messa
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ApplicationPipeline } from '@/components/applications/ApplicationPipeline';
 
 export default function ConsultantJobDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -267,68 +268,19 @@ export default function ConsultantJobDetailPage() {
                     </TabsContent>
 
                     <TabsContent value="candidates" className="space-y-4">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Pipeline</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                {loadingCandidates ? (
-                                    <div className="text-center py-10">Loading candidates...</div>
-                                ) : candidates.length === 0 ? (
-                                    <div className="text-center py-10 text-muted-foreground">No candidates applied yet.</div>
-                                ) : (
-                                    <div className="space-y-4">
-                                        {candidates.map(app => (
-                                            <div key={app.id} className="flex items-center justify-between p-4 border rounded-lg bg-card hover:bg-muted/30 transition-colors">
-                                                <div className="flex items-center gap-4">
-                                                    <Avatar className="h-10 w-10">
-                                                        <AvatarImage src={app.candidate.photo} />
-                                                        <AvatarFallback>{app.candidate.first_name[0]}{app.candidate.last_name[0]}</AvatarFallback>
-                                                    </Avatar>
-                                                    <div>
-                                                        <h4 className="font-medium">{app.candidate.first_name} {app.candidate.last_name}</h4>
-                                                        <p className="text-xs text-muted-foreground">{app.candidate.email}</p>
-                                                        <div className="flex gap-2 mt-1">
-                                                            {app.resume_url && (
-                                                                <a href={app.resume_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline flex items-center">
-                                                                    <FileText className="h-3 w-3 mr-1" /> Resume
-                                                                </a>
-                                                            )}
-                                                            {app.candidate.linked_in_url && (
-                                                                <a href={app.candidate.linked_in_url} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline">
-                                                                    LinkedIn
-                                                                </a>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex items-center gap-4">
-                                                    <div className="flex flex-col items-end gap-1">
-                                                        <span className="text-xs text-muted-foreground">Status</span>
-                                                        <Select defaultValue={app.status} onValueChange={(val) => handleUpdateStatus(app.id, val)}>
-                                                            <SelectTrigger className="h-8 w-[140px]">
-                                                                <SelectValue />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectItem value="NEW">New</SelectItem>
-                                                                <SelectItem value="SCREENING">Screening</SelectItem>
-                                                                <SelectItem value="INTERVIEW">Interview</SelectItem>
-                                                                <SelectItem value="OFFER">Offer</SelectItem>
-                                                                <SelectItem value="HIRED">Hired</SelectItem>
-                                                                <SelectItem value="REJECTED">Rejected</SelectItem>
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
-                                                    <Button variant="outline" size="icon" onClick={() => handleMessageCandidate(app.candidate.id, app.candidate.email)}>
-                                                        <MessageSquare className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
+                        {loadingCandidates ? (
+                            <Card>
+                                <CardContent className="py-10">
+                                    <div className="text-center">Loading pipeline...</div>
+                                </CardContent>
+                            </Card>
+                        ) : (
+                            <ApplicationPipeline 
+                                jobId={id} 
+                                jobTitle={job.title}
+                                isConsultantView={true}
+                            />
+                        )}
                     </TabsContent>
                 </Tabs>
             </div>

@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { updateApplicationStatus, getApplications } from "@/lib/mockApplicationStorage";
 import { applicationService } from "@/lib/applicationService";
+import { ConsultantCandidateService } from "@/lib/consultant/consultantCandidateService";
 import { toast } from "sonner";
 import { CandidateAssessmentView } from "../jobs/candidate-assessment/CandidateAssessmentView";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -37,6 +38,7 @@ interface ApplicationPipelineProps {
   selectedApplicationIds?: string[];
   onSelectionChange?: (ids: string[]) => void;
   onApplicationMoved?: () => void; // Callback when application is moved (for parent to refresh)
+  isConsultantView?: boolean; // When true, uses consultant API endpoints
 }
 
 const pipelineStages: { stage: ApplicationStage; label: string; color: string }[] = [
@@ -426,7 +428,10 @@ export function ApplicationPipeline({
   selectedApplicationIds = [],
   onSelectionChange,
   onApplicationMoved,
+  isConsultantView = false,
 }: ApplicationPipelineProps) {
+  // Service layer - switches between employer and consultant APIs
+  const appService = isConsultantView ? ConsultantCandidateService : applicationService;
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeRoundId, setActiveRoundId] = useState<string | null>(null);
   const [applications, setApplications] = useState<Application[]>([]);
@@ -476,6 +481,8 @@ export function ApplicationPipeline({
 
   const loadJobData = async () => {
     if (!jobId) return;
+    // Skip job data loading for consultant view - not needed for pipeline
+    if (isConsultantView) return;
     try {
       const response = await jobService.getJobById(jobId);
       if (response.success && response.data) {
@@ -490,7 +497,10 @@ export function ApplicationPipeline({
     if (!jobId) return;
 
     try {
-      const response = await jobRoundService.getJobRounds(jobId);
+      // Use consultant service for rounds if in consultant view
+      const response = isConsultantView 
+        ? await ConsultantCandidateService.getJobRounds(jobId)
+        : await jobRoundService.getJobRounds(jobId);
       if (response.success && response.data) {
         const loadedRounds = response.data.rounds || [];
         // Ensure we always have the 4 fixed rounds
@@ -562,7 +572,7 @@ export function ApplicationPipeline({
     } else if (jobId) {
       // Load from API if jobId is provided
       try {
-        const response = await applicationService.getJobApplications(jobId);
+        const response = await appService.getJobApplications(jobId);
         const apiApplications = response.data?.applications || [];
 
         // Extract round progress mapping
@@ -871,7 +881,7 @@ export function ApplicationPipeline({
       }
 
       // Move application to round via API (using actual round ID)
-      const response = await applicationService.moveToRound(applicationId, actualRoundId);
+      const response = await appService.moveToRound(applicationId, actualRoundId);
 
       if (response.success) {
         // Reload rounds first in case backend created a new fixed round

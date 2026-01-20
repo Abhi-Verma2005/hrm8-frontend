@@ -267,7 +267,7 @@ export function TemplateEditor({
                               />
                             </FormControl>
                             <FormDescription>
-                              Use {{variableName}} for merge fields
+                              Use {'{'}{'{'} variableName {'}'}{'}'}  for merge fields
                             </FormDescription>
                             <FormMessage />
                           </FormItem>
@@ -285,11 +285,11 @@ export function TemplateEditor({
                                 <RichTextEditor
                                   content={field.value}
                                   onChange={field.onChange}
-                                  placeholder="Enter email body... Use {{variableName}} for merge fields"
+                                  placeholder="Enter email body..."
                                 />
                               </FormControl>
                               <FormDescription>
-                                Use {{variableName}} syntax for merge fields
+                                Use {'{'}{'{'} variableName {'}'}{'}'}  syntax for merge fields
                               </FormDescription>
                               <FormMessage />
                             </FormItem>

@@ -98,65 +98,92 @@ export const emailTemplateService = {
     if (filters?.jobRoundId) params.append('jobRoundId', filters.jobRoundId);
     if (filters?.type) params.append('type', filters.type);
 
-    const response = await apiClient.get(`/api/email-templates?${params.toString()}`);
-    return response.data.data;
+    const response = await apiClient.get<EmailTemplate[]>(`/api/email-templates?${params.toString()}`);
+    if (!response.success || !response.data) {
+      console.error('Failed to fetch templates:', response.error);
+      return [];
+    }
+    return response.data;
   },
 
   /**
    * Get template by ID
    */
   async getTemplate(id: string): Promise<EmailTemplate> {
-    const response = await apiClient.get(`/api/email-templates/${id}`);
-    return response.data.data;
+    const response = await apiClient.get<EmailTemplate>(`/api/email-templates/${id}`);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to fetch template');
+    }
+    return response.data;
   },
 
   /**
    * Create template
    */
   async createTemplate(data: CreateEmailTemplateRequest): Promise<EmailTemplate> {
-    const response = await apiClient.post('/api/email-templates', data);
-    return response.data.data;
+    const response = await apiClient.post<EmailTemplate>('/api/email-templates', data);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to create template');
+    }
+    return response.data;
   },
 
   /**
    * Update template
    */
   async updateTemplate(id: string, data: UpdateEmailTemplateRequest): Promise<EmailTemplate> {
-    const response = await apiClient.put(`/api/email-templates/${id}`, data);
-    return response.data.data;
+    const response = await apiClient.put<EmailTemplate>(`/api/email-templates/${id}`, data);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to update template');
+    }
+    return response.data;
   },
 
   /**
    * Delete template
    */
   async deleteTemplate(id: string): Promise<void> {
-    await apiClient.delete(`/api/email-templates/${id}`);
+    const response = await apiClient.delete(`/api/email-templates/${id}`);
+    if (!response.success) {
+      throw new Error(response.error || 'Failed to delete template');
+    }
   },
 
   /**
    * Preview template
    */
   async previewTemplate(data: TemplatePreviewRequest): Promise<TemplatePreview> {
-    const response = await apiClient.post(`/api/email-templates/${data.templateId}/preview`, {
+    const response = await apiClient.post<TemplatePreview>(`/api/email-templates/${data.templateId}/preview`, {
       sampleData: data.sampleData,
     });
-    return response.data.data;
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to preview template');
+    }
+    return response.data;
   },
 
   /**
    * Get available variables
    */
   async getVariables(): Promise<TemplateVariable[]> {
-    const response = await apiClient.get('/api/email-templates/variables');
-    return response.data.data;
+    const response = await apiClient.get<TemplateVariable[]>('/api/email-templates/variables');
+    if (!response.success || !response.data) {
+      console.error('Failed to fetch variables:', response.error);
+      return [];
+    }
+    return response.data;
   },
 
   /**
    * Generate template using AI
    */
   async generateAITemplate(data: GenerateAITemplateRequest): Promise<GeneratedEmailTemplate> {
-    const response = await apiClient.post('/api/email-templates/generate-ai', data);
-    return response.data.data;
+    const response = await apiClient.post<GeneratedEmailTemplate>('/api/email-templates/generate-ai', data);
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to generate template');
+    }
+    return response.data;
   },
 };
+
 

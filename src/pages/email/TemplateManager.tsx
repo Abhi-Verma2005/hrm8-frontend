@@ -50,9 +50,10 @@ export default function TemplateManager() {
     setIsLoading(true);
     try {
       const data = await emailTemplateService.getTemplates();
-      setTemplates(data);
+      setTemplates(Array.isArray(data) ? data : []);
     } catch (error: any) {
       toast.error('Failed to load templates');
+      setTemplates([]);
     } finally {
       setIsLoading(false);
     }
