@@ -13,6 +13,7 @@ import ConsultantProfilePage from "@/pages/consultant/ConsultantProfilePage";
 import ConsultantWalletPage from "@/pages/consultant/ConsultantWalletPage";
 import ConsultantJobDetailPage from "@/pages/consultant/ConsultantJobDetailPage";
 import ConsultantMessagesPage from "@/pages/consultant/ConsultantMessagesPage";
+import SettingsPage from "@/pages/shared/SettingsPage";
 
 export const consultantRoutes = (
   <Route
@@ -30,7 +31,8 @@ export const consultantRoutes = (
     <Route path="messages" element={<ConsultantMessagesPage />} />
     <Route path="messages/:conversationId" element={<ConsultantMessagesPage />} />
     <Route path="commissions" element={<ConsultantCommissionsPage />} />
+    <Route path="wallet" element={<ConsultantWalletPage />} />
     <Route path="profile" element={<ConsultantProfilePage />} />
+    <Route path="settings" element={<SettingsPage portalType="consultant" />} />
   </Route>
 );
-

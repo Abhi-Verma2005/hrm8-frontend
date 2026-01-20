@@ -104,7 +104,7 @@ export function ConsultantAuthProvider({ children }: { children: ReactNode }) {
           description: `Logged in as ${response.data.consultant.firstName} ${response.data.consultant.lastName}`,
         });
 
-        // Redirect based on role
+        // Redirect based on role and current location
         if (userRole === 'SALES_AGENT') {
           console.log('[ConsultantAuth] Redirecting SALES_AGENT to /sales-agent/dashboard');
           navigate('/sales-agent/dashboard', { replace: true });
@@ -112,6 +112,13 @@ export function ConsultantAuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (userRole === 'CONSULTANT_360') {
+          // If they logged in via the sales portal, keep them there
+          if (window.location.pathname.includes('/sales-agent')) {
+            console.log('[ConsultantAuth] CONSULTANT_360 logged in via Sales Portal. Redirecting to /sales-agent/dashboard');
+            navigate('/sales-agent/dashboard', { replace: true });
+            return { success: true };
+          }
+          // Default: redirect to the unified consultant360 dashboard
           console.log('[ConsultantAuth] Redirecting CONSULTANT_360 to /consultant360/dashboard');
           navigate('/consultant360/dashboard', { replace: true });
           return { success: true };
@@ -215,4 +222,3 @@ export function useConsultantAuth() {
   }
   return context;
 }
-

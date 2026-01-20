@@ -10,6 +10,7 @@ interface ApiResponse<T = unknown> {
   data?: T;
   error?: string;
   details?: Record<string, unknown>;
+  status?: number;
 }
 
 class ApiClient {

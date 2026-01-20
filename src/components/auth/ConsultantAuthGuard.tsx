@@ -86,4 +86,3 @@ export function ConsultantAuthGuard({ children }: ConsultantAuthGuardProps) {
 
   return <>{children}</>;
 }
-
