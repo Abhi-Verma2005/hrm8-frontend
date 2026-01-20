@@ -33,13 +33,18 @@ export function ConsultantAuthGuard({ children }: ConsultantAuthGuardProps) {
       // Check for role mismatch
       const isSalesRoute = location.pathname.startsWith('/sales-agent');
       const isSalesAgent = consultant?.role === 'SALES_AGENT';
-      
-      console.log('[AuthGuard] Auth check:', { 
-        path: location.pathname, 
-        role: consultant?.role, 
-        isSalesRoute, 
-        isSalesAgent 
+
+      console.log('[AuthGuard] Auth check:', {
+        path: location.pathname,
+        role: consultant?.role,
+        isSalesRoute,
+        isSalesAgent
       });
+
+      // CONSULTANT_360 has access to everything
+      if (consultant?.role === 'CONSULTANT_360') {
+        return;
+      }
 
       if (isSalesRoute && !isSalesAgent) {
         console.warn('[AuthGuard] Role mismatch: Non-sales agent accessing sales route. Redirecting.');

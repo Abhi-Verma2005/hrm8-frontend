@@ -758,120 +758,139 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
 
           throw new Error(publishError.response?.data?.error || publishError.message || 'Failed to publish job');
         }
+      } catch (error: any) {
+        console.error('❌ Error processing job:', error);
+        toast({
+          title: "Job Processing Failed",
+          description: error?.message || "Failed to process job. Please try again.",
+          variant: "destructive"
+        });
+        setIsPublishing(false);
+        return;
+      }
+    } finally {
+      // Only set false if not stopped early by modal (though modal case sets it false too)
+      if (!showBalanceModal) {
+        setIsPublishing(false);
+      }
+    }
+  };
+
+  const handleSaveAsTemplate = async (data: JobFormData) => {
+    console.log('💾 Saving as template...', { data: { ...data, description: data.description?.substring(0, 50) + '...' } });
+
+    setIsSavingTemplate(true);
+
+    try {
+      // Validate form first
+      const isValid = await form.trigger();
+      const requirements = transformRequirements(data.requirements);
+      const responsibilities = transformResponsibilities(data.responsibilities);
+
+      const errorMessages: string[] = [];
+      if (!isValid) {
+        const errors = form.formState.errors;
+        if (errors.title) errorMessages.push(errors.title.message || 'Job title is required');
+        if (errors.description) errorMessages.push(errors.description.message || 'Job description is required');
+      }
+      if (!requirements || requirements.length === 0) {
+        errorMessages.push('At least one requirement is needed');
+      }
+      if (!responsibilities || responsibilities.length === 0) {
+        errorMessages.push('At least one responsibility is needed');
       }
 
-      } catch (error: any) {
-      console.error('❌ Error processing job:', error);
-      toast({
-        title: "Job Processing Failed",
-        description: error?.message || "Failed to process job. Please try again.",
-        variant: "destructive"
-      });
-      setIsPublishing(false);
-      return;
-    }
-  } finally {
-    // Only set false if not stopped early by modal (though modal case sets it false too)
-    if (!showBalanceModal) {
-      setIsPublishing(false);
-    }
-  }
-};
+      if (errorMessages.length > 0) {
+        toast({
+          title: "Please Fix Form Errors",
+          description: errorMessages.join('. '),
+          variant: "destructive",
+          duration: 5000,
+        });
+        setIsSavingTemplate(false);
+        return;
+      }
 
-const handleSaveAsTemplate = async (data: JobFormData) => {
-  console.log('💾 Saving as template...', { data: { ...data, description: data.description?.substring(0, 50) + '...' } });
+      // Transform to API format for template creation
+      const jobRequest = transformJobFormDataToCreateRequest(data);
 
-  setIsSavingTemplate(true);
+      // Create template name from job title
+      const templateName = data.title || 'Untitled Template';
+      const templateDescription = data.description?.substring(0, 200) || undefined;
+      const category = data.department || undefined;
 
-  try {
-    // Validate form first
-    const isValid = await form.trigger();
-    const requirements = transformRequirements(data.requirements);
-    const responsibilities = transformResponsibilities(data.responsibilities);
+      let response;
+      if (currentJobId) {
+        // Create template from existing job
+        response = await jobTemplateService.createFromJob(
+          currentJobId,
+          templateName,
+          templateDescription,
+          category
+        );
+      } else {
+        // Create template from scratch with current form data
+        response = await jobTemplateService.createTemplate({
+          name: templateName,
+          description: templateDescription,
+          category: category,
+          jobData: jobRequest, // Send job data as JSON object
+        });
+      }
 
-    const errorMessages: string[] = [];
-    if (!isValid) {
-      const errors = form.formState.errors;
-      if (errors.title) errorMessages.push(errors.title.message || 'Job title is required');
-      if (errors.description) errorMessages.push(errors.description.message || 'Job description is required');
-    }
-    if (!requirements || requirements.length === 0) {
-      errorMessages.push('At least one requirement is needed');
-    }
-    if (!responsibilities || responsibilities.length === 0) {
-      errorMessages.push('At least one responsibility is needed');
-    }
-
-    if (errorMessages.length > 0) {
-      toast({
-        title: "Please Fix Form Errors",
-        description: errorMessages.join('. '),
-        variant: "destructive",
-        duration: 5000,
-      });
-      setIsSavingTemplate(false);
-      return;
-    }
-
-    // Transform to API format for template creation
-    const jobRequest = transformJobFormDataToCreateRequest(data);
-
-    // Create template name from job title
-    const templateName = data.title || 'Untitled Template';
-    const templateDescription = data.description?.substring(0, 200) || undefined;
-    const category = data.department || undefined;
-
-    let response;
-    if (currentJobId) {
-      // Create template from existing job
-      response = await jobTemplateService.createFromJob(
-        currentJobId,
-        templateName,
-        templateDescription,
-        category
-      );
-    } else {
-      // Create template from scratch with current form data
-      response = await jobTemplateService.createTemplate({
-        name: templateName,
-        description: templateDescription,
-        category: category,
-        jobData: jobRequest, // Send job data as JSON object
-      });
-    }
-
-    if (response.success && response.data) {
-      toast({
-        title: "Template Saved",
-        description: `"${response.data.name}" has been saved as a template.`,
-      });
-      if (onSuccess) {
-        // Return the job data if we have it, otherwise return template data
-        if (currentJobId) {
-          const jobResponse = await jobService.getJobById(currentJobId);
-          if (jobResponse.success && jobResponse.data) {
-            onSuccess(jobResponse.data);
+      if (response.success && response.data) {
+        toast({
+          title: "Template Saved",
+          description: `"${response.data.name}" has been saved as a template.`,
+        });
+        if (onSuccess) {
+          // Return the job data if we have it, otherwise return template data
+          if (currentJobId) {
+            const jobResponse = await jobService.getJobById(currentJobId);
+            if (jobResponse.success && jobResponse.data) {
+              onSuccess(jobResponse.data);
+            }
           }
         }
+      } else {
+        throw new Error(response.error || 'Failed to save template');
       }
-    } else {
-      throw new Error(response.error || 'Failed to save template');
+    } catch (error: any) {
+      console.error('❌ Error saving template:', error);
+      toast({
+        title: "Save Template Failed",
+        description: error?.message || "Failed to save job as template. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSavingTemplate(false);
     }
-  } catch (error: any) {
-    console.error('❌ Error saving template:', error);
-    toast({
-      title: "Save Template Failed",
-      description: error?.message || "Failed to save job as template. Please try again.",
-      variant: "destructive"
-    });
-  } finally {
-    setIsSavingTemplate(false);
-  }
-};
+  };
 
-const goToStep = async (targetStep: number) => {
-  // If going forward, validate current step first
-  if (targetStep > step) {
+  const goToStep = async (targetStep: number) => {
+    // If going forward, validate current step first
+    if (targetStep > step) {
+      const isValid = await validateStep(step);
+      if (!isValid) {
+        toast({
+          title: "Please Fix Errors",
+          description: "Please fix the errors in the current step before proceeding.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    // Allow going back to any previous step without validation
+    const scrollContainer = findScrollContainer();
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0;
+      scrollContainer.scrollLeft = 0;
+    }
+    setStep(targetStep);
+  };
+
+  const nextStep = async () => {
     const isValid = await validateStep(step);
     if (!isValid) {
       toast({
@@ -881,357 +900,336 @@ const goToStep = async (targetStep: number) => {
       });
       return;
     }
-  }
 
-  // Allow going back to any previous step without validation
-  const scrollContainer = findScrollContainer();
-  if (scrollContainer) {
-    scrollContainer.scrollTop = 0;
-    scrollContainer.scrollLeft = 0;
-  }
-  setStep(targetStep);
-};
+    const scrollContainer = findScrollContainer();
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0;
+      scrollContainer.scrollLeft = 0;
+    }
 
-const nextStep = async () => {
-  const isValid = await validateStep(step);
-  if (!isValid) {
-    toast({
-      title: "Please Fix Errors",
-      description: "Please fix the errors in the current step before proceeding.",
-      variant: "destructive",
-    });
-    return;
-  }
+    // For HRM8 services (paid packages), skip steps 2-5 and go directly to step 6 (payment/terms)
+    if (isHRM8Service && step === 1) {
+      setStep(6);
+    } else {
+      setStep(Math.min(step + 1, totalSteps));
+    }
+  };
 
-  const scrollContainer = findScrollContainer();
-  if (scrollContainer) {
-    scrollContainer.scrollTop = 0;
-    scrollContainer.scrollLeft = 0;
-  }
+  const prevStep = () => {
+    const scrollContainer = findScrollContainer();
+    if (scrollContainer) {
+      scrollContainer.scrollTop = 0;
+      scrollContainer.scrollLeft = 0;
+    }
+    setStep(Math.max(step - 1, 1));
+  };
 
-  // For HRM8 services (paid packages), skip steps 2-5 and go directly to step 6 (payment/terms)
-  if (isHRM8Service && step === 1) {
-    setStep(6);
-  } else {
-    setStep(Math.min(step + 1, totalSteps));
-  }
-};
-
-const prevStep = () => {
-  const scrollContainer = findScrollContainer();
-  if (scrollContainer) {
-    scrollContainer.scrollTop = 0;
-    scrollContainer.scrollLeft = 0;
-  }
-  setStep(Math.max(step - 1, 1));
-};
-
-return (
-  <Form {...form}>
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-      {/* Auto-save indicator */}
-      <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
-        {autoSaving ? (
-          <>
-            <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-            <span>Saving draft...</span>
-          </>
-        ) : lastAutoSave ? (
-          <>
-            <div className="h-2 w-2 rounded-full bg-green-500" />
-            <span>Draft saved {getLastSaveText()}</span>
-          </>
-        ) : null}
-      </div>
-
-      <div className="space-y-3">
-        {/* Step Navigation Tabs */}
-        {!isHRM8Service && (
-          <Tabs value={step.toString()} onValueChange={(value) => goToStep(parseInt(value))}>
-            <TabsList className="grid w-full grid-cols-6 h-auto p-1 bg-muted/50">
-              {[1, 2, 3, 4, 5, 6].map((stepNum) => {
-                const hasErrors = stepHasErrors(stepNum);
-                const isCompleted = stepNum < step;
-                const isCurrent = stepNum === step;
-
-                return (
-                  <TabsTrigger
-                    key={stepNum}
-                    value={stepNum.toString()}
-                    className="flex flex-col items-center gap-1 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-                    disabled={false}
-                  >
-                    <div className="flex items-center gap-1.5">
-                      {isCompleted ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
-                      ) : hasErrors && !isCurrent ? (
-                        <AlertCircle className="h-4 w-4 text-destructive" />
-                      ) : (
-                        <Circle className="h-4 w-4" />
-                      )}
-                      <span className="text-xs font-medium">Step {stepNum}</span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground">
-                      {stepNum === 1 && 'Basic Details'}
-                      {stepNum === 2 && 'Description'}
-                      {stepNum === 3 && 'Compensation'}
-                      {stepNum === 4 && 'Application'}
-                      {stepNum === 5 && 'Review'}
-                      {stepNum === 6 && 'Payment'}
-                    </span>
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-          </Tabs>
-        )}
-
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span>Step {step} of {totalSteps}</span>
-          <span>{Math.round(progress)}% Complete</span>
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {/* Auto-save indicator */}
+        <div className="flex items-center justify-end gap-2 text-xs text-muted-foreground">
+          {autoSaving ? (
+            <>
+              <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+              <span>Saving draft...</span>
+            </>
+          ) : lastAutoSave ? (
+            <>
+              <div className="h-2 w-2 rounded-full bg-green-500" />
+              <span>Draft saved {getLastSaveText()}</span>
+            </>
+          ) : null}
         </div>
-        <Progress value={progress} className="h-2" />
 
-        {/* Service Type Indicator */}
-        <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border transition-all duration-300">
-          <div className="flex items-center gap-3">
-            <div
-              key={currentServiceType}
-              className={cn(
-                "p-2 rounded-md bg-background transition-all duration-300 animate-scale-in",
-                currentService.color
-              )}
-            >
-              <ServiceIcon className="h-4 w-4" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-xs text-muted-foreground">Selected Service</span>
-              <span
-                key={`name-${currentServiceType}`}
-                className="text-sm font-semibold animate-fade-in"
-              >
-                {currentService.name}
-              </span>
-            </div>
+        <div className="space-y-3">
+          {/* Step Navigation Tabs */}
+          {!isHRM8Service && (
+            <Tabs value={step.toString()} onValueChange={(value) => goToStep(parseInt(value))}>
+              <TabsList className="grid w-full grid-cols-6 h-auto p-1 bg-muted/50">
+                {[1, 2, 3, 4, 5, 6].map((stepNum) => {
+                  const hasErrors = stepHasErrors(stepNum);
+                  const isCompleted = stepNum < step;
+                  const isCurrent = stepNum === step;
+
+                  return (
+                    <TabsTrigger
+                      key={stepNum}
+                      value={stepNum.toString()}
+                      className="flex flex-col items-center gap-1 py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                      disabled={false}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        {isCompleted ? (
+                          <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        ) : hasErrors && !isCurrent ? (
+                          <AlertCircle className="h-4 w-4 text-destructive" />
+                        ) : (
+                          <Circle className="h-4 w-4" />
+                        )}
+                        <span className="text-xs font-medium">Step {stepNum}</span>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground">
+                        {stepNum === 1 && 'Basic Details'}
+                        {stepNum === 2 && 'Description'}
+                        {stepNum === 3 && 'Compensation'}
+                        {stepNum === 4 && 'Application'}
+                        {stepNum === 5 && 'Review'}
+                        {stepNum === 6 && 'Payment'}
+                      </span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </Tabs>
+          )}
+
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>Step {step} of {totalSteps}</span>
+            <span>{Math.round(progress)}% Complete</span>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="text-right">
-              <div className="text-xs text-muted-foreground">Service Fee</div>
+          <Progress value={progress} className="h-2" />
+
+          {/* Service Type Indicator */}
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border transition-all duration-300">
+            <div className="flex items-center gap-3">
               <div
-                key={`price-${currentServiceType}`}
-                className="text-lg font-bold text-primary animate-fade-in"
+                key={currentServiceType}
+                className={cn(
+                  "p-2 rounded-md bg-background transition-all duration-300 animate-scale-in",
+                  currentService.color
+                )}
               >
-                {currentService.price}
+                <ServiceIcon className="h-4 w-4" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs text-muted-foreground">Selected Service</span>
+                <span
+                  key={`name-${currentServiceType}`}
+                  className="text-sm font-semibold animate-fade-in"
+                >
+                  {currentService.name}
+                </span>
               </div>
             </div>
-            {step > 1 && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleChangeService}
-                className="text-xs transition-all duration-200 hover:scale-105"
-              >
-                <ArrowUp className="h-3 w-3 mr-1" />
-                Change
-              </Button>
-            )}
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground">Service Fee</div>
+                <div
+                  key={`price-${currentServiceType}`}
+                  className="text-lg font-bold text-primary animate-fade-in"
+                >
+                  {currentService.price}
+                </div>
+              </div>
+              {step > 1 && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleChangeService}
+                  className="text-xs transition-all duration-200 hover:scale-105"
+                >
+                  <ArrowUp className="h-3 w-3 mr-1" />
+                  Change
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {step === 1 && <JobWizardStep1 form={form} companyAssignmentMode={companyAssignmentMode} loadingCompanySettings={loadingCompanySettings} />}
-      {step === 2 && !isHRM8Service && <JobWizardStep2 form={form} />}
-      {!isHRM8Service && step === 3 && <JobWizardStep3 form={form} jobId={currentJobId} />}
-      {!isHRM8Service && step === 4 && <JobWizardStep4 form={form} jobId={currentJobId} />}
-      {!isHRM8Service && step === 5 && <JobWizardStep5 form={form} />}
-      {/* Show Step 6 for all services - it handles both self-managed and paid packages */}
-      {step === 6 && <JobWizardStep6 form={form} />}
+        {step === 1 && <JobWizardStep1 form={form} companyAssignmentMode={companyAssignmentMode} loadingCompanySettings={loadingCompanySettings} />}
+        {step === 2 && !isHRM8Service && <JobWizardStep2 form={form} />}
+        {!isHRM8Service && step === 3 && <JobWizardStep3 form={form} jobId={currentJobId} />}
+        {!isHRM8Service && step === 4 && <JobWizardStep4 form={form} jobId={currentJobId} />}
+        {!isHRM8Service && step === 5 && <JobWizardStep5 form={form} />}
+        {/* Show Step 6 for all services - it handles both self-managed and paid packages */}
+        {step === 6 && <JobWizardStep6 form={form} />}
 
-      <div className="flex justify-between pt-6 border-t">
-        <div className="flex gap-2">
-          {step === 1 && embedded && onCancel && (
-            <Button type="button" variant="outline" onClick={onCancel}>
-              Cancel
+        <div className="flex justify-between pt-6 border-t">
+          <div className="flex gap-2">
+            {step === 1 && embedded && onCancel && (
+              <Button type="button" variant="outline" onClick={onCancel}>
+                Cancel
+              </Button>
+            )}
+            <Button type="button" variant="outline" onClick={prevStep} disabled={step === 1}>
+              <ChevronLeft className="h-4 w-4 mr-2" />
+              Back
             </Button>
-          )}
-          <Button type="button" variant="outline" onClick={prevStep} disabled={step === 1}>
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-        </div>
-        <div className="flex gap-2">
-          {!isHRM8Service && step <= 5 && (
+          </div>
+          <div className="flex gap-2">
+            {!isHRM8Service && step <= 5 && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setPreviewOpen(true)}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                Preview Job Board
+              </Button>
+            )}
             <Button
               type="button"
               variant="outline"
-              onClick={() => setPreviewOpen(true)}
+              onClick={handleManualSaveDraft}
+              disabled={autoSaving}
             >
-              <Eye className="h-4 w-4 mr-2" />
-              Preview Job Board
+              {autoSaving ? "Saving..." : "Save Draft"}
             </Button>
-          )}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleManualSaveDraft}
-            disabled={autoSaving}
-          >
-            {autoSaving ? "Saving..." : "Save Draft"}
-          </Button>
-          {step < totalSteps ? (
-            <Button type="button" onClick={nextStep}>
-              Continue
-              <ChevronRight className="h-4 w-4 ml-2" />
-            </Button>
-          ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  disabled={(() => {
-                    const formData = form.watch();
-                    const isSelfManaged = formData.serviceType === 'self-managed' || formData.serviceType === 'rpo';
-                    // For paid packages, allow submission if terms are accepted OR if we're redirecting to Stripe
-                    // For self-managed, require terms acceptance
-                    if (isSelfManaged) {
+            {step < totalSteps ? (
+              <Button type="button" onClick={nextStep}>
+                Continue
+                <ChevronRight className="h-4 w-4 ml-2" />
+              </Button>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    disabled={(() => {
+                      const formData = form.watch();
+                      const isSelfManaged = formData.serviceType === 'self-managed' || formData.serviceType === 'rpo';
+                      // For paid packages, allow submission if terms are accepted OR if we're redirecting to Stripe
+                      // For self-managed, require terms acceptance
+                      if (isSelfManaged) {
+                        return !formData.termsAccepted || isPublishing || isSavingTemplate;
+                      }
+                      // For paid packages, allow if terms accepted (Step 6 will handle this)
                       return !formData.termsAccepted || isPublishing || isSavingTemplate;
-                    }
-                    // For paid packages, allow if terms accepted (Step 6 will handle this)
-                    return !formData.termsAccepted || isPublishing || isSavingTemplate;
-                  })()}
-                >
-                  {isPublishing ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Publishing...
-                    </>
-                  ) : isSavingTemplate ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      {(() => {
-                        const formData = form.watch();
-                        const isSelfManagedJob = formData.serviceType === 'self-managed' || formData.serviceType === 'rpo';
-                        const needsPayment = !isSelfManagedJob;
+                    })()}
+                  >
+                    {isPublishing ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Publishing...
+                      </>
+                    ) : isSavingTemplate ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        {(() => {
+                          const formData = form.watch();
+                          const isSelfManagedJob = formData.serviceType === 'self-managed' || formData.serviceType === 'rpo';
+                          const needsPayment = !isSelfManagedJob;
 
-                        if (needsPayment) {
-                          // For paid packages, always show "Pay & Publish"
-                          return 'Pay & Publish';
-                        } else {
-                          // For free/self-managed packages
-                          return 'Publish Job';
-                        }
-                      })()}
-                      <ChevronDown className="h-4 w-4 ml-2" />
-                    </>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    const formData = form.getValues();
-                    await form.handleSubmit(onSubmit)();
-                  }}
-                  disabled={isPublishing || isSavingTemplate}
-                >
-                  {isPublishing ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <ArrowUp className="h-4 w-4 mr-2" />
-                  )}
-                  {(() => {
-                    const formData = form.watch();
-                    const isSelfManagedJob = formData.serviceType === 'self-managed' || formData.serviceType === 'rpo';
-                    return isSelfManagedJob ? 'Publish Job' : 'Pay & Publish';
-                  })()}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    await handleManualSaveDraft();
-                  }}
-                  disabled={isPublishing || isSavingTemplate}
-                >
-                  <Save className="h-4 w-4 mr-2" />
-                  Save as Draft
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={async (e) => {
-                    e.preventDefault();
-                    const formData = form.getValues();
-                    await form.handleSubmit(handleSaveAsTemplate)();
-                  }}
-                  disabled={isPublishing || isSavingTemplate}
-                >
-                  {isSavingTemplate ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <FileText className="h-4 w-4 mr-2" />
-                  )}
-                  Save as Template
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+                          if (needsPayment) {
+                            // For paid packages, always show "Pay & Publish"
+                            return 'Pay & Publish';
+                          } else {
+                            // For free/self-managed packages
+                            return 'Publish Job';
+                          }
+                        })()}
+                        <ChevronDown className="h-4 w-4 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      const formData = form.getValues();
+                      await form.handleSubmit(onSubmit)();
+                    }}
+                    disabled={isPublishing || isSavingTemplate}
+                  >
+                    {isPublishing ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <ArrowUp className="h-4 w-4 mr-2" />
+                    )}
+                    {(() => {
+                      const formData = form.watch();
+                      const isSelfManagedJob = formData.serviceType === 'self-managed' || formData.serviceType === 'rpo';
+                      return isSelfManagedJob ? 'Publish Job' : 'Pay & Publish';
+                    })()}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      await handleManualSaveDraft();
+                    }}
+                    disabled={isPublishing || isSavingTemplate}
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Save as Draft
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      const formData = form.getValues();
+                      await form.handleSubmit(handleSaveAsTemplate)();
+                    }}
+                    disabled={isPublishing || isSavingTemplate}
+                  >
+                    {isSavingTemplate ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <FileText className="h-4 w-4 mr-2" />
+                    )}
+                    Save as Template
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
-      </div>
 
-      <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
-        <SheetContent
-          side="right"
-          className="w-full sm:max-w-2xl lg:max-w-4xl overflow-y-auto p-0"
-        >
-          <div className="sticky top-0 z-10 bg-background border-b px-6 py-4">
-            <SheetHeader>
-              <SheetTitle>Job Board Preview</SheetTitle>
-              <SheetDescription>
-                This is how your job posting will appear to candidates on the job board
-              </SheetDescription>
-            </SheetHeader>
-          </div>
-          <div className="p-6">
-            <JobBoardPublicPreview formData={form.watch()} />
-          </div>
-        </SheetContent>
-      </Sheet>
+        <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
+          <SheetContent
+            side="right"
+            className="w-full sm:max-w-2xl lg:max-w-4xl overflow-y-auto p-0"
+          >
+            <div className="sticky top-0 z-10 bg-background border-b px-6 py-4">
+              <SheetHeader>
+                <SheetTitle>Job Board Preview</SheetTitle>
+                <SheetDescription>
+                  This is how your job posting will appear to candidates on the job board
+                </SheetDescription>
+              </SheetHeader>
+            </div>
+            <div className="p-6">
+              <JobBoardPublicPreview formData={form.watch()} />
+            </div>
+          </SheetContent>
+        </Sheet>
 
-      {savedJobData && (
-        <PostPublishFlow
-          job={savedJobData}
-          open={showPostLaunchTools}
-          onOpenChange={(open) => {
-            setShowPostLaunchTools(open);
-            if (!open && onSuccess) {
-              onSuccess(savedJobData);
-            }
-          }}
-          onSaveTemplate={async (templateName, templateDescription) => {
-            try {
-              const category = savedJobData.department || undefined;
-              await jobTemplateService.createFromJob(
-                savedJobData.id,
-                templateName,
-                templateDescription,
-                category
-              );
-            } catch (error) {
-              console.error('Failed to save template:', error);
-            }
-          }}
-          onComplete={() => {
-            if (onSuccess) {
-              onSuccess(savedJobData);
-            }
-          }}
-        />
-      )}
-    </form>
-  </Form>
-);
+        {savedJobData && (
+          <PostPublishFlow
+            job={savedJobData}
+            open={showPostLaunchTools}
+            onOpenChange={(open) => {
+              setShowPostLaunchTools(open);
+              if (!open && onSuccess) {
+                onSuccess(savedJobData);
+              }
+            }}
+            onSaveTemplate={async (templateName, templateDescription) => {
+              try {
+                const category = savedJobData.department || undefined;
+                await jobTemplateService.createFromJob(
+                  savedJobData.id,
+                  templateName,
+                  templateDescription,
+                  category
+                );
+              } catch (error) {
+                console.error('Failed to save template:', error);
+              }
+            }}
+            onComplete={() => {
+              if (onSuccess) {
+                onSuccess(savedJobData);
+              }
+            }}
+          />
+        )}
+      </form>
+    </Form>
+  );
 }

@@ -5,6 +5,11 @@ export interface AdminWithdrawalRequest {
     consultantId: string;
     consultantName: string;
     consultantEmail: string;
+    consultantRole?: string;
+    stripeConnected?: boolean;
+    stripeAccountStatus?: string;
+    payoutEnabled?: boolean;
+    regionId?: string;
     amount: number;
     status: string;
     paymentMethod: string;

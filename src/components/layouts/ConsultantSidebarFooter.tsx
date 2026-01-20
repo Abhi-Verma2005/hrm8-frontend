@@ -1,18 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSidebar } from "@/components/ui/sidebar";
-import { Settings, HelpCircle, LogOut } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { HelpCircle, LogOut } from "lucide-react";
+import { NavLink, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useConsultantAuth } from "@/contexts/ConsultantAuthContext";
 
 export function ConsultantSidebarFooter() {
   const { open } = useSidebar();
   const { logout } = useConsultantAuth();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
   };
+
+  // Determine help path based on current portal
+  const helpPath = location.pathname.startsWith('/sales-agent')
+    ? '/sales-agent/help'
+    : '/consultant/help';
 
   return (
     <div className={cn("flex gap-2", !open && "flex-col items-center")}>
@@ -25,27 +31,7 @@ export function ConsultantSidebarFooter() {
             className={cn(open && "flex-1")}
           >
             <NavLink
-              to="/consultant/settings"
-              className={cn("flex items-center", open && "justify-start gap-2")}
-            >
-              <Settings className="h-4 w-4" />
-              {open && <span>Settings</span>}
-            </NavLink>
-          </Button>
-        </TooltipTrigger>
-        {!open && <TooltipContent side="right">Settings</TooltipContent>}
-      </Tooltip>
-
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            asChild
-            className={cn(open && "flex-1")}
-          >
-            <NavLink
-              to="/consultant/help"
+              to={helpPath}
               className={cn("flex items-center", open && "justify-start gap-2")}
             >
               <HelpCircle className="h-4 w-4" />
@@ -73,6 +59,7 @@ export function ConsultantSidebarFooter() {
     </div>
   );
 }
+
 
 
 
