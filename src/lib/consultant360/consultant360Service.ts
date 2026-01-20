@@ -3,7 +3,8 @@
  * Handles all API calls for Consultant 360 unified dashboard
  */
 
-import { api } from '../api';
+import { apiClient } from '../api';
+import { Lead } from '../sales/salesService';
 
 // ==================== Types ====================
 
@@ -155,30 +156,43 @@ export const consultant360Service = {
      * Get unified dashboard data
      */
     async getDashboard(): Promise<{ success: boolean; data?: DashboardData; error?: string }> {
-        try {
-            const response = await api.get('/consultant360/dashboard');
-            return response.data;
-        } catch (error: any) {
-            return {
-                success: false,
-                error: error.response?.data?.error || error.message || 'Failed to fetch dashboard',
-            };
+        const response = await apiClient.get<DashboardData>('/api/consultant360/dashboard');
+        return response;
+    },
+
+    /**
+     * Get Leads
+     */
+    async getLeads(): Promise<{ success: boolean; data?: { leads: Lead[] }; error?: string }> {
+        const response = await apiClient.get<{ leads: Lead[] }>('/api/consultant360/leads');
+        return response;
+    },
+
+    /**
+     * Create Lead
+     */
+    async createLead(data: any): Promise<{ success: boolean; data?: { lead: Lead; qualification?: any }; error?: string }> {
+        const response = await apiClient.post<{ lead: Lead; qualification?: any }>('/api/consultant360/leads', data);
+        return response;
+    },
+
+    /**
+     * Submit Conversion Request
+     */
+    async submitConversionRequest(leadId: string, data: any): Promise<any> {
+        const response = await apiClient.post<any>(`/api/consultant360/leads/${leadId}/conversion-request`, data);
+        if (!response.success) {
+            throw new Error(response.error || 'Failed to submit conversion request');
         }
+        return response.data?.request;
     },
 
     /**
      * Get unified earnings breakdown
      */
     async getEarnings(): Promise<{ success: boolean; data?: UnifiedEarnings; error?: string }> {
-        try {
-            const response = await api.get('/consultant360/earnings');
-            return response.data;
-        } catch (error: any) {
-            return {
-                success: false,
-                error: error.response?.data?.error || error.message || 'Failed to fetch earnings',
-            };
-        }
+        const response = await apiClient.get<UnifiedEarnings>('/api/consultant360/earnings');
+        return response;
     },
 
     /**
@@ -194,30 +208,26 @@ export const consultant360Service = {
         data?: { commissions: Commission[]; total: number };
         error?: string;
     }> {
-        try {
-            const response = await api.get('/consultant360/commissions', { params: filters });
-            return response.data;
-        } catch (error: any) {
-            return {
-                success: false,
-                error: error.response?.data?.error || error.message || 'Failed to fetch commissions',
-            };
-        }
+        // Build query string from filters
+        const params = new URLSearchParams();
+        if (filters?.type) params.append('type', filters.type);
+        if (filters?.status) params.append('status', filters.status);
+        if (filters?.limit) params.append('limit', filters.limit.toString());
+        if (filters?.offset) params.append('offset', filters.offset.toString());
+
+        const queryString = params.toString();
+        const url = `/api/consultant360/commissions${queryString ? `?${queryString}` : ''}`;
+
+        const response = await apiClient.get<{ commissions: Commission[]; total: number }>(url);
+        return response;
     },
 
     /**
      * Get unified withdrawal balance
      */
     async getBalance(): Promise<{ success: boolean; data?: { balance: CombinedBalance }; error?: string }> {
-        try {
-            const response = await api.get('/consultant360/balance');
-            return response.data;
-        } catch (error: any) {
-            return {
-                success: false,
-                error: error.response?.data?.error || error.message || 'Failed to fetch balance',
-            };
-        }
+        const response = await apiClient.get<{ balance: CombinedBalance }>('/api/consultant360/balance');
+        return response;
     },
 
     /**
@@ -228,15 +238,8 @@ export const consultant360Service = {
         data?: { withdrawal: Withdrawal };
         error?: string;
     }> {
-        try {
-            const response = await api.post('/consultant360/withdraw', data);
-            return response.data;
-        } catch (error: any) {
-            return {
-                success: false,
-                error: error.response?.data?.error || error.message || 'Failed to request withdrawal',
-            };
-        }
+        const response = await apiClient.post<{ withdrawal: Withdrawal }>('/api/consultant360/withdraw', data);
+        return response;
     },
 
     /**
@@ -247,32 +250,19 @@ export const consultant360Service = {
         data?: { withdrawals: Withdrawal[] };
         error?: string;
     }> {
-        try {
-            const response = await api.get('/consultant360/withdrawals', {
-                params: status ? { status } : undefined,
-            });
-            return response.data;
-        } catch (error: any) {
-            return {
-                success: false,
-                error: error.response?.data?.error || error.message || 'Failed to fetch withdrawals',
-            };
-        }
+        const url = status
+            ? `/api/consultant360/withdrawals?status=${status}`
+            : '/api/consultant360/withdrawals';
+        const response = await apiClient.get<{ withdrawals: Withdrawal[] }>(url);
+        return response;
     },
 
     /**
      * Cancel a pending withdrawal
      */
     async cancelWithdrawal(id: string): Promise<{ success: boolean; error?: string }> {
-        try {
-            const response = await api.post(`/consultant360/withdrawals/${id}/cancel`);
-            return response.data;
-        } catch (error: any) {
-            return {
-                success: false,
-                error: error.response?.data?.error || error.message || 'Failed to cancel withdrawal',
-            };
-        }
+        const response = await apiClient.post(`/api/consultant360/withdrawals/${id}/cancel`);
+        return response;
     },
 
     /**
@@ -283,15 +273,8 @@ export const consultant360Service = {
         data?: { transfer: unknown };
         error?: string;
     }> {
-        try {
-            const response = await api.post(`/consultant360/withdrawals/${id}/execute`);
-            return response.data;
-        } catch (error: any) {
-            return {
-                success: false,
-                error: error.response?.data?.error || error.message || 'Failed to execute withdrawal',
-            };
-        }
+        const response = await apiClient.post<{ transfer: unknown }>(`/api/consultant360/withdrawals/${id}/execute`);
+        return response;
     },
 
     /**
@@ -302,15 +285,8 @@ export const consultant360Service = {
         data?: { accountLink: { url: string } };
         error?: string;
     }> {
-        try {
-            const response = await api.post('/consultant360/stripe/onboard');
-            return response.data;
-        } catch (error: any) {
-            return {
-                success: false,
-                error: error.response?.data?.error || error.message || 'Failed to start onboarding',
-            };
-        }
+        const response = await apiClient.post<{ accountLink: { url: string } }>('/api/consultant360/stripe/onboard');
+        return response;
     },
 
     /**
@@ -321,15 +297,8 @@ export const consultant360Service = {
         data?: StripeAccountStatus;
         error?: string;
     }> {
-        try {
-            const response = await api.get('/consultant360/stripe/status');
-            return response.data;
-        } catch (error: any) {
-            return {
-                success: false,
-                error: error.response?.data?.error || error.message || 'Failed to get Stripe status',
-            };
-        }
+        const response = await apiClient.get<StripeAccountStatus>('/api/consultant360/stripe/status');
+        return response;
     },
 
     /**
@@ -340,14 +309,7 @@ export const consultant360Service = {
         data?: { url: string };
         error?: string;
     }> {
-        try {
-            const response = await api.post('/consultant360/stripe/login-link');
-            return response.data;
-        } catch (error: any) {
-            return {
-                success: false,
-                error: error.response?.data?.error || error.message || 'Failed to get login link',
-            };
-        }
+        const response = await apiClient.post<{ url: string }>('/api/consultant360/stripe/login-link');
+        return response;
     },
 };

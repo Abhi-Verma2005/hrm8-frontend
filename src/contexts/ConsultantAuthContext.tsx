@@ -104,7 +104,12 @@ export function ConsultantAuthProvider({ children }: { children: ReactNode }) {
           description: `Logged in as ${response.data.consultant.firstName} ${response.data.consultant.lastName}`,
         });
 
-        // Redirect based on role and current location
+        // STRICT ROLE-BASED REDIRECT - each role goes to their dedicated dashboard only
+        // Redirect mapping:
+        // - RECRUITER → /consultant/dashboard (with profile check)
+        // - SALES_AGENT → /sales-agent/dashboard
+        // - CONSULTANT_360 → /consultant360/dashboard
+
         if (userRole === 'SALES_AGENT') {
           console.log('[ConsultantAuth] Redirecting SALES_AGENT to /sales-agent/dashboard');
           navigate('/sales-agent/dashboard', { replace: true });
@@ -112,20 +117,13 @@ export function ConsultantAuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (userRole === 'CONSULTANT_360') {
-          // If they logged in via the sales portal, keep them there
-          if (window.location.pathname.includes('/sales-agent')) {
-            console.log('[ConsultantAuth] CONSULTANT_360 logged in via Sales Portal. Redirecting to /sales-agent/dashboard');
-            navigate('/sales-agent/dashboard', { replace: true });
-            return { success: true };
-          }
-          // Default: redirect to the unified consultant360 dashboard
           console.log('[ConsultantAuth] Redirecting CONSULTANT_360 to /consultant360/dashboard');
           navigate('/consultant360/dashboard', { replace: true });
           return { success: true };
         }
 
+        // RECRUITER - check profile completeness before redirect
         console.log('[ConsultantAuth] User is RECRUITER. Checking profile completeness...');
-        // After login, check if profile is complete; if not, redirect to profile onboarding
         try {
           const profileResponse = await consultantService.getProfile();
           const profile = profileResponse.success ? profileResponse.data?.consultant : null;

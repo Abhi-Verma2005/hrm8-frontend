@@ -33,7 +33,7 @@ export const leadConversionService = {
     /**
      * Submit a conversion request for a lead
      */
-    async submitRequest(leadId: string, data: { agentNotes?: string }): Promise<ConversionRequest> {
+    async submitRequest(leadId: string, data: { agentNotes?: string; tempPassword?: string }): Promise<ConversionRequest> {
         const response = await apiClient.post<any>(`/api/sales/leads/${leadId}/conversion-request`, data);
 
         if (!response.success) {

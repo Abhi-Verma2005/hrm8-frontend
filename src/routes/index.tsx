@@ -20,6 +20,7 @@ import EmployeeSignup from "@/pages/EmployeeSignup";
 import AcceptInvitation from "@/pages/AcceptInvitation";
 import Hrm8Login from "@/pages/Hrm8Login";
 import ConsultantLogin from "@/pages/ConsultantLogin";
+import Consultant360Login from "@/pages/consultant360/Consultant360Login";
 import SalesLogin from "@/pages/sales/SalesLogin";
 import NotFound from "@/pages/NotFound";
 import StripeMockOnboarding from "@/pages/dev/StripeMockOnboarding";
@@ -58,6 +59,14 @@ export const AppRoutes = () => {
         element={
           <AnyAuthRedirectGate>
             <ConsultantLogin />
+          </AnyAuthRedirectGate>
+        }
+      />
+      <Route
+        path="/consultant360/login"
+        element={
+          <AnyAuthRedirectGate>
+            <Consultant360Login />
           </AnyAuthRedirectGate>
         }
       />

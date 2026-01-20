@@ -1,6 +1,11 @@
 /**
  * Consultant Auth Guard
- * Protects consultant routes and redirects to login if not authenticated
+ * Protects consultant routes with STRICT role isolation
+ * 
+ * Access Matrix:
+ * - RECRUITER → /consultant/* ONLY
+ * - SALES_AGENT → /sales-agent/* ONLY
+ * - CONSULTANT_360 → /consultant360/* ONLY
  */
 
 import { ReactNode, useEffect } from 'react';
@@ -12,6 +17,19 @@ interface ConsultantAuthGuardProps {
   children: ReactNode;
 }
 
+// Strict role-to-route mapping
+const ROLE_ROUTE_PREFIX: Record<string, string> = {
+  'RECRUITER': '/consultant',
+  'SALES_AGENT': '/sales-agent',
+  'CONSULTANT_360': '/consultant360'
+};
+
+const ROLE_LOGIN_PATH: Record<string, string> = {
+  'RECRUITER': '/consultant/login',
+  'SALES_AGENT': '/sales-agent/login',
+  'CONSULTANT_360': '/consultant/login' // 360 users login via consultant login
+};
+
 export function ConsultantAuthGuard({ children }: ConsultantAuthGuardProps) {
   const { isAuthenticated, isLoading, consultant } = useConsultantAuth();
   const navigate = useNavigate();
@@ -22,52 +40,39 @@ export function ConsultantAuthGuard({ children }: ConsultantAuthGuardProps) {
       if (!isAuthenticated) {
         console.log('[AuthGuard] Not authenticated. Redirecting to login. Path:', location.pathname);
         // Redirect to appropriate login based on path
+        // Redirect to appropriate login based on path
         if (location.pathname.startsWith('/sales-agent')) {
           navigate('/sales-agent/login', { replace: true });
         } else if (location.pathname.startsWith('/consultant360')) {
-          navigate('/consultant/login', { replace: true });
+          navigate('/consultant360/login', { replace: true });
         } else {
           navigate('/consultant/login', { replace: true });
         }
         return;
       }
 
-      // Check for role-based access
-      const isSalesRoute = location.pathname.startsWith('/sales-agent');
-      const isConsultant360Route = location.pathname.startsWith('/consultant360');
-      const isSalesAgent = consultant?.role === 'SALES_AGENT';
-      const isConsultant360 = consultant?.role === 'CONSULTANT_360';
+      const role = consultant?.role;
+      if (!role) {
+        console.warn('[AuthGuard] No role found. Redirecting to login.');
+        navigate('/consultant/login', { replace: true });
+        return;
+      }
 
-      console.log('[AuthGuard] Auth check:', {
+      // Get the route prefix this role is allowed to access
+      const allowedRoutePrefix = ROLE_ROUTE_PREFIX[role];
+      const isAccessingAllowedRoute = location.pathname.startsWith(allowedRoutePrefix);
+
+      console.log('[AuthGuard] Strict role check:', {
         path: location.pathname,
-        role: consultant?.role,
-        isSalesRoute,
-        isConsultant360Route,
-        isSalesAgent,
-        isConsultant360
+        role,
+        allowedRoutePrefix,
+        isAccessingAllowedRoute
       });
 
-      // CONSULTANT_360 can access ALL routes - no redirection needed
-      if (isConsultant360) {
-        console.log('[AuthGuard] CONSULTANT_360 user - full access granted');
-        return;
-      }
-
-      // Regular role-based access control
-      if (isConsultant360Route) {
-        // Only CONSULTANT_360 can access consultant360 routes
-        console.warn('[AuthGuard] Non-CONSULTANT_360 accessing consultant360 route. Redirecting.');
-        if (isSalesAgent) {
-          navigate('/sales-agent/dashboard', { replace: true });
-        } else {
-          navigate('/consultant/dashboard', { replace: true });
-        }
-      } else if (isSalesRoute && !isSalesAgent) {
-        console.warn('[AuthGuard] Role mismatch: Non-sales agent accessing sales route. Redirecting.');
-        navigate('/consultant/dashboard', { replace: true });
-      } else if (!isSalesRoute && !isConsultant360Route && isSalesAgent) {
-        console.warn('[AuthGuard] Role mismatch: Sales agent accessing consultant route. Redirecting.');
-        navigate('/sales-agent/dashboard', { replace: true });
+      // If user is trying to access a route they shouldn't, redirect to their dashboard
+      if (!isAccessingAllowedRoute) {
+        console.warn(`[AuthGuard] Role ${role} cannot access ${location.pathname}. Redirecting to ${allowedRoutePrefix}/dashboard`);
+        navigate(`${allowedRoutePrefix}/dashboard`, { replace: true });
       }
     }
   }, [isAuthenticated, isLoading, navigate, location.pathname, consultant]);
