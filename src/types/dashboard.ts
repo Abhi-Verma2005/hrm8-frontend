@@ -7,6 +7,7 @@ import { ComponentType } from "react";
 export type DashboardType =
   | "candidate"
   | "consultant"
+  | "consultant360"
   | "hrm8"
   | "main"
   | "sales-agent";
@@ -122,7 +123,7 @@ export interface LayoutFeatures {
 export interface DashboardConfig {
   sidebar: SidebarConfig;
   features: LayoutFeatures;
-  sidebarStateKey?: "candidate" | "consultant" | "hrm8";
+  sidebarStateKey?: "candidate" | "consultant" | "consultant360" | "hrm8";
 }
 
 /**

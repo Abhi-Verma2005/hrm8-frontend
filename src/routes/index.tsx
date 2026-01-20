@@ -13,6 +13,7 @@ import { candidateRoutes } from "./candidate.routes";
 import { hrm8Routes } from "./hrm8.routes";
 import { employerRoutes } from "./employer.routes";
 import { consultantRoutes } from "./consultant.routes";
+import { consultant360Routes } from "./consultant360.routes";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import EmployeeSignup from "@/pages/EmployeeSignup";
@@ -114,6 +115,9 @@ export const AppRoutes = () => {
 
       {/* Consultant routes (separate auth, separate layout) */}
       {consultantRoutes}
+
+      {/* Consultant 360 routes (unified dashboard with both recruiter and sales) */}
+      {consultant360Routes}
 
       {/* Sales Agent routes (separate auth, separate layout) */}
       {salesRoutes}

@@ -24,30 +24,49 @@ export function ConsultantAuthGuard({ children }: ConsultantAuthGuardProps) {
         // Redirect to appropriate login based on path
         if (location.pathname.startsWith('/sales-agent')) {
           navigate('/sales-agent/login', { replace: true });
+        } else if (location.pathname.startsWith('/consultant360')) {
+          navigate('/consultant/login', { replace: true });
         } else {
           navigate('/consultant/login', { replace: true });
         }
         return;
       }
 
-      // Check for role mismatch
+      // Check for role-based access
       const isSalesRoute = location.pathname.startsWith('/sales-agent');
+      const isConsultant360Route = location.pathname.startsWith('/consultant360');
       const isSalesAgent = consultant?.role === 'SALES_AGENT';
-      
-      console.log('[AuthGuard] Auth check:', { 
-        path: location.pathname, 
-        role: consultant?.role, 
-        isSalesRoute, 
-        isSalesAgent 
+      const isConsultant360 = consultant?.role === 'CONSULTANT_360';
+
+      console.log('[AuthGuard] Auth check:', {
+        path: location.pathname,
+        role: consultant?.role,
+        isSalesRoute,
+        isConsultant360Route,
+        isSalesAgent,
+        isConsultant360
       });
 
-      if (isSalesRoute && !isSalesAgent) {
+      // CONSULTANT_360 can access ALL routes - no redirection needed
+      if (isConsultant360) {
+        console.log('[AuthGuard] CONSULTANT_360 user - full access granted');
+        return;
+      }
+
+      // Regular role-based access control
+      if (isConsultant360Route) {
+        // Only CONSULTANT_360 can access consultant360 routes
+        console.warn('[AuthGuard] Non-CONSULTANT_360 accessing consultant360 route. Redirecting.');
+        if (isSalesAgent) {
+          navigate('/sales-agent/dashboard', { replace: true });
+        } else {
+          navigate('/consultant/dashboard', { replace: true });
+        }
+      } else if (isSalesRoute && !isSalesAgent) {
         console.warn('[AuthGuard] Role mismatch: Non-sales agent accessing sales route. Redirecting.');
-        // Non-sales agent trying to access sales dashboard
         navigate('/consultant/dashboard', { replace: true });
-      } else if (!isSalesRoute && isSalesAgent) {
+      } else if (!isSalesRoute && !isConsultant360Route && isSalesAgent) {
         console.warn('[AuthGuard] Role mismatch: Sales agent accessing consultant route. Redirecting.');
-        // Sales agent trying to access consultant dashboard
         navigate('/sales-agent/dashboard', { replace: true });
       }
     }
