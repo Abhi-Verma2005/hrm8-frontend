@@ -78,6 +78,7 @@ import { filterApplicationsByTags } from "@/lib/applicationTags";
 import { useMemo } from "react";
 import { verifyJobPayment } from "@/lib/payments";
 import { useAuth } from "@/contexts/AuthContext";
+import { HiringTeamDrawer, HiringTeamData } from "@/components/jobs/HiringTeamDrawer";
 
 export default function JobDetail() {
   const { jobId } = useParams();
@@ -95,7 +96,8 @@ export default function JobDetail() {
   const [talentPoolDialogOpen, setTalentPoolDialogOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [emailHubOpen, setEmailHubOpen] = useState(false);
-  const [allApplications, setAllApplications] = useState<Application[]>([]);
+  const [hiringTeamDrawerOpen, setHiringTeamDrawerOpen] = useState(false);
+  const [allApplications, setAllApplications] = useState<Application[]>([]);;
   const [applicationsFilters, setApplicationsFilters] = useState<JobApplicationsFilters>({
     searchQuery: '',
     selectedStages: [],
@@ -680,6 +682,10 @@ export default function JobDetail() {
             <Button size="sm" onClick={handleEditJob}>
               <Edit className="h-4 w-4 mr-2" />
               Edit
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setHiringTeamDrawerOpen(true)}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              Manage Team
             </Button>
             <JobLifecycleActions
               job={job}
@@ -1307,6 +1313,18 @@ export default function JobDetail() {
             onOpenChange={setEmailHubOpen}
             jobId={job.id}
             jobTitle={job.title}
+          />
+        )}
+
+        {/* Hiring Team Management Drawer */}
+        {job && (
+          <HiringTeamDrawer
+            open={hiringTeamDrawerOpen}
+            onOpenChange={setHiringTeamDrawerOpen}
+            jobId={job.id}
+            jobTitle={job.title}
+            hiringTeam={job.hiringTeam as HiringTeamData | null}
+            onUpdate={handleJobUpdate}
           />
         )}
       </div>

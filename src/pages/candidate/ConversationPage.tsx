@@ -135,6 +135,7 @@ export default function CandidateConversationPage() {
             messages={conversationMessages}
             currentUserEmail={candidate?.email}
             className="flex-1 bg-background/60"
+            viewerType="CANDIDATE"
           />
           <MessageInput
             conversationId={conversationId}

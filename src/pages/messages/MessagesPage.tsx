@@ -36,7 +36,8 @@ export default function MessagesPage() {
   const loadConversations = async () => {
     setIsLoading(true);
     try {
-      const response = await messagingService.getConversations();
+      // Use admin endpoint for HR inbox
+      const response = await messagingService.getAdminConversations();
       if (response.success && response.data) {
         setConversations(response.data);
       }
