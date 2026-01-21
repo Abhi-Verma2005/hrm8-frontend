@@ -3,9 +3,12 @@ import { CandidateDocument } from '@/types/entities';
 
 export const resumeService = {
   async getResume(resumeId: string): Promise<CandidateDocument> {
-    const response = await apiClient.get<{ success: boolean; data: CandidateDocument }>(
+    const response = await apiClient.get<CandidateDocument>(
       `/api/resumes/${resumeId}`
     );
-    return response.data.data;
+    if (!response.success || !response.data) {
+      throw new Error(response.error || 'Failed to fetch resume');
+    }
+    return response.data;
   },
 };

@@ -9,12 +9,12 @@ import { useToast } from '@/hooks/use-toast';
 import { regionalSalesService, RegionalLead } from '@/lib/hrm8/regionalSalesService';
 import { regionService, Region } from '@/lib/hrm8/regionService';
 import { useHrm8Auth } from '@/contexts/Hrm8AuthContext';
-import { 
-  Building2, 
-  Mail, 
-  Phone, 
-  Globe, 
-  UserPlus, 
+import {
+  Building2,
+  Mail,
+  Phone,
+  Globe,
+  UserPlus,
   Loader2,
   Filter
 } from 'lucide-react';
@@ -52,7 +52,7 @@ export default function RegionalLeadsPage() {
   const [regions, setRegions] = useState<Region[]>([]);
   const [consultants, setConsultants] = useState<Consultant[]>([]);
   const [selectedRegionId, setSelectedRegionId] = useState<string>('');
-  
+
   // Reassign Dialog State
   const [reassignDialogOpen, setReassignDialogOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<RegionalLead | null>(null);
@@ -102,9 +102,9 @@ export default function RegionalLeadsPage() {
   const fetchConsultants = async (regionId: string) => {
     try {
       // Use existing endpoint for consultants in region
-      const response = await apiClient.get<{ success: boolean, data: { consultants: Consultant[] } }>(`/api/hrm8/consultants?regionId=${regionId}`);
-      if (response.data?.success && response.data?.data?.consultants) {
-        setConsultants(response.data.data.consultants);
+      const response = await apiClient.get<{ consultants: Consultant[] }>(`/api/hrm8/consultants?regionId=${regionId}`);
+      if (response.success && response.data?.consultants) {
+        setConsultants(response.data.consultants);
       }
     } catch (error) {
       console.error('Failed to fetch consultants', error);
@@ -113,7 +113,7 @@ export default function RegionalLeadsPage() {
 
   const handleReassign = async () => {
     if (!selectedLead || !targetConsultantId) return;
-    
+
     setReassigning(true);
     try {
       const response = await regionalSalesService.reassignLead(selectedLead.id, targetConsultantId);
@@ -167,13 +167,13 @@ export default function RegionalLeadsPage() {
       key: 'status',
       label: 'Status',
       render: (lead) => (
-        <Badge 
+        <Badge
           variant={lead.status === 'CONVERTED' ? 'default' : 'secondary'}
           className={
             lead.status === 'NEW' ? 'bg-blue-100 text-blue-700 hover:bg-blue-100' :
-            lead.status === 'QUALIFIED' ? 'bg-purple-100 text-purple-700 hover:bg-purple-100' :
-            lead.status === 'CONVERTED' ? 'bg-green-100 text-green-700 hover:bg-green-100' :
-            ''
+              lead.status === 'QUALIFIED' ? 'bg-purple-100 text-purple-700 hover:bg-purple-100' :
+                lead.status === 'CONVERTED' ? 'bg-green-100 text-green-700 hover:bg-green-100' :
+                  ''
           }
         >
           {lead.status}
@@ -229,9 +229,9 @@ export default function RegionalLeadsPage() {
       key: 'actions',
       label: 'Actions',
       render: (lead) => (
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => {
             setSelectedLead(lead);
             setTargetConsultantId(lead.assigned_consultant_id || '');
@@ -253,12 +253,12 @@ export default function RegionalLeadsPage() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground">Regional Leads</h1>
           <p className="text-muted-foreground">Manage and reassign sales leads across your region.</p>
         </div>
-        
+
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
-            <Select 
-              value={selectedRegionId} 
+            <Select
+              value={selectedRegionId}
               onValueChange={(val) => {
                 setSelectedRegionId(val);
                 const params = new URLSearchParams(searchParams);
@@ -296,9 +296,9 @@ export default function RegionalLeadsPage() {
           {loading ? (
             <TableSkeleton columns={7} />
           ) : (
-            <DataTable 
-              data={leads} 
-              columns={columns} 
+            <DataTable
+              data={leads}
+              columns={columns}
               searchable
               searchKeys={['company_name', 'email', 'country']}
               emptyMessage="No leads found for this region"
@@ -316,12 +316,12 @@ export default function RegionalLeadsPage() {
               Select a new sales agent for {selectedLead?.company_name}.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">New Sales Agent</label>
-              <Select 
-                value={targetConsultantId} 
+              <Select
+                value={targetConsultantId}
                 onValueChange={setTargetConsultantId}
               >
                 <SelectTrigger>
@@ -337,11 +337,11 @@ export default function RegionalLeadsPage() {
               </Select>
             </div>
           </div>
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setReassignDialogOpen(false)}>Cancel</Button>
-            <Button 
-              onClick={handleReassign} 
+            <Button
+              onClick={handleReassign}
               disabled={reassigning || !targetConsultantId || targetConsultantId === selectedLead?.assigned_consultant_id}
             >
               {reassigning ? (

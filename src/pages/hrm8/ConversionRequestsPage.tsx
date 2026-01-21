@@ -27,6 +27,9 @@ export function ConversionRequestsPage() {
     const [processing, setProcessing] = useState(false);
     const [statusFilter, setStatusFilter] = useState<string>('PENDING');
 
+    // Credentials Dialog
+    const [credentials, setCredentials] = useState<{ email: string; password?: string; companyName: string } | null>(null);
+
     useEffect(() => {
         loadRequests();
     }, [statusFilter]);
@@ -49,7 +52,15 @@ export function ConversionRequestsPage() {
         try {
             setProcessing(true);
             const result = await leadConversionAdminService.approve(selectedRequest.id, adminNotes);
-            toast.success(`Conversion request approved! Lead converted to company: ${result.company.name}`);
+
+            // Show credentials to admin
+            setCredentials({
+                email: selectedRequest.email,
+                password: result.tempPassword,
+                companyName: result.company.name
+            });
+
+            toast.success(`Conversion request approved!`);
             closeDialog();
             loadRequests();
         } catch (error: any) {
@@ -278,6 +289,43 @@ export function ConversionRequestsPage() {
                             {processing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                             {actionType === 'approve' ? 'Approve & Convert' : 'Decline Request'}
                         </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Credentials Dialog */}
+            <Dialog open={!!credentials} onOpenChange={(open) => !open && setCredentials(null)}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Account Created Successfully</DialogTitle>
+                        <DialogDescription>
+                            The lead has been converted to a company account. Please share these login details with the user.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="bg-muted p-4 rounded-lg space-y-3 mt-4 border">
+                        <div className="grid grid-cols-3 gap-2 py-1 border-b border-muted-foreground/10">
+                            <span className="text-sm font-medium text-muted-foreground">Company:</span>
+                            <span className="text-sm font-bold col-span-2">{credentials?.companyName}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 py-1 border-b border-muted-foreground/10">
+                            <span className="text-sm font-medium text-muted-foreground">Email:</span>
+                            <span className="text-sm font-mono col-span-2 break-all">{credentials?.email}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 py-1">
+                            <span className="text-sm font-medium text-muted-foreground">Password:</span>
+                            <span className="text-sm font-mono text-primary font-bold col-span-2">
+                                {credentials?.password || '******** (Manually set by agent)'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="bg-blue-50 border border-blue-200 p-3 rounded text-xs text-blue-700 mt-2">
+                        <strong>Security Note:</strong> This password will not be shown again. Please ensure you copy it now.
+                    </div>
+
+                    <DialogFooter>
+                        <Button onClick={() => setCredentials(null)}>Close</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
