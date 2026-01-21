@@ -8,7 +8,7 @@
  * - CONSULTANT_360 → /consultant360/* ONLY
  */
 
-import { ReactNode, useEffect } from 'react';
+import { ReactNode, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useConsultantAuth } from '@/contexts/ConsultantAuthContext';
 import { Loader2 } from 'lucide-react';
@@ -31,9 +31,18 @@ const ROLE_LOGIN_PATH: Record<string, string> = {
 };
 
 export function ConsultantAuthGuard({ children }: ConsultantAuthGuardProps) {
-  const { isAuthenticated, isLoading, consultant } = useConsultantAuth();
+  const { isAuthenticated, isLoading, consultant, refreshConsultant } = useConsultantAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const hasRefreshed = useRef(false);
+
+  // Refresh consultant data on mount to catch any role changes made by admin
+  useEffect(() => {
+    if (isAuthenticated && !hasRefreshed.current) {
+      hasRefreshed.current = true;
+      refreshConsultant();
+    }
+  }, [isAuthenticated, refreshConsultant]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -91,3 +100,4 @@ export function ConsultantAuthGuard({ children }: ConsultantAuthGuardProps) {
 
   return <>{children}</>;
 }
+

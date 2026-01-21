@@ -277,6 +277,7 @@ export function StaffForm({ consultantId, onSave, onCancel }: StaffFormProps) {
         <Select
           value={watch('role')}
           onValueChange={(value) => setValue('role', value as "RECRUITER" | "SALES_AGENT" | "CONSULTANT_360")}
+          disabled={!!consultantId} // Disable role change in edit mode
         >
           <SelectTrigger>
             <SelectValue />
@@ -287,6 +288,11 @@ export function StaffForm({ consultantId, onSave, onCancel }: StaffFormProps) {
             <SelectItem value="CONSULTANT_360">360 Consultant</SelectItem>
           </SelectContent>
         </Select>
+        {!!consultantId && (
+          <p className="text-xs text-muted-foreground">
+            To change the role, please use the "Change Role" option from the actions menu
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">

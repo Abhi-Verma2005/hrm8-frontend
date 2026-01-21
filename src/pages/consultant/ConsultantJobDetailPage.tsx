@@ -146,7 +146,7 @@ export default function ConsultantJobDetailPage() {
             <div className="p-6 space-y-6">
                 {/* Header with Back Button */}
                 <div>
-                    <Button variant="ghost" className="mb-2 pl-0 hover:pl-2 transition-all" onClick={() => navigate('/consultant/jobs')}>
+                    <Button variant="ghost" className="mb-2 pl-0 hover:pl-2 transition-all" onClick={() => navigate('..', { relative: 'path' })}>
                         <ArrowLeft className="mr-2 h-4 w-4" /> Back to My Jobs
                     </Button>
                     <div className="flex justify-between items-start">
@@ -275,8 +275,8 @@ export default function ConsultantJobDetailPage() {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <ApplicationPipeline 
-                                jobId={id} 
+                            <ApplicationPipeline
+                                jobId={id}
                                 jobTitle={job.title}
                                 isConsultantView={true}
                             />

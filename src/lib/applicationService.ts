@@ -232,6 +232,19 @@ class ApplicationService {
   }) {
     return apiClient.post<{ application: Application; message: string }>('/api/applications/from-talent-pool', data);
   }
+  /**
+   * Approve a hire (Company Admin action)
+   */
+  async approveHire(applicationId: string) {
+    return apiClient.post<{
+      success: boolean;
+      message: string;
+      data: {
+        applicationId: string;
+        commissionConfirmed: boolean
+      }
+    }>(`/api/employer/hires/${applicationId}/approve`);
+  }
 }
 
 export interface TalentPoolCandidate {
