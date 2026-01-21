@@ -588,36 +588,46 @@ export function ApplicationPipeline({
         }
 
         // Map API applications to frontend Application type
+        // Handle both pre-transformed consultant data and raw employer API data
         const mappedApplications: Application[] = apiApplications.map((app: any) => ({
           id: app.id,
-          candidateId: app.candidateId,
-          candidateName: app.candidate?.firstName && app.candidate?.lastName
-            ? `${app.candidate.firstName} ${app.candidate.lastName}`
-            : 'Unknown Candidate',
-          candidateEmail: app.candidate?.email || '',
-          candidatePhoto: app.candidate?.photo,
-          jobId: app.jobId,
-          jobTitle: app.job?.title || 'Unknown Job',
-          employerName: app.job?.company?.name || 'Unknown Company',
-          appliedDate: app.appliedDate ? new Date(app.appliedDate) : new Date(),
+          candidateId: app.candidateId || app.candidate_id || app.candidate?.id,
+          // Handle pre-transformed data (candidateName) or raw data (candidate.firstName/first_name)
+          candidateName: app.candidateName || (
+            (app.candidate?.firstName && app.candidate?.lastName)
+              ? `${app.candidate.firstName} ${app.candidate.lastName}`
+              : (app.candidate?.first_name && app.candidate?.last_name)
+                ? `${app.candidate.first_name} ${app.candidate.last_name}`
+                : 'Unknown Candidate'
+          ),
+          candidateEmail: app.candidateEmail || app.candidate?.email || '',
+          candidatePhoto: app.candidatePhoto || app.candidate?.photo,
+          jobId: app.jobId || app.job_id,
+          jobTitle: app.jobTitle || app.job?.title || 'Unknown Job',
+          employerName: app.employerName || app.job?.company?.name || 'Unknown Company',
+          appliedDate: app.appliedDate ? new Date(app.appliedDate) : (app.applied_date ? new Date(app.applied_date) : new Date()),
           status: mapApplicationStatus(app.status),
           stage: mapApplicationStage(app.stage),
           roundId: roundMap[app.id],
-          resumeUrl: app.resumeUrl,
-          coverLetterUrl: app.coverLetterUrl,
-          portfolioUrl: app.portfolioUrl,
-          linkedInUrl: app.linkedInUrl,
-          customAnswers: app.customAnswers || [],
-          isRead: app.isRead,
-          isNew: app.isNew,
+          resumeUrl: app.resumeUrl || app.resume_url || app.candidate?.resume_url,
+          coverLetterUrl: app.coverLetterUrl || app.cover_letter_url,
+          portfolioUrl: app.portfolioUrl || app.portfolio_url,
+          linkedInUrl: app.linkedInUrl || app.linked_in_url || app.candidate?.linked_in_url,
+          customAnswers: app.customAnswers || app.custom_answers || [],
+          isRead: app.isRead ?? app.is_read,
+          isNew: app.isNew ?? app.is_new,
           tags: app.tags || [],
           notes: [],
           activities: [],
           interviews: [],
-          createdAt: app.createdAt ? new Date(app.createdAt) : new Date(),
-          updatedAt: app.updatedAt ? new Date(app.updatedAt) : new Date(),
+          createdAt: app.createdAt ? new Date(app.createdAt) : (app.created_at ? new Date(app.created_at) : new Date()),
+          updatedAt: app.updatedAt ? new Date(app.updatedAt) : (app.updated_at ? new Date(app.updated_at) : new Date()),
           shortlisted: app.shortlisted || false,
-          manuallyAdded: app.manuallyAdded || false,
+          manuallyAdded: app.manuallyAdded || app.manually_added || false,
+          // Include AI scoring fields for ApplicationCard display
+          score: app.score,
+          aiMatchScore: app.aiMatchScore || app.aiScore || app.score, // Used by AIMatchBadge
+          aiAnalysis: app.aiAnalysis, // Used for recommendation badge and justification
         }));
         setApplications(mappedApplications);
         return undefined;
