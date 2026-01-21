@@ -41,24 +41,26 @@ export const emailTriggerService = {
    * Get triggers for a job round
    */
   async getTriggers(roundId: string): Promise<EmailTrigger[]> {
-    const response = await apiClient.get(`/api/job-rounds/${roundId}/email-triggers`);
-    return response.data.data;
+    const response = await apiClient.get<EmailTrigger[]>(`/api/job-rounds/${roundId}/email-triggers`);
+    return response.data || [];
   },
 
   /**
    * Create trigger
    */
   async createTrigger(roundId: string, data: CreateEmailTriggerRequest): Promise<EmailTrigger> {
-    const response = await apiClient.post(`/api/job-rounds/${roundId}/email-triggers`, data);
-    return response.data.data;
+    const response = await apiClient.post<EmailTrigger>(`/api/job-rounds/${roundId}/email-triggers`, data);
+    if (!response.success || !response.data) throw new Error(response.error);
+    return response.data;
   },
 
   /**
    * Update trigger
    */
   async updateTrigger(id: string, data: UpdateEmailTriggerRequest): Promise<EmailTrigger> {
-    const response = await apiClient.put(`/api/email-triggers/${id}`, data);
-    return response.data.data;
+    const response = await apiClient.put<EmailTrigger>(`/api/email-triggers/${id}`, data);
+    if (!response.success || !response.data) throw new Error(response.error);
+    return response.data;
   },
 
   /**

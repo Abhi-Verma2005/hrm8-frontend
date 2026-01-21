@@ -36,9 +36,9 @@ export function NotificationSettings() {
 
     const fetchPreferences = async () => {
         try {
-            const response = await apiClient.get("/candidate/notifications/preferences");
-            if (response.data.data) {
-                setPreferences(response.data.data);
+            const response = await apiClient.get<NotificationPreferences>("/candidate/notifications/preferences");
+            if (response.success && response.data) {
+                setPreferences(response.data);
             }
         } catch (error) {
             console.error("Failed to fetch notification preferences:", error);

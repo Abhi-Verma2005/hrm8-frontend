@@ -27,13 +27,13 @@ export default function SalesDashboardPage() {
         const response = await salesService.getDashboardStats();
         if (response.success && response.data) {
           // Add IDs to recent activity for DataTable keys
-          const activityWithIds = response.data.data.recentActivity.map((item, index: number) => ({
+          const activityWithIds = response.data.recentActivity.map((item, index: number) => ({
             ...item,
             id: `activity-${index}-${item.date}-${item.type}`,
           } as ActivityItem));
 
           setStats({
-            ...response.data.data,
+            ...response.data,
             recentActivity: activityWithIds as unknown as SalesDashboardStats['recentActivity']
           });
         } else {

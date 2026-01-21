@@ -23,10 +23,10 @@ export const questionService = {
    * Get application form configuration for a job
    */
   async getApplicationForm(jobId: string): Promise<ApplicationFormConfig | null> {
-    const response = await apiClient.get<{ success: boolean; data: { applicationForm: ApplicationFormConfig | null } }>(
+    const response = await apiClient.get<{ applicationForm: ApplicationFormConfig | null }>(
       `/api/jobs/${jobId}/application-form`
     );
-    return response.data.data.applicationForm;
+    return response.data?.applicationForm || null;
   },
 
   /**
@@ -44,7 +44,7 @@ export const questionService = {
     const endpoint = jobId && jobId !== 'new'
       ? `/api/jobs/${jobId}/application-form/generate-questions`
       : `/api/jobs/new/application-form/generate-questions`;
-    
+
     const response = await apiClient.post<{ questions: ApplicationQuestion[] }>(
       endpoint,
       request
@@ -54,17 +54,7 @@ export const questionService = {
       throw new Error(response.error || 'Failed to generate questions');
     }
 
-    // Backend returns { success: true, data: { questions: [...] } }
-    // apiClient returns { success: true, data: { success: true, data: { questions: [...] } } }
-    // So we need to access response.data.data.questions
-    const questions = (response.data as any)?.data?.questions || (response.data as any)?.questions;
-    
-    if (!questions || !Array.isArray(questions)) {
-      console.error('Unexpected response structure:', response);
-      throw new Error('Invalid response format from question generation API');
-    }
-
-    return questions;
+    return response.data.questions;
   },
 };
 

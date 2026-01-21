@@ -12,7 +12,7 @@ class CompanySettingsService {
    * Get job assignment settings for a company
    */
   async getJobAssignmentSettings(companyId: string): Promise<JobAssignmentSettings> {
-    const response = await apiClient.get<{ success: boolean; data: JobAssignmentSettings }>(
+    const response = await apiClient.get<JobAssignmentSettings>(
       `/api/companies/${companyId}/job-assignment-settings`
     );
 
@@ -20,7 +20,7 @@ class CompanySettingsService {
       throw new Error(response.error || 'Failed to fetch job assignment settings');
     }
 
-    return response.data.data;
+    return response.data;
   }
 
   /**

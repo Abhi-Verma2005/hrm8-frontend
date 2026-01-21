@@ -142,7 +142,7 @@ export const salesService = {
 
   // Dashboard
   getDashboardStats: async () => {
-    return await apiClient.get<{ data: SalesDashboardStats }>('/api/sales/dashboard/stats');
+    return await apiClient.get<SalesDashboardStats>('/api/sales/dashboard/stats');
   },
 
   // Leads

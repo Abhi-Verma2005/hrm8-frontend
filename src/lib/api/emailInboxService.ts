@@ -52,24 +52,25 @@ export const emailInboxService = {
     if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.offset) params.append('offset', filters.offset.toString());
 
-    const response = await apiClient.get(`/api/emails?${params.toString()}`);
-    return response.data.data;
+    const response = await apiClient.get<EmailMessage[]>(`/api/emails?${params.toString()}`);
+    return response.data || [];
   },
 
   /**
    * Get email by ID
    */
   async getEmail(id: string): Promise<EmailMessage> {
-    const response = await apiClient.get(`/api/emails/${id}`);
-    return response.data.data;
+    const response = await apiClient.get<EmailMessage>(`/api/emails/${id}`);
+    if (!response.success || !response.data) throw new Error(response.error);
+    return response.data;
   },
 
   /**
    * Get emails for an application
    */
   async getApplicationEmails(applicationId: string): Promise<EmailMessage[]> {
-    const response = await apiClient.get(`/api/applications/${applicationId}/emails`);
-    return response.data.data;
+    const response = await apiClient.get<EmailMessage[]>(`/api/applications/${applicationId}/emails`);
+    return response.data || [];
   },
 
   /**
