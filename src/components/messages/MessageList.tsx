@@ -8,17 +8,25 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { MessageData } from '@/types/websocket';
 import { cn } from '@/lib/utils';
 import { format, isSameDay } from 'date-fns';
+import { Loader2 } from 'lucide-react';
 
 interface MessageListProps {
   messages: MessageData[];
   currentUserEmail?: string;
   className?: string;
+  hideSystemMessages?: boolean;
+  isLoading?: boolean;
+  /** 'HR' = viewing as HR/employer, 'CANDIDATE' = viewing as candidate */
+  viewerType?: 'HR' | 'CANDIDATE';
 }
 
 export function MessageList({
   messages,
   currentUserEmail,
   className,
+  hideSystemMessages = false,
+  isLoading = false,
+  viewerType = 'HR',
 }: MessageListProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -29,7 +37,27 @@ export function MessageList({
     }
   }, [messages]);
 
-  if (messages.length === 0) {
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div
+        className={cn(
+          'flex flex-col items-center justify-center h-full text-muted-foreground p-8',
+          className
+        )}
+      >
+        <Loader2 className="h-8 w-8 animate-spin mb-4" />
+        <p className="text-sm">Loading messages...</p>
+      </div>
+    );
+  }
+
+  // Filter out system messages if hideSystemMessages is true
+  const filteredMessages = hideSystemMessages 
+    ? messages.filter(m => m.senderType !== 'SYSTEM')
+    : messages;
+
+  if (filteredMessages.length === 0) {
     return (
       <div
         className={cn(
@@ -48,7 +76,7 @@ export function MessageList({
 
   // Group messages by date
   const groupedMessages: { date: Date; msgs: MessageData[] }[] = [];
-  messages.forEach((msg) => {
+  filteredMessages.forEach((msg) => {
     const date = new Date(msg.createdAt);
     if (isNaN(date.getTime())) return;
 
@@ -64,6 +92,33 @@ export function MessageList({
     }
   });
 
+  // Determine if a message is from "own" perspective based on viewer type
+  const isOwnMessage = (message: MessageData): boolean => {
+    const senderType = message.senderType;
+    
+    if (viewerType === 'HR') {
+      // HR view: EMPLOYER/CONSULTANT messages are "own" (right side)
+      return senderType === 'EMPLOYER' || senderType === 'CONSULTANT';
+    } else {
+      // Candidate view: CANDIDATE messages are "own" (right side)
+      return senderType === 'CANDIDATE';
+    }
+  };
+
+  // Get sender label based on sender type
+  const getSenderLabel = (message: MessageData): string => {
+    const senderType = message.senderType;
+    if (senderType === 'EMPLOYER' || senderType === 'CONSULTANT') {
+      return 'HR';
+    } else if (senderType === 'CANDIDATE') {
+      // Extract name from email or use "Candidate"
+      const email = message.senderEmail || '';
+      const name = email.split('@')[0];
+      return name.charAt(0).toUpperCase() + name.slice(1) || 'Candidate';
+    }
+    return '';
+  };
+
   return (
     <div className={cn('flex-1 overflow-y-auto px-4 py-4 space-y-6', className)} ref={scrollRef}>
       {groupedMessages.map((group, groupIndex) => (
@@ -75,10 +130,12 @@ export function MessageList({
           </div>
 
           {group.msgs.map((message, i) => {
-            const isOwn = message.isOwn || message.senderEmail === currentUserEmail;
+            const isOwn = isOwnMessage(message);
             const isSystem = message.senderType === 'SYSTEM';
             const prevMessage = group.msgs[i - 1];
-            const isSequence = prevMessage && prevMessage.senderEmail === message.senderEmail;
+            const isSequence = prevMessage && prevMessage.senderType === message.senderType;
+            const senderLabel = getSenderLabel(message);
+            const isHrMessage = message.senderType === 'EMPLOYER' || message.senderType === 'CONSULTANT';
 
             if (isSystem) {
               return (
@@ -107,14 +164,21 @@ export function MessageList({
               <div
                 key={message.id}
                 className={cn(
-                  'flex gap-3 group', // Added 'group' for hover effects if needed
+                  'flex gap-3 group',
                   isOwn ? 'flex-row-reverse' : 'flex-row',
                   isSequence ? 'mt-1' : 'mt-4'
                 )}
               >
                 {!isOwn && (
                   <Avatar className={cn("h-8 w-8 shrink-0 shadow-sm border border-background", isSequence && "opacity-0")}>
-                    <AvatarFallback className="text-[10px] bg-muted text-muted-foreground">{initials}</AvatarFallback>
+                    <AvatarFallback className={cn(
+                      "text-[10px]",
+                      isHrMessage 
+                        ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" 
+                        : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                    )}>
+                      {isHrMessage ? 'HR' : initials}
+                    </AvatarFallback>
                   </Avatar>
                 )}
 
@@ -127,9 +191,12 @@ export function MessageList({
                   <div
                     className={cn(
                       'px-4 py-2 text-sm shadow-sm relative',
-                      isOwn
-                        ? 'bg-primary text-primary-foreground rounded-2xl rounded-tr-sm'
-                        : 'bg-white dark:bg-muted/40 text-foreground border border-border/50 rounded-2xl rounded-tl-sm',
+                      // HR messages: green bubble
+                      isHrMessage && !isOwn && 'bg-emerald-500 text-white rounded-2xl rounded-tl-sm',
+                      isHrMessage && isOwn && 'bg-emerald-500 text-white rounded-2xl rounded-tr-sm',
+                      // Candidate messages: blue bubble
+                      !isHrMessage && !isOwn && 'bg-blue-500 text-white rounded-2xl rounded-tl-sm',
+                      !isHrMessage && isOwn && 'bg-blue-500 text-white rounded-2xl rounded-tr-sm',
                       isSequence && (isOwn ? 'rounded-tr-2xl' : 'rounded-tl-2xl')
                     )}
                   >
@@ -138,7 +205,16 @@ export function MessageList({
                     </p>
                   </div>
 
-                  <div className={cn("flex items-center gap-1.5 px-1 opacity-60 group-hover:opacity-100 transition-opacity", isOwn && "flex-row-reverse")}>
+                  <div className={cn("flex items-center gap-1.5 px-1", isOwn && "flex-row-reverse")}>
+                    <span className={cn(
+                      "text-[10px] font-medium",
+                      isHrMessage ? "text-emerald-600 dark:text-emerald-400" : "text-blue-600 dark:text-blue-400"
+                    )}>
+                      {senderLabel}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      •
+                    </span>
                     <span className="text-[10px] text-muted-foreground">
                       {(() => {
                         try {
@@ -150,7 +226,6 @@ export function MessageList({
                         }
                       })()}
                     </span>
-                    {/* Only show 'Delivered/Read' for own messages? - can be added later */}
                   </div>
                 </div>
               </div>
@@ -161,4 +236,3 @@ export function MessageList({
     </div>
   );
 }
-
