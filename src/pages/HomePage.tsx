@@ -35,11 +35,13 @@ export default function HomePage() {
       }
 
       try {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
         const [stats, balance, subs, activeSub] = await Promise.all([
           companyService.getCompanyStats(user.companyId),
           walletService.getBalance().catch(() => ({ balance: 0, totalCredits: 0, totalDebits: 0, status: 'ACTIVE' })),
           walletService.getSubscriptions().catch(() => []),
-          fetch(`/api/companies/${user.companyId}/subscription/active`, {
+          fetch(`${API_URL}/api/companies/${user.companyId}/subscription/active`, {
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
           }).then(res => res.ok ? res.json() : { success: false, data: null }).catch(() => ({ success: false, data: null }))
