@@ -70,6 +70,7 @@ export default function OpportunitiesPage() {
   const [qualificationDialogOpen, setQualificationDialogOpen] = useState(false);
   const [convertDialogOpen, setConvertDialogOpen] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [processing, setProcessing] = useState(false);
 
   // Forms State
   const [createForm, setCreateForm] = useState({
@@ -115,6 +116,7 @@ export default function OpportunitiesPage() {
       return;
     }
 
+    setProcessing(true);
     setIsQualifying(true);
     setQualificationData(null);
     setCurrentQualificationStep(0);
@@ -180,6 +182,8 @@ export default function OpportunitiesPage() {
     } catch (error) {
       setIsQualifying(false);
       toast({ title: "Error", description: "Failed to create lead", variant: "destructive" });
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -220,6 +224,8 @@ export default function OpportunitiesPage() {
         description: error.message || "Failed to submit conversion request",
         variant: "destructive"
       });
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -423,8 +429,11 @@ export default function OpportunitiesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleCreateLead}>Create Lead</Button>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)} disabled={processing}>Cancel</Button>
+            <Button onClick={handleCreateLead} disabled={processing}>
+              {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create Lead
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -647,8 +656,11 @@ export default function OpportunitiesPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConvertDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleRequestConversion}>Submit Request</Button>
+            <Button variant="outline" onClick={() => setConvertDialogOpen(false)} disabled={processing}>Cancel</Button>
+            <Button onClick={handleRequestConversion} disabled={processing}>
+              {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Submit Request
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
