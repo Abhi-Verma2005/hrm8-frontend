@@ -107,12 +107,20 @@ export function ConversationList({
               key={conversation.id}
               onClick={() => {
                 // Determine path based on current route context
-                // If we're already in candidate routes, use candidate path
-                // Otherwise, check if we're in admin routes
-                const isCandidateRoute = window.location.pathname.startsWith('/candidate');
-                const path = isCandidateRoute
-                  ? `/candidate/messages/${conversation.id}`
-                  : `/messages/${conversation.id}`;
+                const pathname = window.location.pathname;
+                const isCandidateRoute = pathname.startsWith('/candidate');
+                const isConsultant360Route = pathname.startsWith('/consultant360');
+                const isConsultantRoute = pathname.startsWith('/consultant');
+
+                let path = `/messages/${conversation.id}`;
+                if (isCandidateRoute) {
+                  path = `/candidate/messages/${conversation.id}`;
+                } else if (isConsultant360Route) {
+                  path = `/consultant360/messages/${conversation.id}`; // Assuming consultant360 mirrors standard consultant portal structure for now
+                } else if (isConsultantRoute) {
+                  path = `/consultant/messages/${conversation.id}`;
+                }
+
                 navigate(path);
               }}
               className={cn(

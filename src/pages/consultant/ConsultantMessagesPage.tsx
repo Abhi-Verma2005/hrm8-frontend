@@ -18,10 +18,10 @@ import { toast } from 'sonner';
 
 export default function ConsultantMessagesPage() {
     const { consultant, isAuthenticated } = useConsultantAuth();
-    const { conversations, setConversations, messages, setMessages, sendMessage } = useWebSocket();
+    const { conversations, setConversations, messages, joinConversation } = useWebSocket();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
-    const { id: conversationId } = useParams();
+    const { conversationId } = useParams();
 
     const loadConversations = async () => {
         setIsLoading(true);
@@ -49,16 +49,14 @@ export default function ConsultantMessagesPage() {
         if (conversationId && isAuthenticated) {
             ConsultantCandidateService.markRead(conversationId).catch(console.error);
             // Also simpler to fetch messages? WebSocket should subscribe automatically if setup correctly.
-            // The WebSocketContext typically handles subscription based on auth, but let's check if we need to manually join.
-            // Usually 'join_conversation' or similar. 
-            // Assuming existing WebSocketContext handles global 'user_id' channel or specific logic.
-            // If we need to fetch history explicitly:
-            ConsultantCandidateService.getMessages(conversationId).then(history => {
-                setMessages(prev => ({
-                    ...prev,
-                    [conversationId]: history
-                }));
-            });
+            // The WebSocketContext typically handles subscription based on auth.
+            // When we mount or change conversationId, we should ensure we join it.
+            // The ConsultantCandidateService.getMessages call is redundant if WS works, 
+            // but if we want to prefetch REST-style, we'd need to add setMessages to context or use local state.
+            // Given the WS implementation, 'joinConversation' is the correct method.
+            if (joinConversation) {
+                joinConversation(conversationId);
+            }
         }
     }, [conversationId, isAuthenticated]);
 
