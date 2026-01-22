@@ -117,6 +117,7 @@ export interface WebSocketContextType {
   isConnected: boolean;
   sendMessage: (type: WSMessageType, payload: unknown) => void;
   joinConversation: (conversationId: string) => void;
+  leaveConversation: () => void;
   currentConversationId: string | null;
   onlineUsers: OnlineUser[];
   messages: Record<string, MessageData[]>;

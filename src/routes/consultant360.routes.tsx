@@ -48,6 +48,7 @@ export const consultant360Routes = (
 
         {/* Shared Features */}
         <Route path="messages" element={<ConsultantMessagesPage />} />
+        <Route path="messages/:conversationId" element={<ConsultantMessagesPage />} />
         <Route path="profile" element={<ConsultantProfilePage />} />
     </Route>
 );

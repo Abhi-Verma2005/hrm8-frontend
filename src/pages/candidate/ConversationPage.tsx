@@ -21,7 +21,7 @@ export default function CandidateConversationPage() {
   // All hooks must be called unconditionally at the top level
   const { conversationId } = useParams<{ conversationId: string }>();
   const { candidate } = useCandidateAuth();
-  const { messages, joinConversation, isConnected } = useWebSocket();
+  const { messages, joinConversation, leaveConversation, isConnected } = useWebSocket();
   const navigate = useNavigate();
   const [conversation, setConversation] = useState<ConversationData | null>(
     null
@@ -52,7 +52,13 @@ export default function CandidateConversationPage() {
       loadConversation();
       joinConversation(conversationId);
     }
-  }, [conversationId, loadConversation, joinConversation]);
+
+    return () => {
+      if (leaveConversation) {
+        leaveConversation();
+      }
+    };
+  }, [conversationId, loadConversation, joinConversation, leaveConversation]);
 
   // Mark messages as read on load/focus
   useEffect(() => {

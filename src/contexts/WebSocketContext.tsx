@@ -61,6 +61,8 @@ export function WebSocketProvider({
     string | null
   >(null);
 
+  const currentConversationIdRef = useRef<string | null>(null);
+
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectAttemptRef = useRef(0);
@@ -68,6 +70,11 @@ export function WebSocketProvider({
   const messageHandlersRef = useRef<
     Map<WSMessageType, (payload: any) => void>
   >(new Map());
+
+  // Sync ref with state
+  useEffect(() => {
+    currentConversationIdRef.current = currentConversationId;
+  }, [currentConversationId]);
 
   const isConnected = connectionState === 'connected';
 
@@ -108,20 +115,21 @@ export function WebSocketProvider({
           break;
 
         case 'online_users_list':
-          setOnlineUsers(message.payload.users || []);
+          setOnlineUsers((message.payload as any).users || []);
           break;
 
         case 'user_online':
           setOnlineUsers((prev) => {
+            const payload = message.payload as any;
             const exists = prev.find(
-              (u) => u.userEmail === message.payload.userEmail
+              (u) => u.userEmail === payload.userEmail
             );
             if (exists) return prev;
             return [
               ...prev,
               {
-                userEmail: message.payload.userEmail,
-                userName: message.payload.userName,
+                userEmail: payload.userEmail,
+                userName: payload.userName,
               },
             ];
           });
@@ -130,13 +138,13 @@ export function WebSocketProvider({
         case 'user_offline':
           setOnlineUsers((prev) =>
             prev.filter(
-              (u) => u.userEmail !== message.payload.userEmail
+              (u) => u.userEmail !== (message.payload as any).userEmail
             )
           );
           break;
 
         case 'messages_loaded':
-          const { conversationId, messages: loadedMessages } = message.payload;
+          const { conversationId, messages: loadedMessages } = message.payload as any;
           setMessages((prev) => ({
             ...prev,
             [conversationId]: loadedMessages,
@@ -150,7 +158,21 @@ export function WebSocketProvider({
             const conversationMessages = prev[newMessage.conversationId] || [];
             // Check if message already exists
             const exists = conversationMessages.some((m) => m.id === newMessage.id);
-            if (exists) return prev;
+
+            console.log('🔄 Processing new_message/message_sent:', {
+              id: newMessage.id,
+              content: newMessage.content,
+              conversationId: newMessage.conversationId,
+              exists,
+              currentCount: conversationMessages.length
+            });
+
+            if (exists) {
+              console.log('⚠️ Message already exists, skipping update');
+              return prev;
+            }
+
+            console.log('✅ Adding new message to state');
             return {
               ...prev,
               [newMessage.conversationId]: [...conversationMessages, newMessage],
@@ -160,23 +182,34 @@ export function WebSocketProvider({
 
         case 'error':
           console.error('❌ WebSocket error:', message.payload);
+          const errorPayload = message.payload as any;
           // Show toast notification for messaging restriction errors
-          if (message.payload?.code === 4010 || message.payload?.code === 4011) {
+          if (errorPayload?.code === 4010 || errorPayload?.code === 4011) {
             toast({
               title: 'Message Not Sent',
-              description: message.payload.message,
+              description: errorPayload.message,
               variant: 'destructive',
+              duration: 5000,
             });
-          } else if (message.payload?.message) {
+          } else if (errorPayload?.message) {
             toast({
               title: 'Error',
-              description: message.payload.message,
+              description: errorPayload.message,
               variant: 'destructive',
             });
           }
           break;
 
         case 'notification':
+          // Check if this notification corresponds to the currently OPEN and FOCUSED conversation
+          const notificationPayload = message.payload as any;
+          if (
+            notificationPayload.type === 'NEW_MESSAGE' &&
+            notificationPayload.data?.conversationId === currentConversationIdRef.current
+          ) {
+            console.log('🔕 Suppressing notification for active conversation:', currentConversationIdRef.current);
+            return;
+          }
           console.log('🔔 Notification received:', message.payload);
           break;
 
@@ -283,6 +316,7 @@ export function WebSocketProvider({
   const joinConversation = useCallback(
     (conversationId: string) => {
       setCurrentConversationId(conversationId);
+      currentConversationIdRef.current = conversationId; // Update ref immediately
       sendMessage('join_conversation', { conversationId });
     },
     [sendMessage]
@@ -336,11 +370,20 @@ export function WebSocketProvider({
     };
   }, [disconnect]);
 
+  // Leave current conversation
+  const leaveConversation = useCallback(() => {
+    setCurrentConversationId(null);
+    currentConversationIdRef.current = null;
+    // Optional: Notify backend if needed, or backend handles it via new join or disconnect
+    // sendMessage('leave_conversation', {}); 
+  }, []);
+
   const value: WebSocketContextType = {
     connectionState,
     isConnected,
     sendMessage,
     joinConversation,
+    leaveConversation,
     currentConversationId,
     onlineUsers,
     messages,

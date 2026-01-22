@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 // Removed DashboardPageLayout import as it's no longer needed
 import { AtsPageHeader } from "@/components/layouts/AtsPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Plus, Target, DollarSign, TrendingUp, Award, LayoutGrid, List, Eye, Download, BarChart3, Loader2 } from "lucide-react";
+import { Plus, Target, DollarSign, TrendingUp, Award, LayoutGrid, List, Eye, Download, BarChart3, Loader2, Briefcase, Users } from "lucide-react";
 import { DataTable } from "@/components/tables/DataTable";
 import { salesService, Opportunity, PipelineStats } from "@/lib/sales/salesService";
+import { consultant360Service } from "@/lib/consultant360/consultant360Service";
 import type { SalesOpportunity, OpportunityStage, OpportunityType } from "@/types/salesOpportunity";
 import { EnhancedStatCard } from "@/components/dashboard/EnhancedStatCard";
 import { createOpportunityColumns } from "@/components/sales/SalesOpportunityTableColumns";
@@ -17,14 +18,29 @@ import { exportOpportunities } from "@/lib/salesExportService";
 import { SalesExportDialog, ExportConfig } from "@/components/sales/SalesExportDialog";
 import { formatCurrency } from "@/lib/utils";
 
+// Types for recruiting pipeline
+interface RecruitingStats {
+  activeJobs: number;
+  totalPlacements: number;
+  recruiterEarnings: number;
+  pendingBalance: number;
+}
+
 export default function SalesPipelinePage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
   const [stats, setStats] = useState<PipelineStats | null>(null);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
+
+  // Recruiting stats for Consultant360 unified view
+  const [recruitingStats, setRecruitingStats] = useState<RecruitingStats | null>(null);
+
+  // Check if we're in Consultant360 context
+  const isConsultant360 = location.pathname.startsWith('/consultant360');
 
   // Filter state for table view
   const [search, setSearch] = useState("");
@@ -40,8 +56,10 @@ export default function SalesPipelinePage() {
   const fetchData = async () => {
     try {
       console.log('[SalesPipelinePage] 🚀 Starting data fetch...');
+      console.log('[SalesPipelinePage] 📍 Is Consultant360:', isConsultant360);
       setLoading(true);
 
+      // Always fetch sales data
       const [oppsResponse, statsResponse] = await Promise.all([
         salesService.getOpportunities(),
         salesService.getPipelineStats()
@@ -67,6 +85,25 @@ export default function SalesPipelinePage() {
         console.warn('[SalesPipelinePage] ⚠️ No stats data in response');
       }
 
+      // If Consultant360, also fetch recruiting stats
+      if (isConsultant360) {
+        try {
+          const dashboardResponse = await consultant360Service.getDashboard();
+          if (dashboardResponse.success && dashboardResponse.data?.stats) {
+            const s = dashboardResponse.data.stats;
+            setRecruitingStats({
+              activeJobs: s.activeJobs || 0,
+              totalPlacements: s.totalPlacements || 0,
+              recruiterEarnings: s.recruiterEarnings || 0,
+              pendingBalance: s.pendingBalance || 0,
+            });
+            console.log('[SalesPipelinePage] ✅ Recruiting stats:', s);
+          }
+        } catch (err) {
+          console.error('[SalesPipelinePage] ⚠️ Failed to fetch recruiting stats:', err);
+        }
+      }
+
       console.log('[SalesPipelinePage] ✅ Data fetch complete');
     } catch (error) {
       console.error("[SalesPipelinePage] ❌ Failed to fetch pipeline data:", error);
@@ -79,6 +116,7 @@ export default function SalesPipelinePage() {
       setLoading(false);
     }
   };
+
 
   // Helper function to map backend stages to frontend stages
   const mapStageToFrontend = (backendStage: string): OpportunityStage => {
@@ -222,9 +260,17 @@ export default function SalesPipelinePage() {
     );
   }
 
+  // Calculate combined pipeline value for Consultant360
+  const totalPipelineValue = (stats?.totalPipelineValue || 0) + (recruitingStats?.recruiterEarnings || 0);
+  const salesPipelineValue = stats?.totalPipelineValue || 0;
+  const recruitingPipelineValue = recruitingStats?.recruiterEarnings || 0;
+
   return (
     <div className="p-6 space-y-6">
-      <AtsPageHeader title="Sales Pipeline" subtitle="Visualize and manage your sales opportunities">
+      <AtsPageHeader
+        title={isConsultant360 ? "Unified Pipeline" : "Sales Pipeline"}
+        subtitle={isConsultant360 ? "Combined view of your recruiting and sales pipeline" : "Visualize and manage your sales opportunities"}
+      >
         <div className="text-base font-semibold flex items-center gap-2">
           <div className="flex items-center border rounded-lg p-1 gap-1">
             <Button
@@ -248,12 +294,12 @@ export default function SalesPipelinePage() {
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
-          <Button onClick={() => navigate("/sales/opportunities/new")}>
+          <Button onClick={() => navigate(isConsultant360 ? "/consultant360/leads" : "/sales/opportunities/new")}>
             <Plus className="h-4 w-4 mr-2" />
             New Opportunity
           </Button>
           <Button variant="outline" asChild>
-            <Link to="/sales-agent/dashboard">
+            <Link to={isConsultant360 ? "/consultant360/dashboard" : "/sales-agent/dashboard"}>
               <BarChart3 className="mr-2 h-4 w-4" />
               View Dashboard
             </Link>
@@ -261,40 +307,89 @@ export default function SalesPipelinePage() {
         </div>
       </AtsPageHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <EnhancedStatCard
-          title="Total Opportunities"
-          value={(stats?.dealCount || 0).toString()}
-          change="Active in pipeline"
-          icon={<Target className="h-6 w-6" />}
-          variant="neutral"
-          showMenu={false}
-        />
-        <EnhancedStatCard
-          title="Pipeline Value"
-          value={formatCurrency(stats?.totalPipelineValue || 0)}
-          change="Total value"
-          icon={<DollarSign className="h-6 w-6" />}
-          variant="primary"
-          showMenu={false}
-        />
-        <EnhancedStatCard
-          title="Weighted Value"
-          value={formatCurrency(stats?.weightedPipelineValue || 0)}
-          change="Risk adjusted"
-          icon={<Award className="h-6 w-6" />}
-          variant="success"
-          showMenu={false}
-        />
-        <EnhancedStatCard
-          title="Avg Deal Size"
-          value={formatCurrency((stats?.totalPipelineValue || 0) / (stats?.dealCount || 1))}
-          change="Per opportunity"
-          icon={<TrendingUp className="h-6 w-6" />}
-          variant="warning"
-          showMenu={false}
-        />
-      </div>
+      {/* Unified Stats for Consultant360 */}
+      {isConsultant360 && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <EnhancedStatCard
+            title="Total Pipeline Value"
+            value={formatCurrency(totalPipelineValue)}
+            change="Combined recruiting + sales"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="success"
+            showMenu={false}
+          />
+          <EnhancedStatCard
+            title="Recruiting Pipeline"
+            value={formatCurrency(recruitingPipelineValue)}
+            change={`${recruitingStats?.totalPlacements || 0} placements`}
+            icon={<Briefcase className="h-6 w-6" />}
+            variant="primary"
+            showMenu={false}
+          />
+          <EnhancedStatCard
+            title="Sales Pipeline"
+            value={formatCurrency(salesPipelineValue)}
+            change={`${stats?.dealCount || 0} opportunities`}
+            icon={<Target className="h-6 w-6" />}
+            variant="warning"
+            showMenu={false}
+          />
+          <EnhancedStatCard
+            title="Active Jobs"
+            value={(recruitingStats?.activeJobs || 0).toString()}
+            change="Assigned to you"
+            icon={<Users className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={false}
+          />
+          <EnhancedStatCard
+            title="Pending Earnings"
+            value={formatCurrency(recruitingStats?.pendingBalance || 0)}
+            change="Awaiting confirmation"
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={false}
+          />
+        </div>
+      )}
+
+      {/* Original Sales-only Stats (when NOT in Consultant360) */}
+      {!isConsultant360 && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <EnhancedStatCard
+            title="Total Opportunities"
+            value={(stats?.dealCount || 0).toString()}
+            change="Active in pipeline"
+            icon={<Target className="h-6 w-6" />}
+            variant="neutral"
+            showMenu={false}
+          />
+          <EnhancedStatCard
+            title="Pipeline Value"
+            value={formatCurrency(stats?.totalPipelineValue || 0)}
+            change="Total value"
+            icon={<DollarSign className="h-6 w-6" />}
+            variant="primary"
+            showMenu={false}
+          />
+          <EnhancedStatCard
+            title="Weighted Value"
+            value={formatCurrency(stats?.weightedPipelineValue || 0)}
+            change="Risk adjusted"
+            icon={<Award className="h-6 w-6" />}
+            variant="success"
+            showMenu={false}
+          />
+          <EnhancedStatCard
+            title="Avg Deal Size"
+            value={formatCurrency((stats?.totalPipelineValue || 0) / (stats?.dealCount || 1))}
+            change="Per opportunity"
+            icon={<TrendingUp className="h-6 w-6" />}
+            variant="warning"
+            showMenu={false}
+          />
+        </div>
+      )}
 
       {viewMode === 'kanban' ? (
         <div className="flex gap-4 overflow-x-auto pb-4">
