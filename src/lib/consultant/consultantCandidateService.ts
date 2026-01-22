@@ -105,26 +105,48 @@ export const ConsultantCandidateService = {
      * Get job applications in ApplicationPipeline-compatible format
      */
     getJobApplications: async (jobId: string): Promise<{ success: boolean; data: { applications: any[] } }> => {
-        const { data } = await apiClient.get<CandidatePipelineItem[]>(`/api/consultant/jobs/${jobId}/candidates`);
-        const applications = (data || []).map((app: CandidatePipelineItem) => ({
+        const { data } = await apiClient.get<any[]>(`/api/consultant/jobs/${jobId}/candidates`);
+        // Backend now returns pre-mapped camelCase data with AI scoring fields
+        const applications = (data || []).map((app: any) => ({
             id: app.id,
-            candidateId: app.candidate.id,
-            candidateName: `${app.candidate.first_name} ${app.candidate.last_name}`,
-            candidateEmail: app.candidate.email,
-            candidatePhoto: app.candidate.photo,
-            jobId,
-            appliedDate: new Date(app.applied_date),
-            status: app.status.toLowerCase(),
+            candidateId: app.candidateId || app.candidate?.id,
+            // Use pre-mapped candidateName or construct from candidate object
+            candidateName: app.candidateName || (
+                (app.candidate?.firstName && app.candidate?.lastName)
+                    ? `${app.candidate.firstName} ${app.candidate.lastName}`
+                    : (app.candidate?.first_name && app.candidate?.last_name)
+                        ? `${app.candidate.first_name} ${app.candidate.last_name}`
+                        : 'Unknown Candidate'
+            ),
+            candidateEmail: app.candidateEmail || app.candidate?.email || '',
+            candidatePhoto: app.candidatePhoto || app.candidate?.photo,
+            jobId: app.jobId || jobId,
+            appliedDate: app.appliedDate ? new Date(app.appliedDate) : (app.applied_date ? new Date(app.applied_date) : new Date()),
+            status: typeof app.status === 'string' ? app.status.toLowerCase() : 'new',
             stage: app.stage,
-            resumeUrl: app.candidate.resume_url,
-            linkedInUrl: app.candidate.linked_in_url,
+            resumeUrl: app.resumeUrl || app.candidate?.resumeUrl || app.candidate?.resume_url,
+            linkedInUrl: app.linkedInUrl || app.candidate?.linkedInUrl || app.candidate?.linked_in_url,
+            // AI Scoring - now comes directly from backend
             score: app.score,
+            aiMatchScore: app.aiMatchScore || app.aiScore || app.score, // For AIMatchBadge
+            aiScore: app.aiScore || app.score,
+            aiAnalysis: app.aiAnalysis, // For recommendation badge and justification
+            aiReasoning: app.aiReasoning,
+            aiMatchType: app.aiMatchType,
+            // Round tracking
+            roundId: app.roundId,
+            // Flags
+            shortlisted: app.shortlisted || false,
+            manuallyAdded: app.manuallyAdded || false,
+            isRead: app.isRead,
+            isNew: app.isNew,
+            // Candidate object for nested access
+            candidate: app.candidate,
+            // Empty arrays for compatibility
             notes: [],
             activities: [],
             interviews: [],
-            tags: [],
-            shortlisted: false,
-            manuallyAdded: false,
+            tags: app.tags || [],
         }));
         return { success: true, data: { applications } };
     },
