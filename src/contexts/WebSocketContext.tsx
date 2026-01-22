@@ -12,6 +12,7 @@ import {
   useCallback,
   ReactNode,
 } from 'react';
+import { toast } from '@/hooks/use-toast';
 import {
   ConnectionState,
   WSMessage,
@@ -159,6 +160,20 @@ export function WebSocketProvider({
 
         case 'error':
           console.error('❌ WebSocket error:', message.payload);
+          // Show toast notification for messaging restriction errors
+          if (message.payload?.code === 4010 || message.payload?.code === 4011) {
+            toast({
+              title: 'Message Not Sent',
+              description: message.payload.message,
+              variant: 'destructive',
+            });
+          } else if (message.payload?.message) {
+            toast({
+              title: 'Error',
+              description: message.payload.message,
+              variant: 'destructive',
+            });
+          }
           break;
 
         case 'notification':

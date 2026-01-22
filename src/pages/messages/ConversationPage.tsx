@@ -38,7 +38,8 @@ export default function ConversationPage() {
 
     setIsLoading(true);
     try {
-      const response = await messagingService.getConversation(conversationId);
+      // Use admin endpoint for HR users
+      const response = await messagingService.getAdminConversation(conversationId);
       if (response.success && response.data) {
         setConversation(response.data);
       }
@@ -104,37 +105,97 @@ export default function ConversationPage() {
         { label: 'Messages', href: '/messages' },
         {
           label: conversation.candidate
-            ? `${conversation.candidate.firstName} ${conversation.candidate.lastName}`
+            ? `${conversation.candidate.firstName || conversation.candidate.name || ''} ${conversation.candidate.lastName || ''}`.trim()
             : 'Conversation',
           href: '#',
         },
       ]}
     >
-      <div className="h-[calc(100vh-200px)] flex flex-col border rounded-lg overflow-hidden">
-        <div className="border-b bg-card">
-          <div className="flex items-center gap-2 p-2 md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/messages')}
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
+      <div className="h-[calc(100vh-200px)] flex gap-4">
+        {/* Main Chat Area */}
+        <div className="flex-1 flex flex-col border rounded-lg overflow-hidden">
+          <div className="border-b bg-card">
+            <div className="flex items-center gap-2 p-2 md:hidden">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/messages')}
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
+            </div>
+            <ConversationHeader
+              conversation={conversation}
+              currentUserEmail={user?.email}
+            />
           </div>
-          <ConversationHeader
-            conversation={conversation}
+          <MessageList
+            messages={conversationMessages}
             currentUserEmail={user?.email}
+            className="flex-1"
+            hideSystemMessages={true}
+            viewerType="HR"
+          />
+          <MessageInput
+            conversationId={conversationId}
+            disabled={!isConnected}
           />
         </div>
-        <MessageList
-          messages={conversationMessages}
-          currentUserEmail={user?.email}
-          className="flex-1"
-        />
-        <MessageInput
-          conversationId={conversationId}
-          disabled={!isConnected}
-        />
+
+        {/* Candidate Profile Sidebar */}
+        {conversation.candidate && (
+          <div className="w-80 border rounded-lg bg-card p-4 hidden lg:block">
+            <h3 className="text-lg font-semibold mb-4">Candidate Info</h3>
+            
+            <div className="space-y-4">
+              {/* Avatar and Name */}
+              <div className="flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold text-lg">
+                  {(conversation.candidate.firstName?.[0] || conversation.candidate.name?.[0] || 'C').toUpperCase()}
+                </div>
+                <div>
+                  <p className="font-medium">
+                    {conversation.candidate.firstName || conversation.candidate.name} {conversation.candidate.lastName || ''}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {conversation.candidate.email}
+                  </p>
+                </div>
+              </div>
+
+              {/* Job Applied For */}
+              {conversation.job && (
+                <div className="border-t pt-4">
+                  <p className="text-sm text-muted-foreground mb-1">Applied for</p>
+                  <p className="font-medium">{conversation.job.title}</p>
+                </div>
+              )}
+
+              {/* Quick Actions */}
+              <div className="border-t pt-4 space-y-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full justify-start"
+                  onClick={() => navigate(`/candidates/${conversation.candidateId}`)}
+                >
+                  View Full Profile
+                </Button>
+                
+                {conversation.jobId && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start"
+                    onClick={() => navigate(`/ats/jobs/${conversation.jobId}`)}
+                  >
+                    View Job & Applications
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardPageLayout>
   );
