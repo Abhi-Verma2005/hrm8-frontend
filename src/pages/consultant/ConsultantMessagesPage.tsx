@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 
 export default function ConsultantMessagesPage() {
     const { consultant, isAuthenticated } = useConsultantAuth();
-    const { conversations, setConversations, messages, joinConversation } = useWebSocket();
+    const { conversations, setConversations, messages, joinConversation, leaveConversation } = useWebSocket();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(true);
     const { conversationId } = useParams();
@@ -58,10 +58,30 @@ export default function ConsultantMessagesPage() {
                 joinConversation(conversationId);
             }
         }
-    }, [conversationId, isAuthenticated]);
+        // If no conversationId (e.g. back to main list), clear the current conversation state
+        else if (!conversationId && leaveConversation) {
+            leaveConversation();
+        }
+
+        // Cleanup on unmount or change
+        return () => {
+            // Optional: we can match this to only run if we are unmounting or changing specific IDs
+            // But for now, ensuring we leave when component unmounts or ID changes is safer to prevent stale state.
+            // However, clearing immediately on any dep change might cause flicker if not careful.
+            // Given the single page app nature, explicit clear when !conversationId is key.
+            if (leaveConversation && conversationId) {
+                leaveConversation();
+            }
+        };
+    }, [conversationId, isAuthenticated, joinConversation, leaveConversation]);
 
     const currentConversation = conversations.find(c => c.id === conversationId);
-    const currentMessages = conversationId ? messages[conversationId] || [] : [];
+    const rawMessages = conversationId ? messages[conversationId] || [] : [];
+
+    // Sort messages by date (oldest first) to ensure correct display order
+    const currentMessages = [...rawMessages].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    );
 
     return (
         <div className="h-[calc(100vh-64px)] p-6 space-y-6 bg-gradient-to-b from-background via-background to-muted/40">
