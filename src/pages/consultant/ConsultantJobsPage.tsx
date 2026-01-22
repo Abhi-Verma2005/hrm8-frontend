@@ -235,7 +235,7 @@ export default function ConsultantJobsPage() {
                   searchable
                   searchKeys={['title', 'location', 'department']}
                   emptyMessage="No jobs found"
-                  onRowClick={(row) => navigate(`/consultant/jobs/${row.id}`)}
+                  onRowClick={(row) => navigate(`${row.id}`)}
                 />
               )}
             </CardContent>

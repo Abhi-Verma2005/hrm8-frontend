@@ -121,9 +121,35 @@ class StaffService {
   async reassignJobs(id: string, targetConsultantId: string) {
     return apiClient.post<{ count: number }>(`/api/hrm8/consultants/${id}/reassign-jobs`, { targetConsultantId });
   }
+
+  async getPendingTasks(id: string) {
+    return apiClient.get<{
+      jobs: { id: string; title: string; companyName: string; status: string }[];
+      leads: { id: string; companyName: string; status: string }[];
+      conversionRequests: { id: string; companyName: string; status: string }[];
+      pendingCommissions: { id: string; amount: number; status: string }[];
+      totalCount: number;
+    }>(`/api/hrm8/consultants/${id}/pending-tasks`);
+  }
+
+  async getReassignmentOptions(id: string) {
+    return apiClient.get<{
+      consultants: { id: string; firstName: string; lastName: string; email: string }[];
+    }>(`/api/hrm8/consultants/${id}/reassignment-options`);
+  }
+
+  async changeRoleWithTasks(
+    id: string,
+    role: 'RECRUITER' | 'SALES_AGENT' | 'CONSULTANT_360',
+    taskAction: 'REASSIGN' | 'TERMINATE' | 'KEEP',
+    targetConsultantId?: string
+  ) {
+    return apiClient.put<{ taskResult?: any }>(`/api/hrm8/consultants/${id}/change-role`, {
+      role,
+      taskAction,
+      targetConsultantId
+    });
+  }
 }
 
 export const staffService = new StaffService();
-
-
-

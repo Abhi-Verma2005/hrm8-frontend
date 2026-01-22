@@ -13,12 +13,14 @@ import { candidateRoutes } from "./candidate.routes";
 import { hrm8Routes } from "./hrm8.routes";
 import { employerRoutes } from "./employer.routes";
 import { consultantRoutes } from "./consultant.routes";
+import { consultant360Routes } from "./consultant360.routes";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import EmployeeSignup from "@/pages/EmployeeSignup";
 import AcceptInvitation from "@/pages/AcceptInvitation";
 import Hrm8Login from "@/pages/Hrm8Login";
 import ConsultantLogin from "@/pages/ConsultantLogin";
+import Consultant360Login from "@/pages/consultant360/Consultant360Login";
 import SalesLogin from "@/pages/sales/SalesLogin";
 import NotFound from "@/pages/NotFound";
 import StripeMockOnboarding from "@/pages/dev/StripeMockOnboarding";
@@ -57,6 +59,14 @@ export const AppRoutes = () => {
         element={
           <AnyAuthRedirectGate>
             <ConsultantLogin />
+          </AnyAuthRedirectGate>
+        }
+      />
+      <Route
+        path="/consultant360/login"
+        element={
+          <AnyAuthRedirectGate>
+            <Consultant360Login />
           </AnyAuthRedirectGate>
         }
       />
@@ -114,6 +124,9 @@ export const AppRoutes = () => {
 
       {/* Consultant routes (separate auth, separate layout) */}
       {consultantRoutes}
+
+      {/* Consultant 360 routes (unified dashboard with both recruiter and sales) */}
+      {consultant360Routes}
 
       {/* Sales Agent routes (separate auth, separate layout) */}
       {salesRoutes}

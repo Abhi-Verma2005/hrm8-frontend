@@ -40,6 +40,8 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { transformJobFormDataToCreateRequest, transformRequirements, transformResponsibilities } from "@/lib/jobFormTransformers";
 import { companySettingsService, JobAssignmentMode } from "@/lib/api/companySettingsService";
+import { InsufficientBalanceModal } from "@/components/wallet/InsufficientBalanceModal";
+import { useWalletBalance } from "@/hooks/useWalletBalance";
 import { walletService } from "@/services/walletService";
 
 
@@ -64,7 +66,18 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
   const [isPublishing, setIsPublishing] = useState(false);
   const [isSavingTemplate, setIsSavingTemplate] = useState(false);
   const [companyAssignmentMode, setCompanyAssignmentMode] = useState<JobAssignmentMode>('AUTO_RULES_ONLY');
+
   const [loadingCompanySettings, setLoadingCompanySettings] = useState(true);
+
+  // Wallet & Payment State
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
+  const [balanceErrorData, setBalanceErrorData] = useState<{
+    required: number;
+    balance: number;
+    shortfall: number;
+    currency: string;
+  } | null>(null);
+  const { refetch: refetchBalance } = useWalletBalance();
 
   const findScrollContainer = (): HTMLElement | null => {
     const scrollAreaViewport = document.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement;
@@ -648,87 +661,102 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
           }
         }
 
-        // Unified Flow: Attempt to publish (Backend handles Wallet Deduction)
-        console.log('📢 Publishing job (Wallet Deduction if applicable):', finalJobId);
+        // Always publish via the API - the backend now handles payment deduction if required
+        console.log('📢 Publishing job (backend handles payment):', finalJobId);
 
         try {
           const publishResponse = await jobService.publishJob(finalJobId!);
           console.log('✅ Publish response:', publishResponse);
 
-          if (publishResponse.success && publishResponse.data) {
-            const publishedJob = publishResponse.data;
-            const companyName = user?.companyName || "Your Company";
+          // Check for failure (ApiClient catches errors and returns success: false)
+          if (!publishResponse.success) {
+            // Handle Insufficient Balance (402)
+            if (publishResponse.status === 402) {
+              const errorData: any = publishResponse.data || {};
+              setBalanceErrorData({
+                required: errorData.required || 0,
+                balance: errorData.balance || 0,
+                shortfall: errorData.shortfall || 0,
+                currency: errorData.currency || 'USD'
+              });
+              setShowBalanceModal(true);
+              setIsPublishing(false);
+              return;
+            }
 
-            // Transform requirements and responsibilities from objects to strings
-            const requirements = transformRequirements(data.requirements);
-            const responsibilities = transformResponsibilities(data.responsibilities);
-
-            const jobData: Job = {
-              id: publishedJob.id,
-              ...data,
-              requirements,
-              responsibilities,
-              employerId: user?.companyId || "",
-              employerName: companyName,
-              createdBy: user?.id || "",
-              createdByName: user?.name || "User",
-              jobCode: publishedJob.jobCode || generateJobCode(),
-              aiGeneratedDescription: false,
-              serviceType: data.serviceType,
-              applicantsCount: 0,
-              viewsCount: 0,
-              postingDate: publishedJob.postingDate?.toString() || new Date().toISOString(),
-              createdAt: publishedJob.createdAt?.toString() || new Date().toISOString(),
-              updatedAt: publishedJob.updatedAt?.toString() || new Date().toISOString(),
-              hasJobTargetPromotion: false,
-              jobTargetBudget: 0,
-              jobTargetBudgetRemaining: 0,
-              requiresPayment: requiresPayment,
-              paymentStatus: 'paid',
-              termsAccepted: data.termsAccepted,
-              termsAcceptedAt: data.termsAccepted ? new Date() : undefined,
-              termsAcceptedBy: data.termsAccepted ? user?.id : undefined,
-              status: 'open',
-            };
-
-            console.log('✅ Job published successfully!');
-            setSavedJobData(jobData);
-            setShowPostLaunchTools(true);
-            setIsPublishing(false);
-            return;
-          } else {
             throw new Error(publishResponse.error || 'Failed to publish job');
           }
-        } catch (publishError: any) {
-          console.error('❌ Publish failed:', publishError);
-          const errorMessage = publishError?.message || 'Failed to publish job';
 
-          // Check for Insufficient Funds (Strict check)
-          if (errorMessage.toLowerCase().includes('insufficient') && errorMessage.toLowerCase().includes('balance')) {
-            toast({
-              title: "Insufficient Wallet Balance",
-              description: "You do not have enough credits to post this job. Please recharge your wallet.",
-              variant: "destructive",
-              action: (
-                <Button
-                  variant="outline"
-                  className="bg-white text-black hover:bg-gray-100 border-0"
-                  onClick={() => window.open('/subscriptions', '_blank')}
-                >
-                  Recharge
-                </Button>
-              ),
-              duration: 10000,
-            });
-          } else {
-            toast({
-              title: "Publish Failed",
-              description: errorMessage,
-              variant: "destructive"
-            });
-          }
+          // Success flow
+          const publishedJob = publishResponse.data;
+          if (!publishedJob) throw new Error('No data received from publish endpoint');
+
+          // Get company name from auth context
+          const companyName = user?.companyName || "Your Company";
+
+          // Transform requirements and responsibilities from objects to strings
+          const requirements = transformRequirements(data.requirements);
+          const responsibilities = transformResponsibilities(data.responsibilities);
+
+          const jobData: Job = {
+            id: publishedJob.id,
+            ...data,
+            requirements,
+            responsibilities,
+            employerId: user?.companyId || "",
+            employerName: companyName,
+            createdBy: user?.id || "",
+            createdByName: user?.name || "User",
+            jobCode: publishedJob.jobCode || generateJobCode(),
+            aiGeneratedDescription: false,
+            serviceType: data.serviceType,
+            applicantsCount: 0,
+            viewsCount: 0,
+            postingDate: publishedJob.postingDate?.toString() || new Date().toISOString(),
+            createdAt: publishedJob.createdAt?.toString() || new Date().toISOString(),
+            updatedAt: publishedJob.updatedAt?.toString() || new Date().toISOString(),
+            hasJobTargetPromotion: false,
+            jobTargetBudget: 0,
+            jobTargetBudgetRemaining: 0,
+            requiresPayment: false,  // Changed to false as it's now paid/free
+            paymentStatus: 'paid',
+            termsAccepted: data.termsAccepted,
+            termsAcceptedAt: data.termsAccepted ? new Date() : undefined,
+            termsAcceptedBy: data.termsAccepted ? user?.id : undefined,
+            status: 'open',
+          };
+
+          console.log('✅ Job published successfully!');
+
+          // Refresh wallet balance just in case
+          refetchBalance();
+
+          // Store job data for post-launch tools
+          setSavedJobData(jobData);
+
+          // Show post-launch tools dialog
+          setShowPostLaunchTools(true);
           setIsPublishing(false);
           return;
+
+        } catch (publishError: any) {
+          console.error('❌ Publish failed:', publishError);
+
+          // Handle Insufficient Balance
+          if (publishError.status === 402 || publishError.response?.status === 402) {
+            const errorData = publishError.response?.data?.data || {};
+            setBalanceErrorData({
+              required: errorData.required || 0,
+              balance: errorData.balance || 0,
+              shortfall: errorData.shortfall || 0,
+              currency: errorData.currency || 'USD'
+            });
+            setShowBalanceModal(true);
+            setIsPublishing(false);
+            return;
+          }
+
+          throw new Error(publishError.response?.data?.error || publishError.message || 'Failed to publish job');
         }
       } catch (error: any) {
         console.error('❌ Error processing job:', error);
@@ -741,7 +769,10 @@ export function JobWizard({ serviceType, defaultValues, jobId: initialJobId, onS
         return;
       }
     } finally {
-      setIsPublishing(false);
+      // Only set false if not stopped early by modal (though modal case sets it false too)
+      if (!showBalanceModal) {
+        setIsPublishing(false);
+      }
     }
   };
 

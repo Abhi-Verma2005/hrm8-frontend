@@ -88,17 +88,17 @@ export const ConsultantCandidateService = {
     /**
      * Move application to a specific round (for drag-drop pipeline)
      */
-    moveToRound: async (applicationId: string, roundId: string): Promise<any> => {
-        const { data } = await apiClient.post<any>(`/api/consultant/candidates/${applicationId}/move-to-round`, { roundId });
-        return data;
+    moveToRound: async (applicationId: string, roundId: string): Promise<{ success: boolean; data?: any; error?: string }> => {
+        const response = await apiClient.post<any>(`/api/consultant/candidates/${applicationId}/move-to-round`, { roundId });
+        return response;
     },
 
     /**
      * Update application stage (for drag-drop pipeline)
      */
-    updateStage: async (applicationId: string, stage: string): Promise<any> => {
-        const { data } = await apiClient.post<any>(`/api/consultant/candidates/${applicationId}/stage`, { stage });
-        return data;
+    updateStage: async (applicationId: string, stage: string): Promise<{ success: boolean; data?: any; error?: string }> => {
+        const response = await apiClient.post<any>(`/api/consultant/candidates/${applicationId}/stage`, { stage });
+        return response;
     },
 
     /**

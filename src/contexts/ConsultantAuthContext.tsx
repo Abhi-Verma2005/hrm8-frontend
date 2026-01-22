@@ -97,23 +97,33 @@ export function ConsultantAuthProvider({ children }: { children: ReactNode }) {
       if (response.success && response.data?.consultant) {
         const userRole = response.data.consultant.role;
         console.log('[ConsultantAuth] Login successful. User role:', userRole);
-        
+
         setConsultant(response.data.consultant);
         toast({
           title: 'Welcome back!',
           description: `Logged in as ${response.data.consultant.firstName} ${response.data.consultant.lastName}`,
         });
 
-        // Redirect based on role
+        // STRICT ROLE-BASED REDIRECT - each role goes to their dedicated dashboard only
+        // Redirect mapping:
+        // - RECRUITER → /consultant/dashboard (with profile check)
+        // - SALES_AGENT → /sales-agent/dashboard
+        // - CONSULTANT_360 → /consultant360/dashboard
+
         if (userRole === 'SALES_AGENT') {
           console.log('[ConsultantAuth] Redirecting SALES_AGENT to /sales-agent/dashboard');
-          // Force replace history to avoid back-button loops
           navigate('/sales-agent/dashboard', { replace: true });
           return { success: true };
         }
 
-        console.log('[ConsultantAuth] User is not SALES_AGENT. Checking profile completeness...');
-        // After login, check if profile is complete; if not, redirect to profile onboarding
+        if (userRole === 'CONSULTANT_360') {
+          console.log('[ConsultantAuth] Redirecting CONSULTANT_360 to /consultant360/dashboard');
+          navigate('/consultant360/dashboard', { replace: true });
+          return { success: true };
+        }
+
+        // RECRUITER - check profile completeness before redirect
+        console.log('[ConsultantAuth] User is RECRUITER. Checking profile completeness...');
         try {
           const profileResponse = await consultantService.getProfile();
           const profile = profileResponse.success ? profileResponse.data?.consultant : null;
@@ -130,7 +140,7 @@ export function ConsultantAuthProvider({ children }: { children: ReactNode }) {
         }
         return { success: true };
       }
-      
+
       const errorMessage = response.error || 'Login failed';
       console.warn('[ConsultantAuth] Login failed with response error:', errorMessage);
       toast({
@@ -165,7 +175,7 @@ export function ConsultantAuthProvider({ children }: { children: ReactNode }) {
       // Check current role to determine redirect path before clearing state
       const isSalesAgent = consultant?.role === 'SALES_AGENT';
       setConsultant(null);
-      
+
       if (isSalesAgent) {
         navigate('/sales-agent/login');
       } else {
@@ -210,4 +220,3 @@ export function useConsultantAuth() {
   }
   return context;
 }
-

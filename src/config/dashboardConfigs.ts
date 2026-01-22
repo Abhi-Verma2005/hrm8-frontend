@@ -480,6 +480,95 @@ export const hrm8DashboardConfig: DashboardConfig = {
 };
 
 // ============================================================================
+// Consultant 360 Dashboard Configuration (Unified access to both consult ant and sales)
+// ============================================================================
+
+export const consultant360DashboardConfig: DashboardConfig = {
+  sidebarStateKey: "consultant360",
+  sidebar: {
+    dashboardType: "consultant360",
+    basePath: "/consultant360",
+    homePath: "/consultant360/dashboard",
+    menuItems: [
+      {
+        id: "dashboard",
+        path: "/consultant360/dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+      },
+      {
+        id: "earnings",
+        path: "/consultant360/earnings",
+        label: "Earnings",
+        icon: DollarSign,
+      },
+      // Recruitment section
+      {
+        id: "jobs",
+        path: "/consultant360/jobs",
+        label: "My Jobs",
+        icon: Briefcase,
+      },
+      // Sales section
+      {
+        id: "leads",
+        path: "/consultant360/leads",
+        label: "Leads",
+        icon: Target,
+      },
+      {
+        id: "pipeline",
+        path: "/consultant360/pipeline",
+        label: "Pipeline",
+        icon: BarChart3,
+      },
+      {
+        id: "messages",
+        path: "/consultant360/messages",
+        label: "Messages",
+        icon: MessageSquare,
+      },
+      {
+        id: "profile",
+        path: "/consultant360/profile",
+        label: "Profile",
+        icon: User,
+      },
+    ],
+    footerActions: [
+      {
+        id: "settings",
+        path: "/consultant360/settings",
+        label: "Settings",
+        icon: Settings,
+        tooltip: "Settings",
+      },
+      {
+        id: "help",
+        path: "/consultant360/help",
+        label: "Help",
+        icon: HelpCircle,
+        tooltip: "Help",
+      },
+    ],
+    showLogoutButton: true,
+    userDisplay: {
+      getName: (user: unknown) => {
+        const u = user as { firstName?: string; lastName?: string } | null;
+        return u ? `${u.firstName || ""} ${u.lastName || ""}`.trim() : "";
+      },
+      getSubtitle: () => "Consultant 360",
+    },
+  },
+  features: {
+    webSocket: false,
+    commandPalette: true,
+    keyboardShortcuts: true,
+    profileCompletionDialog: ConsultantProfileCompletionDialog,
+  },
+};
+
+// ============================================================================
 // Export all configs
 // ============================================================================
 
@@ -487,5 +576,7 @@ export const dashboardConfigs = {
   candidate: candidateDashboardConfig,
   consultant: consultantDashboardConfig,
   "sales-agent": salesAgentDashboardConfig,
+  consultant360: consultant360DashboardConfig,
   hrm8: hrm8DashboardConfig,
 } as const;
+

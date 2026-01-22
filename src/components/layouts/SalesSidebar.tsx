@@ -8,6 +8,8 @@ import {
   Users,
   DollarSign,
   Building2,
+  ArrowRightLeft,
+  Settings,
 } from "lucide-react";
 import {
   Sidebar,
@@ -31,6 +33,7 @@ const menuItems = [
   { path: "/sales-agent/leads", label: "Leads", icon: Users },
   { path: "/sales-agent/companies", label: "My Clients", icon: Building2 },
   { path: "/sales-agent/commissions", label: "Commissions", icon: DollarSign },
+  { path: "/sales-agent/settings", label: "Settings", icon: Settings },
 ];
 
 export function SalesSidebar() {
@@ -143,6 +146,20 @@ export function SalesSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-3 bg-gradient-to-t from-sidebar-accent/30 to-transparent">
+        {/* Portal Switcher for 360 Consultants */}
+        {consultant?.role === 'CONSULTANT_360' && (
+          <SidebarGroup className="p-0 mb-2">
+            <SidebarMenuButton
+              asChild
+              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white justify-center shadow-md transition-all duration-200"
+            >
+              <NavLink to="/consultant/dashboard" className="flex items-center gap-2">
+                <ArrowRightLeft className="h-4 w-4" />
+                {isExpanded && <span>Switch to Consultant</span>}
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarGroup>
+        )}
         <ConsultantSidebarFooter />
       </SidebarFooter>
     </Sidebar>

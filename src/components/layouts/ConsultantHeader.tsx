@@ -9,9 +9,34 @@ import { Breadcrumbs } from "@/components/common/Breadcrumbs";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/common/ThemeToggle";
 import { ReactNode } from "react";
+import { useConsultantAuth } from "@/contexts/ConsultantAuthContext";
+import { Button } from "@/components/ui/button";
+import { ArrowRightLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface ConsultantHeaderProps {
   breadcrumbActions?: ReactNode;
+}
+
+function PortalSwitchButton() {
+  const { consultant } = useConsultantAuth();
+
+  if (consultant?.role !== 'CONSULTANT_360') {
+    return null;
+  }
+
+  return (
+    <Button
+      asChild
+      size="sm"
+      className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
+    >
+      <Link to="/sales-agent/dashboard">
+        <ArrowRightLeft className="h-4 w-4" />
+        <span className="hidden sm:inline">Switch to Sales</span>
+      </Link>
+    </Button>
+  );
 }
 
 export function ConsultantHeader({ breadcrumbActions }: ConsultantHeaderProps = {}) {
@@ -52,6 +77,8 @@ export function ConsultantHeader({ breadcrumbActions }: ConsultantHeaderProps = 
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Portal Switch Button for 360 Consultants */}
+            <PortalSwitchButton />
             <ThemeToggle />
             <NotificationsDropdown />
             <ConsultantUserNav />

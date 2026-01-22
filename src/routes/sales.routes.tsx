@@ -10,6 +10,7 @@ import SalesForecastPage from "@/pages/sales/SalesForecastPage";
 import ClientCompaniesPage from "@/pages/sales/ClientCompaniesPage";
 import { SalesLayout } from "@/components/layouts/SalesLayout";
 import { ConsultantAuthGuard } from "@/components/auth/ConsultantAuthGuard";
+import SettingsPage from "@/pages/shared/SettingsPage";
 
 export const salesRoutes = (
   <Route
@@ -30,6 +31,6 @@ export const salesRoutes = (
     <Route path="commissions" element={<CommissionsPage />} />
     <Route path="territories" element={<TerritoriesPage />} />
     <Route path="forecast" element={<SalesForecastPage />} />
+    <Route path="settings" element={<SettingsPage portalType="sales" />} />
   </Route>
 );
-

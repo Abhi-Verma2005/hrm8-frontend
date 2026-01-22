@@ -20,7 +20,7 @@ export interface GetMessagesResponse {
 
 class MessagingService {
   /**
-   * Get all conversations for the current user
+   * Get all conversations for the current user (CANDIDATE endpoint)
    */
   async getConversations(): Promise<{
     success: boolean;
@@ -50,7 +50,70 @@ class MessagingService {
   }
 
   /**
-   * Get a specific conversation by ID
+   * Get all conversations for admin/HR users (EMPLOYER endpoint)
+   */
+  async getAdminConversations(): Promise<{
+    success: boolean;
+    data?: ConversationData[];
+    error?: string;
+  }> {
+    try {
+      const response = await apiClient.get<ConversationData[]>(
+        '/api/messages/conversations'
+      );
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: response.data,
+        };
+      }
+      return {
+        success: false,
+        error: response.error || 'Failed to fetch conversations',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error',
+      };
+    }
+  }
+
+  /**
+   * Get a specific conversation for admin/HR users (EMPLOYER endpoint)
+   */
+  async getAdminConversation(
+    conversationId: string
+  ): Promise<{
+    success: boolean;
+    data?: ConversationData;
+    error?: string;
+  }> {
+    try {
+      const response = await apiClient.get<ConversationData>(
+        `/api/messages/conversations/${conversationId}`
+      );
+      if (response.success && response.data) {
+        return {
+          success: true,
+          data: response.data,
+        };
+      }
+      return {
+        success: false,
+        error: response.error || 'Failed to fetch conversation',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Network error',
+      };
+    }
+  }
+
+
+  /**
+   * Get a specific conversation by ID (CANDIDATE endpoint)
    */
   async getConversation(
     conversationId: string

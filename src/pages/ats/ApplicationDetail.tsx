@@ -12,6 +12,7 @@ import { ApplicationStatusBadge } from "@/components/applications/ApplicationSta
 import { DetailSkeleton } from "@/components/skeletons/DetailSkeleton";
 import { DocumentViewer } from "@/components/candidates/DocumentViewer";
 import { CandidateDocument } from "@/types/entities";
+import { ApproveHireDialog } from "@/components/applications/ApproveHireDialog";
 
 export default function ApplicationDetail() {
   const { id, jobId } = useParams<{ id: string; jobId?: string }>();
@@ -112,6 +113,17 @@ export default function ApplicationDetail() {
                 </Badge>
               )}
             </div>
+
+            {/* Show Approve Hire action for HIRED applications */}
+            {application.status === 'HIRED' && (
+              <ApproveHireDialog
+                applicationId={application.id}
+                candidateName={q.candidateName || "Candidate"}
+                jobTitle={q.jobMeta?.title || "Job"}
+                onSuccess={() => window.location.reload()}
+              />
+            )}
+
             <Button
               variant="outline"
               size="sm"
@@ -156,9 +168,9 @@ export default function ApplicationDetail() {
               {application.resumeUrl ? (
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground">Uploaded</span>
-                  <Button 
-                    variant="link" 
-                    className="h-auto p-0" 
+                  <Button
+                    variant="link"
+                    className="h-auto p-0"
                     onClick={handleViewResume}
                     disabled={isLoadingResume}
                   >
@@ -211,19 +223,21 @@ export default function ApplicationDetail() {
           </CardContent>
         </Card>
 
-        {q.coverLetterMarkdown && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Cover Letter</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <pre className="whitespace-pre-wrap text-sm bg-muted/50 p-3 rounded-md">
-                {q.coverLetterMarkdown}
-              </pre>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+        {
+          q.coverLetterMarkdown && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Cover Letter</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <pre className="whitespace-pre-wrap text-sm bg-muted/50 p-3 rounded-md">
+                  {q.coverLetterMarkdown}
+                </pre>
+              </CardContent>
+            </Card>
+          )
+        }
+      </div >
     );
   };
 

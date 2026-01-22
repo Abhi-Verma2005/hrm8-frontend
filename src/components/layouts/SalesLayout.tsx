@@ -8,6 +8,31 @@ import { useSidebarState } from "@/hooks/useSidebarState";
 import { ConsultantUserNav } from "./ConsultantUserNav";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { useConsultantAuth } from "@/contexts/ConsultantAuthContext";
+import { Button } from "@/components/ui/button";
+import { ArrowRightLeft } from "lucide-react";
+import { Link } from "react-router-dom";
+
+function PortalSwitchButton() {
+  const { consultant } = useConsultantAuth();
+
+  if (consultant?.role !== 'CONSULTANT_360') {
+    return null;
+  }
+
+  return (
+    <Button
+      asChild
+      size="sm"
+      className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2"
+    >
+      <Link to="/consultant/dashboard">
+        <ArrowRightLeft className="h-4 w-4" />
+        <span className="hidden sm:inline">Switch to Consultant</span>
+      </Link>
+    </Button>
+  );
+}
 
 export function SalesLayout() {
   const { open, setOpen } = useSidebarState("sales");
@@ -24,6 +49,7 @@ export function SalesLayout() {
               <SidebarTrigger className="-ml-1" />
             </div>
             <div className="flex flex-1 items-center justify-end gap-4">
+              <PortalSwitchButton />
               <NotificationBell />
               <ConsultantUserNav />
             </div>

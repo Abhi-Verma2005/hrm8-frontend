@@ -29,6 +29,8 @@ import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea"; // Added Textarea import
 import { leadConversionService } from "@/lib/sales/leadConversionService"; // Added leadConversionService import
+import { useConsultantAuth } from "@/contexts/ConsultantAuthContext";
+import { consultant360Service } from "@/lib/consultant360/consultant360Service";
 
 const BUDGET_OPTIONS = [
   { value: "< $10k", label: "Under $10,000" },
@@ -55,6 +57,8 @@ const QUALIFICATION_STEPS = [
 ];
 
 export default function OpportunitiesPage() {
+  const { consultant } = useConsultantAuth();
+  const is360 = consultant?.role === "CONSULTANT_360";
   const { toast } = useToast();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [isQualifying, setIsQualifying] = useState(false);
@@ -81,19 +85,22 @@ export default function OpportunitiesPage() {
   });
 
   const [convertForm, setConvertForm] = useState({
-    agentNotes: "", // Changed to agentNotes
+    agentNotes: "",
+    tempPassword: ""
   });
 
   const fetchLeads = useCallback(async () => {
     try {
-      const response = await salesService.getLeads();
+      const response = is360
+        ? await consultant360Service.getLeads()
+        : await salesService.getLeads();
       if (response.success && response.data) {
         setLeads(response.data.leads || []);
       }
     } catch (error) {
       toast({ title: "Error", description: "Failed to fetch leads", variant: "destructive" });
     }
-  }, [toast]);
+  }, [toast, is360]);
 
   useEffect(() => {
     fetchLeads();
@@ -141,7 +148,9 @@ export default function OpportunitiesPage() {
     simulateProgress();
 
     try {
-      const response = await salesService.createLead(createForm);
+      const response = is360
+        ? await consultant360Service.createLead(createForm)
+        : await salesService.createLead(createForm);
 
       // When response comes, quickly finish the steps
       if (qualificationTimerRef.current) clearInterval(qualificationTimerRef.current);
@@ -181,17 +190,33 @@ export default function OpportunitiesPage() {
   const handleRequestConversion = async () => {
     if (!selectedLead) return;
 
-    setProcessing(true);
-    try {
-      await leadConversionService.submitRequest(selectedLead.id, {
-        agentNotes: convertForm.agentNotes
+    if (!convertForm.tempPassword) {
+      toast({
+        title: "Error",
+        description: "Temporary password is required for client login.",
+        variant: "destructive",
       });
+      return;
+    }
+
+    try {
+      if (is360) {
+        await consultant360Service.submitConversionRequest(selectedLead.id, {
+          agentNotes: convertForm.agentNotes,
+          tempPassword: convertForm.tempPassword
+        });
+      } else {
+        await leadConversionService.submitRequest(selectedLead.id, {
+          agentNotes: convertForm.agentNotes,
+          tempPassword: convertForm.tempPassword
+        });
+      }
       toast({
         title: "Success",
         description: "Conversion request submitted! Waiting for admin approval."
       });
       setConvertDialogOpen(false);
-      setConvertForm({ agentNotes: "" });
+      setConvertForm({ agentNotes: "", tempPassword: "" });
       fetchLeads();
     } catch (error: any) {
       toast({
@@ -206,7 +231,7 @@ export default function OpportunitiesPage() {
 
   const openConvertDialog = (lead: Lead) => {
     setSelectedLead(lead);
-    setConvertForm({ agentNotes: "" }); // Reset form for new request
+    setConvertForm({ agentNotes: "", tempPassword: "" }); // Reset form for new request
     setConvertDialogOpen(true);
   };
 
@@ -416,6 +441,8 @@ export default function OpportunitiesPage() {
       {/* Qualifying Progress Dialog (Apple-inspired design) */}
       <Dialog open={isQualifying} onOpenChange={() => { }}>
         <DialogContent className="sm:max-w-[440px] border-none bg-background/60 backdrop-blur-2xl shadow-2xl p-0 overflow-hidden rounded-[2.5rem]">
+          <DialogTitle className="sr-only">Qualifying Lead</DialogTitle>
+          <DialogDescription className="sr-only">Lead qualification progress</DialogDescription>
           <div className="relative p-10 flex flex-col items-center text-center">
             {/* Minimal Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -z-10" />
@@ -596,6 +623,19 @@ export default function OpportunitiesPage() {
             <div className="space-y-2">
               <Label>Country</Label>
               <Input value={selectedLead?.country || ""} disabled />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Temporary Password <span className="text-red-500">*</span></Label>
+              <Input
+                type="password"
+                value={convertForm.tempPassword}
+                onChange={(e) => setConvertForm({ ...convertForm, tempPassword: e.target.value })}
+                placeholder="Set temporary password"
+              />
+              <p className="text-[0.8rem] text-muted-foreground">
+                Required for the client to log in immediately.
+              </p>
             </div>
 
             <div className="space-y-2">
