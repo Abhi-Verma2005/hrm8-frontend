@@ -46,6 +46,7 @@ const EVENT_LABELS: Record<string, string> = {
   system_announcement: 'System Announcement',
   user_signup: 'New User Signup',
   support_ticket: 'Support Ticket',
+  refund_update: 'Refund Updates',
 };
 
 // Channel icons

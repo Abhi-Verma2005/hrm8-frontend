@@ -1,5 +1,5 @@
 export type NotificationChannel = 'email' | 'in-app' | 'sms' | 'slack';
-export type NotificationEventType = 
+export type NotificationEventType =
   | 'support_ticket_created'
   | 'support_ticket_urgent'
   | 'recruitment_service_pending'
@@ -9,7 +9,8 @@ export type NotificationEventType =
   | 'system_error'
   | 'security_alert'
   | 'trial_expiring'
-  | 'subscription_cancelled';
+  | 'subscription_cancelled'
+  | 'refund_update';
 
 export interface NotificationPreferences {
   userId: string;
