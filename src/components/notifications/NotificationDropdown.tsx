@@ -14,7 +14,13 @@ import {
     AlertCircle,
     CheckCheck,
     Loader2,
-    ExternalLink
+    ExternalLink,
+    Coins,
+    CheckCircle2,
+    XCircle,
+    AlertTriangle,
+    UserPlus,
+    TrendingUp
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Notification } from '@/lib/notificationService';
@@ -46,8 +52,21 @@ const getNotificationIcon = (type: string) => {
         case 'OFFER_EXTENDED':
             return <Calendar className="h-4 w-4 text-purple-500" />;
         case 'NEW_LEAD':
+        case 'LEAD_CONVERSION_REQUESTED':
+            return <UserPlus className="h-4 w-4 text-blue-500" />;
+        case 'LEAD_CONVERSION_DECLINED':
+            return <XCircle className="h-4 w-4 text-red-500" />;
         case 'LEAD_CONVERTED':
-            return <MessageSquare className="h-4 w-4 text-orange-500" />;
+            return <TrendingUp className="h-4 w-4 text-indigo-600" />;
+        case 'COMMISSION_EARNED':
+            return <Coins className="h-4 w-4 text-green-500" />;
+        case 'WITHDRAWAL_APPROVED':
+            return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+        case 'WITHDRAWAL_REJECTED':
+            return <XCircle className="h-4 w-4 text-red-500" />;
+        case 'SUBSCRIPTION_RENEWAL_FAILED':
+        case 'LOW_BALANCE_WARNING':
+            return <AlertTriangle className="h-4 w-4 text-red-600" />;
         case 'SUBSCRIPTION_PURCHASED':
         case 'SERVICE_PURCHASED':
             return <AlertCircle className="h-4 w-4 text-yellow-500" />;
@@ -136,8 +155,16 @@ export function NotificationDropdown({
                                 key={notification.id}
                                 onClick={() => handleNotificationClick(notification)}
                                 className={cn(
-                                    'w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors',
-                                    !notification.read && 'bg-blue-50/50 dark:bg-blue-950/20'
+                                    'w-full text-left px-4 py-3 hover:bg-muted/50 transition-colors border-l-2',
+                                    !notification.read ? (
+                                        ['SUBSCRIPTION_RENEWAL_FAILED', 'WITHDRAWAL_REJECTED', 'LOW_BALANCE_WARNING', 'LEAD_CONVERSION_DECLINED'].includes(notification.type)
+                                            ? 'bg-red-50/50 dark:bg-red-950/20 border-red-500'
+                                            : ['COMMISSION_EARNED', 'WITHDRAWAL_APPROVED', 'LEAD_CONVERTED'].includes(notification.type)
+                                                ? 'bg-green-50/50 dark:bg-green-950/20 border-green-500'
+                                                : ['NEW_LEAD', 'LEAD_CONVERSION_REQUESTED'].includes(notification.type)
+                                                    ? 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-500'
+                                                    : 'bg-blue-50/50 dark:bg-blue-950/20 border-blue-500'
+                                    ) : 'border-transparent'
                                 )}
                             >
                                 <div className="flex gap-3">

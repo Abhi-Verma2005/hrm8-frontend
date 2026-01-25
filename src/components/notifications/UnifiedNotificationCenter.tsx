@@ -3,23 +3,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Bell, CheckCheck, Trash2, Archive, Download } from 'lucide-react';
+import {
+  Bell, CheckCheck, Trash2, Archive, Download,
+  Coins, CheckCircle2, XCircle, AlertTriangle, UserPlus, TrendingUp, Briefcase, Calendar, AlertCircle
+} from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { NotificationSearch } from './NotificationSearch';
 import { NotificationDetailModal } from './NotificationDetailModal';
 import { NotificationAnalytics } from './NotificationAnalytics';
 import { formatDistanceToNow } from 'date-fns';
-import { 
-  archiveNotification, 
-  bulkMarkAsRead, 
-  bulkDelete, 
-  bulkArchive 
+import {
+  archiveNotification,
+  bulkMarkAsRead,
+  bulkDelete,
+  bulkArchive
 } from '@/lib/notificationStorage';
-import { 
-  exportNotificationsToCSV, 
-  exportNotificationsToJSON, 
-  downloadCSV, 
-  downloadJSON 
+import {
+  exportNotificationsToCSV,
+  exportNotificationsToJSON,
+  downloadCSV,
+  downloadJSON
 } from '@/lib/notificationExport';
 import { toast } from 'sonner';
 import { Notification } from '@/types/notification';
@@ -103,11 +106,47 @@ export function UnifiedNotificationCenter() {
     refresh();
   };
 
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'COMMISSION_EARNED':
+        return <Coins className="h-4 w-4 text-green-500" />;
+      case 'WITHDRAWAL_APPROVED':
+        return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+      case 'WITHDRAWAL_REJECTED':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'SUBSCRIPTION_RENEWAL_FAILED':
+      case 'LOW_BALANCE_WARNING':
+        return <AlertTriangle className="h-4 w-4 text-red-600" />;
+      case 'NEW_LEAD':
+      case 'LEAD_CONVERSION_REQUESTED':
+        return <UserPlus className="h-4 w-4 text-blue-500" />;
+      case 'LEAD_CONVERSION_DECLINED':
+        return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'LEAD_CONVERTED':
+        return <TrendingUp className="h-4 w-4 text-indigo-600" />;
+      case 'NEW_APPLICATION':
+      case 'APPLICATION_STATUS_CHANGED':
+        return <Briefcase className="h-4 w-4 text-blue-500" />;
+      case 'INTERVIEW_SCHEDULED':
+        return <Calendar className="h-4 w-4 text-purple-500" />;
+      default:
+        return <Bell className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'success': return 'text-success';
+      case 'success':
+      case 'COMMISSION_EARNED':
+      case 'WITHDRAWAL_APPROVED':
+        return 'text-success';
       case 'warning': return 'text-warning';
-      case 'error': return 'text-destructive';
+      case 'error':
+      case 'SUBSCRIPTION_RENEWAL_FAILED':
+      case 'WITHDRAWAL_REJECTED':
+      case 'LEAD_CONVERSION_DECLINED':
+        return 'text-destructive';
+      case 'LEAD_CONVERSION_REQUESTED':
       default: return 'text-primary';
     }
   };
@@ -251,15 +290,18 @@ export function UnifiedNotificationCenter() {
                         {dateNotifications.map((notification) => (
                           <div
                             key={notification.id}
-                            className={`p-4 hover:bg-muted/50 transition-colors ${
-                              !notification.read ? 'bg-primary/5' : ''
-                            }`}
+                            className={`p-4 hover:bg-muted/50 transition-colors ${!notification.read ? 'bg-primary/5' : ''
+                              }`}
                           >
                             <div className="flex items-start gap-3">
                               <Checkbox
                                 checked={selectedIds.includes(notification.id)}
                                 onCheckedChange={() => handleSelectOne(notification.id)}
+                                className="mt-1"
                               />
+                              <div className="mt-0.5">
+                                {getNotificationIcon(notification.type)}
+                              </div>
                               <div
                                 className="flex-1 min-w-0 cursor-pointer"
                                 onClick={() => handleNotificationClick(notification)}
